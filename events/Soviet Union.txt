@@ -1,0 +1,405 @@
+﻿###########################
+# Soviet Events
+###########################
+
+add_namespace = soviet
+
+# Lenin Attempted Assasination
+country_event = {
+	id = soviet.1
+	title = soviet.1.t
+	desc = soviet.1.d
+	picture = GFX_report_event_lenin
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		date > 1918.8.30
+		tag = SO2
+		NOT = { has_country_flag = leninshot }
+	}
+	
+	mean_time_to_happen = { days = 1 
+		
+	}
+	option = {
+		name = soviet.1.a
+		news_event = { hours = 6 id = news.9 }
+		set_global_flag = leninshot
+		add_national_unity = -0.05
+	}
+}
+
+# Execution of Royal Family
+country_event = {
+	id = soviet.2
+	title = soviet.2.t
+	desc = soviet.2.d
+	picture = GFX_report_event_royaldead
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		date > 1918.8.30
+		tag = SO2
+	}
+	
+	mean_time_to_happen = { days = 1 
+		
+	}
+	option = {
+		name = soviet.2.a
+		news_event = { hours = 6 id = news.16 }
+		set_global_flag = royaldead
+	}
+	option = {
+		name = soviet.2.b
+		set_global_flag = romanovsalive
+	}
+}
+
+
+
+# Kronstadt Rebellion
+country_event = {
+	id = soviet.9
+	title = soviet.9.t
+	desc = soviet.9.d
+	picture = GFX_report_event_kronstadtrebellion
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		date > 1921.3.7
+		tag = SO2
+		NOT = { has_global_flag = whites_won }
+	}
+	
+	mean_time_to_happen = { days = 1 
+		
+	}
+	option = {
+		name = soviet.9.a
+		news_event = { hours = 6 id = news.43 }
+		SO2 = {
+			add_national_unity = -0.01
+			add_political_power = -100
+		}
+	}
+}
+
+# Whites Win Civil War
+country_event = {
+	id = soviet.10
+	title = soviet.10.t
+	desc = soviet.10.d
+	picture = GFX_report_event_whites_win
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		tag = WHR
+		AND = {
+			WHR = {
+				controls_state = 219
+				controls_state = 195
+				controls_state = 217
+			}
+		}
+	}		
+
+	mean_time_to_happen = { 
+		days = 1
+	}		
+
+	option = {
+		name = soviet.10.a
+		news_event = { hours = 6 id = news.44 }
+		set_global_flag = whites_win
+		WHR = {
+			annex_country = { target = SOV transfer_troops = no }
+			change_tag_from = SO2
+		}
+		WHR = {
+			annex_country = { target = WAS transfer_troops = no }
+			change_tag_from = WAS
+		}
+	}
+}
+
+
+# Far Eastern Republic Established
+country_event = {
+	id = soviet.11
+	title = soviet.11.t
+	desc = soviet.11.d
+	picture = GFX_report_event_FAR
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		tag = SO2
+		has_global_flag = reds_win
+	}		
+
+	mean_time_to_happen = { 
+		days = 1
+	}		
+
+	option = {
+		name = soviet.11.a
+		news_event = { hours = 6 id = news.45 }
+		set_global_flag = FAR_established
+		FAR = {
+			transfer_state = 408
+			transfer_state = 409
+			transfer_state = 560
+			transfer_state = 561
+			transfer_state = 563
+			transfer_state = 657
+			transfer_state = 504
+		}
+		SO2 = {
+			puppet = FAR
+		}
+	}
+}
+
+# Reds Win Civil War
+country_event = {
+	id = soviet.12
+	title = soviet.12.t
+	desc = soviet.12.d
+	picture = GFX_report_event_reds_win
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		tag = SO2
+		AND = {
+			SO2 = {
+				controls_state = 218
+				controls_state = 566
+				controls_state = 408
+			}
+		}
+	}		
+
+	mean_time_to_happen = { 
+		days = 1
+	}		
+
+	option = {
+		name = soviet.12.a
+		news_event = { hours = 6 id = news.46 }
+		set_global_flag = reds_win
+		set_global_flag = RUS_CW_Over
+		SO2 = {
+			annex_country = { target = WHR transfer_troops = no }
+			change_tag_from = WHR
+		}
+		SO2 = {
+			annex_country = { target = WAS transfer_troops = no }
+			change_tag_from = WAS
+		}
+	}
+}
+
+
+# Lenin Dies
+country_event = {
+	id = soviet.17
+	title = soviet.17.t
+	desc = soviet.17.d
+	picture = GFX_report_event_lenin_dead
+	
+	fire_only_once = yes
+	
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		tag = SO2
+		date > 1924.1.21
+	}
+	
+	mean_time_to_happen = { days = 1 }
+	
+	immediate = {
+		set_global_flag = lenin_dead
+	}
+	option = {
+		name = soviet.17.a
+		add_national_unity = -0.05
+		# Lenin Dies
+		kill_country_leader = yes
+		create_country_leader = {
+			name = "Joseph Stalin"
+			desc = "POLITICS_JOSEPH_STALIN_DESC"
+			picture = "Portrait_Soviet_Joseph_Stalin.dds"
+			expire = "1953.5.16"
+			ideology = leninist
+			traits = {
+				dictator
+			}
+		}
+	}
+}
+
+# Lenin's Mausoleum
+country_event = {
+	id = soviet.18
+	title = soviet.18.t	
+	desc = soviet.18.d	
+	picture = GFX_report_event_mausoleum
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		tag = SO2
+		date > 1924.2.1
+		has_global_flag = lenin_dead
+	}		
+
+	mean_time_to_happen = { days = 1 }
+	
+	immediate = {
+		set_global_flag = lenin_mausoleum
+	}		
+
+	option = {
+		name = soviet.18.a
+	}
+}
+
+# Pyotr Voykov Murdered
+country_event = {
+	id = soviet.19
+	title = soviet.19.t	
+	desc = soviet.19.d	
+	picture = GFX_report_event_voykov
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		tag = SOV
+		date > 1927.6.6
+	}		
+
+	mean_time_to_happen = { days = 1 }
+	
+	immediate = {
+		set_global_flag = voykov_dead
+	}		
+
+	option = {
+		name = soviet.19.a
+	}
+}
+
+# Annexation of Tannu Tuva
+country_event = {
+	id = soviet.21
+	title = soviet.21.t
+	desc = soviet.21.d
+	picture = GFX_report_event_tuva
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1944.12.1 }
+		date > 1944.10.1
+		tag = SOV
+	}		
+
+	mean_time_to_happen = { days = 1 }
+	
+	immediate = {
+		set_global_flag = tuva_gone_sad_face
+	}		
+
+	option = {
+		name = soviet.21.a
+		news_event = { hours = 6 id = news.118 }
+		SOV = {
+			annex_country = { target = TAN transfer_troops = yes }
+		}
+	}
+}
+
+# Siege of Leningrad Lifted
+country_event = {
+	id = soviet.20
+	title = soviet.20.t	
+	desc = soviet.20.d	
+	picture = GFX_report_event_leningrad_siege
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1944.1.1 }
+		NOT = { has_global_flag = fortyfour }
+		tag = SOV
+		date > 1943.1.1
+		SOV = { has_full_control_of_state = 195 }	
+	}		
+
+	mean_time_to_happen = { days = 1 }
+	
+	immediate = {
+		set_global_flag = siege_leningrad_lifted
+	}	
+
+	option = {
+		name = soviet.20.a
+		news_event = { hours = 6 id = news.106 }
+	}
+}
+
+# Soviet Cheats
+country_event = {
+	id = soviet.22
+	title = soviet.22.t	
+	desc = soviet.22.d	
+	picture = GFX_report_event_reds_win
+	
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1945.1.1 }
+		tag = SOV
+		date > 1943.1.1	
+	}		
+
+	mean_time_to_happen = { days = 1 }	
+
+	option = {
+		name = soviet.22.a
+		ai_chance = {
+			factor = 70
+		}
+		SOV = {
+			add_equipment_to_stockpile = { type = infantry_equipment_2 amount = 1000000 producer = SOV }
+			add_equipment_to_stockpile = { type = infantry_equipment_1 amount = 1000000 producer = SOV }
+			add_equipment_to_stockpile = { type = rations amount = 10000000 producer = SOV }
+		}
+		FRF = {
+			add_equipment_to_stockpile = { type = infantry_equipment_2 amount = 1000000 producer = FRF }
+			add_equipment_to_stockpile = { type = infantry_equipment_1 amount = 1000000 producer = FRF }
+			add_equipment_to_stockpile = { type = rations amount = 10000000 producer = FRF }
+		}
+	}
+	option = {
+		name = soviet.22.b
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
