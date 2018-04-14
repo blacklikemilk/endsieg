@@ -411,7 +411,7 @@ NMilitary = {
 	LEADER_GROUP_MAX_SIZE = 1000, --5,			-- Max slots for leader groups.
 
 	MIN_SUPPLY_CONSUMPTION = 0.05,					-- minimum value of supply consumption that a unit can get
-	
+
 	LAND_COMBAT_ORG_DICE_SIZE = 4,                 -- nr of damage dice
 	LAND_COMBAT_STR_DICE_SIZE = 2,                 -- nr of damage dice
 	LAND_COMBAT_STR_DAMAGE_MODIFIER = 0.05,        -- global damage modifier... but some equipment is returned at end of battles see : EQUIPMENT_COMBAT_LOSS_FACTOR
@@ -582,7 +582,7 @@ NMilitary = {
 	PLAN_EXECUTE_CAREFUL_LIMIT = 25,				-- When looking for an attach target, this score limit is required in the battle plan to consider province for attack
 	PLAN_EXECUTE_BALANCED_LIMIT = 0,				-- When looking for an attach target, this score limit is required in the battle plan to consider province for attack
 	PLAN_EXECUTE_RUSH = -200,						-- When looking for an attach target, this score limit is required in the battle plan to consider province for attack
-	PLAN_EXECUTE_CAREFUL_MAX_FORT = 5,				-- If execution mode is set to careful, units will not attack provinces with fort levels greater than or equal to this
+	PLAN_EXECUTE_CAREFUL_MAX_FORT = 7,				-- If execution mode is set to careful, units will not attack provinces with fort levels greater than or equal to this
 
 	PLAN_MAX_PROGRESS_TO_JOIN = 0.50,				-- If Lower progress than this, probably needs support
 
@@ -697,14 +697,14 @@ NMilitary = {
 	ATTACHED_WINGS_ORDER_UPDATE_DAYS = 5,					-- Days untill the attached wing will update the order
 
 	BORDER_WAR_WIN_DAYS_AGAINST_EMPTY_OPPONENTS = 14,		-- border wars will be automatically won if no opponent shows up for this duration
-	
-	
+
+
 	MAX_RELATIVE_COMBAT_DAMAGE_TO_MODIFY_XP = 4.0,			-- you gain more XP if you are doing more damage relative to enemy, this is the max relative amount to gain following RATe
 	XP_GAIN_FACTOR_FOR_MAX_RELATIVE_COMBAT_DAMAGE = 4.0,	-- XP factor scaling for max relative combat damage
-	
+
 	XP_DECAY_RATE_PER_HOUR_IN_COMBAT = 0.03,				-- you get reduced XP as combat drags
 	MIN_XP_RATE_TO_DECAY = 0.1,								-- minimum XP factor for dragged combats
-	
+
 	XP_GAIN_PER_OVERRUN_UNIT = 30.0,						-- fixed XP gain per overrun unit
 	XP_GAIN_FOR_SHATTERING = 30.0,                          -- fixed XP gain per shattered unit
 },
@@ -972,7 +972,7 @@ NNavy = {
 	ENEMY_AIR_SUPERIORITY_IMPACT = -1,           					-- effect on ship efficiency due to enemy air superiorty
 	DECRYPTION_SPOTTING_BONUS = 0.2,
 	DISBAND_MANPOWER_LOSS = 0.0,
-	
+
 	XP_GAIN_FACTOR = 1.0,	   			   							-- xp gain factor for navy
 },
 
@@ -1102,9 +1102,9 @@ NAI = {
 	NEUTRAL_THREAT_PARANOIA = 10,				-- How scared neutrals are of everyone
 	DIFFERENT_FACTION_THREAT = 30,				-- Threat caused by not being in the same faction
 	PLAN_MOVE_MIN_ORG_TO_ENEMY_PROVINCE = 20.0,	-- Minimum organization a unit must have to consider moving into an enemy province (not attack move)
-	PLAN_ATTACK_MIN_ORG_FACTOR_LOW = 0.85,		-- Minimum org % for a unit to actively attack an enemy unit when executing a plan
+	PLAN_ATTACK_MIN_ORG_FACTOR_LOW = 0.65,		-- Minimum org % for a unit to actively attack an enemy unit when executing a plan
 	PLAN_ATTACK_MIN_STRENGTH_FACTOR_LOW = 0.4,	-- Minimum strength for a unit to actively attack an enemy unit when executing a plan
-	PLAN_ATTACK_MIN_ORG_FACTOR_MED = 0.75,		-- (LOW,MED,HIGH) corresponds to the plan execution agressiveness level.
+	PLAN_ATTACK_MIN_ORG_FACTOR_MED = 0.55,		-- (LOW,MED,HIGH) corresponds to the plan execution agressiveness level.
 	PLAN_ATTACK_MIN_STRENGTH_FACTOR_MED = 0.3,
 	PLAN_ATTACK_MIN_ORG_FACTOR_HIGH = 0.2,
 	PLAN_ATTACK_MIN_STRENGTH_FACTOR_HIGH = 0.15,
