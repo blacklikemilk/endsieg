@@ -638,6 +638,9 @@ country_event = {
 	is_triggered_only = yes
 
 	mean_time_to_happen = { days = 1 }
+	immediate = {
+		set_global_flag = agadir_crisis
+		}
 
 	option = {
 		name = ww1_germany.19.a
@@ -2265,7 +2268,7 @@ country_event = {
 	}
 }
 
-# Crimea Operation 1918
+# Crimean Operation 1918
 country_event = {
 	id = ww1_germany.64
 	title = ww1_germany.64.t
@@ -2305,7 +2308,7 @@ country_event = {
 	}
 }
 
-# Formation of Regional Government Crimea
+# Fate of Crimea
 country_event = {
 	id = ww1_germany.65
 	title = ww1_germany.65.t
@@ -2314,31 +2317,59 @@ country_event = {
 
 	fire_only_once = yes
 
-	trigger = {
-		tag = GE1
-		has_global_flag = welcome_event_1918
-		date > 1918.6.25
-		NOT = { date > 1932.12.1 }
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
+	is_triggered_only = yes
 
 	option = {
 		name = ww1_germany.65.a
 		news_event = { hours = 6 id = news.11 }
 		CRI = {
 			transfer_state = 137
+			add_state_core = 137
+		}
+		UKR = {
 			transfer_state = 196
 		}
 		GE1 = {
 			puppet = CRI
 		}
+		TSS = {
+		remove_state_core = 196
+		remove_state_core = 137
+		}
+		ai_chance = {
+			factor = 100
+			}
+	}
+	option = {
+		name = ww1_germany.65.b
+		news_event = { hours = 6 id = news.11 }
+		CRI = {
+			transfer_state = 137
+			add_state_core = 137
+			transfer_state = 196
+			add_state_core = 196
+		}
+		GE1 = {
+			puppet = CRI
+		}
+		TSS = {
+		remove_state_core = 196
+		remove_state_core = 137
+		}
+		ai_chance = {
+			factor = 0
+			}
+	}
+	option = {
+		name = ww1_germany.65.c
+		add_war_support = -0.05
+		ai_chance = {
+			factor = 0
+			}
 	}
 }
 
-# Taurida Territory transfered to Germany
+# Taurida Surrenders
 country_event = {
 	id = ww1_germany.66
 	title = ww1_germany.66.t
@@ -2355,9 +2386,11 @@ country_event = {
 			OR = {
 				GE1 = {
 					controls_state = 196
+					controls_state = 137
 				}
 				UKR = {
 					controls_state = 196
+					controls_state = 137
 				}
 			}
 		}
@@ -2369,18 +2402,29 @@ country_event = {
 
 	option = {
 		name = ww1_germany.66.a
-		#set_global_flag = crimea_transfered
+		set_global_flag = crimea_transfered
+		ai_chance = { factor = 100 }
 		GE1 = {
 			annex_country = { target = TSS transfer_troops = no }
+			country_event = {
+				id = ww1_germany.65
+				days = 1
+			}
 		}
 	}
-	#option = {
-	#	name = ww1_germany.66.b
-	#	set_global_flag = crimea_transfered_ukrop
-	#	UKR = {
-	#		annex_country = { target = TSS transfer_troops = no }
-	#	}
-	#}
+	option = {
+		name = ww1_germany.66.b
+		set_global_flag = crimea_transfered_ukrop
+		ai_chance = { factor = 0 }
+		UKR = {
+			annex_country = { target = TSS transfer_troops = no }
+			country_event = {
+			id = ww1_ukraine.5
+			days = 1
+			}
+
+		}
+	}
 }
 
 # Kaiser Abdicates
