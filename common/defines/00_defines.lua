@@ -531,14 +531,14 @@ NMilitary = {
 	LOW_ORG_FOR_ATTACK = 0.5,                      -- at what org % we start affecting speed when doign hostile moves. scales down ZERO_ORG_MOVEMENT_MODIFIER
 
 	PLANNING_DECAY = 0.01,
-	PLAYER_ORDER_PLANNING_DECAY = 0.08,				-- Amount of planning lost due to player manual order
+	PLAYER_ORDER_PLANNING_DECAY = 0.01,				-- Amount of planning lost due to player manual order
 	PLANNING_GAIN = 0.02,
 	PLANNING_MAX = 0.4,                           	-- can get more from techs
 	CIVILWAR_ORGANIZATION_FACTOR = 0.3,			  	-- Multiplier of org for both sides when civilwar.
 	LAND_COMBAT_ATTACKER_WINNING = 0.65,		  	-- Above this means attacker is winning
 	LAND_COMBAT_DEFENDER_WINNING = 0.35,		  	-- Below this means defender is winning
-	PLAN_CONSIDERED_GOOD = 0.25,					-- Plan evaluations above this value are considered more or less safe
-	PLAN_CONSIDERED_BAD = -0.25,					-- Plan evaluations below this value are considered unsafe
+	PLAN_CONSIDERED_GOOD = 0.35,					-- Plan evaluations above this value are considered more or less safe
+	PLAN_CONSIDERED_BAD = -0.15,					-- Plan evaluations below this value are considered unsafe
 	PLAN_MIN_AUTOMATED_EMPTY_POCKET_SIZE = 25,		-- The battle plan system will only automatically attack provinces in pockets that has no resistance and are no bigger than these many provinces
 	PLAN_SPREAD_ATTACK_WEIGHT = 20.0,				-- The higher the value, the less it should crowd provinces with multiple attacks.
 	PLAN_SUPPLY_FACTOR = 0.1,						-- Factor applied to available supply on a front location when determining priority
@@ -582,7 +582,7 @@ NMilitary = {
 
 	PLAN_EXECUTE_CAREFUL_LIMIT = 25,				-- When looking for an attach target, this score limit is required in the battle plan to consider province for attack
 	PLAN_EXECUTE_BALANCED_LIMIT = 0,				-- When looking for an attach target, this score limit is required in the battle plan to consider province for attack
-	PLAN_EXECUTE_RUSH = -200,						-- When looking for an attach target, this score limit is required in the battle plan to consider province for attack
+	PLAN_EXECUTE_RUSH = -70,						-- When looking for an attach target, this score limit is required in the battle plan to consider province for attack
 	PLAN_EXECUTE_CAREFUL_MAX_FORT = 7,				-- If execution mode is set to careful, units will not attack provinces with fort levels greater than or equal to this
 
 	PLAN_MAX_PROGRESS_TO_JOIN = 0.50,				-- If Lower progress than this, probably needs support
@@ -638,7 +638,7 @@ NMilitary = {
 	ACCLIMATIZATION_SPEED_GAIN = 0.15,				-- A variable used to balance the overall speed of gaining the acclimatization
 	ACCLIMATIZATION_LOSS_SPEED_FACTOR = 2.0,		-- Loosing one acclimatization while being under affect of the opposite climate should cause it to drop down much faster than gaining.
 
-	ABILITY_STAFF_OFFICE_PLAN_COST = 2.0,			-- cost of using staff office plan ability
+	ABILITY_STAFF_OFFICE_PLAN_COST = 1.5,			-- cost of using staff office plan ability
 	ABILITY_STAFF_OFFICE_PLAN_BOOST_RATIO = 0.5,			-- ratio of planning done when staff office plan ability is used
 
 	PROMOTE_LEADER_CP_COST = 30.0,					-- cost of promoting a leader
@@ -706,8 +706,8 @@ NMilitary = {
 	XP_DECAY_RATE_PER_HOUR_IN_COMBAT = 0.03,				-- you get reduced XP as combat drags
 	MIN_XP_RATE_TO_DECAY = 0.1,								-- minimum XP factor for dragged combats
 
-	XP_GAIN_PER_OVERRUN_UNIT = 30.0,						-- fixed XP gain per overrun unit
-	XP_GAIN_FOR_SHATTERING = 30.0,                          -- fixed XP gain per shattered unit
+	XP_GAIN_PER_OVERRUN_UNIT = 10.0,						-- fixed XP gain per overrun unit
+	XP_GAIN_FOR_SHATTERING = 10.0,                          -- fixed XP gain per shattered unit
 },
 
 
@@ -718,7 +718,7 @@ NAir = {
 	AIR_WING_MAX_STATS_AGILITY = 100,
 	AIR_WING_MAX_STATS_SPEED = 1500,
 	AIR_WING_MAX_STATS_BOMBING = 100,
-	AIR_WING_MAX_SIZE = 1000, 							-- Max amount of airplanes in wing
+	AIR_WING_MAX_SIZE = 2000, 							-- Max amount of airplanes in wing
 	AIR_WING_BOMB_DAMAGE_FACTOR = 2,					-- Used to balance the damage done while bombing.
 	COMBAT_STACK_LIMIT = 2,								-- The biggest allowed dogfight combination (1vs1 or 2vs1). Bigger value cause that amount of airplanes matters more then their stats. Only used in naval air combat, for land air combat see COMBAT_MULTIPLANE_CAP
 	COMBAT_STAT_IMPORTANCE_SPEED = 1, 				-- How important is speed when comparing stats.
@@ -1081,7 +1081,7 @@ NAI = {
 	UPGRADE_XP_RUSH_UPDATE = 150,				-- If XP is above this on the daily tick the AI will attempt to spend it
 	FOCUS_TREE_CONTINUE_FACTOR = 1.5,			-- Factor for score of how likely the AI is to keep going down a focus tree rather than starting a new path.
 	VP_GARRISON_VALUE_FACTOR = 0.75,				-- Extent to which VP garrisons are prioritized, based on VP value and compared to other priority values.
-	PLAN_VALUE_TO_EXECUTE = -0.5,				-- AI will typically avoid carrying out a plan it below this value (0.0 is considered balanced).
+	PLAN_VALUE_TO_EXECUTE = -0.3,				-- AI will typically avoid carrying out a plan it below this value (0.0 is considered balanced).
 	DECLARE_WAR_NOT_NEIGHBOR_FACTOR = 0.25,		-- Multiplier applied before force factor if country is not neighbor with the one it is considering going to war
 	CALL_ALLY_BASE_DESIRE = 20,					-- exactly what it says
 	CALL_ALLY_DEMOCRATIC_DESIRE = 50,			-- Desire to call ally added for democratic AI
@@ -1162,9 +1162,9 @@ NAI = {
 	ORG_UNIT_NORMAL = 0.35,						-- Organization % for unit to be considered normal
 	STR_UNIT_NORMAL = 0.4,						-- Strength (equipment) % for unit to be considered normal
 
-	PLAN_FACTION_STRONG_TO_EXECUTE = 0.50,		-- % or more of units in an order to consider ececuting the plan
-	PLAN_FACTION_NORMAL_TO_EXECUTE = 0.65,		-- % or more of units in an order to consider executing the plan
-	PLAN_FACTION_WEAK_TO_ABORT = 0.65,			-- % or more of units in an order to consider ececuting the plan
+	PLAN_FACTION_STRONG_TO_EXECUTE = 0.60,		-- % or more of units in an order to consider ececuting the plan
+	PLAN_FACTION_NORMAL_TO_EXECUTE = 0.75,		-- % or more of units in an order to consider executing the plan
+	PLAN_FACTION_WEAK_TO_ABORT = 0.75,			-- % or more of units in an order to consider ececuting the plan
 	PLAN_AVG_PREPARATION_TO_EXECUTE = 0.5,		-- % or more average plan preparation before executing
 	STATE_GARRISON_MAX_UNITS = 3,				-- Max units to guard a garrison under normal circumstances (isolated core areas like England has is excempt)
 
