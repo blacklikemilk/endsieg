@@ -1,0 +1,152 @@
+﻿###########################
+# Vichy Events
+###########################
+
+add_namespace = EFR_1942
+
+#USA Line to Vichy
+country_event = {
+	id = EFR_1942.1
+	title = EFR_1942.1.t
+	desc = EFR_1942.1.d
+	picture = GFX_report_event_german_speech#TODO
+
+	fire_only_once = yes
+	mean_time_to_happen = { days = 1 }
+
+	trigger = {
+		tag = USA
+		date > 1942.10.21
+		date < 1943.1.1
+		country_exists = EFR
+	}
+
+	option = { #send ultimatum
+		name = EFR_1942.1.a
+		EFR = { country_event = { id = EFR_1942.2 days = 1 } } #we will meddle
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #dont send ultimatum, leave them be
+		name = EFR_1942.1.b
+		EFR = { country_event = { id = EFR_1942.3 days = 1 } } #no more meddling
+		ai_chance = { factor = 0 }
+	}
+}
+
+#Vichy meddle
+country_event = {
+	id = EFR_1942.2
+	title = EFR_1942.2.t
+	desc = EFR_1942.2.d
+	picture = GFX_report_event_german_speech#TODO
+
+	is_triggered_only = yes
+
+	option = { # crap, we will fight
+		name = EFR_1942.2.a
+		news_event = { id = news_1942.1 days = 1 }
+		hidden_effect = { USA = { country_event = { id = EFR_1942.4 days = 1 } } }
+		ai_chance = { factor = 100 }
+	}
+
+	option = { # crap, we will join allies
+		name = EFR_1942.2.b
+		ENG = { add_to_faction = EFR }
+		news_event = { id = news_1942.2 days = 1 }
+		ai_chance = { factor = 0 }
+	}
+}
+
+#Vichy no meddling
+country_event = {
+	id = EFR_1942.3
+	title = EFR_1942.3.t
+	desc = EFR_1942.3.d
+	picture = GFX_report_event_german_speech#TODO
+
+	is_triggered_only = yes
+
+	option = { # nice, #loveneutrality
+		name = EFR_1942.3.a
+		news_event = { id = news_1942.3 days = 1 }
+	}
+}
+
+#Vichy declare war
+country_event = {
+	id = EFR_1942.4
+	title = EFR_1942.4.t
+	desc = EFR_1942.4.d
+	picture = GFX_report_event_german_speech#TODO
+
+	is_triggered_only = yes
+
+	option = { # start operation torch
+		name = EFR_1942.4.a
+		news_event = { id = news_1942.4 days = 1 }
+		declare_war_on = { target = EFR }
+		load_oob = USA_operation_torch
+		if = {
+			limit = { GER = { has_government = national_socialist } }
+			GER = { add_to_faction = EFR }
+		}
+	}
+}
+
+#Germany case anton
+country_event = {
+	id = EFR_1942.5
+	title = EFR_1942.5.t
+	desc = EFR_1942.5.d
+	picture = GFX_report_event_german_speech#TODO
+
+	fire_only_once = yes
+	mean_time_to_happen = { days = 1 }
+
+	trigger = {
+		tag = GER
+		date > 1942.11.10
+		date < 1943.1.1
+		country_exists = EFR
+		EFR = { has_war_with = USA }
+	}
+
+	option = { #Occupy france completely
+		name = EFR_1942.5.a
+		GER = {
+			transfer_state = 33
+			transfer_state = 26
+			transfer_state = 20
+			transfer_state = 25
+			transfer_state = 22
+			transfer_state = 31
+			puppet = EFR
+		}
+		ITA = {
+			transfer_state = 32
+			transfer_state = 735
+			transfer_state = 21
+			transfer_state = 1
+		}
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #Install puppet regime, give italy territory
+		name = EFR_1942.5.b
+		GER = { puppet = EFR }
+		ITA = {
+			transfer_state = 32
+			transfer_state = 735
+			transfer_state = 21
+			transfer_state = 1
+		}
+		ai_chance = { factor = 0 }
+	}
+
+	option = { #Install puppet regime, give italy nothing
+		name = EFR_1942.5.c
+		GER = { puppet = EFR }
+		ai_chance = { factor = 0 }
+	}
+}
