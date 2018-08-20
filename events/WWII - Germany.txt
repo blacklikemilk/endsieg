@@ -619,11 +619,11 @@ country_event = {
 	}
 }
 
-# Kaiserschlacht Victory (Marne Armistice Signed)
+# Germans are in Paris!
 country_event = {
-	id = ww2_germany.35
-	title = ww2_germany.35.t
-	desc = ww2_germany.35.d
+	id = ww2_germany.3501
+	title = ww2_germany.3501.t
+	desc = ww2_germany.3501.d
 	picture = GFX_report_event_kaiserschlacht_victory
 
 	fire_only_once = yes
@@ -633,30 +633,195 @@ country_event = {
 		NOT = { date > 1943.1.1 }
 		AND = {
 			GE1 = {
-				controls_state = 18
-				controls_state = 16
+				controls_state = 18 # Champagne
+				controls_state = 16 # Ille de France
 			}
 		}
 	}
 
-	mean_time_to_happen = { days = 1 }
+	mean_time_to_happen = { days = 50 }
+	
+	option = {
+		name = ww2_germany.3501.a
+		ai_chance = { factor = 100}
+		FR3 = {
+			country_event = { id = ww2_germany.3502 hours = 12}
+		}
+	}
+	option = {
+		name = ww2_germany.3501.b
+		ai_chance = {factor = 0}
+		add_war_support = -0.05
+		add_stability = -0.05
+		add_political_power = -150
+		set_global_flag = totalwarww1
+		hidden_effect = {
+			hidden_effect = {sound_effect = diplomatic_failure}
+		}
+	}
+}
+
+
+# French Response - Armistice?
+country_event = {
+	id = ww2_germany.3502
+	title = ww2_germany.3502.t
+	desc = ww2_germany.3502.d
+	picture = GFX_report_event_kaiserschlacht_victory
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+	
+
+	option = {
+		name = ww2_germany.3502.a #je surrender hon hon hon baugette hon hon hon
+		ai_chance = {factor = 100}
+		GE1 = {country_event = ww2_germany.35}
+	}
+	option = {
+		name = ww2_germany.3502.b #non!
+		ai_chance = {factor = 0}
+		add_stability = -0.30
+		add_war_support = -0.30
+		GE1 = {country_event = ww2_germany.3503}
+	}
+}
+
+#France refuses armistice!
+country_event = {
+	id = ww2_germany.3503
+	title = ww2_germany.3503.t
+	desc = ww2_germany.3503.d
+	picture = GFX_report_event_kaiserschlacht_victory
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+	
+	option = {
+		name = ww2_germany.3503.a
+		add_stability = 0.30
+		add_war_support = 0.30
+	}
+}
+
+# Kaiserschlacht Victory (Marne Armistice Signed, France Surrenders!)
+country_event = {
+	id = ww2_germany.35
+	title = ww2_germany.35.t
+	desc = ww2_germany.35.d
+	picture = GFX_report_event_kaiserschlacht_victory
+
+	fire_only_once = yes
+
+	is_triggered_only = yes
 
 	option = {
 		name = ww2_germany.35.a
 		news_event = { hours = 6 id = news.104 }
 		set_global_flag = kaiserschlachtvictory
+		FR2 = { white_peace = GE1}
 		FR2 = {
-			annex_country = { target = FR3 transfer_troops = no }
+			annex_country = { target = FR3 transfer_troops = yes }
 			change_tag_from = FR3
 		}
+		hidden_effect = {
+			FR3 = {
+				remove_state_core = 754 #Nanzig
+				remove_state_core = 755 #Briey-Longwy
+				remove_state_core = 28 #Elsass
+				remove_state_core = 556 #French west africa
+				remove_state_core = 660 #Equatorial Africa
+				remove_state_core = 543 #Madagascar
+				remove_state_core = 515 #Southern Sahara
+				remove_state_core = 557 #Mauritania
+				remove_state_core = 514 #Algerian Desert
+				remove_state_core = 665 #Gabes
+				remove_state_core = 458 #Tunisia
+				remove_state_core = 670 #Laos
+				remove_state_core = 741 #Cambodia
+				remove_state_core = 671 #Hanoi/Tonkin
+				remove_state_core = 286 #Saigon/Southern Indochina
+			}
+			every_state = {
+				limit = {
+					is_core_of = FR3
+				}
+				add_core_of = FR2
+				remove_core_of = FR3
+			}
+		}
 		GE1 = {
-			transfer_state = 17 #
-			transfer_state = 539 #
-			transfer_state = 753 #
-			transfer_state = 754 #
-			transfer_state = 755 #
-			transfer_state = 763 #
-			transfer_state = 781 #
+			#transfer_state = 17 #Lorraine - Franche comte
+			transfer_state = 539 # Gabon
+			transfer_state = 556 #French West Africa
+			transfer_state = 660 # Equatorial Africa
+			transfer_state = 753 # Eastern Wallonia
+			transfer_state = 754 # Nanzig
+			transfer_state = 755 # Briey-Longwy
+			transfer_state = 763 # New-Kamerun
+			transfer_state = 781 # Cameroon
+			annex_country = { target = LU1 transfer_troops = no }
+			add_state_core = 8 
+			add_state_core = 754
+			add_state_core =  755
+		}
+		754 = {set_state_name = "Nanzig"}
+		set_province_name = { id = 11516 name = "Nanzig"}
+		set_province_name = { id = 1664 name = "Wirten"}
+		17 = {set_demilitarized_zone = yes} #Basically most of France is a DMZ
+		18 = {set_demilitarized_zone = yes}
+		29 = {set_demilitarized_zone = yes}
+		803 = {set_demilitarized_zone = yes}
+		20 = {set_demilitarized_zone = yes}
+		27 = {set_demilitarized_zone = yes}
+		22 = {set_demilitarized_zone = yes}
+		21 = {set_demilitarized_zone = yes}
+		735 = {set_demilitarized_zone = yes}
+		32 = {set_demilitarized_zone = yes}
+		if = {
+			limit = {
+				GE1 = {has_war_with = AU1} #Australia
+				}
+			GE1 = {
+				transfer_state = 523 #Papua
+				transfer_state = 782 #German Papua
+				transfer_state = 783 #German Solomon Islands
+				transfer_state = 634 #Solomon Islands
+				transfer_state = 737 #Bismarck Islands
+			}
+		}
+		if = {
+			limit = {
+				 OR = {
+					GE1 = { 
+					has_war_with = EN1 #U w0t 3 englands m8
+					has_war_with = EN2
+					has_war_with = EN3
+					} 
+				}
+			}
+			EN1 = { country_event = { id = ww2_germany.119 hours = 6} }
+		}
+		
+			GE1 = {
+				transfer_state = 558 #Nigeria
+				transfer_state = 274 #Ghana
+				transfer_state = 547 #Uganda
+				transfer_state = 548 #Kenya
+				transfer_state = 545 #Rhodesia
+			}
+		if = {
+			limit = { GE1 = { has_war_with = PO1} } #Portugal
+			GE1 = {
+				transfer_state = 540
+				transfer_state = 544
+			}
+		}
+		if = {
+			limit = { SA1 = has_capitulated} #You've pushed into South Africa somehow, you autist.
+			GE1 = {
+				puppet = SA1
+			}
 		}
 	}
 }
@@ -804,7 +969,7 @@ country_event = {
 			transfer_state = 8
 		}
 		BEL = {
-			transfer_State = 6
+			transfer_state = 6
 			transfer_state = 34
 			transfer_state = 746
 			transfer_state = 753
@@ -1179,7 +1344,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.47.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1201,7 +1366,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.48.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1223,7 +1388,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.49.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1245,7 +1410,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.50.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1269,10 +1434,15 @@ country_event = {
 			}
 		}
 	}
-
+	
+	immediate = {
+	hidden_effect = {
+		hidden_effect = {sound_effect = diplomatic_failure}
+		}
+	}
+	
 	option = {
 		name = ww2_germany.51.a
-		sound_effect = diplomatic_failure
 		add_stability = -0.01
 	}
 }
@@ -1294,7 +1464,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.52.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.025
 		set_global_flag = fall_of_berlin
 	}
@@ -1323,7 +1493,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.53.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1345,7 +1515,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.54.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1367,7 +1537,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.55.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1394,7 +1564,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.56.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1428,7 +1598,7 @@ country_event = {
 	option = {
 		name = ww2_germany.57.a
 		set_global_flag = blackbarondead
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		news_event = { hours = 6 id = news.116 }
 		add_war_support = -0.03
 	}
@@ -1490,7 +1660,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.60.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1518,7 +1688,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.61.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1546,7 +1716,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.62.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1573,7 +1743,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.63.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1600,7 +1770,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.64.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1628,7 +1798,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.65.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1656,7 +1826,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.66.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1684,7 +1854,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.67.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1711,7 +1881,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.68.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1738,7 +1908,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.69.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -1765,7 +1935,7 @@ country_event = {
 
 	option = {
 		name = ww2_germany.70.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.01
 	}
 }
@@ -2900,14 +3070,9 @@ country_event = {
 
 	trigger = {
 		tag = GER
-		AND = {
-			OR = {
-				SOV = {
-					controls_state = 64
-				}
-				FRF = {
-					controls_state = 64
-				}
+		NOT = {
+			GER = {
+				controls_state = 64
 			}
 		}
 	}
@@ -2917,7 +3082,7 @@ country_event = {
 	immediate = {
 		random_list = {
 			99 = { GER = { country_event = { id = ww2_germany.39 } } }
-			1 = { GE1 = { country_event = { id = ww2_germany.114 } } }
+			1 = { GER = { country_event = { id = ww2_germany.114 } } }
 		}
 	}
 	option = {
@@ -2993,12 +3158,12 @@ country_event = {
 
 	option = {
 		name = ww2_germany.117.a
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.025
 	}
 	option = {
 		name = ww2_germany.117.b
-		sound_effect = diplomatic_failure
+		hidden_effect = {sound_effect = diplomatic_failure}
 		add_stability = -0.025
 		set_global_flag = knispellearning
 	}
@@ -3037,69 +3202,67 @@ country_event = {
 
 	fire_only_once = yes
 
-	trigger = {
-		tag = GE1
-		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_finished
-	}
-
-	mean_time_to_happen = {
-		days = 5
-	}
+	is_triggered_only = yes
 
 	option = {
 		name = ww2_germany.119.a
 		TUR = {
-			transfer_state = 455
-			transfer_state = 454
-			transfer_state = 679
-			transfer_state = 291
-			transfer_state = 675
+			transfer_state = 455 #Palestine
+			transfer_state = 454 #Jordan
+			transfer_state = 679 #Hedjaz
+			transfer_state = 291 #Baghdad
+			transfer_state = 675 #Al Hajara
 		}
 		EN3 = {
-			annex_country = { target = EN1 transfer_troops = no }
+			annex_country = { target = EN1 transfer_troops = yes }
 			change_tag_from = EN1
+			if ={
+				limit = {
+					every_state = {is_core_of = EN1 }
+				}
+			add_core_of = EN3
+			}
 		}
 		EN3 = {
-			annex_country = { target = EN2 transfer_troops = no }
+			annex_country = { target = EN2 transfer_troops = yes }
 			change_tag_from = EN2
+			if = {
+				limit = {
+					every_state = {is_core_of = EN2}
+				}
+				remove_core_of = EN2
+			}
+				
 		}
 		JA1 = {
 			annex_country = { target = JA3 transfer_troops = yes }
 			change_tag_from = JA3
+			if = {
+				limit = {
+					every_state = {	is_core_of = JA3 }
+				}
+				add_core_of = JA1
+			}
 		}
 		GE1 = {
-			transfer_state = 634
-			transfer_state = 737
-			transfer_state = 785
-			transfer_state = 765
-			transfer_state = 546
-			transfer_state = 547
-			transfer_state = 548
-			transfer_state = 767
-			transfer_state = 766
-			transfer_state = 541
+			transfer_state = 634 # Solomon Islands
+			transfer_state = 737 #Bismarck
+			transfer_state = 785 #West Cameroon
+			transfer_state = 765 #Rwanda
+			transfer_state = 546 #Tanganyika
+			transfer_state = 547 #Kenya
+			transfer_state = 548 #Da whey
+			transfer_state = 767 #Pogo Stick Togo Stick
+			transfer_state = 558 #Nigerian Scammers
+			transfer_state = 541 #Sudwest
+			annex_country = { target = LU1 transfer_troops = no }
 		}
-		AS1 = { white_peace = GE1 }
-		GE1 = { white_peace = AS1 }
-		CA1 = { white_peace = GE1 }
-		GE1 = { white_peace = CA1 }
-		SA1 = { white_peace = GE1 }
-		GE1 = { white_peace = SA1 }
-		MA1 = { white_peace = GE1 }
-		GE1 = { white_peace = MA1 }
-		NZ1 = { white_peace = GE1 }
-		GE1 = { white_peace = NZ1 }
-		SI1 = { white_peace = GE1 }
-		GE1 = { white_peace = SI1 }
-		BH1 = { white_peace = GE1 }
-		GE1 = { white_peace = BH1 }
-		NE1 = { white_peace = GE1 }
-		GE1 = { white_peace = NE1 }
-		RA1 = { white_peace = GE1 }
-		GE1 = { white_peace = RA1 }
-		PO1 = { white_peace = GE1 }
-		GE1 = { white_peace = PO1 }
+		every_country = {
+			if ={
+				limit = { has_war_with = GE1 }
+				white_peace = GE1
+			}
+		}
 	}
 }
 
@@ -3151,9 +3314,15 @@ country_event = {
 		tag = GE1
 		has_global_flag = kaiserschlachtvictory
 		IT1 = {
-			OR = {
-				is_in_faction_with = EN2
-				is_in_faction_with = EN3
+			AND = {
+				NOT = {is_in_faction_with = GE1}
+				OR = {
+					is_in_faction_with = EN2
+					is_in_faction_with = EN3
+					is_in_faction_with = EN1
+					is_in_faction_with = FR3
+					is_in_faction_with = FR2
+				}
 			}
 		}
 	}
@@ -3168,9 +3337,11 @@ country_event = {
 			annex_country = { target = IT1 transfer_troops = no }
 			change_tag_from = IT1
 		}
-		IT2 = {
+		AUH = {
 			transfer_state = 160
+			transfer_state = 745
 		}
+		159 = { set_demilitarized_zone = yes }
 	}
 }
 
@@ -3194,11 +3365,11 @@ country_event = {
 
 	option = {
 		name = ww2_germany.122.a
-		GR2 = {
-			annex_country = { target = GR1 transfer_troops = no }
-			change_tag_from = GR1
-		}
-		AL1 = {
+		#GR2 = {
+		#	annex_country = { target = GR1 transfer_troops = no }
+		#	change_tag_from = GR1
+		#}
+		AL2 = {
 			transfer_state = 44
 		}
 	}
@@ -3526,7 +3697,7 @@ country_event = {
 			transfer_state = 551
 			transfer_state = 457
 		}
-		GER = {
+		GE1 = {
 			puppet = EGY
 		}
 	}
@@ -5113,7 +5284,8 @@ country_event = {
 			transfer_state = 184
 		}
 		TUR = {
-			transfer_state = 187
+			transfer_state = 164
+			transfer_state = 798
 		}
 	}
 }
@@ -5142,16 +5314,16 @@ country_event = {
 			transfer_state = 107
 			transfer_state = 108
 		}
-		ALB = {
+		AL2 = {
 			transfer_state = 744
 		}
-		MNT = {
+		MN1 = {
 			transfer_state = 105
-			transfer_state = 792
 		}
 		AUH = {
-			puppet = MNT
+			puppet = MN1
 			puppet = SER
+			puppet = AL2
 		}
 	}
 }
@@ -5178,16 +5350,33 @@ country_event = {
 		name = ww2_germany.246.a
 		DER = {
 			transfer_state = 268
-			transfer_state = 550
 			transfer_state = 559
+			add_state_core = 268
+			add_state_core = 559
+		}
+		ET1 = {
+			transfer_state = 550
+			add_state_core = 550
 		}
 		TUR = {
 			transfer_state = 164
 		}
 		AUH = {
+			add_state_core = 745
+			add_state_core = 160
 			transfer_state = 745
 			transfer_state = 160
 		}
+		IT2 = {
+			remove_state_core = 745
+			remove_state_core = 160
+			add_state_claim = 745
+			add_state_claim = 160
+			}
+		
+		set_province_name = { id = 11584 name = "Venedig"}
+		160 = {set_state_name = "Venedig"}
+		745 = {set_state_name = "Friaul"}
 	}
 }
 
