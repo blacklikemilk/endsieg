@@ -1,5 +1,5 @@
 ﻿name="Endsieg: Ultimate Victory"
-path="mod/endsieg/"
+path="mod/endsieg-master/"
 replace_path="common/technologies"
 replace_path="common/ideas"
 replace_path="common/country_leader"
