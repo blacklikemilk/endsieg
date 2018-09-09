@@ -4,7 +4,7 @@
 
 add_namespace = transcauc
 
-# Georgia Declares Independence
+#Georgia Declares Independence
 country_event = {
 	id = transcauc.1
 	title = transcauc.1.t
@@ -15,8 +15,7 @@ country_event = {
 
 	trigger = {
 		NOT = { date > 1932.12.1 }
-		tag = TRA
-		NOT = { has_global_flag = georgiaindep }	
+		tag = TRA	
 		date > 1918.5.25
 	}	
 
@@ -26,14 +25,22 @@ country_event = {
 
 	option = {
 		name = transcauc.1.a
-		set_global_flag = georgiaindep
+		ai_chance = { factor = 100}
 		GEO = {
 			transfer_state = 231
 		}
 	}
+	option = {
+		name = transcauc.1.b
+		ai_chance = { factor = 0}
+		GEO = {
+			transfer_state = 231
+		}
+		TRA = { declare_war_on = { target = GEO type = annex_everything } }
+	}
 }
 
-# Armenia and Azerbaijan Declare Independence
+#Armenia and Azerbaijan Declare Independence
 country_event = {
 	id = transcauc.2
 	title = transcauc.2.t
@@ -45,8 +52,8 @@ country_event = {
 	trigger = {
 		NOT = { date > 1932.12.1 }
 		tag = TRA
-		NOT = { has_global_flag = azearm }	
 		date > 1918.5.27
+		NOT = { TRA = { controls_state = 760} } #Baku is controlled by a player, temporary.
 	}	
 
 	mean_time_to_happen = { 
@@ -54,25 +61,48 @@ country_event = {
 	}
 
 	option = {
-		name = transcauc.2.a
-		set_global_flag = azearm
-		ARM = {
-			transfer_state = 230
-		}
-		TUR = {
+		name = transcauc.2.a # For Armenia!
+		AZR = {
+			transfer_state = 229
+			if = {
+				limit = {
+					TRA = { controls_state = 760}
+				}
+				transfer_state = 760 #Controls Baku yet this event still pops up somehow? Meant for TRA rework
+			}
 			declare_war_on = {
 				target = ARM
 				type = take_state
 				generator = { 230 }
 			}	
-		}
+		}		
 		ARM = {
+			hidden_effect = { load_oob = "ARM_1918" }	
+			annex_country = { target = TRA transfer_troops = yes }	
+			change_tag_from = TRA
+		}
+	}
+	option = {
+		name = transcauc.2.b # For Azerbaijan!
+		ARM = { 
+			transfer_state = 230
 			load_oob = "ARM_1918"
+		}			
+		AZR = {
+			annex_country = { target = TRA transfer_troops = yes }
+			change_tag_from = TRA
+		}
+		AZR = {
+			declare_war_on = {
+				target = ARM
+				type = take_state
+				generator = { 230 }
+			}
 		}
 	}
 }
 
-# Treaty of Poti
+#Treaty of Poti
 country_event = {
 	id = transcauc.3
 	title = transcauc.3.t
@@ -99,7 +129,6 @@ country_event = {
 	mean_time_to_happen = { 
 		days = 1
 	}
-
 	option = {
 		name = transcauc.3.a
 		set_global_flag = georgiaindep2
@@ -121,8 +150,8 @@ country_event = {
 	trigger = {
 		NOT = { date > 1932.12.1 }
 		tag = TRA
-		NOT = { has_global_flag = com26 }	
 		date > 1918.4.13
+		NOT = { country_exists = BAK }
 	}	
 
 	mean_time_to_happen = { 
@@ -131,9 +160,22 @@ country_event = {
 
 	option = {
 		name = transcauc.4.a
-		set_global_flag = com26
+		ai_chance = {factor = 100}
 		BAK = {
 			transfer_state = 760
+			
+		}
+	}
+	option = {
+		name = transcauc.4.b
+		ai_chance = {factor = 0}
+		BAK = {
+			transfer_state = 760
+			declare_war_on = {
+				target = TRA
+				type = take_state
+				generator = { 230 }
+			}		
 		}
 	}
 }
@@ -151,11 +193,10 @@ country_event = {
 		NOT = { date > 1932.12.1 }
 		tag = BAK
 		date > 1918.7.26
-		AND = {
-			AZR = {
-				controls_state = 229
-			}
+		BAK = {
+			controls_state = 229
 		}
+		has_capitulated = yes
 	}		
 
 	mean_time_to_happen = { 
@@ -259,15 +300,13 @@ country_event = {
 		NOT = { date > 1932.12.1 }
 		date > 1918.3.30
 		tag = TRA
-		NOT = { has_country_flag = march }
 	}
 	
-	mean_time_to_happen = { days = 1 
+	mean_time_to_happen = { days = 1 }
+	fire_only_once = yes
 		
-	}
 	option = {
 		name = transcauc.6.a
-		set_global_flag = march
 		TRA = {
 			add_stability = -0.05
 		}
@@ -346,43 +385,43 @@ country_event = {
 }
 
 # Armenia and Azerbaijan Declare Independence
-country_event = {
-	id = transcauc.10
-	title = transcauc.10.t
-	desc = transcauc.10.d
-	picture = GFX_report_event_transcaucdead
-	
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1932.12.1 }
-		tag = TRA
-		NOT = { has_global_flag = azearm2 }	
-		date > 1918.5.28
-	}	
-
-	mean_time_to_happen = { 
-		days = 1
-	}
-
-	option = {
-		name = transcauc.2.a
-		set_global_flag = azearm2
-		AZR = {
-			annex_country = { target = TRA transfer_troops = no }
-			change_tag_from = TRA
-		}
-		TUR = {
-			puppet = AZR	
-		}
-		AZR = {
-			add_to_war = {
-				targeted_alliance = TUR
-				enemy = ARM
-			}
-		}
-	}
-}
+#country_event = {
+#	id = transcauc.10
+#	title = transcauc.10.t
+#	desc = transcauc.10.d
+#	picture = GFX_report_event_transcaucdead
+#
+#	fire_only_once = yes
+#
+#	trigger = {
+#		NOT = { date > 1932.12.1 }
+#		tag = TRA
+#		NOT = { has_global_flag = azearm2 }	
+#		date > 1918.5.28
+#	}	
+#
+#	mean_time_to_happen = { 
+#		days = 1
+#	}
+#
+#	option = {
+#		name = transcauc.2.a
+#		set_global_flag = azearm2
+#		AZR = {
+#			annex_country = { target = TRA transfer_troops = no }
+#			change_tag_from = TRA
+#		}
+#		TUR = {
+#			puppet = AZR	
+#		}
+#		AZR = {
+#			add_to_war = {
+#				targeted_alliance = TUR
+#				enemy = ARM
+#			}
+#		}
+#	}
+#}
 
 
 
