@@ -14,6 +14,7 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_1910
 		NOT = { date > 1913.12.1 }
 		tag = SER
 		date > 1912.2.2
@@ -22,16 +23,85 @@ country_event = {
 	mean_time_to_happen = { days = 1 }
 
 	option = {
-		name = ww1_serbia.1.a
+		name = ww1_serbia.1.a #Send the invitations!
 		SER = {
 			create_faction = BALKAN_LEAGUE
-			add_to_faction = MN1
-			add_to_faction = GR1
-			add_to_faction = BNN
+			#add_to_faction = MN1
+			MN1 = { country_event = { id = ww1_serbia.101 hours = 3 } }
+			#add_to_faction = GR1
+			GR1 = { country_event = { id = ww1_serbia.101 hours = 3 } }			
+			#add_to_faction = BNN
+			BNN = { country_event = { id = ww1_serbia.101 hours = 3 } }
+			#Romania gets the option to join as well, but will only send minimal help, although a player can join in as well.
+			RMM = { country_event = { id = ww1_serbia.102 hours = 3 } }
 		}
 	}
 }
 
+#Notify the others of the Balkan League forming, ask if they wish to join.
+country_event = {
+	id = ww1_serbia.101
+	title = ww1_serbia.101.t
+	desc = ww1_serbia.101.d
+	picture = GFX_report_event_balkan_league
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_serbia.101.a
+		ai_chance = { factor = 100 }
+		SER = {
+			add_to_faction = ROOT
+		}
+	}
+	option = {
+		name = ww1_serbia.101.b
+		ai_chance = { factor = 0 }
+		add_political_power = -50
+		custom_effect_tooltip = missbalkanwar_tt
+	}
+}
+
+#Romanian options
+country_event = {
+	id = ww1_serbia.102
+	title = ww1_serbia.102.t
+	desc = ww1_serbia.102.d
+	picture = GFX_report_event_balkan_league
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+	
+	option = { #Send token help.
+		name = ww1_serbia.102.a
+		ai_chance = {factor = 100}
+		add_equipment_to_stockpile = {
+			type = early_infantry_equipment
+			amount = -1000
+			producer = RMM
+		}
+		SER = {
+			add_equipment_to_stockpile = {
+				type = early_infantry_equipment
+				amount = 1000
+				producer = RMM
+			}
+		}
+	}
+	option = { #Join the league!
+		name = ww1_serbia.102.b
+		ai_chance = {factor = 0}
+		add_to_faction = BALKAN_LEAGUE
+	}
+
+	option = { #Do nothing.
+		name = ww1_serbia.102.c
+		ai_chance = {factor = 0 }
+		add_political_power = -50
+	}
+			
+}
 # First Balkan War
 country_event = {
 	id = ww1_serbia.2
@@ -46,7 +116,7 @@ country_event = {
 		NOT = { has_global_flag = let_go_balkans }
 		tag = SER
 		date > 1912.10.7
-		has_global_flag = treaty_of_ouchy
+		#has_global_flag = treaty_of_ouchy #The Italians are accounted for now.
 	}
 
 	mean_time_to_happen = { days = 1 }
@@ -68,9 +138,206 @@ country_event = {
 		TUR = {
 			add_timed_idea = { idea = surprise_attack days = 45 }
 		}
+		if = {
+			limit = {
+				IT1 = { has_war_with = TUR }
+			}
+		add_to_faction = BALKAN_LEAGUE
+		}
 		set_global_flag = first_balkan_war
 	}
 }
+
+#Balkan War 1 - Peace?
+country_event = {
+	id = ww1_serbia.301
+	title = ww1_serbia.301.t
+	desc = ww1_serbia.301.d
+	picture = GFX_report_event_balkan_league
+	
+	fire_only_once = yes
+	
+	trigger = {
+		NOT = { has_global_flag = franz_dead }  #WW1 hasn't started.
+		has_global_flag = welcome_event_1910
+		has_global_flag = first_balkan_war
+		has_war_with = TUR
+		tag = SER				
+		OR = {
+			AND = {
+				TUR = { surrender_progress > 0.10 }
+				is_ai = yes
+			}
+			AND = {
+				is_ai = no
+				NOT = {
+					controls_state = 731 	#Salonika
+					controls_state = 793 	#Central Epirus
+					controls_state = 790 	#Northern Epirus
+					controls_state = 44 	#Albania
+					controls_state = 791 	#Outer Montenegro
+					controls_state = 795 	#Eastern Rumelia no ban plz
+					controls_state = 766 	#East Macedonia
+					controls_state = 789 	#South Macedonia
+					controls_state = 106 	#North Macedonia
+					controls_state = 744 	#Kosovo
+					controls_state = 788 	#Edirne
+				}
+			}
+		}
+	}
+	option = {
+		name = ww1_serbia.301.a #Yes, send the offer. We have done more than we have ever thought we could have.
+	#	trigger = {
+	#		TUR = { controls_state = 341 } #Istanbul
+	#	}
+		ai_chance = {
+			factor = 100
+			modifier ={
+				factor = 0
+				any_country ={
+					is_in_faction_with = SER
+					is_ai = no
+				}
+			}
+		}
+		TUR = {country_event = { id =  ww1_serbia.302 hours = 6 } }
+	}
+	option = {
+		name = ww1_serbia.301.b #How about we push for Constantinople instead?
+		add_political_power = -150
+		add_stability = -0.05
+		add_war_support = -0.05
+	}
+	#option = { #Not sure what the ramifications of this would be.
+	#	name = ww1_serbia.301.c #We have taken Constantinople!
+	#	trigger = {
+	#		NOT = {
+	#			TUR = { controls_state = 341 } #Istanbul
+	#		}
+	#		TUR = { country_event
+	#	}
+	#}
+	
+	option = {
+		name = ww1_serbia.301.w #AI Serbia passes peace decision on to Human Balkans. In MP, each have an equal chance.
+		ai_chance = { 
+			factor = 100 #Because 100 is a neat number
+			modifier = {
+				any_country ={
+					is_in_faction_with = SER
+				}
+				factor = 0
+			}
+		}
+		trigger = {
+			OR = {
+				AND = {		
+					BNN = {is_in_faction_with = SER}
+					BNN = { has_war_with = TUR}
+					BNN = { is_ai = no }
+				}
+				AND = {
+					SER = {is_ai = no}
+					BNN = {is_in_faction_with = SER}
+				}
+			}
+		}
+		BNN = { country_event = { id = ww1_serbia.301 } }
+	}
+	
+	option = {
+		name = ww1_serbia.301.x #Greece
+		ai_chance = {
+			factor = 100
+		}
+				
+		trigger = {
+			OR = {
+				AND = {
+					GR1 = {is_in_faction_with = SER}
+					GR1 = { has_war_with = TUR}
+					GR1 = { is_ai = no }
+				}
+				AND = {
+					SER = {is_ai = no}
+					GR1 = {is_in_faction_with = SER}
+				}
+			}
+		}
+		GR1 = { country_event = { id =  ww1_serbia.301} }
+	}
+	
+	option = {
+		name = ww1_serbia.301.y #Montenegro
+		ai_chance = {
+			factor = 100
+		}
+		trigger = {
+			OR = {
+				AND = {
+					MN1 = {is_in_faction_with = SER}
+					MN1 = { has_war_with = TUR}
+					MN1 = { is_ai = no }	
+				}
+				AND = {
+					SER = {is_ai = no}
+					MN1 = {is_in_faction_with = SER}
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = ww1_serbia.301.z #Romania, should be very rare but MP is full of memes, so...
+		ai_chance = {
+			factor = 100
+		}
+		trigger = {
+			OR = {
+				AND = {
+					RMM = {is_in_faction_with = SER}
+					RMM = { has_war_with = TUR}
+					RMM = { is_ai = no }
+				}
+				AND = {
+					SER = {is_ai = no}
+					RMM = {is_in_faction_with = SER}
+				}
+			}
+		}
+	}		
+}
+
+#Balkan War Peace, Turkish response.
+country_event = {
+	id = ww1_serbia.302
+	title = ww1_serbia.302.t
+	desc = ww1_serbia.302.d
+	picture = GFX_report_event_first_balkan_war
+	fire_only_once = yes
+	is_triggered_only = yes
+	
+	option = {
+		ai_chance = { factor = 100}
+		name = ww1_serbia.302.a #Peace out. Screw the Balkans, they're nothing but stupid giaours that cause problems.
+		SER = { country_event = { id = ww1_serbia.3 hours = 6 } }
+		add_political_power = 20
+	}
+	
+	option = {
+		ai_chance = { factor = 100}
+		name = ww1_serbia.302.b #Fight to the finish, probably...
+		add_political_power = -150
+		add_stability = -0.20
+		add_war_support = -0.20
+	}
+
+		
+
+}
+	
+	
 
 # Treaty of London
 country_event = {
@@ -80,18 +347,10 @@ country_event = {
 	picture = GFX_report_event_treaty_of_london_1913
 
 	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1914.1.1 }
-		tag = TUR
-		TUR = { surrender_progress > 0.10 }
-		has_global_flag = first_balkan_war
-	}
-
-	mean_time_to_happen = { days = 1 }
+	is_triggered_only = yes
 
 	option = {
-		name = ww1_serbia.3.a
+		name = ww1_serbia.3.a 
 		set_global_flag = treaty_of_london_1913
 		SER = {
 			diplomatic_relation = {
@@ -152,7 +411,7 @@ country_event = {
 		}
 		TUR = {
 			white_peace = BNN
-			white_peace = MNT
+			white_peace = MN1
 			white_peace = SER
 		}
 	}
