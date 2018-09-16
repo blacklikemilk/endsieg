@@ -117,10 +117,12 @@ country_event = {
 			}
 			set_global_flag = italycp
 		}
-		FR2 = { white_peace = GE1} #Can we remove this?
-		if = {
-			limit = {
-				IT1 = {has_war_with = GE1} #Italy is on the Entente
+			if = {
+				limit = {
+					IT1 = {has_war_with = GE1} #Italy is on the Entente
+				}
+				IT1 = {country_event = { id = kaiserschlachtvictory.8 hours = 12} }
+				set_global_flag = italyentente
 			}
 			IT1 = {country_event = { id = kaiserschlachtvictory.8 hours = 12} }
 		}
@@ -237,9 +239,11 @@ country_event = {
 			set_global_flag = dutch_neutrality_violated
 		}
 
-		if = {
-			limit = {
-				GR1 = { has_war_with = GE1 }
+			if = {
+				limit = {
+					GR1 = { has_war_with = GE1}
+				}
+				set_global_flag = entente_greece_defeated
 			}
 			GR1 ={ country_event = { id = kaiserschlachtvictory.1 days = 3} }
 		}
@@ -249,7 +253,7 @@ country_event = {
 			change_tag_from = FR3
 		}
 		hidden_effect = {
-			FR3 = {
+			FR3 = { #Removing colonial cores.
 				#remove_state_core = 754 #Nanzig
 				#remove_state_core = 755 #Briey-Longwy
 				#remove_state_core = 28 #Elsass
@@ -287,7 +291,7 @@ country_event = {
 			#add_state_core = 8 #Luxembourg - cores set in 2nd treaty of frankfurt?
 			#add_state_core = 754 #Nanzig
 			#add_state_core =  755 #Briey-Longwy
-			#TEMPorary german occupations - given back to france later. event kaiserschlachtvictory.xx decides
+			#Temporary german occupations - given back to france later. event kaiserschlachtvictory.242 decides what is annexed.
 			transfer_state = 803 #calais/French flanders
 			transfer_state = 29 #pas de calais
 			transfer_state = 18 #champagne
@@ -331,6 +335,13 @@ country_event = {
 			if = {
 				limit = { has_war_with = TUR}
 				white_peace = TUR
+			}
+		}
+
+		every_country = {
+			if = {
+				limit = { has_war_with = IT1}
+				white_peace = IT1
 			}
 		}
 	}
@@ -408,18 +419,21 @@ country_event = {
 			EN1 = {end_puppet = SA1}
 			GE1 = {puppet = SA1}
 		}
+
+		TUR = { annex_country = { target = EN2 transfer_troops = no} }
+		TUR = { annex_country = { target = EN3 transfer_troops = no} }
 		PE1 = {
 			transfer_state = 410
 			transfer_state = 412
 			transfer_state = 413
 		}
-		TUR = { annex_country = { target = EN2 transfer_troops = no} }
-		TUR = { annex_country = { target = EN3 transfer_troops = no} }
 		EN1 = {
-				transfer_state = 658
-				transfer_state = 656
-				transfer_state = 659
-			}
+			transfer_state = 658 #Trucial States
+			transfer_state = 656 #Kuwait
+			transfer_state = 659 #Aden
+			transfer_state = 453 #Sinai
+			transfer_state = 772 #Suez
+		}
 	}
 	option = {
 		name = kaiserschlachtvictory.5.b #No. Rule Britannia.
@@ -607,6 +621,11 @@ country_event = {
 		random_list = {
 			50 = {
 				create_wargoal = { target = EN1 type = annex_everything }
+				hidden_effect = {
+					AUH = {create_faction = "Austria"}
+					IT1 = {create_faction = "Italy"}
+					set_global_flag = italoaustrianwar
+				}
 			}
 			50 = {
 				add_political_power = -25
@@ -631,18 +650,6 @@ country_event = {
 		ai_chance = {factor = 100}
 		add_stability = 0.05
 		add_political_power = 50
-		# every_country = { #This will eitehr have to be completely removed or be in the initial event
-		# 	if = {
-		# 		limit = { has_war_with = ROOT}
-		# 		white_peace = ROOT
-		# 	}
-		# }
-		# every_country = {
-		# 	if = {
-		# 		limit = { has_war_with = PH1}
-		# 		white_peace = PH1
-		# 	}
-		# }
 		GE1 = { country_event = { id = kaiserschlachtvictory.12 days = 2 } }
 		US2 = { remove_from_faction = "entente" }
 
@@ -1015,7 +1022,7 @@ country_event = {
 				}
 			}
 			ROOT = { leave_faction = yes }
-			hidden_effect = { create_faction = "nochina"}
+			hidden_effect = { create_faction = "Co-prosperity Sphere"}
 		}
 		if = {
 			limit = {
@@ -1167,8 +1174,12 @@ country_event = {
 		}
 		every_country = {
 			if = {
-				limit = { has_war_with = AUH}
+				limit = {
+					has_war_with = AUH
+					NOT = { has_global_flag = italoaustrianwar }
+				}
 				white_peace = AUH
+
 			}
 		}
 		every_country = {
@@ -1185,7 +1196,10 @@ country_event = {
 		}
 		every_country = {
 			if = {
-				limit = { has_war_with = IT1 }
+				limit = {
+					has_war_with = IT1
+					NOT = { has_global_flag = italoaustrianwar }
+					}
 				white_peace = IT1
 			}
 		}
@@ -1248,7 +1262,7 @@ country_event = {
 			}
 		}
 	}
-} #extra } because idk why? just doesnt work otherwise
+} #extra } because idk why? just doesnt work otherwise #Because Paradox a shit
 	option = {
 		name = kaiserschlachtvictory.25.b
 		trigger = {
@@ -1265,66 +1279,66 @@ country_event = {
 
 
 # Armistice of Vittorio Veneto
-country_event = {
-	id = kaiserschlachtvictory.121
-	title = kaiserschlachtvictory.121.t
-	desc = kaiserschlachtvictory.121.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
-		IT1 = {
-			OR = {
-				is_in_faction_with = EN2
-				is_in_faction_with = EN3
-			}
-		}
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = kaiserschlachtvictory.121.a
-		IT2 = {
-			annex_country = { target = IT1 transfer_troops = no }
-			change_tag_from = IT1
-		}
-		IT2 = { transfer_state = 160 }
-	}
-}
+#country_event = {
+#	id = kaiserschlachtvictory.121
+#	title = kaiserschlachtvictory.121.t
+#	desc = kaiserschlachtvictory.121.d
+#	picture = GFX_report_event_ceasefire
+#
+#	fire_only_once = yes
+#
+#	trigger = {
+#		has_global_flag = peacedeals_finished
+#		tag = GE1
+#		has_global_flag = kaiserschlachtvictory
+#		has_global_flag = not_done_yet_1
+#		IT1 = {
+#			OR = {
+#				is_in_faction_with = EN2
+#				is_in_faction_with = EN3
+#			}
+#		}
+#	}
+#
+#	mean_time_to_happen = { days = 1 }
+#
+#	option = {
+#		name = kaiserschlachtvictory.121.a
+#		IT2 = {
+#			annex_country = { target = IT1 transfer_troops = no }
+#			change_tag_from = IT1
+#		}
+#		IT2 = { transfer_state = 160 }
+#	}
+#}
 
 # Armistice of Vardar
-country_event = {
-	id = kaiserschlachtvictory.122
-	title = kaiserschlachtvictory.122.t
-	desc = kaiserschlachtvictory.122.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = kaiserschlachtvictory.122.a
-		GR2 = {
-			annex_country = { target = GR1 transfer_troops = no }
-			change_tag_from = GR1
-		}
-		ALB = { transfer_state = 44 }
-	}
-}
+#country_event = {
+#	id = kaiserschlachtvictory.122
+#	title = kaiserschlachtvictory.122.t
+#	desc = kaiserschlachtvictory.122.d
+#	picture = GFX_report_event_ceasefire
+#
+#	fire_only_once = yes
+#
+#	trigger = {
+#		has_global_flag = peacedeals_finished
+#		tag = GE1
+#		has_global_flag = kaiserschlachtvictory
+#		has_global_flag = not_done_yet_1
+#	}
+#
+#	mean_time_to_happen = { days = 1 }
+#
+#	option = {
+#		name = kaiserschlachtvictory.122.a
+#		GR2 = {
+#			annex_country = { target = GR1 transfer_troops = no }
+#			change_tag_from = GR1
+#		}
+#		AL2 = { transfer_state = 44 }
+#	}
+#}
 
 
 
@@ -1345,54 +1359,56 @@ country_event = {
 	desc = kaiserschlachtvictory.123.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
+
 
 	trigger = {
 		has_global_flag = peacedeals_finished
 		tag = GE1
 		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
+		has_global_flag = belgium_neutrality_violated
 	}
 
 	mean_time_to_happen = { days = 30 }
 
 	option = {
-		name = kaiserschlachtvictory.123.a
-		set_global_flag = partonea
+		name = kaiserschlachtvictory.123.a #Annex Belgium
+		ROOT = { country_event = {id = kaiserschlachtvictory.124 } }
 		GE1 = {
-			annex_country = { target = BEL transfer_troops = no }
-			change_tag_from = BEL
+			annex_country = { target = BE2 transfer_troops = no }
+			change_tag_from = BE2
 		}
 	}
 	option = {
-		name = kaiserschlachtvictory.123.b
-		set_global_flag = partoneb
-		GE1 = { puppet = BEL }
+		name = kaiserschlachtvictory.123.b #Puppet Belgium
+		ROOT = { country_event = { id = kaiserschlachtvictory.125 } }
+		GE1 = { puppet = BE2 }
 
 	}
 	option = {
-		name = kaiserschlachtvictory.123.c
-		set_global_flag = partonec
-		GE1 = { transfer_state = 753 }
+		name = kaiserschlachtvictory.123.c  #Meuse
+		ROOT = { country_event = { id = kaiserschlachtvictory.126 } }
+		GE1 = { transfer_state = 753 } #Maas-Wallonien
 	}
 	option = {
-		name = kaiserschlachtvictory.123.dd
+		name = kaiserschlachtvictory.123.dd #KR border + Congo
 		set_global_flag = partoned
 		GE1 = {
 			transfer_state = 753
-			transfer_state = 295
-			transfer_state = 538
-			transfer_state = 718
+			transfer_state = 295 #Congo Leopoldville
+			transfer_state = 538 #Congo Central Congo
+			transfer_state = 718 #Congo Stanleyville
 		}
 	}
 	option = {
-		name = kaiserschlachtvictory.123.e
-		set_global_flag = partonee
+		name = kaiserschlachtvictory.123.e #Flanders + Wallonia, KR borders
+		country_event = { id = kaiserschlachtvictory.127 }
 		FLA = {
 			transfer_state = 6
+			add_state_core = 6
 		}
 		WAL = {
 			transfer_state = 34
+			add_state_core = 34
 		}
 		GE1 = {
 			transfer_state = 753
@@ -1402,8 +1418,8 @@ country_event = {
 		}
 	}
 	option = {
-		name = kaiserschlachtvictory.123.f
-		set_global_flag = partonef
+		name = kaiserschlachtvictory.123.f #Do nothing
+		 country_event = { id = kaiserschlachtvictory.128 }
 	}
 }
 
@@ -1414,25 +1430,21 @@ country_event = {
 	desc = kaiserschlachtvictory.124.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = partonea
-	}
+
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
 	}
 	option = {
 		name = kaiserschlachtvictory.124.a
-		set_global_flag = annexbelgiumchosen
+		country_event = { id = kaiserschlachtvictory.129 }
 	}
 	option = {
 		name = kaiserschlachtvictory.124.b
 		country_event = { hours = 6 id = kaiserschlachtvictory.123 }
-		BEL = {
+		BE2 = {
 			transfer_state = 6
 			transfer_state = 34
 			transfer_state = 753
@@ -1450,26 +1462,21 @@ country_event = {
 	desc = kaiserschlachtvictory.125.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = partoneb
-	}
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
 	}
 	option = {
 		name = kaiserschlachtvictory.125.a
-		set_global_flag = puppetbelgiumchosen
+		country_event = { id = kaiserschlachtvictory.129 }
 	}
 	option = {
 		name = kaiserschlachtvictory.125.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.123 }
+		country_event = { id = kaiserschlachtvictory.123 }
 		GE1 = {
-			end_puppet = BEL
+			end_puppet = BE2
 		}
 	}
 }
@@ -1481,25 +1488,21 @@ country_event = {
 	desc = kaiserschlachtvictory.126.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = partonec
-	}
+
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
 	}
 	option = {
 		name = kaiserschlachtvictory.126.a
-		set_global_flag = takemeuselandchosen
+		country_event = { id = kaiserschlachtvictory.129 }
 	}
 	option = {
 		name = kaiserschlachtvictory.126.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.123 }
-		BEL = {
+		country_event = { id = kaiserschlachtvictory.123 }
+		BE2 = {
 			transfer_state = 753
 		}
 	}
@@ -1512,25 +1515,21 @@ country_event = {
 	desc = kaiserschlachtvictory.127.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = partoned
-	}
+
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
 	}
 	option = {
 		name = kaiserschlachtvictory.127.a
-		set_global_flag = takemeuselandandcongochosen
+		country_event = { id = kaiserschlachtvictory.129 }
 	}
 	option = {
 		name = kaiserschlachtvictory.127.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.123 }
-		BEL = {
+		country_event = { id = kaiserschlachtvictory.123 }
+		BE2 = {
 			transfer_state = 753
 			transfer_state = 295
 			transfer_state = 538
@@ -1546,24 +1545,20 @@ country_event = {
 	desc = kaiserschlachtvictory.130.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = partonef
-	}
+
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
 	}
 	option = {
 		name = kaiserschlachtvictory.130.a
-		set_global_flag = takenothing
+		country_event = { id = kaiserschlachtvictory.129 }
 	}
 	option = {
 		name = kaiserschlachtvictory.130.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.123 }
+		country_event = { id = kaiserschlachtvictory.123 }
 	}
 }
 
@@ -1574,33 +1569,29 @@ country_event = {
 	desc = kaiserschlachtvictory.128.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = partonee
-	}
+
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
 	}
 	option = {
 		name = kaiserschlachtvictory.128.a
-		set_global_flag = splitbelgiumtakecongochosen
+		country_event = { id = kaiserschlachtvictory.129 }
 	}
 	option = {
 		name = kaiserschlachtvictory.128.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.123 }
-		BEL = {
+		country_event = { id = kaiserschlachtvictory.123 }
+		BE2 = {
 			annex_country = { target = FLA transfer_troops = no }
 			change_tag_from = FLA
 		}
-		BEL = {
+		BE2 = {
 			annex_country = { target = WAL transfer_troops = no }
 			change_tag_from = WAL
 		}
-		BEL = {
+		BE2 = {
 			transfer_state = 295
 			transfer_state = 538
 			transfer_state = 718
@@ -1608,7 +1599,7 @@ country_event = {
 	}
 }
 ###############################################################
-# Treaty of Ghent Germany chooses to leave Belgium Alone Chain#
+# The fate of Egypt 										  #
 ###############################################################
 
 # Treaty of Ghent (Germany Chooses to leave Belgium Alone)
@@ -1618,36 +1609,30 @@ country_event = {
 	desc = kaiserschlachtvictory.129.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = takenothingfrombelgium
-	}
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
-		days = 15
+		days = 1
 	}
 
 	option = {
-		name = kaiserschlachtvictory.129.a
-		set_global_flag = ghentpartonea
+		name = kaiserschlachtvictory.129.a #German Suez
+		country_event = { id = kaiserschlachtvictory.131 }
 		GE1 = {
 			transfer_state = 772
 		}
 	}
 	option = {
-		name = kaiserschlachtvictory.129.b
-		set_global_flag = ghentpartoneb
+		name = kaiserschlachtvictory.129.b #Turkish Suez
+		country_event = { id = kaiserschlachtvictory.131 }
 		TUR = {
 			transfer_state = 772
 		}
 
 	}
 	option = {
-		name = kaiserschlachtvictory.129.c
-		set_global_flag = ghentpartonec
+		name = kaiserschlachtvictory.129.c #German Egyptian puppet
+		country_event = { id = kaiserschlachtvictory.131 }
 		EGY = {
 			transfer_state = 446
 			transfer_state = 447
@@ -1657,13 +1642,13 @@ country_event = {
 			transfer_state = 457
 			transfer_state = 456
 		}
-		GER = {
+		GE1 = {
 			puppet = EGY
 		}
 	}
 	option = {
-		name = kaiserschlachtvictory.129.dd
-		set_global_flag = ghentpartoned
+		name = kaiserschlachtvictory.129.dd #Turkish Egypt
+		country_event = { id = kaiserschlachtvictory.131 }
 		TUR = {
 			transfer_state = 446
 			transfer_state = 447
@@ -1675,8 +1660,8 @@ country_event = {
 		}
 	}
 	option = {
-		name = kaiserschlachtvictory.129.e
-		set_global_flag = ghentpartonee
+		name = kaiserschlachtvictory.129.e #German Egyptian protectorate
+		country_event = { id = kaiserschlachtvictory.131 }
 		GE1 = {
 			transfer_state = 446
 			transfer_state = 447
@@ -1688,8 +1673,8 @@ country_event = {
 		}
 	}
 	option = {
-		name = kaiserschlachtvictory.129.f
-		set_global_flag = ghentpartonef
+		name = kaiserschlachtvictory.129.f #Status Quo, brits retain egypt and suez.
+		country_event = { id = kaiserschlachtvictory.131 }
 	}
 }
 
@@ -1701,13 +1686,9 @@ country_event = {
 	desc = kaiserschlachtvictory.131.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = ghentpartonea
-	}
+
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
@@ -1715,978 +1696,51 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.131.a
-		set_global_flag = takesuez1
+		country_event = { id = kaiserschlachtvictory.156 }
 	}
 
 	option = {
 		name = kaiserschlachtvictory.131.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.129 }
-		ENG = {
+		country_event = { id = kaiserschlachtvictory.129}
+		EN1 = {
 			transfer_state = 772
 		}
 	}
 }
 
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.132
-	title = kaiserschlachtvictory.132.t
-	desc = kaiserschlachtvictory.132.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = ghentpartoneb
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.132.a
-		set_global_flag = sueztoturks1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.132.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.129 }
-		ENG = {
-			transfer_state = 772
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.133
-	title = kaiserschlachtvictory.133.t
-	desc = kaiserschlachtvictory.133.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = ghentpartonec
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.133.a
-		set_global_flag = independentegypt
-	}
-
-	option = {
-		name = kaiserschlachtvictory.133.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.129 }
-		ENG = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-			transfer_state = 456
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.134
-	title = kaiserschlachtvictory.134.t
-	desc = kaiserschlachtvictory.134.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = ghentpartoned
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.134.a
-		set_global_flag = transferegyptturk
-	}
-
-	option = {
-		name = kaiserschlachtvictory.134.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.129 }
-		ENG = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-			transfer_state = 456
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.135
-	title = kaiserschlachtvictory.135.t
-	desc = kaiserschlachtvictory.135.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = ghentpartonee
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.135.a
-		set_global_flag = kaiserschlachtvictory.nnexegypt
-
-	}
-	option = {
-		name = kaiserschlachtvictory.135.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.129 }
-		ENG = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-			transfer_state = 456
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.136
-	title = kaiserschlachtvictory.136.t
-	desc = kaiserschlachtvictory.136.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = ghentpartonef
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.136.a
-		set_global_flag = suezstatusquo
-	}
-
-	option = {
-		name = kaiserschlachtvictory.136.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.129 }
-	}
-}
-
-
-###########################################################
-# Germany Chooses Annex Belgium Line			  #
-###########################################################
-
-# Treaty of Ghent (Germany Chooses Annex Belgium)
-country_event = {
-	id = kaiserschlachtvictory.137
-	title = kaiserschlachtvictory.137.t
-	desc = kaiserschlachtvictory.137.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = takenothingfrombelgium
-	}
-
-	mean_time_to_happen = {
-		days = 60
-	}
-
-	option = {
-		name = kaiserschlachtvictory.137.a
-		set_global_flag = aghentpartonea
-		TUR = {
-			transfer_state = 772
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.137.b
-		set_global_flag = bghentpartonef
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.139
-	title = kaiserschlachtvictory.139.t
-	desc = kaiserschlachtvictory.139.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = aghentpartonef
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.139.a
-		set_global_flag = sueztoturks2
-		ENG = {
-			transfer_state = 772
-		}
-	}
-
-	option = {
-		name = kaiserschlachtvictory.139.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.137 }
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.140
-	title = kaiserschlachtvictory.140.t
-	desc = kaiserschlachtvictory.140.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = bghentpartonef
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.140.a
-		set_global_flag = takingnothingtwotwo
-	}
-
-	option = {
-		name = kaiserschlachtvictory.140.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.137 }
-	}
-}
-
-
-###########################################################
-# Germany Chooses Puppet Belgium Line			  #
-###########################################################
-
-# Treaty of Ghent (Germany Chooses to Puppet Belgium)
-country_event = {
-	id = kaiserschlachtvictory.138
-	title = kaiserschlachtvictory.138.t
-	desc = kaiserschlachtvictory.138.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = puppetbelgiumchosen
-	}
-
-	mean_time_to_happen = {
-		days = 15
-	}
-
-	option = {
-		name = kaiserschlachtvictory.138.a
-		set_global_flag = cghentpartonea
-		GE1 = {
-			transfer_state = 772
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.138.b
-		set_global_flag = cghentpartoneb
-		TUR = {
-			transfer_state = 772
-		}
-
-	}
-	option = {
-		name = kaiserschlachtvictory.138.c
-		set_global_flag = cghentpartonec
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.141
-	title = kaiserschlachtvictory.141.t
-	desc = kaiserschlachtvictory.141.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = cghentpartonea
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.141.a
-		set_global_flag = takesuez3
-	}
-
-	option = {
-		name = kaiserschlachtvictory.141.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.138 }
-		ENG = {
-			transfer_state = 772
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.142
-	title = kaiserschlachtvictory.142.t
-	desc = kaiserschlachtvictory.142.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = cghentpartoneb
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.142.a
-		set_global_flag = sueztoturks3
-	}
-
-	option = {
-		name = kaiserschlachtvictory.142.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.138 }
-		ENG = {
-			transfer_state = 772
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.143
-	title = kaiserschlachtvictory.143.t
-	desc = kaiserschlachtvictory.143.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = cghentpartonec
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.143.a
-		set_global_flag = takenothing3
-	}
-
-	option = {
-		name = kaiserschlachtvictory.143.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.138 }
-	}
-}
-
-#######################################################################
-# 		Germany takes land behind Meuse			      #
-#######################################################################
-
-# Treaty of Ghent (Germany Chooses to take land behind meuse)
-country_event = {
-	id = kaiserschlachtvictory.144
-	title = kaiserschlachtvictory.144.t
-	desc = kaiserschlachtvictory.144.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		AND = {
-			OR = {
-				has_global_flag = takemeuselandandcongochosen
-				has_global_flag = takemeuselandchosen
-			}
-		}
-	}
-
-	mean_time_to_happen = {
-		days = 15
-	}
-
-	option = {
-		name = kaiserschlachtvictory.144.a
-		set_global_flag = dghentpartonea
-		GE1 = {
-			transfer_state = 772
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.144.b
-		set_global_flag = dghentpartoneb
-		TUR = {
-			transfer_state = 772
-		}
-
-	}
-	option = {
-		name = kaiserschlachtvictory.144.c
-		set_global_flag = dghentpartonec
-		EGY = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-		}
-		GER = {
-			puppet = EGY
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.144.dd
-		set_global_flag = dghentpartoned
-		TUR = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.144.e
-		set_global_flag = dghentpartonee
-	}
-}
-
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.145
-	title = kaiserschlachtvictory.145.t
-	desc = kaiserschlachtvictory.145.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = dghentpartonea
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.145.a
-		set_global_flag = takesuez4
-	}
-
-	option = {
-		name = kaiserschlachtvictory.145.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.144 }
-		ENG = {
-			transfer_state = 772
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.146
-	title = kaiserschlachtvictory.146.t
-	desc = kaiserschlachtvictory.146.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = dghentpartoneb
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.146.a
-		set_global_flag = sueztoturks4
-	}
-
-	option = {
-		name = kaiserschlachtvictory.146.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.144 }
-		ENG = {
-			transfer_state = 772
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.147
-	title = kaiserschlachtvictory.147.t
-	desc = kaiserschlachtvictory.147.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = dghentpartonec
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.147.a
-		set_global_flag =
-	}
-
-	option = {
-		name = kaiserschlachtvictory.147.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.144 }
-		ENG = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.148
-	title = kaiserschlachtvictory.148.t
-	desc = kaiserschlachtvictory.148.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = dghentpartoned
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.148.a
-		set_global_flag = transferegyptturk4
-	}
-
-	option = {
-		name = kaiserschlachtvictory.148.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.144 }
-		ENG = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.149
-	title = kaiserschlachtvictory.149.t
-	desc = kaiserschlachtvictory.149.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = dghentpartonee
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.149.a
-		set_global_flag = kaiserschlachtvictory.nnexegypt4
-	}
-
-	option = {
-		name = kaiserschlachtvictory.149.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.144 }
-		ENG = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.150
-	title = kaiserschlachtvictory.150.t
-	desc = kaiserschlachtvictory.150.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = dghentpartonef
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.150.a
-		set_global_flag = suezstatusquo4
-	}
-
-	option = {
-		name = kaiserschlachtvictory.150.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.144 }
-	}
-}
-
-#################################################################
-#		Split Belgium Two States Line			#
-#################################################################
-
-# Treaty of Ghent (Germany Chooses to take land behind meuse)
-country_event = {
-	id = kaiserschlachtvictory.151
-	title = kaiserschlachtvictory.151.t
-	desc = kaiserschlachtvictory.151.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = splitbelgiumtakecongochosen
-	}
-
-	mean_time_to_happen = {
-		days = 15
-	}
-
-	option = {
-		name = kaiserschlachtvictory.151.a
-		set_global_flag = eghentpartonea
-		GE1 = {
-			transfer_state = 772
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.151.b
-		set_global_flag = eghentpartoneb
-		TUR = {
-			transfer_state = 772
-		}
-
-	}
-	option = {
-		name = kaiserschlachtvictory.151.c
-		set_global_flag = eghentpartonec
-		EGY = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.151.dd
-		set_global_flag = eghentpartoned
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.152
-	title = kaiserschlachtvictory.152.t
-	desc = kaiserschlachtvictory.152.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = eghentpartonea
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.152.a
-		set_global_flag = takesuez5
-	}
-
-	option = {
-		name = kaiserschlachtvictory.152.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.151 }
-		ENG = {
-			transfer_state = 772
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.153
-	title = kaiserschlachtvictory.153.t
-	desc = kaiserschlachtvictory.153.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = eghentpartoneb
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.153.a
-		set_global_flag = sueztoturks5
-	}
-
-	option = {
-		name = kaiserschlachtvictory.153.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.151 }
-		ENG = {
-			transfer_state = 772
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.154
-	title = kaiserschlachtvictory.154.t
-	desc = kaiserschlachtvictory.154.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = eghentpartonec
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.154.a
-		set_global_flag = independentegypt5
-	}
-
-	option = {
-		name = kaiserschlachtvictory.154.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.151 }
-		ENG = {
-			transfer_state = 446
-			transfer_state = 447
-			transfer_state = 452
-			transfer_state = 552
-			transfer_state = 551
-			transfer_state = 457
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.155
-	title = kaiserschlachtvictory.155.t
-	desc = kaiserschlachtvictory.155.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = eghentpartoned
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.155.a
-		set_global_flag = suezstatusquo5
-	}
-
-	option = {
-		name = kaiserschlachtvictory.155.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.151 }
-	}
-}
-
-
-################################################################
-# 			Gibraltar
-################################################################
-
-# Treaty of Ghent (Germany Chooses to Split Blegium)
+#################################
+#Gibraltar						#
+#################################
+
+# Treaty of Ghent
 country_event = {
 	id = kaiserschlachtvictory.156
 	title = kaiserschlachtvictory.156.t
 	desc = kaiserschlachtvictory.156.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		AND = {
-			OR = {
-				has_global_flag = eghentpartoneb
-				has_global_flag = eghentpartonec
-				has_global_flag = suezstatusquo5
-				has_global_flag = sueztoturks4
-				has_global_flag = transferegyptturk4
-				has_global_flag = sueztoturks3
-				has_global_flag = takenothing3
-				has_global_flag = takingnothingtwotwo
-				has_global_flag = sueztoturks2
-				has_global_flag = suezstatusquo
-				has_global_flag = sueztoturks1
-				has_global_flag = transferegyptturk
-			}
-		}
-	}
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
-		days = 5
+		days = 1
 	}
 
 	option = {
 		name = kaiserschlachtvictory.156.a
-		set_global_flag = aghentpartb1
+		country_event =  {id = kaiserschlachtvictory.157}
 		GE1 = {
 			transfer_state = 118
 		}
 	}
 	option = {
 		name = kaiserschlachtvictory.156.b
-		set_global_flag = bghentpartb1
-		if = {
-			limit = { country_exists = SPR}
-			SPR = { transfer_state = 118 }
-		}
-		if = {
-			limit = { country_exists = SPA}
+		country_event =  {id = kaiserschlachtvictory.157}
 			SPA = { transfer_state = 118 }
-		}
 
 	}
 	option = {
 		name = kaiserschlachtvictory.156.c
-		set_global_flag = cghentpartb1
+		country_event =  {id = kaiserschlachtvictory.157}
 	}
 }
 
@@ -2697,13 +1751,7 @@ country_event = {
 	desc = kaiserschlachtvictory.157.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = aghentpartb1
-	}
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
@@ -2711,196 +1759,21 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.157.a
-		set_global_flag = takegibraltar1
+		country_event = { hours = 6 id = kaiserschlachtvictory.156 } #Back
 	}
 
 	option = {
 		name = kaiserschlachtvictory.157.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.156 }
-		ENG = {
+		country_event = { id = kaiserschlachtvictory.163 } #Fate of Malta
+		EN1 = {
 			transfer_state = 118
 		}
 	}
 }
 
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.158
-	title = kaiserschlachtvictory.158.t
-	desc = kaiserschlachtvictory.158.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = bghentpartb1
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.158.a
-		set_global_flag = givegibraltartospain1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.158.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.156 }
-		ENG = {
-			transfer_state = 118
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.159
-	title = kaiserschlachtvictory.159.t
-	desc = kaiserschlachtvictory.159.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = cghentpartb1
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.159.a
-		set_global_flag = gibraltarnothing1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.159.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.156 }
-	}
-}
 
 
-##########################################################
-# Gibraltar Options Bad Germany Line
-########################################################
 
-# Treaty of Ghent (Gibraltar Options after taking suez )
-country_event = {
-	id = kaiserschlachtvictory.160
-	title = kaiserschlachtvictory.160.t
-	desc = kaiserschlachtvictory.160.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		has_global_flag = not_done_yet_1
-		tag = GE1
-		AND = {
-			OR = {
-				has_global_flag = eghentpartoned
-				has_global_flag = takesuez5
-				has_global_flag = kaiserschlachtvictory.nnexegypt4
-				has_global_flag = independentegypt4
-				has_global_flag = takesuez4
-				has_global_flag = takesuez3
-				has_global_flag = takesuez1
-				has_global_flag = independentegypt
-			}
-		}
-	}
-
-	mean_time_to_happen = {
-		days = 5
-	}
-
-	option = {
-		name = kaiserschlachtvictory.160.a
-		set_global_flag = aghentpartb2
-		SPR = {
-			transfer_state = 118
-		}
-
-	}
-	option = {
-		name = kaiserschlachtvictory.160.b
-		set_global_flag = bghentpartb2
-
-	}
-}
-
-##### Bad Germany very agressive
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.161
-	title = kaiserschlachtvictory.161.t
-	desc = kaiserschlachtvictory.161.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = aghentpartb2
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.161.a
-		set_global_flag = gibraltartospain2
-	}
-
-	option = {
-		name = kaiserschlachtvictory.161.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.160 }
-		EN3 = {
-			transfer_state = 118
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.162
-	title = kaiserschlachtvictory.162.t
-	desc = kaiserschlachtvictory.162.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = bghentpartb2
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.162.a
-		set_global_flag = gibraltarnothing1point2
-	}
-
-	option = {
-		name = kaiserschlachtvictory.162.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.160 }
-	}
-}
 
 ########################################################################
 # 				Malta Line Good Germany
@@ -2913,41 +1786,29 @@ country_event = {
 	desc = kaiserschlachtvictory.163.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		AND = {
-			OR = {
-				has_global_flag = gibraltartospain2
-				has_global_flag = gibraltarnothing1
-				has_global_flag = gibraltarnothing1point2
-			}
-		}
-	}
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
-		days = 5
+		days = 1
 	}
 
 	option = {
 		name = kaiserschlachtvictory.163.a
-		set_global_flag = aghentpartc1
+		country_event =  {id = kaiserschlachtvictory.164}
 		GE1 = {
 			transfer_state = 116
 		}
 	}
 	option = {
 		name = kaiserschlachtvictory.163.b
-		set_global_flag = bghentpartc1
+		country_event =  {id = kaiserschlachtvictory.164}
 		IT2 = {
 			transfer_state = 116
 		}
 	}
 	option = {
 		name = kaiserschlachtvictory.163.c
-		set_global_flag = cghentpartc1
+		country_event =  {id = kaiserschlachtvictory.164}
 	}
 }
 
@@ -2959,13 +1820,7 @@ country_event = {
 	desc = kaiserschlachtvictory.164.d
 	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = aghentpartc1
-	}
+	is_triggered_only = yes
 
 	mean_time_to_happen = {
 		days = 1
@@ -2973,7 +1828,7 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.164.a
-		set_global_flag = takemalta1
+		country_event =  {id = kaiserschlachtvictory.242} #To frankfurt - German-French Border.
 	}
 
 	option = {
@@ -2985,280 +1840,122 @@ country_event = {
 	}
 }
 
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.165
-	title = kaiserschlachtvictory.165.t
-	desc = kaiserschlachtvictory.165.d
-	picture = GFX_report_event_ceasefire
 
-	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = bghentpartc1
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.165.a
-		set_global_flag = maltatoitaly1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.165.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.163 }
-		EN3 = {
-			transfer_state = 116
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.166
-	title = kaiserschlachtvictory.166.t
-	desc = kaiserschlachtvictory.166.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = cghentpartc1
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.166.a
-		set_global_flag = leavemalta1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.166.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.163 }
-		EN3 = {
-			transfer_state = 116
-		}
-	}
-}
-
-########################################################################
-#                         Malta Bad Boy ine
-########################################################################
-
-# Treaty of Ghent ( Malta Options after being a good boy and not taking Gibraltar )
-country_event = {
-	id = kaiserschlachtvictory.167
-	title = kaiserschlachtvictory.167.t
-	desc = kaiserschlachtvictory.167.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		AND = {
-			OR = {
-				has_global_flag = takegibraltar1
-			}
-		}
-	}
-
-	mean_time_to_happen = {
-		days = 5
-	}
-
-	option = {
-		name = kaiserschlachtvictory.167.a
-		set_global_flag = aghentpartc2
-		IT2 = {
-			transfer_state = 116
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.167.b
-		set_global_flag = bghentpartc2
-
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.168
-	title = kaiserschlachtvictory.168.t
-	desc = kaiserschlachtvictory.168.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = aghentpartc2
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.168.a
-		set_global_flag = maltatoitaly2
-	}
-
-	option = {
-		name = kaiserschlachtvictory.168.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.167 }
-		EN3 = {
-			transfer_state = 116
-		}
-	}
-}
-
-# Going Forward
-country_event = {
-	id = kaiserschlachtvictory.169
-	title = kaiserschlachtvictory.169.t
-	desc = kaiserschlachtvictory.169.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = bghentpartc2
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.169.a
-		set_global_flag = leavemalta2
-	}
-
-	option = {
-		name = kaiserschlachtvictory.169.b
-		country_event = { hours = 6 id = kaiserschlachtvictory.167 }
-		EN3 = {
-			transfer_state = 116
-		}
-	}
-}
-
-# Treaty of Frankfurt
+# Treaty of Frankfurt - Franco-German Border
 country_event = {
 	id = kaiserschlachtvictory.242
 	title = kaiserschlachtvictory.242.t
 	desc = kaiserschlachtvictory.242.d
 	picture = GFX_report_event_treaty_of_frankfurt
 
-	fire_only_once = yes
+	is_triggered_only = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = kaiserschlachtvictory
-		date > 1919.6.27
-		has_global_flag = not_done_yet_1
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					owns_state = 753
+				}
+				add_state_core = 753
+			}
+		}
+		FR2 = {remove_state_core = 549}
 	}
 
 	mean_time_to_happen = {
 		days = 1
 	}
+	option = {
+		name = kaiserschlachtvictory.242.a #Briey-Nancy
+		add_state_core = 8
+		add_state_core = 754
+		add_state_core = 755
+
+	}
 
 	option = {
-		name = kaiserschlachtvictory.242.a
+		name = kaiserschlachtvictory.242.b #Europe unchanged, Africa only.
+		transfer_state = 461 #Casablanca
+		transfer_state = 462 #Marrakech
+		transfer_state = 763 #New cameroon
+		transfer_state = 539 #Gabon
+		transfer_state = 660 #Equatorial Africa
+	}
+
+
+	option = {
+		name = kaiserschlachtvictory.242.c #Annex a border strip and French Africa
 		GE1 = {
-			transfer_state = 754
-			transfer_state = 755
-			transfer_state = 461
-			transfer_state = 462
-			transfer_state = 763
-			transfer_state = 539
-			transfer_state = 660
+			transfer_state = 754 #Nanzig
+			add_state_core = 754
+			transfer_state = 755 #Verdun/Briey
+			add_state_core = 755
+
 		}
 	}
 }
 
-# Treaty of Gent
-country_event = {
-	id = kaiserschlachtvictory.243
-	title = kaiserschlachtvictory.243.t
-	desc = kaiserschlachtvictory.243.d
-	picture = GFX_report_event_treaty_of_gent
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = kaiserschlachtvictory.243.a
-
-		#africa
-		GE1 = {
-			transfer_state = 541
-			transfer_state = 546
-			transfer_state = 547
-			transfer_state = 548
-			transfer_state = 634
-			transfer_state = 737
-			transfer_state = 765
-			transfer_state = 766
-			transfer_state = 767
-			transfer_state = 785
-		}
-		GE1 = {
-			transfer_state = 295
-			transfer_state = 297
-			transfer_state = 538
-			transfer_state = 718
-			transfer_state = 753
-			transfer_state = 772
-		}
-		GE1 = {
-			puppet = BEL
-		}
-		BEL = {
-			transfer_state = 34
-			transfer_state = 6
-		}
-		TUR = {
-			transfer_state = 453
-			transfer_state = 455
-			transfer_state = 454
-			transfer_state = 679
-			transfer_state = 291
-			transfer_state = 675
-			transfer_state = 293
-			transfer_state = 758
-		}
-		BNN = {
-			transfer_state = 766
-		}
-	}
-}
+# Treaty of Gent - reserved for removing claims/cores in Africa.
+#country_event = {
+#	id = kaiserschlachtvictory.243
+#	title = kaiserschlachtvictory.243.t
+#	desc = kaiserschlachtvictory.243.d
+#	picture = GFX_report_event_treaty_of_gent
+#
+#
+#	is_triggered_only = yes
+#
+#	mean_time_to_happen = {
+#		days = 1
+#	}
+#
+#	option = {
+#		name = kaiserschlachtvictory.243.a
+#
+#		#africa
+#		GE1 = {
+#			transfer_state = 541
+#			transfer_state = 546
+#			transfer_state = 547
+#			transfer_state = 548
+#			transfer_state = 634
+#			transfer_state = 737
+#			transfer_state = 765
+#			transfer_state = 766
+#			transfer_state = 767
+#			transfer_state = 785
+#		}
+#		GE1 = {
+#			transfer_state = 295
+#			transfer_state = 297
+#			transfer_state = 538
+#			transfer_state = 718
+#			transfer_state = 753
+#			transfer_state = 772
+#		}
+#		GE1 = {
+#			puppet = BE2
+#		}
+#		BE2 = {
+#			transfer_state = 34
+#			transfer_state = 6
+#		}
+#		TUR = {
+#			transfer_state = 453
+#			transfer_state = 455
+#			transfer_state = 454
+#			transfer_state = 679
+#			transfer_state = 291
+#			transfer_state = 675
+#			transfer_state = 293
+#			transfer_state = 758
+#		}
+#		BNN = {
+#			transfer_state = 766
+#		}
+#	}
+#}
 
 # Treaty of Constantinople
 country_event = {
@@ -3267,26 +1964,55 @@ country_event = {
 	desc = kaiserschlachtvictory.244.d
 	picture = GFX_report_event_treaty_of_constantinople
 
+	trigger = {
+		has_global_flag = kaiserschlachtvictory
+		has_global_flag = entente_greece_defeated
+		is_in_faction_with = GE1
+		OR = {
+			tag = TUR
+			tag = BNN
+		}
+	}
 	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
-	}
-
 	mean_time_to_happen = {
-		days = 5
+		days = 1
 	}
 
 	option = {
 		name = kaiserschlachtvictory.244.a
+		trigger = { tag = BNN}
 		BNN = {
-			transfer_state = 184
+			transfer_state = 184 #Kavala
+			transfer_state = 731 #Salonika
+			transfer_state = 794
+			transfer_state = 106
+			transfer_state = 789
+			transfer_state = 766
+			set_province_name = { id = 731 name = "Solun"}
+			731 = {set_state_name = "Solun"}
 		}
+		SER = {
+			remove_state_core = 789 #Macdeonia
+			remove_state_core = 106
+			remove_state_core = 766
+			remove_state_core = 794 #Pirot
+		}
+	}
+	option = {
+		name = kaiserschlachtvictory.244.b
+		trigger = {tag = TUR}
 		TUR = {
-			transfer_state = 187
+			if = {
+				limit = {
+					has_global_flag = italyentente
+				}
+			transfer_state = 164
+			add_state_core = 164 #Rhodes
+			transfer_state = 273 #Libyan desert
+			release = TUR #Libya
+			}
+			transfer_state = 798 #Chios and Samos
 		}
 	}
 }
@@ -3298,36 +2024,68 @@ country_event = {
 	desc = kaiserschlachtvictory.245.d
 	picture = GFX_report_event_treaty_of_sarajevo
 
-	fire_only_once = yes
 
 	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = AUH
 		has_global_flag = kaiserschlachtvictory
 	}
 
+	fire_only_once = yes
+
 	mean_time_to_happen = {
-		days = 10
+		days = 1
 	}
 
 	option = {
-		name = kaiserschlachtvictory.245.a
+		name = kaiserschlachtvictory.245.a #We got stuff.
+		trigger = {
+			tag = AUH
+		}
 		SER = {
 			transfer_state = 107
 			transfer_state = 108
 		}
-		ALB = {
+		AL2 = {
 			transfer_state = 744
+			transfer_state = 44
+
 		}
-		MNT = {
+		MN1 = {
 			transfer_state = 105
 			transfer_state = 792
 		}
 		AUH = {
-			puppet = MNT
+			puppet = MN1
 			puppet = SER
+			puppet = AL2
 		}
 	}
+	option = {
+		name = kaiserschlachtvictory.245.b #Spoils of war.
+		trigger = {
+			NOT = {tag = AUH}
+		}
+		effect_tooltip = {
+			SER = {
+				transfer_state = 107
+				transfer_state = 108
+			}
+			AL2 = {
+				transfer_state = 744
+				transfer_state = 44
+
+			}
+			MN1 = {
+				transfer_state = 105
+				transfer_state = 792
+			}
+			AUH = {
+				puppet = MN1
+				puppet = SER
+				puppet = AL2
+			}
+		}
+	}
+
 }
 
 # Treaty of Innsbruck
@@ -3337,54 +2095,89 @@ country_event = {
 	desc = kaiserschlachtvictory.246.d
 	picture = GFX_report_event_treaty_of_innsbruck
 
-	fire_only_once = yes
+
 
 	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
+		has_global_flag = italyentente
+		is_in_faction_with = GE1
 		has_global_flag = kaiserschlachtvictory
 	}
 
+	fire_only_once = yes
+
 	mean_time_to_happen = {
-		days = 15
+		days = 2
 	}
 
 	option = {
+		trigger = {
+			tag = AUH
+		}
 		name = kaiserschlachtvictory.246.a
 		DER = {
-			transfer_state = 268
-			transfer_state = 550
-			transfer_state = 559
+			transfer_state = 268 #Djibouti
+			transfer_state = 550 #Eritrea
+			transfer_state = 559 #Somalia
 		}
 		TUR = {
-			transfer_state = 164
+			transfer_state = 164 #Rhodes
 		}
 		AUH = {
-			transfer_state = 745
-			transfer_state = 160
+			transfer_state = 745 #Friuli
+			transfer_state = 160 #Veneto
+		}
+	}
+	option = {
+		name = kaiserschlachtvictory.246.b #oh, okay.
+		trigger = {
+			NOT = {tag = TUR}
+			NOT = {tag = DER}
+			NOT = {tag = AUH}
+		}
+		effect_tooltip ={
+			DER = {
+				transfer_state = 268
+				transfer_state = 550
+				transfer_state = 559
+			}
+			TUR = {
+				transfer_state = 164
+			}
+			AUH = {
+				transfer_state = 745
+				transfer_state = 160
+			}
 		}
 	}
 }
 
-# Corsica Question
+# Corsica Question / Our rewards!
 country_event = {
 	id = kaiserschlachtvictory.247
 	title = kaiserschlachtvictory.247.t
 	desc = kaiserschlachtvictory.247.d
 	picture = GFX_report_event_corsica
 
-	fire_only_once = yes
-
 	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
-		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
+		OR = {
+			AND ={
+				tag = GE1
+				has_global_flag = kaiserschlachtvictory
+				NOT = {IT1 = {is_in_faction_with = GE1} }
+			}
+			AND = {
+				tag = IT1
+				IT1 = {is_in_faction_with = GE1}
+				has_global_flag = kaiserschlachtvictory
+			}
+		}
 	}
 
 	mean_time_to_happen = {
-		days = 15
+		days = 3
 	}
+
+	fire_only_once = yes
 
 	option = {
 		name = kaiserschlachtvictory.247.a
@@ -3396,6 +2189,18 @@ country_event = {
 	option = {
 		name = kaiserschlachtvictory.247.b
 	}
+
+	option = {
+		name = kaiserschlachtvictory.247.c
+		trigger = {
+			tag = IT1
+		}
+		transfer_state = 458 #Tunis
+		transfer_state = 665 #Gabes
+		transfer_state = 1 #Corsica
+		transfer_state = 735 #Savoy
+
+	}
 }
 
 # Kuwait Question
@@ -3405,17 +2210,34 @@ country_event = {
 	desc = kaiserschlachtvictory.248.d
 	picture = GFX_report_event_kuwait
 
-	fire_only_once = yes
-
 	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
 		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
+		OR = {
+			AND = {
+				tag = TUR
+				TUR = { is_ai = no}
+				GE1 = { is_ai = yes}
+			}
+			AND = {
+				TUR = { is_ai = yes}
+				GE1 = { is_ai = no}
+				tag = GE1
+			}
+			AND = {
+				TUR = {is_ai = no}
+				GE1 = {is_ai = no}
+				tag = GE1
+			}
+			AND = {
+				TUR = {is_ai = yes}
+				GE1 = {is_ai = yes}
+				tag = GE1
+			}
+		}
 	}
 
 	mean_time_to_happen = {
-		days = 1
+		days = 4
 	}
 
 	option = {
@@ -3427,6 +2249,8 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.248.b
+		trigger = { TUR = {is_in_faction_with = GE1} }
+
 		TUR = {
 			transfer_state = 656
 		}
@@ -3440,17 +2264,15 @@ country_event = {
 	desc = kaiserschlachtvictory.249.d
 	picture = GFX_report_event_japanese_question
 
-	fire_only_once = yes
 
 	trigger = {
-		has_global_flag = peacedeals_finished
-		tag = GE1
+		has_global_flag = italyentente
+		is_in_faction_with = GE1
 		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
 	}
 
 	mean_time_to_happen = {
-		days = 1
+		days = 5
 	}
 
 	option = {
@@ -3465,7 +2287,7 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.249.b
-		JA1 = {
+		JA3 = {
 			transfer_state = 286
 			transfer_state = 670
 			transfer_state = 671
@@ -3474,8 +2296,7 @@ country_event = {
 	}
 }
 
-
-# Belgian question part 1 version 2
+#The Pacific Islands
 country_event = {
 	id = kaiserschlachtvictory.250
 	title = kaiserschlachtvictory.250.t
@@ -3484,64 +2305,141 @@ country_event = {
 
 	fire_only_once = yes
 
-	immediate = { hidden_effect = { set_global_flag = belgian_partition_being_done } }
-
 	trigger = {
-		has_global_flag = peacedeals_finished
 		tag = GE1
 		has_global_flag = kaiserschlachtvictory
-		has_global_flag = not_done_yet_1
+		OR = {
+			JA3 = {	owns_state = 647} #Palau
+			JA3 = { owns_state = 684} #Carolines
+			JA3 = {	owns_state = 633} #Marshall
+		}
+	}
+	option = {
+		name = kaiserschlachtvictory.250.a #Recognize Japanese posession for a sale.
+		ai_chance = { factor = 100}
+		custom_effect_tooltip =  ifjapanislandpurchase_tt
+		effect_tooltip = {
+			JA3 = {
+				282 = { #Tokyo, payment.
+					remove_building ={
+						type = industrial_complex
+						level = 1
+					}
+				}
+			}
+			GE1  = {
+				random_owned_state = {
+					add_building_construction = {
+						type = industrial_complex
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+		}
+		JA3 = { country_event = { id = kaiserschlachtvictory.251} }
 	}
 
-	mean_time_to_happen = { days = 30 }
+	option = {
+		name = kaiserschlachtvictory.250.b
+		ai_chance = {factor = 0}
+		JA3 = { country_event = { id = kaiserschlachtvictory.252} }
+	}
+}
+
+#Sell the islands?
+country_event = {
+	id = kaiserschlachtvictory.251
+	title = kaiserschlachtvictory.251.t
+	desc = kaiserschlachtvictory.251.d
+	picture = GFX_report_event_japanese_question
+	is_triggered_only = yes
+	fire_only_once = yes
 
 	option = {
-		name = kaiserschlachtvictory.123.a
-		set_global_flag = annexedbelgium
+		name = kaiserschlachtvictory.251.a #Yes
+		ai_chance = {factor = 100}
+		JA3 = {
+			282 = { #Tokyo, payment.
+				remove_building ={
+					type = industrial_complex
+					level = 1
+				}
+			}
+		}
+		GE1  = {
+			random_owned_state = {
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+			remove_state_claim = 647
+			remove_state_claim = 684
+			remove_state_claim = 683
+		}
+		JA3 = {
+			add_state_core = 647
+			add_state_core = 684
+			add_state_core = 683
+			add_war_support = 0.05
+			add_stability = 0.05
+		}
+
+	}
+	option = {
+		name = kaiserschlachtvictory.251.b #no
+		ai_chance = {factor = 0}
+		GE1 = { country_event = { id = kaiserschlachtvictory.253} }
+	}
+}
+
+#We demand you return those islands!
+country_event = {
+	id = kaiserschlachtvictory.252
+	title = kaiserschlachtvictory.252.t
+	desc = kaiserschlachtvictory.252.d
+	picture = GFX_report_event_japanese_question
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	option = {
+		name = kaiserschlachtvictory.252.a
+		ai_chance = { factor = 50}
+		GE1 = { country_event = { id = kaiserschlachtvictory.253} }
+	}
+	option = {
+		name = kaiserschlachtvictory.252.b
+		ai_chance = { factor = 50}
 		GE1 = {
-			annex_country = { target = BEL transfer_troops = no }
-			change_tag_from = BEL
+			transfer_state = 633
+			transfer_state = 647
+			transfer_state = 684
 		}
 	}
+}
+#Japan rejected our peace offer!
+country_event = {
+	id = kaiserschlachtvictory.253
+	title = kaiserschlachtvictory.253.t
+	desc = kaiserschlachtvictory.253.d
+	picture = GFX_report_event_japanese_question
+	is_triggered_only = yes
+	fire_only_once = yes
+
 	option = {
-		name = kaiserschlachtvictory.123.b
-		set_global_flag = belgianpuppet
-		GE1 = { puppet = BEL }
-	}
-	option = {
-		name = kaiserschlachtvictory.123.c
-		set_global_flag = tookeasternbelgium
-		GE1 = {
-			transfer_state = 753
-			puppet = BEL
+		name = kaiserschlachtvictory.253.a #That was unexpected.
+		random_list = {
+			50 = {
+				create_wargoal = {
+					target = JA3
+					type = annex_everything
+				}
+			}
+			50 = {
+
+			}
 		}
-	}
-	option = {
-		name = kaiserschlachtvictory.123.dd
-		set_global_flag = tookeasternbelgium
-		set_global_flag = tookcongo
-		GE1 = {
-			transfer_state = 753
-			transfer_state = 295
-			transfer_state = 538
-			transfer_state = 718
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.123.e
-		set_global_flag = splitbelgium
-		set_global_flag = tookcongo
-		FLA = { transfer_state = 6 }
-		WAL = { transfer_state = 34 }
-		GE1 = {
-			transfer_state = 753
-			transfer_state = 295
-			transfer_state = 538
-			transfer_state = 718
-		}
-	}
-	option = {
-		name = kaiserschlachtvictory.123.f
-		set_global_flag = didnothingbelgium
 	}
 }
