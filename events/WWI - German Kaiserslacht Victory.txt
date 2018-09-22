@@ -5,7 +5,7 @@
 ###########################
 ##### Event Sequences #####
 ###########################
-# kaiserschlachtvictory.1   	- Germans captured paris
+# kaiserschlachtvictory.1   	- Germans captured Paris + Champagne
 # kaiserschlachtvictory.2-3 	- French response
 # kaiserschlachtvictory.4   	- Main event
 # kaiserschlachtvictory.5-7 	- English response
@@ -13,7 +13,7 @@
 # kaiserschlachtvictory.11-13	- USA response
 # kaiserschlachtvictory.14-16	- Japan response
 # kaiserschlachtvictory.17-23	- China
-# kaiserschlachtvictory
+# kaiserschlachtvictory.25, 254 - Russia, if still in Entente.
 
 add_namespace = kaiserschlachtvictory
 
@@ -124,6 +124,7 @@ country_event = {
 	# USA agrees/refuses armistice event.11
 	# Japan agrees/refuses armistice event.14
 	# China agrees/refuses armistice event.17 #THIS ONE CURRENTLY DOESNT HAPPEN, IMPLEMENT AS WANTED
+	# Russia agrees/refuses armistice IF they are still in the Entente and Brest Litovsk has not fired.
 	option = {
 		name = kaiserschlachtvictory.4.a
 		hidden_effect = {
@@ -161,7 +162,7 @@ country_event = {
 
 		if = {
 			limit = { SWS = { has_war_with = GE1 } }
-			set_global_flag = swiss_neutrality_violated
+			set_global_flag = swiss_neutrality_violated #Could be used later.
 		}
 		if = {
 			limit = {
@@ -209,30 +210,23 @@ country_event = {
 			RUS = { country_event = { id = kaiserschlachtvictory.25 days = 6 } }
 		}
 
-		if = {
-			limit = {
-				AND = {
-					SO2 = { has_war_with = GE1 }
-					NOT = { has_war_with = WHR }
-				}
-			}
-			SO2 = { country_event = { id = kaiserschlachtvictory.1 days = 2 } }
-		}
+	#	if = {
+	#		limit = {
+	#			AND = {
+	#				SO2 = { has_war_with = GE1 }
+	#				NOT = { has_war_with = WHR }
+	#			}
+	#		}
+	#		SO2 = { country_event = { id = kaiserschlachtvictory.1 days = 2} }
+	#	}
 
-		if = {
-			limit = {
-				AND = {
-					SO2 = { has_war_with = GE1 }
-					SO2 = { has_war_with = WHR }
-				}
-			}
-			SO2 = { country_event = { id = kaiserschlachtvictory.1 days = 2 } }
-		}
 
-		if = {
-			limit = { TUR = { has_war_with = GE1 } }
-			TUR = { country_event = { id = kaiserschlachtvictory.1 days = 2 } }
-		}
+	#	if = {
+	#		limit = {
+	#			TUR = { has_war_with = GE1 }
+	#		}
+	#		TUR = { country_event = { id = kaiserschlachtvictory.1 days = 2} }
+	#	}
 
 		if = {
 			limit = { HO3 = { has_war_with = GE1 } }
@@ -242,7 +236,7 @@ country_event = {
 		if = {
 			limit = { GR1 = { has_war_with = GE1 } }
 			set_global_flag = entente_greece_defeated
-			GR1 = { country_event = { id = kaiserschlachtvictory.1 days = 3 } }
+	#		GR1 = { country_event = { id = kaiserschlachtvictory.1 days = 3 } }
 		}
 
 		GE1 = {
@@ -254,6 +248,10 @@ country_event = {
 			if = {
 				limit = { has_global_flag = belgium_neutrality_violated }
 				country_event = { id = kaiserschlachtvictory.123 days = 10 } #Treaty of Ghent
+			}
+			if = {
+				limit = { has_global_flag = swiss_neutrality_violated }
+				country_event = { id = kaiserschlachtvictory.255 days = 10 } #The Swiss Question
 			}
 
 			if = {
@@ -869,7 +867,6 @@ country_event = {
 		name = kaiserschlachtvictory.17.b #Demand Tsingtao!
 		ai_chance = { factor = 50 }
 		trigger = {
-		 	has_global_flag = peacedeals_finished#visible when...
 			GE1 = { owns_state = 771} #germany owns tsingdao
 		}
 		add_political_power = 150
@@ -1069,7 +1066,6 @@ country_event = {
 
 	fire_only_once = yes
 	trigger = {
-		has_global_flag = peacedeals_finished
 		OR = {
 			QIN = {controls_state = 771}
 			RCH = {controls_state = 771} #Qingdao
@@ -1114,7 +1110,6 @@ country_event = {
 
 	fire_only_once = yes
 	trigger = {
-		has_global_flag = peacedeals_finished
 		NOT = {
 			OR = {
 				QIN = {controls_state = 597}
@@ -1155,7 +1150,6 @@ country_event = {
 #
 # 	fire_only_once = yes
 # 	trigger = {
-# 		has_global_flag = peacedeals_finished
 # 		has_global_flag = kaiserschlachtvictory
 # 		NOT = {
 # 			GE1 = {
@@ -1186,6 +1180,7 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.25.a #Peace with Germans?
+		set_global_flag = ententerussiadefeated
 		every_country = {
 			limit = { has_war_with = RUS }
 			white_peace = RUS
@@ -1216,25 +1211,11 @@ country_event = {
 			}
 			TUR = {transfer_state = 784 #Kars}
 		}
-		if = {
-			limit = { RMM = { is_in_faction_with = GE1 } }
-			RMM = {
-				transfer_state = 78
-				transfer_state = 198
-				transfer_state = 192
-				add_state_core = 78
-				add_state_core = 198
-				add_state_core = 192
-				198 = { set_demilitarized_zone = no }
-				192 = { set_demilitarized_zone = no }
-			}
-		}
 	}
-	} #extra } because idk why? just doesnt work otherwise #Because Paradox a shit
+	}
 	option = {
 		name = kaiserschlachtvictory.25.b
 		trigger = {
-			has_global_flag = peacedeals_finished
 			RUS = {has_capitulated = no}
 		}
 		add_stability = -0.20
@@ -1254,7 +1235,6 @@ country_event = {
 #	fire_only_once = yes
 #
 #	trigger = {
-#		has_global_flag = peacedeals_finished
 #		tag = GE1
 #		has_global_flag = kaiserschlachtvictory
 #		has_global_flag = not_done_yet_1
@@ -1288,7 +1268,6 @@ country_event = {
 #	fire_only_once = yes
 #
 #	trigger = {
-#		has_global_flag = peacedeals_finished
 #		tag = GE1
 #		has_global_flag = kaiserschlachtvictory
 #		has_global_flag = not_done_yet_1
@@ -2175,7 +2154,10 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.247.a
-		trigger = { IT1 = { is_in_faction_with = GE1 } }
+		ai_chance = {
+			factor = 100
+		}
+		trigger = { NOT = {IT1 = { is_in_faction_with = GE1 } } } #Italy is not in a faction with Germany
 		IT1 = {
 			transfer_state = 1
 		}
@@ -2183,10 +2165,16 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.247.b
+		ai_chance = {
+			factor = 0
+		}
 	}
 
 	option = {
 		name = kaiserschlachtvictory.247.c
+		ai_chance = {
+			factor = 100
+		}
 		trigger = { IT1 = { is_in_faction_with = GE1 } }
 		transfer_state = 458 #Tunis
 		transfer_state = 665 #Gabes
@@ -2263,7 +2251,6 @@ country_event = {
 
 
 	trigger = {
-		has_global_flag = italyentente
 		is_in_faction_with = GE1
 		has_global_flag = kaiserschlachtvictory
 	}
@@ -2443,5 +2430,134 @@ country_event = {
 
 			}
 		}
+	}
+}
+
+#Brest-Litovsk, but if Russia is in the Entente rather than having it happen historically.
+country_event = {
+	id = kaiserschlachtvictory.254
+	title = ww1_russia.254.t
+	desc = ww1_russia.254.d
+	picture = GFX_report_event_treaty_of_brest_litovsk
+
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { has_global_flag = player_wants_custom_peacedeals }
+		has_global_flag = ententerussiadefeated
+	}
+
+	mean_time_to_happen = { days = 10 }
+
+	option = {
+		name = ww1_russia.254.a
+		news_event = { hours = 6 id = news.225 }
+		set_global_flag = treaty_of_brest_litovsk
+		hidden_effect = {
+			release = UBD
+			release = LIT
+			release = BLR
+			release = UKR
+			release = TRA
+			GE1 = {transfer_state = 137} #Crimea
+			if = {
+				limit = {
+					NOT = { country_exists = FNN } #Finland cannot into existence
+				}
+				RUS = { end_puppet = FNN }
+				release = FNN #can into existence. also more clay via Petsamo, I'm sure that the Germans would've wanted it.
+			}
+			if = {
+				limit = {
+					NOT = {
+						country_exists = RKP #Poland cannot into existence
+					}
+				}
+				release = RKP #can into existence
+			}
+			every_state = {
+				limit = {
+					OR = {
+						is_controlled_by = UBD
+						is_controlled_by = BLR
+						is_controlled_by = UKR
+						is_controlled_by = LIT
+						is_controlled_by = GE1
+					}
+				}
+				set_demilitarized_zone = no				
+			}
+
+			if = {
+				limit = {
+					RMM = {is_in_faction_with = GE1} #Romania is in the CP
+				}
+				RMM = {transfer_state = 78}
+				RMM = {transfer_state = 192} #Vinnytsia
+				RMM = {transfer_state = 198} #Odessa, ie transnistria. Gives reason for Romanian player to side with CP.
+				78 = {  #Besserabia
+					remove_claim_by = RMM
+					add_core_of = RMM
+				}
+				137 = { add_core_of = CRI }
+				198 = { add_core_of = RMM }
+				192 = { add_core_of = RMM }
+				198 = { set_demilitarized_zone = no }
+				192 = { set_demilitarized_zone = no }
+			}
+			else = {
+				78 = {add_core_of = RO2}
+				release = RO2
+				RMM = { puppet = RO2}
+			}
+		}
+		GE1 = {
+			puppet = UBD
+			puppet = LIT
+			puppet = BLR
+			puppet = UKR
+			if = {
+				limit = {
+					RKP = { is_puppet = no}
+				}
+				puppet = RKP
+			}
+			add_to_faction = UBD
+			add_to_faction = LIT
+			add_to_faction = BLR
+			add_to_faction = UKR
+			add_to_faction = RKP
+		}
+		if = {
+			limit = {
+				TUR = { is_in_faction_with = GE1 }
+			}
+			TUR = { transfer_state = 784 } #Kars
+		}
+		else = {
+			TRA = { transfer_state = 784}
+			TRA = { add_state_core = 784}
+		}
+	}
+}
+
+#What do we do with Switzerland?
+country_event = {
+	id = kaiserschlachtvictory.255
+	title = kaiserschlachtvictory.255.t
+	desc = kaiserschlachtvictory.255.d
+	picture = GFX_report_event_treaty_of_innsbruck
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { #puppet them
+	name = kaiserschlachtvictory.255.a
+	ai_chance = { factor = 0 }
+	GE1 = { puppet = SWS}
+	
+	}
+	option = { #Status Quo
+	name = kaiserschlachtvictory.255.b
+	ai_chance = { factor = 100 }
 	}
 }
