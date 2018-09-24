@@ -11,8 +11,870 @@ focus_tree = {
 	}
 
 	default = no
+	continuous_focus_position = { x = 1000 y = 1000 }
 
-	shared_focus = shared_industrialisation
+
+	### OPERATIONS ###
+
+
+	focus = {
+		id = GER_danzig_or_war
+		icon = GFX_goal_generic_demand_territory
+		will_lead_to_war_with = POL
+		available = {
+			is_puppet = no
+			has_army_manpower = { size > 949999 } #100 div
+			#Make custom trigger tooltip here
+			85 = {
+				owner = {
+					original_tag = POL
+				}
+				controller = {
+					original_tag = POL
+				}
+			}
+			OR = {
+				POL = {
+					has_civil_war = no
+				}
+				#custom_trigger_tooltip = {
+					#tooltip = GER_danzig_trigger_polish_civil_war
+					AND = {
+						any_other_country = {
+							original_tag = POL
+							has_civil_war = yes
+							OR = {
+								is_in_faction_with = ROOT
+								has_volunteers_amount_from = {
+									tag = GER
+									count > 0
+								}
+							}
+						}
+					}
+				#}
+			}
+		}
+
+		bypass = {
+			OR = {
+				has_war_with = POL
+				is_in_faction_with = POL
+				NOT = {
+					85 = {
+						controller = {
+							original_tag = POL
+						}
+						owner = {
+							original_tag = POL
+						}
+					}
+				}
+				NOT = { country_exists = POL }
+			}
+		}
+		cancel_if_invalid = no
+		x = 3
+		y = 5
+		cost = 1.5
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				OR = {
+					date < 1939.1.1
+					any_neighbor_country = {
+						has_war_with = GER
+						NOT = { has_capitulated = yes }
+						strength_ratio = {
+							tag = GER
+							ratio > 0.6
+						}
+					}
+				}
+			}
+		}
+		completion_reward = {
+			add_named_threat = { threat = 5 name = GER_danzig_or_war }
+			if = {
+				limit = {
+					85 = {
+						controller = {
+							tag = POL
+							has_civil_war = no
+						}
+					}
+				}
+				effect_tooltip = {
+					transfer_state = 85
+					add_state_core = 85
+					remove_state_claim = 86
+					remove_state_claim = 762
+				}
+				POL = {
+					country_event = { id = germany.86 }
+					if = {
+						limit = { NOT = { is_in_faction_with = ROOT } }
+						custom_effect_tooltip = needs_approval
+					}
+					if = {
+						limit = {
+							is_in_faction_with = ROOT
+							ROOT = { is_faction_leader = yes }
+						}
+						custom_effect_tooltip = GER_danzig_or_war_POL_faction_GER_leader
+					}
+					if = {
+						limit = {
+							is_in_faction_with = ROOT
+							NOT = { ROOT = { is_faction_leader = yes } }
+						}
+						custom_effect_tooltip = GER_danzig_or_war_POL_faction_GER_noleader
+					}
+				}
+			}
+			if = {
+				limit = {
+					85 = {
+						owner = {
+							OR = {
+								original_tag = POL
+								tag = POL
+							}
+						}
+					}
+				}
+				random_other_country = {
+					limit = {
+						original_tag = POL
+						has_civil_war = yes
+						OR = {
+							is_in_faction_with = GER
+							has_volunteers_amount_from = {
+								tag = GER
+								count > 0
+							}
+						}
+					}
+					country_event = { id = germany.113 days = 1 }
+				}
+				custom_effect_tooltip = GER_danzig_or_war_POL_civil_war
+			}
+		}
+	}
+
+	focus = {
+		id = GER_ussr_war_goal
+		icon = GFX_goal_generic_war_with_comintern
+		prerequisite = { focus = GER_danzig_or_war }
+		will_lead_to_war_with = SOV
+
+		cancel = {
+			NOT = { country_exists = SOV }
+		}
+		x = -4
+		y = 1
+		relative_position_id = GER_danzig_or_war
+		cost = 1.5
+		historical_ai = {
+			NOT = {
+				any_home_area_neighbor_country = {
+					has_war_with = ROOT
+				}
+			}
+		}
+		bypass = {
+			has_war_with = SOV
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				OR = {
+					has_army_manpower = { size < 1199999 }
+					any_home_area_neighbor_country = {
+						has_war_with = ROOT
+					}
+				}
+			}
+			modifier = {
+				factor = 0 #AI should not pick this focus if it does not share a border with the Soviets
+				NOT = {
+					any_home_area_neighbor_country = {
+						tag = SOV
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				date < 1939.1.1
+			}
+		}
+		completion_reward = {
+			create_wargoal = {
+				type = annex_everything
+				target = SOV
+			}
+		}
+	}
+
+	focus = {
+		id = GER_operation_typhoon
+		icon = GFX_goal_generic_position_armies
+	    available = {
+			date > 1942.3.10
+			SOV = { controls_state = 219 }
+			OR = {
+				GER = { controls_state = 205 }
+				GER = { controls_state = 246 }
+				GER = { controls_state = 242 }
+				GER = { controls_state = 223 }
+			}
+		}
+
+   		prerequisite = { focus = GER_ussr_war_goal }
+		relative_position_id = GER_ussr_war_goal
+
+		x = 1
+		y = 1
+   		cost = 1.5
+
+		completion_reward = {
+		}
+	}
+
+	focus = {
+		id = GER_fall_blau
+		icon = GFX_goal_generic_position_armies
+	    available = {
+			date > 1942.3.10
+			SOV = { controls_state = 219 }
+			SOV = { controls_state = 217 }
+			SOV = { controls_state = 238 }
+			SOV = { controls_state = 234 }
+			GER = { controls_state = 202 }
+		}
+
+   		prerequisite = { focus = GER_ussr_war_goal }
+		relative_position_id = GER_ussr_war_goal
+
+		x = -1
+		y = 1
+   		cost = 1.5
+
+		completion_reward = {
+			add_timed_idea = { idea = fall_blau days = 80 }
+			custom_effect_tooltip = fall_blau.tt
+			hidden_effect = {
+				if = {
+					limit = { NOT = { GER = { has_tech = basic_medium_td } } }
+					GER = { set_technology = { basic_medium_td = 1 } }
+				}
+				if = {
+					limit = { NOT = { GER = { has_tech = mechanised_infantry } } }
+					GER = { set_technology = { mechanised_infantry = 1 } }
+				}
+
+				SOV = {
+					add_resource = {
+						type = oil
+						amount = 60
+						state = 232
+					}
+				}
+				SOV = {
+					add_resource = {
+						type = oil
+						amount = 40
+						state = 229
+					}
+			    }
+				load_oob = GER_fallblau
+				add_manpower = -50000
+			}
+		}
+	}
+
+	focus = {
+   		id = GER_operation_citadel
+   		icon = GFX_goal_generic_axis_build_infantry
+   		prerequisite = { focus = GER_fall_blau }
+   	    available = {
+   			date > 1943.1.10
+   			has_tech = improved_heavy_tank
+   			SOV = { controls_state = 217 }
+   			SOV = { controls_state = 219 }
+   			SOV = { controls_state = 260 }
+   			SOV = { controls_state = 229 }
+			GER = { controls_state = 202 }
+   		}
+   		cost = 1.5
+
+		relative_position_id = GER_fall_blau
+
+		x = 0
+		y = 1
+
+   		completion_reward = {
+   			add_timed_idea = { idea = operation_citadel days = 80 }
+
+   			custom_effect_tooltip = citadel.tt
+   			hidden_effect = {
+   				load_oob = GER_citadel
+   				add_manpower = -50000
+				add_equipment_to_stockpile = { type = infantry_equipment_2 amount = 15000 producer = GER }
+   	        }
+    	}
+	}
+
+	focus = {
+   		id = GER_operation_isabella
+   		icon = GFX_goal_generic_axis_build_infantry
+   		prerequisite = { focus = GER_operation_typhoon }
+   	    available = {
+   			date > 1943.1.1
+   			GER = { has_war_with = ENG }
+			has_completed_focus = GER_war_with_france
+			country_exists = POR
+   		}
+   		cost = 1.5
+
+		relative_position_id = GER_operation_typhoon
+
+		x = 0
+		y = 1
+
+   		completion_reward = {
+    	}
+	}
+
+	focus = {
+   		id = GER_fall_of_soviet_union
+   		icon = GFX_goal_generic_axis_build_infantry
+   		prerequisite = { focus = GER_operation_isabella focus = GER_operation_citadel }
+   	    available = {
+   			date > 1943.1.1
+			GER = { has_government_nationalist = yes }
+			OR = {
+	   			GER = { NOT = { has_war_with = SOV } }
+				SOV = { has_capitulated = yes }
+			}
+			GER = { has_government_nationalist = yes }
+   		}
+   		cost = 1.5
+
+		relative_position_id = GER_operation_citadel
+
+		x = 1
+		y = 2
+
+   		completion_reward = {
+    	}
+	}
+
+	focus = {
+		id = GER_around_maginot
+		icon = GFX_goal_generic_attack_allies
+		prerequisite = { focus = GER_danzig_or_war }
+		x = 0
+		y = 1
+		relative_position_id = GER_danzig_or_war
+		cost = 1.5
+
+		available = {
+			OR = {
+				NOT = { HOL = { is_in_faction_with = GER } }
+				NOT = { BEL = { is_in_faction_with = GER } }
+				NOT = { LUX = { is_in_faction_with = GER } }
+			}
+		}
+
+		bypass = {
+			HOL = {
+				OR = {
+					exists = no
+					is_in_faction_with = GER
+					has_war_with = ROOT
+				}
+			}
+			BEL = {
+				OR = {
+					exists = no
+					is_in_faction_with = GER
+					has_war_with = ROOT
+				}
+			}
+			LUX = {
+				OR = {
+					exists = no
+					is_in_faction_with = GER
+					has_war_with = ROOT
+				}
+			}
+		}
+
+		historical_ai = {
+			date > 1939.1.1
+			NOT = {
+				any_home_area_neighbor_country = {
+					NOT = { tag = FRA }
+					has_war_with = ROOT
+					surrender_progress < 0.5
+				}
+			}
+		}
+		will_lead_to_war_with = BEL
+		will_lead_to_war_with = HOL
+		will_lead_to_war_with = LUX
+		will_lead_to_war_with = FRA
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0.05
+				date < 1939.1.1
+			}
+			modifier = {
+				factor = 0.2
+				any_home_area_neighbor_country = {
+					NOT = { tag = FRA }
+					has_war_with = ROOT
+					surrender_progress < 0.5
+				}
+			}
+		}
+		completion_reward = {
+			#limit wargoals to when it makes sense to give them. No faction, war or non exist
+			if = {
+				limit = {
+					country_exists = BEL
+					NOT = { BEL = { is_in_faction_with = GER } }
+					NOT = { has_war_with = BEL }
+				}
+				create_wargoal = {
+					type = take_state_focus
+					target = BEL
+					generator = { 6 }
+				}
+			}
+			if =  {
+				limit = {
+					country_exists = HOL
+					NOT = { HOL = { is_in_faction_with = GER } }
+					NOT = { has_war_with = HOL }
+				}
+				create_wargoal = {
+					type = take_state_focus
+					target = HOL
+					generator = { 7 }
+				}
+			}
+			if = {
+				limit = {
+					country_exists = LUX
+					NOT = { LUX = { is_in_faction_with = GER } }
+					NOT = { has_war_with = LUX }
+				}
+				create_wargoal = {
+					type = take_state_focus
+					target = LUX
+					generator = { 8 }
+				}
+			}
+		}
+	}
+
+	focus = {
+		id = GER_war_with_france
+		icon = GFX_goal_generic_major_war
+		prerequisite = { focus = GER_around_maginot }
+		available = {
+			is_puppet = no
+			NOT = { is_in_faction_with = FRA }
+		}
+		x = 0
+		y = 1
+		relative_position_id = GER_around_maginot
+		cost = 1.5
+		bypass = {
+			OR = {
+				NOT = { country_exists = FRA }
+				has_war_with = FRA
+			}
+		}
+		historical_ai = {
+			date > 1939.1.1
+			NOT = {
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0.05
+				date < 1939.1.1
+			}
+		}
+		completion_reward = {
+			add_named_threat = { threat = 5 name = GER_war_with_france_threat }
+ 			create_wargoal = {
+ 				type = take_state_focus
+ 				target = FRA
+ 				generator = { 28 }
+ 			}
+		}
+	}
+
+	focus = {
+		id = GER_operation_seelowe
+		icon = GFX_goal_generic_position_armies
+	    available = {
+			ENG = { has_war_with = GER }
+			ENG = { has_capitulated = no }
+		}
+
+		prerequisite = { focus = GER_weserubung }
+		relative_position_id = GER_weserubung
+
+		x = 1
+		y = 1
+   		cost = 1.5
+
+		completion_reward = {
+			#add_timed_idea = { idea = fall_blau days = 80 }
+		}
+	}
+
+	focus = {
+		id = GER_fall_grun
+		icon = GFX_goal_generic_position_armies
+	    available = {
+			country_exists = IRE
+			NOT = { IRE = { has_war_with = GER } }
+			ENG = { has_war_with = GER }
+		}
+
+		prerequisite = { focus = GER_operation_seelowe }
+		relative_position_id = GER_operation_seelowe
+
+		x = 0
+		y = 1
+   		cost = 1.5
+
+		completion_reward = {
+			#add_timed_idea = { idea = fall_blau days = 80 }
+		}
+	}
+
+	focus = {
+   		id = GER_fall_of_uk
+   		icon = GFX_goal_generic_axis_build_infantry
+   		prerequisite = { focus = GER_operation_seelowe }
+   	    available = {
+   			date > 1943.1.1
+			OR = {
+	   			GER = { NOT = { has_war_with = ENG } }
+				ENG = { has_capitulated = yes }
+			}
+			GER = { has_government_nationalist = yes }
+   		}
+   		cost = 1.5
+
+		relative_position_id = GER_fall_grun
+
+		x = -1
+		y = 2
+
+   		completion_reward = {
+    	}
+	}
+
+	focus = {
+		id = GER_fall_anton
+		icon = GFX_goal_generic_position_armies
+	    available = {
+			date > 1942.11.10
+			date < 1943.1.1
+			country_exists = EFR
+			OR = {
+				EFR = { has_war_with = USA }
+				EFR = { is_in_faction_with = ENG }
+			}
+		}
+
+		bypass = {
+			date > 1943.1.1
+		}
+
+		prerequisite = { focus = GER_war_with_france }
+		relative_position_id = GER_war_with_france
+
+		x = 1
+		y = 2
+   		cost = 1.5
+
+		completion_reward = {
+			GER = { country_event = { id = EFR_1942.5 days = 1 } }
+		}
+	}
+
+	focus = {
+		id = GER_weserubung
+		icon = GFX_goal_generic_more_territorial_claims
+		prerequisite = { focus = GER_danzig_or_war }
+		mutually_exclusive = { focus = GER_denmark_friend }
+		will_lead_to_war_with = DEN
+		will_lead_to_war_with = NOR
+
+		bypass = {
+			DEN = {
+				OR = {
+					is_in_faction_with = GER
+					NOT = { country_exists = DEN }
+				}
+			}
+		}
+
+		available = {
+			POL = {
+				NOT = { controls_state = 85 }
+				NOT = { controls_state = 10 }
+			}
+			OR = {
+				has_war_with = ENG
+				NOT = {country_exists = ENG}
+			}
+		}
+
+		x = 4
+		y = 1
+		relative_position_id = GER_danzig_or_war
+		cost = 1.5
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				date < 1939.1.1
+			}
+		}
+		completion_reward = {
+
+			if = {
+				limit = {
+					NOT = { DEN = { is_in_faction_with = GER } }
+					country_exists = DEN
+				}
+				create_wargoal = {
+					type = take_state_focus
+					target = DEN
+					generator = { 37 }
+				}
+			}
+
+
+			if = {
+				limit = {
+					NOT = { NOR = { is_in_faction_with = GER } }
+					country_exists = NOR
+				}
+				create_wargoal = {
+					type = take_state_focus
+					target = NOR
+					generator = { 110 }
+				}
+			}
+
+			add_tech_bonus = {
+				name = tp_bonus
+				bonus = 0.5
+				ahead_reduction = 1
+				uses = 1
+				technology = transport
+				technology = landing_craft
+				technology = tank_landing_craft
+			}
+		}
+	}
+
+	focus = {
+		id = GER_operation_tannenbaum
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		prerequisite = { focus = GER_weserubung }
+		available = {
+			is_puppet = no
+			NOT = { is_in_faction_with = SWI }
+			date > 1945.1.1
+		}
+		bypass = {
+			NOT = { country_exists = SWI }
+			has_war_with = SWI
+		}
+		cancel_if_invalid = yes
+		will_lead_to_war_with = SWI
+		x = -1
+		y = 1
+		relative_position_id = GER_weserubung
+		cost = 1.5
+		ai_will_do = {
+			factor = 10
+		}
+
+		completion_reward = {
+			create_wargoal = {
+				type = annex_everything
+				target = SWI
+			}
+		}
+	}
+
+	focus = {
+		id = GER_operation_wacht_am_rhein
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		prerequisite = { focus = GER_war_with_france }
+		available = {
+			OR = {
+				GER = { has_war_with = FRA }
+				GER = { has_war_with = FRF }
+			}
+			NOT = {
+				GER = {
+					controls_state = 34
+					controls_state = 18
+				}
+			}
+			date > 1943.1.1
+		}
+		cancel_if_invalid = no
+		x = -1
+		y = 1
+		relative_position_id = GER_war_with_france
+		cost = 1.5
+		ai_will_do = {
+			factor = 10
+		}
+
+		completion_reward = {
+			#TODO ADD IDEA
+		}
+	}
+
+	focus = {
+		id = GER_operation_nordwind
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		prerequisite = { focus = GER_operation_wacht_am_rhein }
+		available = {
+			OR = {
+				GER = { has_war_with = FRA }
+				GER = { has_war_with = FRF }
+			}
+			NOT = {
+				GER = {
+					controls_state = 34
+					controls_state = 18
+				}
+			}
+			date > 1943.1.1
+		}
+		cancel_if_invalid = no
+		x = 0
+		y = 1
+		relative_position_id = GER_operation_wacht_am_rhein
+		cost = 1.5
+		ai_will_do = {
+			factor = 10
+		}
+
+		completion_reward = {
+			#TODO ADD IDEA
+		}
+	}
+
+	focus = {
+   		id = GER_fall_of_france
+   		icon = GFX_goal_generic_axis_build_infantry
+		prerequisite = { focus = GER_war_with_france }
+   	    available = {
+   			date > 1943.1.1
+			OR = {
+	   			GER = {
+					NOT = { has_war_with = FRA }
+					NOT = { has_war_with = FRF }
+				}
+				OR = {
+					FRA = { has_capitulated = yes }
+					FRF = { has_capitulated = yes }
+				}
+			}
+			GER = { has_government_nationalist = yes }
+   		}
+   		cost = 1.5
+
+		relative_position_id = GER_operation_nordwind
+
+		x = 1
+		y = 1
+
+   		completion_reward = {
+    	}
+	}
+
+	focus = {
+		id = GER_improve_national_spirit
+		prerequisite = { focus = GER_fall_of_uk focus = GER_fall_of_france focus = GER_fall_of_soviet_union }
+		icon = GFX_goal_support_fascism
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = GER_improve_national_spirit_tooltip
+				OR = {
+					GER = { controls_state = 126 }
+					any_other_country = {
+						is_in_faction_with = GER
+						controls_state = 126
+					}
+				}
+				OR = {
+					GER = { controls_state = 16 }
+					any_other_country = {
+						is_in_faction_with = GER
+						controls_state = 16
+					}
+				}
+			}
+		}
+		cancel = {
+			AND = {
+				has_war = no
+				126 = {
+					owner = {
+						NOT = { tag = GER }
+						NOT = { is_in_faction_with = GER }
+					}
+				}
+				16 = {
+					owner = {
+						NOT = { tag = GER }
+						NOT = { is_in_faction_with = GER }
+					}
+				}
+			}
+		}
+		cancel_if_invalid = no
+		x = 0
+		y = 2
+		relative_position_id = GER_fall_of_france
+		cost = 10
+		ai_will_do = {
+			factor = 10
+		}
+		completion_reward = {
+			remove_ideas = sour_loser
+			add_ideas = triumphant_will
+		}
+	}
+
+
 
 	focus = {
 		id = GER_four_year_plan
@@ -1951,13 +2813,12 @@ focus_tree = {
 		id = GER_soviet_ally
 		icon = GFX_goal_generic_dangerous_deal
 		prerequisite = { focus = GER_mol_rib_pact }
-		mutually_exclusive = { focus = GER_ussr_war_goal }
+		NOT = { has_completed_focus = GER_ussr_war_goal }
 		available = {
 			is_puppet = no
 			has_government = fascism
 			has_war = no
 			SOV = {
-				has_war = no
 				NOT = { has_war_with = GER }
 				is_puppet = no
 			}
@@ -2017,7 +2878,7 @@ focus_tree = {
 				}
 			}
 			NOT = { has_war_with = SOV }
-			country_exists = TUR
+			country_exists = TU2
 		}
 		x = 0
 		y = 2
@@ -2027,7 +2888,7 @@ focus_tree = {
 			factor = 1
 		}
 		completion_reward = {
-			TUR = { country_event = { id = germany.79 days = 1 } }
+			TU2 = { country_event = { id = germany.79 days = 1 } }
 		}
 	}
 
@@ -2237,78 +3098,20 @@ focus_tree = {
 	}
 
 	focus = {
-		id = GER_ussr_war_goal
-		icon = GFX_goal_generic_war_with_comintern
-		prerequisite = { focus = GER_anti_comitern_pact }
-		mutually_exclusive = { focus = GER_soviet_ally }
-		will_lead_to_war_with = SOV
-
-		cancel = {
-			NOT = { country_exists = SOV }
-		}
-		x = 1
-		y = 4
-		relative_position_id = GER_anti_comitern_pact
-		cost = 10
-		historical_ai = {
-			NOT = {
-				any_home_area_neighbor_country = {
-					has_war_with = ROOT
-				}
-			}
-		}
-		bypass = {
-			has_war_with = SOV
-		}
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0
-				OR = {
-					has_army_manpower = { size < 1199999 }
-					any_home_area_neighbor_country = {
-						has_war_with = ROOT
-					}
-				}
-			}
-			modifier = {
-				factor = 0 #AI should not pick this focus if it does not share a border with the Soviets
-				NOT = {
-					any_home_area_neighbor_country = {
-						tag = SOV
-					}
-				}
-			}
-			modifier = {
-				factor = 0
-				is_historical_focus_on = yes
-				date < 1939.1.1
-			}
-		}
-		completion_reward = {
-			create_wargoal = {
-				type = annex_everything
-				target = SOV
-			}
-		}
-	}
-
-	focus = {
 		id = GER_turkey_friend
 		icon = GFX_goal_generic_improve_relations
-		prerequisite = { focus = GER_ussr_war_goal }
 		prerequisite = { focus = GER_italy_ally }
 
 
 		available = {
 			is_puppet = no
 			NOT = { has_war_with = TUR }
-			TUR = {
+			TU2 = {
 				exists = yes
 				is_puppet = no
 			}
 
-			TUR = {
+			TU2 = {
 				custom_trigger_tooltip = {
 					tooltip = GER_alone_or_peace_faction_tt
 					is_alone_or_in_faction_at_peace_with_GER = yes
@@ -2322,9 +3125,9 @@ focus_tree = {
 		#		NOT = { country_exists = TUR }
 		#	}
 		#}
-		x = 0
-		y = 2
-		relative_position_id = GER_ussr_war_goal
+		x = -2
+		y = 1
+		relative_position_id = GER_italy_ally
 		cost = 10
 		ai_will_do = {
 			factor = 1
@@ -2336,7 +3139,7 @@ focus_tree = {
 				add_opinion_modifier = { target = GER modifier = ger_tur_diplomacy_focus }
 				if = {
 					limit = {
-						TUR = {
+						TU2 = {
 							is_ai = yes
 							NOT = {
 								is_in_faction = yes
@@ -2348,7 +3151,7 @@ focus_tree = {
 						}
 						GER = { is_faction_leader = yes }
 					}
-					TUR = {
+					TU2 = {
 						country_event = generic.5
 					}
 					add_ai_strategy = {
@@ -2580,344 +3383,6 @@ focus_tree = {
 				}
 				LIT = {
 					country_event = { id = baltic.4 }
-				}
-			}
-		}
-	}
-
-	focus = {
-		id = GER_danzig_or_war
-		icon = GFX_goal_generic_demand_territory
-		prerequisite = { focus = GER_demand_memel }
-		will_lead_to_war_with = POL
-		available = {
-			is_puppet = no
-			has_army_manpower = { size > 949999 } #100 div
-			#Make custom trigger tooltip here
-			85 = {
-				owner = {
-					original_tag = POL
-				}
-				controller = {
-					original_tag = POL
-				}
-			}
-			OR = {
-				POL = {
-					has_civil_war = no
-				}
-				#custom_trigger_tooltip = {
-					#tooltip = GER_danzig_trigger_polish_civil_war
-					AND = {
-						any_other_country = {
-							original_tag = POL
-							has_civil_war = yes
-							OR = {
-								is_in_faction_with = ROOT
-								has_volunteers_amount_from = {
-									tag = GER
-									count > 0
-								}
-							}
-						}
-					}
-				#}
-			}
-		}
-
-		bypass = {
-			OR = {
-				has_war_with = POL
-				is_in_faction_with = POL
-				NOT = {
-					85 = {
-						controller = {
-							original_tag = POL
-						}
-						owner = {
-							original_tag = POL
-						}
-					}
-				}
-			}
-		}
-		cancel_if_invalid = no
-		x = 0
-		y = 3
-		relative_position_id = GER_demand_memel
-		cost = 10
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0
-				OR = {
-					date < 1939.1.1
-					any_neighbor_country = {
-						has_war_with = GER
-						NOT = { has_capitulated = yes }
-						strength_ratio = {
-							tag = GER
-							ratio > 0.6
-						}
-					}
-				}
-			}
-		}
-		completion_reward = {
-			add_named_threat = { threat = 5 name = GER_danzig_or_war }
-			if = {
-				limit = {
-					85 = {
-						controller = {
-							tag = POL
-							has_civil_war = no
-						}
-					}
-				}
-				effect_tooltip = {
-					transfer_state = 85
-					add_state_core = 85
-					remove_state_claim = 86
-					remove_state_claim = 762
-				}
-				POL = {
-					country_event = { id = germany.86 }
-					if = {
-						limit = { NOT = { is_in_faction_with = ROOT } }
-						custom_effect_tooltip = needs_approval
-					}
-					if = {
-						limit = {
-							is_in_faction_with = ROOT
-							ROOT = { is_faction_leader = yes }
-						}
-						custom_effect_tooltip = GER_danzig_or_war_POL_faction_GER_leader
-					}
-					if = {
-						limit = {
-							is_in_faction_with = ROOT
-							NOT = { ROOT = { is_faction_leader = yes } }
-						}
-						custom_effect_tooltip = GER_danzig_or_war_POL_faction_GER_noleader
-					}
-				}
-			}
-			if = {
-				limit = {
-					85 = {
-						owner = {
-							OR = {
-								original_tag = POL
-								tag = POL
-							}
-						}
-					}
-				}
-				random_other_country = {
-					limit = {
-						original_tag = POL
-						has_civil_war = yes
-						OR = {
-							is_in_faction_with = GER
-							has_volunteers_amount_from = {
-								tag = GER
-								count > 0
-							}
-						}
-					}
-					country_event = { id = germany.113 days = 1 }
-				}
-				custom_effect_tooltip = GER_danzig_or_war_POL_civil_war
-			}
-		}
-	}
-
-	focus = {
-		id = GER_weserubung
-		icon = GFX_goal_generic_more_territorial_claims
-		prerequisite = { focus = GER_danzig_or_war }
-		mutually_exclusive = { focus = GER_denmark_friend }
-		will_lead_to_war_with = DEN
-		will_lead_to_war_with = NOR
-
-		bypass = {
-			AND = {
-				OR = {
-					DEN = {
-						is_in_faction_with = GER
-						NOT = { country_exists = DEN }
-					}
-				}
-			}
-		}
-
-		available = {
-			POL = {
-				NOT = { controls_state = 85 }
-				NOT = { controls_state = 10 }
-			}
-			OR = {
-				has_war_with = ENG
-				NOT = {country_exists = ENG}
-			}
-		}
-
-		x = 1
-		y = 2
-		relative_position_id = GER_danzig_or_war
-		cost = 4
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0
-				date < 1939.1.1
-			}
-		}
-		completion_reward = {
-
-			if = {
-				limit = {
-					NOT = { DEN = { is_in_faction_with = GER } }
-					country_exists = DEN
-				}
-				create_wargoal = {
-					type = take_state_focus
-					target = DEN
-					generator = { 37 }
-				}
-			}
-
-
-			if = {
-				limit = {
-					NOT = { NOR = { is_in_faction_with = GER } }
-					country_exists = NOR
-				}
-				create_wargoal = {
-					type = take_state_focus
-					target = NOR
-					generator = { 110 }
-				}
-			}
-
-			add_tech_bonus = {
-				name = tp_bonus
-				bonus = 0.5
-				ahead_reduction = 1
-				uses = 1
-				technology = transport
-				technology = landing_craft
-				technology = tank_landing_craft
-			}
-		}
-	}
-
-	focus = {
-		id = GER_around_maginot
-		icon = GFX_goal_generic_attack_allies
-		prerequisite = { focus = GER_danzig_or_war }
-
-		available = {
-			OR = {
-				NOT = { HOL = { is_in_faction_with = GER } }
-				NOT = { BEL = { is_in_faction_with = GER } }
-				NOT = { LUX = { is_in_faction_with = GER } }
-			}
-		}
-
-		bypass = {
-			HOL = {
-				OR = {
-					exists = no
-					is_in_faction_with = GER
-					has_war_with = ROOT
-				}
-			}
-			BEL = {
-				OR = {
-					exists = no
-					is_in_faction_with = GER
-					has_war_with = ROOT
-				}
-			}
-			LUX = {
-				OR = {
-					exists = no
-					is_in_faction_with = GER
-					has_war_with = ROOT
-				}
-			}
-		}
-
-		historical_ai = {
-			date > 1939.1.1
-			NOT = {
-				any_home_area_neighbor_country = {
-					NOT = { tag = FRA }
-					has_war_with = ROOT
-					surrender_progress < 0.5
-				}
-			}
-		}
-		will_lead_to_war_with = BEL
-		will_lead_to_war_with = HOL
-		will_lead_to_war_with = LUX
-		will_lead_to_war_with = FRA
-		x = -1
-		y = 2
-		relative_position_id = GER_danzig_or_war
-		cost = 4
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0.05
-				date < 1939.1.1
-			}
-			modifier = {
-				factor = 0.2
-				any_home_area_neighbor_country = {
-					NOT = { tag = FRA }
-					has_war_with = ROOT
-					surrender_progress < 0.5
-				}
-			}
-		}
-		completion_reward = {
-			#limit wargoals to when it makes sense to give them. No faction, war or non exist
-			if = {
-				limit = {
-					country_exists = BEL
-					NOT = { BEL = { is_in_faction_with = GER } }
-					NOT = { has_war_with = BEL }
-				}
-				create_wargoal = {
-					type = take_state_focus
-					target = BEL
-					generator = { 6 }
-				}
-			}
-			if =  {
-				limit = {
-					country_exists = HOL
-					NOT = { HOL = { is_in_faction_with = GER } }
-					NOT = { has_war_with = HOL }
-				}
-				create_wargoal = {
-					type = take_state_focus
-					target = HOL
-					generator = { 7 }
-				}
-			}
-			if = {
-				limit = {
-					country_exists = LUX
-					NOT = { LUX = { is_in_faction_with = GER } }
-					NOT = { has_war_with = LUX }
-				}
-				create_wargoal = {
-					type = take_state_focus
-					target = LUX
-					generator = { 8 }
 				}
 			}
 		}
@@ -3448,84 +3913,12 @@ focus_tree = {
 				add_opinion_modifier = { target = GER modifier = ger_spa_alliance_focus }
 			}
 		}
-	}focus = {
-		id = GER_war_with_france
-		icon = GFX_goal_generic_major_war
-		prerequisite = { focus = GER_around_maginot focus = GER_weserubung }
-		available = {
-			is_puppet = no
-			NOT = { is_in_faction_with = FRA }
-		}
-		x = 1
-		y = 1
-		relative_position_id = GER_around_maginot
-		cost = 10
-		bypass = {
-			OR = {
-				NOT = { country_exists = FRA }
-				has_war_with = FRA
-			}
-		}
-		historical_ai = {
-			date > 1939.1.1
-			NOT = {
-				any_neighbor_country = {
-					has_war_with = ROOT
-				}
-			}
-		}
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0.05
-				date < 1939.1.1
-			}
-		}
-		completion_reward = {
-			add_named_threat = { threat = 5 name = GER_war_with_france_threat }
- 			create_wargoal = {
- 				type = take_state_focus
- 				target = FRA
- 				generator = { 28 }
- 			}
-		}
-	}
-
-	focus = {
-		id = GER_operation_tannenbaum
-		icon = GFX_goal_generic_occupy_states_ongoing_war
-		prerequisite = { focus = GER_war_with_france }
-		available = {
-			is_puppet = no
-			NOT = { is_in_faction_with = SWI }
-			date > 1945.1.1
-		}
-		bypass = {
-			NOT = { country_exists = SWI }
-			has_war_with = SWI
-		}
-		cancel_if_invalid = yes
-		will_lead_to_war_with = SWI
-		x = 0
-		y = 1
-		relative_position_id = GER_war_with_france
-		cost = 10
-		ai_will_do = {
-			factor = 10
-		}
-
-		completion_reward = {
-			create_wargoal = {
-				type = annex_everything
-				target = SWI
-			}
-		}
 	}
 
 	focus = {
 		id = GER_reintegrate_luxemburg_and_alsace_lorraine
 		icon = GFX_goal_generic_position_armies
-		prerequisite = { focus = GER_war_with_france }
+		prerequisite = { focus = GER_demand_memel }
 		available = {
 			is_puppet = no
 			has_full_control_of_state = 8
@@ -3554,9 +3947,9 @@ focus_tree = {
 		bypass = {
 		}
 		cancel_if_invalid = yes
-		x = -2
+		x = 0
 		y = 1
-		relative_position_id = GER_war_with_france
+		relative_position_id = GER_demand_memel
 		cost = 5
 		ai_will_do = {
 			factor = 5
@@ -3997,59 +4390,6 @@ focus_tree = {
 
 		completion_reward = {
 			add_ideas = GER_modular_construction
-		}
-	}
-	focus = {
-		id = GER_improve_national_spirit
-		prerequisite = { focus = GER_anschluss }
-		icon = GFX_goal_support_fascism
-		available = {
-			custom_trigger_tooltip = {
-				tooltip = GER_improve_national_spirit_tooltip
-				OR = {
-					GER = { controls_state = 126 }
-					any_other_country = {
-						is_in_faction_with = GER
-						controls_state = 126
-					}
-				}
-				OR = {
-					GER = { controls_state = 16 }
-					any_other_country = {
-						is_in_faction_with = GER
-						controls_state = 16
-					}
-				}
-			}
-		}
-		cancel = {
-			AND = {
-				has_war = no
-				126 = {
-					owner = {
-						NOT = { tag = GER }
-						NOT = { is_in_faction_with = GER }
-					}
-				}
-				16 = {
-					owner = {
-						NOT = { tag = GER }
-						NOT = { is_in_faction_with = GER }
-					}
-				}
-			}
-		}
-		cancel_if_invalid = no
-		x = 5
-		y = 1
-		relative_position_id = GER_anschluss
-		cost = 10
-		ai_will_do = {
-			factor = 10
-		}
-		completion_reward = {
-			remove_ideas = sour_loser
-			add_ideas = triumphant_will
 		}
 	}
 
