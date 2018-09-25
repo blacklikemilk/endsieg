@@ -16,15 +16,12 @@ focus_tree = {
 
 	### OPERATIONS ###
 
-
+	#Fall Weiss - Poland
 	focus = {
 		id = GER_danzig_or_war
 		icon = GFX_goal_generic_demand_territory
 		will_lead_to_war_with = POL
 		available = {
-			is_puppet = no
-			has_army_manpower = { size > 949999 } #100 div
-			#Make custom trigger tooltip here
 			85 = {
 				owner = {
 					original_tag = POL
@@ -37,22 +34,12 @@ focus_tree = {
 				POL = {
 					has_civil_war = no
 				}
-				#custom_trigger_tooltip = {
-					#tooltip = GER_danzig_trigger_polish_civil_war
-					AND = {
-						any_other_country = {
-							original_tag = POL
-							has_civil_war = yes
-							OR = {
-								is_in_faction_with = ROOT
-								has_volunteers_amount_from = {
-									tag = GER
-									count > 0
-								}
-							}
-						}
+				AND = {
+					any_other_country = {
+						original_tag = POL
+						is_in_faction_with = GER
 					}
-				#}
+				}
 			}
 		}
 
@@ -163,6 +150,7 @@ focus_tree = {
 		}
 	}
 
+	#Operation Barbarossa
 	focus = {
 		id = GER_ussr_war_goal
 		icon = GFX_goal_generic_war_with_comintern
@@ -219,6 +207,7 @@ focus_tree = {
 		}
 	}
 
+	#Operation Typhoon - Moscow
 	focus = {
 		id = GER_operation_typhoon
 		icon = GFX_goal_generic_position_armies
@@ -241,9 +230,11 @@ focus_tree = {
    		cost = 1.5
 
 		completion_reward = {
+			GER = { add_ideas = operation_typhoon }
 		}
 	}
 
+	#Fall Blau - Caucasus
 	focus = {
 		id = GER_fall_blau
 		icon = GFX_goal_generic_position_armies
@@ -254,6 +245,16 @@ focus_tree = {
 			SOV = { controls_state = 238 }
 			SOV = { controls_state = 234 }
 			GER = { controls_state = 202 }
+		}
+
+		bypass = {
+			OR = {
+				NOT = { GER = { has_war_with = SOV } }
+				AND = {
+					229 = { is_controlled_by = GER }
+					231 = { is_controlled_by = GER }
+				}
+			}
 		}
 
    		prerequisite = { focus = GER_ussr_war_goal }
@@ -291,11 +292,13 @@ focus_tree = {
 					}
 			    }
 				load_oob = GER_fallblau
-				add_manpower = -50000
+
+				SOV = { country_event = { id = SOV_1942.1 days = 15 } }
 			}
 		}
 	}
 
+	#Operation Citadel - Kursk
 	focus = {
    		id = GER_operation_citadel
    		icon = GFX_goal_generic_axis_build_infantry
@@ -303,12 +306,23 @@ focus_tree = {
    	    available = {
    			date > 1943.1.10
    			has_tech = improved_heavy_tank
-   			SOV = { controls_state = 217 }
+   			SOV = { controls_state = 220 }
    			SOV = { controls_state = 219 }
    			SOV = { controls_state = 260 }
-   			SOV = { controls_state = 229 }
 			GER = { controls_state = 202 }
    		}
+
+		bypass = {
+			OR = {
+				NOT = { GER = { has_war_with = SOV } }
+				AND = {
+					220 = { is_controlled_by = GER }
+					258 = { is_controlled_by = GER }
+					260 = { is_controlled_by = GER }
+				}
+			}
+		}
+
    		cost = 1.5
 
 		relative_position_id = GER_fall_blau
@@ -322,21 +336,24 @@ focus_tree = {
    			custom_effect_tooltip = citadel.tt
    			hidden_effect = {
    				load_oob = GER_citadel
-   				add_manpower = -50000
-				add_equipment_to_stockpile = { type = infantry_equipment_2 amount = 15000 producer = GER }
+				add_equipment_to_stockpile = { type = infantry_equipment_2 amount = 20000 producer = GER }
+				SOV = { country_event = { id = SOV_1942.2 days = 15 } }
    	        }
     	}
 	}
 
+	#Operation Isabella - Portugal
 	focus = {
    		id = GER_operation_isabella
-   		icon = GFX_goal_generic_axis_build_infantry
+   		icon = GFX_goal_operation_isabella
    		prerequisite = { focus = GER_operation_typhoon }
    	    available = {
    			date > 1943.1.1
    			GER = { has_war_with = ENG }
-			has_completed_focus = GER_war_with_france
+			ENG = { has_capitulated = no }
+			804 = { OWNER = { is_in_faction_with = GER } }
 			country_exists = POR
+			country_exists = SPR
    		}
    		cost = 1.5
 
@@ -346,15 +363,17 @@ focus_tree = {
 		y = 1
 
    		completion_reward = {
+			GER = { country_event = { id = germany_1943.1 days = 1 } }
     	}
 	}
 
+	#Soviet Union Fallen
 	focus = {
    		id = GER_fall_of_soviet_union
    		icon = GFX_goal_generic_axis_build_infantry
    		prerequisite = { focus = GER_operation_isabella focus = GER_operation_citadel }
    	    available = {
-   			date > 1943.1.1
+   			date > 1941.1.1
 			GER = { has_government_nationalist = yes }
 			OR = {
 	   			GER = { NOT = { has_war_with = SOV } }
@@ -373,6 +392,7 @@ focus_tree = {
     	}
 	}
 
+	#Fall Gelb - Benelux
 	focus = {
 		id = GER_around_maginot
 		icon = GFX_goal_generic_attack_allies
@@ -484,6 +504,7 @@ focus_tree = {
 		}
 	}
 
+	#Fall Rot - France
 	focus = {
 		id = GER_war_with_france
 		icon = GFX_goal_generic_major_war
@@ -527,73 +548,10 @@ focus_tree = {
 		}
 	}
 
-	focus = {
-		id = GER_operation_seelowe
-		icon = GFX_goal_generic_position_armies
-	    available = {
-			ENG = { has_war_with = GER }
-			ENG = { has_capitulated = no }
-		}
-
-		prerequisite = { focus = GER_weserubung }
-		relative_position_id = GER_weserubung
-
-		x = 1
-		y = 1
-   		cost = 1.5
-
-		completion_reward = {
-			#add_timed_idea = { idea = fall_blau days = 80 }
-		}
-	}
-
-	focus = {
-		id = GER_fall_grun
-		icon = GFX_goal_generic_position_armies
-	    available = {
-			country_exists = IRE
-			NOT = { IRE = { has_war_with = GER } }
-			ENG = { has_war_with = GER }
-		}
-
-		prerequisite = { focus = GER_operation_seelowe }
-		relative_position_id = GER_operation_seelowe
-
-		x = 0
-		y = 1
-   		cost = 1.5
-
-		completion_reward = {
-			#add_timed_idea = { idea = fall_blau days = 80 }
-		}
-	}
-
-	focus = {
-   		id = GER_fall_of_uk
-   		icon = GFX_goal_generic_axis_build_infantry
-   		prerequisite = { focus = GER_operation_seelowe }
-   	    available = {
-   			date > 1943.1.1
-			OR = {
-	   			GER = { NOT = { has_war_with = ENG } }
-				ENG = { has_capitulated = yes }
-			}
-			GER = { has_government_nationalist = yes }
-   		}
-   		cost = 1.5
-
-		relative_position_id = GER_fall_grun
-
-		x = -1
-		y = 2
-
-   		completion_reward = {
-    	}
-	}
-
+	#Fall Anton - Vichy France
 	focus = {
 		id = GER_fall_anton
-		icon = GFX_goal_generic_position_armies
+		icon = GFX_goal_case_anton
 	    available = {
 			date > 1942.11.10
 			date < 1943.1.1
@@ -620,6 +578,101 @@ focus_tree = {
 		}
 	}
 
+	#Operation Wacht Am Rhein - France
+	focus = {
+		id = GER_operation_wacht_am_rhein
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		prerequisite = { focus = GER_war_with_france }
+		available = {
+			OR = {
+				GER = { has_war_with = FRA }
+				GER = { has_war_with = FRF }
+			}
+			NOT = {
+				GER = {
+					controls_state = 34
+					controls_state = 18
+				}
+			}
+			date > 1943.1.1
+		}
+		cancel_if_invalid = no
+		x = -1
+		y = 1
+		relative_position_id = GER_war_with_france
+		cost = 1.5
+		ai_will_do = {
+			factor = 10
+		}
+
+		completion_reward = {
+			#TODO ADD IDEA
+		}
+	}
+
+	#Operation Nordwind - France
+	focus = {
+		id = GER_operation_nordwind
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		prerequisite = { focus = GER_operation_wacht_am_rhein }
+		available = {
+			OR = {
+				GER = { has_war_with = FRA }
+				GER = { has_war_with = FRF }
+			}
+			NOT = {
+				GER = {
+					controls_state = 34
+					controls_state = 18
+				}
+			}
+			date > 1943.1.1
+		}
+		cancel_if_invalid = no
+		x = 0
+		y = 1
+		relative_position_id = GER_operation_wacht_am_rhein
+		cost = 1.5
+		ai_will_do = {
+			factor = 10
+		}
+
+		completion_reward = {
+			#TODO ADD IDEA
+		}
+	}
+
+	#Fall of France
+	focus = {
+   		id = GER_fall_of_france
+   		icon = GFX_goal_generic_axis_build_infantry
+		prerequisite = { focus = GER_war_with_france }
+   	    available = {
+   			date > 1943.1.1
+			OR = {
+	   			GER = {
+					NOT = { has_war_with = FRA }
+					NOT = { has_war_with = FRF }
+				}
+				OR = {
+					FRA = { has_capitulated = yes }
+					FRF = { has_capitulated = yes }
+				}
+			}
+			GER = { has_government_nationalist = yes }
+   		}
+   		cost = 1.5
+
+		relative_position_id = GER_operation_nordwind
+
+		x = 1
+		y = 1
+
+   		completion_reward = {
+    	}
+	}
+
+	#Weserubung - Norway + Denmark
 	focus = {
 		id = GER_weserubung
 		icon = GFX_goal_generic_more_territorial_claims
@@ -698,6 +751,7 @@ focus_tree = {
 		}
 	}
 
+	#Operation Tannenbaum - Switzerland
 	focus = {
 		id = GER_operation_tannenbaum
 		icon = GFX_goal_generic_occupy_states_ongoing_war
@@ -705,7 +759,10 @@ focus_tree = {
 		available = {
 			is_puppet = no
 			NOT = { is_in_faction_with = SWI }
-			date > 1945.1.1
+			GER = {
+				NOT = { has_war_with = ENG }
+				NOT = { has_war_with = SOV }
+			}
 		}
 		bypass = {
 			NOT = { country_exists = SWI }
@@ -729,97 +786,74 @@ focus_tree = {
 		}
 	}
 
+	#Operation Sealion - UK
 	focus = {
-		id = GER_operation_wacht_am_rhein
-		icon = GFX_goal_generic_occupy_states_ongoing_war
-		prerequisite = { focus = GER_war_with_france }
-		available = {
-			OR = {
-				GER = { has_war_with = FRA }
-				GER = { has_war_with = FRF }
-			}
-			NOT = {
-				GER = {
-					controls_state = 34
-					controls_state = 18
-				}
-			}
-			date > 1943.1.1
-		}
-		cancel_if_invalid = no
-		x = -1
-		y = 1
-		relative_position_id = GER_war_with_france
-		cost = 1.5
-		ai_will_do = {
-			factor = 10
+		id = GER_operation_seelowe
+		icon = GFX_goal_generic_position_armies
+	    available = {
+			ENG = { has_war_with = GER }
+			ENG = { has_capitulated = no }
 		}
 
+		prerequisite = { focus = GER_weserubung }
+		relative_position_id = GER_weserubung
+
+		x = 1
+		y = 1
+   		cost = 1.5
+
 		completion_reward = {
-			#TODO ADD IDEA
+			#add_timed_idea = { idea = fall_blau days = 80 }
 		}
 	}
 
+	#Fall Grün - Ireland
 	focus = {
-		id = GER_operation_nordwind
-		icon = GFX_goal_generic_occupy_states_ongoing_war
-		prerequisite = { focus = GER_operation_wacht_am_rhein }
-		available = {
-			OR = {
-				GER = { has_war_with = FRA }
-				GER = { has_war_with = FRF }
-			}
-			NOT = {
-				GER = {
-					controls_state = 34
-					controls_state = 18
-				}
-			}
-			date > 1943.1.1
+		id = GER_fall_grun
+		icon = GFX_goal_generic_position_armies
+	    available = {
+			country_exists = IRE
+			NOT = { IRE = { has_war_with = GER } }
+			ENG = { has_war_with = GER }
 		}
-		cancel_if_invalid = no
+
+		prerequisite = { focus = GER_operation_seelowe }
+		relative_position_id = GER_operation_seelowe
+
 		x = 0
 		y = 1
-		relative_position_id = GER_operation_wacht_am_rhein
-		cost = 1.5
-		ai_will_do = {
-			factor = 10
-		}
+   		cost = 1.5
 
 		completion_reward = {
-			#TODO ADD IDEA
+			#add_timed_idea = { idea = fall_blau days = 80 }
 		}
 	}
 
+	#Fall of UK
 	focus = {
-   		id = GER_fall_of_france
+   		id = GER_fall_of_uk
    		icon = GFX_goal_generic_axis_build_infantry
-		prerequisite = { focus = GER_war_with_france }
+   		prerequisite = { focus = GER_operation_seelowe }
    	    available = {
    			date > 1943.1.1
 			OR = {
-	   			GER = {
-					NOT = { has_war_with = FRA }
-					NOT = { has_war_with = FRF }
-				}
-				OR = {
-					FRA = { has_capitulated = yes }
-					FRF = { has_capitulated = yes }
-				}
+	   			GER = { NOT = { has_war_with = ENG } }
+				ENG = { has_capitulated = yes }
 			}
 			GER = { has_government_nationalist = yes }
    		}
    		cost = 1.5
 
-		relative_position_id = GER_operation_nordwind
+		relative_position_id = GER_fall_grun
 
-		x = 1
-		y = 1
+		x = -1
+		y = 2
 
    		completion_reward = {
     	}
 	}
 
+	#Improved Spirit
 	focus = {
 		id = GER_improve_national_spirit
 		prerequisite = { focus = GER_fall_of_uk focus = GER_fall_of_france focus = GER_fall_of_soviet_union }
