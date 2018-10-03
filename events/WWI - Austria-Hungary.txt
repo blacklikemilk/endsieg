@@ -1177,6 +1177,7 @@ country_event = {
 
 	trigger = {
 		tag = AUH
+		date > 1918.11.3
 		has_global_flag = martin_declaration
 		has_global_flag = banat_declaration
 		has_global_flag = aster_revolution
@@ -1191,6 +1192,7 @@ country_event = {
 	option = {
 		name = ww1_kuk.51.a
 		news_event = { hours = 6 id = news.166 }
+		ai_chance = { factor = 100 }
 		set_global_flag = armistice_of_villa_giusti
 		CZ1 = {
 			transfer_state = 69
@@ -1278,6 +1280,14 @@ country_event = {
 			transfer_state = 813
 			annex_country = { target = AUH transfer_troops = no }
 		}
+	}
+
+	option = {
+		name = ww1_kuk.51.b
+		ai_chance = { factor = 0 }
+		add_stability = -0.20
+		add_war_support = -0.20
+		add_political_power = -200
 	}
 }
 
@@ -1601,7 +1611,7 @@ country_event = {
 
 	trigger = {
 		tag = AUH
-		date > 1918.11.3
+		surrender_progress > 0.40
 		NOT = { has_global_flag = welcome_event_1918 }
 		NOT = { has_global_flag = player_wants_custom_peacedeals }
 		NOT = { date > 1932.12.1 }
@@ -1611,13 +1621,15 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.51.a
+		ai_chance = { factor = 100 }
 		news_event = { hours = 6 id = news.166 }
 		set_global_flag = armistice_of_villa_giusti
 		CZ1 = {
 			transfer_state = 69
-		}
-		RMM = {
-			transfer_state = 80
+			every_country = {
+				limit = { has_war_with = CZ1 }
+				white_peace = CZ1
+			}
 		}
 		YU1 = {
 			transfer_state = 108
@@ -1663,6 +1675,51 @@ country_event = {
 			transfer_state = 813
 			annex_country = { target = AUH transfer_troops = no }
 		}
+		if = {
+			limit = {
+				country_exists = POL
+			}
+			POL = { transfer_state = 88 }
+		}
+		else_if = {
+			limit = { country_exists = RKP }
+			RKP = { transfer_state = 88 }
+		}
+		RMM = {
+			transfer_state = 80
+			transfer_state = 76
+			transfer_state = 84
+			transfer_state = 83
+			transfer_state = 814
+			set_politics = {
+				ruling_party = social_liberal
+			}
+			add_popularity = { ideology = social_liberal popularity = 0.30 }
+			76 = { set_demilitarized_zone = yes }
+			84 = { set_demilitarized_zone = yes }
+			83 = { set_demilitarized_zone = yes }
+			if = {
+				limit = { country_exists = BAN }
+				annex_country = { target = BAN }
+			}
+			leave_faction = yes
+			set_autonomy = {
+				target = RMM
+				autonomy_state = autonomy_free
+			}
+			every_country = {
+				limit = { has_war_with = RMM }
+				white_peace = RMM
+			}
+		}
+	}
+
+	option = {
+		name = ww1_kuk.51.b
+		ai_chance = { factor = 0 }
+		add_stability = -0.20
+		add_war_support = -0.20
+		add_political_power = -200
 	}
 }
 
