@@ -261,11 +261,11 @@ NCountry = {
 	AIR_SUPPLY_DROP_EXPIRATION_HOURS = 168,			-- Air drop length after being dropped
 	STARTING_COMMAND_POWER = 100.0,					-- starting command power for every country
 	BASE_MAX_COMMAND_POWER = 200.0,					-- base value for maximum command power
-	BASE_COMMAND_POWER_GAIN = 0.020,				-- base value for daily command power gain
+	BASE_COMMAND_POWER_GAIN = 0.012,				-- base value for daily command power gain
 	AIR_VOLUNTEER_PLANES_LIMIT = 0.2,				-- Ratio for volunteer planes available for sending in relation to sender air force
 	AIR_VOLUNTEER_BASES_CAPACITY_LIMIT = 0.1,		-- Ratio for volunteer planes available for sending in relation to receiver air base capacity
 	ATTACHE_XP_SHARE = 0.05,							-- Country received xp from attaches
-	SPECIAL_FORCES_CAP_BASE = 0.30,					-- Max ammount of special forces battalions is total number of non-special forces battalions multiplied by this and modified by a country modifier
+	SPECIAL_FORCES_CAP_BASE = 0.20,					-- Max ammount of special forces battalions is total number of non-special forces battalions multiplied by this and modified by a country modifier
 	SPECIAL_FORCES_CAP_MIN = 28,					-- You can have a minimum of this many special forces battalions, regardless of the number of non-special forces battalions you have, this can also be modified by a country modifier
 	DAYS_OF_WAR_BEFORE_SURRENDER = 7,				-- Number of days a war has to have existed before anyone can surrender in it
 },
