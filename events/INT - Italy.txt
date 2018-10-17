@@ -292,7 +292,14 @@ country_event = {
 		name = italy.7.a
 		GER = {
 			remove_from_faction = ITA
-			transfer_state = 105
+			if = {
+				limit = {
+					country_exists = MNT
+					MNT = { is_in_faction_with = GER }
+				}
+				transfer_state = 105
+				transfer_state = 792
+			}
 			transfer_state = 744
 			transfer_state = 102
 			transfer_state = 44
@@ -311,19 +318,31 @@ country_event = {
 			transfer_state = 748
 			transfer_state = 749
 			transfer_state = 750
+			transfer_state = 187
 		}
 		CRO = {
 			transfer_state = 163
 		}
 		KIT = {
-			annex_country = { target = ITA transfer_troops = yes }
+			annex_country = { target = ITA }
 			change_tag_from = ITA
+			declare_war_on = { target = GER type = annex_everything }
 		}
 		KIT = {
-			declare_war_on = { target = GER type = annex_everything }
+			if = {
+				limit = { country_exists = ANA }
+				annex_country = { target = ANA transfer_troops = yes }
+			}
 		}
 		ENG = {
 			add_to_faction = KIT
+		}
+		hidden_effect = {
+			KIT = { load_oob = KIT_resistance }
+			every_state = {
+				limit = { is_core_of = ITA }
+				add_core_of = KIT
+			}
 		}
 		news_event = { hours = 6 id = news.97 }
 	}
@@ -344,7 +363,10 @@ country_event = {
 		tag = ITA
 		OR = {
 			ITA = { surrender_progress > 0.20 }
-			date > 1943.7.24
+			AND = {
+				has_global_flag = welcome_event_1943
+				date > 1943.7.24
+			}
 		}
 	}
 
