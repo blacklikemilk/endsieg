@@ -78,7 +78,7 @@ country_event = {
 		name = kaiserschlachtvictory.2.a #je surrender hon hon hon baugette hon hon hon
 		ai_chance = {factor = 100}
 		GE1 = {country_event = kaiserschlachtvictory.4}
-		dismantle_faction = yes
+		#dismantle_faction = yes
 	}
 	option = {
 		name = kaiserschlachtvictory.2.b #non!
@@ -207,10 +207,10 @@ country_event = {
 			limit = {
 				AND = {
 					RUS = { has_war_with = GE1 }
-					country_exists = RUS
+					country_exists = RUS #This event exists to notify the Russian player that the French surrendered, blyat.
 				}
 			}
-			RUS = { country_event = { id = kaiserschlachtvictory.25 days = 6 } }
+			RUS = { country_event = { id = kaiserschlachtvictory.25 } }
 		}
 
 	#	if = {
@@ -244,7 +244,11 @@ country_event = {
 
 		GE1 = {
 			country_event = { id = kaiserschlachtvictory.247 days = 15 }
-			country_event = { id = kaiserschlachtvictory.246 days = 20 } #Dervish
+			if = {
+				limit = {has_global_flag = italyentente}
+				country_event = { id = kaiserschlachtvictory.246 days = 20 } #Italian lands
+			}
+
 			country_event = { id = kaiserschlachtvictory.245 days = 20 } #Balkans
 			country_event =  {id = kaiserschlachtvictory.242 days = 5 } #To frankfurt - German-French Border.
 
@@ -331,7 +335,10 @@ country_event = {
 		# 27 = { set_demilitarized_zone = yes }
 
 		every_country = {
-			limit = { has_war_with = GE1 }
+			limit = {
+				has_war_with = GE1
+				NOT = RUS #Russia gets special treatment in ww1_russia because of Brest-Litovsk.
+			}
 			white_peace = GE1
 		}
 
@@ -1133,7 +1140,7 @@ country_event = {
 # 	}
 # }
 
-#What if Russia is in the war? No Brest-Litovsk, No commies.
+#Event to notify Russian player that they're on their own!
 
 country_event = {
 	id = kaiserschlachtvictory.25
@@ -1144,50 +1151,9 @@ country_event = {
 	is_triggered_only = yes
 
 	option = {
-		name = kaiserschlachtvictory.25.a #Peace with Germans?
+		name = kaiserschlachtvictory.25.a #We are on our own.
 		ai_chance = {factor = 100}
-		GE1 = { country_event = kaiserschlachtvictory.254 }
-		every_country = {
-			limit = { has_war_with = RUS }
-			white_peace = RUS
 		}
-		every_state = {
-			limit = {
-				AND = {
-					OR = {
-						is_core_of = UKR
-						is_core_of = BLR
-						is_core_of = LIT
-						is_core_of = UBD
-						is_core_of = FIN
-						is_core_of = TSS
-						is_core_of = CRI
-						is_core_of = TRA
-					}
-					NOT = { is_core_of = AUH }
-					NOT = { is_core_of = GE1 }
-					NOT = { is_core_of = RKP }
-				}
-			}
-			set_demilitarized_zone = yes
-		}
-		if = {
-			limit = {
-				TUR = {is_in_faction_with = GE1}
-			}
-			TUR = {transfer_state = 784 #Kars}
-		}
-	}
-	}
-	option = {
-		name = kaiserschlachtvictory.25.b
-		ai_chance = {factor = 0}
-		trigger = {
-			RUS = {has_capitulated = no}
-		}
-		add_stability = -0.20
-		add_war_support = -0.20
-		add_political_power = -150
 	}
 }
 
@@ -1299,6 +1265,7 @@ country_event = {
 			transfer_state = 34
 			transfer_state = 6
 		}
+		GE1 = { puppet = BE2}
 	}
 	option = {
 		name = kaiserschlachtvictory.123.dd #KR border + Congo
@@ -1516,6 +1483,9 @@ country_event = {
 	option = {
 		name = kaiserschlachtvictory.129.b #Turkish Suez
 		country_event = { id = kaiserschlachtvictory.131 }
+		trigger = {
+		TUR = {is_in_faction_with = GE1}
+		}
 		TUR = {
 			transfer_state = 772
 		}
@@ -1539,6 +1509,9 @@ country_event = {
 	option = {
 		name = kaiserschlachtvictory.129.dd #Turkish Egypt
 		country_event = { id = kaiserschlachtvictory.131 }
+		trigger = {
+		TUR = is_in_faction_with = GE1
+		}
 		TUR = {
 			transfer_state = 446
 			transfer_state = 447
@@ -1553,6 +1526,22 @@ country_event = {
 		name = kaiserschlachtvictory.129.e #German Egyptian protectorate
 		country_event = { id = kaiserschlachtvictory.131 }
 		GE1 = {
+			transfer_state = 446
+			transfer_state = 447
+			transfer_state = 452
+			transfer_state = 552
+			transfer_state = 551
+			transfer_state = 457
+			transfer_state = 456
+		}
+	}
+	option = {
+		name = kaiserschlachtvictory.129.italy #Italian Egypt
+		trigger = {
+		IT1 = {is_in_faction_with = GE1}
+		}
+		country_event = { id = kaiserschlachtvictory.131 }
+		IT1 = {
 			transfer_state = 446
 			transfer_state = 447
 			transfer_state = 452
@@ -1633,15 +1622,14 @@ country_event = {
 
 	option = {
 		name = kaiserschlachtvictory.157.a
+		country_event = { id = kaiserschlachtvictory.163 } #Fate of Malta
+	}
+	option = {
+		name = kaiserschlachtvictory.157.b
 		country_event = { hours = 6 id = kaiserschlachtvictory.156 } #Back
 		EN1 = {
 			transfer_state = 118
 		}
-	}
-
-	option = {
-		name = kaiserschlachtvictory.157.b
-		country_event = { id = kaiserschlachtvictory.163 } #Fate of Malta
 	}
 }
 
@@ -1775,7 +1763,7 @@ country_event = {
 			limit = {
 				any_neighbor_state = { is_owned_by = GE1 }
 				is_owned_by = FR2
-				is_on_continent = europe
+				is_on_continent = europe #wait, this EU4 scope still works? Wow.
 			}
 			set_demilitarized_zone = yes
 		}
@@ -2022,8 +2010,8 @@ country_event = {
 		}
 		AL2 = {
 			#transfer_state = 744 #Kosovo je serbia
-			transfer_state = 44
-			transfer_state = 793
+			transfer_state = 44 #Plan to expand on Balkan Wars
+			#transfer_state = 793
 
 		}
 		MN1 = {
@@ -2089,6 +2077,7 @@ country_event = {
 		AUH = {
 			transfer_state = 745 #Friuli
 			transfer_state = 160 #Veneto
+			transfer_state = 159 #Lombardy, and now the borders of the Congress of Vienna AUH are restored!
 		}
 	}
 	# option = {
@@ -2163,18 +2152,18 @@ country_event = {
 		}
 	}
 
-	option = {
-		name = kaiserschlachtvictory.247.c
-		ai_chance = {
-			factor = 100
-		}
-		trigger = { IT1 = { is_in_faction_with = GE1 } }
-		transfer_state = 458 #Tunis
-		transfer_state = 665 #Gabes
-		transfer_state = 1 #Corsica
-		transfer_state = 735 #Savoy
-
-	}
+	#option = {
+	#	name = kaiserschlachtvictory.247.c
+	#	ai_chance = {
+	#		factor = 100
+	#	}
+	#	trigger = { IT1 = { is_in_faction_with = GE1 } }
+	#	transfer_state = 458 #Tunis
+	#	transfer_state = 665 #Gabes
+	#	transfer_state = 1 #Corsica
+	#	transfer_state = 735 #Savoy
+	#
+	#}
 }
 
 # Kuwait Question
@@ -2426,26 +2415,20 @@ country_event = {
 	}
 }
 
-#This is a mess. Disabling this until you fix it.
-#Brest-Litovsk, but if Russia is in the Entente rather than having it happen historically.
+#Not needed, but here for reference. Also if we decide to ever move it from ww1_russia.
+#Brest-Litovsk - ww1_russia.43
 # country_event = {
 # 	id = kaiserschlachtvictory.254
 # 	title = kaiserschlachtvictory.254.t
 # 	desc = kaiserschlachtvictory.254.d
-# 	picture = GFX_report_event_treaty_of_brest_litovsk
+#	picture = GFX_report_event_treaty_of_brest_litovsk
 #
-# 	fire_only_once = Yes
+#	is_triggered_only = yes
 #
-# 	trigger = {
-# 		NOT = { has_global_flag = player_wants_custom_peacedeals }
-# 		has_global_flag = welcome_event_1910
-# 		has_global_flag = welcome_event_1914
-# 	}
-#
-# 	mean_time_to_happen = { days = 1 }
+#	mean_time_to_happen = { days = 1 }
 #
 # 	option = {
-# 		name = kaiserschlachtvictory.254.a
+#		name = kaiserschlachtvictory.254.a
 # 		news_event = { hours = 6 id = news.225 }
 # 		set_global_flag = treaty_of_brest_litovsk
 # 		hidden_effect = {
@@ -2486,7 +2469,7 @@ country_event = {
 # 				set_demilitarized_zone = no
 # 			}
 #
-# 			if = {
+#			if = {
 # 				limit = {
 # 					RMM = {is_in_faction_with = GE1} #Romania is in the CP
 # 				}
@@ -2511,7 +2494,7 @@ country_event = {
 # 		}
 # 		GE1 = {
 # 			puppet = UBD
-# 			puppet = LIT
+#				puppet = LIT
 # 			puppet = BLR
 # 			puppet = UKR
 # 			if = {
@@ -2546,7 +2529,6 @@ country_event = {
 	desc = kaiserschlachtvictory.255.d
 	picture = GFX_report_event_treaty_of_innsbruck
 	is_triggered_only = yes
-	fire_only_once = yes
 
 	option = { #puppet them
 	name = kaiserschlachtvictory.255.a
@@ -2559,3 +2541,603 @@ country_event = {
 	ai_chance = { factor = 100 }
 	}
 }
+
+#Italy in the central powers - their rewards.
+
+country_event = {
+	id = kaiserschlachtvictory.256
+	title = kaiserschlachtvictory.256.t
+	desc = kaiserschlachtvictory.256.d
+	picture = GFX_report_event_ceasefire
+	fire_only_once = yes
+
+	mean_time_to_happen = {days = 1}
+	trigger = {
+		has_global_flag = kaiserschlachtvictory
+		has_global_flag = italycp
+		tag = IT1
+	}
+
+	option = {
+		name = kaiserschlachtvictory.256.a
+		ai_chance = { factor = 100}
+		transfer_state = 458 #Tunis
+		transfer_state = 665 #Gabes
+		transfer_state = 1 #Corsica
+		transfer_state = 735 #Savoy
+		add_state_core = 1
+		add_state_core = 735
+		FR2 = {
+			remove_state_core = 1
+			add_state_claim = 1
+		}
+		32 = {set_demilitarized_zone = yes}
+		21 = {set_demilitarized_zone = yes}
+	}
+
+	# Drang Nach Osten
+	#country_event = {
+	#	id = ww2_germany.250
+	#	title = ww2_germany.250.t
+	#	desc = ww2_germany.250.d
+	#	picture = GFX_report_event_drang_nach_osten
+	#
+	#	is_triggered_only = yes
+	#
+	#	option = {
+	#		name = ww2_germany.250.a
+	#		GE1 = {
+	#			declare_war_on = { target = SOV type = annex_everything }
+	#		}
+	#	}
+	#
+	#	option = {
+	#		name = ww2_germany.250.b
+	#	}
+	#}
+
+#	country_event = {
+#		id = ww2_germany.251
+#		title = ww2_germany.251.t
+#		desc = ww2_germany.251.d
+#		picture = GFX_report_event_fall_of_moscow
+#
+#		fire_only_once = yes
+#
+#		trigger = {
+#			tag = GE1
+#			has_global_flag = german_victory
+#			GE1 = {
+#				controls_state = 219
+#			}
+#		}
+#
+#		mean_time_to_happen = {
+#			days = 1
+#		}
+#
+#		option = {
+#			name = ww2_germany.251.a
+#			RUS = {
+#				annex_country = { target = SOV transfer_troops = no }
+#				change_tag_from = SOV
+#			}
+#			RUS = {
+#				annex_country = { target = WHR transfer_troops = no }
+#				change_tag_from = WHR
+#			}
+#			GE1 = {
+#				puppet = RUS
+#			}
+#			RUS = {
+#				set_politics = {
+#					ruling_party = paternal_autocrat
+#					elections_allowed = no
+#					parties = {
+#						national_socialist = {
+#
+#							popularity = 0
+#						}
+#
+#						populist = {
+#
+#							popularity = 0
+#						}
+#
+#						fascism = {
+#
+#							popularity = 0
+#						}
+#
+#						paternal_autocrat = {
+#
+#							popularity = 40
+#						}
+#
+#						social_conservative = {
+#
+#							popularity = 5
+#						}
+#
+#						market_liberal = {
+#
+#							popularity = 5
+#						}
+#
+#						social_liberal = {
+#
+#							popularity = 0
+#						}
+#
+#						social_democrat = {
+#
+#							popularity = 25
+#						}
+#
+#						left_wing_radical = {
+#
+#							popularity = 0
+#						}
+#
+#						leninist = {
+#
+#							popularity = 25
+#						}
+#
+#						stalinist = {
+#
+#							popularity = 0
+#						}
+#
+#						anarchist = {
+#
+#							popularity = 0
+#						}
+#					}
+#				}
+#				retire_country_leader = yes
+#				create_country_leader = {
+#					name = "Alexander Kolchak"
+#					desc = "POLITICS_KOLCHAK_DESC"
+#					picture = "Portrait_Russia_Alexander_Kolchak.dds"
+#					expire = "1943.5.16"
+#					ideology = paternal_autocrat
+#					traits = {
+#						dictator
+#					}
+#				}
+#				load_oob = "RUS_1918"
+#			}
+#		}
+#	}
+
+	# Treaty of Moscow
+#	country_event = {
+#		id = ww2_germany.252
+#		title = ww2_germany.252.t
+#		desc = ww2_germany.252.d
+#		picture = GFX_report_event_treaty_of_moscow2
+#		fire_only_once = yes
+#
+#		trigger = {
+#			tag = GE1
+#			tag = RUS
+#			has_global_flag = fall_of_moscow
+#		}
+#
+#		mean_time_to_happen = {
+#			days = 1
+#		}
+#
+#		option = {
+#			name = ww2_germany.252.a
+#			set_global_flag = treaty_of_moscow
+#			MRN = {
+#				transfer_state = 235
+#				transfer_state = 233
+#				transfer_state = 769
+#				transfer_state = 232
+#			}
+#			KUB = {
+#				transfer_state = 234
+#				transfer_state = 756
+#				transfer_state = 757
+#			}
+#		}
+#	}
+
+#	country_event = {
+#		id = ww2_germany.253
+#		title = ww2_germany.253.t
+#		desc = ww2_germany.253.d
+#		picture = GFX_report_event_vladivostok
+#		fire_only_once = yes
+#
+#		trigger = {
+#			tag = GE1
+#			tag = RUS
+#			has_global_flag = treaty_of_moscow
+#		}
+#
+#		mean_time_to_happen = {
+#			days = 1
+#		}
+#
+#		option = {
+#			name = ww2_germany.253.a
+#			JAP = {
+#				transfer_state = 408
+#				transfer_state = 409
+#				transfer_state = 655
+#			}
+#		}
+#		option = {
+#			name = ww2_germany.253.b
+#			set_global_flag = nothingyo
+#		}
+#	}
+
+#	# Choose Leader of Russia
+#	country_event = {
+#		id = ww2_germany.254
+#		title = ww2_germany.254.t
+#		desc = ww2_germany.254.d
+#		picture = GFX_report_event_russia_interrim
+#		fire_only_once = yes
+
+#		trigger = {
+#			tag = GE1
+#			has_global_flag = treaty_of_moscow
+#		}
+#
+#		mean_time_to_happen = {
+#			days = 1
+#		}
+#
+#		option = {
+#			name = ww2_germany.254.a
+#			RUS = {
+#				set_politics = {
+#					ruling_party = social_democrat
+#					elections_allowed = no
+#					parties = {
+#						national_socialist = {
+#
+#							popularity = 0
+#						}
+#
+#						populist = {
+#
+#							popularity = 0
+#						}
+#
+#						fascism = {
+#
+#							popularity = 0
+#						}
+#
+#						paternal_autocrat = {
+#
+#							popularity = 10
+#						}
+#
+#						social_conservative = {
+#
+#							popularity = 10
+#						}
+#
+#						market_liberal = {
+#
+#							popularity = 5
+#						}
+#
+#						social_liberal = {
+#
+#							popularity = 0
+#						}
+#
+#						social_democrat = {
+#
+#							popularity = 50
+#						}
+#
+#						left_wing_radical = {
+#
+#							popularity = 5
+#						}
+#
+#						leninist = {
+#
+#							popularity = 15
+#						}
+#
+#						stalinist = {
+#
+#							popularity = 0
+#						}
+#
+#						anarchist = {
+#
+#							popularity = 5
+#						}
+#					}
+#				}
+#				set_global_flag = kerensky
+#				create_country_leader = {
+#					name = "Alexander Kerensky"
+#					desc = "POLITICS_KERENSKY_DESC"
+#					picture = "Portrait_Russia_Alexander_Kerensky.dds"
+#					expire = "1989.5.16"
+#					ideology = social_democrat
+#					traits = {
+#						#
+#					}
+#				}
+#			}
+#			GE1 = {
+#				end_puppet = RUS
+#				remove_from_faction = RUS
+#			}
+#		}
+#		option = {
+#			name = ww2_germany.254.b
+#			GE1 = {
+#				end_puppet = RUS
+#				remove_from_faction = RUS
+#			}
+#		}
+#		option = {
+#			name = ww2_germany.254.c
+#			RUS = {
+#				set_politics = {
+#					ruling_party = social_democrat
+#					elections_allowed = no
+#					parties = {
+#						national_socialist = {
+#
+#							popularity = 0
+#						}
+#
+#						populist = {
+#
+#							popularity = 0
+#						}
+#
+#						fascism = {
+#
+#							popularity = 0
+#						}
+#
+#						paternal_autocrat = {
+#
+#							popularity = 10
+#						}
+#
+#						social_conservative = {
+#
+#							popularity = 10
+#						}
+#
+#						market_liberal = {
+#
+#							popularity = 5
+#						}
+#
+#						social_liberal = {
+#
+#							popularity = 0
+#						}
+#
+#						social_democrat = {
+#
+#							popularity = 50
+#						}
+#
+#						left_wing_radical = {
+#
+#							popularity = 5
+#						}
+#
+#						leninist = {
+#
+#							popularity = 15
+#						}
+#
+#						stalinist = {
+#
+#							popularity = 0
+#						}
+#
+#						anarchist = {
+#
+#							popularity = 5
+#						}
+#					}
+#				}
+#				set_global_flag = kerensky
+#				create_country_leader = {
+#					name = "Alexander Kerensky"
+#					desc = "POLITICS_KERENSKY_DESC"
+#					picture = "Portrait_Russia_Alexander_Kerensky.dds"
+#					expire = "1989.5.16"
+#					ideology = social_democrat
+#					traits = {
+#						#
+#					}
+#				}
+#			}
+#			GE1 = {
+#				end_puppet = RUS
+#				remove_from_faction = RUS
+#			}
+#		}
+#		option = {
+#			name = ww2_germany.254.dd
+#			RUS = {
+#				set_politics = {
+#					ruling_party = social_democrat
+#					elections_allowed = no
+#					parties = {
+#						national_socialist = {
+#
+#							popularity = 0
+#						}
+#
+#						populist = {
+#
+#							popularity = 0
+#						}
+#
+#						fascism = {
+#
+#							popularity = 0
+#						}
+#
+#						paternal_autocrat = {
+#
+#							popularity = 10
+#						}
+#
+#						social_conservative = {
+#
+#							popularity = 10
+#						}
+#
+#						market_liberal = {
+#
+#							popularity = 5
+#						}
+#
+#						social_liberal = {
+#
+#							popularity = 0
+#						}
+#
+#						social_democrat = {
+#
+#							popularity = 50
+#						}
+#
+#						left_wing_radical = {
+#
+#							popularity = 5
+#						}
+#
+#						leninist = {
+#
+#							popularity = 15
+#						}
+#
+#						stalinist = {
+#
+#							popularity = 0
+#						}
+#
+#						anarchist = {
+#
+#							popularity = 5
+#						}
+#					}
+#				}
+#				set_global_flag = kerensky
+#				create_country_leader = {
+#					name = "Alexander Kerensky"
+#					desc = "POLITICS_KERENSKY_DESC"
+#					picture = "Portrait_Russia_Alexander_Kerensky.dds"
+#					expire = "1989.5.16"
+#					ideology = social_democrat
+#					traits = {
+#						#
+#					}
+#				}
+#			}
+#			GE1 = {
+#				end_puppet = RUS
+#				remove_from_faction = RUS
+#			}
+#		}
+#	}
+
+	# Polish Border Strip
+#	country_event = {
+#		id = ww2_germany.255
+#		title = ww2_germany.255.t
+#		desc = ww2_germany.255.d
+#		picture = GFX_report_event_polish_border_strip
+#
+#		major = yes
+#
+#		is_triggered_only = yes
+#
+#		mean_time_to_happen = {
+#			days = 1
+#		}
+#
+#		option = {
+#			name = ww2_germany.255.a
+#			GE1 = {
+#				transfer_state = 773
+#				transfer_state = 774
+#				transfer_state = 775
+#			}
+#		}
+#	}
+#
+#	# Egyptian Revolution
+#	country_event = {
+#		id = ww2_germany.256
+#		title = ww2_germany.256.t
+#		desc = ww2_germany.256.d
+#		picture = GFX_report_event_egyptian_rev
+#
+#		major = yes
+#
+#		is_triggered_only = yes
+#
+#		mean_time_to_happen = {
+#			days = 1
+#		}
+#
+#		option = {
+#			name = ww2_germany.256.a
+#			EGY = {
+#				transfer_state = 446
+#				transfer_state = 447
+#				transfer_state = 452
+#				transfer_state = 552
+#				transfer_state = 551
+#				transfer_state = 457
+#				transfer_state = 549
+#				transfer_state = 456
+#			}
+#			ENG = {
+#				declare_war_on = { target = EGY type = annex_everything }
+#			}
+#		}
+#	}
+
+	# Supply Egyptians?
+#	country_event = {
+#		id = ww2_germany.257
+#		title = ww2_germany.257.t
+#		desc = ww2_germany.257.d
+#		picture = GFX_report_event_weapons_cache
+#
+#		major = yes
+#
+#		is_triggered_only = yes
+#
+#		mean_time_to_happen = {
+#			days = 1
+#		}
+#
+#		option = {
+#			name = ww2_germany.257.a
+#			EGY = {
+#				add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 50000 producer = GER }
+#			}
+#		}
+#		option = {
+#			name = ww2_germany.257.b
+#		}
+#	}
