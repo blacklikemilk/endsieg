@@ -5,7 +5,6 @@ replace_path="common/national_focus"
 replace_path="common/countries"
 replace_path="gfx"
 replace_path="events"
-replace_path="music"
 tags={
 	"Historical"
 }
