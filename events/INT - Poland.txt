@@ -2,6 +2,54 @@
 # Polish Events
 ###########################
 
+add_namespace = ww1_ukraine
+
+# Ukranian-Polish War
+country_event = {
+	id = ww1_ukraine.2
+	title = ww1_ukraine.2.t
+	desc = ww1_ukraine.2.d
+	picture = GFX_report_event_ukrop_polishwar
+
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { date > 1932.12.1 }
+		tag = POL
+		NOT = { POL = { is_puppet_of = GE1 } }
+		NOT = { UKR = { is_puppet_of = GE1 } } #Neither are puppets of Germany
+		WUR = { NOT = { has_war_with = AUH } }
+		has_global_flag = compiegne
+	}
+
+	mean_time_to_happen = { days = 50 }
+
+	immediate = {
+		set_global_flag = polakukropwar
+	}
+	option = {
+		name = ww1_ukraine.2.a
+		news_event = { hours = 6 id = news.33 }
+		POL = {
+			declare_war_on = {
+				target = UKR
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = WUR
+				type = annex_everything
+			}
+		}
+		UKR = {
+			create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT
+			add_to_faction = WUR
+		}
+		WUR = {
+			load_oob = "WUR_1918"
+		}
+	}
+}
+
 add_namespace = poland
 
 # Ceasfire between Ukrops and Polaks
@@ -15,15 +63,16 @@ country_event = {
 
 	trigger = {
 		NOT = { date > 1932.12.1 }
-		# OR = {
-		# 	tag = UKR
-			tag = POL
-		# }
+		tag = POL
 		has_global_flag = regency_ends
-		AND = {
+		OR = {
 			POL = {
 				controls_state = 91
 				controls_state = 93
+			}
+			AND = {
+				POL = { controls_state = 91 }
+				date > 1919.7.17
 			}
 		}
 		POL = { has_war_with = UKR }
@@ -46,6 +95,13 @@ country_event = {
 		}
 		UKR = {
 			dismantle_faction = yes
+		}
+		if = {
+			limit = {
+				country_exists = WHR
+				WHR = { has_war_with = SO2 }
+			}
+			WHR = { add_to_faction = UKR}
 		}
 	}
 }
@@ -220,7 +276,6 @@ country_event = {
 	}
 }
 
-
 # Polish Regency Ends
 country_event = {
 	id = poland.7
@@ -242,8 +297,11 @@ country_event = {
 	}
 	option = {
 		name = poland.7.a
-		POL = {
-			load_oob = "POL_Independent"
+		hidden_effect = {
+			if = {
+				limit = { date < 1919.1.1 }
+				POL = { load_oob = "POL_Independent" }
+			}
 		}
 	}
 }
