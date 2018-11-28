@@ -1,8 +1,9 @@
-﻿name="Endsieg: Ultimate Victory"
-path="mod/endsieg-master/"
+name="Endsieg: Ultimate Victory"
+path="mod/endsieg/"
 replace_path="common/ideas"
 replace_path="common/national_focus"
 replace_path="common/countries"
+replace_path="history/countries"
 replace_path="gfx"
 replace_path="events"
 tags={
