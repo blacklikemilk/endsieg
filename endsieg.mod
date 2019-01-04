@@ -4,8 +4,10 @@ replace_path="common/ideas"
 replace_path="common/national_focus"
 replace_path="common/countries"
 replace_path="history/countries"
+replace_path="history/states"
 replace_path="gfx"
 replace_path="events"
+replace_path="tests"
 tags={
 	"Historical"
 }
