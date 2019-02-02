@@ -1,4 +1,4 @@
-name="Endsieg: Ultimate Victory"
+name="Endsieg: Ultimate Victory Developer"
 path="mod/endsieg/"
 replace_path="common/ideas"
 replace_path="common/national_focus"
@@ -12,5 +12,4 @@ tags={
 	"Historical"
 }
 picture="endsieg.jpg"
-remote_file_id="1532883122"
 supported_version="1.5.*"
