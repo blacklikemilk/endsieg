@@ -11,4 +11,4 @@ tags={
 }
 picture="endsieg.jpg"
 remote_file_id="1532883122"
-supported_version="1.5.*"
+supported_version="1.6.*"
