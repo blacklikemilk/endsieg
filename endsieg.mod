@@ -9,6 +9,10 @@ replace_path="map/strategicregions"
 replace_path="gfx"
 replace_path="events"
 replace_path="music"
+replace_path="common/technologies"
+replace_path="common/ai_strategy"
+replace_path="history/countries"
+replace_path="history/states"
 tags={
 	"Historical"
 }
