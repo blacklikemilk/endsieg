@@ -1,4 +1,0 @@
-NDefines_Graphics.NGraphics.GRADIENT_BORDERS_THICKNESS_STATE = 11.0
-NDefines_Graphics.NGraphics.COUNTRY_FLAG_STRIPE_TEX_MAX_HEIGHT = 1024
-NDefines_Graphics.NGraphics.COUNTRY_FLAG_LARGE_STRIPE_MAX_HEIGHT = 4000
-NDefines_Graphics.NGraphics.BORDER_WIDTH = 0.8
