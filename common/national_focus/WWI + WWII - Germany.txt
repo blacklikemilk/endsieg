@@ -410,7 +410,7 @@ focus_tree = {
 				}
 			available = {
 					date > 1915.1.1
-					NOT = { date > 1915.1.1 }
+					date < 1918.1.1
 					has_global_flag = fall_of_huerta
 				}
 			completion_reward = {
@@ -4046,6 +4046,12 @@ focus_tree = {
 					limit = {
 						85 = {
 							controller = {
+								tag = DAN
+								has_civil_war = no
+							}
+						}
+						800 = {
+							controller = {
 								tag = POL
 								has_civil_war = no
 							}
@@ -4053,9 +4059,11 @@ focus_tree = {
 					}
 					effect_tooltip = {
 						transfer_state = 85
+						transfer_state = 800
 						add_state_core = 85
-						remove_state_claim = 86
-						remove_state_claim = 762
+						add_state_core = 800
+						remove_state_claim = 85
+						remove_state_claim = 800
 					}
 					POL = {
 						country_event = { id = germany.86 }
@@ -4082,11 +4090,15 @@ focus_tree = {
 				if = {
 					limit = {
 						85 = {
-							owner = {
-								OR = {
-									original_tag = POL
-									tag = POL
-								}
+							controller = {
+								tag = DAN
+								has_civil_war = no
+							}
+						}
+						800 = {
+							controller = {
+								tag = POL
+								has_civil_war = no
 							}
 						}
 					}
@@ -7519,32 +7531,37 @@ focus_tree = {
 				factor = 1
 			}
 			completion_reward = {
-				SOV = { add_opinion_modifier = { target = ROOT modifier = pact_against_us } }
-				add_named_threat = { threat = 2 name = GER_anti_comitern_pact }
-				every_other_country = {
+				if = {
 					limit = {
-						NOT = { tag = GER }
-						NOT = { has_war_with = GER }
-						NOT = { is_in_faction_with = SOV }
-						is_subject = no
-						OR = {
-							capital_scope = {
-									is_on_continent = europe
-							}
-							capital_scope = {
-									is_on_continent = asia
-							}
-							num_of_factories > 30
-						}
-						OR = {
-							has_government = fascism
-							AND = {
-								is_neighbor_of = SOV
-								NOT = { has_government_communist = yes }
-							}
-						}
+						has_start_date < 1940.1.1
 					}
-					country_event = germany.5
+					SOV = { add_opinion_modifier = { target = ROOT modifier = pact_against_us } }
+					add_named_threat = { threat = 2 name = GER_anti_comitern_pact }
+					every_other_country = {
+						limit = {
+							NOT = { tag = GER }
+							NOT = { has_war_with = GER }
+							NOT = { is_in_faction_with = SOV }
+							is_subject = no
+							OR = {
+								capital_scope = {
+										is_on_continent = europe
+								}
+								capital_scope = {
+										is_on_continent = asia
+								}
+								num_of_factories > 30
+							}
+							OR = {
+								has_government = fascism
+								AND = {
+									is_neighbor_of = SOV
+									NOT = { has_government_communist = yes }
+								}
+							}
+						}
+						country_event = germany.5
+					}
 				}
 			}
 		}
@@ -7733,111 +7750,116 @@ focus_tree = {
 			}
 
 			completion_reward = {
-				army_experience = 10
 				if = {
 					limit = {
-						country_exists = AUS
-						AUS = {
-							has_civil_war = no
-							OR = {
-								owns_state = 4
-								owns_state = 152
-								owns_state = 153
-							}
-						}
+						has_start_date < 1940.1.1
 					}
-
-					AUS = {
-						country_event = germany.28
-					}
-					custom_effect_tooltip = anschluss_mefo_bills_tt
-				}
-				if = {
-					limit = {
-						any_other_country = {
-							original_tag = AUS
-							has_civil_war = yes
-							OR = {
-								owns_state = 4
-								owns_state = 152
-								owns_state = 153
-							}
-						}
-					}
-					custom_effect_tooltip = germany.126.warning
-					random_other_country = {
+					army_experience = 10
+					if = {
 						limit = {
-							original_tag = AUS
-							OR = {
-								has_government = fascism
-								AND = {
-									has_government = paternal_autocrat
+							country_exists = AUS
+							AUS = {
+								has_civil_war = no
+								OR = {
+									owns_state = 4
+									owns_state = 152
+									owns_state = 153
+								}
+							}
+						}
+
+						AUS = {
+							country_event = germany.28
+						}
+						custom_effect_tooltip = anschluss_mefo_bills_tt
+					}
+					if = {
+						limit = {
+							any_other_country = {
+								original_tag = AUS
+								has_civil_war = yes
+								OR = {
+									owns_state = 4
+									owns_state = 152
+									owns_state = 153
+								}
+							}
+						}
+						custom_effect_tooltip = germany.126.warning
+						random_other_country = {
+							limit = {
+								original_tag = AUS
+								OR = {
+									has_government = fascism
+									AND = {
+										has_government = paternal_autocrat
+										NOT = {
+											any_other_country = {
+												original_tag = AUS
+												has_government = fascism
+											}
+										}
+									}
 									NOT = {
 										any_other_country = {
 											original_tag = AUS
-											has_government = fascism
-										}
-									}
-								}
-								NOT = {
-									any_other_country = {
-										original_tag = AUS
-										OR = {
-											has_government = fascism
-											has_government = paternal_autocrat
+											OR = {
+												has_government = fascism
+												has_government = paternal_autocrat
+											}
 										}
 									}
 								}
 							}
+							country_event = { id = germany.126 days = 1 }
 						}
-						country_event = { id = germany.126 days = 1 }
 					}
-				}
 
-				if = {
-					limit = {
-						4 = {
-							owner = {
-								NOT = {
-									tag = AUS
-								}
-								NOT = {
-									is_in_faction_with = ROOT
-								}
-							}
-						}
-					}
-					add_state_core = 4
-				}
-				if = {
-					limit = {
-						152 = {
-							owner = {
-								NOT = {
-									tag = AUS
-								}
-								NOT = {
-									is_in_faction_with = ROOT
+					if = {
+						limit = {
+							4 = {
+								owner = {
+									NOT = {
+										tag = AUS
+									}
+									NOT = {
+										is_in_faction_with = ROOT
+									}
 								}
 							}
 						}
+						add_state_core = 4
 					}
-					add_state_core = 152
-				}
-				if = {
-					limit = {
-						153 = {
-							owner = {
-								NOT = {
-									tag = AUS
-								}
-								NOT = {
-									is_in_faction_with = ROOT
+					if = {
+						limit = {
+							152 = {
+								owner = {
+									NOT = {
+										tag = AUS
+									}
+									NOT = {
+										is_in_faction_with = ROOT
+									}
 								}
 							}
 						}
+						add_state_core = 152
 					}
-					add_state_core = 153
+					if = {
+						limit = {
+							153 = {
+								owner = {
+									NOT = {
+										tag = AUS
+									}
+									NOT = {
+										is_in_faction_with = ROOT
+									}
+								}
+							}
+						}
+						add_state_core = 153
+					}
 				}
 			}
 		}
@@ -7864,19 +7886,24 @@ focus_tree = {
 				}
 			}
 			completion_reward = {
-				188 = { add_claim_by = GER }
-				85 = { add_claim_by = GER }
-				86 = { add_claim_by = GER }
-				add_named_threat = { threat = 3 name = GER_demand_memel_threat }
 				if = {
 					limit = {
-						LIT = {
-							owns_state = 188
-							controls_state = 188
-						}
+						has_start_date < 1940.1.1
 					}
-					LIT = {
-						country_event = { id = baltic.4 }
+					188 = { add_claim_by = GER }
+					85 = { add_claim_by = GER }
+					86 = { add_claim_by = GER }
+					add_named_threat = { threat = 3 name = GER_demand_memel_threat }
+					if = {
+						limit = {
+							LIT = {
+								owns_state = 188
+								controls_state = 188
+							}
+						}
+						LIT = {
+							country_event = { id = baltic.4 }
+						}
 					}
 				}
 			}
@@ -8026,113 +8053,118 @@ focus_tree = {
 				factor = 10
 			}
 			completion_reward = {
-				if =  {
+				if = {
 					limit = {
-						OR = {
-							ENG = { exists = no }
-							ENG = {
-								is_subject = yes
-							}
-							has_war_with = ENG
-							has_war_with = FRA
-							AND = {
-								CZE = { is_subject = yes }
-								OR = {
-									CZE = {
-										NOT = {
-											is_puppet_of = HUN
+						has_start_date < 1940.1.1
+					}
+					if =  {
+						limit = {
+							OR = {
+								ENG = { exists = no }
+								ENG = {
+									is_subject = yes
+								}
+								has_war_with = ENG
+								has_war_with = FRA
+								AND = {
+									CZE = { is_subject = yes }
+									OR = {
+										CZE = {
+											NOT = {
+												is_puppet_of = HUN
+											}
 										}
+										NOT = { has_dlc = "Death or Dishonor" }
 									}
-									NOT = { has_dlc = "Death or Dishonor" }
+								}
+								CZE = { has_war_with = ENG }
+								CZE = { has_war_with = FRA }
+								CZE = { is_in_faction_with = GER }
+							}
+							CZE = { controls_state = 69 }
+						}
+						if = {
+							limit = {
+								CZE = { is_subject = no }
+							}
+							CZE = {
+								country_event = { id = germany.122 }
+							}
+							else = {
+								CZE = {
+									OVERLORD = { country_event = { id = germany.122 } }
 								}
 							}
-							CZE = { has_war_with = ENG }
-							CZE = { has_war_with = FRA }
-							CZE = { is_in_faction_with = GER }
 						}
-						CZE = { controls_state = 69 }
 					}
 					if = {
 						limit = {
-							CZE = { is_subject = no }
-						}
-						CZE = {
-							country_event = { id = germany.122 }
-						}
-						else = {
-							CZE = {
-								OVERLORD = { country_event = { id = germany.122 } }
-							}
-						}
-					}
-				}
-				if = {
-					limit = {
-						has_dlc = "Death or Dishonor"
-						CZE = { NOT = { is_in_faction_with = GER } } #in case AH is in faction with GER and dragged a subject CZE along.
-						OR = {
-							69 = { is_owned_by = HUN } #AH restored
-							AND = {
-								CZE = { is_subject_of = HUN }
-								69 = { is_owned_by = CZE }
-							}
-						}
-					}
-					HUN = {
-						country_event = germany.122
-					}
-				}
-				if = {
-					limit = {
-
-						ENG = { exists = yes }
-						ENG = { is_subject = no }
-						NOT = { has_war_with = ENG }
-						NOT = { has_war_with = FRA }
-						CZE = { is_subject = no }
-						CZE = { NOT = { is_in_faction_with = GER } }
-						CZE = { NOT = { has_war_with = ENG } }
-						CZE = { controls_state = 69 }
-						OR = {
-							HUN = {
-								NOT = {
-									has_completed_focus = HUN_protect_czechoslovakia #DOD only
+							has_dlc = "Death or Dishonor"
+							CZE = { NOT = { is_in_faction_with = GER } } #in case AH is in faction with GER and dragged a subject CZE along.
+							OR = {
+								69 = { is_owned_by = HUN } #AH restored
+								AND = {
+									CZE = { is_subject_of = HUN }
+									69 = { is_owned_by = CZE }
 								}
 							}
-							CZE = {
-								has_country_flag = HUN_AH_CZE_refused
+						}
+						HUN = {
+							country_event = germany.122
+						}
+					}
+					if = {
+						limit = {
+
+							ENG = { exists = yes }
+							ENG = { is_subject = no }
+							NOT = { has_war_with = ENG }
+							NOT = { has_war_with = FRA }
+							CZE = { is_subject = no }
+							CZE = { NOT = { is_in_faction_with = GER } }
+							CZE = { NOT = { has_war_with = ENG } }
+							CZE = { controls_state = 69 }
+							OR = {
+								HUN = {
+									NOT = {
+										has_completed_focus = HUN_protect_czechoslovakia #DOD only
+									}
+								}
+								CZE = {
+									has_country_flag = HUN_AH_CZE_refused
+								}
 							}
 						}
-					}
-					ENG = {
-						country_event = germany.40
-					}
-					add_named_threat = { threat = 3 name = GER_demand_sudetenland_threat }
-				}
-				69 = {
-					add_claim_by = GER
-				}
-				if = {
-					limit = {
-						NOT = { CZE = { controls_state = 69 } }
-						NOT = {
-							69 = { is_controlled_by = HUN }
-							HUN = { has_completed_focus = HUN_protect_czechoslovakia }
+						ENG = {
+							country_event = germany.40
 						}
+						add_named_threat = { threat = 3 name = GER_demand_sudetenland_threat }
+					}
+					69 = {
+						add_claim_by = GER
+					}
+					if = {
+						limit = {
+							NOT = { CZE = { controls_state = 69 } }
+							NOT = {
+								69 = { is_controlled_by = HUN }
+								HUN = { has_completed_focus = HUN_protect_czechoslovakia }
+							}
+							69 = {
+								controller = {
+									NOT = { is_in_faction_with = GER }
+								}
+							}
+						}
+						add_named_threat = { threat = 3 name = GER_demand_sudetenland_threat }
 						69 = {
 							controller = {
-								NOT = { is_in_faction_with = GER }
-							}
-						}
-					}
-					add_named_threat = { threat = 3 name = GER_demand_sudetenland_threat }
-					69 = {
-						controller = {
-							GER = {
-								create_wargoal = {
-									type = take_state_focus
-									target = PREV
-									generator = { 69 }
+								GER = {
+									create_wargoal = {
+										type = take_state_focus
+										target = PREV
+										generator = { 69 }
+									}
 								}
 							}
 						}
@@ -8168,15 +8200,20 @@ focus_tree = {
 				factor = 10
 			}
 			completion_reward = {
-				HUN = {
-					country_event = { id = germany.51 }
-					add_opinion_modifier = { target = GER modifier = GER_first_vienna_award_GER }
-				}
-				every_other_country = {
+				if = {
 					limit = {
-						is_faction_leader = yes
+						has_start_date < 1940.1.1
 					}
-					reverse_add_opinion_modifier = { target = HUN modifier = GER_first_vienna_award_other }
+					HUN = {
+						country_event = { id = germany.51 }
+						add_opinion_modifier = { target = GER modifier = GER_first_vienna_award_GER }
+					}
+					every_other_country = {
+						limit = {
+							is_faction_leader = yes
+						}
+						reverse_add_opinion_modifier = { target = HUN modifier = GER_first_vienna_award_other }
+					}
 				}
 			}
 		}
@@ -8218,32 +8255,37 @@ focus_tree = {
 			completion_reward = {
 				if = {
 					limit = {
-						country_exists = CZE
-						CZE = {
-							NOT = {
-								is_subject_of = HUN
-							}
-						}
+						has_start_date < 1940.1.1
 					}
-					set_global_flag = end_of_czechoslovakia
-					CZE = { country_event = germany.53 }
-				}
-				if = {
-					limit = {
-						OR = {
+					if = {
+						limit = {
+							country_exists = CZE
 							CZE = {
-								is_subject_of = HUN
-							}
-							HUN = {
-								owns_state = 9#Prague - AH annexed CZE
+								NOT = {
+									is_subject_of = HUN
+								}
 							}
 						}
+						set_global_flag = end_of_czechoslovakia
+						CZE = { country_event = germany.53 }
 					}
-					add_state_claim = 9
-					add_state_claim = 75
+					if = {
+						limit = {
+							OR = {
+								CZE = {
+									is_subject_of = HUN
+								}
+								HUN = {
+									owns_state = 9#Prague - AH annexed CZE
+								}
+							}
+						}
+						add_state_claim = 9
+						add_state_claim = 75
+					}
+					add_named_threat = { threat = 5 name = GER_end_of_czechoslovakia }
+					custom_effect_tooltip = end_of_czechoslovakia_mefo_bills_tt
 				}
-				add_named_threat = { threat = 5 name = GER_end_of_czechoslovakia }
-				custom_effect_tooltip = end_of_czechoslovakia_mefo_bills_tt
 			}
 		}
 
@@ -8306,15 +8348,20 @@ focus_tree = {
 			completion_reward = {
 				if = {
 					limit = {
-						HUN = {
-							is_friend_or_potential_friend_of_GER = yes
-						}
-						ROM = {
-							controls_state = 76
-							NOT = { has_war_with = HUN }
-						}
+						has_start_date < 1940.1.1
 					}
-					country_event = { id = germany.20 }
+					if = {
+						limit = {
+							HUN = {
+								is_friend_or_potential_friend_of_GER = yes
+							}
+							ROM = {
+								controls_state = 76
+								NOT = { has_war_with = HUN }
+							}
+						}
+						country_event = { id = germany.20 }
+					}
 				}
 			}
 		}
