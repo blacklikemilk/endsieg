@@ -17,4 +17,4 @@ tags={
 	"Historical"
 }
 remote_file_id="1532883122"
-supported_version="1.6.*"
+supported_version="1.7.*"
