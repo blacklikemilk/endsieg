@@ -1,0 +1,547 @@
+# Economic Tree #
+	shared_focus = {
+		id = shared_INT_economic_uproar
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = 7
+		y = 1
+
+		ai_will_do = { factor = 10 }
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = industrial_bonus
+				bonus = 0.5
+				uses = 1
+				category = industry
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_factory_policy
+		icon = GFX_goal_generic_construct_civilian
+		cost = 10.00
+		x = 6
+		y = 1
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_economic_uproar }
+		relative_position_id = shared_INT_economic_uproar
+
+		completion_reward = {
+			country_event = { id = INT_generic.1 }
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_mass_production
+		icon = GFX_goal_generic_construct_mil_factory
+		cost = 0.2
+		x = -2
+		y = 1
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_factory_policy }
+		relative_position_id = shared_INT_factory_policy
+		mutually_exclusive = { focus = shared_INT_steady_progress }
+
+		available = { has_idea = INT_reckless_progress }
+		completion_reward = {
+			add_ideas = INT_reckless_progress
+
+			random_owned_controlled_state = {
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = arms_factory
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_war_economy_to_resource_extraction
+		icon = GFX_goal_generic_construction2
+		cost = 10.00
+		x = 0
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_mass_production }
+		relative_position_id = shared_INT_mass_production
+
+		completion_reward = {
+			if = {
+				limit = { has_idea = war_economy }
+				swap_ideas = {
+					remove_idea = war_economy
+					add_idea = civilian_economy
+				}
+				add_ideas = INT_war_economy_to_resource_extraction_war_economy
+			}
+			else_if = {
+				limit = { has_idea = tot_economic_mobilisation }
+				swap_ideas = {
+					remove_idea = tot_economic_mobilisation
+					add_idea = civilian_economy
+				}
+				add_ideas = INT_war_economy_to_resource_extraction_war_economy
+			}
+			else = {
+				add_ideas = civilian_economy
+				add_ideas = INT_war_economy_to_resource_extraction_civilian_economy
+			}
+
+			add_tech_bonus = {
+				name = shared_INT_war_economy_to_resource_extraction
+				bonus = 0.5
+				uses = 1
+				technology = excavation1
+				technology = excavation2
+				technology = excavation3
+				technology = excavation4
+				technology = excavation5
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_increase_warehouse_capacity
+		icon = GFX_goal_generic_production
+		cost = 10.00
+		x = -1
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_war_economy_to_resource_extraction }
+		relative_position_id = shared_INT_war_economy_to_resource_extraction
+
+		completion_reward = {
+			add_ideas = INT_increased_capacity_warehouse
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_machines_production_line
+		icon = GFX_goal_generic_production2
+		cost = 10.00
+		x = 1
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_war_economy_to_resource_extraction }
+		relative_position_id = shared_INT_war_economy_to_resource_extraction
+
+		completion_reward = {
+			add_ideas = INT_increased_capacity
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_every_man_a_car
+		icon = GFX_goal_generic_consumer_goods
+		cost = 10.00
+		x = 1
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_increase_warehouse_capacity }
+		prerequisite = { focus = shared_INT_machines_production_line }
+		relative_position_id = shared_INT_increase_warehouse_capacity
+
+		completion_reward = {
+			random_owned_controlled_state = {
+				add_extra_state_shared_building_slots = 3
+				add_building_construction = {
+					type = arms_factory
+					level = 3
+					instant_build = yes
+				}
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_steady_progress
+		icon = GFX_goal_generic_construct_infrastructure
+		cost = 0.2
+		x = 2
+		y = 1
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_factory_policy }
+		relative_position_id = shared_INT_factory_policy
+		mutually_exclusive = { focus = shared_INT_mass_production }
+
+		available = { has_idea = INT_steady_progress }
+		completion_reward = {
+			add_ideas = INT_steady_progress
+
+			random_owned_controlled_state = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = arms_factory
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_war_economy_to_consumer_goods
+		icon = GFX_goal_generic_consumer_goods
+		cost = 10.00
+		x = 0
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_steady_progress }
+		relative_position_id = shared_INT_steady_progress
+
+		completion_reward = {
+			if = {
+				limit = { has_idea = war_economy }
+				swap_ideas = {
+					remove_idea = war_economy
+					add_idea = civilian_economy
+				}
+				add_ideas = INT_war_economy_to_consumer_goods_war_economy
+			}
+			else_if = {
+				limit = { has_idea = tot_economic_mobilisation }
+				swap_ideas = {
+					remove_idea = tot_economic_mobilisation
+					add_idea = civilian_economy
+				}
+				add_ideas = INT_war_economy_to_consumer_goods_war_economy
+			}
+			else = {
+				add_ideas = civilian_economy
+				add_ideas = INT_war_economy_to_consumer_goods_civilian_economy
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_increase_wages
+		icon = GFX_goal_generic_national_unity
+		cost = 10.00
+		x = 1
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_war_economy_to_consumer_goods }
+		relative_position_id = shared_INT_war_economy_to_consumer_goods
+
+		completion_reward = {
+			add_ideas = INT_increased_wages
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_reform_production_lines
+		icon = GFX_goal_generic_construction
+		cost = 10.00
+		x = -1
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_war_economy_to_consumer_goods }
+		relative_position_id = shared_INT_war_economy_to_consumer_goods
+
+		completion_reward = {
+			add_ideas = INT_increased_efficiency
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_improve_worker_conditions
+		icon = GFX_goal_generic_improve_relations
+		cost = 10.00
+		x = -1
+		y = 2
+
+		ai_will_do = { factor = 5 }
+
+		prerequisite = { focus = shared_INT_reform_production_lines }
+		prerequisite = { focus = shared_INT_increase_wages }
+		relative_position_id = shared_INT_increase_wages
+
+		completion_reward = {
+			add_ideas = INT_improved_worker_conditions
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_economic_security
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = -5
+		y = 1
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_economic_uproar }
+		relative_position_id = shared_INT_economic_uproar
+
+		completion_reward = {
+			random_owned_controlled_state = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_return_to_gold_standard
+		icon = GFX_focus_usa_reestablish_the_gold_standard
+		cost = 10.00
+		x = -1
+		y = 2
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_economic_security }
+		relative_position_id = shared_INT_economic_security
+		mutually_exclusive = { focus = shared_INT_stabilize_currency }
+
+		completion_reward = {
+			add_ideas = INT_gold_standard
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_long_term_stability
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = -1
+		y = 3
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_return_to_gold_standard focus = shared_INT_stabilize_currency }
+		relative_position_id = shared_INT_return_to_gold_standard
+
+		completion_reward = {
+			random_owned_controlled_state = {
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_promote_trade
+		icon = GFX_goal_generic_positive_trade_relations
+		cost = 10.00
+		x = 1
+		y = 2
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_stabilize_currency focus = shared_INT_return_to_gold_standard }
+		relative_position_id = shared_INT_return_to_gold_standard
+
+		completion_reward = {
+			add_ideas = INT_improve_trade
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_stabilize_currency
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = 1
+		y = 2
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_economic_security }
+		relative_position_id = shared_INT_economic_security
+		mutually_exclusive = { focus = shared_INT_return_to_gold_standard }
+
+		completion_reward = {
+			add_ideas = INT_stabilized_currency
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_invest_in_central_bank
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = 1
+		y = 3
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_stabilize_currency focus = shared_INT_return_to_gold_standard }
+		relative_position_id = shared_INT_stabilize_currency
+
+		completion_reward = {
+			random_owned_controlled_state = {
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_trust_in_economy
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = 0
+		y = 3
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_invest_in_central_bank }
+		prerequisite = { focus = shared_INT_long_term_stability }
+
+		relative_position_id = shared_INT_promote_trade
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = industrial_bonus
+				bonus = 0.35
+				uses = 2
+				category = industry
+			}
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_state_of_the_wife
+		icon = GFX_focus_generic_military_academy
+		cost = 10.00
+		x = 0
+		y = 1
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_economic_uproar }
+		relative_position_id = shared_INT_economic_uproar
+
+		completion_reward = {
+			country_event = { id = INT_generic.2 }
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_womens_suffrage
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = -1
+		y = 2
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_state_of_the_wife }
+		relative_position_id = shared_INT_state_of_the_wife
+		mutually_exclusive = { focus = shared_INT_women_in_the_kitchen }
+
+		completion_reward = {
+			add_ideas = INT_womens_suffrage
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_women_in_the_army
+		icon = GFX_goal_generic_allies_build_infantry
+		cost = 10.00
+		x = 0
+		y = 2
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_womens_suffrage focus = shared_INT_women_in_the_kitchen }
+		relative_position_id = shared_INT_womens_suffrage
+
+		completion_reward = {
+			add_ideas = INT_women_in_the_army
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_women_in_the_kitchen
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = 1
+		y = 2
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_state_of_the_wife }
+		relative_position_id = shared_INT_state_of_the_wife
+		mutually_exclusive = { focus = shared_INT_womens_suffrage }
+
+		completion_reward = {
+			add_ideas = INT_women_in_the_kitchen
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+
+	shared_focus = {
+		id = shared_INT_women_in_the_factories
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10.00
+		x = 0
+		y = 2
+
+		ai_will_do = { factor = 10 }
+
+		prerequisite = { focus = shared_INT_women_in_the_kitchen focus = shared_INT_womens_suffrage }
+		relative_position_id = shared_INT_women_in_the_kitchen
+
+		completion_reward = {
+			add_ideas = INT_women_in_the_factories
+		}
+		bypass = { has_global_flag = welcome_event_WWII }
+	}
+#

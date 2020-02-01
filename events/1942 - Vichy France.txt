@@ -1,0 +1,192 @@
+﻿###########################
+# Vichy Events
+###########################
+
+add_namespace = EFR_1942
+
+#USA Line to Vichy
+country_event = {
+	id = EFR_1942.1
+	title = EFR_1942.1.t
+	desc = EFR_1942.1.desc
+	picture = GFX_report_event_german_speech#TODO
+
+	fire_only_once = yes
+	mean_time_to_happen = { days = 1 }
+
+	trigger = {
+		tag = USA
+		date > 1942.10.21
+		date < 1943.1.1
+		country_exists = EFR
+		NOT = { USA = { has_war_with = EFR } }
+	}
+
+	option = { #send ultimatum
+		name = EFR_1942.1.a
+		EFR = { country_event = { id = EFR_1942.2 days = 1 } } #we will meddle
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #dont send ultimatum, leave them be
+		name = EFR_1942.1.b
+		EFR = { country_event = { id = EFR_1942.3 days = 1 } } #no more meddling
+		ai_chance = { factor = 0 }
+	}
+}
+
+#Vichy meddle
+country_event = {
+	id = EFR_1942.2
+	title = EFR_1942.2.t
+	desc = EFR_1942.2.desc
+	picture = GFX_report_event_german_speech#TODO
+
+	is_triggered_only = yes
+
+	option = { # crap, we will fight
+		name = EFR_1942.2.a
+		news_event = { id = news_1942.1 days = 2 }
+		hidden_effect = { USA = { country_event = { id = EFR_1942.4 days = 1 } } }
+		ai_chance = { factor = 100 }
+		FRA = {
+			transfer_state = 310
+			transfer_state = 543
+		}
+	}
+
+	option = { # crap, we will join allies
+		name = EFR_1942.2.b
+		ENG = { add_to_faction = EFR }
+		news_event = { id = news_1942.2 days = 1 }
+		ai_chance = { factor = 0 }
+	}
+}
+
+#Vichy no meddling
+country_event = {
+	id = EFR_1942.3
+	title = EFR_1942.3.t
+	desc = EFR_1942.3.desc
+	picture = GFX_report_event_german_speech#TODO
+
+	is_triggered_only = yes
+
+	option = { # nice, #loveneutrality
+		name = EFR_1942.3.a
+		news_event = { id = news_1942.3 days = 1 }
+	}
+}
+
+#Vichy declare war
+country_event = {
+	id = EFR_1942.4
+	title = EFR_1942.4.t
+	desc = EFR_1942.4.desc
+	picture = GFX_report_event_german_speech#TODO
+
+	is_triggered_only = yes
+
+	option = { # start operation torch
+		name = EFR_1942.4.a
+		news_event = { id = news_1942.4 days = 1 }
+		declare_war_on = { target = EFR type = annex_everything }
+		load_oob = USA_operation_torch
+		GER = { add_to_faction = EFR }
+	}
+}
+
+#Germany case anton
+country_event = {
+	id = EFR_1942.5
+	title = EFR_1942.5.t
+	desc = EFR_1942.5.desc
+	picture = GFX_report_event_german_speech#TODO
+
+	is_triggered_only = yes
+
+	option = { #Occupy france completely
+		name = EFR_1942.5.a
+		GER = {
+			if = {
+				limit = { 33 = { is_controlled_by = EFR } }
+				transfer_state = 33
+			}
+			if = {
+				limit = { 26 = { is_controlled_by = EFR } }
+				transfer_state = 26
+			}
+			if = {
+				limit = { 20 = { is_controlled_by = EFR } }
+				transfer_state = 20
+			}
+			if = {
+				limit = { 25 = { is_controlled_by = EFR } }
+				transfer_state = 25
+			}
+			if = {
+				limit = { 22 = { is_controlled_by = EFR } }
+				transfer_state = 22
+			}
+			if = {
+				limit = { 31 = { is_controlled_by = EFR } }
+				transfer_state = 31
+			}
+			if = {
+				limit = { EFR = { is_in_faction_with = GER } }
+				puppet = EFR
+			}
+		}
+		ITA = {
+			if = {
+				limit = { 32 = { is_controlled_by = EFR } }
+				transfer_state = 32
+			}
+			if = {
+				limit = { 735 = { is_controlled_by = EFR } }
+				transfer_state = 735
+			}
+			if = {
+				limit = { 21 = { is_controlled_by = EFR } }
+				transfer_state = 21
+			}
+			if = {
+				limit = { 1 = { is_controlled_by = EFR } }
+				transfer_state = 1
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #Install puppet regime, give italy territory
+		name = EFR_1942.5.b
+		trigger = { EFR = { is_in_faction_with = GER } }
+		puppet = EFR
+		ITA = {
+			if = {
+				limit = { 32 = { is_controlled_by = EFR } }
+				transfer_state = 32
+			}
+			if = {
+				limit = { 735 = { is_controlled_by = EFR } }
+				transfer_state = 735
+			}
+			if = {
+				limit = { 21 = { is_controlled_by = EFR } }
+				transfer_state = 21
+			}
+			if = {
+				limit = { 1 = { is_controlled_by = EFR } }
+				transfer_state = 1
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+
+	option = { #Install puppet regime, give italy nothing
+		name = EFR_1942.5.c
+		trigger = { EFR = { is_in_faction_with = GER } }
+		GER = { puppet = EFR }
+		ai_chance = { factor = 0 }
+	}
+}

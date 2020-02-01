@@ -1,0 +1,116 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			every_country = {
+				limit = {
+					country_has_war_exhaustion = yes
+				}
+				set_variable = { war_exhaustion_variable = 0 }
+				set_variable = { war_exhaustion_daily = 1 }
+				set_variable = { peace_exhaustion_daily = -2 }
+				set_variable = { war_exhaustion_max = 1825 }
+			}
+		}
+	}
+
+    on_daily = {
+		effect = {
+            if = {
+				limit = { country_has_war_exhaustion = yes }
+
+				if = {
+					limit = {
+						OR = {
+							has_idea = soviet_occupation_war_exhaustion
+							has_idea = soviet_occupation_war_exhaustion_2
+							has_idea = soviet_occupation_war_exhaustion_3
+						}
+						NOT = { has_country_flag = soviet_occupation_debuff_set }
+					}
+					set_variable = { war_exhaustion_daily = 2 }
+					set_variable = { peace_exhaustion_daily = 0 }
+					set_country_flag = soviet_occupation_debuff_set
+				}
+
+				if = {
+					limit = {
+						NOT = { has_idea = soviet_occupation_war_exhaustion }
+						NOT = { has_idea = soviet_occupation_war_exhaustion_2 }
+						NOT = { has_idea = soviet_occupation_war_exhaustion_3 }
+						NOT = { has_country_flag = soviet_occupation_debuff_removed }
+					}
+					set_variable = { war_exhaustion_daily = 1 }
+					set_variable = { peace_exhaustion_daily = -2 }
+					set_country_flag = soviet_occupation_debuff_removed
+				}
+
+				if = {
+					limit = { has_war = yes }
+	                add_to_variable = { war_exhaustion_variable = war_exhaustion_daily }
+				}
+				else_if = {
+					limit = { has_war = no }
+	                add_to_variable = { war_exhaustion_variable = peace_exhaustion_daily }
+				}
+
+				if = {
+					limit = {
+						check_variable = { war_exhaustion_variable < 365 }
+						OR = {
+							has_idea = slight_war_exhaustion_gui
+							has_idea = generic_war_exhaustion_gui
+							has_idea = heavy_war_exhaustion_gui
+						}
+					}
+					remove_ideas = slight_war_exhaustion_gui
+					remove_ideas = generic_war_exhaustion_gui
+					remove_ideas = heavy_war_exhaustion_gui
+				}
+				else_if = {
+					limit = {
+						check_variable = { war_exhaustion_variable > 365 }
+						check_variable = { war_exhaustion_variable < 730 }
+						NOT = { has_idea = slight_war_exhaustion_gui }
+					}
+					if = {
+						limit = { has_idea = generic_war_exhaustion_gui }
+						remove_ideas = generic_war_exhaustion_gui
+					}
+					else_if = {
+						limit = { has_idea = heavy_war_exhaustion_gui }
+						remove_ideas = heavy_war_exhaustion_gui
+					}
+					add_ideas = slight_war_exhaustion_gui
+				}
+				else_if = {
+					limit = {
+						check_variable = { war_exhaustion_variable > 730 }
+						check_variable = { war_exhaustion_variable < 1095 }
+						NOT = { has_idea = generic_war_exhaustion_gui }
+					}
+					if = {
+						limit = { has_idea = slight_war_exhaustion_gui }
+						remove_ideas = slight_war_exhaustion_gui
+					}
+					else_if = {
+						limit = { has_idea = heavy_war_exhaustion_gui }
+						remove_ideas = heavy_war_exhaustion_gui
+					}
+					add_ideas = generic_war_exhaustion_gui
+				}
+				else_if = {
+					limit = {
+						check_variable = { war_exhaustion_variable > 1095 }
+						NOT = { has_idea = heavy_war_exhaustion_gui }
+					}
+					add_ideas = heavy_war_exhaustion_gui
+					if = {
+						limit = { has_idea = generic_war_exhaustion_gui }
+						remove_ideas = generic_war_exhaustion_gui
+					}
+				}
+                clamp_variable = { var = war_exhaustion_variable min = 0 max = war_exhaustion_max }
+			}
+		}
+	}
+}
