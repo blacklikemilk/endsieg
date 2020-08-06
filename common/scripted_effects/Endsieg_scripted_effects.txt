@@ -1,0 +1,56 @@
+#This should only be used for AXIS vs ALLIES, or JAPAN vs ALLIES
+declare_war_on_all_allies = {
+	if = {
+		#Make sure we dont declare war on UK a second time
+		limit = { NOT = { has_war_with = ENG } }
+		log = "[?ROOT.GetName] was NOT at war with ENG"
+		declare_war_on = { target = ENG type = annex_everything }
+	}
+	if = {
+		limit = { has_war = yes }
+		ROOT_call_allies_both_sides = yes
+	}
+}
+
+ROOT_call_allies_both_sides = {
+	ROOT_call_all_allies_against_ENG = yes
+	ENG_call_all_allies_against_ROOT = yes
+}
+
+ROOT_call_all_allies_against_ENG = {
+	for_each_scope_loop = {
+		array = ROOT.allies
+
+		add_to_war = {
+			targeted_alliance = ROOT
+			enemy = ENG
+		}
+	}
+	for_each_scope_loop = {
+		array = ROOT.subjects
+
+		add_to_war = {
+			targeted_alliance = ROOT
+			enemy = ENG
+		}
+	}
+}
+
+ENG_call_all_allies_against_ROOT = {
+	for_each_scope_loop = {
+	    array = ENG.subjects
+
+		add_to_war = {
+			targeted_alliance = ENG
+			enemy = PREV
+		}
+	}
+	for_each_scope_loop = {
+	    array = ENG.faction_members
+
+		add_to_war = {
+			targeted_alliance = ENG
+			enemy = PREV
+		}
+	}
+}
