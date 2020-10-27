@@ -19,4 +19,4 @@ replace_path="tests"
 tags={
 	"Historical"
 }
-supported_version="1.9.*"
+supported_version="1.10.*"
