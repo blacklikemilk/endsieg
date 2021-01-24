@@ -21,5 +21,4 @@ replace_path="map/strategicregions"
 replace_path="tests"
 tags={
 	"Historical"
-}
 supported_version="1.10.*"
