@@ -1,5 +1,5 @@
 #	Example:
-#
+# 
 #	example_effect = {
 #		add_political_power = 66
 #		add_popularity = {
@@ -22,7 +22,7 @@
 
 #This is going to give misleading and ugly tooltips. Making it nice will take effort. TODO_WTT_CD make nice or ignore and remove comment. Easiest solution is just making a custom tooltip that says "5 civilian factories will be converted to military factories" and ignore telling the player the states where it will happen.
 
-replace_civ_with_arms_factories = {
+replace_civ_with_arms_factories = {	
 
 	random_owned_controlled_state = {
 		limit = {
@@ -39,7 +39,7 @@ replace_civ_with_arms_factories = {
 			instant_build = yes
 		}
 	}
-
+	
 	random_owned_controlled_state = {
 		limit = {
 			is_fully_controlled_by = ROOT
@@ -108,7 +108,7 @@ replace_civ_with_arms_factories = {
 #Country scope
 ROOT_inherit_current_scope_wars_effect = {
 	custom_effect_tooltip = ROOT_inherit_current_scope_wars_effect
-	hidden_effect = {
+	hidden_effect = {	
 		every_country = {
 			limit = {
 				has_defensive_war_with = PREV
@@ -483,14 +483,24 @@ print_variable_log_effect = {
 }
 
 get_best_alliance_match_democratic_effect = { #arguably a trigger, but it does stuff so we keep it in here. If this is your first time seeing this, welcome to my personal hell.
-	set_temp_variable = { best_leader = 0 }
-	set_temp_variable = { best_leader_score = 0 }
+	if = {
+		limit = {
+			any_other_country = {
+				is_faction_leader = yes
+				is_major = yes
+				has_government = social_conservative
+				not = { has_war_with = ROOT }
+				set_temp_variable = { ROOT.best_leader = this }
+				set_temp_variable = { ROOT.best_leader_score = 0 }
+			}
+		}
+	}
 	if = {
 		limit = {
 			all_other_country = {
 				is_faction_leader = yes
 				is_major = yes
-				has_government_democratic = yes
+				has_government = social_conservative
 				not = { has_war_with = ROOT }
 				set_temp_variable = { this.leader_score = num_of_factories }
 				add_to_temp_variable = { this.leader_score = num_battalions }
@@ -522,19 +532,31 @@ get_best_alliance_match_democratic_effect = { #arguably a trigger, but it does s
 				}
 			}
 		}
-	}
+	}		
 }
 
 get_best_alliance_match_fascism_effect = { #arguably a trigger, but it does stuff so we keep it in here. If this is your first time seeing this, welcome to my personal hell.
-	set_temp_variable = { best_leader = 0 }
-	set_temp_variable = { best_leader_score = 0 }
 	if = {
 		limit = {
-			all_other_country = {
+			any_other_country = {
 				is_faction_leader = yes
 				is_major = yes
 				has_government = fascism
 				not = { has_war_with = ROOT }
+				set_temp_variable = { ROOT.best_leader = this }
+				set_temp_variable = { ROOT.best_leader_score = 0 }
+			}
+		}
+	}
+	if = {
+		limit = {
+			all_other_country = {
+				
+				is_faction_leader = yes
+				is_major = yes
+				has_government = fascism
+				not = { has_war_with = ROOT }
+				
 				set_temp_variable = { this.leader_score = num_of_factories }
 				add_to_temp_variable = { this.leader_score = num_battalions }
 				all_of_scopes = {
@@ -548,35 +570,45 @@ get_best_alliance_match_fascism_effect = { #arguably a trigger, but it does stuf
 							is_on_continent = ROOT
 						}
 					}
-					multiply_temp_variable = { leader_score = 2 }
+					multiply_temp_variable = { this.leader_score = 2 }
 				}
 				if = {
 					limit = {
 						any_neighbor_country = { tag = ROOT }
 					}
-					multiply_temp_variable = { leader_score = 1.25 }
+					multiply_temp_variable = { this.leader_score = 1.25 }
 				}
 				if = {
 					limit = {
-						check_variable = { ROOT.best_leader_score < leader_score }
-						set_temp_variable = { ROOT.best_leader = this }
-						set_temp_variable = { ROOT.best_leader_score = leader_score }
+						check_variable = { ROOT.best_leader_score < this.leader_score }
 					}
+					set_temp_variable = { ROOT.best_leader = this }
+					set_temp_variable = { ROOT.best_leader_score = this.leader_score }
 				}
 			}
 		}
-	}
+	}		
 }
 
 get_best_alliance_match_communism_effect = { #arguably a trigger, but it does stuff so we keep it in here. If this is your first time seeing this, welcome to my personal hell.
-	set_temp_variable = { best_leader = 0 }
-	set_temp_variable = { best_leader_score = 0 }
+	if = {
+		limit = {
+			any_other_country = {
+				is_faction_leader = yes
+				is_major = yes
+				has_government = stalinist
+				not = { has_war_with = ROOT }
+				set_temp_variable = { ROOT.best_leader = this }
+				set_temp_variable = { ROOT.best_leader_score = 0 }
+			}
+		}
+	}
 	if = {
 		limit = {
 			all_other_country = {
 				is_faction_leader = yes
 				is_major = yes
-				has_government_communist = yes
+				has_government = stalinist
 				not = { has_war_with = ROOT }
 				set_temp_variable = { this.leader_score = num_of_factories }
 				add_to_temp_variable = { this.leader_score = num_battalions }
@@ -608,7 +640,7 @@ get_best_alliance_match_communism_effect = { #arguably a trigger, but it does st
 				}
 			}
 		}
-	}
+	}		
 }
 
 remove_naval_treaty_effect = {
@@ -656,11 +688,11 @@ civil_war_anti_exploiter_punitive_action = {
 				infantry = { x = 0 y = 0 }
 				infantry = { x = 0 y = 1 }
 				infantry = { x = 0 y = 2 }
-
+	
 		   	   	infantry = { x = 1 y = 0 }
 				infantry = { x = 1 y = 1 }
 				infantry = { x = 1 y = 2 }
-
+	
 		   	   	infantry = { x = 2 y = 0 }
 				artillery_brigade = { x = 2 y = 1 }
 				artillery_brigade = { x = 2 y = 2 }
@@ -783,3 +815,197 @@ civil_war_anti_exploiter_punitive_action = {
 		}
 	}
 }
+
+clear_sabotaged_resources_if_necesary = {
+	if = {
+		limit = {
+			not = {
+				has_dynamic_modifier = {
+					modifier = sabotaged_resources
+				}
+			}
+		}
+		
+		clear_variable = sabotaged_oil
+		clear_variable = sabotaged_aluminium
+		clear_variable = sabotaged_rubber
+		clear_variable = sabotaged_tungsten
+		clear_variable = sabotaged_steel
+		clear_variable = sabotaged_chromium
+	}
+}
+
+remove_from_allowed_party = {
+	if = {
+		limit = { has_government = social_conservative }
+		set_temp_variable = { allowed_party_democratic = 0 }
+	}
+	else_if = {
+		limit = { has_government = fascism }
+		set_temp_variable = { allowed_party_fascism = 0 }
+	}
+	else_if = {
+		limit = { has_government = stalinist }
+		set_temp_variable = { allowed_party_communism = 0 }
+	}
+	else_if = {
+		limit = { has_government = paternal_autocrat }
+		set_temp_variable = { allowed_party_neutrality = 0 }
+	}
+}
+
+#expectes a temp variable country_to_initiate which should contain original_tag to instantiate as a collabration government
+instantiate_collaboration_government = {
+	custom_effect_tooltip = compliance_80_effect_tooltip
+	hidden_effect = {
+		set_variable = { collaboration_formed@var:country_to_initiate = 1 }
+		
+		if = {
+			# if country_to_initiate does not exist, simply release it as a puppet
+			limit = { 
+				var:country_to_initiate = {
+					exists = no
+				}
+			}
+			var:country_to_initiate = { set_variable = { collaboration_formed_by = PREV } }
+			release_autonomy = {
+				target = country_to_initiate
+				autonomy_state = autonomy_collaboration_government
+				freedom_level = 0.5
+				release_non_owned_controlled = yes
+			}
+		}
+		else = {
+			# if country_to_initiate exists, create a dynamic country as our new puppet
+			
+			create_dynamic_country = {
+				original_tag = country_to_initiate
+			
+				set_variable = { collaboration_formed_by = PREV }
+				set_temp_variable = { new_country = this }
+				
+				PREV = {
+					every_controlled_state = {
+						limit = { occupied_country_tag = country_to_initiate }
+						
+						var:new_country = {
+							transfer_state = PREV
+						}
+					}
+					
+					puppet = new_country
+					
+					set_autonomy = {
+						target = new_country
+						autonomy_state = autonomy_collaboration_government
+						freedom_level = 0.5
+					}
+				}
+			}
+		}
+	}
+}
+
+abandon_colony_tag = {
+	if = {
+		limit = {
+			is_subject = yes
+		}
+		if = {
+			limit = {
+				original_tag = CAN
+			}
+			if = { 
+				limit = { NOT = { has_dlc = "Together for Victory" } }
+				set_cosmetic_tag = CAN_ALY
+			}
+			else = {
+				set_cosmetic_tag = CAN_UK
+			}
+		}
+		else_if = {
+			limit = {
+				original_tag = RAJ
+			}
+			set_cosmetic_tag = RAJ_UK
+		}
+		else_if = {
+			limit = {
+				original_tag = MAL
+			}
+			set_cosmetic_tag = MAL_UK
+		}
+		else_if = {
+			limit = {
+				original_tag = INS
+			}
+			set_cosmetic_tag = INS_HOL
+		}
+	}
+	else = {
+		if = {
+			limit = {
+				OR = {
+					has_cosmetic_tag = united_polynesia
+					has_cosmetic_tag = MAJ_UNIFIED
+				}
+			}
+		}
+		else = {
+			drop_cosmetic_tag = yes
+		}
+	}
+}
+
+#Should remove any and all fascist foreign influence, to be updated
+remove_fascist_spirits_effect = {
+	if = {
+		limit = { has_idea = fascist_influence }
+		remove_ideas = fascist_influence
+	}
+	if = {
+		limit = { has_idea = american_influence_drift_fascism }
+		remove_ideas = american_influence_drift_fascism
+	}
+	if = {
+		limit = { has_idea = GER_align_hungary }
+		remove_ideas = GER_align_hungary
+	}
+	if = {
+		limit = { has_idea = GER_align_romania }
+		remove_ideas = GER_align_romania
+	}
+}
+
+#Should remove any and all communist foreign influence
+remove_communist_spirits_effect = {
+	if = {
+		limit = { has_idea = american_influence_drift_communism }
+		remove_ideas = american_influence_drift_communism
+	}
+	if = {
+		limit = { has_idea = comintern_influence }
+		remove_ideas = comintern_influence
+	}
+	if = {
+		limit = { has_idea = pan_slavic_propaganda }
+		remove_ideas = pan_slavic_propaganda
+	}
+	if = {
+		limit = { has_idea = agitated_peasants }
+		remove_ideas = agitated_peasants
+	}
+	if = {
+		limit = { has_idea = armed_communist_militants }
+		remove_ideas = armed_communist_militants
+	}
+}
+
+
+on_daily = {
+
+}
+
+#on_daily_USA = {
+#	# you can specify an on daily action for a specific country
+#}
