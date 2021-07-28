@@ -17,10 +17,6 @@ operation_rescue_operative = { ### 0 1/35
 	operatives = 1
 
 	visible = {
-		network_national_coverage = {
-			target = FROM
-			value > 0
-		}
 		FROM = {
 			has_captured_operative = ROOT
 		}
@@ -29,6 +25,13 @@ operation_rescue_operative = { ### 0 1/35
 	available = {
 
 	}
+
+	requirements = {
+		FROM = {
+			has_captured_operative = ROOT
+		}
+	}
+
 
 	equipment = {
 
@@ -1019,8 +1022,8 @@ operation_coup_government = { ### 7 1/70
 			target = FROM
 			value > 35
 		}
+		NOT = { has_completed_focus = SPR_regional_defense_council_of_aragon }
 	}
-		
 
 	equipment = {
 		infantry_equipment = 12000
@@ -1050,21 +1053,21 @@ operation_coup_government = { ### 7 1/70
 			}
 			if = {
 				limit = {
-					PREV.ROOT = { has_government_nationalist = yes }
+					PREV.ROOT = { has_government = fascism }
 				}
-				has_support_nationalist_20 = yes
+				fascism > 0.2
 			}
 			if = {
 				limit = {
 					PREV.ROOT = { has_government_communist = yes }
 				}
-				has_support_communist_20 = yes
+				stalinist > 0.2
 			}
 			if = {
 				limit = {
 					PREV.ROOT = { has_government_democratic = yes }
 				}
-				has_support_democratic_20 = yes
+				democratic > 0.2
 			}
 			if = {
 				limit = {
@@ -2574,54 +2577,114 @@ operation_steal_tech_navy = { ### 17 3/55
 	outcome_modifiers = { operation_steal_tech_outcome operation_outcome }
 	cost_modifiers = { operation_cost }
 	outcome_execute = {
-  		ROOT = {
-			steal_random_tech_bonus = {
-				folder = naval_folder
 
-				bonus = 3.0
-				dynamic = yes
-				instant = yes
-				name = operation_steal_tech_navy
-				target = FROM
-				uses = 1
+		if = {
+  			limit = { has_dlc = "Man the Guns"}
+  			ROOT = {
+				steal_random_tech_bonus = {
+					folder = mtgnavalfolder
+
+					bonus = 3.0
+					dynamic = yes
+					instant = yes
+					name = operation_steal_tech_navy
+					target = FROM
+					uses = 1
+				}
+				remove_operation_token = {
+					tag = FROM
+					token = token_navy
+				}
 			}
-			remove_operation_token = {
-				tag = FROM
-				token = token_navy
+  		}
+  		else = {
+	  		ROOT = {
+				steal_random_tech_bonus = {
+					folder = naval_folder
+
+					bonus = 3.0
+					dynamic = yes
+					instant = yes
+					name = operation_steal_tech_navy
+					target = FROM
+					uses = 1
+				}
+				remove_operation_token = {
+					tag = FROM
+					token = token_navy
+				}
 			}
-		}
+  		}
 	}
 
 	outcome_extra_execute = { # SCOPE_OPERATION
 
 		random_list = {
 			33 = {
-				ROOT = {
-					steal_random_tech_bonus = {
-						folder = naval_folder
+				if = {
+  					limit = { has_dlc = "Man the Guns"}
 
-						bonus = 3.0
-						ahead_reduction = 2
-						dynamic = yes
-						instant = yes
-						name = operation_steal_tech_navy
-						target = FROM
-						uses = 1
+  					ROOT = {
+						steal_random_tech_bonus = {
+							folder = mtgnavalfolder
+
+							bonus = 3.0
+							ahead_reduction = 2
+							dynamic = yes
+							instant = yes
+							name = operation_steal_tech_navy
+							target = FROM
+							uses = 1
+						}
 					}
-				}
+  				}
+  				else = {
+					ROOT = {
+						steal_random_tech_bonus = {
+							folder = naval_folder
+
+							bonus = 3.0
+							ahead_reduction = 2
+							dynamic = yes
+							instant = yes
+							name = operation_steal_tech_navy
+							target = FROM
+							uses = 1
+						}
+					}
+  				}
 			}
 			67 = {
-				ROOT = {
-					steal_random_tech_bonus = {
-						folder = naval_folder
+				if = {
+  					limit = { has_dlc = "Man the Guns"}
 
-						bonus = 3.0
-						ahead_reduction = 1
-						dynamic = yes
-						instant = yes
-						name = operation_steal_tech_navy
-						target = FROM
-						uses = 1
+					ROOT = {
+						steal_random_tech_bonus = {
+							folder = mtgnavalfolder
+
+							bonus = 3.0
+							ahead_reduction = 1
+							dynamic = yes
+							instant = yes
+							name = operation_steal_tech_navy
+							target = FROM
+							uses = 1
+						}
+					}
+				}
+				else = {
+					ROOT = {
+						steal_random_tech_bonus = {
+							folder = naval_folder
+
+							bonus = 3.0
+							ahead_reduction = 1
+							dynamic = yes
+							instant = yes
+							name = operation_steal_tech_navy
+							target = FROM
+							uses = 1
+						}
 					}
 				}
 			}
@@ -2631,6 +2694,7 @@ operation_steal_tech_navy = { ### 17 3/55
 		ROOT = {
 			steal_random_tech_bonus = {
 				folder = naval_folder
+				folder = mtgnavalfolder
 
 				bonus = 3.0
 				dynamic = yes
