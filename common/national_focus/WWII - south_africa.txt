@@ -21,6 +21,44 @@ focus_tree = {
 
 	default = no
 
+#	focus = {
+#		id = SAF_
+#		icon = GFX_
+#		prerequisite = { focus = }
+#		mutually_exclusive = { focus =  }
+#		x = -3
+#		y = 0
+#		relative_position_id = 
+#
+#		cost = 10
+#
+#		ai_will_do = {
+#			factor = 1
+#		}
+#
+#		available = {
+#
+#		}
+#		
+#		bypass = {
+#
+#		}
+#
+#		cancel_if_invalid = yes
+#		continue_if_invalid = no
+#		available_if_capitulated = no
+#
+#		complete_tooltip = {
+#
+#		}
+#
+#		completion_reward = {
+#
+#		}
+#	}
+
+
+
 	############################
 	#### WAR PREP SECTION ######
 	############################
@@ -28,12 +66,10 @@ focus_tree = {
 	focus = {
 		id = SAF_war_measures_act
 		icon = GFX_goal_generic_demand_territory
-		x = 0
-		y = 6
+		x = 1
+		y = 0
 
 		cost = 10
-		available = { has_global_flag = welcome_event_WW2 }
-		relative_position_id = shared_GEN_interwar_cas
 
 		ai_will_do = {
 			factor = 1
@@ -42,21 +78,19 @@ focus_tree = {
 		available = {
 			OR = {
 				threat > 0.2
-				NOT = {
-					OR = {
-					    has_government = market_liberal
-					    has_government = social_conservative
-					    has_government = social_liberal
-					    has_government = social_democrat
-					}
-				}
+				NOT = { has_government = democratic }
 			}
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+	
+		search_filters = { FOCUS_FILTER_POLITICAL }
 		completion_reward = {
 			add_political_power = 120
 		}
@@ -76,10 +110,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
-
+		search_filters = { FOCUS_FILTER_INDUSTRY }
 		completion_reward = {
 			add_ideas = SAF_emergency_workers
 		}
@@ -97,6 +139,14 @@ focus_tree = {
 
 		ai_will_do = {
 			factor = 1
+		}
+
+		available = {
+
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -121,7 +171,7 @@ focus_tree = {
 				add_building_construction = {
 					type = coastal_bunker
 					province = {
-						all_provinces = yes
+						all_provinces = yes							
 						limit_to_naval_base = yes
 					}
 					level = 2
@@ -130,7 +180,7 @@ focus_tree = {
 			}
 		}
 	}
-
+	
 	focus = {
 		id = SAF_reconstitute_the_cape_corps
 		icon = GFX_goal_generic_allies_build_infantry
@@ -145,10 +195,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+		search_filters = { FOCUS_FILTER_MANPOWER }
 		completion_reward = {
 			swap_ideas = {
 				remove_idea = SAF_history_of_segregation
@@ -172,10 +230,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+		search_filters = { FOCUS_FILTER_MANPOWER }
 		completion_reward = {
 			remove_ideas = SAF_history_of_segregation_2
 		}
@@ -196,10 +262,19 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
 
+		search_filters = { FOCUS_FILTER_INDUSTRY }
 		completion_reward = {
 			swap_ideas = {
 				remove_idea = SAF_cheap_labor_2
@@ -217,27 +292,34 @@ focus_tree = {
 		id = SAF_support_the_policy_of_appeasement
 		icon = GFX_goal_tfv_strengthen_commonwealth_ties
 		mutually_exclusive = { focus = SAF_abandon_westminster }
-		x = 4
+		x = 5
 		y = 0
 
 		cost = 10
-		available = { has_global_flag = welcome_event_WW2 }
-		relative_position_id = SAF_war_measures_act
 
 		ai_will_do = {
 			factor = 1
 		}
 
 		available = {
-			is_subject_of = ENG
+			OR = {
+				is_subject_of = ENG
+				AND = {
+					has_global_flag = ENG_decolonized
+					is_in_faction_with = ENG
+				}
+			}
 			ENG = { has_war = no }
-			GER = { has_completed_focus = GER_rhineland }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+        search_filters = { FOCUS_FILTER_POLITICAL }
 		completion_reward = {
 		add_political_power = 120
 		}
@@ -261,18 +343,23 @@ focus_tree = {
 		available = {
 			is_in_tech_sharing_group = commonwealth_research
 		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
-		SAF = {
-   			 modify_tech_sharing_bonus = {
+			SAF = {
+   				modify_tech_sharing_bonus = {
          			id = commonwealth_research
          			bonus = 0.1  # we get 20% higher bonus from this group
-    						}
-				}
+    			}
+			}
 		}
 	}
 
@@ -290,11 +377,20 @@ focus_tree = {
 			factor = 2
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_POLITICAL }
 
-		completion_reward = {
+		completion_reward = {			
 			swap_ideas = {
 				remove_idea = SAF_ossewabrandwag
 				add_idea = SAF_ossewabrandwag_2
@@ -315,6 +411,14 @@ focus_tree = {
 
 		ai_will_do = {
 			factor = 1
+		}
+
+		available = {
+
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -338,6 +442,14 @@ focus_tree = {
 
 		ai_will_do = {
 			factor = 1
+		}
+
+		available = {
+
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -364,10 +476,19 @@ focus_tree = {
 			factor = 2
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
-
+        search_filters = { FOCUS_FILTER_INDUSTRY }
+		
 		completion_reward = {
 			remove_ideas = SAF_ossewabrandwag_2
 		}
@@ -393,13 +514,18 @@ focus_tree = {
 			ENG = { is_puppet = no }
 
 		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+		search_filters = { FOCUS_FILTER_ANNEXATION }
 
 		completion_reward = {
-		ENG = { custom_effect_tooltip = needs_approval
+		ENG = { custom_effect_tooltip = needs_approval 
 				country_event = tfv_south_africa.1
 				}
 		}
@@ -423,9 +549,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+		search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		completion_reward = {
 			add_ideas = SAF_cheap_labor_1
@@ -446,9 +581,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+		search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		completion_reward = {
 			swap_ideas = {
@@ -466,56 +610,42 @@ focus_tree = {
 		id = SAF_abandon_westminster
 		icon = GFX_goal_tfv_sever_ties_with_uk
 		mutually_exclusive = { focus = SAF_support_the_policy_of_appeasement }
-		x = 6
+		x = 7
 		y = 0
 
 		cost = 10
-		available = { has_global_flag = welcome_event_WW2 }
-		relative_position_id = SAF_war_measures_act
 
 		ai_will_do = {
 			factor = 0.5
 			modifier = {
-				NOT = {
-					ENG = {
-						OR = {
-							has_government = market_liberal
-							has_government = social_conservative
-							has_government = social_liberal
-							has_government = social_democrat
-						}
-					}
-				}
+				NOT = { ENG = { has_government = democratic } }
 				factor = 10
 			}
 			modifier = {
-				NOT = {
-					OR = {
-					    has_government = market_liberal
-					    has_government = social_conservative
-					    has_government = social_liberal
-					    has_government = social_democrat
-					}
-				}
+				NOT = { has_government = democratic }
 				factor = 100
 			}
 			modifier = {	#makes it significantly more likely if player boosts non-democratic
-				OR = {
-					market_liberal > 0.5
-					social_conservative > 0.5
-					social_liberal > 0.5
-					social_democrat > 0.5
-				}
+				democratic < 0.5
 				factor = 20
 			}
+		}
+
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_TFV_AUTONOMY}
 
 		completion_reward = {
-			add_ideas = SAF_abandon_westminster
+			add_timed_idea = { idea = SAF_abandon_westminster days = 1095 }
 		}
 	}
 
@@ -542,9 +672,18 @@ focus_tree = {
 			}
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
 
 		completion_reward = {
 			swap_ideas = {
@@ -572,26 +711,32 @@ focus_tree = {
 			OR = {
 				is_subject = no
 				if = {
-					limit = { NOT = { has_government_nationalist = yes } }
+					limit = { NOT = { has_government = fascism } }
 					AND = {
 						has_autonomy_state = autonomy_dominion
 						compare_autonomy_progress_ratio > 0.65
 					}
 				}
 				if = {
-					limit = { has_government_nationalist = yes }
+					limit = { has_government = fascism } 
 					AND = {
 						has_autonomy_state = autonomy_satellite
 						compare_autonomy_progress_ratio > 0.65
 					}
 				}
 			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+        search_filters = { FOCUS_FILTER_INDUSTRY }
+		
 		completion_reward = {
 			army_experience = 15
 			swap_ideas = {
@@ -615,10 +760,19 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+        search_filters = { FOCUS_FILTER_POLITICAL }
+		
 		completion_reward = {
 			add_political_power = 120
 		}
@@ -638,10 +792,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+        search_filters = { FOCUS_FILTER_STABILITY FOCUS_FILTER_POLITICAL FOCUS_FILTER_TFV_AUTONOMY}
 		completion_reward = {
 			add_ideas = SAF_voortrekker_monument
 		}
@@ -669,20 +831,26 @@ focus_tree = {
 		available = {
 			fascism > 0.20
 			if = {
-				limit = { not = { has_government_nationalist = yes } }
+				limit = { not = { has_government = fascism } }
 				compare_autonomy_state > autonomy_colony
 			}
 			if = {
-				limit = { has_government_nationalist = yes  }
+				limit = { has_government = fascism  }
 				compare_autonomy_state > autonomy_reichsprotectorate
 			}
 			controls_state = 541
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
-
+        search_filters = { FOCUS_FILTER_INDUSTRY }
+		
 		completion_reward = {
 			541 = {
 				add_extra_state_shared_building_slots = 2
@@ -719,7 +887,7 @@ focus_tree = {
 				}
 				add_building_construction = {
 					type = air_base
-					level = 2
+					level = 2 
 					instant_build = yes
 				}
 				add_building_construction = {
@@ -731,7 +899,7 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
-
+			
 		}
 	}
 
@@ -758,14 +926,14 @@ focus_tree = {
 			OR = {
 				is_subject = no
 				if = {
-					limit = { NOT = { has_government_nationalist = yes } }
+					limit = { NOT = { has_government = fascism } }
 					AND = {
 						has_autonomy_state = autonomy_dominion
 						compare_autonomy_progress_ratio > 0.75
 					}
 				}
 				if = {
-					limit = { has_government_nationalist = yes }
+					limit = { has_government = fascism } 
 					AND = {
 						has_autonomy_state = autonomy_satellite
 						compare_autonomy_progress_ratio > 0.75
@@ -773,20 +941,28 @@ focus_tree = {
 				}
 			}
 			NOT = { has_war_together_with = ENG }
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
-
+        search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY FOCUS_FILTER_TFV_AUTONOMY}
+		
 		completion_reward = {
 			if = {
 				limit = {
 					is_subject = yes
 				}
-				set_autonomy = {
-					target = SAF
-					autonomy_state = autonomy_free
+				OVERLORD = {
+					set_autonomy = {
+						target = SAF
+						autonomy_state = autonomy_free
+					}
 				}
 			}
 			ENG = { remove_from_faction = ROOT }
@@ -816,35 +992,37 @@ focus_tree = {
 			OR = {
 				is_subject = no
 				if = {
-					limit = { NOT = { has_government_nationalist = yes } }
+					limit = { NOT = { has_government = fascism } }
 					AND = {
 						has_autonomy_state = autonomy_dominion
 						compare_autonomy_progress_ratio > 0.80
 					}
 				}
 				if = {
-					limit = { has_government_nationalist = yes }
+					limit = { has_government = fascism } 
 					AND = {
 						has_autonomy_state = autonomy_satellite
 						compare_autonomy_progress_ratio > 0.80
 					}
 				}
 			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
 		}
-
+		
 		bypass = {
-			has_government_nationalist = yes
+			has_government = fascism
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_POLITICAL }
 
 		complete_tooltip = {
-			set_capital = 541
+			set_capital = { state = 541 }
 			start_civil_war = {
 				ruling_party = fascism
-				ideology = market_liberal
+				ideology = democratic
 				size = 0.75
 				capital = 681
 				states = { 681 275 719 }
@@ -855,10 +1033,10 @@ focus_tree = {
 		completion_reward = {
 			custom_effect_tooltip = SAF_civil_war_tt
 			hidden_effect = {
-				set_capital = 541
+				set_capital = { state = 541 }
 				start_civil_war = {
 					ruling_party = fascism
-					ideology = market_liberal
+					ideology = democratic
 					size = 0.45
 					capital = 681
 					states = { 681 275 719 }
@@ -866,20 +1044,20 @@ focus_tree = {
 				random_other_country = {
 					limit = {
 						original_tag = SAF
-						has_government = market_liberal
+						has_government = democratic
 					}
 					load_oob = "SAF_D_civil_war"
 					set_equipment_fraction = 0.7
 					add_popularity = {
-						ideology = market_liberal
+						ideology = democratic
 						popularity = 0.35
 					}
 				}
 				news_event = { hours = 6 id = news.262 }
-
+				
 				load_oob = "SAF_F_civil_war"
 				set_equipment_fraction = 0.8
-
+				
 				add_popularity = {
 					ideology = fascism
 					popularity = 1
@@ -887,7 +1065,7 @@ focus_tree = {
 				random_country = {
 					limit = {
 						original_tag = GER
-						has_government_nationalist = yes
+						has_government = fascism
 					}
 					set_country_flag = saf_fascist_uprising # Affects GER ai_strategy
 				}
@@ -909,6 +1087,14 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
@@ -917,6 +1103,7 @@ focus_tree = {
 			create_wargoal = {
 				type = take_state_focus
 				target = ENG
+				expire = 0
 				generator = { 542 545 }
 			}
 		}
@@ -937,10 +1124,19 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+        search_filters = { FOCUS_FILTER_MANPOWER FOCUS_FILTER_POLITICAL FOCUS_FILTER_TFV_AUTONOMY}
+		
 		completion_reward = {
 			swap_ideas = {
 				remove_idea = SAF_voortrekker_monument
@@ -957,6 +1153,9 @@ focus_tree = {
 		x = -2
 		y = 5
 		relative_position_id = SAF_support_the_afrikaner_broederbond
+		available = {
+			GER = { has_government = fascism }
+		}
 
 		cost = 10
 
@@ -965,15 +1164,20 @@ focus_tree = {
 		}
 
 		available = {
-
+			
 			is_in_faction_with = GER
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
 
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
-
+        search_filters = { FOCUS_FILTER_RESEARCH }
+		
 		completion_reward = {
 			GER = { add_to_tech_sharing_group = axis_research }
 			add_to_tech_sharing_group = axis_research
@@ -998,14 +1202,21 @@ focus_tree = {
 			custom_trigger_tooltip = {
 				NOT  = { ENG = { has_idea = ENG_king_edward } }
 				NOT = { ENG = { has_idea = ENG_king_edward_fascism } }
+				NOT = { ENG = { has_completed_focus = ENG_the_kings_party } }
 				ENG = { has_country_flag = ENG_king_died }
-				tooltip = SAF_a_king_for_our_people_trigger_tt
+				tooltip = SAF_a_king_for_our_people_trigger_tt					
 			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_STABILITY }
 
 		completion_reward = {
 			add_ideas = SAF_king_edward
@@ -1031,11 +1242,17 @@ focus_tree = {
 			controls_state = 542
 			controls_state = 545
 			controls_state = 546
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		completion_reward = {
 			custom_effect_tooltip = SAF_support_axis_interests_effect_tt
@@ -1081,26 +1298,27 @@ focus_tree = {
 		ai_will_do = {
 			factor = 0.5
 			modifier = {	#will make country more likely to go down this path if player boosts communism support
-				OR = {
-					leninist > 0.1
-					stalinist > 0.1
-					anarchist > 0.1
-				}
+				communism > 0.1
 				factor = 10
 			}
 			modifier = {
-				OR = {
-					leninist > 0.2
-					stalinist > 0.2
-					anarchist > 0.2
-				}
+				communism > 0.2
 				factor = 10
 			}
+		}
+
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_TFV_AUTONOMY }
 
 		completion_reward = {
 			swap_ideas = {
@@ -1133,29 +1351,31 @@ focus_tree = {
 				}
 			}
 			OR = {
-				has_government_communist = yes
-
-				leninist > 0.1
-				stalinist > 0.1
-				anarchist > 0.1
+				has_government = communism
+				communism > 0.1
 			}
 			OR = {
 				is_subject = no
 				if = {
-					limit = { NOT = { has_government_nationalist = yes } }
+					limit = { NOT = { has_government = fascism } }
 					AND = {
 						has_autonomy_state = autonomy_dominion
 						compare_autonomy_progress_ratio > 0.65
 					}
 				}
 				if = {
-					limit = { has_government_nationalist = yes }
+					limit = { has_government = fascism } 
 					AND = {
 						has_autonomy_state = autonomy_satellite
 						compare_autonomy_progress_ratio > 0.65
 					}
 				}
 			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -1183,17 +1403,23 @@ focus_tree = {
 		}
 
 		available = {
-			has_support_communist_10 = yes
+			communism > 0.1
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_MANPOWER FOCUS_FILTER_WAR_SUPPORT} 
 
 		completion_reward = {
-			add_political_power = 120
-			add_ideas =  SAF_black_volunteers
-			swap_ideas = {
+		add_political_power = 120
+		add_ideas =  SAF_black_volunteers
+		swap_ideas = {
 				remove_idea = SAF_ossewabrandwag
 				add_idea = SAF_ossewabrandwag_2
 			}
@@ -1213,9 +1439,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		completion_reward = {
 			add_ideas = SAF_equal_opportunities
@@ -1238,33 +1473,34 @@ focus_tree = {
 		}
 
 		available = {
-			OR = {
-				leninist > 0.35
-				stalinist > 0.35
-				anarchist > 0.35
-			}
+			communism > 0.35
 			OR = {
 				compare_autonomy_progress_ratio > 0.7
 				is_subject = no
 			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_POLITICAL }
 
 		completion_reward = {
 			add_political_power = 120
-			add_popularity = {
-				ideology = stalinist
-				popularity = 0.5
+			add_popularity = {	
+				ideology = communism
+				popularity = 0.15
 			}
 			hidden_effect = {
 				news_event = { hours = 6 id = news.263 }
 			}
 		}
 	}
-
 	focus = {
 		id = SAF_anti_colonialist_crusade
 		icon = GFX_goal_tfv_saf_anti_colonialist_crusade
@@ -1290,26 +1526,37 @@ focus_tree = {
 
 		available = {
 			is_subject = no
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
 
+		complete_tooltip = {
+			
+		}
+        search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+
 		completion_reward = {
-			ENG = {
-				remove_from_faction = SAF
-				add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders }
-			}
-			FRA = {
-		 		add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders }
-			}
-			BEL = {
-		 		add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders }
-			}
-			POR = {
-		 		add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders }
-			}
+			add_war_support = 0.1
+			ENG = { 
+					remove_from_faction = SAF
+					add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders }
+			 }
+			FRA = { 
+			 		add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders } 
+			 }
+			BEL = { 
+			 		add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders } 
+			 }
+			POR = { 
+			 		add_opinion_modifier = { target = SAF modifier = SAF_anti_colonialist_crusaders } 
+			 }
 		}
 	}
 
@@ -1327,9 +1574,18 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_POLITICAL }
 
 		completion_reward = {
 			set_rule = { can_create_factions = yes }
@@ -1339,7 +1595,6 @@ focus_tree = {
 			}
 		}
 	}
-
 	focus = {
 		id = SAF_liberate_portugese
 		icon = GFX_goal_generic_military_sphere
@@ -1359,6 +1614,15 @@ focus_tree = {
 		}
 
 		available = {
+			OR = {
+				ANG = { exists = no }
+				MZB = { exists = no }
+			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -1369,12 +1633,12 @@ focus_tree = {
 			create_wargoal = {
 				type = take_state_focus
 				target = POR
+				expire = 0
 				generator = { 540 544 }
 			}
-
+			
 		}
 	}
-
 	focus = {
 		id = SAF_liberate_belgian
 		icon = GFX_goal_generic_more_territorial_claims
@@ -1394,6 +1658,12 @@ focus_tree = {
 		}
 
 		available = {
+			COG = { exists = no }
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -1404,12 +1674,12 @@ focus_tree = {
 			create_wargoal = {
 				type = take_state_focus
 				target = BEL
+				expire = 0
 				generator = { 538 718 295 }
 			}
-
+			
 		}
 	}
-
 	focus = {
 		id = SAF_liberate_british
 		icon = GFX_goal_generic_occupy_states_ongoing_war
@@ -1429,6 +1699,15 @@ focus_tree = {
 		}
 
 		available = {
+			OR = {
+				KEN = { exists = no } 
+				ZIM = { exists = no }
+			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -1439,11 +1718,14 @@ focus_tree = {
 			create_wargoal = {
 				type = take_state_focus
 				target = ENG
+				expire = 0
 				generator = { 546 547 548 542 545 }
 			}
-
+			
 		}
 	}
+
+	
 
 	focus = {
 		id = SAF_join_comintern
@@ -1469,11 +1751,11 @@ focus_tree = {
 		}
 
 		available = {
-			NOT = { has_war_with = SOV }
-			SOV = { is_puppet = no }
+			SOV_comintern_joinable = yes 
 			is_subject = no
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
 		}
-
+		
 		bypass = {
 			is_in_faction_with = SOV
 		}
@@ -1481,12 +1763,17 @@ focus_tree = {
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_POLITICAL }
+
+		complete_tooltip = {
+			
+		}
 
 		completion_reward = {
 			SOV = { country_event = { id = tfv_south_africa.20 } }
 		}
 	}
-
+	
 	focus = {
 		id = SAF_support_the_world_revolution
 		icon = GFX_goal_generic_intelligence_exchange
@@ -1501,15 +1788,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_WAR_SUPPORT }
 
 		completion_reward = {
 			add_ideas = SAF_support_the_world_revolution
 		}
 	}
-
 	focus = {
 		id = SAF_invite_soviet_advisers
 		icon = GFX_goal_generic_military_deal
@@ -1526,29 +1821,38 @@ focus_tree = {
 
 		available = {
 			SOV = { exists = yes }
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
+
+		complete_tooltip = {
+			
+		}
 
 		completion_reward = {
 			add_ideas = SAF_soviet_advisers
-			add_tech_bonus = {
-				name = SAF_soviet_military_thinking
-				bonus = 0.5
+			add_doctrine_cost_reduction = {
+				name = SAF_invite_soviet_advisers
+				cost_reduction = 0.25
 				uses = 2
 				category = cat_mass_assault
 			}
-			add_tech_bonus = {
-				name = SAF_soviet_military_thinking
-				bonus = 0.25
+			add_doctrine_cost_reduction = {
+				name = SAF_invite_soviet_advisers
+				cost_reduction = 0.5
 				uses = 2
 				category = land_doctrine
 			}
 		}
 	}
-
 	focus = {
 		id = SAF_south_african_soviet_research_treaty
 		icon = GFX_goal_tfv_generic_tech_sharing
@@ -1564,15 +1868,25 @@ focus_tree = {
 		}
 
 		available = {
-			SOV = {
+			SOV = { 
 				exists = yes
 				is_puppet = no
 			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
+
+		complete_tooltip = {
+			
+		}
 
 		completion_reward = {
 			SOV = {
@@ -1580,8 +1894,8 @@ focus_tree = {
 				country_event = { id = tfv_south_africa.40 } #tech sharing
 			}
 		}
-	}
 
+	}
 	focus = {
 		id = SAF_demand_madagascar
 		icon = GFX_goal_generic_demand_territory
@@ -1601,18 +1915,43 @@ focus_tree = {
 			FRA = {
 				has_capitulated = yes
 				exists = yes #otherwise Franco-British union might screw things up
-				NOT = { has_government_communist = yes }
+			}
+			543 = {
+				controller = { 
+					NOT = { has_government = communism }					
+				}
+			}
+			543 = {
+				controller = { 
+					NOT = { has_war_with = SAF }				
+				}
+			}
+			NOT = { has_country_flag = britain_enforced_our_loyalty }
+		}
+		
+		bypass = {
+			543 = {
+				controller = { 
+					has_war_with = SAF					
+				}
 			}
 		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_ANNEXATION }
+
+		complete_tooltip = {
+			
+		}
 
 		completion_reward = {
-			FRA = {
-				custom_effect_tooltip = needs_approval
+			543 = {
+				controller = {
+					custom_effect_tooltip = needs_approval
 					country_event = { id = tfv_south_africa.30 hours = 12 }
+				}
 			}
 			hidden_effect = {
 				news_event = { id = news.265 }
@@ -1634,41 +1973,24 @@ focus_tree = {
 		ai_will_do = {
 			factor = 15
 		}
-		available = { has_global_flag = welcome_event_WW2 }
-		relative_position_id = SAF_war_measures_act
+
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
 
-		complete_tooltip = {
-			random_state = {
-				limit = {
-					has_state_flag = SAF_south_african_railways_Inf
-				}
-				add_building_construction = {
-					type = infrastructure
-					level = 3
-					instant_build = yes
-				}
-			}
-		}
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = infrastructure
-						size > 2
-					}
-				}
-				add_building_construction = {
-					type = infrastructure
-					level = 3
-					instant_build = yes
-				}
-				set_state_flag = SAF_south_african_railways_Inf
-			}
+			custom_effect_tooltip = available_designer
+			show_ideas_tooltip = SAF_south_african_railways
 		}
 	}
 
@@ -1686,9 +2008,18 @@ focus_tree = {
 			factor = 20
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_INDUSTRY}
 
 		complete_tooltip = {
 			random_state = {
@@ -1723,7 +2054,7 @@ focus_tree = {
 			}
 			add_tech_bonus = {
 				name = SAF_expand_the_mining_industry
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				technology = excavation1
 				technology = excavation2
@@ -1748,14 +2079,23 @@ focus_tree = {
 			factor = 20
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = {  FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH}
 
-		completion_reward = {
+		completion_reward = {			
 			add_tech_bonus = {
 				name = SAF_heavy_engineering
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = industry
 			}
@@ -1776,9 +2116,18 @@ focus_tree = {
 			factor = 20
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		complete_tooltip = {
 			random_state = {
@@ -1787,7 +2136,17 @@ focus_tree = {
 				}
 				add_building_construction = {
 					type = infrastructure
-					level = 3
+					level = 1
+					instant_build = yes
+				}
+			}
+			random_state = {
+				limit = {
+					has_state_flag = SAF_infrastructure_effort_Inf2
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
 					instant_build = yes
 				}
 			}
@@ -1798,15 +2157,30 @@ focus_tree = {
 				limit = {
 					free_building_slots = {
 						building = infrastructure
-						size > 2
+						size > 0
 					}
 				}
 				add_building_construction = {
 					type = infrastructure
-					level = 3
+					level = 1
 					instant_build = yes
 				}
 				set_state_flag = SAF_infrastructure_effort_Inf
+				random_neighbor_state = { # done like this to prevent double selection of previous state
+					limit = {
+						is_controlled_by = ROOT
+						free_building_slots = {
+							building = infrastructure
+							size > 0
+						}
+					}
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+					set_state_flag = SAF_infrastructure_effort_Inf2
+				}
 			}
 		}
 	}
@@ -1825,9 +2199,18 @@ focus_tree = {
 			factor = 20
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		complete_tooltip = {
 			random_state = {
@@ -1880,10 +2263,15 @@ focus_tree = {
 		available = {
 			controls_state = 275
 		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		completion_reward = {
 			275 = {
@@ -1910,9 +2298,18 @@ focus_tree = {
 			factor = 10
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		complete_tooltip = {
 			random_state = {
@@ -1962,9 +2359,18 @@ focus_tree = {
 			factor = 15
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_INDUSTRY }
 
 		completion_reward = {
 			add_ideas = SAF_gold_exports
@@ -1985,9 +2391,18 @@ focus_tree = {
 			factor = 45
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_research_slot = 1
@@ -2008,14 +2423,23 @@ focus_tree = {
 			factor = 5
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_establish_the_atomics_energy_board
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = nuclear
 			}
@@ -2039,10 +2463,15 @@ focus_tree = {
 		available = {
 			is_subject = no
 		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_research_slot = 1
@@ -2075,10 +2504,15 @@ focus_tree = {
 				}
 			}
 		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_research_slot = 1
@@ -2101,18 +2535,25 @@ focus_tree = {
 		ai_will_do = {
 			factor = 1
 		}
-		available = { has_global_flag = welcome_event_WW2 }
-		relative_position_id = SAF_war_measures_act
+
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			army_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_special_service_battalion
-				bonus = 0.5
+				cost_reduction = 0.25
 				uses = 1
 				category = land_doctrine
 			}
@@ -2133,14 +2574,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_improve_the_three_oh_three
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = infantry_weapons
 			}
@@ -2161,14 +2611,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_q_services_corps
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				technology = motorised_infantry
 				technology = tech_logistics_company
@@ -2193,15 +2652,24 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			army_experience = 10
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF__south_african_military_college
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = land_doctrine
 			}
@@ -2222,14 +2690,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_expand_the_south_african_artillery
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = artillery
 			}
@@ -2250,14 +2727,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_sa_engineer_corps
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = support_tech
 			}
@@ -2278,14 +2764,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
-		completion_reward = {
+		completion_reward = {			
 			add_tech_bonus = {
 				name = SAF_equipment_effort
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = infantry_weapons
 				category = artillery
@@ -2307,14 +2802,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
-		completion_reward = {
+		completion_reward = {			
 			add_tech_bonus = {
 				name = SAF_mechanization_effort
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cat_mechanized_equipment
 			}
@@ -2335,14 +2839,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_south_african_special_forces
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = para_tech
 				category = marine_tech
@@ -2365,14 +2878,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_armor_effort
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = armor
 			}
@@ -2388,23 +2910,30 @@ focus_tree = {
 		id = SAF_commit_to_the_five_year_plan
 		icon = GFX_goal_generic_build_airforce
 		x = 28
-		y = 0
+		y = 0	
 
 		cost = 10
 
 		ai_will_do = {
 			factor = 1
 		}
-		available = { has_global_flag = welcome_event_WW2 }
-		relative_position_id = SAF_war_measures_act
+
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		complete_tooltip = {
 			air_experience = 25
-			random_state = {
+			random_state = {				
 				limit = {
 					has_state_flag = SAF_commit_to_the_five_year_plan_AB
 				}
@@ -2414,9 +2943,9 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_commit_to_the_five_year_plan
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -2438,9 +2967,9 @@ focus_tree = {
 				}
 				set_state_flag = SAF_commit_to_the_five_year_plan_AB
 			}
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_commit_to_the_five_year_plan
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -2462,14 +2991,23 @@ focus_tree = {
 			factor = 0.4
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_improve_the_hawker_hartbees
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				technology = early_fighter
 				technology = fighter1
@@ -2494,14 +3032,23 @@ focus_tree = {
 			factor = 0.6
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_replace_the_blenheim
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = tactical_bomber
 				category = cas_bomber
@@ -2524,15 +3071,24 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			air_experience = 25
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_perfect_the_cab_rank_technique
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = cat_battlefield_support
 			}
@@ -2553,14 +3109,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_desert_air_force
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cas_bomber
 			}
@@ -2569,7 +3134,7 @@ focus_tree = {
 
 	focus = {
 		id = SAF_secure_the_cape_sea_route
-		icon = GFX_goal_generic_air_bomber
+		icon = GFX_goal_generic_air_bomber 
 		prerequisite = { focus = SAF_perfect_the_cab_rank_technique focus = SAF_replace_the_blenheim }
 		x = 1
 		y = 3
@@ -2581,14 +3146,23 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_secure_the_cape_sea_route
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = naval_bomber
 			}
@@ -2609,15 +3183,24 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			air_experience = 35
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_retain_experienced_pilots
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -2633,19 +3216,26 @@ focus_tree = {
 		id = SAF_seaward_defence_force
 		icon = GFX_goal_generic_navy_doctrines_tactics
 		x = 32
-		y = 0
+		y = 0		
 
 		cost = 10
 
 		ai_will_do = {
 			factor = 1
 		}
-		available = { has_global_flag = welcome_event_WW2 }
-		relative_position_id = SAF_war_measures_act
+
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
 
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		complete_tooltip = {
 			navy_experience = 25
@@ -2681,10 +3271,10 @@ focus_tree = {
 					instant_build = yes
 				}
 				set_state_flag = SAF_seaward_defence_force_DY
-			}
-			add_tech_bonus = {
+			}			
+			add_doctrine_cost_reduction = {
 				name = SAF_seaward_defence_force
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = naval_doctrine
 			}
@@ -2706,14 +3296,23 @@ focus_tree = {
 			factor = 0.8
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_protect_the_trade
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = convoy_defense_tree
 			}
@@ -2739,14 +3338,23 @@ focus_tree = {
 			}
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_disrupt_the_trade
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = cat_trade_interdiction
 			}
@@ -2765,6 +3373,14 @@ focus_tree = {
 
 		ai_will_do = {
 			factor = 1
+		}
+
+		available = {
+
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -2845,15 +3461,24 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_anti_submarine_tactics
-				bonus = 0.5
-				ahead_reduction = 1
+				bonus = 1.0
+				ahead_reduction = 2
 				uses = 1
 				category = dd_tech
 			}
@@ -2878,15 +3503,24 @@ focus_tree = {
 			}
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
 			add_tech_bonus = {
 				name = SAF_submarine_warfare
-				bonus = 0.5
-				ahead_reduction = 1
+				bonus = 1.0
+				ahead_reduction = 2
 				uses = 1
 				category = ss_tech
 			}
@@ -2908,20 +3542,29 @@ focus_tree = {
 			factor = 1
 		}
 
+		available = {
+
+		}
+		
+		bypass = {
+
+		}
+
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = yes
+        search_filters = { FOCUS_FILTER_RESEARCH }
 
 		completion_reward = {
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = SAF_prepare_overseas_offensive
-				bonus = 0.5
+				cost_reduction = 0.5
 				uses = 1
 				category = convoy_defense_tree
 			}
 			add_tech_bonus = {
 				name = SAF_prepare_overseas_offensive
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = marine_tech
 				category = tp_tech
@@ -2942,6 +3585,14 @@ focus_tree = {
 
 		ai_will_do = {
 			factor = 1
+		}
+
+		available = {
+
+		}
+		
+		bypass = {
+
 		}
 
 		cancel_if_invalid = yes
@@ -2966,7 +3617,7 @@ focus_tree = {
 				add_building_construction = {
 					type = coastal_bunker
 					province = {
-						all_provinces = yes
+						all_provinces = yes							
 						limit_to_naval_base = yes
 					}
 					level = 1
@@ -2975,4 +3626,4 @@ focus_tree = {
 			}
 		}
 	}
-}
+}		
