@@ -1,5 +1,5 @@
 name="Endsieg: Ultimate Victory Developer"
-path="mod/endsieg/"
+path="mod/endsiegdev/"
 replace_path="common/ideas"
 replace_path="common/national_focus"
 replace_path="common/countries"

@@ -21,7 +21,7 @@ focus_tree = {
 
 	default = no
 
-	continuous_focus_position = { x = 20 y = 1000 }
+	continuous_focus_position = { x = 100 y = 1400 }
 
 	shared_focus = shared_GEN_powered_flight
 	shared_focus = shared_GEN_political_effort
@@ -75,7 +75,7 @@ focus_tree = {
 		icon = GFX_goal_generic_neutrality_focus
 		mutually_exclusive = { focus = BALTIC_restore_workers_republic }
 		x = 34
-		y = 0
+		y = 15
 
 		cost = 10
 
@@ -84,6 +84,8 @@ focus_tree = {
 		}
 
 		available = {
+
+		date > 1936.1.1
 
 		}
 
@@ -136,7 +138,7 @@ focus_tree = {
 
 		search_filters = { FOCUS_FILTER_MANPOWER }
 		completion_reward = {
-			LIT_jonas_chernius = {
+			LIT_jonas_cernius = {
 				add_field_marshal_role = {
 					traits = { JAP_communist_sympathizer career_officer politically_connected}
 					attack_skill = 1
@@ -2096,6 +2098,7 @@ focus_tree = {
 				POL = {
 					country_event = {
 						id = LIT_events.8
+						hours = 5
 					}
 				}
 			}
@@ -2188,7 +2191,10 @@ focus_tree = {
 				OR = {
 					exists = no
 					has_capitulated = yes
-					is_subject_of = ROOT
+					AND = {
+						is_subject_of = ROOT
+						is_ai = yes
+					}
 				}
 			}
 		}
@@ -2302,13 +2308,22 @@ focus_tree = {
 							puppet = PREV
 							set_autonomy = { target = PREV autonomy_state = autonomy_collaboration_government }
 						}
+						every_possible_country = {
+							limit = { has_character = POL_boleslaw_piasecki }
+							POL_boleslaw_piasecki = { 
+								set_nationality = PREV 
+							} 
+						}
 					}
 					every_possible_country = {
-						limit = { has_character = POL_boleslaw_piasecki }
-						POL_boleslaw_piasecki = { 
-							set_nationality = PREV 
-							promote_character = { ideology = falangism }
-						} 
+						limit = {
+							is_subject_of = ROOT 
+							original_tag = POL
+						}
+						promote_character = {
+							character = POL_boleslaw_piasecki
+							ideology = falangism
+						}
 					}
 				}
 				else = {
@@ -4098,6 +4113,9 @@ focus_tree = {
 					has_war = no
 				}
 			}
+			ROOT = {
+				is_subject = no 
+			}
 		}
 
 		bypass = {
@@ -4108,6 +4126,9 @@ focus_tree = {
 				}
 			}
 		}
+		
+		cancel_if_invalid = yes
+		continue_if_invalid = no 
 
 		available_if_capitulated = yes
 
@@ -4183,6 +4204,23 @@ focus_tree = {
 						exists = yes
 						is_ai = yes
 					}
+				}
+				random_other_country = {
+					limit = {
+						is_puppet_of = ROOT 
+						original_tag = POL 
+					}
+					every_character = {
+						limit = {
+							OR = {
+								is_corps_commander = yes 
+								is_navy_leader = yes
+								is_field_marshal = yes
+							}
+							has_unit_leader_flag = POL_monarchy_sympathies_flag
+						}
+						set_nationality = ROOT 
+					}					
 				}
 				annex_country = {
 					target = POL
