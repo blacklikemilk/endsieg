@@ -438,20 +438,18 @@ focus_tree = {
 			factor = 10
 		}
 		completion_reward = {
-			556 = { add_claim_by = GER }
-			272 = { add_claim_by = GER }
-			700 = { add_claim_by = GER }
-			296 = { add_claim_by = GER }
+			854 = { add_claim_by = GER }
 			660 = { add_claim_by = GER }
-			558 = { add_claim_by = GER }
-			701 = { add_claim_by = GER }
-			543 = { add_claim_by = GER }
-			544 = { add_claim_by = GER }
-			545 = { add_claim_by = GER }
-			540 = { add_claim_by = GER }
-			718 = { add_claim_by = GER }
-			295 = { add_claim_by = GER }
+			774 = { add_claim_by = GER }
+			539 = { add_claim_by = GER }
+			772 = { add_claim_by = GER }
 			538 = { add_claim_by = GER }
+			295 = { add_claim_by = GER }
+			718 = { add_claim_by = GER }
+			768 = { add_claim_by = GER }
+			769 = { add_claim_by = GER }
+			779 = { add_claim_by = GER }
+			776 = { add_claim_by = GER }
 		}
 		bypass = { OR = {
 			has_global_flag = welcome_event_INT
@@ -824,14 +822,17 @@ focus_tree = {
 		available = {
 			NOT = {
 				AND = {
+				    RUS = { controls_state = 87 }
+				    RUS = { controls_state = 90 }
 					RUS = { controls_state = 98 }
-					RUS = { controls_state = 92 }
-					RUS = { controls_state = 90 }
-					RUS = { controls_state = 87 }
-					RUS = { controls_state = 97 }
-					RUS = { controls_state = 94 }
-					RUS = { controls_state = 93 }
 					RUS = { controls_state = 10 }
+					RUS = { controls_state = 97 }
+					RUS = { controls_state = 92 }
+					RUS = { controls_state = 863 }	
+					RUS = { controls_state = 865 }
+					RUS = { controls_state = 93 }
+					RUS = { controls_state = 94 }
+					RUS = { controls_state = 95 }				
 				}
 			}
 		}
@@ -3981,7 +3982,7 @@ focus_tree = {
 					owner = { original_tag = DAN }
 					controller = { original_tag = DAN }
 				}
-				800 = {
+				807 = {
 					owner = { original_tag = POL }
 					controller = { original_tag = POL }
 				}
@@ -4053,7 +4054,7 @@ focus_tree = {
 								has_civil_war = no
 							}
 						}
-						800 = {
+						807 = {
 							controller = {
 								tag = POL
 								has_civil_war = no
@@ -4062,11 +4063,11 @@ focus_tree = {
 					}
 					effect_tooltip = {
 						transfer_state = 85
-						transfer_state = 800
+						transfer_state = 807
 						add_state_core = 85
-						add_state_core = 800
+						add_state_core = 807
 						remove_state_claim = 85
-						remove_state_claim = 800
+						remove_state_claim = 807
 					}
 					POL = {
 						country_event = { id = germany.86 }
@@ -4098,7 +4099,7 @@ focus_tree = {
 								has_civil_war = no
 							}
 						}
-						800 = {
+						807 = {
 							controller = {
 								tag = POL
 								has_civil_war = no
@@ -7082,55 +7083,166 @@ focus_tree = {
 		}
 
 		focus = {
-			id = GER_soviet_treaty
-			icon = GFX_goal_generic_scientific_exchange
-			prerequisite = { focus = GER_army_innovation }
-			mutually_exclusive = { focus = GER_anti_soviet_pact }
-			available = {
-				OR = {
-					NOT = { has_completed_focus = GER_bulwark_against_bolshevism }
-				}
+		id = GER_soviet_treaty
+		icon = GFX_goal_generic_scientific_exchange
+		prerequisite = { focus = GER_army_innovation }
+		available = {
+			NOT = { has_completed_focus = GER_anti_soviet_pact }
+			OR = {
+				NOT = { has_completed_focus = GER_bulwark_against_bolshevism }
+				NOT = { has_completed_focus = GER_the_great_red_menace }
 			}
-			bypass = {
-				OR = {
-					has_war_with = SOV
-					NOT = { country_exists = SOV }
-					has_completed_focus = GER_bulwark_against_bolshevism
-					has_completed_focus = GER_the_great_red_menace
-				}
+		}
+		#cancel = { 
+		#	OR = {
+		#		has_war_with = SOV
+		#		NOT = { country_exists = SOV }
+		#	} 
+		#}
+		bypass = { 
+			OR = {
+				has_war_with = SOV
+				NOT = { country_exists = SOV }
+				has_completed_focus = GER_bulwark_against_bolshevism
+				has_completed_focus = GER_the_great_red_menace
 			}
+		}
 
-			x = 0
-			y = 2
-			relative_position_id = GER_army_innovation
-			cost = 10
-			ai_will_do = {
-				factor = 10
-			}
-			completion_reward = {
-				SOV = {
-					country_event = { id = germany.75 days = 1 }
-					custom_effect_tooltip = needs_approval
-				}
+		x = 0
+		y = 2
+		relative_position_id = GER_army_innovation
+		cost = 10
+		ai_will_do = {
+			factor = 10
+		}
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			SOV = {
+				country_event = { id = germany.75 days = 1 }
+				custom_effect_tooltip = needs_approval
 				# Actual reward effects added in event if Soviets approve
 				effect_tooltip = {
 					# Trade influence with the USSR? Or simply let the opinion mod do the work
+					give_SOV_armor_research_bonuses = yes
+				}
+			}
+
+			if = {
+				limit = { 
+					has_dlc = "No Step Back"
+				}
+				if = {
+					limit = {
+						has_tech = basic_medium_tank_chassis
+					}
+					effect_tooltip = {
+						create_equipment_variant = {
+							name = "Panzer III Ausf. A"
+							type = medium_tank_chassis_1
+							parent_version = 0
+							modules = {
+								main_armament_slot = tank_high_velocity_cannon
+								turret_type_slot = tank_medium_three_man_tank_turret
+								suspension_type_slot = tank_bogie_suspension
+								armor_type_slot = tank_welded_armor
+								engine_type_slot = tank_gasoline_engine
+								special_type_slot_1 = tank_radio_1
+								special_type_slot_2 = smoke_launchers
+							}
+							upgrades = {
+								tank_nsb_engine_upgrade = 6
+								tank_nsb_armor_upgrade = 3
+							}
+							icon = "GFX_GER_basic_medium_tank_medium"
+						}
+						create_equipment_variant = {
+							name = "Panzer IV Ausf. A"
+							type = medium_tank_chassis_1
+							parent_version = 1
+							modules = {
+								main_armament_slot = tank_close_support_gun
+								turret_type_slot = tank_medium_three_man_tank_turret
+								suspension_type_slot = tank_bogie_suspension
+								armor_type_slot = tank_welded_armor
+								engine_type_slot = tank_gasoline_engine
+								special_type_slot_1 = tank_radio_1
+								special_type_slot_2 = smoke_launchers
+							}
+							upgrades = {
+								tank_nsb_engine_upgrade = 6
+								tank_nsb_armor_upgrade = 2
+							}
+							icon = "GFX_GER_basic_medium_tank_medium"
+						}
+					}
+				}
+				else = {
+					custom_effect_tooltip = GER_soviet_treaty_research_nsb_tt
+					effect_tooltip = {
+						create_equipment_variant = {
+							name = "Panzer III Ausf. A"
+							type = medium_tank_chassis_1
+							parent_version = 0
+							modules = {
+								main_armament_slot = tank_high_velocity_cannon
+								turret_type_slot = tank_medium_three_man_tank_turret
+								suspension_type_slot = tank_bogie_suspension
+								armor_type_slot = tank_welded_armor
+								engine_type_slot = tank_gasoline_engine
+								special_type_slot_1 = tank_radio_1
+								special_type_slot_2 = smoke_launchers
+							}
+							upgrades = {
+								tank_nsb_engine_upgrade = 6
+								tank_nsb_armor_upgrade = 3
+							}
+							icon = "GFX_GER_basic_medium_tank_medium"
+						}
+						create_equipment_variant = {
+							name = "Panzer IV Ausf. A"
+							type = medium_tank_chassis_1
+							parent_version = 1
+							modules = {
+								main_armament_slot = tank_close_support_gun
+								turret_type_slot = tank_medium_three_man_tank_turret
+								suspension_type_slot = tank_bogie_suspension
+								armor_type_slot = tank_welded_armor
+								engine_type_slot = tank_gasoline_engine
+								special_type_slot_1 = tank_radio_1
+								special_type_slot_2 = smoke_launchers
+							}
+							upgrades = {
+								tank_nsb_engine_upgrade = 6
+								tank_nsb_armor_upgrade = 2
+							}
+							icon = "GFX_GER_basic_medium_tank_medium"
+						}	
+					}
+				}
+				add_tech_bonus = {
+					name = armor_bonus
+					bonus = 1.0
+					uses = 2
+					category = armor
+				}
+			}
+			else = {
+				effect_tooltip = {
 					add_tech_bonus = {
 						name = med_armor_bonus
-						bonus = 0.5
 						ahead_reduction = 1
-						technology = basic_medium_tank
+						category = cat_medium_armor
 					}
-					# Balance research bonus to 2 techs in armor, also in event
 					add_tech_bonus = {
 						name = armor_bonus
-						bonus = 0.5
+						bonus = 1.0
 						uses = 2
 						category = armor
 					}
 				}
 			}
 		}
+	}
 
 		focus = {
 			id = GER_air_innovation_2
@@ -7170,40 +7282,57 @@ focus_tree = {
 		}
 
 		focus = {
-			id = GER_army_innovation_2
-			icon = GFX_goal_generic_army_tanks
-			prerequisite = { focus = GER_soviet_treaty }
-			x = 0
-			y = 2
-			relative_position_id = GER_soviet_treaty
-			cost = 10
-			ai_will_do = {
-				factor = 1
+		id = GER_army_innovation_2
+		icon = GFX_goal_generic_army_tanks
+		prerequisite = { focus = GER_soviet_treaty }
+		x = 0
+		y = 2
+		relative_position_id = GER_soviet_treaty
+		cost = 10
+		ai_will_do = {
+			factor = 1
+		}
+
+		available_if_capitulated = yes
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			# Balance research bonus to 2 techs in land_doctrine
+			army_experience = 20
+			add_doctrine_cost_reduction = {
+				name = land_doc_bonus
+				cost_reduction = 0.5
+				uses = 2
+				category = land_doctrine
 			}
-
-			available_if_capitulated = yes
-
-			completion_reward = {
-				# Balance research bonus to 2 techs in land_doctrine
-				army_experience = 20
-				add_tech_bonus = {
-					name = land_doc_bonus
-					bonus = 0.5
-					uses = 2
-					category = land_doctrine
+			if = {
+				limit = {
+					NOT = {
+						has_dlc = "No Step Back"
+					}
 				}
 				add_tech_bonus = {
-					bonus = 0.5
+					bonus = 1.0
 					uses = 1
 					name = mech_army_bonus
 					technology = basic_medium_tank
 					technology = improved_medium_tank
 					technology = advanced_medium_tank
 					technology = mechanised_infantry
+				}	
+			}
+			else = {
+				add_tech_bonus = {
+					bonus = 1.0
+					uses = 1
+					name = mech_army_bonus
+					technology = basic_medium_tank_chassis
+					technology = improved_medium_tank_chassis
+					technology = advanced_medium_tank_chassis
+					technology = mechanised_infantry
 				}
-				# REVISIT Might want to add bonuses to Soviet through event, since focus branches from treaty
 			}
 		}
+	}
 
 		focus = {
 			id = GER_rocketry_focus
@@ -7637,7 +7766,6 @@ focus_tree = {
 		focus = {
 		id = GER_turkey_friend
 		icon = GFX_goal_generic_improve_relations
-		prerequisite = { focus = GER_ussr_war_goal }
 		prerequisite = { focus = GER_italy_ally }
 
 
@@ -7663,8 +7791,8 @@ focus_tree = {
 		#		NOT = { country_exists = TUR }
 		#	}
 		#}
-		x = 0
-		y = 2
+		x = 24
+		y = 1
 		relative_position_id = GER_ussr_war_goal
 		cost = 10
 		ai_will_do = {
@@ -9991,33 +10119,37 @@ focus_tree = {
 		}
 
 		focus = {
-			id = GER_return_of_the_kaiser
-			icon = GFX_focus_ger_return_of_the_kaiser
-			prerequisite = { focus = GER_revive_the_kaiserreich }
-			available = {
-				is_puppet = no
-				paternal_autocrat > 0.4
-				has_country_leader = { ruling_only = yes name = "August von Mackensen" }
-			}
-			bypass = {
-				has_country_flag = GER_mackensen_dead
-				NOT = { has_government_democratic = yes }
-			}
-			x = -2
-			y = 1
-			relative_position_id = GER_revive_the_kaiserreich
-			cost = 10
-			ai_will_do = {
-				factor = 1
-			}
-
-			completion_reward = {
-				add_named_threat = { threat = 5 name = GER_return_of_the_kaiser }
-				HOL = {
-					country_event = { id = wtt_germany.3 }
-				}
+		id = GER_return_of_the_kaiser
+		icon = GFX_focus_ger_return_of_the_kaiser
+		prerequisite = { focus = GER_revive_the_kaiserreich }
+		available = {
+			is_subject = no
+			neutrality > 0.4
+			has_country_leader = { ruling_only = yes character = GER_august_von_mackensen }
+			HOL = {
+				exists = yes
+				NOT = { has_war_with = ROOT }
 			}
 		}
+		bypass = {
+			has_country_flag = GER_mackensen_dead
+			NOT = { has_government = democratic }
+		}
+		x = -2
+		y = 1
+		relative_position_id = GER_revive_the_kaiserreich
+		cost = 10
+		ai_will_do = {
+			factor = 1
+		}
+		
+		completion_reward = {
+			add_named_threat = { threat = 5 name = GER_return_of_the_kaiser }
+			HOL = {
+				country_event = { id = wtt_germany.3 }
+			}
+		}
+	}
 
 		focus = {
 			id = GER_focus_on_the_true_enemy
@@ -10489,94 +10621,82 @@ focus_tree = {
 		}
 
 		focus = {
-			id = GER_the_central_powers
-			icon = GFX_goal_generic_major_alliance
-			prerequisite = { focus = GER_our_place_in_the_sun }
-			available = {
-				is_puppet = no
-			}
-			bypass = {
-				is_in_faction = yes
-			}
-			x = 1
-			y = 2
-			relative_position_id = GER_our_place_in_the_sun
-			cost = 5
-			ai_will_do = {
-				factor = 10
-			}
-
-			completion_reward = {
-				set_rule = { can_create_factions = yes }
-				if = {
-					limit = {
-						is_in_faction = no
-					}
-					create_faction = "GER_central_powers_faction"
-				}
-
-				if = {
-					limit = {
-						ITA = {
-							is_ai = yes
-							is_puppet = no
-							is_in_faction = no
-							has_government = paternal_autocrat
-							NOT = { has_war_with = GER }
-						}
-					}
-					add_to_faction = ITA
-					ITA = {
-						add_ai_strategy = {
-							type = alliance
-							id = "GER"
-							value = 200
-						}
-					}
-				}
-				if = {
-					limit = {
-						HUN = {
-							is_ai = yes
-							is_puppet = no
-							is_in_faction = no
-							has_government = paternal_autocrat
-							NOT = { has_war_with = GER }
-						}
-						NOT = { country_exists = AUS }
-					}
-					add_to_faction = HUN
-					HUN = {
-						add_ai_strategy = {
-							type = alliance
-							id = "GER"
-							value = 200
-						}
-					}
-				}
-				if = {
-					limit = {
-						AUS = {
-							exists = yes
-							is_ai = yes
-							is_puppet = no
-							is_in_faction = no
-							has_government = paternal_autocrat
-							NOT = { has_war_with = GER }
-						}
-						NOT = { country_exists = HUN }
-					}
-					add_to_faction = AUS
-					AUS = {
-						add_ai_strategy = {
-							type = alliance
-							id = "GER"
-							value = 200
-						}
-					}
-				}
-			}
+		id = GER_the_central_powers
+		icon = GFX_goal_generic_major_alliance
+		prerequisite = { focus = GER_our_place_in_the_sun }
+		available = {
+			is_subject = no
 		}
+		bypass = {
+			is_in_faction = yes
+		}
+		x = 1
+		y = 2
+		relative_position_id = GER_our_place_in_the_sun
+		cost = 5
+		ai_will_do = {
+			factor = 10
+		}
+		
+		completion_reward = {
+			set_rule = { can_create_factions = yes }
+			if = {
+				limit = {
+					is_in_faction = no
+				}
+				create_faction = "GER_central_powers_faction"
+			}
+
+			if = {
+				limit = {
+					ITA = { 
+						is_subject = no
+						is_in_faction = no
+						has_government = neutrality
+						NOT = { has_war_with = GER }
+					}					
+				}
+				ITA = { country_event = { id = generic.5 } }
+			}
+			if = {
+				limit = {
+					HUN = { 
+						is_subject = no
+						is_in_faction = no
+						has_government = neutrality
+						NOT = { has_war_with = GER }
+					}					
+					NOT = { country_exists = AUS }
+				}
+				HUN = { country_event = { id = generic.5 } }
+			}
+			if = {
+				limit = {
+					AUS = { 
+						exists = yes
+						is_subject = no
+						is_in_faction = no
+						has_government = neutrality
+						NOT = { has_war_with = GER }
+					}		
+					NOT = { country_exists = HUN }			
+				}
+				AUS = { country_event = { id = generic.5 } }
+			}
+			if = {
+                limit = {
+                    BUL = { 
+                        exists = yes
+                        is_subject = no
+                        is_in_faction = no
+                        has_government = neutrality
+                        NOT = { has_war_with = GER }
+                    }
+                }
+                BUL = { country_event = { id = generic.5 } }
+            }
+		}
+	}
 
 		focus = {
 			id = GER_prepare_italian_coup
@@ -10609,36 +10729,32 @@ focus_tree = {
 		}
 
 		focus = {
-			id = GER_assassinate_mussolini
-			icon = GFX_focus_ger_assassinate_mussolini
-			prerequisite = { focus = GER_prepare_italian_coup }
-			available = {
-				is_puppet = no
-				NOT = { has_war_with = ITA }
-				ITA = { has_country_leader = { ruling_only = yes name = "Benito Mussolini" } }
+		id = GER_assassinate_mussolini
+		icon = GFX_focus_ger_assassinate_mussolini
+		prerequisite = { focus = GER_prepare_italian_coup }
+		available = {
+			is_subject = no
+			NOT = { has_war_with = ITA }
+			ITA = { has_country_leader = { ruling_only = yes character = ITA_benito_mussolini } }
+		}
+		cancel_if_invalid = yes
+		x = 0
+		y = 1
+		relative_position_id = GER_prepare_italian_coup
+		cost = 10
+		ai_will_do = {
+			factor = 10
+		}
+		
+		completion_reward = {
+			ITA = {
+				country_event = { id = wtt_germany.11 }
 			}
-			cancel_if_invalid = yes
-			x = 0
-			y = 1
-			relative_position_id = GER_prepare_italian_coup
-			cost = 10
-			ai_will_do = {
-				factor = 10
-			}
-
-			completion_reward = {
+			effect_tooltip = {
 				ITA = {
-					country_event = { id = wtt_germany.11 }
-				}
-				effect_tooltip = {
-					ITA = {
-						set_politics = { ruling_party = paternal_autocrat elections_allowed = no }
-						add_popularity = { ideology = paternal_autocrat popularity = 0.1 }
-						swap_ideas = {
-							remove_idea = GER_preparing_ITA_coup
-							add_idea = GER_preparing_ITA_coup2
-						}
-						kill_country_leader = yes
+					set_politics = { ruling_party = neutrality elections_allowed = no }
+					add_popularity = { ideology = neutrality popularity = 0.1 }
+					effect_tooltip = {
 						create_country_leader = {
 							name = "Victor Emmanuel III"
 							desc = "POLITICS_VICTOR_EMMANUEL_III_DESC"
@@ -10646,18 +10762,22 @@ focus_tree = {
 							expire = "1965.1.1"
 							ideology = despotism
 							traits = {
-
+						
 							}
 						}
-						hidden_effect = { remove_ideas = victor_emmanuel }
-						GER = {
-							add_to_faction = ITA
-							country_event = { id = wtt_germany.12 }
-						}
+					}
+					swap_ideas = {
+						remove_idea = GER_preparing_ITA_coup
+						add_idea = GER_preparing_ITA_coup2
+					}
+					GER = {
+						add_to_faction = ITA
+						country_event = { id = wtt_germany.12 }
 					}
 				}
 			}
 		}
+	}
 
 		focus = {
 			id = GER_rekindle_imperial_sentiment
