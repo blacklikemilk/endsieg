@@ -210,7 +210,7 @@ news_event = {
 					}
 				}
 				remove_ideas = SPA_death_before_surrender
-				add_timed_idea = { idea = SPA_recovering_from_civil_war days = 1825 }
+				add_timed_idea = { idea = SPA_recovering_from_civil_war days = 2190 }
 				if = {
 					limit = {
 						has_idea = SPA_foreign_training_staff
@@ -248,11 +248,8 @@ news_event = {
 							state = 794
 						}
 					}
-					remove_province_modifier = {
-						static_modifiers = { unplanned_offensive }
-						province = {
-							all_provinces = yes
-						}
+					remove_dynamic_modifier = {
+						modifier = unplanned_offensive
 					}
 				}
 			}
@@ -266,7 +263,7 @@ news_event = {
 			SPB = { has_capitulated = no }
 			NOT = { tag = SPB }
 			NOT = { original_tag = SPR }
-			has_government = paternal_autocrat
+			has_government = neutrality
 		}
 	}
 	option = {
@@ -276,7 +273,7 @@ news_event = {
 			SPB = { has_capitulated = no }
 			NOT = { tag = SPB }
 			NOT = { original_tag = SPR }
-			NOT = { has_government = paternal_autocrat }
+			NOT = { has_government = neutrality }
 		}
 	}
 	option = {
@@ -377,7 +374,7 @@ news_event = {
 				}
 				remove_ideas = SPA_a_methodical_approach
 			}
-			add_timed_idea = { idea = SPA_recovering_from_civil_war days = 1825 }
+			add_timed_idea = { idea = SPA_recovering_from_civil_war days = 2190 }
 			if = {
 				limit = {
 					has_idea = SPA_foreign_training_staff
@@ -568,10 +565,32 @@ news_event = {
 					division_template = "Brigada Anarquista"
 					disband = yes
 				}
+
 				if = {
 					limit = {
 						tag = SPC
 					}
+
+					# If POUM wins and Right Oppo Soviets aided them
+					if = {
+						limit = {
+							has_template = "International Marxist Brigades"
+						}
+						delete_unit_template_and_units = {
+							division_template = "International Marxist Brigades"
+							disband = yes
+						}
+					}
+					if = {
+						limit = {
+							has_template = "Soviet Special Brigades"
+						}
+						delete_unit_template_and_units = {
+							division_template = "Soviet Special Brigades"
+							disband = yes
+						}
+					}
+
 					every_state = {
 						limit = {
 							has_state_flag = SPR_core_of_spain_flag
@@ -653,7 +672,7 @@ news_event = {
 					}
 				}
 				remove_ideas = SPR_death_before_surrender
-				add_timed_idea = { idea = SPA_recovering_from_civil_war days = 1825 }
+				add_timed_idea = { idea = SPA_recovering_from_civil_war days = 2190 }
 				if = {
 					limit = {
 						has_idea = SPR_anarchist_public_transport
@@ -703,11 +722,8 @@ news_event = {
 							state = 794
 						}
 					}
-					remove_province_modifier = {
-						static_modifiers = { unplanned_offensive }
-						province = {
-							all_provinces = yes
-						}
+					remove_dynamic_modifier = {
+						modifier = unplanned_offensive
 					}
 				}
 				if = {
@@ -719,6 +735,21 @@ news_event = {
 					}
 					country_event = { id = lar_spain.82 hours = 6 }
 				}
+			}
+
+			#If POUM supported by SOV and won and SOV has not won/bypasssed their civil war yet -> POUM will help SOV in their CW
+			if = {
+				limit = {
+					has_global_flag = SOV_covert_support_for_poum_flag
+					has_global_flag = SPR_poum_won
+					SOV = {
+						OR = { #Do not trigger if Soviet civil war has finished or was bypassed
+							NOT = {	has_completed_focus = SOV_coup_detat }
+							has_global_flag = SOV_soviet_civil_war
+						}
+					}
+				}
+				SOV = { country_event = { id = NSB_soviet_spanish_civil_war.6 days = 8 random_days = 4 } }
 			}
 		}
 	}
@@ -742,7 +773,7 @@ news_event = {
 				AND = {
 					tag = MEX
 					has_country_leader = {
- 						name = "Leon Trotsky"
+ 						character = MEX_leon_trotsky
  					}
 				}
 			}
@@ -752,12 +783,12 @@ news_event = {
 					is_in_faction_with = MEX
 					MEX = {
 						has_country_leader = {
- 							name = "Leon Trotsky"
+ 							character = MEX_leon_trotsky
  						}
 					}
 				}
 			}
-			has_government = stalinist
+			has_government = communism
 			country_exists = SPC
 			SPC = { has_capitulated = no }
 			NOT = { tag = SPC }
@@ -773,7 +804,7 @@ news_event = {
 				AND = {
 					tag = MEX
 					has_country_leader = {
- 						name = "Leon Trotsky"
+ 						character = MEX_leon_trotsky
  					}
 				}
 			}
@@ -783,7 +814,7 @@ news_event = {
 					is_in_faction_with = MEX
 					MEX = {
 						has_country_leader = {
- 							name = "Leon Trotsky"
+ 							character = MEX_leon_trotsky
  						}
 					}
 				}
@@ -798,7 +829,7 @@ news_event = {
 					has_government = fascism
 				}
 			}
-			NOT = { has_government = stalinist }
+			NOT = { has_government = communism }
 			country_exists = SPC
 			SPC = { has_capitulated = no }
 			NOT = { tag = SPC }
@@ -815,14 +846,16 @@ news_event = {
 				AND = {
 					tag = MEX
 					has_country_leader = {
- 						name = "Leon Trotsky"
+ 						character = MEX_leon_trotsky
  					}
 				}
 				AND = {
 					is_in_faction_with = MEX
-					has_country_leader = {
- 						name = "Leon Trotsky"
- 					}
+					MEX = {
+						has_country_leader = {
+ 							character = MEX_leon_trotsky
+ 						}
+					}
 				}
 			}
 			country_exists = SPC
@@ -847,7 +880,7 @@ news_event = {
 				}
 			}
 			NOT = {
-				has_government = stalinist
+				has_government = communism
 			}
 			NOT = {
 				SPD = { has_completed_focus = SPR_the_stalinist_doctrine }
@@ -890,7 +923,7 @@ news_event = {
 		name = lar_news.2.h
 		trigger = {
 			NOT = { original_tag = SPR }
-			NOT = { has_government = stalinist }
+			NOT = { has_government = communism }
 			NOT = {
 				AND = {
 					tag = GER
@@ -974,7 +1007,7 @@ news_event = {
 				disband = yes
 			}
 			remove_ideas = SPR_death_before_surrender
-			add_timed_idea = { idea = SPA_recovering_from_civil_war days = 1825 }
+			add_timed_idea = { idea = SPA_recovering_from_civil_war days = 2190 }
 			if = {
 				limit = {
 					has_idea = SPR_anarchist_public_transport
@@ -1345,13 +1378,13 @@ news_event = {
 	option = {
 		name = lar_news.8.b #commies
 		trigger = {
-			has_government = stalinist
+			has_government = communism
 		}
 	}
 	option = {
 		name = lar_news.8.c #democrats
 		trigger = {
-			has_government = social_conservative
+			has_government = democratic
 		}
 	}
 	option = {
@@ -1360,7 +1393,7 @@ news_event = {
 			OR = {
 				has_government = fascism
 				AND = {
-					has_government = paternal_autocrat
+					has_government = neutrality
 					NOT = {
 						has_completed_focus = HUN_proclaim_the_restoration_of_austria_hungary
 						has_completed_focus = ENG_god_save_the_king
@@ -1397,20 +1430,20 @@ news_event = {
 	option = {
 		name = lar_news.9.a #unaligned
 		trigger = {
-			has_government = paternal_autocrat
+			has_government = neutrality
 		}
 	}
 	option = {
 		name = lar_news.9.b #commies
 		trigger = {
-			has_government = stalinist
+			has_government = communism
 			NOT = { tag = FRA }
 		}
 	}
 	option = {
 		name = lar_news.9.c #democrats
 		trigger = {
-			has_government = social_conservative
+			has_government = democratic
 		}
 	}
 	option = {
@@ -2267,14 +2300,16 @@ news_event = {
 				AND = {
 					tag = MEX
 					has_country_leader = {
- 						name = "Leon Trotsky"
+ 						character = MEX_leon_trotsky
  					}
 				}
 				AND = {
 					is_in_faction_with = MEX
-					has_country_leader = {
- 						name = "Leon Trotsky"
- 					}
+					MEX = {
+						has_country_leader = {
+ 							character = MEX_leon_trotsky
+ 						}
+					}
 				}
 			}
 		}
@@ -2282,13 +2317,13 @@ news_event = {
 	option = {
 		name = lar_news.21.c # Unaligned Communists
 		trigger = {
-			has_government = stalinist
+			has_government = communism
 			NOT = { tag = SOV }
 			NOT = {
 				AND = {
 					tag = MEX
 					has_country_leader = {
- 						name = "Leon Trotsky"
+ 						character = MEX_leon_trotsky
  					}
 				}
 			}
@@ -2298,7 +2333,7 @@ news_event = {
 					is_in_faction_with = MEX
 					MEX = {
 						has_country_leader = {
- 							name = "Leon Trotsky"
+ 							character = MEX_leon_trotsky
  						}
 					}
 				}
@@ -2309,12 +2344,12 @@ news_event = {
 		name = lar_news.21.d # Everyone else
 		trigger = {
 			NOT = {
-				has_government = stalinist
+				has_government = communism
 				original_tag = SOV
 				AND = {
 					tag = MEX
 					has_country_leader = {
- 						name = "Leon Trotsky"
+ 						character = MEX_leon_trotsky
  					}
 				}
 				original_tag = SPR
@@ -2555,7 +2590,7 @@ news_event = {
 		name = lar_news.27.b #Communists
 		trigger = {
 			NOT = { tag = POR }
-			has_government = stalinist
+			has_government = communism
 		}
 	}
 	option = {
@@ -2570,7 +2605,7 @@ news_event = {
 		name = lar_news.27.d #Everyone else
 		trigger = {
 			NOT = {
-				has_government = stalinist
+				has_government = communism
 				has_government = fascism
 				tag = POR
 			}
