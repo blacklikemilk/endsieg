@@ -85,8 +85,6 @@ focus_tree = {
 
 		available = {
 
-		date > 1936.1.1
-
 		}
 
 		bypass = {
@@ -147,7 +145,9 @@ focus_tree = {
 					logistics_skill = 4
 					skill = 2
 					}
-					set_leader_portrait = "GFX_portrait_LIT_jonas_cernius"
+					set_portraits = { 
+						army = { large = GFX_portrait_LIT_jonas_cernius }
+					}
 			}
 			LIT_antanas_gustaitis = {
 				add_corps_commander_role = {
@@ -208,7 +208,7 @@ focus_tree = {
 	
 	focus = {
 		id = LIT_soviet_mutual_assistance
-		icon = GFX_focus_chi_cooperation_with_the_communists
+		icon = GFX_focus_chi_mission_to_the_soviet_union
 		prerequisite = { focus = LIT_patriotic_education }
 		dynamic = yes
 		mutually_exclusive = { focus = LIT_peace_with_poland }
@@ -223,12 +223,18 @@ focus_tree = {
 		}
 
 		available = {
+			SOV = { exists = yes }
 			SOV = { has_civil_war = no } 	
-			NOT = { is_in_faction_with = POL } 
+			NOT = { is_in_faction_with = POL }
+			NOT = { 
+				SOV = { has_war_with = GER}
+			} 
+			SOV = { is_subject = no }
 		}
 
 		bypass = {
-			
+			SOV = { is_subject = yes }
+			SOV = { has_capitulated = yes }
 		}
 
 		cancel_if_invalid = yes
@@ -703,10 +709,20 @@ focus_tree = {
 					}
 				}
 			}
-			GER = {
-				add_opinion_modifier = {
-					target = LIT
-					modifier = LIT_arrested_party_members
+			IF = {
+				limit = {
+					GER = {
+						OR = {
+							has_government = fascism
+							has_country_flag = GER_imprisoned_fascist_leadership
+						}
+					}
+				}
+				GER = {
+					add_opinion_modifier = {
+						target = LIT
+						modifier = LIT_arrested_party_members
+					}
 				}
 			}
 		}
@@ -1732,10 +1748,6 @@ focus_tree = {
 				add_claim_by = ROOT
 				set_state_flag = greater_lithuania_flag
 			}
-			990 = {
-				add_claim_by = ROOT
-				set_state_flag = greater_lithuania_flag
-			}
 			240 = {
 				add_claim_by = ROOT
 				set_state_flag = greater_lithuania_flag
@@ -2248,7 +2260,6 @@ focus_tree = {
 							limit = {
 								OR = {
 									state = 97
-									state = 974
 									state = 96
 									state = 95
 									state = 94
@@ -2270,7 +2281,6 @@ focus_tree = {
 				limit = {
 					OR = {
 						state = 97
-						state = 974
 						state = 96
 						state = 95
 						state = 94
@@ -2339,7 +2349,6 @@ focus_tree = {
 							limit = {
 								OR = {
 									state = 97
-									state = 974
 									state = 96
 									state = 95
 									state = 94
@@ -2381,10 +2390,6 @@ focus_tree = {
 				compliance > 80
 			}
 			224 = {
-				is_controlled_by = ROOT
-				compliance > 80
-			}
-			990 = {
 				is_controlled_by = ROOT
 				compliance > 80
 			}
@@ -3904,8 +3909,8 @@ focus_tree = {
 					infantry = { x = 1 y = 2 }
 		
 					infantry = { x = 2 y = 0 }
-					artillery_brigade = { x = 2 y = 1 }
-					artillery_brigade = { x = 2 y = 2 }
+					artillery_brigade = { x = 3 y = 0 }
+					artillery_brigade = { x = 3 y = 1 }
 				}
 				support = {
 					engineer = { x = 0 y = 0 }
@@ -4341,9 +4346,6 @@ focus_tree = {
 			97 = {
 				controls_or_subject_of = yes
 			}
-			974 = {
-				controls_or_subject_of = yes
-			}
 		}
 
 		available_if_capitulated = yes
@@ -4692,7 +4694,7 @@ focus_tree = {
 			create_wargoal = {
 				type = take_state_focus
 				target = SOV
-				generator = { 96 95 94 207 206 204 241 93 199 201 198 202 203 259 193 225 221 226 197 192 242 243 224 205 223 222 220 990 240 194 }
+				generator = { 96 95 94 207 206 204 241 93 199 201 198 202 203 259 193 225 221 226 197 192 242 243 224 205 223 222 220 240 194 }
 			}
 		}
 	}
@@ -4737,7 +4739,6 @@ focus_tree = {
 			controls_state = 242
 			controls_state = 243
 			controls_state = 224
-			controls_state = 990
 			controls_state = 205
 			controls_state = 223
 			controls_state = 222
@@ -4784,7 +4785,6 @@ focus_tree = {
 						state = 197
 						state = 192
 						state = 242
-						state = 990
 						state = 243
 						state = 224
 						state = 205

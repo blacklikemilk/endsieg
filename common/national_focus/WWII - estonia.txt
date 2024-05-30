@@ -84,9 +84,6 @@ focus_tree = {
 		}
 
 		available = {
-
-		date > 1936.1.1
-
 		}
 
 		bypass = {
@@ -1138,9 +1135,6 @@ focus_tree = {
 		}
 
 		available = {
-
-		date > 1936.1.1
-
 		}
 
 		bypass = {
@@ -1753,6 +1747,7 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ANNEXATION }
 		completion_reward = {
 			FIN = {
+				country_event = { id = generic.1 hours = 1 }
 				add_timed_idea = {
 					idea = EST_vaps_organizing_in_FIN
 					days = 360
@@ -1816,18 +1811,17 @@ focus_tree = {
 
 		available = {
 			FIN = {
+				exists = yes
 				has_government = fascism
+				OR = {
+					is_subject_of = ROOT
+					is_subject = no
+				}
+				is_in_faction = no
 			}
 		}
 
 		bypass = {
-			FIN = {
-				OR = {
-					exists = no
-					is_subject = yes
-					has_country_flag = banned_fascism_flag
-				}
-			}
 		}
 
 		cancel_if_invalid = yes
@@ -1843,10 +1837,25 @@ focus_tree = {
 				set_rule = {
 					can_create_factions = yes
 				}
-				create_faction = FINNO_ESTONIAN_SUPREMACY_LEAGUE
+				if = {
+					limit = {
+						NOT = {
+							FIN = { has_idea = FIN_the_lone_wolf }
+						}
+					}
+					create_faction = FINNO_ESTONIAN_SUPREMACY_LEAGUE
+				}
 			}
 			effect_tooltip = {
-				FIN = { custom_effect_tooltip = invite_to_faction_tt }
+				if = {
+					limit = {
+						FIN = { has_idea = FIN_the_lone_wolf }
+					}
+					custom_effect_tooltip = FIN_the_lone_wolf_no_faction_tt
+				}
+				else = {
+					FIN = { custom_effect_tooltip = invite_to_faction_tt }
+				}
 			}
 			hidden_effect = {
 				if = {
@@ -1862,7 +1871,12 @@ focus_tree = {
 						country_event = EST_events.6
 					}
 				}
-				else = {
+				else_if = {
+					limit = {
+						NOT = {
+							FIN = { has_idea = FIN_the_lone_wolf }
+						}
+					}
 					FIN = { country_event = generic.5 }
 				}
 			}
@@ -1887,17 +1901,20 @@ focus_tree = {
 		available = {
 			FIN = {
 				has_government = fascism
+				has_civil_war = no
+				exists = yes
+				OR = {
+					is_subject_of = ROOT
+					is_subject = no
+				}
+				OR = {
+					is_in_faction_with = ROOT
+					is_in_faction = no
+				}
 			}
 		}
 
 		bypass = {
-			FIN = {
-				OR = {
-					exists = no
-					is_subject = yes
-					has_country_flag = banned_fascism_flag
-				}
-			}
 		}
 
 		cancel_if_invalid = yes
@@ -1906,7 +1923,13 @@ focus_tree = {
 
 		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ANNEXATION }
 		completion_reward = {
-			FIN = { country_event = EST_events.2}	
+			FIN = { 
+				country_event = {
+					id = EST_events.2
+					days = 1
+					random_days = 3
+				}
+			}	
 			effect_tooltip = {
 				custom_effect_tooltip = if_they_accept_tt
 				annex_country = {
@@ -2065,18 +2088,35 @@ focus_tree = {
 		available = {
 			custom_trigger_tooltip = {
 				tooltip = control_all_nordic_states_tt
-				all_state = {
-					OR = {
-						controls_or_subject_of = yes
-						controller = {
-							original_tag = FIN
-							is_in_faction_with = ROOT
+				NOR = {
+					all_core_state = {
+						OR = {
+							controls_or_subject_of = yes
+							controller = {
+								original_tag = FIN
+								is_in_faction_with = ROOT
+							}
 						}
-						NOT = {
-							OR = {
-								is_core_of = NOR
-								is_core_of = DEN
-								is_core_of = SWE
+					}
+				}
+				DEN = {
+					all_core_state = {
+						OR = {
+							controls_or_subject_of = yes
+							controller = {
+								original_tag = FIN
+								is_in_faction_with = ROOT
+							}
+						}
+					}
+				}
+				SWE = {
+					all_core_state = {
+						OR = {
+							controls_or_subject_of = yes
+							controller = {
+								original_tag = FIN
+								is_in_faction_with = ROOT
 							}
 						}
 					}
@@ -2099,7 +2139,7 @@ focus_tree = {
 			if = {
 				limit = {
 					NOR = { 
-						is_ai = no 
+						is_ai = yes 
 						is_subject_of = ROOT 
 					}
 				}
@@ -2111,7 +2151,7 @@ focus_tree = {
 			if = {
 				limit = {
 					SWE = { 		
-						is_ai = no 
+						is_ai = yes 
 						is_subject_of = ROOT 
 					}
 				}
@@ -2123,7 +2163,7 @@ focus_tree = {
 			if = {
 				limit = {
 					DEN = { 
-						is_ai = no
+						is_ai = yes
 						is_subject_of = ROOT 
 					}
 				}
@@ -2217,6 +2257,36 @@ focus_tree = {
 		}
 
 		bypass = {
+			OR = {
+				AND = {
+					SWE = {
+						is_subject_of = ROOT
+					}
+					NOR = {
+						is_subject_of = ROOT
+					}
+				}
+				all_state = {
+					OR = {
+						state = 148
+						state = 722
+						state = 213
+						state = 925
+						state = 924
+						state = 144
+						state = 923
+						state = 143
+						state = 666
+						state = 918
+						state = 917
+					}
+					is_owned_by = ROOT
+				}
+				SMI = {
+					is_subject_of = ROOT
+				}
+			}
+			
 		}
 
 		cancel_if_invalid = yes
@@ -2227,12 +2297,12 @@ focus_tree = {
 		completion_reward = {
 			create_wargoal = {
 				type = take_state_focus
-				generator = { 143 144 }
+				generator = { 143 144 923 924 925 }
 				target = NOR
 			}
 			create_wargoal = {
 				type = take_state_focus
-				generator = { 666 38 }
+				generator = { 666 917 918 }
 				target = SWE
 			}
 		}
@@ -2267,10 +2337,42 @@ focus_tree = {
 
 		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ANNEXATION }
 		completion_reward = {
-			create_wargoal = {
-				type = take_state_focus
-				generator = { 213 215 216 }
-				target = SOV
+			every_state = {
+				limit = {
+					OR = {
+						state = 147
+						state = 216
+						state = 215
+						state = 146
+					}
+					NOT = {
+						OR = {
+							is_owned_by = ROOT
+							is_claimed_by = ROOT
+						}
+					}
+				}
+				add_claim_by = ROOT
+			}
+
+			custom_effect_tooltip = CHL_skip_one_line_tt
+
+			every_other_country = {
+				limit = {
+					OR = {
+						owns_state = 147
+						owns_state = 216
+						owns_state = 215
+						owns_state = 146
+					}
+				}
+				ROOT = {
+					create_wargoal = {
+						type = take_claimed_state
+						#generator = { 213 215 216 }
+						target = PREV
+					}
+				}
 			}
 		}
 	}
@@ -2362,6 +2464,18 @@ focus_tree = {
 					214 = { owner = { is_subject_of = ROOT } }
 				}
 				transfer_state = 214
+			}
+			if = {
+				limit = {
+					879 = { owner = { is_subject_of = ROOT } }
+				}
+				transfer_state = 879
+			}
+			if = {
+				limit = {
+					880 = { owner = { is_subject_of = ROOT } }
+				}
+				transfer_state = 880
 			}
 			if = {
 				limit = {
