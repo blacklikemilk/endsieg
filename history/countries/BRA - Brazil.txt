@@ -532,39 +532,318 @@ if = {
 
 1936.1.1 = {
 
-	add_political_power = 50
-
-	set_stability = 0.7
-
-oob = "BRA_1936"
-if = {
-	limit = { has_dlc = "By Blood Alone" }
-		set_air_oob = "BRA_1936_air_bba"
-	else = {
-		set_air_oob = "BRA_1936_air_legacy"
-	}
-}
-
-if = {
-	limit = { has_dlc = "Man the Guns" }
-		set_naval_oob = "BRA_1936_Naval"
-	else = {
-		set_naval_oob = "BRA_1936_Naval_Legacy"
-	}
-}
-
-complete_national_focus = shared_industrialisation
-complete_national_focus = shared_pre_industrial_path_1
-complete_national_focus = shared_pre_industrial_path_2
-complete_national_focus = shared_pre_industrial_path_3
-complete_national_focus = shared_GEN_powered_flight
-
+set_convoys = 40
 retire_character = BRA_delfim_moreira
 
+oob = "BRA_1936"
+every_core_state = {
+	ROOT = {
+		add_to_array = { cores_at_game_start = PREV }
+	}
+}
+IF = {
+	limit = { has_dlc = "By Blood Alone" }
+		set_air_oob = "BRA_1936_air_bba"
+	ELSE = {
+		set_air_oob = "BRA_1936_air_legacy"
+		set_technology = {
+			early_fighter = 1
+			CAS1 = 1
+		}
+	}
+}
 recruit_character = BRA_getulio_vargas
+###############################################################################
+# ToA
+###############################################################################
+IF = {
+	limit = {
+		has_dlc = "Trial of Allegiance"
+	}
+	set_country_flag = BRA_toa_DLC
+
+
+	add_ideas = {
+		SMB_MTG_naval_arms_race_legacy
+	}
+
+	add_ideas = BRA_separatism_idea
+
+	every_owned_state = {
+		limit = {
+			OR = {
+				has_state_category = wasteland
+				has_state_category = pastoral
+				has_state_category = rural
+				#TODO_JUNO: Check states below are correct after map changes implemented
+				state = 498
+				state = 499
+			}
+			NOT = {
+				state = 961
+				state = 962
+				state = 963
+				state = 964
+				state = 965
+				state = 966
+				state = 967
+				state = 968
+				state = 496
+			}
+		}
+
+		# Neglected State Modifier
+		set_variable = { BRA_state_development_production_speed = -0.4 }
+		set_variable = { BRA_state_development_local_building_slots_factor = -0.4 }
+		set_variable = { BRA_state_development_local_factories = -0.4 }
+		set_variable = { BRA_state_development_state_resources_factor = -0.4 }
+
+		add_dynamic_modifier = {
+			modifier = BRA_neglected_state_dynamic_modifier
+		}
+	}
+
+	every_owned_state = {
+		limit = {
+			OR = {
+				state = 498
+				state = 499
+				state = 935
+				state = 936
+				state = 937
+			}
+		}
+		add_dynamic_modifier = {
+			modifier = BRA_cangaceiro_state
+		}
+	}
+
+	JUNO_set_shared_military_branch_defaults = yes
+
+	# Undiversified Economy Modifier
+	set_variable = { BRA_economy_production_efficiency_gain_factor = -0.2 }
+	set_variable = { BRA_economy_production_max_efficiency_factor = -0.2 }
+	set_variable = { BRA_economy_industrial_capacity_factor = -0.2 }
+	
+	set_variable = { BRA_weak_government_stability_factor = -0.15 }
+	set_variable = { BRA_weak_government_pp_factor = -0.2 }
+	set_variable = { BRA_weak_government_neutrality_factor = 0.02 }
+	set_variable = { BRA_weak_government_command_power_factor = -0.4}
+
+	set_variable = { BRA_coup_stability_factor = -0.05 }
+	set_variable = { BRA_coup_communism_factor = 0.05 }
+	set_variable = { BRA_coup_democratic_factor = 0 }
+	set_variable = { BRA_coup_fascism_factor = 0 }
+	set_variable = { BRA_coup_neutrality_factor = 0 }
+
+	# Estado Novo Modifier
+	set_variable = { BRA_estado_novo_stability_factor = 0.1 }
+	set_variable = { BRA_estado_novo_fascism_factor = 0 }
+	set_variable = { BRA_estado_novo_communism_factor = 0 }
+	set_variable = { BRA_estado_novo_democratic_factor = 0 }
+	set_variable = { BRA_estado_novo_fascism_factor = 0 }
+	set_variable = { BRA_estado_novo_neutrality_factor = 0.2 }
+	set_variable = { BRA_estado_novo_production_speed_buildings_factor = 0 }
+	set_variable = { BRA_estado_novo_war_support_factor = 0 }
+	set_variable = { BRA_estado_novo_recruitable_population_factor = 0 }
+	set_variable = { BRA_estado_novo_consumer_goods_factor = 0 }
+	set_variable = { BRA_estado_novo_political_power_factor = 0 }
+	set_variable = { BRA_estado_novo_production_factory_max_efficiency_factor = 0 }
+	set_variable = { BRA_estado_novo_industrial_capacity_factory = 0 }
+	set_variable = { BRA_estado_novo_industrial_capacity_dockyard = 0 }
+	set_variable = { BRA_estado_novo_production_speed_arms_factory_factor = 0 }
+	set_variable = { BRA_estado_novo_production_speed_dockyard_factor = 0 }
+	set_variable = { BRA_estado_novo_production_speed_industrial_complex_factor = 0 }
+
+	# Estado Moderno Modifier
+	set_variable = { BRA_estado_moderno_stability_factor = 0 }
+	set_variable = { BRA_estado_moderno_neutrality_factor = 0 }
+	set_variable = { BRA_estado_moderno_communism_factor = 0 }
+	set_variable = { BRA_estado_moderno_democratic_factor = 0 }
+	set_variable = { BRA_estado_moderno_fascism_factor = 0.2 }
+	set_variable = { BRA_estado_moderno_production_speed_buildings_factor = 0 }
+	set_variable = { BRA_estado_moderno_war_support_factor = 0 }
+	set_variable = { BRA_estado_moderno_recruitable_population_factor = 0 }
+	set_variable = { BRA_estado_moderno_consumer_goods_factor = 0 }
+	set_variable = { BRA_estado_moderno_political_power_factor = 0 }
+	set_variable = { BRA_estado_moderno_production_factory_max_efficiency_factor = 0 }
+	set_variable = { BRA_estado_moderno_industrial_capacity_factory = 0 }
+	set_variable = { BRA_estado_moderno_industrial_capacity_dockyard = 0 }
+	set_variable = { BRA_estado_moderno_production_speed_arms_factory_factor = 0 }
+	set_variable = { BRA_estado_moderno_production_speed_dockyard_factor = 0 }
+	set_variable = { BRA_estado_moderno_production_speed_industrial_complex_factor = 0 }
+
+	add_dynamic_modifier = { modifier = BRA_undiversified_economy_modifier }
+	add_dynamic_modifier = { modifier = BRA_weak_government }
+	add_dynamic_modifier = { modifier = BRA_aftermath_of_the_coup }
+
+	set_politics = {
+		ruling_party = democratic
+		last_election = "1934.7.17"
+		election_frequency = 48
+		elections_allowed = yes
+	}
+
+	set_popularities = {
+		democratic = 50
+		neutrality = 25
+		fascism = 15
+		communism = 10
+	}
+
+	set_party_name = {
+		ideology = neutrality
+		name = BRA_military_party
+		long_name = BRA_military_party_long
+	}
+
+	set_party_name = {
+		ideology = democratic
+		name = BRA_provisional_government
+		long_name = BRA_provisional_government_long
+	}
+
+	country_event = {
+		id = JUNO_brazil_events.153
+		days = 30
+		random_days = 15
+	}
+	#Political
+	recruit_character = BRA_armando_de_sales_oliveira
+	recruit_character = BRA_domingos_bras
+	recruit_character = BRA_jose_linhares
+	recruit_character = BRA_benedito_valadres
+	recruit_character = BRA_alfred_agache
+	recruit_character = BRA_joao_neves_da_fortuna
+	recruit_character = BRA_joao_marques_de_reis
+	recruit_character = BRA_francisco_campos
+	recruit_character = BRA_filinto_muller
+	recruit_character = BRA_indigenous_council
+	recruit_character = BRA_lindolfo_collor
+	recruit_character = BRA_jose_americo_de_almeida
+	recruit_character = BRA_anisio_teixeira
+	recruit_character = BRA_integralist_militia_general
+	recruit_character = BRA_pedro_henrique
+	recruit_character = BRA_pedro_de_alcantara
+	recruit_character = BRA_alianca_nacional_libertadora_council
+	recruit_character = BRA_minervino_de_oliveira
+	recruit_character = BRA_olga_benario_prestes
+	recruit_character = BRA_apolonio_de_carvalho
+	recruit_character = BRA_war_industrialist
+	recruit_character = BRA_captain_of_industry
+	recruit_character = BRA_leoncio_basbaum
+	recruit_character = BRA_geremia_lunarelli
+	recruit_character = BRA_henry_ford
+	recruit_character = BRA_gustavo_barroso
+	recruit_character = BRA_miguel_reale
+	recruit_character = BRA_oliveria_viana
+	#Army
+	recruit_character = BRA_augusto_fragoso
+	recruit_character = BRA_alvaro_de_castro
+	recruit_character = BRA_gois_monterio
+	recruit_character = BRA_euclides_zenobio_da_costa
+	recruit_character = BRA_jose_pessoa_cavalcanti_de_albuquerque
+	recruit_character = BRA_henrique_teixeira_lott
+	recruit_character = BRA_pereira_de_oliveira
+	recruit_character = BRA_eduardo_guedes
+	recruit_character = BRA_cristovao_de_castro
+	recruit_character = BRA_milton_de_freitas
+	recruit_character = BRA_candido_mariano
+	recruit_character = BRA_olympio_falconiere_da_cunha
+	recruit_character = BRA_floriano_de_lima_brayner
+	#Navy
+	recruit_character = BRA_henrique_aristides_guilhem
+	recruit_character = BRA_silvio_de_noronha
+	recruit_character = BRA_protogenes_guimaraes
+	recruit_character = BRA_renato_de_almeida_guillobel
+	recruit_character = BRA_alvaro_alberto_da_motta_e_silva
+	#Cangaco
+	recruit_character = BRA_lampiao
+
+}
+IF = {
+	limit = {
+		NOT = {
+			has_dlc = "Trial of Allegiance"
+		}
+	}
+	set_politics = {
+		ruling_party = democratic
+		last_election = "1934.7.17"
+		election_frequency = 48
+		elections_allowed = yes
+	}
+	set_popularities = {
+		democratic = 50
+		neutrality = 25
+		fascism = 15
+		communism = 10
+	}
+}
+###############################################################################
+
+# Starting tech
+set_technology = {
+	infantry_weapons = 1
+	tech_support = 1		
+	tech_engineers = 1
+#	tech_trucks = 1
+	gw_artillery = 1
+	interwar_antiair = 1
+	basic_train = 1	
+}
+
+IF = {
+	limit = {
+		has_dlc = "No Step Back"
+	}
+	set_technology = {
+		gwtank_chassis = 1
+	}
+}
+IF = {
+	limit = {
+		NOT = { has_dlc = "No Step Back" }
+	}
+	set_technology = {
+		gwtank = 1
+	}
+}
+IF = {
+	limit = {
+		NOT = { has_dlc = "Man the Guns"}
+	}
+	set_technology = {
+		early_submarine = 1
+		early_destroyer = 1
+		early_light_cruiser = 1
+		early_heavy_cruiser = 1
+		early_battleship = 1
+		transport = 1
+	}
+	set_naval_oob = "BRA_1936_naval_legacy"
+}
+IF = {
+	limit = { has_dlc = "Man the Guns"}
+	set_technology = {
+		basic_naval_mines = 1
+		submarine_mine_laying = 1
+		early_ship_hull_submarine = 1
+		basic_ship_hull_submarine = 1
+		early_ship_hull_light = 1
+		early_ship_hull_cruiser = 1
+		early_ship_hull_heavy = 1
+		basic_battery = 1
+		basic_torpedo = 1
+		mtg_transport = 1
+	}
+	set_naval_oob = "BRA_1936_naval"	
+}
+
+set_country_flag = monroe_doctrine
 recruit_character = BRA_plinio_salgado
 recruit_character = BRA_luis_carlos_prestes
-recruit_character = BRA_armando_sales
+#recruit_character = BRA_armando_sales
 recruit_character = BRA_eurico_gaspar_dutra
 recruit_character = BRA_mascarenhas_de_morais
 recruit_character = BRA_augusto_rademaker
@@ -572,8 +851,8 @@ recruit_character = BRA_agliberto_vieira
 recruit_character = BRA_eduardo_gomes
 recruit_character = BRA_salgado_filho
 recruit_character = BRA_floriano_peixoto
-recruit_character = BRA_aristides_guilhem
-recruit_character = BRA_joao_neves_da_fontoura
+#recruit_character = BRA_aristides_guilhem
+#recruit_character = BRA_joao_neves_da_fontoura
 recruit_character = BRA_epaminondas_dos_santos
 recruit_character = BRA_moreira_lima
 recruit_character = BRA_nero_fiuza_de_castro
@@ -585,353 +864,10 @@ recruit_character = BRA_afranio_de_mello_franco
 recruit_character = BRA_washington_luis_pereira
 recruit_character = BRA_osvaldo_aranha
 recruit_character = BRA_arlindo_veiga_dos_santos
+recruit_character = BRA_random_army_chief
 
-# Starting tech
-set_technology = {
 
-	### INFANTRY ###
-
-	#Weapons
-	early_infantry_equip2 = 1
-	early_infantry_weapons4 = 1
-	early_infantry_weapons5 = 1
-	early_infantry_equip3 = 1
-	early_infantry_weapons6 = 1
-	interwars_infantry_equip = 1
-
-	#Support Equipment
-	early_support_weapons4 = 1
-	early_support_weapons5 = 1
-	interwar_support_weapons = 1
-	interwar_support_weapons2 = 1
-	interwar_support_weapons3 = 1
-
-	#Gas Mask
-	gas_mask2 = 1
-	gas_mask3 = 1
-
-	#Machine Gun
-	machine_gun2 = 1
-	machine_gun3 = 1
-	machine_gun4 = 1
-	interwar_machine_gun = 1
-
-	#Motorized
-	early_motorised_infantry = 1
-
-	### SUPPORT ###
-
-	tech_support = 1
-
-	#Engineers
-	tech_engineers3 = 1
-	tech_engineers4 = 1
-
-	#Recon
-	tech_recon = 1
-	tech_recon2 = 1
-	tech_recon3 = 1
-	tech_recon4 = 1
-
-	#Military Police
-	tech_military_police = 1
-	tech_military_police2 = 1
-	tech_military_police3 = 1
-	tech_military_police4 = 1
-
-	#Tech Maintenance
-	tech_maintenance_company = 1
-	tech_maintenance_company2 = 1
-	tech_maintenance_company3 = 1
-	tech_maintenance_company4 = 1
-
-	#Mortar Company
-	tech_mortar_company2 = 1
-	tech_mortar_company3 = 1
-	tech_mortar_company4 = 1
-
-	### ARTILLERY ###
-
-	#Artillery
-	early_artillery_4 = 1
-	early_artillery_5 = 1
-	early_artillery_6 = 1
-
-	#Howitzer
-	howitzer3 = 1
-	howitzer4 = 1
-	howitzer5 = 1
-
-	#Anti Air
-	anti_air = 1
-	anti_air2 = 1
-
-	#Anti Tank
-	early_antitank = 1
-
-	### WW1 NAVAL ###
-
-	#Light Ships
-	ww1_improved_ship_hull_light = 1
-	ww1_advanced_ship_hull_light = 1
-	ww1_advanced_depth_charges = 1
-	ww1_modern_depth_charges = 1
-
-	#Cruisers
-	ww1_basic_ship_hull_cruiser = 1
-	ww1_improved_ship_hull_cruiser = 1
-	ww1_advanced_ship_hull_cruiser = 1
-	ww1_basic_cruiser_armor_scheme = 1
-	ww1_improved_cruiser_armor_scheme = 1
-	ww1_advanced_cruiser_armor_scheme = 1
-
-	#Heavy Ships
-	ww1_early_ship_hull_heavy = 1
-	ww1_basic_ship_hull_heavy = 1
-	ww1_improved_ship_hull_heavy = 1
-	ww1_advanced_ship_hull_heavy = 1
-	ww1_basic_heavy_armor_scheme = 1
-	ww1_improved_heavy_armor_scheme = 1
-
-	#Torpedos and Submarines
-	ww1_magnetic_detonator = 1
-	ww1_homing_torpedo = 1
-	ww1_electric_torpedo = 1
-	ww1_improved_ship_torpedo_launcher = 1
-	ww1_advanced_ship_torpedo_launcher = 1
-	ww1_modern_ship_torpedo_launcher = 1
-	ww1_early_ship_hull_submarine = 1
-	ww1_basic_ship_hull_submarine = 1
-	ww1_improved_ship_hull_submarine = 1
-	ww1_advanced_ship_hull_submarine = 1
-	ww1_basic_submarine_snorkel = 1
-	ww1_improved_submarine_snorkel = 1
-
-	#Armaments
-	ww1_basic_light_battery = 1
-	ww1_improved_light_battery = 1
-	ww1_advanced_light_battery = 1
-	ww1_basic_light_shell = 1
-	ww1_improved_light_shell = 1
-	ww1_basic_medium_battery = 1
-	ww1_improved_medium_battery = 1
-	ww1_advanced_medium_battery = 1
-	ww1_basic_medium_shell = 1
-	ww1_improved_medium_shell = 1
-	ww1_basic_heavy_battery = 1
-	ww1_improved_heavy_battery = 1
-	ww1_advanced_heavy_battery = 1
-	ww1_basic_heavy_shell = 1
-	ww1_improved_heavy_shell = 1
-	ww1_basic_secondary_battery = 1
-	ww1_improved_secondary_battery = 1
-	ww1_dp_secondary_battery = 1
-
-	#Damage Control
-	ww1_damage_control_2 = 1
-	ww1_damage_control_3 = 1
-
-	#Fire Control Methods
-	ww1_fire_control_methods_1 = 1
-	ww1_fire_control_methods_2 = 1
-	ww1_fire_control_methods_3 = 1
-
-	#Mines 
-	ww1_basic_naval_mines = 1
-	ww1_submarine_mine_laying = 1
-	ww1_improved_submarine_mine_laying = 1
-	ww1_improved_naval_mines = 1
-	ww1_degaussing = 1
-	ww1_advanced_naval_mines = 1
-	ww1_airdrop_mines = 1
-	ww1_modern_naval_mines = 1
-	ww1_airsweep_mines = 1
-
-	#Transport
-	ww1_tank_landing_craft = 1
-
-	### WW2 NAVAL ###
-
-	#Naval Bomber
-	torpedo_bomb = 1
-	early_naval_bomber = 1
-	cv_naval_bomber0 = 1
-	interwars_naval_bomber = 1
-
-	#Early Bomber
-	light_bomb = 1
-	ww1_early_bomber = 1
-	basic_bomber = 1
-	improved_bomber = 1
-	medium_bomb = 1
-	engine3 = 1
-	early_bomber = 1
-
-	#Heavy Fighter
-	fuel_tank2 = 1
-	heavy_engine = 1
-	heavy_bomb = 1
-	heavy_airframe = 1
-
-	### ENGINEERING ###
-	cipher_machine = 1
-	ww1_advanced_fire_control_system = 1
-	mechanical_computing = 1
-	teleprinter = 1
-	accounting_machine = 1
-
-	### INDUSTRY ###
-	advanced_early_machine_tools = 1
-	demobilization_machine_tools = 1
-
-	#Total War
-	total_war2 = 1
-	total_war3 = 1
-	demobilization2 = 1
-
-	#Construction
-	construction1 = 1
-	construction2 = 1
-	construction3 = 1
-	construction4 = 1
-	constructiondemob = 1
-	construction5 = 1
-
-	#Refineries
-	fuel_silos = 1
-
-	#Trenches
-	better_trench_conditions = 1
-	anti_air52 = 1
-
-	### DOCTRINES ###
-
-	#Land Doctrine
-	static_defense = 1
-	counterattack = 1
-	defense_in_depth = 1
-	offensive_attrition = 1
-	seperate_armed_forces = 1
-	forward_control = 1
-	combined_arms = 1
-	specialized_branch_tactical = 1
-	post_gw = 1
-
-	#Naval Doctrine
-	convoy_raiding = 1
-	post_gw2 = 1
-
-	#Air Doctrine
-	tas_concept = 1 
-	str_concept = 1
-	cas_concept = 1
-	interwar_bomber_doctrine = 1
-	air_counter_air = 1
-	force_substitution = 1
-	flying_circus = 1
-	formal_air_doctrine = 1
-	interwar_fighter_doctrine = 1
-	post_gw_doctrine = 1
-}
-if = {
-	limit = {
-		has_dlc = "No Step Back"
-	}
-	set_technology = { 
-
-	early_armored_car2 = 1
-	armored_car1 = 1
-	early_armored_car4 = 1
-	early_armored_car5 = 1
-	early_armored_car6 = 1
-
-	#Early Tanks
-	early_tank = 1
-	early_tank2 = 1
-	early_tank3 = 1
-    gwtank_chassis = 1
-		
-	}
-}
-if = {
-	limit = {
-		NOT = { has_dlc = "No Step Back" }
-	}
-	set_technology = { 
-	eg_armored_car2 = 1
-	eg_armored_car3 = 1
-	eg_armored_car4 = 1
-	eg_armored_car5 = 1
-	eg_armored_car6 = 1
-
-	#Early Tanks
-	eg_early_tank = 1
-	eg_early_tank2 = 1
-	eg_early_tank3 = 1
-	gwtank = 1
-	}
-}
-if = {
-	limit = {
-		NOT = { has_dlc = "By Blood Alone" }
-	}
-	set_technology = { 
-		### AIR ###
-
-	transport_plane = 1
-
-	#Fighter
-	basic_fighter = 1
-	improved_fighter = 1
-	fighter_engine = 1
-	fighter_airframe = 1
-	early_fighter = 1
-
-	#CAS
-	early_CAS = 1
-	basic_CAS = 1
-	}
-}
-if = {
-	limit = {
-		has_dlc = "By Blood Alone"
-	}
-	set_technology = {
-	### AIR ###
-
-	#Fighter
-	early_basic_fighter = 1
-	early_improved_fighter = 1
-	early_fighter_engine = 1
-	early_fighter_airframe = 1
-	iw_small_airframe = 1
-
-	#Medium
-	early_ww1_early_bomber = 1
-
-	#Weaponry
-    early_bombs = 1
-    aa_lmg = 1
-
-    #Engines
-    engines_1 = 1
-	}
-}
-
-set_country_flag = monroe_doctrine
-
-set_politics = {
-	ruling_party = neutrality
-	last_election = "1934.7.17"
-	election_frequency = 48
-	elections_allowed = no
-}
-
-set_popularities = {
-	neutrality = 100
-}
-
-if = {
+IF = {
 	limit = {
 		has_dlc = "Man the Guns"
 	}
@@ -1006,199 +942,6 @@ if = {
 
 1939.1.1 = {
 
-	#generic focuses
-	complete_national_focus = army_effort
-	complete_national_focus = equipment_effort
-	complete_national_focus = motorization_effort
-	complete_national_focus = aviation_effort
-	complete_national_focus = naval_effort
-	complete_national_focus = large_navy
-	complete_national_focus = industrial_effort
-	complete_national_focus = construction_effort
-	complete_national_focus = production_effort
-
-	add_political_power = 50
-
-	set_stability = 0.7
-	oob = "BRA_1939"
-	if = {
-		limit = { has_dlc = "By Blood Alone" }
-			set_air_oob = "BRA_1939_air_bba"
-		else = {
-			set_air_oob = "BRA_1939_air_legacy"
-		}
-	}
-	if = {
-		limit = { has_dlc = "Man the Guns" }
-		set_naval_oob = "BRA_1939_naval"
-	}
-	if = {
-		limit = { not = { has_dlc = "Man the Guns" } }
-		set_naval_oob = "BRA_1939_naval_legacy"
-	}
-
-	set_technology = {
-	
-	### IFANTRY ###
-
-	#Weapons
-	interwars_infantry_equip2 = 1
-	infantry_weapons = 1
-	infantry_weapons1 = 1
-
-	#Support Equipment
-	interwar_support_weapons4 = 1
-	modern_support_weapons = 1
-
-	#Machine Gun
-	modern_machine_gun = 1
-
-	#Motorized
-	motorised_infantry = 1
-
-	### SUPPORT ###
-
-	#Engineers
-	tech_engineers5 = 1
-
-	#Maintenance Company
-	tech_maintenance_company5 = 1
-
-	#Trains
-	basic_train = 1
-
-	### ARTILLERY ###
-
-	early_artillery_7 = 1
-	interwar_artillery = 1
-	howitzer6 = 1
-	howitzer7 = 1
-
-	#Anti Air
-	anti_air3 = 1
-
-	### NAVAL ###
-
-	#Naval Bomber
-	cv_naval_bomber01 = 1
-	naval_bomber1 = 1
-	cv_naval_bomber1 = 1
-
-	#Bomber
-	tactical_bomber1 = 1
-
-	### ENGINEERING ###
-
-	electronic_mechanical_engineering = 1
-	radio = 1
-
-	### INDUSTRY ###
-	basic_machine_tools = 1
-	concentrated_industry = 1
-
-	#Construction
-	construction6 = 1
-
-	### DOCTRINES ###
-
-	#Land Doctrine
-	mass_assault = 1
-	pocket_defence = 1
-	}
-
-if = {
-	limit = {
-		 has_dlc = "No Step Back"
-	}
-	set_technology = {
-		
-		### ARMOR ###
-
-		basic_light_tank_chassis = 1
-		improved_light_tank_chassis = 1
-
-		#Trains
-		armored_train = 1
-	}
-}
-if = {
-	limit = {
-		NOT = { has_dlc = "No Step Back" }
-	}
-	set_technology = { 
-		basic_light_tank = 1
-		improved_light_tank = 1
-	}
-}
-if = {
-	limit = {
-		 has_dlc = "Man the Guns"
-	}
-	set_technology = {
-		
-		### WW2 NAVAL ###
-
-		#Light Ships
-	    early_ship_hull_light = 1
-	    smoke_generator = 1
-	    basic_depth_charges = 1
-	    sonar = 1
-	    basic_ship_hull_light = 1
-
-	    #Cruisers
-	    early_ship_hull_cruiser = 1
-	}
-}
-if = {
-	limit = {
-		NOT = { has_dlc = "Man the Guns" }
-	}
-	set_technology = { 
-		early_destroyer = 1
-		basic_destroyer = 1
-
-		early_light_cruiser = 1
-	}
-}
-if = {
-	limit = {
-		NOT = { has_dlc = "By Blood Alone" }
-	}
-	set_technology = { 
-	### AIR ###
-
-	#Fighter
-	cv_early_fighter = 1
-	fighter1 = 1
-	cv_fighter1 = 1
-
-	#CAS
-	CAS1 = 1
-	}
-}
-if = {
-	limit = {
-		has_dlc = "By Blood Alone"
-	}
-	set_technology = {
-	### AIR ###
-
-	#Fighter
-	basic_small_airframe = 1
-
-	#Medium
-	early_basic_bomber = 1
-
-	#Weaponry
-	survivability_studies = 1
-
-	#Engines
-	engines_2 = 1
-	}
-}
-
-	set_convoys = 0
-
 	set_politics = {
 		ruling_party = neutrality
 		last_election = "1934.7.17"
@@ -1208,8 +951,112 @@ if = {
 	set_popularities = {
 		neutrality = 100
 	}
+	
+	add_political_power = 1198
+	add_command_power = 100
+	
+	#Setting up which focuses are to be coplete upon start
+	IF = {
+		limit = {
+			has_dlc = "Trial of Allegiance"
+		}
 
+		complete_national_focus = BRA_tribunal_de_seguranca_nacional
+		complete_national_focus = BRA_coffee_crisis_aftermath
+		complete_national_focus = BRA_ensure_continued_military_support #35
+		complete_national_focus = BRA_work_with_the_integralists #35
+		complete_national_focus = SMB_army #35
+		complete_national_focus = SMB_navy #35
+		complete_national_focus = BRA_desenvolvimentismo
+		complete_national_focus = BRA_cohen_plan
+		complete_national_focus = BRA_estado_novo #35
+		complete_national_focus = BRA_promote_resource_extraction
+		complete_national_focus = BRA_the_polaca
+		complete_national_focus = BRA_stimulate_the_civilian_economy
+		complete_national_focus = BRA_radio_nacional
+		complete_national_focus = BRA_deal_with_the_cangaceiro
+		complete_national_focus = BRA_establish_psad
+		complete_national_focus = BRA_autarky 
+		complete_national_focus = BRA_departamendo_de_propaganda
+		complete_national_focus = BRA_tech_slot_1
+
+		ELSE = {
+			#generic focuses
+			complete_national_focus = army_effort
+			complete_national_focus = equipment_effort
+			complete_national_focus = motorization_effort
+			complete_national_focus = aviation_effort
+			complete_national_focus = naval_effort
+			complete_national_focus = large_navy
+			complete_national_focus = industrial_effort
+			complete_national_focus = construction_effort
+			complete_national_focus = production_effort
+		}
+	}
+
+# no need to manually add in ideas and modifiers, I have tried and it is not needed, in fact, adding them in does nothing and adding to variables adds double. I write this here to serve as a note to future me, and other rookie CDs, it is not needed. You need not do it. The ideas, modifiers and such are set automatically.
+	
+	oob = "BRA_1939"
 	if = {
+		limit = { has_dlc = "By Blood Alone" }
+			set_air_oob = "BRA_1939_air_bba"
+		else = {
+			set_air_oob = "BRA_1939_air_legacy"
+		}
+	}
+	set_technology = {
+		interwar_artillery = 1
+		infantry_weapons1 = 1
+		infantry_weapons2 = 1
+	#	support_weapons = 1
+		
+
+		#doctrines
+		air_superiority = 1
+		grand_battle_plan = 1
+		trench_warfare = 1
+		fleet_in_being = 1
+		battlefleet_concentration = 1
+		convoy_sailing = 1
+
+
+		#electronics
+	#	electronic_mechanical_engineering = 1
+		radio = 1
+		radio_detection = 1
+		mechanical_computing = 1
+	#	computing_machine = 1
+
+		#industry
+		basic_machine_tools = 1
+		improved_machine_tools = 1
+		advanced_machine_tools = 1
+	#	synth_oil_experiments = 1
+		fuel_silos = 1
+	#	oil_processing = 1
+	#	improved_oil_processing = 1
+		construction7 = 1
+		construction8 = 1
+		dispersed_industry = 1
+		dispersed_industry2 = 1
+	}
+	IF = {
+		limit = { NOT = { has_dlc = "Man the Guns" } }
+		set_technology = {
+			basic_submarine = 1
+			basic_destroyer = 1
+		}
+		set_naval_oob = "BRA_1939_naval_legacy"
+	}
+	IF = {
+		limit = { has_dlc = "Man the Guns" }
+		set_technology = {
+			basic_ship_hull_light = 1
+		}
+		set_naval_oob = "BRA_1939_naval"
+	}
+	
+	IF = {
 		limit = {
 			has_dlc = "Man the Guns"
 		}
