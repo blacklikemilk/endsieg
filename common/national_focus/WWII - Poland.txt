@@ -3,15 +3,18 @@ focus_tree = {
 
 	country = {
 		factor = 0
-
+		
 		modifier = {
 			add = 10
 			tag = POL
-			has_dlc = "Poland: United and Ready"
+			OR = {
+				has_dlc = "Poland: United and Ready"
+				has_dlc = "No Step Back"
+			}
 		}
 	}
-
 	default = no
+
 	continuous_focus_position = { x = 100 y = 1400 }
 
 	shared_focus = shared_GEN_powered_flight
@@ -21,22 +24,12 @@ focus_tree = {
 	shared_focus = shared_GEN_industrial_effort
 
 
-	############################
-	#### INDUSTRIAL SECTION ####
-	############################
-
 	focus = {
 		id = POL_the_four_year_plan
 		icon = GFX_focus_POL_the_four_year_plan
 		x = 2
-		y = 15
+		y = 0
 		cost = 5
-
-		available = {
-
-		date > 1936.1.1
-
-		}
 
 		ai_will_do = {
 			factor = 10
@@ -66,7 +59,7 @@ focus_tree = {
 		icon = GFX_focus_research
 		prerequisite = { focus = POL_the_four_year_plan }
 		x = 2
-		y = 16
+		y = 1
 		cost = 10
 
 		ai_will_do = {
@@ -96,7 +89,7 @@ focus_tree = {
 		icon = GFX_goal_generic_construction
 		prerequisite = { focus = POL_the_four_year_plan }
 		x = 4
-		y = 16
+		y = 1
 		cost = 5
 
 		ai_will_do = {
@@ -587,7 +580,7 @@ focus_tree = {
 		icon = GFX_goal_generic_construct_infrastructure
 		prerequisite = { focus = POL_the_four_year_plan }
 		x = 0
-		y = 16
+		y = 1
 		cost = 10 #maybe 20?
 
 		ai_will_do = {
@@ -1179,6 +1172,7 @@ focus_tree = {
 				value = 1
 			}
 			random_state = {
+				prioritize = { 10 }
 				limit = { has_state_flag = POL_warsaw_main_railway_station_1 }
 				add_building_construction = {
 					type = infrastructure
@@ -1260,14 +1254,8 @@ focus_tree = {
 		icon = GFX_goal_generic_build_tank
 		
 		x = 23
-		y = 15
+		y = 0
 		cost = 5
-
-		available = {
-
-		date > 1936.1.1
-
-		}
 
 		ai_will_do = {
 			factor = 5
@@ -1572,45 +1560,78 @@ focus_tree = {
 
 		available = {
 			has_country_flag = invited_motor_co
-			OR = {
-				has_idea = POL_vauxhall
-				has_idea = POL_ford
-				has_idea = POL_somua
+			IF = {
+				limit = { NOT = { has_dlc = "Arms Against Tyranny" } }
+				OR = {
+					has_idea = POL_vauxhall
+					has_idea = POL_ford
+					has_idea = POL_somua
+				}
 			}
 		}
 
 		available_if_capitulated = yes
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		completion_reward = {
-			if = {
+			IF = {
 				limit = {
-					has_idea = POL_vauxhall
+					has_dlc = "Arms Against Tyranny"
 				}
-				swap_ideas = {
-					remove_idea = POL_vauxhall
-					add_idea = POL_vauxhall_free
+				IF = { 
+					limit = { has_country_flag = POL_somua_motors }
+					mio:FRA_somua_organization = {
+						add_mio_funds = 500
+						add_mio_funds_gain_factor = 0.1
+					}
+
+				}
+				IF = { 
+					limit = { has_country_flag = POL_vauxhall_motors }
+					mio:ENG_vauxhall_organization = {
+						add_mio_funds = 500
+						add_mio_funds_gain_factor = 0.1
+					}
+				}
+				IF = { 
+					limit = { has_country_flag = POL_ford_motors }
+					mio:USA_ford_motor_company_organization = {
+						add_mio_funds = 500
+						add_mio_funds_gain_factor = 0.1
+					}
 				}
 			}
-			else_if = {
-				limit = {
-					has_idea = POL_somua
+			ELSE = {
+
+				if = {
+					limit = {
+						has_idea = POL_vauxhall
+					}
+					swap_ideas = {
+						remove_idea = POL_vauxhall
+						add_idea = POL_vauxhall_free
+					}
 				}
-				swap_ideas = {
-					remove_idea = POL_somua
-					add_idea = POL_somua_free
+				else_if = {
+					limit = {
+						has_idea = POL_somua
+					}
+					swap_ideas = {
+						remove_idea = POL_somua
+						add_idea = POL_somua_free
+					}
 				}
-			}
-			else_if = {
-				limit = {
-					has_idea = POL_ford
+				else_if = {
+					limit = {
+						has_idea = POL_ford
+					}
+					swap_ideas = {
+						remove_idea = POL_ford
+						add_idea = POL_ford_free
+					}
 				}
-				swap_ideas = {
-					remove_idea = POL_ford
-					add_idea = POL_ford_free
+				else = {
+					custom_effect_tooltip = POL_motors_become_free_tt
 				}
-			}
-			else = {
-				custom_effect_tooltip = POL_motors_become_free_tt
 			}
 		}
 	}
@@ -1901,14 +1922,8 @@ focus_tree = {
 		mutually_exclusive = { focus = POL_organize_the_peasants_strike focus = POL_nationalist_constitution focus = POL_assemble_the_regency_council focus = POL_restore_the_sejm }
 		
 		x = 49
-		y = 15
+		y = 0
 		cost = 10
-
-		available = {
-
-		date > 1936.1.1
-
-		}
 
 		ai_will_do = {
 			factor = 10
@@ -2235,7 +2250,6 @@ focus_tree = {
 			POL_sanation_right_opposition_up = yes
 			custom_effect_tooltip = available_political_advisor
 			show_ideas_tooltip = POL_walery_slawek
-			custom_effect_tooltip = available_military_high_command
 			show_ideas_tooltip = POL_kazimierz_switalski
 		}
 	}
@@ -2809,7 +2823,6 @@ focus_tree = {
 			66 = { add_claim_by = POL }
 			68 = { add_claim_by = POL }
 			63 = { add_claim_by = POL }
-			997 = { add_claim_by = POL }
 			5 = { add_claim_by = POL }
 			763 = { add_claim_by = POL }
 		}
@@ -3424,25 +3437,9 @@ focus_tree = {
 			}
 			if = {
 				limit = {
-					controls_state = 974
+					controls_state = 98
 				}
-				974 = {
-					add_building_construction = {
-						type = bunker
-						level = 1
-						instant_build = yes
-						province = {
-							all_provinces = yes
-							limit_to_border = yes
-						}
-					}
-				}
-			}
-			if = {
-				limit = {
-					controls_state = 973
-				}
-				973 = {
+				98 = {
 					add_building_construction = {
 						type = bunker
 						level = 2
@@ -3574,7 +3571,7 @@ focus_tree = {
 			NOT = { has_completed_focus = POL_complete_plan_west }
 			ROOT = {
 				controls_state = 86
-				controls_state = 971
+				controls_state = 87
 			}
 		}
 
@@ -3600,7 +3597,7 @@ focus_tree = {
 						}
 					}
 				}
-				971 = {
+				87 = {
 					add_building_construction = {
 						type = bunker
 						level = 2
@@ -4369,6 +4366,41 @@ focus_tree = {
 				#level = 2
 				start_province = 560
 				target_province = 6557
+
+			}
+
+			random_core_state = {
+				
+				limit = {
+					is_in_home_area = yes					
+					free_building_slots = {
+						building = infrastructure
+						size > 0
+						include_locked = yes
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+
+			random_core_state = {
+				
+				limit = {
+					is_in_home_area = yes					
+					free_building_slots = {
+						building = infrastructure
+						size > 0
+						include_locked = yes
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
 			}
 		}
 	}
@@ -4849,6 +4881,15 @@ focus_tree = {
 			factor = 10
 		}
 
+		bypass = {
+			ROOT = {
+				controls_state = 814
+				controls_state = 11
+				controls_state = 815
+				controls_state = 189
+				controls_state = 784
+			}			
+		}
 		available = {
 			is_subject = no 
 			LIT = { 
@@ -4937,14 +4978,8 @@ focus_tree = {
 		mutually_exclusive = { focus = POL_complete_april_constitution focus = POL_assemble_the_regency_council focus = POL_nationalist_constitution }
 
 		x = 61
-		y = 15
+		y = 0
 		cost = 10
-
-		available = {
-
-		date > 1936.1.1
-
-		}
 		
 		allow_branch = {
 			if = {
@@ -5783,7 +5818,6 @@ focus_tree = {
 			66 = { is_core_of = POL }
 			68 = { is_core_of = POL }
 			63 = { is_core_of = POL }
-			997 = { is_core_of = POL }
 			5 = { is_core_of = POL }
 			763 = { is_core_of = POL }
 		}
@@ -5796,7 +5830,6 @@ focus_tree = {
 			66 = { add_core_of = POL }
 			68 = { add_core_of = POL }
 			63 = { add_core_of = POL }
-			997 = { add_core_of = POL }
 			5 = { add_core_of = POL }
 			763 = { add_core_of = POL }
 		}
@@ -5962,6 +5995,7 @@ focus_tree = {
 				93 = { add_core_of = POL }
 				91 = { add_core_of = POL }
 				89 = { add_core_of = POL }
+				97 = { add_core_of = POL }
 				if = {
 					limit = { SOU = { owns_state = 96 controls_state = 96 } }
 					transfer_state = 96
@@ -7079,8 +7113,7 @@ focus_tree = {
 				limit = {
 					OR = {
 						state = 96 
-						state = 95
-						state = 974 
+						state = 95 
 						state = 94 
 						state = 93 
 						state = 91 
@@ -7384,13 +7417,10 @@ focus_tree = {
 		mutually_exclusive = { focus = POL_complete_april_constitution focus = POL_organize_the_peasants_strike focus = POL_nationalist_constitution }
 		
 		available = {
-
-		date > 1936.1.1
-
 		}
 
 		x = 77
-		y = 15
+		y = 0
 		cost = 5
 
 		ai_will_do = {
@@ -7796,6 +7826,8 @@ focus_tree = {
 		prerequisite = { focus = POL_royal_hussars }
 		relative_position_id = POL_royal_hussars
 
+		will_lead_to_war_with = CZE
+
 		x = 0
 		y = 1
 		cost = 10
@@ -7838,16 +7870,33 @@ focus_tree = {
 
 		search_filters = { FOCUS_FILTER_ANNEXATION }
 		completion_reward = {
-			CZE = { country_event = { id = NSB_poland_monarchist_events.5 hours = 8 } }
-			custom_effect_tooltip = if_they_accept_tt
-			effect_tooltip = {
-				POL = {
-					set_autonomy = {
-						target = CZE
-						autonomy_state = autonomy_personal_union
+			IF = {
+				limit = {
+					CZE = {
+						is_subject = yes
+						NOT = {
+							is_subject_of = ROOT
+						}
+					}
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = CZE
+				}	
+			}
+			ELSE = {
+				CZE = { country_event = { id = NSB_poland_monarchist_events.5 hours = 8 } }
+				custom_effect_tooltip = if_they_accept_tt
+				effect_tooltip = {
+					POL = {
+						set_autonomy = {
+							target = CZE
+							autonomy_state = autonomy_personal_union
+						}
 					}
 				}
 			}
+			
 		}
 	}
 
@@ -8034,8 +8083,8 @@ focus_tree = {
 					infantry = { x = 1 y = 2 }
 		
 					infantry = { x = 2 y = 0 }
-					artillery_brigade = { x = 2 y = 1 }
-					artillery_brigade = { x = 2 y = 2 }
+					artillery_brigade = { x = 3 y = 0 }
+					artillery_brigade = { x = 3 y = 1 }
 				}
 				support = {
 					engineer = { x = 0 y = 0 }
@@ -8326,7 +8375,6 @@ focus_tree = {
 			67 = { add_core_of = ROOT }
 			68 = { add_core_of = ROOT }
 			63 = { add_core_of = ROOT }
-			997 = { add_core_of = ROOT }
 			5 = { add_core_of = ROOT }
 			763 = { add_core_of = ROOT }
 			every_other_country = {
@@ -8336,7 +8384,6 @@ focus_tree = {
 						owns_state = 67
 						owns_state = 68
 						owns_state = 63
-						owns_state = 997
 						owns_state = 5
 						owns_state = 763
 					}
@@ -8348,7 +8395,7 @@ focus_tree = {
 							type = take_core_state
 							target = PREV
 							generator = {
-								66 67 68 63 997 5 763
+								66 67 68 63 5 763
 							}
 						}
 					}
@@ -8386,6 +8433,40 @@ focus_tree = {
 			}
 			build_railway = {
 				path = { 6483 6460 9563 3548 }
+			}
+
+			random_core_state = {
+				prioritize = { 88 }
+				limit = {
+					is_in_home_area = yes					
+					free_building_slots = {
+						building = infrastructure
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+
+			random_core_state = {
+				prioritize = { 89 }
+				limit = {
+					is_in_home_area = yes					
+					free_building_slots = {
+						building = infrastructure
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
 			}
 		}
 	}
@@ -9136,9 +9217,6 @@ focus_tree = {
 				add_claim_by = POL
 			}
 			63 = {
-				add_claim_by = POL
-			}
-			997 = {
 				add_claim_by = POL
 			}
 			68 = {
@@ -9983,9 +10061,6 @@ focus_tree = {
 			814 = {
 				controls_or_subject_of = yes
 			}
-			974 = {
-				controls_or_subject_of = yes
-			}
 			97 = {
 				controls_or_subject_of = yes
 			}
@@ -10006,6 +10081,38 @@ focus_tree = {
 			build_railway = {
 				#level = 3
 				path = { 6296 9357 9438 9374 }
+			}
+
+			random_core_state = {
+				limit = {
+					is_in_home_area = yes					
+					free_building_slots = {
+						building = infrastructure
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+
+			random_core_state = {
+				limit = {
+					is_in_home_area = yes					
+					free_building_slots = {
+						building = infrastructure
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
 			}
 		}
 	}
@@ -10126,7 +10233,7 @@ focus_tree = {
 
 		x = 0
 		y = 1
-		cost = 10
+		cost = 5
 
 		ai_will_do = {
 			factor = 2.5
@@ -10155,6 +10262,24 @@ focus_tree = {
 				#level = 2
 				path = { 3392 11528 6415 560 11503 6435 11543 3470 6593 441 3543 525 }
 			}
+
+			random_owned_controlled_state = {
+				prioritize = {93} 
+				limit = {
+					free_building_slots = {
+						building = infrastructure
+						size > 0
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+
 		}
 	}
 
@@ -10197,6 +10322,22 @@ focus_tree = {
 			build_railway = {
 				#level = 2
 				path = { 11670 3738 11703 11546 11683 3755 737 568 3722 705 3686 }
+			}
+			random_core_state = {
+				prioritize = {93} 
+				limit = {
+					free_building_slots = {
+						building = industrial_complex
+						size > 0
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
 			}
 		}
 	}
@@ -10317,7 +10458,7 @@ focus_tree = {
 			create_wargoal = {
 				type = take_state_focus
 				target = SOV
-				generator = { 96 95 94 207 206 204 241 93 199 201 198 202 203 259 193 225 221 226 197 192 242 243 224 990 205 223 222 220 240 194 }
+				generator = { 96 95 94 207 206 204 241 93 199 201 198 202 203 259 193 225 221 226 197 192 242 243 224 205 223 222 220 240 194 }
 			}
 		}
 	}
@@ -10359,7 +10500,6 @@ focus_tree = {
 			controls_state = 197
 			controls_state = 192
 			controls_state = 242
-			controls_state = 990
 			controls_state = 243
 			controls_state = 224
 			controls_state = 205
@@ -10410,7 +10550,6 @@ focus_tree = {
 						state = 242
 						state = 243
 						state = 224
-						state = 990
 						state = 205
 						state = 223
 						state = 222
@@ -11035,9 +11174,7 @@ focus_tree = {
 		allow_branch = { has_dlc = "No Step Back" }
 
 		available = {
-
-		date > 1936.1.1
-
+			
 		}
 
 		mutually_exclusive = { focus = POL_complete_april_constitution  focus = POL_organize_the_peasants_strike focus = POL_assemble_the_regency_council }
@@ -11061,7 +11198,7 @@ focus_tree = {
 		}
 
 		x = 91
-		y = 15
+		y = 0
 		offset = {
 			x = 2
 			y = 0
@@ -11470,7 +11607,7 @@ focus_tree = {
 		}
 
 		x = 87
-		y = 22
+		y = 7
 		cost = 10
 		
 		offset = {
@@ -11546,7 +11683,7 @@ focus_tree = {
 		}
 
 		x = 89
-		y = 22
+		y = 7
 		cost = 10
 		
 		offset = {
@@ -12361,12 +12498,7 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_government = fascism
-			# Lithuania
-			custom_trigger_tooltip = {
-				tooltip = form_country_lithuania_required_states_tt
-				controls_state = 11
-				controls_state = 189
-			}
+			
 			# Poland
 			custom_trigger_tooltip = {
 				tooltip = form_country_poland_required_states_tt
@@ -12377,9 +12509,6 @@ focus_tree = {
 				controls_state = 98
 				controls_state = 10
 				controls_state = 97
-				controls_state = 974
-				controls_state = 971
-				controls_state = 973
 				controls_state = 92
 				controls_state = 91
 				controls_state = 89
@@ -12389,10 +12518,21 @@ focus_tree = {
 				controls_state = 96
 				controls_state = 784
 			}
+			
+			# Lithuania
 			OR = {
-				core_compliance = {
-					occupied_country_tag = LIT
-					value > 65
+				AND = {
+					custom_trigger_tooltip = {
+						tooltip = form_country_lithuania_required_states_tt
+						controls_state = 11
+						controls_state = 189
+						controls_state = 815
+						controls_state = 814
+					}			
+					core_compliance = {
+						occupied_country_tag = LIT
+						value > 65
+					}
 				}
 				AND = {
 					LIT = {
@@ -12644,13 +12784,11 @@ focus_tree = {
 		
 		available = {
 			controls_state = 63
-			controls_state = 997
 			controls_state = 68
 		}
 		
 		bypass = {
 			63 = { is_core_of = POL }
-			997 = { is_core_of = POL }
 			68 = { is_core_of = POL }
 		}
 
@@ -12659,9 +12797,6 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_ANNEXATION }
 		completion_reward = {
 			63 = {
-				add_core_of = POL
-			}
-			997 = {
 				add_core_of = POL
 			}
 			68 = {
@@ -13140,15 +13275,8 @@ focus_tree = {
 	focus = {
 		id = POL_the_between_the_seas_concept
 		icon = GFX_goal_anschluss
-
 		available = {
-
-		date > 1936.1.1
-
-		}
-
-		available = {
-			is_puppet = no
+			is_subject = no
 			if = {
 				limit = {
 					is_faction_leader = no
@@ -13185,7 +13313,7 @@ focus_tree = {
 			}
 		}
 		x = 97
-		y = 15
+		y = 0
 		offset = {
 			x = 2
 			y = 0
@@ -13312,12 +13440,12 @@ focus_tree = {
 			OR = {
 				LAT = {
 					exists = yes
-					is_puppet = no
+					is_subject = no
 					NOT = { has_war_with = POL }
 				}
 				EST = {
 					exists = yes
-					is_puppet = no
+					is_subject = no
 					NOT = { has_war_with = POL }
 				}
 			}
@@ -13327,14 +13455,14 @@ focus_tree = {
 			LAT = {
 				OR = {
 					exists = no
-					is_puppet = yes
+					is_subject = yes
 					is_in_faction = yes
 				}
 			}
 			EST = {
 				OR = {
 					exists = no
-					is_puppet = yes
+					is_subject = yes
 					is_in_faction = yes
 				}
 			}
@@ -13497,6 +13625,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			FIN = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13522,9 +13651,18 @@ focus_tree = {
 			factor = 10
 		}
 		completion_reward = {
-			FIN = {
-				country_event = { id = poland.16 days = 1 }
+			if = {
+				limit = {
+					FIN = { has_idea = FIN_the_lone_wolf }
+				}
+				custom_effect_tooltip = FIN_the_lone_wolf_no_faction_tt
 			}
+			else = {
+				FIN = {
+					country_event = { id = poland.16 days = 1 }
+				}
+			}
+
 			unlock_decision_tooltip = POL_diplomatic_mission_to_DEN
 			unlock_decision_tooltip = POL_diplomatic_mission_to_SWE
 			unlock_decision_tooltip = POL_diplomatic_mission_to_NOR
@@ -13538,6 +13676,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			DEN = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13565,6 +13704,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			SWE = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13592,6 +13732,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			NOR = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13618,6 +13759,12 @@ focus_tree = {
 		prerequisite = { focus = POL_the_between_the_seas_concept }
 		available = {
 			is_faction_leader = yes
+			CZE = {
+				is_subject = no
+			}
+			YUG = {
+				is_subject = no
+			}
 		}
 		bypass = {
 			CZE = {
@@ -13658,6 +13805,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			CZE = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13698,10 +13846,12 @@ focus_tree = {
 			is_faction_leader = yes
 			OR = {
 				AUS = {
+					is_subject = no
 					is_in_faction = no
 					NOT = { has_war_with = ROOT }
 				}
 				HUN = {
+					is_subject = no
 					is_in_faction = no
 					NOT = { has_war_with = ROOT }
 				}
@@ -13772,6 +13922,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			YUG = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13813,6 +13964,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			GRE = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13861,6 +14013,7 @@ focus_tree = {
 		available = {
 			is_faction_leader = yes
 			TUR = {
+				is_subject = no
 				is_in_faction = no
 				NOT = { has_war_with = ROOT }
 			}
@@ -13913,6 +14066,7 @@ focus_tree = {
 					is_in_faction = no
 					is_in_faction_with = GER
 				}
+				is_subject = no
 				has_same_ideology = yes
 				NOT = { has_war_with = ROOT }
 			}
@@ -13940,13 +14094,6 @@ focus_tree = {
 	focus = {
 		id = POL_prepare_for_the_inevitable
 		icon = GFX_focus_POL_prepare_for_the_inevitable
-
-		available = {
-
-		date > 1936.1.1
-
-		}
-
 		available = {
 			OR = {
 				has_capitulated = yes
@@ -13962,7 +14109,7 @@ focus_tree = {
 		}
 		allow_branch = { has_dlc = "Man the Guns" }
 		x = 106
-		y = 15
+		y = 0
 		offset = {
 			x = 2
 			y = 0
@@ -14126,15 +14273,36 @@ focus_tree = {
 		completion_reward = {
 			air_experience = 50
 			# 19400 Poles served in the exile airforce, 100 manpower per plane making it around 200 planes total.
-			add_equipment_to_stockpile = {
-				type = fighter_equipment
-				amount = 150
-				producer = POL
+			if = {
+				limit = {
+					NOT = {
+						has_dlc = "By Blood Alone"
+					}
+				}
+				add_equipment_to_stockpile = {
+					type = fighter_equipment_1
+					amount = 100
+					producer = POL
+				}
+				add_equipment_to_stockpile = {
+					type = tac_bomber_equipment_1
+					amount = 50
+					producer = POL
+				}
 			}
-			add_equipment_to_stockpile = {
-				type = tac_bomber_equipment
-				amount = 50
-				producer = POL
+			else = {
+				add_equipment_to_stockpile = {
+					type = small_plane_airframe_0
+					amount = 100
+					producer = POL
+					variant_name = "PZL P.11"
+				}
+				add_equipment_to_stockpile = {
+					type = small_plane_cas_airframe_1
+					amount = 50
+					producer = POL
+					variant_name = "PZL P.23"
+				}
 			}
 			add_offsite_building = { type = arms_factory level = 2 }
 		}
@@ -14206,10 +14374,25 @@ focus_tree = {
 			add_ideas = POL_aces_in_exile
 			air_experience = 75
 			add_manpower = 9700
-			add_equipment_to_stockpile = {
-				type = CAS_equipment
-				amount = 50
-				producer = POL
+			if = {
+				limit = {
+					NOT = {
+						has_dlc = "By Blood Alone"
+					}
+				}
+				add_equipment_to_stockpile = {
+					type = CAS_equipment_1
+					amount = 50
+					producer = POL
+				}
+			}
+			else = {
+				add_equipment_to_stockpile = {
+					type = small_plane_cas_airframe_1
+					amount = 50
+					producer = POL
+					variant_name = "PZL P.23"
+				}	
 			}
 		}
 	}
@@ -14704,17 +14887,11 @@ focus_tree = {
 		icon = GFX_focus_POL_develop_polish_shipbuilding
 		mutually_exclusive = { focus = POL_clamp_down_on_danzig }
 		x = 14
-		y = 15
+		y = 0
 		cost = 10
 
 		ai_will_do = {
 			factor = 2
-		}
-
-		available = {
-
-		date > 1936.1.1
-
 		}
 		
 		available = {
@@ -14772,12 +14949,6 @@ focus_tree = {
 
 		ai_will_do = {
 			factor = 2
-		}
-
-		available = {
-
-		date > 1936.1.1
-
 		}
 		
 		available = {
@@ -14975,6 +15146,9 @@ focus_tree = {
 	focus = {
 		id = POL_develop_gdansk_ship_building
 		icon = GFX_goal_generic_construct_naval_dockyard
+		available = {
+			has_full_control_of_state = 85
+		}
 		prerequisite = { focus = POL_ban_the_nazi_party }
 		x = 1
 		y = 1
@@ -15086,6 +15260,12 @@ focus_tree = {
 	focus = {
 		id = POL_integrate_gdansk_industries
 		icon = GFX_goal_generic_construct_naval_dockyard
+		available = {
+			any_owned_state = {
+				is_coastal = yes 
+				is_controlled_by = ROOT
+			}
+		}	
 		prerequisite = { focus = POL_ban_the_nazi_party }
 		x = -1
 		y = 1
@@ -15167,6 +15347,18 @@ focus_tree = {
 					path = { 279 3324 389 9263 }
 				}
 			}
+
+			random_owned_controlled_state = {
+				prioritize = { 85 }
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+
+			add_political_power = 50
 		}
 	}
 	
@@ -15386,4 +15578,4 @@ focus_tree = {
 		}
 	}
 
-}	
+}
