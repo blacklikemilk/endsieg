@@ -172,7 +172,7 @@ SOV_paranoia_system = {
 		days_remove = 90
 
 		modifier = {
-			consumer_goods_factor = 0.02
+			consumer_goods_factor = 0.05
 		}
 
 		complete_effect = {
@@ -457,7 +457,15 @@ SOV_paranoia_system = {
 		}
 
 		available = {
-			has_country_flag = { flag = SOV_third_moscow_trial_flag days > 365 }
+			if = {
+				limit = {
+					has_country_flag = SOV_assassinated_stalin_flag
+				}
+				has_country_flag = SOV_assassinated_stalin_flag
+			}
+			else = {
+				has_country_flag = { flag = SOV_third_moscow_trial_flag days > 365 }
+			}
 		}
 
 		visible = {
@@ -466,7 +474,12 @@ SOV_paranoia_system = {
 				has_idea = SOV_anti_soviet_military_thinking_banned_navy
 				has_idea = SOV_anti_soviet_military_thinking_banned_airforce
 			}
-			SOV_is_stalinist = yes
+			OR = {
+				SOV_is_stalinist = yes
+				SOV_is_left_opposition = yes
+				SOV_is_right_opposition = yes
+				has_country_flag = SOV_assassinated_stalin_flag
+			}
 		}
 
 		days_remove = 30
@@ -529,7 +542,15 @@ SOV_paranoia_system = {
 		}
 
 		available = {
-			has_country_flag = { flag = SOV_third_moscow_trial_flag days > 365 }
+			if = {
+				limit = {
+					has_country_flag = SOV_assassinated_stalin_flag
+				}
+				has_country_flag = SOV_assassinated_stalin_flag
+			}
+			else = {
+				has_country_flag = { flag = SOV_third_moscow_trial_flag days > 365 }
+			}
 		}
 
 		visible = {
@@ -538,7 +559,12 @@ SOV_paranoia_system = {
 				has_idea = SOV_purged_junior_army_officers_2
 				has_idea = SOV_purged_junior_army_officers_3
 			}
-			SOV_is_stalinist = yes
+			OR = {
+				SOV_is_stalinist = yes
+				SOV_is_left_opposition = yes
+				SOV_is_right_opposition = yes
+				has_country_flag = SOV_assassinated_stalin_flag
+			}
 		}
 
 		days_remove = SOV_reinforce_officer_ranks_days
@@ -615,7 +641,15 @@ SOV_paranoia_system = {
 		}
 
 		available = {
-			has_country_flag = { flag = SOV_third_moscow_trial_flag days > 365 }
+			if = {
+				limit = {
+					has_country_flag = SOV_assassinated_stalin_flag
+				}
+				has_country_flag = SOV_assassinated_stalin_flag
+			}
+			else = {
+				has_country_flag = { flag = SOV_third_moscow_trial_flag days > 365 }
+			}
 		}
 
 		visible = {
@@ -624,7 +658,12 @@ SOV_paranoia_system = {
 				has_idea = SOV_purged_junior_navy_officers_2
 				has_idea = SOV_purged_junior_navy_officers_3
 			}
-			SOV_is_stalinist = yes
+			OR = {
+				SOV_is_stalinist = yes
+				SOV_is_left_opposition = yes
+				SOV_is_right_opposition = yes
+				has_country_flag = SOV_assassinated_stalin_flag
+			}
 		}
 
 		days_remove = SOV_reinforce_officer_ranks_days
@@ -2546,7 +2585,7 @@ SOV_propaganda_campaigns = {
 		cost = SOV_propaganda_high_yield_cost
 
 		modifier = {
-			consumer_goods_factor = -0.05
+			consumer_goods_factor = -0.15
 		}
 
 		complete_effect = {
@@ -4060,7 +4099,7 @@ SOV_propaganda_campaigns = {
 
 		modifier = {
 			stability_weekly = 0.005
-			consumer_goods_factor = -0.03
+			consumer_goods_factor = -0.10
 			opinion_gain_monthly_factor = 0.25
 			enemy_justify_war_goal_time = 0.50
 			war_support_weekly = -0.005
@@ -4154,7 +4193,7 @@ SOV_propaganda_campaigns = {
 			compliance_growth = 0.05
 			resistance_decay = 0.05
 			resistance_damage_to_garrison = 0.15
-			consumer_goods_factor = 0.03
+			consumer_goods_factor = 0.10
 		}
 
 		complete_effect = {
@@ -5271,6 +5310,8 @@ SOV_diplomacy_baltic_decision_category = {
 
 		available = {
 			FROM = {
+				exists = yes
+				has_capitulated = no
 				NOT = { has_war_with = ROOT }
 				is_subject = no
 			}
@@ -5459,6 +5500,13 @@ SOV_diplomacy_nordic_decision_category = {
 				}
 				#SOV_is_valid_subject = yes # The Soviet Union might not give a sh*t about their petty overlord ;) # -> THE USSR does indeed not care about their petty overlord, for now.
 				NOT = { has_war_with = ROOT }
+				if = {
+					limit = {
+						original_tag = FIN
+					}
+					#Lone Wolf Finland can't join any factions
+					NOT = {	has_idea = FIN_the_lone_wolf }
+				}
 			}
 			NOT = { has_country_flag = SOV_pressure_government_active_flag }
 		}
@@ -6313,7 +6361,7 @@ SOV_diplomacy_middle_east_decision_category = {
 						type = puppet_wargoal_focus
 					}
 					ENG = {
-						add_to_war = { targeted_alliance = SOV enemy = PER hostility_reason = asked_to_join }
+						add_to_war = { targeted_alliance = SOV enemy = PER hostility_reason = asked_to_join single_target_only = yes}
 					}
 				}
 				else = { #ENG only sees a fake
@@ -6324,7 +6372,7 @@ SOV_diplomacy_middle_east_decision_category = {
 								type = puppet_wargoal_focus
 							}
 						}
-						add_to_war = { targeted_alliance = SOV enemy = PER hostility_reason = asked_to_join }
+						add_to_war = { targeted_alliance = SOV enemy = PER hostility_reason = asked_to_join single_target_only = yes}
 					}
 
 					hidden_effect = { news_event = { id = nsb_news.104 days = 4 random_days = 2 } } #Only ENG sends the news event.
@@ -6680,9 +6728,6 @@ SOV_diplomacy_asia_decision_category = {
 					add_core_of = ROOT
 				}
 				555 = {
-					add_core_of = ROOT
-				}
-				536 = {
 					add_core_of = ROOT
 				}
 				transfer_state = 537
@@ -9073,7 +9118,7 @@ SOV_merge_designers_dec_cat = {
 		}
 
 		available = {
-			has_full_control_of_state = 195 #LENINGRAD
+			has_full_control_of_state = 227 #STALINO
 			num_of_civilian_factories_available_for_projects > 0
 			SOV_has_active_ship_designer_any_black_sea = yes
 			NOT = { has_country_flag = SOV_merge_ship_decision_ongoing_flag }
@@ -9088,7 +9133,7 @@ SOV_merge_designers_dec_cat = {
 		cancel_trigger = {
 			OR = {
 				SOV_has_active_ship_designer_any_black_sea = no
-				NOT = { has_full_control_of_state = 195 } #LENINGRAD
+				NOT = { has_full_control_of_state = 227 } #STALINO
 			}
 		}
 
@@ -9380,7 +9425,7 @@ SOV_merge_designers_dec_cat = {
 		}
 
 		available = {
-			has_full_control_of_state = 399 #IZHEVSK
+			has_full_control_of_state = 399 #UDMURTIA (Izhevsk)
 			num_of_civilian_factories_available_for_projects > 0
 			SOV_has_active_materiel_designer_tula = yes
 			NOT = { has_country_flag = SOV_merge_materiel_decision_ongoing_flag }
@@ -9396,7 +9441,7 @@ SOV_merge_designers_dec_cat = {
 		cancel_trigger = {
 			OR = {
 				SOV_has_active_materiel_designer_tula = no
-				NOT = { has_full_control_of_state = 399 } #IZHEVSK
+				NOT = { has_full_control_of_state = 399 } #UDMURTIA (Izhevsk)
 			}
 		}
 
@@ -10689,6 +10734,7 @@ SOV_kill_trotsky_dec_cat = {
 					FROM = {
 						controls_state = 110 #OSTLANDET (Oslo) -> Trotsky not accepted in Mexico (or Soviets being super fast to kill him, which should be impossible btw)
 					}
+					has_global_flag = NOR_trotsky_in_norway
 					NOT = {
 						has_global_flag = trotsky_exile_mexico
 						has_global_flag = flag_mexico_invited_trotsky_to_government
@@ -13015,6 +13061,7 @@ SOV_soviet_civil_war_dec_cat = {
 							}
 							subtract_from_variable = { SOV_paranoia_weekly_modifiers_amount = 2 } #Stalin will always have the Authority Undermined trait (+2 weekly Paranoia)
 							SOV_paranoia_modifier_update_gui_tooltip = yes #Update Paranoia UI
+							set_country_flag = SOV_assassinated_stalin_flag
 						}
 						20 = {
 							SOV_paranoia_very_high_increase_effect = yes
@@ -13037,6 +13084,7 @@ SOV_soviet_civil_war_dec_cat = {
 							news_event = {
 								id = NSB_soviet_communist_civil_war.009
 							}
+							set_country_flag = SOV_assassinated_stalin_flag
 						}
 						50 = {
 							SOV_paranoia_very_high_increase_effect = yes
@@ -13457,6 +13505,7 @@ SOV_soviet_civil_war_dec_cat = {
 			add_to_variable = { SOV_army_framejob_decision_cost = 25 }
 		}
 	}
+
 	SOV_navy_framejob = {
 		icon = generic_police_action
 		available = {
@@ -17920,5 +17969,123 @@ SOV_panslavic_nationalism = {
 			set_cosmetic_tag = SOV_PANSLAVIC
 			news_event = { id = nsb_news.405 hours = 12 }
 		}
+	}
+}
+
+SOV_polish_territory = {
+	SOV_return_states_to_poland = {
+		icon = generic_form_nation
+
+		available = {
+
+		}
+
+		visible = {
+			POL = { 
+				exists = yes 
+				is_subject_of = ROOT
+				NOT = { has_completed_focus = POL_surrender_the_east }
+			}
+			any_state = {
+				is_core_of = POL
+				is_owned_by = ROOT
+				OR = {
+					
+					any_country_with_core = {
+						not = { tag = POL }
+					}
+					state = 97
+				}
+				is_fully_controlled_by = ROOT
+			}
+		}
+
+		cost = 25
+		fire_only_once = yes
+		ai_will_do = {
+			base = 50
+			modifier = {
+				NOT = {
+					has_war_with = GER 
+				}
+				factor = 5
+			}
+		}
+
+		complete_effect = {
+			POL = {
+				country_event = {
+					id = soviet.74
+					hours = 4 
+					random_hours = 4
+				}
+				custom_effect_tooltip = if_they_accept_newline_tt
+				effect_tooltip = {
+					ROOT = {
+						add_stability = 0.05
+					}
+					POL = {
+						add_autonomy_score = { 
+							value = -250 
+							localization = POL_accepted_states
+						}
+						add_popularity = {
+							ideology = FROM
+							popularity = 0.05
+						}
+					}
+					ROOT  ={
+						every_owned_state = {
+							limit = {
+								is_core_of = POL 
+								OR = {
+									# Białystok
+									state = 97 
+									# Uncontested Polish Cores
+									NOT = {
+										any_country_with_core = {
+											NOT = { tag = POL }
+										}
+									}
+								}
+								
+							}
+							transfer_state_to = POL
+						}
+					}
+				}
+				custom_effect_tooltip = if_they_refuse_newline_tt
+				effect_tooltip = {
+					POL = {
+						add_autonomy_score = { 
+							value = 250 
+							localization = POL_refused_states
+						}
+					}
+					ROOT = {
+						every_owned_state = {
+							limit = {
+								is_core_of = POL 
+								OR = {
+									# Białystok
+									state = 97 
+									# Uncontested Polish Cores
+									NOT = {
+										any_country_with_core = {
+											NOT = { tag = POL }
+										}
+									}
+								}
+								
+							}
+							remove_core_of = POL  
+							add_core_of = SOV
+							add_claim_by = POL 
+						}
+					}
+				}
+			}
+		}
+
 	}
 }

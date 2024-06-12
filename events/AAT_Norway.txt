@@ -96,10 +96,12 @@ country_event = { # Fascists Ransack Trotsky's residence
 			base = 10
 			modifier = {
 				factor = 10 
-
 			}
 		}
 		trigger = {
+			NOT = {
+				has_completed_focus = NOR_prosecute_the_nkp
+			}
 		}
 		country_event = {
 			id = AAT_norway.2
@@ -141,7 +143,7 @@ country_event = { # Fascists Ransack Trotsky's residence
 				NOR_is_trotskyist_ai = no 
 			}
 			modifier = {
-				factor = 100
+				factor = 250
 				NOR_is_trotskyist_ai = yes 
 			}
 		}
@@ -192,6 +194,9 @@ country_event = { # Fascists Ransack Trotsky's residence
 			}
 		}
 		trigger = {
+			NOT = {
+				has_completed_focus = NOR_prosecute_the_nkp
+			}
 		}
 		country_event = {
 			id = AAT_norway.5
@@ -594,6 +599,10 @@ country_event = { # Quisling's Historical Coup event
 		name = AAT_norway.13.a
 		ai_chance = {
 			base = 10
+			modifier = {
+				factor = 0 
+				is_historical_focus_on = yes 
+			}
 		}
 		trigger = {
 		}
@@ -606,10 +615,7 @@ country_event = { # Quisling's Historical Coup event
 		name = AAT_norway.13.b
 		ai_chance = {
 			base = 10
-			modifier = {
-				factor = 0 
-				is_historical_focus_on = yes 
-			}
+			
 		}
 		trigger = {
 		}
@@ -631,7 +637,7 @@ country_event = { # Quisling's Historical Coup event
 					}
 				}
 			}
-			add_political_power = -50 
+			add_political_power = -25 
 		}
 		else_if = {
 			limit = {
@@ -642,7 +648,7 @@ country_event = { # Quisling's Historical Coup event
 					}
 				}
 			}
-			add_political_power = -75
+			add_political_power = -50
 		}
 		else_if = {
 			limit = {
@@ -653,7 +659,7 @@ country_event = { # Quisling's Historical Coup event
 					}
 				}
 			}
-			add_political_power = -100
+			add_political_power = -75
 		}
 		else_if = {
 			limit = {
@@ -664,11 +670,12 @@ country_event = { # Quisling's Historical Coup event
 					}
 				}
 			}
-			add_political_power = -150
+			add_political_power = -100
 		}
 		custom_effect_tooltip = NOR_delay_coup_TT
 		NOR = { set_country_flag = NOR_delayed_quislings_coup } 
 	}
+	#TODO_TA add Rally behind the King option under certain conditions
 }
 
 country_event = { # Asking Germany if they want Quisling or not 
@@ -684,6 +691,10 @@ country_event = { # Asking Germany if they want Quisling or not
 		name = AAT_norway.14.a
 		ai_chance = {
 			base = 10
+			modifier = {
+				factor = 0 
+				is_historical_focus_on = yes 
+			}
 		}
 		trigger = {
 		}
@@ -706,13 +717,7 @@ country_event = { # Asking Germany if they want Quisling or not
 		name = AAT_norway.14.b
 		ai_chance = {
 			base = 10
-			modifier = {
-				factor = 0 
-				OR = {
-					NOR = {	is_ai = no }
-					is_historical_focus_on = yes 
-				}
-			}
+			
 		}
 		trigger = {
 		}
@@ -732,6 +737,10 @@ country_event = { # Delayed Coup
 		name = AAT_norway.15.a
 		ai_chance = {
 			base = 10
+			modifier = {
+				factor = 0 
+				is_historical_focus_on = yes 
+			}
 		}
 		trigger = {
 		}
@@ -744,10 +753,7 @@ country_event = { # Delayed Coup
 		name = AAT_norway.15.b
 		ai_chance = {
 			base = 10
-			modifier = {
-				factor = 0 
-				is_historical_focus_on = yes 
-			}
+			
 		}
 		trigger = {
 		}
@@ -3403,8 +3409,19 @@ country_event = { # The Royal Family arrives to destination country
 			ideology = neutrality 
 			popularity = 0.15 
 		}
-		FROM = {
+		every_state = {
+			limit = {
+				is_core_of = FROM
+				NOT = {
+					OR = {
+						is_core_of = ROOT
+						is_claimed_by = ROOT
+					}
+				}
+			}
 			add_claim_by = ROOT
+		}
+		FROM = {
 			NOR_king_haakon_vii = {
 				set_nationality = ROOT 
 			}
@@ -3563,7 +3580,7 @@ country_event = { #  The Queen Rises
 	is_triggered_only = yes
 
 	option = { # Long Live The Queen and all that. 
-		name = AAT_norway_monarchist.2.a
+		name = AAT_norway_monarchist.4.a
 		ai_chance = {
 			base = 10
 		}
@@ -3575,6 +3592,139 @@ country_event = { #  The Queen Rises
 			ideology = despotism
 		}
 		mark_focus_tree_layout_dirty = yes 
+	}
+}
+
+country_event = { #  Declaring the Regent's Intentions
+	id = AAT_norway_monarchist.5
+	title = AAT_norway_monarchist.5.t
+	desc = AAT_norway_monarchist.5.desc	
+
+	picture = GFX_report_event_NOR_quisling_speech
+
+
+	is_triggered_only = yes
+
+	option = { # Peder Jarlsberg is practically the new king of Norway
+		name = AAT_norway_monarchist.5.a
+		ai_chance = {
+			base = 6
+		}
+		trigger = {
+		}
+
+		add_political_power = -50
+
+		custom_effect_tooltip = CHL_skip_one_line_tt
+		
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = DEN
+					original_tag = ICE
+					original_tag = SWE
+				}
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = illegitimate_norwegian_monarchy
+			}	
+		}
+
+		custom_effect_tooltip = CHL_skip_one_line_tt
+
+		add_stability = 0.05
+		add_war_support = 0.05
+
+		custom_effect_tooltip = CHL_skip_one_line_tt
+
+		add_ideas = NOR_new_high_king
+
+	}
+	option = { # We should befriend our Neighboring Monarchies
+		name = AAT_norway_monarchist.5.b
+		ai_chance = {
+			base = 4
+		}
+		trigger = {
+		}
+		
+		add_political_power = 25
+		add_stability = 0.02
+
+		custom_effect_tooltip = CHL_skip_one_line_tt
+
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = DEN
+					original_tag = ICE
+					original_tag = SWE
+					original_tag = FIN
+				}
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = friendly_norwegian_monarchy
+			}	
+		}
+
+		custom_effect_tooltip = CHL_skip_one_line_tt
+
+		add_ideas = NOR_norwegian_regency
+
+		hidden_effect = {
+			set_cosmetic_tag = NOR_neutrality_nordic_king_flag
+		}
+
+	}
+	option = { # Peder Jarlsberg is an Imperial Regent, not some phony count!
+		name = AAT_norway_monarchist.5.c
+		ai_chance = {
+			base = 0
+		}
+		trigger = {
+		}
+		
+		add_political_power = 50
+
+		custom_effect_tooltip = CHL_skip_one_line_tt
+
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = DEN
+					original_tag = ICE
+					original_tag = SWE
+					original_tag = FIN
+				}
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = norwegian_imperial_ambitions
+			}	
+		}
+
+		custom_effect_tooltip = CHL_skip_one_line_tt
+
+		add_ideas = NOR_second_north_sea_empire
+
+		hidden_effect = {
+			set_cosmetic_tag = NOR_neutrality_purple_flag 
+		}
+
 	}
 }
 

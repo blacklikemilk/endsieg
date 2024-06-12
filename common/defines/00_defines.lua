@@ -13,6 +13,7 @@ NGame = {
 	TRADE_ROUTE_RECALCULATE_FREQUENCY_DAYS = 30, -- Max recalculation time for all trade routes (0 means we do not recalucate prediodically trade routes)
 	COMBAT_LOG_MAX_MONTHS = 12,
 	MESSAGE_TIMEOUT_DAYS = 60,						-- Useful if running the handsoff game. The popup messages that doesn't require the player respond will automatically hide after some timeout.
+	INFO_MESSAGE_TIMEOUT_DAYS = 3,					-- Same but for unimportant messages.
 	AIR_LOG_TIMEOUT_HOURS = 24,						-- Data storring data
 	EVENT_TIMEOUT_DEFAULT = 13,						-- Default days before an event times out if not scripted
 	MISSION_REMOVE_FROM_INTERFACE_DEFAULT = 13,		-- Default days before a mission is removed from the interface after having failed or completed
@@ -635,6 +636,7 @@ NProduction = {
 	SHIP_REFIT_DAMAGE_TO_PROGRESS_FACTOR = 0.5,			-- When a ship is being damaged (for example port strike) while refitting, the damage is transferred to the production line progress instead. This variable is used to balance it.
 	MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_VALUE = 1,		-- The minimum number of factories we have to put on consumer goods, by value.
 	MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.1,	-- The minimum number of factories we have to put on consumer goods, in percent.
+	INITIAL_ALLOWED_FACTORY_RATIO_FOR_REPAIRS = 1.0,					-- max % of factories allowed on autorepairs
 },
 
 NMarket = {
@@ -656,7 +658,7 @@ NMarket = {
 	CONTRACT_ESTIMATE_AVERAGE_CONVOY_SUNK_MULTIPLIER_ALPHA = 0.5,	-- How strong effect should have the daily sunk efficiency on the average (1.0 means it will use only the new number as average)
 	CONTRACT_ESTIMATE_AVERAGE_CONVOY_SUNK_MULTIPLIER_SNAP_LIMIT = 0.05, -- If the difference between current and estimated sunk efficiency convoy count is smaller then this value, we will use the current value for calculations.
 	WARNING_CONVOYS_SUNK_MAX_DAYS  = 30, -- The contracts will show sunk convoy message if there was sunk convoy in this amount of days
-
+	
 },
 
 NTechnology = {
@@ -1236,7 +1238,9 @@ NAir = {
 
 	ACCIDENT_CHANCE_BASE = 0.1,							-- Base chance % (0 - 100) for accident to happen. Reduced with higher reliability stat.
 	ACCIDENT_CHANCE_CARRIER_MULT = 1.5,					-- The total accident chance is scaled up when it happens on the carrier ship.
-	ACCIDENT_CHANCE_BALANCE_MULT = 1,					-- Multiplier for balancing how often the air accident really happens. The higher mult, the more often.
+	ACCIDENT_CHANCE_BALANCE_MULT = 0.10,					-- Multiplier for balancing how often the air accident really happens. The higher mult, the more often.
+	ACCIDENT_CHANCE_RELIABILITY_MULT = 2.0,				-- Multiplier to accident chance per point of missing reliability.
+	ACCIDENT_EFFECT_MULT = 0.007,						-- Multiplier for balancing the effect of accidents
 	ACCIDENT_EFFECT_MULT = 0.007,						-- Multiplier for balancing the effect of accidents
 	ACE_DEATH_CHANCE_BASE = 0.005,						-- Base chance % for ace pilot die when an airplane is shot down in the Ace wing.
 	ACE_DEATH_BY_OTHER_ACE_CHANCE = 1.0,				-- chance to an ace dying by another ace if it was hit by ace in combat
