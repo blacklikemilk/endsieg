@@ -14,12 +14,10 @@ replace_path="common/scripted_effects"
 replace_path="common/scripted_triggers"
 replace_path="common/scripted_localisation"
 replace_path="events"
-replace_path="gfx/loadingscreens"
 replace_path="history/countries"
 replace_path="history/states"
 replace_path="map/strategicregions"
-replace_path="tests"
 tags={
 	"Historical"
 }
-supported_version="1.10.*"
+supported_version="1.16.*"

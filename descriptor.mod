@@ -1,4 +1,7 @@
 name="Endsieg: Ultimate Victory"
+tags={
+	"Historical"
+}
 replace_path="common/ideas"
 replace_path="common/national_focus"
 replace_path="common/countries"
@@ -13,14 +16,9 @@ replace_path="common/scripted_effects"
 replace_path="common/scripted_triggers"
 replace_path="common/scripted_localisation"
 replace_path="events"
-replace_path="gfx/loadingscreens"
+replace_path="localisation/english/"
 replace_path="history/countries"
 replace_path="history/states"
-replace_path="map/strategicregions"
-replace_path="tests"
-tags={
-	"Historical"
-}
-version="2.5.1"
-supported_version="1.10.*"
+version="3.0.0"
+supported_version="1.16.*"
 remote_file_id="1532883122"
