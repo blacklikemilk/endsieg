@@ -18,7 +18,7 @@
 NOR_set_prepare_variables_historical = {
 	set_variable = { NOR_prep_his_remove_days = 50 }
 	set_variable = { NOR_prep_his_cost_convoys = 35 }
-	set_variable = { NOR_prep_his_cost_pp = 50 }
+	set_variable = { NOR_prep_his_cost_pp = 30 }
 	set_variable = { NOR_prep_his_cost_pp_remove = 0 } 
 	set_variable = { NOR_prep_his_cost_convoys_remove = 0 }
 	set_variable = { NOR_prep_his_cost_pp_trigger = -1 } 
@@ -33,9 +33,9 @@ NOR_set_prepare_variables_historical = {
 NOR_set_variables_alt_dem = {
 	set_variable = { NOR_prep_his_remove_days = 50 }
 	set_variable = { NOR_prep_alt_dem_remove_days = 35 }
-	set_variable = { NOR_prep_alt_dem_convoy_cost = 50 }
+	set_variable = { NOR_prep_alt_dem_convoy_cost = 30 }
 	set_variable = { NOR_prep_alt_dem_convoy_cost_remove = 0 }
-	set_variable = { NOR_prep_alt_dem_pp_cost = 70 }
+	set_variable = { NOR_prep_alt_dem_pp_cost = 45 }
 	set_variable = { NOR_prep_alt_dem_pp_cost_remove = 0 }
 	set_variable = { NOR_prep_alt_dem_convoy_cost_trigger = -1 }
 	set_variable = { NOR_prep_alt_dem_pp_cost_trigger = -1 }	
@@ -48,7 +48,7 @@ NOR_set_variables_alt_dem = {
 NOR_set_prepare_variables_fascist = {
 	# Prep vars 
 	set_variable = { NOR_prep_fasc_remove_days = 45 }
-	set_variable = { NOR_prep_fasc_cost_pp = 50 }
+	set_variable = { NOR_prep_fasc_cost_pp = 25 }
 	set_variable = { NOR_prep_fasc_cost_pp_remove = 0 }
 	set_variable = { NOR_prep_fasc_cost_pp_trigger = -1 }
 	set_variable = { NOR_prep_fasc_cost_convoy = 25 }
@@ -679,12 +679,12 @@ NOR_spawn_militias_in_state = {
 		if = {
 			limit = {
 				ROOT = {
-					NOT = { has_template = "forsvarsmilitser" }
+					NOT = { has_template = "Forsvarsmilitser" }
 				} 
 			}
 			ROOT = {
 				division_template = { 
-					name = "forsvarsmilitser" 
+					name = "Forsvarsmilitser" 
 					force_allow_recruiting = yes
 					division_names_group = NOR_MIL_01
 					priority = 1
@@ -702,7 +702,7 @@ NOR_spawn_militias_in_state = {
 			}
 		}	
 		create_unit = {
-			division = "division_template = \"forsvarsmilitser\" start_experience_factor = 0.1 start_equipment_factor = 0.1"
+			division = "division_template = \"Forsvarsmilitser\" start_experience_factor = 0.1 start_equipment_factor = 0.1"
 			owner = NOR
 			allow_spawning_on_enemy_provs = no 
 			count = 2 
@@ -754,7 +754,7 @@ NOR_spawn_militias_in_state = {
 				check_variable = { NOR_state_preparation = 2 }
 			}
 			create_unit = {
-				division = "name = \"Våpenfolket\" division_template = \"våpenfolket\" start_experience_factor = 0.3 start_equipment_factor = 0.5"
+				division = "name = \"Våpenfolket\" division_template = \"Våpenfolket\" start_experience_factor = 0.3 start_equipment_factor = 0.5"
 				owner = NOR
 				allow_spawning_on_enemy_provs = no 
 				count = 2 
@@ -765,7 +765,7 @@ NOR_spawn_militias_in_state = {
 				check_variable = { NOR_state_preparation = 3 }
 			}
 			create_unit = {
-				division = "name = \"Folkets Hær\" division_template = \"folkets hær\" start_experience_factor = 0.5 start_equipment_factor = 0.7"
+				division = "name = \"Folkets Hær\" division_template = \"Folkets Hær\" start_experience_factor = 0.5 start_equipment_factor = 0.7"
 				owner = NOR
 				allow_spawning_on_enemy_provs = no 
 				count = 2 
@@ -948,6 +948,7 @@ NOR_fcw_effect_fascist_player = {
 		NOR_johan_nygaardsvold = {
 			promote_character = yes
 		}
+		NOR_spawn_democratic_militia = yes 
 	}
 	ROOT = {
 		add_popularity = {
@@ -1235,7 +1236,7 @@ NOR_create_communist_templates = {
 			}
 		}
 		division_template = {    
-			name = "våpenfolket"
+			name = "Våpenfolket"
 			force_allow_recruiting = yes
 			is_locked = yes
 			priority = 1
@@ -1259,7 +1260,7 @@ NOR_create_communist_templates = {
 			}
 		}
 		division_template = {    
-			name = "folkets hær" 
+			name = "Folkets Hær" 
 			force_allow_recruiting = yes
 			priority = 1
 			is_locked = yes
@@ -1489,7 +1490,7 @@ NOR_character_flag_setup_for_cw = {
 	}
 		
 	NOR_otto_ruge = {
-		set_character_flag = NOR_anti_communist
+		#set_character_flag = NOR_anti_communist
 		set_character_flag = NOR_anti_fascist	
 	}
 		
@@ -1526,6 +1527,52 @@ NOR_character_flag_setup_for_cw = {
 	set_country_flag = NOR_sorted_characters
 }
 
+
+NOR_spawn_democratic_militia = { # Only when player goes fascist
+	IF = {
+		limit = {
+			has_template = "Norsk Milits"
+		}
+		delete_unit_template_and_units = { 
+			division_template = "Norsk Milits"
+			disband = no #if yes, will refund equipment/manpower. 
+		}
+	}
+
+	division_template = {
+		name = "Norsk Milits"
+		is_locked = yes
+		regiments = {
+			militia = { x = 0 y = 0 }
+			militia = { x = 0 y = 1 }
+			militia = { x = 1 y = 0 }
+			militia = { x = 1 y = 1 }	
+			militia = { x = 2 y = 0 }
+			militia = { x = 2 y = 1 }
+		}
+		support = {
+		}
+		#override_model = NOR_militia_alt_1_entity			
+	}
+	var:NOR.NOR_cw_democratic_norway = {
+		every_owned_state = {
+			limit = {
+				is_island_state = no
+				is_controlled_by = NOR.NOR_cw_democratic_norway
+				is_core_of = PREV
+			}
+			
+			create_unit = {
+				division = "name = \"Loyalist Militia\" division_template = \"Norsk Milits\" start_experience_factor = 0.2 start_equipment_factor = 0.7 start_manpower_factor = 1"
+				owner = NOR.NOR_cw_democratic_norway
+			 
+				allow_spawning_on_enemy_provs = no 
+				count = 3
+			}
+		}
+	}
+
+}
 
 
 ###################################################################################################
@@ -1836,12 +1883,6 @@ NOR_reduce_hard_thirties_ns = {
 
 NOR_make_militias_into_regulars = {
 	hidden_effect = {
-		add_equipment_to_stockpile = { 
-			type = convoy_1
-			amount = -50
-			producer = NOR
-		}
-		army_experience = -80 
 		division_template = { 
 			name = "Integrated militias" 
 			force_allow_recruiting = yes
@@ -1866,7 +1907,7 @@ NOR_make_militias_into_regulars = {
 		}
 	}
 	delete_unit_template_and_units = {
-		division_template = "forsvarsmilitser"
+		division_template = "Forsvarsmilitser"
 	}
 }
 

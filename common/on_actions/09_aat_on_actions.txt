@@ -93,6 +93,41 @@ on_actions = {
 		}
 	}
 
+	on_weekly_SWE = {
+		effect = {
+			set_variable = { SWE_civs_built = 0 }
+			every_core_state = {
+				add_to_variable = { ROOT.SWE_civs_built = industrial_complex_level }
+			}
+			if = {
+				limit = {
+					check_variable = { SWE_civs_built > 22 }
+				}
+				if = {
+					limit = {
+						SWE = { has_idea = SWE_hungershield }
+					}
+					remove_ideas = SWE_hungershield
+				}
+				if = {
+					limit = {
+						SWE = { has_idea = SWE_minor_hungershield_strike }
+					}
+					remove_ideas = SWE_minor_hungershield_strike
+				}
+				if = {
+					limit = {
+						SWE = { has_idea = SWE_major_hungershield_strike }
+					}
+					remove_ideas = SWE_major_hungershield_strike
+				}
+
+			}
+
+			clear_variable = SWE_civs_built
+		}
+	}
+
 	#ROOT is capitulated country, FROM is winner.
 	on_capitulation_immediate = {
 		effect = {
@@ -517,6 +552,42 @@ on_actions = {
 				FIN_initiate_balance_of_power_effect = yes
 			}
 		}
+		effect = {
+			IF = {
+				limit = {
+					ROOT = {
+						original_tag = NOR
+						has_government = communism
+					}
+				}
+			}
+			IF = {
+				limit = {
+					ROOT = {
+						has_template = "Våpenfolket"
+					}
+				}
+				ROOT = {
+					delete_unit_template_and_units = {
+					    division_template = "Våpenfolket"
+					    disband = yes #will refund equipment and manpower
+					}
+				}
+			}
+			IF = {
+				limit = {
+					ROOT = {
+						has_template = "Folkets Hær"
+					}
+				}
+				ROOT = {
+					delete_unit_template_and_units = {
+					    division_template = "Folkets Hær"
+					    disband = yes #will refund equipment and manpower
+					}
+				}
+			}
+		}
 	}
 
 	on_weekly_SWE = {
@@ -817,6 +888,7 @@ on_actions = {
 							any_core_state = {
 								OR = {
 									is_island_state = yes
+									has_state_category = large_island
 									has_state_category = small_island
 									has_state_category = tiny_island
 								}
@@ -827,6 +899,7 @@ on_actions = {
 							limit = {
 								OR = {
 									is_island_state = yes
+									has_state_category = large_island
 									has_state_category = small_island
 									has_state_category = tiny_island
 								}
@@ -849,6 +922,7 @@ on_actions = {
 							NOT = {
 								OR = {
 									is_island_state = yes
+									has_state_category = large_island
 									has_state_category = small_island
 									has_state_category = tiny_island
 								}
@@ -1239,8 +1313,42 @@ on_actions = {
 						country_event = { id = denmark_occupation_event.1 hours = 6 } 
 						set_country_flag = DEN_attacked #Used to check if DEN was attacked by GER in Tests
 					}
+				}	
+			}
+			#This is done so that Denmark's Election Events will NOT be triggered normally when at war
+			if = {
+				limit = {
+					OR = {
+						ROOT = {
+							original_tag = DEN
+							NOT = { has_country_flag = DEN_at_war_flag }
+						}
+						FROM = {
+							original_tag = DEN
+							NOT = { has_country_flag = DEN_at_war_flag }
+						}
+					}
 				}
-					
+				if = {
+					limit = {
+						ROOT = {
+							original_tag = DEN
+						}
+					}
+					ROOT = {
+						set_country_flag = DEN_at_war_flag
+					}
+				}
+				else_if = {
+					limit = {
+						FROM = {
+							original_tag = DEN
+						}
+					}
+					FROM = {
+						set_country_flag = DEN_at_war_flag
+					}
+				}
 			}
 		}
 
@@ -1249,6 +1357,7 @@ on_actions = {
 				limit = {
 					NOT = { has_global_flag = NOR_norwegian_fascist_cw_started }
 					ROOT = {
+						original_tag = GER 
 						has_government = fascism
 						is_faction_leader = yes
 						NOT = { has_country_flag = NOR_attacked_norway }  
@@ -1264,7 +1373,7 @@ on_actions = {
 				}
 				NOR = {
 					set_variable = { NOR_cw_fascist_attacker = ROOT }
-					if = {
+					if = { # Norway has chosen Fascist branch
 						limit = {
 							has_completed_focus = NOR_lurk_in_the_shadows
 							NOT = { has_completed_focus = NOR_nasjonal_samling }
@@ -1275,31 +1384,32 @@ on_actions = {
 							hours = 1
 						}
 					}
-					else_if = {
-						limit = {
-							NOR = {	 
-								has_completed_focus = NOR_continue_nygaardsvold_government 
-								NOT = { has_completed_focus = NOR_arrest_quisling }
-								is_subject = no
-							}
-						}
-						complete_national_focus = NOR_fascist_invasion_of_norway
-						var:NOR.NOR_cw_fascist_attacker = {
-							country_event = {
-								id = AAT_norway.14
-								hours = 1 
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							NOR = {
-								has_completed_focus = NOR_continue_nygaardsvold_government 
-								is_subject = no
-							}
-						}
-						complete_national_focus = NOR_fascist_invasion_of_norway
-					}
+					#else_if = {  # Democratic but Quisling is still around
+					#	limit = {
+					#		NOR = {	 
+					#			has_completed_focus = NOR_continue_nygaardsvold_government 
+					#			NOT = { has_completed_focus = NOR_arrest_quisling }
+					#			is_subject = no
+					#		}
+					#	}
+					#	complete_national_focus = NOR_fascist_invasion_of_norway
+					#	var:NOR.NOR_cw_fascist_attacker = {
+					#		country_event = {
+					#			id = AAT_norway.14
+					#			hours = 1 
+					#		}
+					#	}
+					#}
+					#else_if = { # Democratic but Quisling is arrrested
+					# 
+					#	limit = {
+					#		NOR = {
+					#			has_completed_focus = NOR_continue_nygaardsvold_government 
+					#			is_subject = no
+					#		}
+					#	}
+					#	complete_national_focus = NOR_fascist_invasion_of_norway
+					#}
 				}
 			}
 		}
@@ -1338,7 +1448,7 @@ on_actions = {
 					ROOT = { original_tag = SOV }
 					FROM = { original_tag = GER }
 					FIN = {
-						country_exists = yes
+						exists = yes
 						has_country_flag = FIN_pact_for_continuation_war_flag
 						is_subject = no
 						NOT = {
@@ -1396,8 +1506,18 @@ on_actions = {
 			if = {
 				limit = {
 					OR = {
-						ROOT = { has_completed_focus = GER_oppose_hitler }
-						FROM = { has_completed_focus = GER_oppose_hitler }
+						ROOT = {
+							OR = {
+								has_completed_focus = GER_oppose_hitler
+								has_completed_focus = GER_oppose_hitler_ww
+							}
+						}
+						FROM = {
+							OR = {
+								has_completed_focus = GER_oppose_hitler
+								has_completed_focus = GER_oppose_hitler_ww
+							}
+						}
 					}
 				}
 				NOR = {
@@ -1553,6 +1673,16 @@ on_actions = {
 				clr_country_flag = FIN_winter_war_ongoing_flag
 			}
 		}
+		#This is done so that Denmark's Election Events will be triggered normally
+		effect = {
+			if = {
+				limit = {
+					original_tag = DEN
+					has_country_flag = DEN_at_war_flag
+				}
+				clr_country_flag = DEN_at_war_flag
+			}
+		}
 	}
 
 	#	ROOT is new controller, FROM is old controller, FROM.FROM is state ID.
@@ -1592,25 +1722,25 @@ on_actions = {
 			}
 		}
 
-		#RENAME STATES/VPs
-		effect = {
-			IF = {
-				limit = {
-					FIN_state_or_vp_name_should_change = yes
-				}
-				FIN_change_name_of_state_or_vp = yes
-			}
-		}
+		##RENAME STATES/VPs
+		#effect = {
+		#	IF = {
+		#		limit = {
+		#			FIN_state_or_vp_name_should_change = yes
+		#		}
+		#		FIN_change_name_of_state_or_vp = yes
+		#	}
+		#}
 
-		#RENAME STATES/VPs
-		effect = {
-			IF = {
-				limit = {
-					SWE_state_or_vp_name_should_change = yes
-				}
-				SWE_change_name_of_state_or_vp = yes
-			}
-		}
+		##RENAME STATES/VPs
+		#effect = {
+		#	IF = {
+		#		limit = {
+		#			SWE_state_or_vp_name_should_change = yes
+		#		}
+		#		SWE_change_name_of_state_or_vp = yes
+		#	}
+		#}
 
 		# FINNISH WEAPON CACHES - Communicate new controller about Finnish Weapon Caches if first time controlling state with this modifier
 		effect = { #	ROOT is new controller, FROM is old controller, FROM.FROM is state ID.
@@ -1784,159 +1914,159 @@ on_actions = {
 					clr_state_flag = DEN_home_guard_deployed_flag
 				}
 			}
-			if = {
-				limit = {
-					has_dlc = "Arms Against Tyranny"
-				}
-				if = { 
-					limit = {
-						FROM.FROM = {
-							state = 110
-						}
-					}
-					if = { #Oslo to Christiania
-						limit = {
-							ROOT = {
-								original_tag = DEN
-							}
-						}	
-						set_province_name = { id = 6115 name = VICTORY_POINTS_6115_DEN }
-					}
-					else_if = { #Christiania back to Oslo
-						limit = {
-							FROM = {
-								original_tag = DEN
-							}
-						}
-						reset_province_name = 6115
-					}
-				}
-				if = {
-					limit = {
-						FROM.FROM = {
-							state = 138
-						}
-					}
-					if = { #Skåne to Skaanelandene
-						limit = {
-							ROOT = {
-								original_tag = DEN
-							}
-						}	
-						FROM.FROM = { set_state_name = STATE_138_DEN }
-						set_province_name = { id = 9279 name = VICTORY_POINTS_9279_DEN }
-					}
-					if = { #Skaanelandene back to Skåne
-						limit = {
-							FROM = {
-								original_tag = DEN
-							}
-						}
-						FROM.FROM = { reset_state_name = yes }
-						reset_province_name = 9279
-					}
-				}
-				if = {
-					limit = {
-						FROM.FROM = {
-							state = 909
-						}
-					}
-					if = { #Schleswig to Sydslesvig
-						limit = {
-							ROOT = {
-								original_tag = DEN
-							}
-						}	
-						FROM.FROM = { set_state_name = STATE_909_DEN }
-					}
-					if = { #Sydslesvig back to Schleswig
-						limit = {
-							FROM = {
-								original_tag = DEN
-							}
-						}
-						FROM.FROM = { reset_state_name = yes }
-					}
-				}
-				if = {
-					limit = {
-						FROM.FROM = {
-							state = 58
-						}
-					}
-					if = { #Holstein to Holsten
-						limit = {
-							ROOT = {
-								original_tag = DEN
-							}
-						}	
-						FROM.FROM = { set_state_name = STATE_58_DEN }
-					}
-					if = { #Holsten back to Holstein
-						limit = {
-							FROM = {
-								original_tag = DEN
-							}
-						}
-						FROM.FROM = { reset_state_name = yes }
-					}
-				}
-				if = {
-					limit = {
-						FROM.FROM = {
-							state = 113
-						}
-					}
-					if = { #From Dublin to Dyflin
-						limit = {
-							OR = {
-								ROOT = { original_tag = ICE }
-								ROOT = { original_tag = NOR	}
-								ROOT = { original_tag = DEN }
-							}
-						}	
-						set_province_name = { id = 11293 name = VICTORY_POINTS_11293_DEN }
-					}
-					if = { #From Dyflin back to Dublin
-						limit = {
-							OR = {
-								FROM = { original_tag = ICE }
-								FROM = { original_tag = NOR }
-								FROM = { original_tag = DEN }
-							}
-						}	
-						reset_province_name = 11293
-					}
-				}
-				if = {
-					limit = {
-						FROM.FROM = {
-							state = 130
-						}
-					}
-					if = { #From Yorkshire to Jorvik
-						limit = {
-							OR = {
-								ROOT = { original_tag = ICE }
-								ROOT = { original_tag = NOR	}
-								ROOT = { original_tag = DEN }
-							}
-						}	
-						FROM.FROM = { set_state_name = STATE_130_DEN }
-					}
-					if = { #From Jorvik back to Yorkshire
-						limit = {
-							OR = {
-								FROM = { original_tag = ICE }
-								FROM = { original_tag = NOR }
-								FROM = { original_tag = DEN }
-							}
-						}	
-						FROM.FROM = { reset_state_name = yes }
-					}
-				}
-			}
+			#if = {
+			#	limit = {
+			#		has_dlc = "Arms Against Tyranny"
+			#	}
+			#	if = { 
+			#		limit = {
+			#			FROM.FROM = {
+			#				state = 110
+			#			}
+			#		}
+			#		if = { #Oslo to Christiania
+			#			limit = {
+			#				ROOT = {
+			#					original_tag = DEN
+			#				}
+			#			}	
+			#			set_province_name = { id = 6115 name = VICTORY_POINTS_6115_DEN }
+			#		}
+			#		else_if = { #Christiania back to Oslo
+			#			limit = {
+			#				FROM = {
+			#					original_tag = DEN
+			#				}
+			#			}
+			#			reset_province_name = 6115
+			#		}
+			#	}
+			#	#if = {
+			#	#	limit = {
+			#	#		FROM.FROM = {
+			#	#			state = 138
+			#	#		}
+			#	#	}
+			#	#	if = { #Skåne to Skaanelandene
+			#	#		limit = {
+			#	#			ROOT = {
+			#	#				original_tag = DEN
+			#	#			}
+			#	#		}	
+			#	#		FROM.FROM = { set_state_name = STATE_138_DEN }
+			#	#		set_province_name = { id = 9279 name = VICTORY_POINTS_9279_DEN }
+			#	#	}
+			#	#	if = { #Skaanelandene back to Skåne
+			#	#		limit = {
+			#	#			FROM = {
+			#	#				original_tag = DEN
+			#	#			}
+			#	#		}
+			#	#		FROM.FROM = { reset_state_name = yes }
+			#	#		reset_province_name = 9279
+			#	#	}
+			#	#}
+			#	#if = {
+			#	#	limit = {
+			#	#		FROM.FROM = {
+			#	#			state = 909
+			#	#		}
+			#	#	}
+			#	#	if = { #Schleswig to Sydslesvig
+			#	#		limit = {
+			#	#			ROOT = {
+			#	#				original_tag = DEN
+			#	#			}
+			#	#		}	
+			#	#		FROM.FROM = { set_state_name = STATE_909_DEN }
+			#	#	}
+			#	#	if = { #Sydslesvig back to Schleswig
+			#	#		limit = {
+			#	#			FROM = {
+			#	#				original_tag = DEN
+			#	#			}
+			#	#		}
+			#	#		FROM.FROM = { reset_state_name = yes }
+			#	#	}
+			#	#}
+			#	#if = {
+			#	#	limit = {
+			#	#		FROM.FROM = {
+			#	#			state = 58
+			#	#		}
+			#	#	}
+			#	#	if = { #Holstein to Holsten
+			#	#		limit = {
+			#	#			ROOT = {
+			#	#				original_tag = DEN
+			#	#			}
+			#	#		}	
+			#	#		FROM.FROM = { set_state_name = STATE_58_DEN }
+			#	#	}
+			#	#	if = { #Holsten back to Holstein
+			#	#		limit = {
+			#	#			FROM = {
+			#	#				original_tag = DEN
+			#	#			}
+			#	#		}
+			#	#		FROM.FROM = { reset_state_name = yes }
+			#	#	}
+			#	#}
+			#	#if = {
+			#	#	limit = {
+			#	#		FROM.FROM = {
+			#	#			state = 113
+			#	#		}
+			#	#	}
+			#	#	if = { #From Dublin to Dyflin
+			#	#		limit = {
+			#	#			OR = {
+			#	#				ROOT = { original_tag = ICE }
+			#	#				ROOT = { original_tag = NOR	}
+			#	#				ROOT = { original_tag = DEN }
+			#	#			}
+			#	#		}	
+			#	#		set_province_name = { id = 11293 name = VICTORY_POINTS_11293_DEN }
+			#	#	}
+			#	#	if = { #From Dyflin back to Dublin
+			#	#		limit = {
+			#	#			OR = {
+			#	#				FROM = { original_tag = ICE }
+			#	#				FROM = { original_tag = NOR }
+			#	#				FROM = { original_tag = DEN }
+			#	#			}
+			#	#		}	
+			#	#		reset_province_name = 11293
+			#	#	}
+			#	#}
+			#	#if = {
+			#	#	limit = {
+			#	#		FROM.FROM = {
+			#	#			state = 130
+			#	#		}
+			#	#	}
+			#	#	if = { #From Yorkshire to Jorvik
+			#	#		limit = {
+			#	#			OR = {
+			#	#				ROOT = { original_tag = ICE }
+			#	#				ROOT = { original_tag = NOR	}
+			#	#				ROOT = { original_tag = DEN }
+			#	#			}
+			#	#		}	
+			#	#		FROM.FROM = { set_state_name = STATE_130_DEN }
+			#	#	}
+			#	#	if = { #From Jorvik back to Yorkshire
+			#	#		limit = {
+			#	#			OR = {
+			#	#				FROM = { original_tag = ICE }
+			#	#				FROM = { original_tag = NOR }
+			#	#				FROM = { original_tag = DEN }
+			#	#			}
+			#	#		}	
+			#	#		FROM.FROM = { reset_state_name = yes }
+			#	#	}
+			#	#}
+			#}
 		}
 		effect = { #Greenland's new Controller gets all of Greenland
 			if = {
@@ -2648,7 +2778,7 @@ on_actions = {
 							has_cosmetic_tag = NOR_SOV_communism
 							has_cosmetic_tag = NOR_trotsky_communism
 							has_cosmetic_tag = NOR_cw_communism
-							has_cosmetic_tag = NOR_neutrality
+							has_cosmetic_tag = NOR_neutrality_purple_flag 
 							has_cosmetic_tag = NOR_GER_fascism
 							has_cosmetic_tag = NOR_fascism
 							has_cosmetic_tag = NOR_norgesveldet_fascism
@@ -2668,7 +2798,7 @@ on_actions = {
 					limit = {
 						has_government = communism 
 						OR = {
-							has_cosmetic_tag = NOR_neutrality
+							has_cosmetic_tag = NOR_neutrality_purple_flag 
 							has_cosmetic_tag = NOR_GER_fascism
 							has_cosmetic_tag = NOR_fascism
 							has_cosmetic_tag = NOR_norgesveldet_fascism
@@ -2698,7 +2828,7 @@ on_actions = {
 							has_cosmetic_tag = NOR_SOV_communism
 							has_cosmetic_tag = NOR_trotsky_communism
 							has_cosmetic_tag = NOR_cw_communism
-							has_cosmetic_tag = NOR_neutrality					
+							has_cosmetic_tag = NOR_neutrality_purple_flag 					
 						}
 					}
 					if = {
@@ -2730,7 +2860,7 @@ on_actions = {
 							has_cosmetic_tag = NOR_alt_democratic
 						}
 					}
-					set_cosmetic_tag = NOR_neutrality
+					set_cosmetic_tag = NOR_neutrality_purple_flag 
 				}
 			}
 		}

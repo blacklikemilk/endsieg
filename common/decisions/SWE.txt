@@ -597,6 +597,10 @@ SWE_politics = {
 					}
 				}
 			}
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes #Failsafe.
+			}
 		}
 
 		remove_effect = {
@@ -1269,11 +1273,8 @@ SWE_politics = {
 
 			SWE = {
 
-				custom_effect_tooltip = SWE_proclaim_eternal_sweden_tt_name
-				hidden_effect = {
-					drop_cosmetic_tag = yes
-					set_cosmetic_tag = ENE
-				}
+				drop_cosmetic_tag = yes
+				set_cosmetic_tag = ENE
 
 				SWE_king_gustaf_v = {
 					swap_country_leader_traits = {
@@ -1559,7 +1560,7 @@ SWE_mines = {
 				666 = {
 					has_dynamic_modifier = { modifier = SWE_blown_up_mines }
 				}
-				837 = {
+				918 = {
 					has_dynamic_modifier = { modifier = SWE_blown_up_mines }
 				}
 			}
@@ -1690,17 +1691,6 @@ SWE_ebba_palmstierna_cat = {
 
 		complete_effect = {
 			SWE_ebba_palmstierna = {
-				hidden_effect = {
-					if = {
-						limit = {
-							has_trait = SWE_suffragette
-						}
-						remove_trait = {
-							trait = SWE_suffragette
-							slot = political_advisor 
-						}
-					}
-				}
 				add_trait = {
 					slot = political_advisor
 					trait = SWE_suffragette_research
@@ -2266,7 +2256,7 @@ SWE_military_matters = {
 				 	}
 				 	add_to_temp_variable = { PREV.supply_level = 8 }
 				}
-		 			 	log = "[?supply_level]"
+		 		
 				if = {
 					limit = {
 						naval_base > 0
@@ -2499,13 +2489,18 @@ SWE_ball_bearings_cat = {
 		cost = 30 #REMEMBER TO UPDATE AAT_Sweden_ball_bearing.1 to match!!!
 		available = {
 			NOT = { has_country_flag = SWE_waiting_for_ball_bearing_response }
+			NOT = {
+				FROM = {
+					is_embargoed_by = ROOT
+				}
+			}
 		}
 		days_re_enable = 50
-	    target_trigger = {
+	   target_trigger = {
 	    	FROM = {
 	    		is_major = yes
 	    		NOT = { 
-	    			has_war_with = ROOT 
+	    			has_war_with = ROOT
 	    			OR = {
 	    				has_idea = SWE_ball_bearing_idea
 	    				has_idea = SWE_ball_bearing_idea_food_partner
@@ -2514,9 +2509,9 @@ SWE_ball_bearings_cat = {
 	    			}
 	    		}
         	}
-	    }
+	   }
 
-	    ai_will_do = {
+	   ai_will_do = {
 	    	base = 10
 
 	    	modifier = {
@@ -2530,8 +2525,8 @@ SWE_ball_bearings_cat = {
 
 	    		factor = 10
 	    	}
-	    }
-	    complete_effect = {
+	   }
+	   complete_effect = {
 	    	set_country_flag = {
     			flag = SWE_waiting_for_ball_bearing_response
     			days = 60 #just set to expire in 60 days in case something goes bad
@@ -2541,7 +2536,7 @@ SWE_ball_bearings_cat = {
 	    		set_variable = { PREV.ball_bearing_country_target = THIS }
 	    	}
 	    	country_event = { id = AAT_Sweden_ball_bearing.1 }
-	    } 
+	   } 
 	}
 
 	SWE_revoke_food_trade = {
@@ -3214,6 +3209,9 @@ SWE_communist_foreign_influence = {
 			}
 
 			complete_effect = {
+				set_rule = { 
+					can_send_volunteers = yes # rule to use, e.g.  can_not_declare_war = yes
+				}
 				hidden_effect = {
 					set_country_flag = SWE_has_triggered_nor_com_uprising
 				}
@@ -3342,6 +3340,32 @@ SWE_communist_foreign_influence = {
 						}
 					}
 				}
+
+				hidden_effect = {
+					every_country = {
+						limit = {
+							original_tag = NOR
+							has_government = communism
+						}
+						every_other_country = {
+							limit = {
+								NOT = {
+									original_tag = SWE
+								}
+							}
+							PREV = {
+								log = "[THIS.GetName]"
+								log = "[PREV.GetName]"
+								add_ai_strategy = { 
+									type = alliance
+									id = PREV
+									value = -250
+								}
+							}
+						}
+					}
+				}
+
 				custom_effect_tooltip = SWE_pull_the_trigger_tt
 			}
 		}
@@ -3363,7 +3387,7 @@ SWE_communist_foreign_influence = {
 
 				DEN = {
 					NOT = { has_government = communism }
-					communism > 0.3
+					communism > 0.25
 				}
 			}
 
@@ -3378,6 +3402,9 @@ SWE_communist_foreign_influence = {
 			}
 
 			complete_effect = {
+				set_rule = { 
+					can_send_volunteers = yes # rule to use, e.g.  can_not_declare_war = yes
+				}
 				hidden_effect = {
 					set_country_flag = SWE_has_triggered_den_com_uprising
 				}
@@ -3417,6 +3444,31 @@ SWE_communist_foreign_influence = {
 							ideology = communism
 							ruling_party = neutrality
 							size = var:SWE_DEN_communist_support
+						}
+					}
+
+					hidden_effect = {
+						every_country = {
+							limit = {
+								original_tag = DEN
+								has_government = communism
+							}
+							every_country = {
+								limit = {
+									NOT = {
+										original_tag = SWE
+										original_tag = DEN
+										has_government = communism
+									}
+								}
+								PREV = {
+									add_ai_strategy = { 
+										type = alliance
+										id = PREV
+										value = -250
+									}
+								}
+							}
 						}
 					}
 				}

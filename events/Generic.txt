@@ -80,6 +80,9 @@ country_event = {
 country_event = {
 	id = generic.2
 	title = generic.2.t
+	trigger = {
+		country_exists = FROM
+	}
 	desc = { # FROM and ROOT are Democratic
 		text = generic.2.d.a
 		trigger = {
@@ -154,6 +157,8 @@ country_event = {
 	option = { #Agree / Both Democratic
 		name = generic.2.a
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			AND = {
 				FROM = {
 					has_government = democratic
@@ -175,6 +180,8 @@ country_event = {
 	option = { #Agree / Both Fascist
 		name = generic.2.b
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			AND = {
 				FROM = {
 					has_government = fascism
@@ -206,6 +213,8 @@ country_event = {
 	option = { #Agree / Both Communist
 		name = generic.2.c
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			AND = {
 				FROM = {
 					has_government = communism
@@ -231,9 +240,36 @@ country_event = {
 				original_tag = SOV 
 				FROM = { has_country_flag = AAT_trotsky_sent_to_stalin }
 			}
+			modifier = {
+				factor = 10
+				original_tag = SOV 
+				FROM = { has_completed_focus = wuw_HUN_join_the_comintern }
+			}
+			modifier = {
+				factor = 10
+				original_tag = SOV 
+				FROM = { has_completed_focus = PER_soviet_alignment }
+			}
 		}
 		add_to_faction = FROM
 		FROM = { country_event = { id = generic.3 hours = 6 } }
+		IF = {
+			limit = {
+				has_dlc = "No Compromise, No Surrender"
+				ROOT = {
+					original_tag = SOV
+				}
+				FROM = {
+					original_tag = SIK
+					has_completed_focus = SIK_reaffirm_soviet_connections
+				}
+			}
+			SIK = {
+				every_enemy_country = {
+					white_peace = SIK
+				}
+			}
+		}
 		hidden_effect = {
 			set_country_flag = alliance_inviter@ROOT
 			FROM = { 
@@ -246,6 +282,8 @@ country_event = {
 	option = { #Agree / Both different
 		name = generic.2.e
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			NOT = {
 				AND = {
 					FROM = {
@@ -284,6 +322,17 @@ country_event = {
 					has_government = neutrality
 				}
 			}
+
+			modifier = {
+				factor = 2
+				has_dlc = "Graveyard of Empires"
+				FROM = {
+					original_tag = PER
+				}
+				ROOT = {
+					original_tag = GER
+				}
+			}
 			
 			modifier = {
 				factor = 0.75
@@ -311,7 +360,7 @@ country_event = {
 	option = { #Reject
 		name = generic.2.f
 		ai_chance = {
-			factor = 50
+			base = 25
 			
 			modifier = {
 				factor = 0.5
@@ -377,6 +426,44 @@ country_event = {
 					}
 				}
 			}
+
+			modifier = { # It ruins the entire path if SOV says no so just don't
+				factor = 0
+				FROM = {
+					original_tag = HUN
+					has_completed_focus = wuw_HUN_join_the_comintern
+				}
+			}
+
+			modifier = { # It ruins the entire path if SOV says no so just don't
+				factor = 0
+				FROM = {
+					original_tag = SIA
+					OR = {
+						has_completed_focus = SIA_join_the_allies
+						has_completed_focus = SIA_unseat_the_government
+					}
+				}
+			}
+
+			modifier = {
+				FROM = {
+					original_tag = RAJ
+					has_completed_focus = RAJ_tryst_with_destiny
+				}
+				factor = 0
+			}
+
+			modifier = { # It ruins the entire path if ENG says no so just don't
+				factor = 0
+				FROM = {
+					original_tag = JAP
+					OR = {
+						has_completed_focus = JAP_sea_rekindle_the_old_alliance
+						has_completed_focus = JAP_rekindle_the_old_alliance
+					}
+				}
+			}
 		}
 		FROM = { 
 			country_event = { id = generic.4 hours = 6 }
@@ -404,6 +491,20 @@ country_event = {
 				has_government = democratic
 			}
 		}
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = ENG
+				}
+				ROOT = {
+					original_tag = GER
+					has_government = neutrality
+					has_completed_focus = GER_ally_the_shade
+				}
+			}
+			set_global_flag = ENG_accepted_GER_diplomatic_overtures
+		}
+
 	}
 	option = {
 		name = generic.3.b
@@ -415,7 +516,19 @@ country_event = {
 				has_government = fascism
 			}
 		}
-
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = ENG
+				}
+				ROOT = {
+					original_tag = GER
+					has_government = neutrality
+					has_completed_focus = GER_ally_the_shade
+				}
+			}
+			set_global_flag = ENG_accepted_GER_diplomatic_overtures
+		}
 
 	}
 	option = {
@@ -428,6 +541,21 @@ country_event = {
 				has_government = communism
 			}
 		}
+
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = ENG
+				}
+				ROOT = {
+					original_tag = GER
+					has_government = neutrality
+					has_completed_focus = GER_ally_the_shade
+				}
+			}
+			set_global_flag = ENG_accepted_GER_diplomatic_overtures
+		}
+
 	}
 	option = {
 		name = generic.3.e
@@ -453,6 +581,20 @@ country_event = {
 				}
 			}
 		}
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = ENG
+				}
+				ROOT = {
+					original_tag = GER
+					has_government = neutrality
+					has_completed_focus = GER_ally_the_shade
+				}
+			}
+			set_global_flag = ENG_accepted_GER_diplomatic_overtures
+		}
+		
 	}
 }
 
@@ -619,18 +761,20 @@ country_event = {
 
 	immediate = {
 		hidden_effect = {
+			FROM = { save_event_target_as = alliance_inviter }
 			save_event_target_as = alliance_applicant
-			FROM = {
-				save_event_target_as = alliance_inviter
-			}
 		}
 	}
+
+
 
 	is_triggered_only = yes
 	
 	option = { #Agree / Both Democratic
 		name = generic.5.a
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			is_in_faction = no
 			AND = {
 				FROM = {
@@ -661,26 +805,18 @@ country_event = {
 			id = FROM
 			value = 200
 		}
+		GER_setup_faction_wide_aoe_effects_from = yes
 		hidden_effect = {
 			set_country_flag = alliance_applicant@ROOT
 			FROM = { set_country_flag = alliance_inviter@ROOT }
 			news_event = { id = news.289 hours = 12 }
-			if = {
-				limit = {
-					FROM = {
-						original_tag = GER
-						has_government = democratic
-						has_completed_focus = GER_pool_technical_know_how
-					}
-					NOT = { has_idea = GER_pool_technical_know_how }
-				}
-				add_ideas = GER_pool_technical_know_how
-			}
 		}
 	}
 	option = { #Agree / Both Fascist
 		name = generic.5.b
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			is_in_faction = no
 			AND = {
 				FROM = {
@@ -712,6 +848,8 @@ country_event = {
 	option = { #Agree / Both Communist
 		name = generic.5.c
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			is_in_faction = no
 			AND = {
 				FROM = {
@@ -749,6 +887,8 @@ country_event = {
 	option = { #Agree / Both different
 		name = generic.5.e
 		trigger = {
+			has_rule = can_join_factions
+			FROM = { has_rule = can_join_factions }
 			is_in_faction = no
 			NOT = {
 				AND = {
@@ -784,12 +924,12 @@ country_event = {
 				}
 			}
 			
-			modifier = {
-				factor = 0.5
-				NOT = {
-					has_government = neutrality
-				}
-			}
+			#modifier = {
+			#	factor = 0.5
+			#	NOT = {
+			#		has_government = neutrality
+			#	}
+			#}
 			
 			modifier = {
 				factor = 0.75
@@ -828,17 +968,7 @@ country_event = {
 			set_country_flag = alliance_applicant@ROOT
 			FROM = { set_country_flag = alliance_inviter@ROOT }
 			news_event = { id = news.289 hours = 12 }
-			if = {
-				limit = {
-					FROM = {
-						original_tag = GER
-						has_government = democratic
-						has_completed_focus = GER_pool_technical_know_how
-					}
-					NOT = { has_idea = GER_pool_technical_know_how }
-				}
-				add_ideas = GER_pool_technical_know_how
-			}
+			GER_setup_faction_wide_aoe_effects_from = yes
 		}
 	}
 	
@@ -848,7 +978,7 @@ country_event = {
 			is_in_faction = no
 		}
 		ai_chance = {
-			factor = 50
+			factor = 45
 			
 			modifier = {
 				factor = 0
@@ -922,6 +1052,25 @@ country_event = {
 					has_completed_focus = SOV_covert_support_for_spanish_poum
 				}
 			}
+
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				FROM = { original_tag = JAP }
+				original_tag = SIA
+			}
+
+			modifier = {
+				factor = 0
+				FROM = { original_tag = JAP }
+				original_tag = ETH 
+			}
+
+			modifier = {
+				factor = 0.5
+				has_country_flag = SIA_weight_towards_accepting_invite_to_alliance
+				FROM = { original_tag = SIA } 
+			}
 		}
 		#Lone Wolf Finland can't join any factions - Tooltip for player
 		if = {
@@ -966,6 +1115,18 @@ country_event = {
 				has_government = democratic
 			}
 		}
+
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = AUS
+				}
+			}
+			FROM = {
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
+
 	}
 	option = {
 		name = generic.3.b
@@ -978,6 +1139,16 @@ country_event = {
 			}
 		}
 
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = AUS
+				}
+			}
+			FROM = {
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
 
 	}
 	option = {
@@ -990,6 +1161,18 @@ country_event = {
 				has_government = communism
 			}
 		}
+
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = AUS
+				}
+			}
+			FROM = {
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
+
 	}
 	option = {
 		name = generic.3.e
@@ -1015,6 +1198,18 @@ country_event = {
 				}
 			}
 		}
+
+		IF = {
+			limit = {
+				FROM = {
+					original_tag = AUS
+				}
+			}
+			FROM = {
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
+		
 	}
 }
 
@@ -1554,64 +1749,6 @@ country_event = {
 		name = generic.16.a
 		effect_tooltip = {
 			add_opinion_modifier = { target = FROM modifier = rejected_demands }
-		}
-	}	
-}
-
-# Notification event that leader has gotten sick
-unit_leader_event = {
-	id = generic.17
-	title = generic.17.t
-	desc = generic.17.d
-	
-	picture = GFX_report_event_military_planning
-
-	is_triggered_only = yes
-
-	immediate = {
-		hidden_effect = {
-			FROM = {
-				set_unit_leader_flag = {
-					flag = recently_sick
-					value = 1
-					days = 180
-				}
-			}
-		}
-	}
-
-	option = {
-		name = unfortunate
-		effect_tooltip = {
-			FROM = {
-				add_timed_unit_leader_trait = {
-					trait = sick
-					days = 30
-				}
-			}
-		}
-	}	
-}
-
-# Notification event that leader has been wounded
-country_event = {
-	id = generic.18
-	title = generic.18.t
-	desc = generic.18.d
-	
-	picture = GFX_report_event_military_planning
-
-	is_triggered_only = yes
-
-	option = {
-		name = unfortunate
-		effect_tooltip = {
-			FROM = {
-				add_timed_unit_leader_trait = {
-					trait = wounded
-					days = 90
-				}
-			}
 		}
 	}	
 }

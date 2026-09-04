@@ -86,11 +86,19 @@ on_actions = {
 				limit = {
 					divisions_in_state = { state = FROM.FROM size > 0 }
 					FROM.FROM = { 
-						NOT = { has_state_flag = already_sabotaged_flag }
+						NOT = { 
+							AND = { 
+								has_state_flag = already_sabotaged_flag
+								is_core_of = controller # Should solve most instances of peaceful annexation
+							}
+						}
 					}
 					FROM = {
 						original_tag = POL
 						has_completed_focus = POL_sabotage_polish_industry
+						NOT = { 
+							has_country_flag = GER_sent_annex_proposal_flag # To solve GER European Confederation
+						}
 					}
 				}
 				FROM.FROM = { 
@@ -1041,7 +1049,9 @@ on_actions = {
 					}
 				}
 			}
-			else_if = {
+
+			
+			if = {
 				limit = {
 					FROM = { has_idea = instilled_aggression_spirit }
 				}
@@ -1050,10 +1060,10 @@ on_actions = {
 						limit = { is_navy_leader = yes }
 		
 						random_list = {
-							40 = { 
+							50 = { 
 								add_attack = 1 
 							}
-							60 = {}
+							50 = {}
 						}
 					}
 				}
@@ -1067,10 +1077,10 @@ on_actions = {
 						limit = { is_navy_leader = yes }
 					
 						random_list = {
-							40 = { 
+							50 = { 
 								add_defense = 1 
 							}
-							60 = {}
+							50 = {}
 						}
 					}
 				}
@@ -1084,11 +1094,11 @@ on_actions = {
 						limit = { is_navy_leader = yes }
 					
 						random_list = {
-							40 = { 
+							50 = { 
 								add_maneuver = 1
 								add_coordination = 1
 							}
-							60 = {}
+							50 = {}
 						}
 					}
 				}
@@ -1105,7 +1115,13 @@ on_actions = {
 					}
 					if = {
 						limit = {	
-							FROM = { has_idea = political_loyalty_spirit } #done here instead of the trait file to avoid some oddness with generating assignable traits under certain circumstances, makes it easier to control probabilities
+							FROM = { 
+								OR = {
+									has_idea = political_loyalty_spirit 
+									has_idea = CHI_whampoa_military_academy_spirit 
+								}
+								
+							} #done here instead of the trait file to avoid some oddness with generating assignable traits under certain circumstances, makes it easier to control probabilities
 						}
 						root = {
 							random_list = {
@@ -1126,7 +1142,7 @@ on_actions = {
 						root = {
 							random_list = {
 								50 = { 
-									add_unit_leader_trait = panzer_leader
+									add_unit_leader_trait = armor_officer
 								}
 								50 = {}
 							}
@@ -1262,10 +1278,6 @@ on_actions = {
 				set_rule = { can_join_factions = yes }
 			}
 		}
-
-		effect = {
-			log = "PEACE - ROOT is [ROOT.GetName] and FROM is [FROM.GetName]"
-		}
 	}
 	
 	#ROOT - country that just went to peace
@@ -1351,12 +1363,23 @@ on_actions = {
 				}
 				GER = { #Stop democratic Germany from doing Anschluss and awakening their ambition of global domination
 					uncomplete_national_focus = {
-						focus = GER_rhineland
+						focus = GER_remilitarize_the_rhineland
 						uncomplete_children = yes
 					}
-					uncomplete_national_focus = {
-						focus = GER_oppose_hitler
-						uncomplete_children = yes
+					if = {
+						limit = {
+							has_dlc = "Gotterdammerung"
+						}
+						uncomplete_national_focus = {
+							focus = GER_oppose_hitler_ww
+							uncomplete_children = yes
+						}
+					}
+					else = {
+						uncomplete_national_focus = {
+							focus = GER_oppose_hitler
+							uncomplete_children = yes
+						}
 					}
 				}
 			}
@@ -1577,7 +1600,7 @@ on_actions = {
 				}
 				country_event = { id = NSB_soviet_propaganda_capmaign_events.2 hours = 4 random_hours = 2 }
 			}
-			else_if = { #SOV is defender - SOV gets mild punishment // #TODO_Manu: This is not triggering when someone declares on SOV
+			else_if = { #SOV is defender - SOV gets mild punishment // #MM: This is not triggering when someone declares on SOV
 				limit = {
 					FROM = { original_tag = SOV }
 					SOV = {

@@ -98,6 +98,18 @@ JUNO_pick_navy_modifier_tt = {
 		}
 		custom_effect_tooltip = ARG_modify_argentine_navy_ns_intro			
 	}
+	ELSE_IF = {
+		limit = {
+			original_tag = PAR
+		}
+		custom_effect_tooltip = PAR_modify_paraguayan_navy_ns_intro			
+	}
+	ELSE_IF = {
+		limit = {
+			original_tag = URG
+		}
+		custom_effect_tooltip = URG_modify_uruguayan_navy_ns_intro			
+	}
 	ELSE = {
 		custom_effect_tooltip = JUNO_modify_south_american_navy_ns_intro			
 	}
@@ -560,6 +572,37 @@ SMB_get_dreadnoughts_from_country = {
 			limit = {
 				has_dlc =  "Man the Guns"
 			}
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_tech = panzerschiffe }
+					}
+					set_technology = {
+						panzerschiffe = 1
+						popup = no
+					}
+				}
+			}
+			GER = {
+				create_equipment_variant = {
+					name = "Deutschland Class"
+					type = ship_hull_cruiser_panzerschiff
+					name_group = GER_CA_HISTORICAL
+					parent_version = 0
+					modules = {
+				       	fixed_ship_anti_air_slot = ship_anti_air_1
+						fixed_ship_battery_slot = ship_heavy_battery_2
+						fixed_ship_secondaries_slot = ship_secondaries_1
+						fixed_ship_armor_slot = ship_armor_cruiser_1
+						fixed_ship_fire_control_system_slot = ship_fire_control_system_0
+						fixed_ship_engine_slot = cruiser_ship_engine_2
+						rear_1_custom_slot = ship_torpedo_1
+						mid_1_custom_slot = ship_airplane_launcher_1
+				   	}
+				   	obsolete = yes
+				}	
+			}
+
 			create_equipment_variant = {
 				name = "Deutschland Class"
 				type = ship_hull_cruiser_panzerschiff
@@ -636,7 +679,7 @@ SMB_purchase_dreadnoughts_tt_gen = {
 	custom_effect_tooltip = SMB_purchase_dreadnought_tt_2
 	effect_tooltip = {
 		add_timed_idea = {
-			idea = SMB_dreadnought_debt_usa
+			idea = SMB_dreadnought_debt_fake_for_tooltip
 			days = 365
 		}
 	}
@@ -743,6 +786,7 @@ CHL_mapuche_conflict_level_up = {
 		limit = { 
 			NOT = { 
 				has_idea = CHL_the_mapuche_conflict_near_gone 
+				has_idea = CHL_the_mapuche_conflict_rebellion 
 			} 
 			NOT = {
 				has_country_flag = CHL_no_more_mapuche_conflict
@@ -1070,26 +1114,27 @@ JUNO_create_osmar_hellmuth_operative = { #INITIAL
 ### Brazil
 
 BRA_remove_economy_modifier = {
+	effect_tooltip = {	#its not yet counting the focus itself
+		IF = {
+			limit = {
+				has_dynamic_modifier = { modifier = BRA_undiversified_economy_modifier }
+				OR = {
+					has_completed_focus = BRA_war_production
+					AND = {
+						has_completed_focus = BRA_desenvolvimentismo
+						has_completed_focus = BRA_banco_do_brasil
+					}
+				}
+			}
+			remove_dynamic_modifier = { modifier = BRA_undiversified_economy_modifier }
+		}
+	}
 	IF = {
 		limit = {
-			AND = {
-				has_dynamic_modifier = { modifier = BRA_undiversified_economy_modifier }
-				check_variable = {
-					var = BRA_economy_industrial_capacity_factor
-					value = -0.1
-					compare = greater_than
-				}
-				check_variable = {
-					var = BRA_economy_production_efficiency_gain_factor
-					value = -0.1
-					compare = greater_than
-				}
-				check_variable = {
-					var = BRA_economy_production_max_efficiency_factor
-					value = -0.1
-					compare = greater_than
-				}				 						
-			}
+			has_dynamic_modifier = { modifier = BRA_undiversified_economy_modifier }
+			has_completed_focus = BRA_war_production
+			has_completed_focus = BRA_desenvolvimentismo
+			has_completed_focus = BRA_banco_do_brasil
 		}
 		remove_dynamic_modifier = { modifier = BRA_undiversified_economy_modifier }
 	}
@@ -1184,7 +1229,7 @@ USA_add_monroe_doctrine_to_target = {
 				exists = yes
 				has_idea = USA_monroe_doctrine_enforcer
 			}
-			has_dlc = "Trial of Allegiance"
+			#has_dlc = "Trial of Allegiance"
 			ROOT = {
 				NOT = { 
 					OR = {

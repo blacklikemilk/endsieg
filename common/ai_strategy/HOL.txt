@@ -1,4 +1,3 @@
-
 HOL_base_airplane_production = {
 	# HOL is not excluded from the default strats, this just adds on top
 	allowed = {
@@ -46,5 +45,979 @@ HOL_extended_airplane_production = {
 		type = equipment_variant_production_factor
 		id = small_plane_airframe
 		value = 60
+	}
+}
+
+### INDONESIA ###
+
+HOL_prioritize_INS_during_revolution = {
+	allowed = {
+		OR = {
+			original_tag = HOL
+			tag = event_target:INS_dutch_indonesia
+		}
+	}
+	enable = {
+		NOT = {
+			has_war_with = INS
+		}
+		INS = {
+			has_country_flag = INS_revolution_has_started
+		}
+	}
+
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = prepare_for_war
+		id = INS
+		value = 100
+	}
+	ai_strategy = {
+		type = antagonize
+		id = INS
+		value = 100
+	}
+}
+
+HOL_area_priority_indies = {
+	allowed = {
+		tag = HOL
+	}
+	enable = {
+		INS = {
+			has_country_flag = INS_revolution_has_started
+		}
+		has_war_with_major = no
+	}
+
+	abort = {
+		GER = {
+			OR = {
+				has_shine_effect_on_focus = GER_around_maginot
+				has_wargoal_against = {
+					target = HOL
+				}
+			}
+		}
+	}
+
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = area_priority
+		id = east_indies
+		value = 70
+	}
+	ai_strategy = {
+		type = area_priority
+		id = europe
+		value = 30
+	}
+}
+
+HOL_area_priority_indies_but_major = {
+	allowed = {
+		tag = HOL
+	}
+	enable = {
+		INS = {
+			has_country_flag = INS_revolution_has_started
+		}
+		has_war_with_major = yes
+	}
+
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = area_priority
+		id = east_indies
+		value = 30
+	}
+}
+
+HOL_area_priority_indies_puppet = {
+	allowed = {
+		tag = event_target:INS_dutch_indonesia
+	}
+	enable = {
+		INS = {
+			has_country_flag = INS_revolution_has_started
+		}
+	}
+
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = area_priority
+		id = east_indies
+		value = 100
+	}
+}
+
+#HOL_allies_dont_interfere = {
+#	allowed = {
+#		NOT = {
+#			original_tag = HOL
+#			original_tag = INS
+#			is_subject_of = HOL
+#			tag = event_target:INS_dutch_indonesia
+#		}
+#	}
+#
+#	enable = {
+#		is_in_faction_with = HOL
+#		INS = {
+#			has_country_flag = INS_revolution_has_started
+#		}
+#		NOT = { #these agreements make them want to help so they shouldnt be told to not interfere
+#			AND = {
+#				has_global_flag = INSHOL_london_batavia_accord_signed
+#				original_tag = ENG
+#			}
+#			AND = {
+#				has_global_flag = INSHOL_franco_dutch_accord_signed
+#				original_tag = FRA
+#			}
+#		}
+#	}
+#
+#	abort_when_not_enabled = yes
+#
+#	ai_strategy = {
+#		type = dont_defend_ally_borders
+#		id = event_target:INS_dutch_indonesia
+#		value = 100
+#	}
+#	ai_strategy = {
+#		type = ignore
+#		id = event_target:INS_dutch_indonesia
+#		value = 100
+#	}
+#
+#}
+# cant use event targets, this is done elsewhere. Keeping it commented out here to make it easy to see which AI strategies are being applied (THIS AI STRATEGY IS STILL BEING APPLIED DESPITE BEING COMMENTED OUT)
+#see:
+# Scripted effect: INS_set_hol_ally_strategy_effect
+# Scripted effect: INS_remove_hol_ally_strategy_effect
+# on_join_faction on action in taog_on_actions
+
+HOL_actually_do_help_im_giving_you_land_please_help = {
+	allowed = {
+		NOT = {
+			original_tag = HOL
+			original_tag = INS
+			is_subject_of = HOL
+			tag = event_target:INS_dutch_indonesia
+		}
+	}
+
+	enable = {
+		is_in_faction_with = HOL
+		INS = {
+			has_country_flag = INS_revolution_has_started
+		}
+		OR = {
+			AND = {
+				has_global_flag = INSHOL_london_batavia_accord_signed
+				original_tag = ENG
+			}
+			AND = {
+				has_global_flag = INSHOL_franco_dutch_accord_signed
+				original_tag = FRA
+			}
+		}
+	}
+
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = support
+		id = HOL
+		value = 100
+	}
+	ai_strategy = {
+		type = send_volunteers_desire
+		id = HOL
+		value = 50
+	}
+	ai_strategy = {
+		type = area_priority
+		id = east_indies
+		value = 70
+	}
+	ai_strategy = {
+		type = force_defend_ally_borders
+		id = HOL
+		value = 20
+	}
+	ai_strategy = {
+		type = antagonize
+		id = INS
+		value = 100
+	}
+	ai_strategy = {
+		type = invade
+		id = INS
+		value = 30
+	}
+
+}
+
+HOL_distracted_garrison_1050 = { # Atjeh
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1050 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1050
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1048
+			1049
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1048 = { # Padang
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1048 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1048
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1050
+			1049
+			672
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1049 = { # Medan and Riouw
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1049 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1049
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1050
+			1048
+			672
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_672 = { # South Sumatra
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		672 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			672
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1047
+			1048
+			1049
+			335
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1047 = { # Bangka-Belitung
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1047 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1047
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			672
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_335 = { # West Java
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		335 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			335
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1058
+			1051
+			672
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1058 = { # Batavia
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1058 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1058
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			335
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1051 = { # East Java
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1051 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1051
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			335
+			1052
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1052 = { # Bali
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1052 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1052
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			667
+			1051
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_667 = { # West Nusa Tenggara
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		667 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			667
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1052
+			1053
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1053 = { # East Nusa Tenggara
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1053 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1053
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			667
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_334 = { # Kalimantan Barat
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		334 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			334
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1055
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1055 = { # East Kalimantan
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1055 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1055
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			334
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_673 = { # Sulawesi
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		673 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			673
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1056
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1056 = { # Manado
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1056 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1056
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			673
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_669 = { # Dutch New Guinea
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		669 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			669
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			1057
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+}
+
+HOL_distracted_garrison_1057 = { # Dutch Papua
+	allowed = {
+		OR = {
+			original_tag = HOL
+			original_tag = INS #need to check later if its the right one
+		}
+	}
+	enable = {
+		if = {
+			limit = {
+				original_tag = INS
+			}
+			is_subject_of = HOL
+		}
+		1057 = {
+			OR = {
+				is_owned_by = HOL
+				is_owned_by = event_target:INS_dutch_indonesia
+			}
+			has_state_flag = INS_feint_uprising
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = 0.25
+		states = {
+			1057
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
+	}
+	ai_strategy = {
+		type = put_unit_buffers
+		ratio = -10
+		states = { # Simulate reallocating troops from neighboring states
+			669
+		}
+		subtract_fronts_from_need = no
+		subtract_invasions_from_need = yes
 	}
 }

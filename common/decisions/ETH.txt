@@ -133,20 +133,21 @@ governments_in_exile = {
 
 		visible = {
 			is_government_in_exile = yes 
+			NOT = { has_global_flag = ethiopia_recognized_flag }
 			
-			var:ETH.host_nation = {
-				NOT = { has_war_with = ITA }
-			}
+			#var:ETH.host_nation = {
+			#	NOT = { has_war_with = ITA }
+			#}
 		}
 		fire_only_once = yes 
 		cost = 150 
-		days_remove = 90 
+		days_remove = 7 
 		complete_effect = {
 			
 		}
 		remove_effect = {
 			ETH_no_longer_alone = yes 
-			set_global_flag = ethiopia_recognized_flag
+			set_global_flag = ethiopia_recognized_flag 
 			ETH_haile_selassie_returns = yes 
 			custom_effect_tooltip = ETH_reclaiming_ethiopia_event_tt
 			effect_tooltip = {
@@ -171,6 +172,9 @@ governments_in_exile = {
 				factor = 0
 				date < 1941.1.1
 				is_historical_focus_on = yes 
+				var:ETH.host_nation = {
+					NOT = { has_war_with = ITA }
+				}
 			}
 			modifier = {
 				factor = 0
@@ -739,8 +743,13 @@ ETH_second_italo_ethiopian_war_category = {
 				FROM = { tag = ENG }
 			}
 			modifier = {
-				factor = 2.5
-				FROM = { has_completed_focus = JAP_support_the_kodoha_faction } # Key members of the faction had good relations with the Ethiopians 
+				factor = 3
+				FROM = { 
+					OR = {
+						has_completed_focus = JAP_support_the_kodoha_faction 
+						has_completed_focus = JAP_revere_the_emperor_destroy_the_traitors 
+					}
+				} # Key members of the faction had good relations with the Ethiopians 
 			}
 			modifier = {
 				factor = 0.75
@@ -986,9 +995,10 @@ ETH_second_italo_ethiopian_war_category = {
 	# Same Mission for italy - but with correct colors and tooltips
 	ITA_time_based_war_escalation_mission = {  
 		name = ETH_time_based_war_escalation_mission
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation
 		allowed = { 	
-				original_tag = ITA
+			original_tag = ITA
+			has_dlc = "By Blood Alone"
 		}    
 		available = { 
 			hidden_trigger ={ always = no }
@@ -1029,7 +1039,7 @@ ETH_second_italo_ethiopian_war_category = {
 		timeout_effect = {
 			remove_ideas = ETH_christmas_offensive_idea
 
-			# TODO_MANU Change to Italian event, and move activation effects to there
+			# MM: Change to Italian event, and move activation effects to there
 			hidden_effect = {
 				ITA = {
 					ITA_benito_mussolini = {
@@ -1172,7 +1182,7 @@ ETH_second_italo_ethiopian_war_category = {
 	}
 	# Hold the capital "dummy" mission for Italy 
 	ETH_conquer_addis_ababa_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation
 		allowed = { tag = ITA }    
 		available = { 
 			271 = { is_controlled_by = ROOT }
@@ -1210,7 +1220,7 @@ ETH_second_italo_ethiopian_war_category = {
 
 	# Hold Hararghe mission for Ethiopia 
 	ETH_hold_harar_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation
 		allowed = { original_tag = ETH }    
 		available = { 
 			NOT = {
@@ -1238,7 +1248,7 @@ ETH_second_italo_ethiopian_war_category = {
 	}
 	# Hold Hararghe "dummy" mission for Italy 
 	ETH_conquer_harar_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation 
 		allowed = { tag = ITA }    
 		available = { 
 			835 = { is_controlled_by = ROOT } 
@@ -1278,6 +1288,16 @@ ETH_italian_occupation_category = {
 				}
 				RAJ = { all_owned_state = { is_controlled_by = RAJ } }
 			}
+
+			if = {
+				limit = {
+					RAJ = { is_ai = no } #to block ai from stealing advisors, if mp peole have to coordinate themselves
+				}
+				OR = {
+					RAJ = { NOT = { has_completed_focus = RAJ_chindits_dlc } }
+					RAJ = { NOT = { has_completed_focus = RAJ_chindits } } #non dlc version
+				}
+			}
 		}
 
 		visible = {
@@ -1301,17 +1321,16 @@ ETH_italian_occupation_category = {
 				}	
 				hidden_effect = {
 					RAJ = {
+						create_orde_wingate = yes
 						RAJ_orde_wingate = {
-							add_corps_commander_role = {
-								#character = RAJ_orde_wingate
-								traits = { jungle_rat commando }
-								skill = 4
-								attack_skill = 3
-								defense_skill = 3
-								planning_skill = 2
-								logistics_skill = 5
-							}
 							set_nationality = ETH
+							if = {
+								limit = {
+									has_character_flag = is_in_raj
+								}
+								clr_character_flag = is_in_raj
+							}
+							set_character_flag = is_in_ethiopia
 						}
 					}
 				}
@@ -1343,12 +1362,10 @@ ETH_italian_occupation_category = {
 			}
 		}
 		state_target = yes
+		target_array = ROOT.core_states
 		on_map_mode = map_only 
 		target_trigger = {
 			FROM = {
-				is_core_of = ETH
-				NOT = { is_controlled_by = ETH }
-				# Patriot states
 				OR = {
 					state = 842
 					state = 841
@@ -1357,6 +1374,8 @@ ETH_italian_occupation_category = {
 					state = 840
 					state = 839
 				}
+				NOT = { is_controlled_by = ETH }
+				# Patriot states
 			}
 		}
 		target_root_trigger = {
@@ -1447,7 +1466,7 @@ ETH_italian_occupation_category = {
 	
 	# Warning mission for Ethiopia - should be replaced with targeted mission if generic
 	ETH_italian_control_mission = {
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation 
 		allowed = { original_tag = ETH }    
 		available = { 
 			var:ITA.state_integrated = { NOT = { is_controlled_by = ITA }}
@@ -1689,8 +1708,10 @@ ETH_anti_colonialism_category = {
 					has_active_resistance = yes
 				}
 			}
-			
 		}
+
+		target_array = global.colonial_powers
+		
 		target_root_trigger = { original_tag = ETH } 
 		# on_map_mode = map_only
 		fire_only_once = yes  
@@ -1793,7 +1814,7 @@ ETH_improve_country_category = {
 			}
 		}
 		target_root_trigger = { tag = ETH } # For now - change if making it generic
-		state_target = yes
+		state_target = any_controlled_state
 		on_map_mode = map_only
 		fire_only_once = yes # Only once per State
 		available = {
@@ -1850,7 +1871,7 @@ ETH_improve_country_category = {
 			}
 		}
 		target_root_trigger = { tag = ETH } # For now - change if making it generic
-		state_target = yes
+		state_target = any_owned_state
 		on_map_mode = map_only
 		# fire_only_once = yes # Only once per State
 		available = {
@@ -1903,7 +1924,7 @@ ETH_improve_country_category = {
 			}
 		}
 		target_root_trigger = { tag = ETH } # For now - change if making it generic
-		state_target = yes
+		state_target = any_owned_state
 		on_map_mode = map_only
 		fire_only_once = yes # Only once per State
 		available = {
@@ -1949,7 +1970,7 @@ ETH_improve_country_category = {
 	# Missions for local development
 	# State grows
 	ETH_local_development_state_grows_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation 
 		allowed = { 
 			original_tag = ETH 
 		}    
@@ -1977,7 +1998,7 @@ ETH_improve_country_category = {
 	}
 	# Local industry grows 
 	ETH_local_development_industry_grows_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation  
 		allowed = { 
 			original_tag = ETH 
 		}    
@@ -2016,7 +2037,7 @@ ETH_improve_country_category = {
 	}  
 	# Local industry grows 
 	ETH_local_development_arms_industry_grows_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation 
 		allowed = { 
 			original_tag = ETH 
 		}    
@@ -2054,7 +2075,7 @@ ETH_improve_country_category = {
 		}
 	}  
 	ETH_local_development_improved_production_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation 
 		allowed = { 
 			original_tag = ETH 
 		}    
@@ -2084,6 +2105,7 @@ ETH_improve_country_category = {
 			}
 		}
 	}  
+
 	ETH_prospect_for_resources = {
 
 		icon = GFX_decision_generic_construction
@@ -2093,11 +2115,12 @@ ETH_improve_country_category = {
 					state = 841
 					state = 842
 					state = 840
+					state = 843
 				}
 			}
 		}
 		target_root_trigger = { 
-			tag = ETH 
+			original_tag = ETH 
 			has_completed_focus = ETH_invite_foreign_prospectors
 		}
 		state_target = yes
@@ -2108,20 +2131,16 @@ ETH_improve_country_category = {
 			original_tag = ETH
 		}
 
+		visible = {
+			
+		}
+
 		available = {
 			has_tech = excavation2
 			num_of_civilian_factories_available_for_projects > 2
 			FROM = { is_controlled_by = ROOT }
 			NOT = { has_country_flag = prospecting_ongoing_flag }
 		}
-
-
-		
-		visible = {
-			
-		}
-
-		#fire_only_once = yes
 
 		cost = 25
 		days_remove = 60
@@ -2132,8 +2151,8 @@ ETH_improve_country_category = {
 
 		ai_will_do = {
 			base = 100
-			
 		}
+
 		complete_effect = {
 			set_country_flag = prospecting_ongoing_flag
 		}
@@ -2455,7 +2474,7 @@ ETH_centralization_balance_of_power_category = {
 	}
 
 	ETH_bop_increase_mesafint_privileges = {
-		icon = GFX_decision_gre_investment_decisions  #TODO_TA set correct icon
+		icon = GFX_decision_gre_investment_decisions  
 		allowed = { original_tag = ETH }
 		available = {
 			NOT = { has_country_flag = ETH_bop_privileges_changed }
@@ -2498,7 +2517,7 @@ ETH_centralization_balance_of_power_category = {
 		}
 	}
 	ETH_bop_increase_anarchist_influence = {
-		icon = GFX_decision_SOV_the_workers_dictatorship  #TODO_TA set correct icon
+		icon = GFX_decision_SOV_the_workers_dictatorship  
 		allowed = { original_tag = ETH }
 		available = {
 			NOT = { has_country_flag = ETH_bop_anarchist_privileges_changed }
@@ -2538,7 +2557,7 @@ ETH_centralization_balance_of_power_category = {
 		}
 	}
 	ETH_bop_increase_communist_influence = {
-		icon = GFX_decision_SOV_secure_the_administration  #TODO_TA set correct icon
+		icon = GFX_decision_SOV_secure_the_administration  
 		allowed = { original_tag = ETH }
 		available = {
 			NOT = { has_country_flag = ETH_bop_anarchist_communist_changed }
@@ -2578,7 +2597,7 @@ ETH_centralization_balance_of_power_category = {
 		}
 	}
 	ETH_bop_increase_the_power_of_the_mekwanint = {
-		icon = GFX_decision_gre_investment_decisions  #TODO_TA set correct icon
+		icon = GFX_decision_gre_investment_decisions 
 		allowed = { original_tag = ETH }
 		available = {
 			NOT = { has_country_flag = ETH_bop_privileges_changed }
@@ -2624,7 +2643,7 @@ ETH_centralization_balance_of_power_category = {
 
 	# Retake lost country for Ethiopia
 	ETH_retake_territory_mission = {   
-		icon = GFX_decision_generic_operation # TODO_TA set correct icon   
+		icon = GFX_decision_generic_operation 
 		allowed = { original_tag = ETH }    
 		available = { 
 			controls_more_than_half_ethiopian_owned_states = yes 
@@ -3992,6 +4011,14 @@ ETH_improve_the_horn_of_africa_category = {
 					is_subject = no 
 					is_subject_of = ROOT 
 				}
+				NOT = { #The country does not have any owned states on any other continents than africa, to avoid colonial powers that have moved capitals being
+					any_owned_state = {
+						NOT = {
+							is_on_continent = africa
+						}
+					}
+				}
+				
 			}
 		}
 
@@ -4057,6 +4084,13 @@ ETH_improve_the_horn_of_africa_category = {
 					is_subject = no 
 					is_subject_of = ROOT 
 				}
+				NOT = { #The country does not have any owned states on any other continents than africa, to avoid colonial powers that have moved capitals being
+					any_owned_state = {
+						NOT = {
+							is_on_continent = africa
+						}
+					}
+				}
 			}
 		}
 
@@ -4117,6 +4151,13 @@ ETH_improve_the_horn_of_africa_category = {
 				OR = {
 					is_subject = no 
 					is_subject_of = ROOT 
+				}
+				NOT = { #The country does not have any owned states on any other continents than africa, to avoid colonial powers that have moved capitals being
+					any_owned_state = {
+						NOT = {
+							is_on_continent = africa
+						}
+					}
 				}
 			}
 		}
@@ -4189,6 +4230,13 @@ ETH_improve_the_horn_of_africa_category = {
 				OR = {
 					is_subject = no 
 					is_subject_of = ROOT 
+				}
+				NOT = { #The country does not have any owned states on any other continents than africa, to avoid colonial powers that have moved capitals being
+					any_owned_state = {
+						NOT = {
+							is_on_continent = africa
+						}
+					}
 				}
 			}
 		}

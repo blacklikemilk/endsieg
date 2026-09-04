@@ -223,7 +223,7 @@ country_event = {
 		name = soviet.5.a
 		create_wargoal = {
 			type = take_state
-			target = ROM
+			target = FROM
 			generator = { 78 }
 		}
 		hidden_effect = {
@@ -329,7 +329,12 @@ country_event = {
 		name = soviet.10.a
 		if = {
 			limit = {
-				FROM = { has_country_flag = cave_to_enemy_pressure_flag }
+				FROM = {
+					has_country_flag = cave_to_enemy_pressure_flag
+					NOT = {	#Appeased the wrong side
+						has_completed_focus = LIT_appease_nazis
+					}
+				}
 			}
 			puppet = FROM
 		}
@@ -370,8 +375,18 @@ country_event = {
 		name = soviet.12.a
 		SOV = { 
 			transfer_state = 146
+			custom_effect_tooltip = FIN_remove_soviet_claims_in_other_states_tt
 		}
 		hidden_effect = {
+			FIN = {
+				every_core_state = {
+					limit = {
+						is_owned_by = PREV
+						is_claimed_by = ROOT
+					}
+					remove_claim_by = ROOT 
+				} 
+			}
 			SOV = {
 				country_event = { days = 1 id = news.13 }
 			}
@@ -397,7 +412,7 @@ country_event = {
 		}				
 		hidden_effect = {
 			SOV = {
-				country_event = { days = 1 id = news.12 }				
+				country_event = { days = 1 id = news.12 }
 			}
 		}
 	}
@@ -1184,7 +1199,7 @@ country_event = {
 	}
 }
 
-# Demand Karjala
+# Demand Karjala - UNUSED
 country_event = {
 	id = soviet.31
 	title = soviet.31.t
@@ -1429,7 +1444,7 @@ country_event = {
 }
 
 ## Purge - Fighting defensive war against major
-#country_event = { #------------------------------------> No longer happening (NSB) -> TODO_Manu: Maybe adapt it to NSB
+#country_event = { #------------------------------------> No longer happening (NSB)
 #	id = soviet.46
 #	title = soviet.46.t
 #	desc = soviet.46.d
@@ -2368,6 +2383,9 @@ country_event = {
 						is_controlled_by = SOV
 						any_other_country = {
 							controls_state = 70
+							NOT = {	#no taking Slovakia from a comintern Slovakia/Czechoslovakia
+								owns_state = 70
+							}
 							is_in_faction_with = SOV
 							SOV = { is_faction_leader = yes }
 						}
@@ -2384,6 +2402,9 @@ country_event = {
 						is_controlled_by = SOV
 						any_other_country = {
 							controls_state = 71
+							NOT = {	#no taking Slovakia from a comintern Slovakia/Czechoslovakia
+								owns_state = 71
+							}
 							is_in_faction_with = SOV
 							SOV = { is_faction_leader = yes }
 						}
@@ -2400,6 +2421,9 @@ country_event = {
 						is_controlled_by = SOV
 						any_other_country = {
 							controls_state = 664
+							NOT = {	#no taking Slovakia from a comintern Slovakia/Czechoslovakia
+								owns_state = 664
+							}
 							is_in_faction_with = SOV
 							SOV = { is_faction_leader = yes }
 						}
@@ -2606,96 +2630,281 @@ country_event = {
 country_event = {
 	id = soviet.70
 	title = soviet.70.t
-	desc = soviet.70.d
+	desc = soviet.70.desc
 	picture = GFX_report_event_soviet_tanks
 
 	trigger = {
 		tag = POL
+		is_subject = no
 		NOT = { has_government = communism }
 		has_global_flag = yalta_agreed_flag
 		SOV = {
 			exists = yes
+			is_subject = no
 		}
 		OR = {
-			NOT = {GER = {has_government = fascism}}
-			GER = {exists = no}
+			NOT = { GER = { has_government = fascism } }
+			GER = { exists = no }
 		}
 	}
 	fire_only_once = yes
 	
 	option = {
 		name = soviet.70.a
+		ai_chance = {
+			base = 7
+		}
+
+		add_timed_idea = {
+			idea = communist_influence
+			days = 730
+		}	
+
 		SOV = {
 			country_event = {
 				id = soviet.71
 				days = 1
 			}
 		}
+
 	}
 	option = {
 		name = soviet.70.b
+		ai_chance = {
+			base = 3
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+		}
+
 		SOV = {
 			country_event = {
 				id = soviet.72
 				days = 1
 			}
 		}
+		effect_tooltip = {
+			SOV = {
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = ROOT
+				}
+			}
+		}
+
 	}
 }
 
 # Soviet event for Poland joining sphere after Yalta 
-#country_event = {
-#	id = soviet.71
-#	title = soviet.71.t
-#	desc = soviet.71.d
-#	picture = GFX_report_event_soviet_tanks
-#
-#	is_triggered_only = yes
-#	fire_only_once = yes
-#	
-#	option = {
-#		name = soviet.71.a
-#	}
-#}
-#
-## Soviet event for Poland refusing to join sphere after Yalta 
-#country_event = {
-#	id = soviet.72
-#	title = soviet.72.t
-#	desc = soviet.72.d
-#	picture = GFX_report_event_soviet_tanks
-#
-#	is_triggered_only = yes
-#	fire_only_once = yes
-#	
-#	option = {
-#		name = soviet.72.a
-#		create_wargoal = {
-#			type = puppet_wargoal_focus
-#			target = FROM
-#		}
-#	}
-#	option = {
-#		name = soviet.72.b
-#		FROM = {
-#			country_event = {
-#				id = soviet.73
-#				days = 7
-#			}
-#		}
-#	}
-#}
-#
-#country_event = {
-#	id = soviet.73
-#	title = soviet.73.t
-#	desc = soviet.73.d
-#	picture = GFX_report_event_soviet_tanks
-#
-#	is_triggered_only = yes
-#	fire_only_once = yes
-#	
-#	option = {
-#		name = soviet.73.a
-#	}
-#}
+country_event = {
+	id = soviet.71
+	title = soviet.71.t
+	desc = soviet.71.desc
+	picture = GFX_report_event_soviet_tanks
+
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = soviet.71.a
+		effect_tooltip = {
+			FROM = {
+				add_timed_idea = {
+					idea = communist_influence
+					days = 730
+				}	
+			}
+		}
+	}
+}
+
+# Soviet event for Poland refusing to join sphere after Yalta 
+country_event = {
+	id = soviet.72
+	title = soviet.72.t
+	desc = soviet.72.desc
+	picture = GFX_report_event_soviet_tanks
+
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = soviet.72.a
+		ai_chance = {
+			base = 5
+			modifier = {
+				factor = 0
+				POL = {
+					is_in_faction_with = USA
+				}
+			}
+		}
+
+		create_wargoal = {
+			type = puppet_wargoal_focus
+			target = FROM
+		}
+
+	}
+	option = {
+		name = soviet.72.b
+		ai_chance = {
+			base = 5
+		}
+
+		FROM = {
+			country_event = {
+				id = soviet.73
+				days = 7
+			}
+		}
+
+	}
+}
+
+country_event = {
+	id = soviet.73
+	title = soviet.73.t
+	desc = soviet.73.desc
+	picture = GFX_report_event_soviet_tanks
+
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = soviet.73.a
+
+		add_political_power = 50
+
+	}
+}
+
+
+# Polish event for Returning occupied territory
+country_event = {
+	id = soviet.74
+	title = soviet.74.t
+	desc = soviet.74.d
+	picture = GFX_report_event_SOV_demands
+	is_triggered_only = yes 
+
+	trigger = {
+		
+	}
+	#fire_only_once = yes
+	
+	option = {
+		name = soviet.74.a
+		ai_chance = {
+			base = 1
+		}
+		POL = {
+			add_autonomy_score = { 
+				value = -250 
+				localization = POL_accepted_states
+			}
+			add_popularity = {
+				ideology = FROM
+				popularity = 0.05
+			}
+		}
+		FROM = {
+			every_owned_state = {
+				limit = {
+					is_core_of = POL 
+					OR = {
+						# Białystok
+						state = 97 
+						# Uncontested Polish Cores
+						NOT = {
+							any_country_with_core = {
+								NOT = { tag = POL }
+							}
+						}
+					}
+					
+				}
+				transfer_state_to = POL
+			}
+		}
+		FROM = {
+			country_event = {
+				id = soviet.75
+				hours = 2 
+				random_hours = 6 
+			}
+		}
+	}
+	option = {
+		name = soviet.74.b
+		ai_chance = {
+			base = 0
+		}
+		POL = {
+			add_autonomy_score = { 
+				value = 250 
+				localization = POL_refused_states
+			}
+		}
+		FROM = {
+			every_owned_state = {
+				limit = {
+					is_core_of = POL 
+					OR = {
+						# Białystok
+						state = 97 
+						# Uncontested Polish Cores
+						NOT = {
+							any_country_with_core = {
+								NOT = { tag = POL }
+							}
+						}
+					}
+					
+				}
+				remove_core_of = POL  
+				add_core_of = SOV
+				add_claim_by = POL 
+			}
+		}
+		FROM = {
+			country_event = {
+				id = soviet.76
+				hours = 2 
+				random_hours = 6 
+			}
+		}
+	}
+}
+
+# Poland Accepted
+country_event = {
+	id = soviet.75
+	title = soviet.75.t
+	desc = soviet.75.d
+	picture = GFX_report_event_SOV_demands
+	is_triggered_only = yes 
+	option = {
+		name = soviet.75.a
+		ai_chance = {
+			base = 1
+		}
+		add_stability = 0.05
+	}
+}
+
+# Poland refused
+country_event = {
+	id = soviet.76
+	title = soviet.76.t
+	desc = soviet.76.d
+	picture = GFX_report_event_SOV_demands
+	is_triggered_only = yes 
+	option = {
+		name = soviet.76.a
+		ai_chance = {
+			base = 1
+		}
+	}
+}

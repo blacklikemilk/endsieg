@@ -904,10 +904,6 @@ NOR_democratic_preparation_decisions_category = {
 		
 		visible = {
 			has_completed_focus = NOR_rearm_for_defense
-			OR = {
-				has_country_flag = NOR_going_dem_historical
-				has_country_flag = NOR_going_dem_allied
-			}		
 		}
 
 		available = {
@@ -949,11 +945,7 @@ NOR_democratic_preparation_decisions_category = {
 	NOR_public_investment_drive = {
 		
 		visible = {
-			has_completed_focus = NOR_restart_public_investment
-			OR = {
-				has_country_flag = NOR_going_dem_historical
-				has_country_flag = NOR_going_dem_allied
-			}		
+			has_completed_focus = NOR_coastal_defense		
 		}
 
 		available = {
@@ -1796,6 +1788,91 @@ NOR_allied_democratic_preparation_decisions_category = {
 			}
 		}
 	}
+
+	NOR_alt_dem_focus_on_training = {
+		
+		visible = {
+			has_completed_focus = NOR_rearm_for_defense
+		}
+
+		available = {
+			NOT = {
+				ROOT = {
+					has_country_flag = NOR_ongoing_countrywide_program
+				}
+			}
+			has_equipment = {
+				convoy > NOR_prep_his_program_min_convoy
+			}		
+		}
+
+		cost = 50
+		
+		days_remove = 45 
+
+		complete_effect = {
+			ROOT = { set_country_flag = NOR_ongoing_countrywide_program }
+		}
+
+		modifier = {
+			training_time_factor = -0.15
+			consumer_goods_factor = 0.05
+			production_factory_max_efficiency_factor = -0.1
+		}
+
+		remove_effect = {
+			ROOT = { clr_country_flag = NOR_ongoing_countrywide_program }
+		}
+
+		cancel_effect = {
+			hidden_effect = {
+				clr_country_flag = NOR_ongoing_countrywide_program
+			} 
+		}
+	}
+
+	NOR_alt_dem_public_investment_drive = {
+		
+		visible = {
+			has_completed_focus = NOR_coastal_defense		
+		}
+
+		available = {
+			NOT = {
+				ROOT = {
+					has_country_flag = NOR_ongoing_countrywide_program
+				}
+			}
+			has_equipment = {
+				convoy > NOR_prep_his_program_min_convoy
+			}		
+		}
+
+		cost = 50
+
+		days_remove = 45 
+
+		complete_effect = {
+			ROOT = { set_country_flag = NOR_ongoing_countrywide_program }
+		}
+
+		modifier = { 
+			production_speed_buildings_factor = 0.2
+			training_time_factor = 0.10
+			production_factory_max_efficiency_factor = -0.1
+			industrial_capacity_factory = -0.15
+		} 
+
+		remove_effect = {
+			ROOT = { clr_country_flag = NOR_ongoing_countrywide_program }
+		}
+
+		cancel_effect = {
+			hidden_effect = {
+				clr_country_flag = NOR_ongoing_countrywide_program
+			} 
+		}
+	}
 }
 NOR_allied_democratic_deploy_prep_decisions_category = {
 	NOR_alt_dem_modernize_armed_forces_decision_wartime = {
@@ -2216,37 +2293,18 @@ NOR_fascist_preparation_decisions_category = {
 	}
 
 	NOR_invite_fascist_to_invade = {
+
+		cost = 75 
 		
 		visible = {
-			#if = {
-			#	limit = {
-			#		var:GLOBAL.platonic_fascist_bully = {
-			#			capital_scope = {
-			#				is_on_continent = europe 
-			#			}
-			#		}		
-			#	}
-			#	var:GLOBAL.platonic_fascist_bully = {
-			#		ROOT = {
-			#			NOT = { has_country_flag = NOR_already_asked_a_fascist@PREV } 
-			#		}
-			#	}
-			#}
-			#else = {
-			#	var:platonic_local_dangerous_fascist = {
-			#		ROOT = {
-			#			NOT = { has_country_flag = NOR_already_asked_a_fascist@PREV } 
-			#		}
-			#	}
-			#}
 		
-				any_country = {
-					original_tag = GER
-					has_government = fascism
-					ROOT = {
-						NOT = { has_country_flag = NOR_already_asked_a_fascist@PREV } 
-					}
+			any_country = {
+				original_tag = GER
+				has_government = fascism
+				ROOT = {
+					NOT = { has_country_flag = NOR_already_asked_a_fascist@PREV } 
 				}
+			}
 			
 			has_country_flag = NOR_going_fascist
 			has_completed_focus = NOR_nasjonal_samling
@@ -2878,27 +2936,25 @@ economy_decisions = {
 			NOT = { 
 				has_country_flag = nor_building_ship 
 			}
-			has_dlc = "Man the Guns"
-			has_tech = early_ship_hull_light
-	  		if = {
+			if = {
 	  			limit = {
+					has_dlc = "Man the Guns"
 	  			}
+	  			has_tech = early_ship_hull_light
 	  		}
 	  		if = {
 	  			limit = {
 					NOT = { has_dlc = "Man the Guns" }
-					has_tech = early_destroyer
 	  			}
+	  			has_tech = early_destroyer
 	  		}
 		}
 		days_remove = 14
 
 		complete_effect = {
-			hidden_effect = {
-				add_equipment_to_stockpile = { 
-					type = convoy_1
-					amount = -4
-				}
+			add_equipment_to_stockpile = { 
+				type = convoy_1
+				amount = -4
 			}
 			set_country_flag = {
 				flag = nor_building_ship
@@ -2932,7 +2988,7 @@ economy_decisions = {
 							mid_1_custom_slot = empty
 							rear_1_custom_slot = empty
 						}
-					obsolete = yes
+						obsolete = yes
 					}
 				}
 				create_ship = {
@@ -2977,7 +3033,7 @@ economy_decisions = {
 		}
 	}
 
-		refit_to_destroyer_mass_nor = {
+	refit_to_destroyer_mass_nor = {
 		icon = GFX_decision_generic_merge_plant_ship
 		fire_only_once = no
 
@@ -2998,14 +3054,14 @@ economy_decisions = {
 	  		if = {
 	  			limit = {
 					has_dlc = "Man the Guns"
-					has_tech = early_ship_hull_light
 	  			}
+	  			has_tech = early_ship_hull_light
 	  		}
 	  		if = {
 	  			limit = {
 					NOT = { has_dlc = "Man the Guns" }
-					has_tech = early_destroyer
 	  			}
+	  			has_tech = early_destroyer
 	  		}
 		}
 		days_remove = 105 #Less than the single conversions to encourage players to use it, and not have to min/max

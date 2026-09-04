@@ -197,7 +197,7 @@ country_event = { #Vote of No Confidence
 	}
 
 	option = { #DKP
-		name = denmark_political_events.2.C
+		name = denmark_political_events.2.c
 		ai_chance = {
 			base = 1
 			modifier = {
@@ -304,7 +304,7 @@ country_event = { #Vote of No Confidence
 	}
 
 	option = { #Bondepartiet
-		name = denmark_political_events.2.E
+		name = denmark_political_events.2.e
 		ai_chance = {
 			base = 1
 			modifier = {
@@ -370,6 +370,17 @@ country_event = { #Election Campaigns
 	trigger = {
 		tag = DEN
 		has_elections = yes
+		NOT = { has_country_flag = DEN_at_war_flag }
+	}
+
+	immediate = {
+		if = {
+			limit = {
+				has_war = yes
+				NOT = { has_country_flag = DEN_at_war_flag }
+			}
+			set_country_flag = DEN_at_war_flag
+		}
 	}
 
 	option = { #Support the Democratic Party
@@ -2854,7 +2865,7 @@ country_event = { #Denmark provides intel
 		}
 	}
 	option = { #Nope
-		name = denmark_resistance_event.11.a 
+		name = denmark_resistance_event.11.b
 		ai_chance = {
 			base = 1
 			modifier = {
@@ -6902,7 +6913,7 @@ country_event = { #Denmark is refused
 	is_triggered_only = yes
 
 	option = { #damnit
-		name =  denmark_protection_event.12.b		
+		name =  denmark_protection_event.102.a		
 	}
 }
 
@@ -7048,11 +7059,20 @@ country_event = { #Denmark joins the alliance
 			FROM = { add_to_faction = ROOT }
 		}
 		else = {
-			set_rule = {
-				can_create_factions = yes
+			IF = {
+				limit = {
+					has_dlc = "No Compromise, No Surrender"
+				}
+				set_rule = { can_create_factions = yes }
+				create_faction_from_template = faction_template_DEN_nordic_cooperation_alliance
+				add_faction_initiative = 1
+				add_to_faction = FROM
 			}
-			create_faction = DEN_nordic_cooperation_alliance
-			add_to_faction = FROM
+			ELSE = {
+				set_rule = { can_create_factions = yes }
+				create_faction = DEN_nordic_cooperation_alliance
+				add_to_faction = FROM
+			}
 		}
 	}
 }
@@ -9072,7 +9092,11 @@ country_event = { #The Question of Neutrality
 			}
 			set_rule = { can_create_factions = yes }
 		}
-		create_faction = DEN_northern_security_pact
+		create_faction_from_template = {
+			template = faction_template_DEN_nordic_cooperation_alliance
+			name = DEN_northern_security_pact
+			icon = GFX_faction_logo_generic_8
+		}
 
 		unlock_decision_tooltip = DEN_northern_security_pact_invitation
 		if = {
@@ -9206,7 +9230,11 @@ country_event = { #Germany doesn't want to become Allies
 			}
 			set_rule = { can_create_factions = yes }
 		}
-		create_faction = DEN_northern_security_pact
+		create_faction_from_template = {
+			template = faction_template_DEN_nordic_cooperation_alliance
+			name = DEN_northern_security_pact
+			icon = GFX_faction_logo_generic_8
+		}
 
 		unlock_decision_tooltip = DEN_northern_security_pact_invitation
 		if = {
@@ -9741,12 +9769,17 @@ country_event = { #Denmark offers subjugation
 				}
 			}
 		}
+		
 		effect_tooltip = {
+			
 			FROM = { puppet = ROOT }
+
 		}
+
 		FROM = {
 			country_event = { id =  denmark_expansion_event.801 days = 2 } 
 		}
+
 	}
 	option = { #Refuse
 		name = denmark_protection_event.100.b #Intentional
@@ -9781,12 +9814,14 @@ country_event = { #Denmark offers subjugation
 				}
 			}
 		}
+
 		FROM = {
 			country_event = { id =  denmark_expansion_event.802 days = 2 } 
 		}
+
 	}
 }
-country_event = { #Denmark gains a Puppet
+country_event = { # ROOT gains a Puppet
 	id = denmark_expansion_event.801
 	title = denmark_expansion_event.801.t
 	desc = denmark_expansion_event.801.desc
@@ -9798,10 +9833,12 @@ country_event = { #Denmark gains a Puppet
 
 	option = { #Great
 		name = denmark_expansion_event.301.a #Intentional
-		ROOT = { puppet = FROM }
+
+		puppet = FROM 
+
 	}
 }
-country_event = { #FROM doesn't want to become a Puppet
+country_event = { # FROM doesn't want to become a Puppet
 	id = denmark_expansion_event.802
 	title = denmark_expansion_event.802.t
 	desc = denmark_expansion_event.802.desc
@@ -10171,6 +10208,7 @@ country_event = { #Forts makes the people feels safe
 	}
 }
 
+#MM: Never used. Unlocalized
 country_event = { #removing Neutrality spirit
 	id = denmark_events.3
 	title = denmark_events.3.t

@@ -56,7 +56,7 @@ country_event = {
 	}	
 }
 
-
+#MM: Never used. Not localized (title, option, desc)
 country_event = {
 	id = JUNO_brazil_events.5
 	title = JUNO_brazil_events.5.t
@@ -1105,7 +1105,7 @@ country_event = {
 			modifier = {
 				factor = 5
 				OR = {
-					has_stability < 50
+					has_stability < 0.5
 					has_war = yes
 				}
 			}
@@ -1155,7 +1155,7 @@ country_event = {
 				factor = 10
 				has_completed_focus = POR_a_royal_wedding
 				OR = {
-					has_stability < 70
+					has_stability < 0.7
 					has_war = yes
 				}
 			}
@@ -1938,6 +1938,25 @@ country_event = { #BRA requests tech sharing
 		name = JUNO_brazil_events.120.a 
 		ai_chance = {
 			base = 1
+			modifier = {
+				factor = 10
+				has_opinion = {
+					target = FROM
+					value > 0.5
+				}
+			}
+			modifier = {
+				factor = 100
+				is_in_faction_with = FROM
+			}
+			modifier = {
+				factor = 5
+				has_government = FROM
+			}
+			modifier = {
+				factor = 0
+				has_war_with = FROM
+			}
 		}
 		FROM = {
 			country_event = {
@@ -1967,6 +1986,17 @@ country_event = { #BRA requests tech sharing
 				add_to_tech_sharing_group = BRA_south_american_tech_sharing_group
 				FROM = {
 					add_to_tech_sharing_group = BRA_south_american_tech_sharing_group
+				}
+			}
+			IF = {
+				limit = {
+					FROM = {
+						has_completed_focus = AFG_soviet_research_cooperation
+					}
+				}
+				add_to_tech_sharing_group = AFG_SOV_tech_sharing_group
+				FROM = {
+					add_to_tech_sharing_group = AFG_SOV_tech_sharing_group
 				}
 			}
 		}
@@ -2026,6 +2056,18 @@ country_event = { #USA agrees to share tech
 			add_to_tech_sharing_group = BRA_south_american_tech_sharing_group
 			FROM = {
 				add_to_tech_sharing_group = BRA_south_american_tech_sharing_group
+			}
+		}
+		IF = {
+			limit = {
+				FROM = {
+					tag = SOU
+				}
+				has_completed_focus = AFG_soviet_research_cooperation
+			}
+			add_to_tech_sharing_group = AFG_SOV_tech_sharing_group
+			FROM = {
+				add_to_tech_sharing_group = AFG_SOV_tech_sharing_group
 			}
 		}
 	}
@@ -3672,6 +3714,79 @@ news_event = {
 
 	option = {
 		name = JUNO_brazil_news.6.a
+	}
+}
+
+# King Pedro de Alcantara Dies 
+news_event = {
+	id = JUNO_brazil_news.7
+	title = JUNO_brazil_news.7.t
+	desc = JUNO_brazil_news.7.desc
+	picture = GFX_news_event_generic_funeral
+	
+	major = no
+
+	fire_only_once = yes
+
+	trigger = {
+		has_dlc = "Trial of Allegiance"
+		original_tag = BRA
+		has_country_leader = {
+			ruling_only = yes
+			character = BRA_pedro_de_alcantara
+		}	
+		date > 1940.01.01
+	}
+
+	mean_time_to_happen = {
+		days = 30
+		modifier = {
+			factor = 2
+			date > 1941.01.01
+		}
+	}
+
+	option = {
+		name = JUNO_brazil_news.7.a
+
+		retire_character = BRA_pedro_de_alcantara 
+
+		IF = {
+			limit = {
+				NOT = {
+					has_completed_focus = BRA_empire_of_brazil
+				}
+			}
+			custom_effect_tooltip = generic_skip_one_line_tt
+			BRA_pedro_gastao = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = despotism
+						expire = "1965.1.1.1"
+						traits = { BRA_head_of_house_orleans_braganza_trait }
+					}
+					promote_leader = yes
+				} 
+			}
+		}
+		ELSE = {
+			custom_effect_tooltip = generic_skip_one_line_tt
+			BRA_pedro_gastao = {
+				add_country_leader_role = {
+					country_leader = {
+						ideology = despotism
+						expire = "1965.1.1.1"
+						traits = { BRA_head_of_house_orleans_braganza_trait BRA_emperor_trait }
+					}
+					promote_leader = yes
+				} 
+			}
+		}
+		
+		hidden_effect = {
+			set_country_flag = BRA_pedro_de_alcantara_dead_flag
+			mark_focus_tree_layout_dirty = yes
+		}
 	}
 }
 
