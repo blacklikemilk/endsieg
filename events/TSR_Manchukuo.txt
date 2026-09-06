@@ -1,0 +1,1410 @@
+﻿###########################
+### TSR MANCHUKUO EVENTS###
+###########################
+
+add_namespace = tsr_manchukuo
+add_namespace = tsr_manchukuo_border_war
+add_namespace = tsr_manchukuo_news
+
+###FIX
+country_event = {
+	id = tsr_manchukuo.1
+	title = tsr_manchukuo.1.t
+	desc = tsr_manchukuo.1.desc
+	picture = GFX_report_event_manchukuo_army
+
+	is_triggered_only = yes
+	
+	#Same as before
+	option = {
+		name = tsr_manchukuo.1.a
+		ai_chance = { 
+			base = 10 
+		}
+		add_stability = 0.025
+		add_political_power = 75
+	}
+
+	#Puyi
+	option = {
+		name = tsr_manchukuo.1.b
+		ai_chance = { 
+			base = 10 
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+			modifier = {
+				OR = {
+					has_country_flag = MAN_AI_RANDOM_OBEDIENCE_CHINA
+					has_game_rule = {
+						rule = MAN_ai_behavior
+						option = OBEDIENCE_CHINA
+					}
+				}
+				factor = 20
+			}
+		}
+		add_stability = -0.025
+		add_country_leader_role = {
+			character = MAN_aisin_gioro_puyi
+			promote_leader = yes
+			country_leader = {
+				ideology = emperor_fascism
+				expire = "1960.1.1.1"
+				traits = { warrior_code } 
+			}
+		}
+	}
+
+	#Pujie
+	option = {
+		name = tsr_manchukuo.1.c
+		ai_chance = { 
+			base = 10 
+			modifier = {
+				is_historical_focus_on = yes
+				factor = 0
+			}
+		}
+		add_stability = -0.05
+		remove_ideas = MAN_the_kangde_emperor
+		add_country_leader_role = {
+			character = MAN_pujie
+			promote_leader = yes
+			country_leader = {
+				ideology = emperor_fascism
+				expire = "1960.1.1.1"
+				traits = { JAP_militarist } 
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.2
+	title = tsr_manchukuo.2.t
+	desc = tsr_manchukuo.2.desc
+	picture = GFX_report_event_manchukuo_army_2
+
+	is_triggered_only = yes
+	
+	#Same as before
+	option = {
+		name = tsr_manchukuo.2.a
+		ai_chance = { 
+			base = 20 
+			modifier = {
+				ROOT = {
+					has_opinion = {
+						target = FROM
+						value > 50
+					}
+				}
+				factor = 2
+			}
+			modifier = {
+				ROOT = {
+					has_opinion = {
+						target = FROM
+						value > 75
+					}
+				}
+				factor = 2
+			}
+			modifier = {
+				ROOT = {
+					has_opinion = {
+						target = FROM
+						value > 90
+					}
+				}
+				factor = 2
+			}
+			modifier = {
+				FROM = {
+					is_ai = no
+				}
+				factor = 5
+			}
+		}
+		add_stability = -0.025
+		745 = {
+			transfer_state_to = FROM
+		}
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.3
+				hours = 1
+			}
+		}
+
+	}
+
+	#fail
+	option = {
+		name = tsr_manchukuo.2.b
+		ai_chance = { 
+			base = 10 
+			modifier = {
+				ROOT = {
+					has_opinion = {
+						target = FROM
+						value < 25
+					}
+				}
+				factor = 2
+			}
+			modifier = {
+				FROM = {
+					is_ai = yes
+				}
+				is_historical_focus_on = yes
+				factor = 100
+			}
+			modifier = {
+				FROM = {
+					is_ai = no
+				}
+				factor = 0.05
+			}
+		}
+		add_stability = 0.025
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.4
+				hours = 1
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.3
+	title = tsr_manchukuo.3.t
+	desc = tsr_manchukuo.3.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+	is_triggered_only = yes
+	
+	#yay
+	option = {
+		name = tsr_manchukuo.3.a
+		ai_chance = { 
+			base = 10
+		}
+		add_stability = 0.025
+		effect_tooltip = {
+			745 = {
+			transfer_state_to = ROOT
+			}	
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.4
+	title = tsr_manchukuo.4.t
+	desc = tsr_manchukuo.4.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+	is_triggered_only = yes
+	
+	#:(
+	option = {
+		name = tsr_manchukuo.4.a
+		ai_chance = { 
+			base = 10
+		}
+		add_stability = -0.025
+	}
+}
+
+country_event = { 
+	id = tsr_manchukuo.5
+	title = tsr_manchukuo.5.t
+	desc = tsr_manchukuo.5.desc
+	picture = GFX_report_event_generic_communist_militia
+
+	is_triggered_only = yes
+
+	option = { #we are communist now!
+		name = tsr_manchukuo.5.a
+		ai_chance = {
+			base = 98
+		}
+
+		hidden_effect = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+				}
+				set_variable = { ROOT.temp_capital = THIS.id }
+			}
+		}
+
+		add_popularity = {
+			ideology = communism
+			popularity = 0.4
+		}	
+
+		start_civil_war = {
+			ideology = ROOT
+			ruling_party = communism
+			size = 0.5 
+			states = all
+			states_filter = {
+				OR = {
+					state = 611
+					state = 1043
+				}
+			    is_controlled_by = ROOT
+			}
+		}
+
+		random_country = {
+			limit = {
+				original_tag = MEN
+				has_government = communism
+				is_subject = no
+			}
+			FROM = {
+				puppet = {
+				    target = PREV
+				    end_wars = no
+				    end_civil_wars = no
+				}
+			}
+			set_politics = {
+				ruling_party = communism
+			}
+		}
+
+		hidden_effect = {
+			random_country = {
+				limit = {
+					original_tag = MEN
+					NOT = {
+						has_government = communism
+					}
+				}
+				FROM = {
+					declare_war_on = {
+						target = PREV
+						type = annex_everything
+					}	
+				}
+			}
+		}
+
+	}
+
+	option = { #Fight back the red menace!
+		name = tsr_manchukuo.5.b
+		ai_chance = {
+			base = 2
+		}
+
+		hidden_effect = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+				}
+				set_variable = { ROOT.temp_capital = THIS.id }
+			}
+		}
+
+		start_civil_war = {
+			ideology = communism
+			ruling_party = ROOT
+			size = 0.5
+			states = all
+			states_filter = {
+			    state = 612
+			    is_controlled_by = ROOT
+			    is_capital = no
+			}
+		}
+
+		random_country = {
+			limit = {
+				original_tag = MEN
+				has_government = communism
+				is_subject = no
+			}
+			FROM = {
+				puppet = {
+				    target = PREV
+				    end_wars = no
+				    end_civil_wars = no
+				}
+			}
+			set_politics = {
+				ruling_party = communism
+			}
+		}
+
+		hidden_effect = {
+			random_country = {
+				limit = {
+					original_tag = MEN
+					NOT = {
+						has_government = communism
+					}
+				}
+				FROM = {
+					declare_war_on = {
+						target = PREV
+						type = annex_everything
+					}	
+				}
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.6
+	title = tsr_manchukuo.6.t
+	desc = tsr_manchukuo.6.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+	is_triggered_only = yes
+	
+	#sure why not
+	option = {
+		name = tsr_manchukuo.6.a
+		ai_chance = { 
+			base = 50
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = FROM
+					value > 75
+				}
+			}
+		}
+		leave_faction = yes
+		FROM = {
+			add_to_faction = ROOT
+		}
+		add_political_power = 25
+	}
+
+	#nah
+	option = {
+		name = tsr_manchukuo.6.b
+		ai_chance = { 
+			base = 10
+		}
+		add_political_power = 25
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.7
+	title = tsr_manchukuo.7.t
+	desc = tsr_manchukuo.7.desc
+	picture = GFX_report_event_china_politicians_captured
+
+	is_triggered_only = yes
+	
+	#sure why not
+	option = {
+		name = tsr_manchukuo.7.a
+		ai_chance = { 
+			base = 50
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = FROM
+					value > 75
+				}
+			}
+		}
+		ROOT = {
+			every_unit_leader = {
+				set_nationality = FROM
+			}
+		}
+		FROM = {
+			annex_country = {
+				target = ROOT
+				transfer_troops = yes
+			}
+		}
+	}
+
+	#nah
+	option = {
+		name = tsr_manchukuo.7.b
+		ai_chance = { 
+			base = 10
+			modifier = {
+				factor = 0
+				FROM = {
+					is_ai = no
+				}
+			}
+		}
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.8
+				hours = 6
+			}
+		}
+		effect_tooltip = {
+			FROM = {
+				create_wargoal = {
+					type = annex_everything
+					target = ROOT
+				}
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.8
+	title = tsr_manchukuo.8.t
+	desc = tsr_manchukuo.8.desc
+	picture = GFX_report_event_chinese_soldiers
+
+
+	is_triggered_only = yes
+
+	#ok
+	option = {
+		name = tsr_manchukuo.8.a
+		ai_chance = { 
+			base = 10
+			modifier = {
+				factor = 3
+				has_opinion = {
+					target = FROM
+					value < 45
+				}
+			}
+		}
+		ROOT = {
+			create_wargoal = {
+				type = annex_everything
+				target = FROM
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.9
+	title = tsr_manchukuo.9.t
+	desc = tsr_manchukuo.9.desc
+	picture = GFX_report_event_soviet_japanese_pact
+
+
+	is_triggered_only = yes
+
+	
+	option = {
+		name = tsr_manchukuo.9.a
+		ai_chance = { 
+			base = 15
+			modifier = {
+				factor = 10
+				has_government = communism
+				FROM = {
+					NOT =  {
+						has_government = communism
+					}
+				}
+			}
+		}
+		add_political_power = -25
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.19
+				hours = 6
+			}
+		}
+	}
+
+	#Mongolia and Tuva
+	option = {
+		name = tsr_manchukuo.9.b
+		ai_chance = { 
+			base = 20
+			modifier = {
+				factor = 2
+				FROM = {
+					is_in_faction_with = ROOT
+				}
+			}
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = FROM
+					value < 90
+				}
+			}
+			#they're a bully
+			modifier = {
+				factor = 2
+				fighting_army_strength_ratio = {
+					tag = FROM
+					ratio < 0.7
+				}
+			}
+		}
+		trigger = {
+			OR = {
+				AND = {
+					330 = { is_owned_and_controlled_by = ROOT }
+					820 = { is_owned_and_controlled_by = ROOT }
+					818 = { is_owned_and_controlled_by = ROOT }
+					817 = { is_owned_and_controlled_by = ROOT }
+					819 = { is_owned_and_controlled_by = ROOT }
+				}
+				MON = {
+					is_in_faction_with = ROOT
+					exists = yes
+				}
+			}
+			OR = {
+				329 = {
+					is_owned_and_controlled_by = ROOT
+				}
+				TAN = {
+					is_in_faction_with = ROOT
+					exists = yes
+				}
+			}
+		}
+		IF = {
+			limit = {
+				MON = {
+					exists = yes
+					is_in_faction_with = ROOT
+				}
+			}
+			MON = {	
+				country_event = {
+					id = tsr_manchukuo.10
+					hours = 2
+				}
+			}
+		}
+		ELSE = {
+			330 = { transfer_state_to = FROM }
+			820 = { transfer_state_to = FROM }
+			818 = { transfer_state_to = FROM }
+			817 = { transfer_state_to = FROM }
+			819 = { transfer_state_to = FROM }
+		}
+		IF = {
+			limit = {
+				TAN = {
+					exists = yes
+					is_in_faction_with = ROOT
+				}
+			}
+			TAN = {	
+				country_event = {
+					id = tsr_manchukuo.10
+					hours = 2
+				}
+			}
+		}
+		ELSE = {
+			329 = { transfer_state_to = FROM }
+		}
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.20
+				hours = 6
+			}
+		}
+	}
+
+	#Manchuria
+	option = {
+		name = tsr_manchukuo.9.c
+		ai_chance = { 
+			base = 15
+			#can't afford to lose more land
+			modifier = {
+				factor = 0
+				surrender_progress > 0.5
+			}
+			modifier = {
+				factor = 0
+				any_country = {
+					has_war_with = ROOT
+					is_major = yes
+				}
+			}
+		}
+		trigger = {
+			560 = { is_owned_and_controlled_by = ROOT }
+			561 = { is_owned_and_controlled_by = ROOT }
+			657 = { is_owned_and_controlled_by = ROOT }
+			409 = { is_owned_and_controlled_by = ROOT }
+			408 = { is_owned_and_controlled_by = ROOT }
+		}
+		560 = { transfer_state_to = FROM }
+		561 = { transfer_state_to = FROM }
+		657 = { transfer_state_to = FROM }
+		409 = { transfer_state_to = FROM }
+		408 = { transfer_state_to = FROM }
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.21
+				hours = 6
+			}
+		}
+	}
+
+	#All of it
+	option = {
+		name = tsr_manchukuo.9.d
+		ai_chance = { 
+			base = 15
+			#we like them
+			modifier = {
+				factor = 2
+				has_opinion = {
+					target = FROM
+					value > 90
+				}
+			}
+			#they're a bully
+			modifier = {
+				factor = 2
+				fighting_army_strength_ratio = {
+					tag = FROM
+					ratio < 0.5
+				}
+			}
+			#they're cooler
+			modifier = {
+				factor = 2
+				FROM = {
+					is_in_faction_with = ROOT
+					is_faction_leader = yes
+				}
+			}
+			#can't afford to lose more land
+			modifier = {
+				factor = 0
+				surrender_progress > 0.5
+			}
+			modifier = {
+				factor = 0
+				any_country = {
+					has_war_with = ROOT
+					is_major = yes
+				}
+			}
+		}
+		trigger = {
+			OR = {
+				AND = {
+					330 = { is_owned_and_controlled_by = ROOT }
+					820 = { is_owned_and_controlled_by = ROOT }
+					818 = { is_owned_and_controlled_by = ROOT }
+					817 = { is_owned_and_controlled_by = ROOT }
+					819 = { is_owned_and_controlled_by = ROOT }
+				}
+				MON = {
+					is_in_faction_with = ROOT
+					exists = yes
+				}
+			}
+			OR = {
+				329 = {
+					is_owned_and_controlled_by = ROOT
+				}
+				TAN = {
+					is_in_faction_with = ROOT
+					exists = yes
+				}
+			}
+			560 = { is_owned_and_controlled_by = ROOT }
+			561 = { is_owned_and_controlled_by = ROOT }
+			657 = { is_owned_and_controlled_by = ROOT }
+			409 = { is_owned_and_controlled_by = ROOT }
+			408 = { is_owned_and_controlled_by = ROOT }
+		}
+		560 = { transfer_state_to = FROM }
+		561 = { transfer_state_to = FROM }
+		657 = { transfer_state_to = FROM }
+		409 = { transfer_state_to = FROM }
+		408 = { transfer_state_to = FROM }
+		IF = {
+			limit = {
+				MON = {
+					exists = yes
+					is_in_faction_with = ROOT
+				}
+			}
+			MON = {	
+				country_event = {
+					id = tsr_manchukuo.10
+					hours = 2
+				}
+			}
+		}
+		ELSE = {
+			330 = { transfer_state_to = FROM }
+			820 = { transfer_state_to = FROM }
+			818 = { transfer_state_to = FROM }
+			817 = { transfer_state_to = FROM }
+			819 = { transfer_state_to = FROM }
+		}
+		IF = {
+			limit = {
+				TAN = {
+					exists = yes
+					is_in_faction_with = ROOT
+				}
+			}
+			TAN = {	
+				country_event = {
+					id = tsr_manchukuo.10
+					hours = 2
+				}
+			}
+		}
+		ELSE = { 
+			329 = { transfer_state_to = FROM }
+		}
+
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.22
+				hours = 6
+			}
+		}
+
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.10
+	title = tsr_manchukuo.10.t
+	desc = tsr_manchukuo.10.desc
+	picture = GFX_report_event_chinese_soldiers
+
+
+	is_triggered_only = yes
+
+	#oh
+	option = {
+		name = tsr_manchukuo.10.a
+		ai_chance = { 
+			base = 80
+		}
+		MAN = {
+			annex_country = {
+				target = ROOT
+				transfer_troops = yes
+			}
+		}
+	}
+
+	#we fight
+	option = {
+		name = tsr_manchukuo.10.b
+		ai_chance = { 
+			base = 10
+		}
+		SOV = {
+			remove_from_faction = ROOT
+		}
+		MAN = {
+			declare_war_on = {
+			 	target = ROOT
+			 	type = annex_everything
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.11
+	title = tsr_manchukuo.11.t
+	desc = tsr_manchukuo.11.desc
+	picture = GFX_report_event_japanese_officers
+
+	trigger = {
+
+		has_dlc = "No Compromise, No Surrender"
+
+		original_tag = MAN
+
+		MAN = { 
+			exists = yes
+			is_subject_of = JAP
+			has_government = fascism
+		}
+		
+		date > 1936.2.1
+
+		date < 1936.4.20
+
+	}
+
+	fire_only_once = yes
+	mean_time_to_happen = { days = 15 }
+
+	#Oh well
+	option = {
+		name = tsr_manchukuo.11.a
+		ai_chance = {
+			base = 90
+		}
+		add_political_power = 50
+		add_stability = -0.025
+	}
+
+	#Justify
+	option = {
+		name = tsr_manchukuo.11.b
+		ai_chance = {
+			base = 20
+		}
+		add_timed_idea = {
+			idea = MAN_xingan_army_resigned
+			days = 365
+		}
+		retire_character = MAN_urzhin_garmaev
+		retire_character = MAN_jonjurjab
+		hidden_effect = { set_country_flag = MAN_xingan_army_resigned }
+	}
+
+	#Apologize
+	option = {
+		name = tsr_manchukuo.11.c
+		ai_chance = {
+			base = 15
+		}
+		add_timed_idea = {
+			idea = MAN_xingan_army_appeased
+			days = 725
+		}
+		add_stability = -0.1
+		add_political_power = -25
+		hidden_effect = { set_country_flag = MAN_xingan_army_government }
+		custom_effect_tooltip = MAN_will_support_japan_tt
+	}
+
+}
+
+country_event = {
+	id = tsr_manchukuo.12
+	title = tsr_manchukuo.12.t
+	desc = tsr_manchukuo.12.desc
+	picture = GFX_report_event_chinese_soldiers
+
+
+	is_triggered_only = yes
+
+	#that's bad
+	option = {
+		name = tsr_manchukuo.12.a
+		ai_chance = { 
+			base = 10
+		}
+	}
+	#cool
+	option = {
+		name = tsr_manchukuo.12.b
+		ai_chance = { 
+			base = 10
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.13
+	title = tsr_manchukuo.13.t
+	desc = tsr_manchukuo.13.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#send him over
+	option = {
+		name = tsr_manchukuo.13.a
+		ai_chance = { 
+			base = 90
+		}
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.14
+				hours = 2
+			}
+		}
+		effect_tooltip = {
+			JAP_naoki_hoshino = {
+				set_nationality = MAN
+			}
+		}
+	}
+	
+	#we want this guy
+	option = {
+		name = tsr_manchukuo.13.b
+		ai_chance = { 
+			base = 0
+		}
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.15
+				hours = 2
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.14
+	title = tsr_manchukuo.14.t
+	desc = tsr_manchukuo.14.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#nice
+	option = {
+		name = tsr_manchukuo.14.a
+		ai_chance = { 
+			base = 10
+		}
+		JAP = {
+			JAP_naoki_hoshino = {
+			set_nationality = ROOT
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.15
+	title = tsr_manchukuo.15.t
+	desc = tsr_manchukuo.15.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#ok
+	option = {
+		name = tsr_manchukuo.15.a
+		ai_chance = { 
+			base = 10
+		}
+		add_political_power = 150
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.16
+	title = tsr_manchukuo.16.t
+	desc = tsr_manchukuo.16.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#agree to annex
+	option = {
+		name = tsr_manchukuo.16.a
+		ai_chance = { 
+			base = 90
+		}
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.17
+				hours = 2
+			}
+		}
+		effect_tooltip = {
+			FROM = {
+				annex_country = {
+					target = RNG
+					transfer_troops = yes
+				}
+			}
+		}
+	}
+	
+	#nah
+	option = {
+		name = tsr_manchukuo.16.b
+		ai_chance = { 
+			base = 0
+		}
+		FROM = {
+			country_event = {
+				id = tsr_manchukuo.18
+				hours = 2
+			}
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.17
+	title = tsr_manchukuo.17.t
+	desc = tsr_manchukuo.17.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#nice
+	option = {
+		name = tsr_manchukuo.17.a
+		ai_chance = { 
+			base = 10
+		}
+		annex_country = {
+			target = RNG
+			transfer_troops = yes
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.18
+	title = tsr_manchukuo.18.t
+	desc = tsr_manchukuo.18.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#ok
+	option = {
+		name = tsr_manchukuo.18.a
+		ai_chance = { 
+			base = 10
+		}
+		add_political_power = 50
+	}
+}
+
+#Nothing
+country_event = {
+	id = tsr_manchukuo.19
+	title = tsr_manchukuo.19.t
+	desc = tsr_manchukuo.19.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#ok
+	option = {
+		name = tsr_manchukuo.19.a
+		ai_chance = { 
+			base = 10
+		}
+		add_political_power = 50
+		add_war_support = 0.05
+		add_opinion_modifier = {
+			target = SOV
+			modifier = large_decrease
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.20
+	title = tsr_manchukuo.20.t
+	desc = tsr_manchukuo.20.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#ok
+	option = {
+		name = tsr_manchukuo.20.a
+		ai_chance = { 
+			base = 10
+		}
+		add_political_power = 10
+		add_opinion_modifier = {
+			target = SOV
+			modifier = medium_increase
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.21
+	title = tsr_manchukuo.21.t
+	desc = tsr_manchukuo.21.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#ok
+	option = {
+		name = tsr_manchukuo.21.a
+		ai_chance = { 
+			base = 10
+		}
+		add_political_power = 10
+		add_opinion_modifier = {
+			target = SOV
+			modifier = medium_increase
+		}
+	}
+}
+
+country_event = {
+	id = tsr_manchukuo.22
+	title = tsr_manchukuo.22.t
+	desc = tsr_manchukuo.22.desc
+	picture = GFX_report_event_chinese_japanese_handshake
+
+
+	is_triggered_only = yes
+
+	#ok
+	option = {
+		name = tsr_manchukuo.22.a
+		ai_chance = { 
+			base = 10
+		}
+		add_political_power = 10
+		add_opinion_modifier = {
+			target = SOV
+			modifier = large_increase
+		}
+	}
+}
+
+## BORDER WARS
+
+
+country_event = { 
+	id = tsr_manchukuo_border_war.1
+	is_triggered_only = yes
+	title = tsr_manchukuo_border_war.1.t
+	desc = tsr_manchukuo_border_war.1.desc
+	picture = GFX_report_event_chinese_soldiers_fighting
+	
+	option = {
+		name = tsr_manchukuo_border_war.1.a
+		trigger = {
+			original_tag = MAN
+		}
+
+		transfer_state = 1039
+	}
+
+	option = {
+		name = tsr_manchukuo_border_war.1.b
+		trigger = {
+			NOT = {
+				original_tag = MAN
+			}
+		}
+		effect_tooltip = {
+			1039 = { set_state_owner_to = MAN }
+		}
+	}
+}
+
+
+country_event = { 
+	id = tsr_manchukuo_border_war.2
+	is_triggered_only = yes
+	title = tsr_manchukuo_border_war.2.t
+	desc = tsr_manchukuo_border_war.2.desc
+	picture = GFX_report_event_chinese_soldiers_fighting
+	
+	option = {
+		name = tsr_manchukuo_border_war.2.a
+		trigger = {
+			original_tag = MAN
+		}
+
+		army_experience = 25
+	}
+
+	option = {
+		name = tsr_manchukuo_border_war.2.b
+		trigger = {
+			NOT = {
+				original_tag = MAN
+			}
+		}
+		add_political_power = 25
+	}
+}
+
+country_event = { 
+	id = tsr_manchukuo_border_war.3
+	is_triggered_only = yes
+	title = tsr_manchukuo_border_war.3.t
+	desc = tsr_manchukuo_border_war.3.desc
+	picture = GFX_report_event_chinese_soldiers_fighting
+	
+	option = {
+		name = tsr_manchukuo_border_war.3.a
+		trigger = {
+			original_tag = MAN
+		}
+
+		transfer_state = 608
+	}
+
+	option = {
+		name = tsr_manchukuo_border_war.3.b
+		trigger = {
+			NOT = {
+				original_tag = MAN
+			}
+		}
+		effect_tooltip = {
+			608 = { set_state_owner_to = MAN }
+		}
+	}
+}
+
+
+country_event = { 
+	id = tsr_manchukuo_border_war.4
+	is_triggered_only = yes
+	title = tsr_manchukuo_border_war.4.t
+	desc = tsr_manchukuo_border_war.4.desc
+	picture = GFX_report_event_chinese_soldiers_fighting
+	
+	option = {
+		name = tsr_manchukuo_border_war.4.a
+		trigger = {
+			original_tag = MAN
+		}
+
+		army_experience = 25
+	}
+
+	option = {
+		name = tsr_manchukuo_border_war.4.b
+		trigger = {
+			NOT = {
+				original_tag = MAN
+			}
+		}
+		add_political_power = 25
+	}
+}
+
+country_event = { 
+	id = tsr_manchukuo_border_war.5
+	is_triggered_only = yes
+	title = tsr_manchukuo_border_war.5.t
+	desc = tsr_manchukuo_border_war.5.desc
+	picture = GFX_report_event_chinese_soldiers_fighting
+	
+	option = {
+		name = tsr_manchukuo_border_war.5.a
+		trigger = {
+			original_tag = MAN
+		}
+
+		transfer_state = 614
+	}
+
+	option = {
+		name = tsr_manchukuo_border_war.5.b
+		trigger = {
+			NOT = {
+				original_tag = MAN
+			}
+		}
+		effect_tooltip = {
+			614 = { set_state_owner_to = MAN }
+		}
+	}
+}
+
+
+country_event = { 
+	id = tsr_manchukuo_border_war.6
+	is_triggered_only = yes
+	title = tsr_manchukuo_border_war.6.t
+	desc = tsr_manchukuo_border_war.6.desc
+	picture = GFX_report_event_chinese_soldiers_fighting
+	
+	option = {
+		name = tsr_manchukuo_border_war.6.a
+		trigger = {
+			original_tag = MAN
+		}
+
+		army_experience = 25
+	}
+
+	option = {
+		name = tsr_manchukuo_border_war.6.b
+		trigger = {
+			NOT = {
+				original_tag = MAN
+			}
+		}
+		add_political_power = 25
+	}
+}
+
+
+
+############
+####NEWS####
+############
+
+news_event = {
+	id = tsr_manchukuo_news.1
+	title = tsr_manchukuo_news.1.t
+	desc = tsr_manchukuo_news.1.desc
+	picture = GFX_news_event_japanese_parade
+
+	is_triggered_only = yes
+	major = yes
+	
+	option = {
+		name = tsr_manchukuo_news.1.a
+		trigger = {
+			is_literally_china = yes
+		}
+	}
+	option = {
+		name = tsr_manchukuo_news.1.b
+		trigger = {
+			original_tag = MAN
+		}
+	}
+	option = {
+		name = tsr_manchukuo_news.1.c
+		trigger = {
+			original_tag = JAP
+		}
+	}
+	option = {
+		name = tsr_manchukuo_news.1.d
+		trigger = {
+			NOT = {
+			 	original_tag = MAN
+			 	original_tag = JAP
+			 	is_literally_china = yes
+			}
+		}
+	}
+}

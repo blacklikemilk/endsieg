@@ -19,15 +19,8 @@ focus_tree = {
 	}
 	
 	default = no
-	
-	shared_focus = shared_industrialisation
-	shared_focus = shared_GEN_powered_flight
-	shared_focus = shared_GEN_political_effort
-	shared_focus = shared_GEN_20_cent_military
-	shared_focus = shared_GEN_naval_effort
-	shared_focus = shared_GEN_industrial_effort
 
-	continuous_focus_position = { x = 0 y = 2000 }
+	continuous_focus_position = { x = 0 y = 2500 }
 
 	initial_show_position = {
 		x = 27
@@ -49,7 +42,7 @@ focus_tree = {
 		icon = GFX_focus_BRA_tribunal
 		#prerequisite = { focus = }
 		x = 0
-		y = 20
+		y = 0
 		#relative_position_id =
 		mutually_exclusive = { focus = BRA_end_the_state_of_emergency focus = BRA_prepare_for_second_intentona }
 		cost = 5
@@ -758,25 +751,6 @@ focus_tree = {
 		}
 	}
 
-	#focus = {
-	#	id = BRA_placeholder_1
-	#	#icon = 
-	#	prerequisite = { focus = BRA_decree_no_37 focus = BRA_federal_employment_plan }
-	#	x = 1
-	#	y = 1
-	#	relative_position_id = BRA_decree_no_37
-	#	cost = 10
-	#	available = {
-	#	}
-	#	bypass = {
-	#		# Place holder just to keep the tree playable for now
-	#		original_tag = BRA
-	#	}
-	#	search_filters = { }
-	#	completion_reward = {
-	#	}
-	#}
-
 	focus = {
 		id = BRA_reward_army_loyalty
 		icon = GFX_goal_generic_military_sphere
@@ -1193,10 +1167,9 @@ focus_tree = {
 				BRA_economy_production_max_efficiency_factor = 0.1
 				tooltip = production_factory_max_efficiency_factor_tt
 			}	
-			BRA_remove_economy_modifier = yes	
 			add_tech_bonus = {
 				name = BRA_electronics_bonus
-				bonus = 0.4
+				bonus = 0.5
 				uses = 2
 				category = electronics
 			}			
@@ -1234,7 +1207,7 @@ focus_tree = {
 			}
 			add_tech_bonus = {
 				name = BRA_resource_extraction_bonus
-				bonus = 0.75
+				bonus = 0.50
 				uses = 2
 				category = excavation_tech
 			}
@@ -1319,7 +1292,7 @@ focus_tree = {
 			}
 			add_tech_bonus = {
 				name = BRA_industry_bonus
-				bonus = 0.4
+				bonus = 0.5
 				uses = 2
 				category = industry
 			}			
@@ -1643,12 +1616,44 @@ focus_tree = {
 	}
 
 	focus = {
+		id = BRA_establish_companhia_vale_do_rio_doce
+		icon = GFX_focus_generic_mining_industry
+		prerequisite = { focus = BRA_batalha_do_borracha }
+		x = -2
+		y = 1
+		relative_position_id = BRA_batalha_do_borracha
+		cost = 10
+		available = {
+			496 = {
+				is_controlled_by = ROOT
+			}
+		}
+
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_HISTORICAL }
+
+		completion_reward = {
+
+			496 = {
+				add_resource = {
+					type = steel
+					amount = 12
+				}	
+				add_resource = {
+					type = aluminium
+					amount = 8
+				}	
+			}
+
+		}
+	}
+
+	focus = {
 		id = BRA_invest_in_road_infrastructure
 		icon = GFX_focus_generic_road_investment
 		prerequisite = { 
 			focus = BRA_batalha_do_borracha 
 			focus = BRA_invest_in_railways }
-		x = 3
+		x = 2
 		y = 1
 		relative_position_id = BRA_invest_in_railways
 		cost = 5
@@ -1768,7 +1773,7 @@ focus_tree = {
 			ELSE = {
 				add_tech_bonus = {
 					name = BRA_nacional_de_motores_bonus
-					bonus = 0.75
+					bonus = 0.50
 					uses = 2
 					category = motorized_equipment
 				}
@@ -1894,6 +1899,7 @@ focus_tree = {
 				BRA_economy_production_max_efficiency_factor = 0.05
 				tooltip = production_factory_max_efficiency_factor_tt
 			}
+			BRA_remove_economy_modifier = yes
 			
 			custom_effect_tooltip = available_industrial_concern
 			show_ideas_tooltip = BRA_banco_do_brasil_idea			
@@ -1944,7 +1950,18 @@ focus_tree = {
 					tooltip = MODIFIER_STATE_RESOURCES_FACTOR_tt
 				}
 			}
-			BRA_remove_economy_modifier = yes
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			unlock_decision_tooltip = {
+				decision = develop_guapore_casserite_deposits
+				show_effect_tooltip = no
+			}	
+			unlock_decision_tooltip = {
+				decision = rename_guapore_to_rondonia_decision
+				show_effect_tooltip = no
+			}	
+
 		}
 	}
 
@@ -2246,16 +2263,22 @@ focus_tree = {
 			}
 		}
 		available = {
+			is_subject = no
 			is_in_faction = no
 		}
 
 		search_filters = { }
 
 		completion_reward = {
+
 			set_rule = {
 				can_create_factions = yes
 			}
-			create_faction = BRA_org_american_states_faction
+			create_faction_from_template = {
+				template = faction_template_pan_american
+				name = BRA_org_american_states_faction
+			}
+
 		}
 	}
 
@@ -2553,16 +2576,18 @@ focus_tree = {
 		x = 0
 		y = 1
 		relative_position_id = BRA_washington_accords
-		cost = 5
+		cost = 10
 		bypass = {
 			is_in_faction_with = USA
 		}
 		available = {
 			is_subject = no
 			USA = {
-				OR = {
-					has_war = yes
-					is_in_faction = yes
+				
+				has_war = yes
+				is_in_faction = yes
+				any_allied_country = {
+					is_major = yes 
 				}
 			}
 		}
@@ -2585,10 +2610,11 @@ focus_tree = {
 					has_war_with = USA
 					is_major = yes
 				}
-				BRA = {
-					declare_war_on = {
-						target = PREV
-						type = topple_government
+				ROOT = {
+					add_to_war = {
+					    targeted_alliance = USA
+					    enemy = PREV
+					    hostility_reason = asked_to_join
 					}
 				}
 			}
@@ -3087,6 +3113,7 @@ focus_tree = {
 			}
 		}
 		available = {
+			is_subject = no
 			is_in_faction = no
 			GER = {
 				OR = {
@@ -3360,100 +3387,11 @@ focus_tree = {
 				}
 			}
 
-			IF = {
-				limit = {
-					has_dlc = "Man the Guns"
-					NOT = {
-						has_tech = cruiser_submarines
-					}
-				}
-				set_technology = { cruiser_submarines = 1 } 
+			custom_effect_tooltip = generic_skip_one_line_tt
 
-				create_equipment_variant = {
-					name = "Lobo do Mar Class"
-					type = ship_hull_cruiser_submarine
-					allow_without_tech = yes # Display tooltip as if we have the tech.
-					name_group = ITA_SS_HISTORICAL #TODO, choose a good namelist
-					parent_version = 0
-					allow_without_tech = yes # Display tooltip as if we have the tech.
-					modules = {
-						fixed_ship_torpedo_slot = ship_torpedo_sub_1
-						fixed_ship_engine_slot = sub_ship_engine_2
-						front_1_custom_slot = ship_torpedo_sub_1
-						mid_1_custom_slot = empty
-						rear_1_custom_slot = ship_torpedo_sub_1
-					}
-				} 
-				#Line Production
-				add_equipment_production = {
-					equipment = {
-						type = ship_hull_cruiser_submarine
-						creator = "BRA"
-						version_name = "Lobo do Mar Class"
-					}
-					name = "Almirante Dönitz"
-					requested_factories = 1
-					progress = 0.5
-					amount = 1
-				}
-				add_equipment_production = {
-					equipment = {
-						type = ship_hull_cruiser_submarine
-						creator = "BRA"
-						version_name = "Lobo do Mar Class"
-					}
-					name = "Almirante Hermann"
-					requested_factories = 1
-					progress = 0.5
-					amount = 1
-				}
-
-			}
-				
-
-			IF = {	
-				limit = {
-					has_dlc = "Man the Guns"
-					has_tech = cruiser_submarines
-				}
-				create_equipment_variant = {
-					name = "Lobo do Mar Class"
-					type = ship_hull_cruiser_submarine
-					allow_without_tech = yes # Display tooltip as if we have the tech.
-					name_group = ITA_SS_HISTORICAL #TODO, choose a good namelist
-					parent_version = 0
-					allow_without_tech = yes # Display tooltip as if we have the tech.
-					modules = {
-						fixed_ship_torpedo_slot = ship_torpedo_sub_1
-						fixed_ship_engine_slot = sub_ship_engine_2
-						front_1_custom_slot = ship_torpedo_sub_1
-						mid_1_custom_slot = empty
-						rear_1_custom_slot = ship_torpedo_sub_1
-					}
-				}
-				#Line Production
-				add_equipment_production = {
-					equipment = {
-						type = ship_hull_cruiser_submarine
-						creator = "BRA"
-						version_name = "Lobo do Mar Class"
-					}
-					name = "Almirante Dönitz"
-					requested_factories = 1
-					progress = 0.5
-					amount = 1
-				}
-				add_equipment_production = {
-					equipment = {
-						type = ship_hull_cruiser_submarine
-						creator = "BRA"
-						version_name = "Lobo do Mar Class"
-					}
-					name = "Almirante Hermann"
-					requested_factories = 1
-					progress = 0.5
-					amount = 1
-				}
+			add_breakthrough_progress = {
+				specialization = specialization_naval
+				value = 0.5
 			}
 		}
 
@@ -3951,6 +3889,7 @@ focus_tree = {
 			}
 		}
 		available = {
+			is_subject = no
 			is_in_faction = no
 			ITA = {
 				OR = {
@@ -3987,7 +3926,11 @@ focus_tree = {
 				}
 				ELSE = {
 					ITA = {
-						create_faction = faction_name_bra_ita
+						create_faction_from_template = {
+							template = faction_template_generic_dominance
+							name = faction_name_bra_ita
+							icon = GFX_faction_logo_generic_fascist
+						}
 						add_to_faction = ROOT
 					}
 				}
@@ -4030,7 +3973,7 @@ focus_tree = {
 		completion_reward = {
 			add_tech_bonus = {
 				name = BRA_italian_truck_exchange
-				bonus = 0.75
+				bonus = 0.50
 				uses = 2
 				category = motorized_equipment 
 				category = cat_mechanized_equipment 
@@ -4623,6 +4566,7 @@ focus_tree = {
 			}
 		}
 		available = {
+			is_subject = no
 			is_in_faction = no
 		}
 
@@ -4630,7 +4574,11 @@ focus_tree = {
 
 		completion_reward = {
 			set_rule = { can_create_factions = yes }
-			create_faction = BRA_faction_mercosul_name
+			create_faction_from_template = {
+				template = faction_template_pan_american
+				name = BRA_faction_mercosul_name
+				icon = GFX_faction_logo_generic_fascist
+			}
 			custom_effect_tooltip = BRA_form_mercosul_focus_tt
 		}
 	}
@@ -6605,6 +6553,7 @@ focus_tree = {
 			is_in_faction_with = SOU
 		}
 		available = {
+			is_subject = no
 			is_in_faction = no
 			SOV_comintern_joinable = yes 
 			has_government = communism	
@@ -6701,6 +6650,7 @@ focus_tree = {
 			factor = 10
 		}
 		available = {
+			is_subject = no
 		}
 
 		bypass = {
@@ -6711,8 +6661,14 @@ focus_tree = {
 		search_filters = { }
 
 		completion_reward = {
+
 			set_rule = { can_create_factions = yes }
-			create_faction = BRA_socialist_latin_american_cooperative
+			create_faction_from_template = {
+				template = faction_template_POR_popular_front_bloc
+				name = BRA_socialist_latin_american_cooperative
+				icon = GFX_faction_logo_generic_9
+			}
+
 		}
 	}
 
@@ -6946,6 +6902,10 @@ focus_tree = {
 			add_political_power = 100
 			custom_effect_tooltip = BRA_monarch_choice_2_tt
 			show_ideas_tooltip = BRA_king_vassouras
+			add_victory_points = {
+				province = 5172
+				value = 1
+			}	
 		}
 	}
 
@@ -6970,6 +6930,10 @@ focus_tree = {
 			add_political_power = 100
 			custom_effect_tooltip = BRA_monarch_choice_1_tt
 			show_ideas_tooltip = BRA_king_petropolis
+			add_victory_points = {
+				province = 12334
+				value = 1
+			}	
 		}
 	}
 
@@ -7044,7 +7008,7 @@ focus_tree = {
 			set_cosmetic_tag = BRA_const_kingdom
 			add_political_power = 120
 			hidden_effect = {
-				news_event = { hours = 12 id =JUNO_brazil_news.2 }
+				news_event = { hours = 12 id = JUNO_brazil_news.2 }
 			}
 		}
 	}
@@ -7084,12 +7048,13 @@ focus_tree = {
 		y = 1
 		relative_position_id = BRA_constitutional_monarchy
 		prerequisite = { focus = BRA_constitutional_monarchy }
-		#prerequisite = { focus = BRA_court_the_military }
-		#mutually_exclusive = { focus = BRA_undermine_democracy }
+		
 		cost = 10
+
 		ai_will_do = {
 			factor = 10
 		}
+
 		available = {
 		
 		}
@@ -7139,15 +7104,17 @@ focus_tree = {
 						size > 1
 						include_locked = yes
 					}
-					OR = {
-						state = 961
-						state = 962
-						state = 963
-						state = 964
-						state = 965
-						state = 966
-						state = 967
-						state = 968
+					NOT = {
+						OR = {
+							state = 961
+							state = 962
+							state = 963
+							state = 964
+							state = 965
+							state = 966
+							state = 967
+							state = 968
+						}
 					}
 				}
 				add_extra_state_shared_building_slots = 1
@@ -7336,6 +7303,16 @@ focus_tree = {
 			}
 		}
 
+		bypass = {
+			OR = {
+				has_subject = POR
+				POR = {
+					exists = no 
+				}
+				has_war_with = POR
+			}
+		}
+
 		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ANNEXATION }
 
 		completion_reward = {
@@ -7346,6 +7323,66 @@ focus_tree = {
 					hours = 1
 				}
 			}
+		}
+	}
+
+	focus = {
+		id = BRA_claim_the_french_throne
+
+		allow_branch = {
+			IF = {
+				limit = {
+					has_game_rule = {
+						rule = obsolete_focus_branches_visibility
+						option = HIDE
+					}
+				}
+				NOT = { 
+					has_completed_focus = BRA_prepare_for_second_intentona 
+					has_completed_focus = BRA_tribunal_de_seguranca_nacional
+				}
+			}
+			has_country_flag = BRA_pedro_de_alcantara_dead_flag
+		}
+
+		available = {
+			is_subject = no 
+			FRA = {
+				exists = yes 
+				NOT = {
+					is_subject_of = ROOT
+				}
+			}
+		}
+
+		bypass = {
+		}
+
+		prerequisite = { focus = BRA_united_kingdom_of_brazil_and_portugal }
+		
+		icon = GFX_focus_focus_fra_orleans_restoration
+		x = 0
+		y = 1
+		relative_position_id = BRA_united_kingdom_of_brazil_and_portugal
+		cost = 10
+
+		available_if_capitulated = yes
+
+		completion_reward = {
+			
+			create_wargoal = {
+				type = annex_everything
+				target = FRA
+			}
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			FRA = {
+				every_core_state = {
+					add_claim_by = ROOT
+				}
+			}
+			
 		}
 	}
 

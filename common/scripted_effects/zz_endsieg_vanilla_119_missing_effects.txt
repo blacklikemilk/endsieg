@@ -1,0 +1,1118 @@
+## Missing current vanilla scripted effects for Endsieg's replaced scripted_effects path.
+upgrade_conscription_law = {
+	if = {
+		limit = {
+			has_idea = disarmed_nation
+		}
+		add_ideas = volunteer_only
+	}
+	else_if = {
+		limit = {
+			has_idea = volunteer_only
+		}
+		add_ideas = limited_conscription
+	}
+	else_if = {
+		limit = {
+			has_idea = limited_conscription
+		}
+		add_ideas = extensive_conscription
+	}
+	else_if = {
+		limit = {
+			has_idea = extensive_conscription
+		}
+		add_ideas = service_by_requirement
+	}
+	else_if = {
+		limit = {
+			has_idea = service_by_requirement
+		}
+		add_ideas = all_adults_serve
+	}
+	else_if = {
+		limit = {
+			has_idea = all_adults_serve
+		}
+		add_ideas = scraping_the_barrel
+	}
+	else = {
+		add_political_power = 150
+	}
+}
+add_random_stat_to_general = {
+	custom_effect_tooltip = add_random_stat_to_general_tt
+	hidden_effect = {
+		random_list = {
+			log = yes  
+			seed = random 
+			1 = { add_attack = 1 }
+			1 = { add_defense = 1 } 
+			1 = { add_planning = 1 } 
+			1 = { add_logistics = 1 }
+		}
+	}
+}
+CHI_no_longer_a_warlord_idea_removal = {
+	if = {
+		limit = {
+			has_idea = CHI_warlord_state_idea
+		}
+		remove_ideas = {
+			CHI_warlord_state_idea
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = CHI_warlord_state_idea_2
+		}
+		remove_ideas = {
+			CHI_warlord_state_idea_2
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = CHI_warlord_state_idea_cav
+		}
+		remove_ideas = {
+			CHI_warlord_state_idea_cav
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = CHI_warlord_state_idea_mnt
+		}
+		remove_ideas = {
+			CHI_warlord_state_idea_mnt
+		}
+	}
+}
+CHI_apply_integration_cost_reduction = {
+	set_variable = { t_cost_reduction = 1 }
+	subtract_from_variable = { t_cost_reduction = CHI.political_power_warlord_integration_cost_reduction }
+	multiply_variable = { press_warlord_to_become_puppet_influence_points_trigger =  t_cost_reduction }
+	multiply_variable = { press_warlord_to_become_puppet_political_power_cost = t_cost_reduction }
+	multiply_variable = { press_warlord_to_become_puppet_influence_points_cost = t_cost_reduction }
+	
+	clear_variable = t_cost_reduction
+}
+CHI_modify_illicit_goods_event_trigger = {
+	if = {
+		limit = {
+			NOT = { has_country_flag = trigger_SEA_china_improvement_2 }
+		}
+		set_country_flag = trigger_SEA_china_improvement_2
+		country_event = {
+			id = SEA_china_improvement.2
+			days = 2
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = which_will_give_tt
+		event_option_tooltip = SEA_china_improvement.2.a
+	}
+	else = {
+		add_to_variable = { illicit_goods_reduction_step = 0.02 }
+		custom_effect_tooltip = illicit_good_improvement_increase
+	}
+}
+CHI_concessions_add_small_amount_of_days = {
+	CHI = {
+		add_days_mission_timeout = {
+		    mission = CHI_kwantung_army_impatience_dummy
+		    days = CHI_concessions_small 
+		}
+	}
+	hidden_effect = {
+		JAP = {
+			add_days_mission_timeout = {
+			    mission = JAP_kwantung_army_impatience
+			    days = CHI.CHI_concessions_small 
+			}
+		}
+	}
+}
+CHI_concessions_add_medium_amount_of_days = {
+	CHI = {
+		add_days_mission_timeout = {
+		    mission = CHI_kwantung_army_impatience_dummy
+		    days = CHI_concessions_medium 
+		}
+	}
+	hidden_effect = {
+		JAP = {
+			add_days_mission_timeout = {
+			    mission = JAP_kwantung_army_impatience
+			    days = CHI.CHI_concessions_medium 
+			}
+		}
+	}
+}
+CHI_kill_chiang_for_new_leader = {
+	IF = {
+		limit = { 
+			NOT = { has_dlc = "No Compromise, No Surrender" } 
+		}
+		kill_country_leader = yes
+		IF = {
+			limit = {
+				NOT = {
+					has_global_flag = CHI_wang_defects
+				}
+			}
+			create_country_leader = {
+				name = "Wang Jingwei"
+				desc = "POLITICS_WANG_JINGWEI_DESC"
+				picture = "GFX_portrait_chi_wang_jingwei"
+				expire = "1965.1.1"
+				ideology = despotism
+				traits = {
+					#
+				}
+			}
+		}
+	}
+	ELSE = {
+		retire_character = CHI_chiang_kaishek
+		IF = {
+			limit = {
+				has_completed_focus = CHI_prepare_for_a_change_in_leadership
+			}
+			promote_character = {
+				character = CHI_wang_jingwei 
+				ideology = despotism 
+			}
+		}
+		ELSE_IF = {
+			limit = { has_completed_focus = CHI_strengthening_our_resolve }
+			
+			add_country_leader_role = {
+				character = CHI_dai_li 
+				promote_leader = yes
+				country_leader = {
+					ideology = despotism
+					expire = "1965.1.1.1"
+					traits = { CHI_leader_of_the_chinese_brotherhood_trait }
+				}
+			}
+			
+		}
+		ELSE_IF = {
+			limit = {
+				NOT = {
+					has_completed_focus = CHI_prepare_for_a_change_in_leadership
+					has_completed_focus = CHI_strengthening_our_resolve
+				}
+			}
+			promote_character = {
+				character = CHI_soong_mei_ling 
+				ideology = despotism 
+			}
+		}
+	}
+}
+CHI_upgrade_wang_trait = {
+	if = {
+		limit = {
+			has_country_leader_with_trait = CHI_civilian_unifier
+		}
+		swap_ruler_traits = {
+			remove = CHI_civilian_unifier
+			add = CHI_civilian_unifier_upgraded
+		}
+	}
+	else_if = {
+		limit = {
+			has_country_leader_with_trait = CHI_civilian_unifier_upgraded
+		}
+		swap_ruler_traits = {
+			remove = CHI_civilian_unifier_upgraded
+			add = CHI_civilian_unifier_upgraded_2
+		}
+	}
+	else = {
+		effect_tooltip = {
+			CHI_wang_jingwei = {
+				swap_country_leader_traits = {
+					remove = CHI_civilian_unifier
+					add = CHI_civilian_unifier_upgraded
+				}
+			}
+		}
+	}
+}
+CHI_reduce_nine_power_malus = {
+	custom_effect_tooltip = CHI_nine_power_treaty_modify
+	add_to_variable = { nine_power_justify_war_goal_time = 0.02 tooltip =  justify_war_goal_time_tt }
+	add_to_variable = { nine_power_min_export = -0.02 tooltip = min_export_tt }
+	add_to_variable = { nine_power_treaty_cg = -0.02 tooltip = consumer_goods_factor_tt }
+	if = {
+		limit = {
+			check_variable = {
+				var = nine_power_treaty_cg
+			 	value = 0
+				compare = less_than_or_equals
+			} 
+			has_dynamic_modifier = {
+				modifier = CHI_nine_power_treaty_sea
+			}
+		}
+		remove_dynamic_modifier = { modifier = CHI_nine_power_treaty_sea }
+	}
+}
+CHI_update_claimed_and_core_states = {
+	CHI = {
+		every_state = {
+			limit = {
+				OR = {
+					is_core_of = CHI
+					is_claimed_by = CHI
+				}
+				NOT = {
+					is_in_array = {
+						array = CHI.core_and_claimed_states
+						value = THIS
+					}
+				}
+			}
+			add_to_array = { CHI.core_and_claimed_states = THIS }	
+			set_state_flag = CHI_has_claimed_this_state_flag
+		}
+	}
+}
+CHI_setup_colonized_countries_to_liberate_array = {
+	hidden_effect = {
+		for_each_scope_loop = {
+			array = global.countries
+			IF = {
+				limit = {
+					exists = no #the country does not exist
+					any_state = {
+						is_core_of = PREV #the state is a core of the non-existing country
+						NOT = {
+							is_core_of = ROOT
+						}
+						OR = {
+							is_on_continent = asia #the state is in Asia
+							is_on_continent = australia #the state is in Oceania
+						}
+						OWNER = { #the country owning the state
+							NOT = { is_ally_with = ROOT }
+							NOT = { original_tag = ROOT }
+							capital_scope = {
+								NOT = {
+									is_on_continent = asia #the state is in Asia
+									is_on_continent = australia #the state is in Oceania
+								}
+							}
+							NOT = { #don't add multiple times
+								is_in_array = {
+									array = CHI.asian_democracies_countries_to_liberate
+									value = THIS
+								}
+							}
+						}
+					}
+				}
+				add_to_array = { CHI.asian_democracies_countries_to_liberate = THIS }
+			}
+		}
+		
+	}
+}
+CHI_add_or_modify_political_tutelage = {
+	IF = {
+		limit = {
+			OR = {
+				has_dynamic_modifier = { modifier = CHI_the_political_tutelage_dm }
+				NOT = {
+					has_dynamic_modifier = { modifier = CHI_the_political_tutelage_dm }
+					has_dynamic_modifier = { modifier = CHI_the_political_tutelage_upgraded_dm }
+				}
+			}
+		}
+		custom_effect_tooltip = CHI_modify_CHI_the_political_tutelage_dm_tt
+	}
+	ELSE_IF = {
+		limit = {
+			has_dynamic_modifier = { modifier = CHI_the_political_tutelage_upgraded_dm }
+		}
+		custom_effect_tooltip = CHI_modify_CHI_the_political_tutelage_upgraded_dm_tt
+	}
+}
+CHI_corrupt_administration_improvement = {
+	if = {
+		limit = {
+			check_variable = { CHI_corrupt_administration_improved < 3 }
+		}
+		add_to_variable = { CHI_corrupt_administration_improved = 1 }
+	}
+	else_if = {
+		limit = {
+			has_dynamic_modifier = { modifier = CHI_corruption_in_the_administration }
+		}
+		hidden_effect = {
+			remove_dynamic_modifier = {	modifier = CHI_corruption_in_the_administration }
+			add_dynamic_modifier = { modifier = CHI_reorganized_administration }	
+		}
+		custom_effect_tooltip = CHI_switch_administration_modifiers_tt
+	}
+}
+CHI_modify_administration_modifier = {
+	if = {
+		limit = {
+			check_variable = { CHI_corrupt_administration_improved < 3 }
+		}
+		custom_effect_tooltip = CHI_modify_corruption_in_the_administration_tt
+	}
+	else = {
+		custom_effect_tooltip = CHI_modify_reorganized_administration_tt
+	}
+}
+ENG_viceroy_reduce_autonomy_effect = {
+	if = {
+		limit = {
+			ROOT = { has_country_leader_with_trait = viceroy_emeritus }
+		}
+		add_autonomy_ratio = {
+			value = -0.10
+			localization = uk_india_focus
+		}
+	}
+	else = {
+		add_autonomy_ratio = {
+			value = -0.05
+			localization = uk_india_focus
+		}
+	}
+}
+IRQ_agrarian_society_modifier_level_down = {
+	IF = {
+		limit = {
+			OR = {
+				has_idea = IRQ_agrarian_society
+				has_idea = IRQ_agrarian_society_2
+				has_idea = IRQ_agrarian_society_3
+				has_idea = IRQ_agrarian_society_4
+			}
+		}
+		custom_effect_tooltip = IRQ_agrarian_society_modifier_level_down_tt
+	}
+	
+	IF = {
+		limit = {
+			has_idea = IRQ_agrarian_society
+		}
+		swap_ideas = {
+			remove_idea = IRQ_agrarian_society
+			add_idea = IRQ_agrarian_society_2
+		}	
+	}
+	ELSE_IF = {
+		limit = {
+			has_idea = IRQ_agrarian_society_2
+		}
+		swap_ideas = {
+			remove_idea = IRQ_agrarian_society_2
+			add_idea = IRQ_agrarian_society_3
+		}
+	}
+	ELSE_IF = {
+		limit = {
+			has_idea = IRQ_agrarian_society_3
+		}
+		swap_ideas = {
+			remove_idea = IRQ_agrarian_society_3
+			add_idea = IRQ_agrarian_society_4
+		}
+	}
+	ELSE_IF = {
+		limit = {
+			has_idea = IRQ_agrarian_society_4
+		}
+		remove_ideas = IRQ_agrarian_society_4
+	}
+}
+IRQ_modify_army_modifier_version = {
+	if = {
+		limit = {
+			OR = {
+				has_dynamic_modifier = {
+					modifier = IRQ_royal_army_modifier_KUR
+				}
+				has_completed_focus = IRQ_kurdish_revolt
+			}
+		}
+		custom_effect_tooltip = IRQ_royal_army_KUR_intro_tt
+	}
+	else = {
+		custom_effect_tooltip = IRQ_royal_army_IRQ_intro_tt
+	}
+}
+IRQ_modify_navy_modifier_version = {
+	if = {
+		limit = {
+			OR = {
+				has_dynamic_modifier = {
+					modifier = IRQ_navy_modifier_KUR
+				}
+				has_completed_focus = IRQ_kurdish_revolt
+			}
+		}
+		custom_effect_tooltip = IRQ_navy_modifier_KUR_intro_tt
+	}
+	else = {
+		custom_effect_tooltip = IRQ_navy_modifier_IRQ_intro_tt
+	}
+}
+IRQ_modify_air_force_modifier_version = {
+	if = {
+		limit = {
+			OR = {
+				has_dynamic_modifier = {
+					modifier = IRQ_air_force_modifier_KUR
+				}
+				has_completed_focus = IRQ_kurdish_revolt
+			}
+		}
+		custom_effect_tooltip = IRQ_royal_air_force_KUR_intro_tt
+	}
+	else = {
+		custom_effect_tooltip = IRQ_royal_air_force_IRQ_intro_tt
+	}
+}
+MAN_add_or_modify_state_shintoism = {
+	IF = {
+		limit = {
+			NOT = { has_dynamic_modifier = { modifier = MAN_state_shintoism_dm } }
+		}
+		custom_effect_tooltip = MAN_add_state_shinotism_modifier_tt
+		hidden_effect = { add_dynamic_modifier = { modifier = MAN_state_shintoism_dm } }
+	}
+	ELSE = {
+		custom_effect_tooltip = MAN_modify_state_shinotism_modifier_tt
+	}
+}
+PHI_check_japanese_ideology_and_adapt = {
+	
+	set_variable = { PHI_japan_aligned_ideology_fascism = 0 } # Needs to reset all here so we can set the current value to 10 instead when improved ideology focus
+	set_variable = { PHI_japan_aligned_ideology_communism = 0 } 
+	set_variable = { PHI_japan_aligned_ideology_neutrality = 0 } 
+	set_variable = { PHI_japan_aligned_ideology_democratic = 0 } 
+	if = { ## If doesn't have the modifier, then add modifier
+		limit = { 
+			NOT = {
+				has_dynamic_modifier = { modifier = PHI_japan_aligned_ideology }
+			}
+		}
+		add_dynamic_modifier = { modifier = PHI_japan_aligned_ideology }
+	}
+	else_if = {
+		limit = {
+			has_variable = PHI_jap_alignment_value_change
+		}
+		effect_tooltip = {
+			custom_effect_tooltip = PHI_japan_aligned_ideology_improved_tt	
+			if = {
+				limit = { JAP = { has_government = democratic } }
+				add_to_variable = {
+					PHI_japan_aligned_ideology_democratic = PHI_jap_alignment_value_change
+					tooltip = democratic_drift_tt 
+				}
+			}
+			else_if = {
+				limit = { JAP = { has_government = neutrality } }
+				PHI = { 
+					add_to_variable = {
+						PHI_japan_aligned_ideology_neutrality = PHI_jap_alignment_value_change
+						tooltip = neutrality_drift_tt 
+					}		
+				}		
+			}
+			else_if = {
+				limit = { JAP = { has_government = communism } }
+				PHI = {
+					add_to_variable = {
+						PHI_japan_aligned_ideology_communism = PHI_jap_alignment_value_change
+						tooltip = communism_drift_tt 
+					}
+				}
+			}
+			else_if = {
+				limit = { JAP = { has_government = fascism } }
+				add_to_variable = {
+					PHI_japan_aligned_ideology_fascism = PHI_jap_alignment_value_change
+					tooltip = fascism_drift_tt 
+				}
+			}
+		}
+	}
+	hidden_effect = {
+		if = {
+			limit = {
+				has_variable = PHI_jap_alignment_value_change
+			}
+			add_to_variable = {
+				PHI_jap_alignment_value = PHI_jap_alignment_value_change
+			}
+		}
+		if = {
+			limit = {
+				JAP = {
+					has_government = democratic
+				}
+			}
+			set_variable = { PHI_japan_aligned_ideology_democratic = PHI_jap_alignment_value }
+		}
+		else_if = {
+			limit = {
+				JAP = {
+					has_government = fascism
+				}
+			}
+			set_variable = { PHI_japan_aligned_ideology_fascism = PHI_jap_alignment_value }
+		}
+		else_if = {
+			limit = {
+				JAP = {
+					has_government = communism
+				}
+			}
+			set_variable = { PHI_japan_aligned_ideology_communism = PHI_jap_alignment_value }
+		}
+		else_if = {
+			limit = {
+				JAP = {
+					has_government = neutrality
+				}
+			}
+			set_variable = { PHI_japan_aligned_ideology_neutrality = PHI_jap_alignment_value }
+		}
+	}
+}
+PHI_central_focuses_done_T1 = {
+	add_to_variable = { PHI_amount_of_focuses_done_T1 = 1 }
+}
+PHI_central_focuses_done_T2 = {
+	add_to_variable = { PHI_amount_of_focuses_done_T2 = 1 }
+}
+PHI_central_focuses_done_T3 = {
+	add_to_variable = { PHI_amount_of_focuses_done_T3 = 1 }
+}
+PHI_usa_focus_done = {
+	add_to_variable = { PHI_amount_of_usa_focus_done = 1 }	
+}
+PHI_american_intervention_change_value = {
+	
+	set_variable = { PHI_american_intervention_temp_sum_value = PHI_american_intervention_icon_value } ## Because can't do expressions, have to add new sum
+	add_to_variable = { 
+		PHI_american_intervention_temp_sum_value = PHI_american_intervention_value_to_add
+	}
+	## if existing value + new value => 100, then effect is completed. 
+	## Else if existing value + new value <= 0, then effect is failed
+	## Else add value 
+	if = { ## If the new value reaches 100
+		limit = {
+			check_variable = {
+				var = PHI_american_intervention_temp_sum_value
+				value = 100
+				compare = greater_than_or_equals
+			}
+		}
+		### It is over 100
+		## Remove decision category + mission, Send event to US about communists in Philippines have ignored them too much - declare war or not option. Then if do, send event to PHI about US doing it
+		PHI_american_intervention_max_value_reached = yes
+	}
+	else_if = {
+		limit = {
+			check_variable = {
+				var = PHI_american_intervention_temp_sum_value
+				value = 0
+				compare = less_than_or_equals
+			}
+		}
+		### Is is less than 0
+		## Remove decision category + send event to player US leaves PHI interior politics alone
+		PHI_american_intervention_min_value_reached = yes
+	}
+	#else removed because the decision cat stays visible for a brief moment
+	add_to_variable = {
+		PHI_american_intervention_icon_value = PHI_american_intervention_value_to_add
+	}
+	clamp_variable = {
+		var = PHI_american_intervention_icon_value
+		min = 0
+		max = 100
+	}
+}
+PHI_add_or_modify_defense_strategy = {
+	IF = {
+		limit = {
+			NOT = { has_dynamic_modifier = { modifier = PHI_defense_strategy_dynamic_modifier } }
+		}
+		custom_effect_tooltip = PHI_add_defense_strategy_dynamic_modifier_tt
+		hidden_effect = { add_dynamic_modifier = { modifier = PHI_defense_strategy_dynamic_modifier } }
+	}
+	ELSE = {
+		custom_effect_tooltip = PHI_modify_defense_strategy_dynamic_modifier_tt
+	}
+}
+PHI_set_pre_investment_variables = {
+	hidden_effect = {
+		set_variable = { PHI_dockyards_pre_investment = num_of_naval_factories }
+		every_owned_state = {
+			set_variable = { PHI_infrastructure_pre_investment = building_level@infrastructure }
+			if = {
+				limit = {
+					any_neighbor_state = {
+						ROOT = {
+							has_railway_connection = {
+								start_state = PREV
+								target_state = PREV.PREV
+							}
+						}
+					}
+				}
+				set_state_flag = PHI_railway_present
+			}
+		}
+	}
+}
+PHI_update_war_flag = {
+	hidden_effect = {
+		if = {
+			limit = {
+				has_war = yes
+			}
+			if = {
+				limit = {
+					OR = {			#all PHI cosmetic tags without war version must be defined here
+						has_cosmetic_tag = PHI_maphilindo_tag
+						has_cosmetic_tag = PHI_asean_tag
+						#Just in case something goes wrong - if the war tag is in use, the normal variant for the if-blocks below wont be in use
+						has_cosmetic_tag = PHI_manila_tag_war
+						has_cosmetic_tag = PHI_second_republic_tag_war
+						has_cosmetic_tag = PHI_polynesia_tag_war
+						has_cosmetic_tag = PHI_hispanic_empire_tag_war
+						has_cosmetic_tag = PHI_reino_de_filipinas_tag_war
+					}
+				}
+				# Nothing
+			}
+			else_if = {
+				limit = {
+					has_cosmetic_tag = PHI_manila_tag
+				}
+				set_cosmetic_tag = PHI_manila_tag_war
+			}
+			else_if = {
+				limit = {
+					has_cosmetic_tag = PHI_second_republic_tag
+				}
+				set_cosmetic_tag = PHI_second_republic_tag_war
+			}
+			else_if = {
+				limit = {
+					has_cosmetic_tag = PHI_polynesia_tag
+				}
+				set_cosmetic_tag = PHI_polynesia_tag_war
+			}
+			else_if = {
+				limit = {
+					has_cosmetic_tag = PHI_hispanic_empire_tag
+				}
+				set_cosmetic_tag = PHI_hispanic_empire_tag_war
+			}
+			else_if = {
+				limit = {
+					has_cosmetic_tag = PHI_reino_de_filipinas_tag
+				}
+				set_cosmetic_tag = PHI_reino_de_filipinas_tag_war
+			}
+			else = {
+				set_cosmetic_tag = PHI_war
+			}
+		}
+		else_if = {
+			limit = {
+				has_cosmetic_tag = PHI_war
+			}
+			drop_cosmetic_tag = yes
+		}
+		else_if = {
+			limit = {
+				has_cosmetic_tag = PHI_manila_tag_war
+			}
+			set_cosmetic_tag = PHI_manila_tag
+		}
+		else_if = {
+			limit = {
+				has_cosmetic_tag = PHI_second_republic_tag_war
+			}
+			set_cosmetic_tag = PHI_second_republic_tag
+		}
+		else_if = {
+			limit = {
+				has_cosmetic_tag = PHI_polynesia_tag_war
+			}
+			set_cosmetic_tag = PHI_polynesia_tag
+		}
+		else_if = {
+			limit = {
+				has_cosmetic_tag = PHI_hispanic_empire_tag_war
+			}
+			set_cosmetic_tag = PHI_hispanic_empire_tag
+		}
+		else_if = {
+			limit = {
+				has_cosmetic_tag = PHI_reino_de_filipinas_tag_war
+			}
+			set_cosmetic_tag = PHI_reino_de_filipinas_tag
+		}
+	}
+}
+PHI_refresh_ruling_ideology_drift = {
+	set_variable = { PHI_ruling_ideology_ideology_drift_fascism = 0 }
+	set_variable = { PHI_ruling_ideology_ideology_drift_communism = 0 }
+	set_variable = { PHI_ruling_ideology_ideology_drift_neutrality = 0 }
+	set_variable = { PHI_ruling_ideology_ideology_drift_democratic = 0 }
+	if = {
+		limit = {
+			has_government = fascism
+		}
+		set_variable = { PHI_ruling_ideology_ideology_drift_fascism = PHI_ruling_ideology_ideology_drift }
+	}
+	else_if = {
+		limit = {
+			has_government = communism
+		}
+		set_variable = { PHI_ruling_ideology_ideology_drift_communism = PHI_ruling_ideology_ideology_drift }
+	}
+	else_if = {
+		limit = {
+			has_government = democratic
+		}
+		set_variable = { PHI_ruling_ideology_ideology_drift_democratic = PHI_ruling_ideology_ideology_drift }
+	}
+	else_if = {
+		limit = {
+			has_government = neutrality
+		}
+		set_variable = { PHI_ruling_ideology_ideology_drift_neutrality = PHI_ruling_ideology_ideology_drift }
+	}
+	force_update_dynamic_modifier = yes
+}
+PRC_check_if_red_army_or_pla = {
+	if = { ## For localisation reasons, if hasn't completed it display "Modify Red Army" when hover over, if has then display "Modify PLA"
+			limit = {
+				has_completed_focus = PRC_peoples_liberation_army_sea
+			}
+			custom_effect_tooltip = PRC_pla_ground_force_modify_tt
+		}
+		else = {
+			custom_effect_tooltip = PRC_the_chinese_red_army_modify_tt 
+	}
+}
+PRC_modify_industrial_modifier = {
+	if = {
+		limit = {
+			has_dynamic_modifier = { modifier = PRC_agrarian_society }
+		}
+		custom_effect_tooltip = PRC_agrarian_society_modifiy_tt
+	}
+	else_if = {
+		limit = {
+			has_dynamic_modifier = { modifier = PRC_agrarian_reform }
+		}
+		custom_effect_tooltip = PRC_agrarian_reform_modify_tt
+	}
+	else = {
+		custom_effect_tooltip = PRC_make_agrarian_to_urban_tt
+	}
+}
+PRC_add_mediating_general_secretary_idea = {
+	if = {
+		limit = {
+			power_balance_value = {
+				id = PRC_communist_power_struggle
+				value > -0.25
+			}
+			power_balance_value = {
+				id = PRC_communist_power_struggle
+				value < 0.25
+			}
+		}
+		add_ideas = PRC_mediating_general_secretary_idea
+	}
+	else_if = {
+		limit = {
+			power_balance_value = {
+				id = PRC_communist_power_struggle
+				value < -0.24
+			}
+		}
+		add_ideas = PRC_mediating_general_secretary_idea_drifting_right
+	}
+	else_if = {
+		limit = {
+			power_balance_value = {
+				id = PRC_communist_power_struggle
+				value > 0.24
+			}
+		}
+		add_ideas = PRC_mediating_general_secretary_idea_drifting_left
+	}
+}
+PRC_remove_mediating_general_secretary_idea = {
+	custom_effect_tooltip = PRC_mediating_secretary_remove_fake_idea_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				power_balance_value = {
+					id = PRC_communist_power_struggle
+					value > -0.25
+				}
+				power_balance_value = {
+					id = PRC_communist_power_struggle
+					value < 0.25
+				}
+			}
+			remove_ideas = PRC_mediating_general_secretary_idea
+		}
+		else_if = {
+			limit = {
+				power_balance_value = {
+					id = PRC_communist_power_struggle
+					value > 0.24
+				}
+			}
+			remove_ideas = PRC_mediating_general_secretary_idea_drifting_left
+		}
+		else_if = {
+			limit = {
+				power_balance_value = {
+					id = PRC_communist_power_struggle
+					value < -0.24
+				}
+			}
+			remove_ideas = PRC_mediating_general_secretary_idea_drifting_right
+		}
+	}
+}
+PRC_this_might_anger_china = {
+	if = {
+		limit = {
+			event_target:WTT_current_china_leader = {
+				NOT = {
+					tag = ROOT
+				}
+			}
+		}
+		custom_effect_tooltip = PRC_this_might_anger_current_china_leader_tt
+	}
+}
+PRC_SOV_lend_lease_strategy = {
+	if = {
+		limit = {
+			SOV = {
+				is_ai = yes
+			}
+		}
+		custom_effect_tooltip = PRC_SOV_more_willing_to_send_lend_lease_tt
+		hidden_effect = {
+			SOV = {
+				add_ai_strategy = {
+					type = send_lend_lease_desire
+					id = ROOT
+					value = 100
+				}
+			}
+		}
+	}
+}
+PRC_USA_lend_lease_strategy = {
+	if = {
+		limit = {
+			USA = {
+				is_ai = yes
+			}
+		}
+		custom_effect_tooltip = PRC_USA_more_willing_to_send_lend_lease_tt
+		hidden_effect = {
+			USA = {
+				add_ai_strategy = {
+					type = send_lend_lease_desire
+					id = ROOT
+					value = 100
+				}
+			}
+		}
+	}
+}
+PRC_add_the_internal_enemy_idea = {
+	add_ideas = PRC_the_internal_enemy_idea #Fake idea with only tooltip
+	hidden_effect = { #Actual ideas with actual tooltips
+		add_ideas = PRC_the_internal_enemy_CHI
+		add_ideas = PRC_the_internal_enemy_GXC
+		add_ideas = PRC_the_internal_enemy_YUN
+		add_ideas = PRC_the_internal_enemy_SHX
+		add_ideas = PRC_the_internal_enemy_XSM
+		add_ideas = PRC_the_internal_enemy_SIK
+		add_ideas = PRC_the_internal_enemy_GDC
+		add_ideas = PRC_the_internal_enemy_SND
+		add_ideas = PRC_the_internal_enemy_SIC
+		add_ideas = PRC_the_internal_enemy_NXM
+		add_ideas = PRC_the_internal_enemy_GSM
+		add_ideas = PRC_the_internal_enemy_XIC
+		add_ideas = PRC_the_internal_enemy_KHM
+		add_ideas = PRC_the_internal_enemy_KUM
+		add_ideas = PRC_the_internal_enemy_RNG
+		add_ideas = PRC_the_internal_enemy_HBC
+	}
+}
+PRC_add_the_internal_enemy_idea_upgrade = {
+	custom_effect_tooltip = PRC_add_the_internal_enemy_idea_upgrade_tt
+	hidden_effect = { #Actual ideas with actual tooltips
+		swap_ideas = { #Fake idea with only tooltip
+			remove_idea = PRC_the_internal_enemy_idea
+			add_idea = PRC_the_internal_enemy_upgraded_idea
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_CHI
+			add_idea = PRC_the_internal_enemy_CHI_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_GXC
+			add_idea = PRC_the_internal_enemy_GXC_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_YUN
+			add_idea = PRC_the_internal_enemy_YUN_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_SHX
+			add_idea = PRC_the_internal_enemy_SHX_upgraded
+		}
+		
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_XSM
+			add_idea = PRC_the_internal_enemy_XSM_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_SIK
+			add_idea = PRC_the_internal_enemy_SIK_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_GDC
+			add_idea = PRC_the_internal_enemy_GDC_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_SND
+			add_idea = PRC_the_internal_enemy_SND_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_SIC
+			add_idea = PRC_the_internal_enemy_SIC_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_NXM
+			add_idea =PRC_the_internal_enemy_NXM_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_GSM
+			add_idea = PRC_the_internal_enemy_GSM_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_XIC
+			add_idea = PRC_the_internal_enemy_XIC_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_KHM
+			add_idea = PRC_the_internal_enemy_KHM_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_KUM
+			add_idea = PRC_the_internal_enemy_KUM_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_RNG
+			add_idea = PRC_the_internal_enemy_RNG_upgraded
+		}
+		swap_ideas = {
+			remove_idea = PRC_the_internal_enemy_HBC
+			add_idea = PRC_the_internal_enemy_HBC_upgraded
+		}
+	}
+}
+USA_create_william_sebold_operative = {
+	create_operative_leader = {
+		name = "William G Sebold"
+		GFX = GFX_portrait_USA_william_g_sebold
+		gender = male
+		traits = { operative_double_agent operative_infiltrator }
+		bypass_recruitment = no
+		available_to_spy_master = yes
+		nationalities = { USA GER }
+	}
+}
+USA_create_joe_savoldi_operative = {
+	create_operative_leader = {
+		name = "Joe Savoldi"
+		GFX = GFX_portrait_USA_joe_savoldi
+		gender = male
+		traits = { operative_linguist operative_infiltrator operative_tough operative_well_groomed }
+		bypass_recruitment = no
+		available_to_spy_master = yes
+		nationalities = { USA ITA }
+	}
+}
+USA_create_serge_obolensky_operative = {
+	create_operative_leader = {
+		name = "Serge Obolensky"
+		GFX = GFX_portrait_USA_serge_obolensky
+		gender = male
+		traits = { operative_tough operative_natural_orator }
+		bypass_recruitment = no
+		available_to_spy_master = yes
+		nationalities = { SOV USA }
+	}
+}
+USA_create_george_musulin_operative = {
+	create_operative_leader = {
+		name = "George Musulin"
+		GFX = GFX_portrait_USA_george_musulin
+		gender = male
+		traits = { operative_tough operative_infiltrator operative_commando }
+		bypass_recruitment = no
+		available_to_spy_master = yes
+		nationalities = { USA YUG SER CRO }
+	}
+}
+USA_create_rene_joyeuse_operative = {
+	create_operative_leader = {
+		name = "René Joyeuse"
+		GFX = GFX_portrait_USA_rene_joyeuse
+		gender = male
+		traits = { operative_infiltrator operative_commando }
+		bypass_recruitment = no
+		available_to_spy_master = yes
+		nationalities = { USA FRA SWI QUE }
+	}
+}
+ma_clique_remove_the_collective_effect = {
+	IF = {
+		limit = {
+			has_dynamic_modifier = { modifier = CHI_ma_clique_collective } 
+		}
+		remove_dynamic_modifier = {
+			modifier = CHI_ma_clique_collective
+		}	
+	}
+	IF = {
+		limit = {
+			NOT = {
+				has_country_flag = cast_off_ma_ties_or_became_china_flag
+			}
+		}
+		set_country_flag = cast_off_ma_ties_or_became_china_flag
+	}
+}

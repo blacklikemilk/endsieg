@@ -22,14 +22,7 @@ focus_tree = {
 
 	default = no
 
-	shared_focus = shared_industrialisation
-	shared_focus = shared_GEN_powered_flight
-	shared_focus = shared_GEN_political_effort
-	shared_focus = shared_GEN_20_cent_military
-	shared_focus = shared_GEN_naval_effort
-	shared_focus = shared_GEN_industrial_effort
-
-	continuous_focus_position = { x = 200 y = 1800 }
+	continuous_focus_position = { x = 200 y = 2300 }
 
 	initial_show_position = {
 		x = 25
@@ -53,7 +46,7 @@ focus_tree = {
 		icon = GFX_focus_ARG_roberto_maria_ortiz
 		#prerequisite = { focus = ARG_preparation_for_the_elections }
 		x = 13
-		y = 20
+		y = 0
 		#relative_position_id = ARG_preparation_for_the_elections
 		cost = 10
 		mutually_exclusive = { focus = ARG_a_call_to_reform focus = ARG_the_clean_election }
@@ -120,26 +113,9 @@ focus_tree = {
 		relative_position_id = ARG_roberto_maria_ortiz
 		mutually_exclusive = { focus = ARG_work_with_the_nationalists }
 		cost = 10
+
 		available = {
-			any_state = {
-			is_owned_by = ROOT
-			is_controlled_by = ROOT
-			free_building_slots = {
-			    building = arms_factory
-			    size > 1
-			    include_locked = yes
-				}
-			}
-		} 
-
-		ai_will_do = {
-			factor = 20
-		}
-
-		bypass = {
-		NOT = {
-			any_state = {
-				is_owned_by = ROOT
+			any_owned_state = {
 				is_controlled_by = ROOT
 				free_building_slots = {
 				    building = arms_factory
@@ -148,7 +124,23 @@ focus_tree = {
 				}
 			}
 		}
-	}
+
+		bypass = {
+			all_owned_state = {
+				OR = {
+					NOT = { is_controlled_by = ROOT }
+					free_building_slots = {
+						building = arms_factory
+						size < 1
+						include_locked = no
+					}
+				}
+			}
+		}
+
+		ai_will_do = {
+			factor = 20
+		}
 
 		search_filters = { FOCUS_FILTER_HISTORICAL FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
 
@@ -631,7 +623,15 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_HISTORICAL }
 
 		completion_reward = { 
-			custom_effect_tooltip = ARG_balancing_act_decisions_tt
+			IF = {
+				limit = {
+					has_dlc = "Arms Against Tyranny"
+				}
+				custom_effect_tooltip = ARG_balancing_act_decisions_AAT_tt
+			}
+			ELSE = {
+				custom_effect_tooltip = ARG_balancing_act_decisions_tt
+			}
 		}
 	}
 
@@ -1104,28 +1104,54 @@ focus_tree = {
 		completion_reward = { 
 			IF = {
 				limit = {
-					has_tech = nuclear_reactor 
+					has_tech = atomic_research 
 					has_tech = experimental_rockets
 				}
 
-				add_tech_bonus = {
-				name = ARG_arma_maravillosa_bonus
-				bonus = 0.5
-				uses = 2
-				category = nuclear
+				add_breakthrough_points = {
+					specialization = specialization_nuclear
+			    	value = 1
 				}
-
-				add_tech_bonus = {
-				name = ARG_arma_maravillosa_bonus
-				bonus = 0.5
-				uses = 2
-				category = rocketry
+				add_breakthrough_points = {
+					specialization = specialization_air
+			    	value = 1
 				}
 			}
-
+			else_if = {
+				limit = {
+					has_tech = atomic_research 
+					NOT = { has_tech = experimental_rockets }
+				}
+				add_tech_bonus = {
+					name = ARG_arma_maravillosa_bonus
+					bonus = 0.5
+					uses = 1
+					category = rocketry
+				}
+				add_breakthrough_progress = {
+					specialization = specialization_nuclear
+			    	value = 0.5
+				}
+			}
+			else_if = {
+				limit = {
+					NOT = { has_tech = atomic_research }
+					has_tech = experimental_rockets
+				}
+				add_tech_bonus = {
+					name = ARG_arma_maravillosa_bonus
+					bonus = 0.5
+					uses = 1
+					category = nuclear
+				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+			    	value = 0.5
+				}
+			}
 			ELSE = {
 				set_technology = {
-					nuclear_reactor = 1
+					atomic_research = 1
 				}
 
 				set_technology = {
@@ -1680,6 +1706,7 @@ focus_tree = {
 		mutually_exclusive = { focus = ARG_join_the_axis }
 		cost = 10
 		available = {
+			is_subject = no
 			is_in_faction = no
 		}
 
@@ -1707,7 +1734,11 @@ focus_tree = {
 
 			add_ideas = ARG_argentina_first_idea
 
-			create_faction = ARG_nationalist_faction	
+			create_faction_from_template = {
+				template = faction_template_generic_dominance 
+				name = ARG_nationalist_faction
+				icon = GFX_faction_logo_generic_fascist
+			}	
 
 			hidden_effect = {
 				set_rule = { can_send_volunteers = yes }
@@ -1727,6 +1758,7 @@ focus_tree = {
 		mutually_exclusive = { focus = ARG_argentina_first }
 		cost = 10
 		available = {
+			is_subject = no
 			GER = {
 				exists = yes
 				has_government = fascism
@@ -2651,7 +2683,7 @@ focus_tree = {
 		icon = GFX_focus_ARG_the_clean_election
 		#prerequisite = { focus = ARG_preparation_for_the_elections }
 		x = 0
-		y = 20
+		y = 0
 		#relative_position_id = ARG_preparation_for_the_elections
 		cost = 10
 		mutually_exclusive = { focus = ARG_a_call_to_reform focus = ARG_roberto_maria_ortiz }
@@ -2869,8 +2901,6 @@ focus_tree = {
 				ideology = neutrality
 				popularity = -0.05
 			}
-
-			#possible TODO, add advisors? Unsure which Advisors were to be added here so feel free to make changes here Eilidh!
 		}
 	}
 
@@ -2930,7 +2960,7 @@ focus_tree = {
 
 			add_tech_bonus = {
 				name = ARG_education_synthetics_bonus
-				bonus = 0.5
+				bonus = 1
 				uses = 1
 				category = cat_synth_rubber
 			}
@@ -3185,12 +3215,15 @@ focus_tree = {
 
 		completion_reward = { 
 			air_experience = 25
+			add_breakthrough_progress = {
+				specialization = specialization_air
+				value = 0.25
+			}
 			add_tech_bonus = {
 			 	name = ARG_royal_airforce_influence_bonus
-			 	bonus = 0.5
+			 	bonus = 0.4 # was 0.5
 			 	uses = 3
-			 	category = air_equipment # optional 
-			 	# technology  = technology_id # optional
+			 	category = air_equipment 
 			 } 
 
 			 IF = {
@@ -3278,9 +3311,13 @@ focus_tree = {
 
 		completion_reward = { 
 			navy_experience = 25
+			add_breakthrough_progress = {
+				specialization = specialization_naval
+				value = 0.25
+			}
 			add_tech_bonus = {
 			 	name = ARG_royal_navy_influence_bonus
-			 	bonus = 0.5
+			 	bonus = 0.4 # was 0.5
 			 	uses = 3
 			 	category = naval_equipment 
 			 } 
@@ -3374,10 +3411,10 @@ focus_tree = {
 		completion_reward = { 
 			add_ideas = ARG_us_army_training_idea
 			add_tech_bonus = {
-			name = ARG_us_army_training_bonus
-			bonus = 0.25
-			uses = 2
-			category = cat_special_forces_generic
+				name = ARG_us_army_training_bonus
+				bonus = 0.25
+				uses = 2
+				category = cat_special_forces_generic
 			}
 		}
 	}
@@ -3519,6 +3556,7 @@ focus_tree = {
 		mutually_exclusive = { focus = ARG_join_the_allies }
 		cost = 10
 		available = {
+			is_subject = no
 			is_in_faction = no
 		}
 
@@ -3537,7 +3575,10 @@ focus_tree = {
 			add_political_power = 50
 			add_war_support = 0.05
 
-			create_faction = ARG_democratic_faction	
+			create_faction_from_template = {
+				template = faction_template_pan_american
+				name = ARG_democratic_faction
+			}
 
 			hidden_effect = {
 				set_rule = { can_send_volunteers = yes }
@@ -3774,9 +3815,13 @@ focus_tree = {
 
 		completion_reward = { 
 			add_doctrine_cost_reduction = {
-			cost_reduction = 0.5
-			uses = 1
-			category = naval_doctrine
+				cost_reduction = 0.5
+				uses = 1
+				category = naval_doctrine
+			}
+			add_breakthrough_progress = {
+				specialization = specialization_naval
+				value = 0.25
 			}
 		}
 	}
@@ -3790,7 +3835,24 @@ focus_tree = {
 		relative_position_id = ARG_envoy_to_london
 		cost = 10
 		available = {
+			NOT = {
+				299 = {
+					is_owned_and_controlled_by = ROOT
+				}
+				720 = {
+					is_owned_and_controlled_by = ROOT
+				}
+			}
 		}
+		bypass = {
+			299 = {
+				is_owned_and_controlled_by = ROOT
+			}
+			720 = {
+				is_owned_and_controlled_by = ROOT
+			}
+		}
+
 
 		ai_will_do = {
 			factor = 5
@@ -3799,14 +3861,20 @@ focus_tree = {
 		search_filters = { }
 
 		completion_reward = { 
-			ENG = {
+			every_other_country = {
+				limit = {
+					OR = {
+						controls_state = 299
+						controls_state = 720
+					}
+				}
 				country_event = {
-				id = ARG_political_events.5
-				hours = 1
+					id = ARG_political_events.5
+					hours = 1
+				}
 			}
 		}
 	}
-}
 
 	focus = { #COOPERATION
 		id = ARG_improving_the_islands
@@ -4199,7 +4267,7 @@ focus_tree = {
 		icon = GFX_focus_SWE_socialist_reforms
 		#prerequisite = { focus = ARG_preparation_for_the_elections }
 		x = -12
-		y = 20
+		y = 0
 		#relative_position_id = ARG_preparation_for_the_elections
 		cost = 10
 		mutually_exclusive = { focus = ARG_roberto_maria_ortiz focus = ARG_the_clean_election }
@@ -4538,6 +4606,7 @@ focus_tree = {
 		mutually_exclusive = { focus = ARG_align_with_the_soviets }
 		cost = 10
 		available = {
+			is_subject = no
 			has_civil_war = no
 			is_in_faction = no
 		}
@@ -4551,21 +4620,25 @@ focus_tree = {
 		completion_reward = { 
 
 			ARG_fanny_edelman = { 
-					promote_character = yes 
-				}
+				promote_character = yes 
+			}
 
-				create_faction = ARG_communist_faction
+			create_faction_from_template = {
+				template = faction_template_POR_popular_front_bloc
+				name = ARG_communist_faction
+				icon = GFX_faction_logo_generic_14
+			}
 
-				hidden_effect = {
-					IF = {
-						limit = {
-							has_idea = ARG_fanny_edelman
-						}
-						remove_ideas = ARG_fanny_edelman
+			hidden_effect = {
+				IF = {
+					limit = {
+						has_idea = ARG_fanny_edelman
 					}
+					remove_ideas = ARG_fanny_edelman
 				}
 			}
 		}
+	}
 
 	focus = { #COMMUNIST
 		id = ARG_women_in_industry
@@ -5432,7 +5505,7 @@ focus_tree = {
 		icon = GFX_focus_ARG_banco_central_de_la_republica_argentina
 		#prerequisite = { focus = }
 		x = 34
-		y = 20
+		y = 0
 		#relative_position_id =
 		cost = 10
 		available = {
@@ -5529,7 +5602,7 @@ focus_tree = {
 
 			add_tech_bonus = {
 				name = ARG_industrial_expansion_bonus
-				bonus = 0.4
+				bonus = 0.5
 				uses = 2
 				category = industry
 			}

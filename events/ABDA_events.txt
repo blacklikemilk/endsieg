@@ -1,0 +1,198 @@
+add_namespace = ABDA_events
+
+# ABDA_events.1 - Invitation to join ABDACOM
+# ROOT = receiving nation, FROM = nation that completed the focus
+country_event = {
+	id = ABDA_events.1
+	title = ABDA_events.1.t
+	desc = ABDA_events.1.desc
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+
+	option = {
+		name = ABDA_events.1.a
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = -20
+				NOT = {
+					OR = {
+						tag = ENG
+						tag = USA
+						tag = HOL
+						tag = INS
+					}
+				}
+			}
+		}
+		set_country_flag = abdacom_member
+		add_dynamic_modifier = { modifier = ABDA_supreme_command }
+		hidden_effect = {
+			set_variable = { ABDA_repair_speed_factor = 0 }
+			set_variable = { ABDA_convoy_escort_efficiency = 0 }
+			set_variable = { ABDA_submarine_attack_factor = 0 }
+			set_variable = { ABDA_submarine_defence_factor = 0 }
+			set_variable = { ABDA_screening_efficiency = 0 }
+			set_variable = { ABDA_screen_defence_factor = 0 }
+			set_variable = { ABDA_experience_gain_navy_unit_factor = 0 }
+		}
+		FROM = { country_event = { id = ABDA_events.2 } }
+	}
+
+	option = {
+		name = ABDA_events.1.b
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 20
+				NOT = {
+					OR = {
+						tag = ENG
+						tag = USA
+						tag = HOL
+						tag = INS
+					}
+				}
+			}
+		}
+		set_country_flag = abdacom_declined
+		FROM = { country_event = { id = ABDA_events.3 } }
+	}
+}
+
+# ABDA_events.2 - Notification: a country accepted the ABDACOM invitation
+# ROOT = completing nation, FROM = country that accepted
+country_event = {
+	id = ABDA_events.2
+	title = ABDA_events.2.t
+	desc = ABDA_events.2.desc
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+
+	option = {
+		name = ABDA_events.2.a
+	}
+}
+
+# ABDA_events.3 - Notification: a country declined the ABDACOM invitation
+# ROOT = completing nation, FROM = country that declined
+country_event = {
+	id = ABDA_events.3
+	title = ABDA_events.3.t
+	desc = ABDA_events.3.desc
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+
+	option = {
+		name = ABDA_events.3.a
+	}
+}
+
+# ABDA_events.5 - Late joiner invitation (Siam, New Zealand, Malaya via ABDA_expand_the_command)
+# ROOT = receiving nation, FROM = nation that completed the focus
+country_event = {
+	id = ABDA_events.5
+	title = ABDA_events.5.t
+	desc = ABDA_events.5.desc
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+
+	option = {
+		name = ABDA_events.5.a
+		ai_chance = { base = 75 }
+		set_country_flag = abdacom_member
+		add_dynamic_modifier = { modifier = ABDA_supreme_command }
+		hidden_effect = {
+			set_variable = { ABDA_repair_speed_factor = global.ABDA_repair_speed_factor_snapshot }
+			set_variable = { ABDA_convoy_escort_efficiency = global.ABDA_convoy_escort_efficiency_snapshot }
+			set_variable = { ABDA_submarine_attack_factor = global.ABDA_submarine_attack_factor_snapshot }
+			set_variable = { ABDA_submarine_defence_factor = global.ABDA_submarine_defence_factor_snapshot }
+			set_variable = { ABDA_screening_efficiency = global.ABDA_screening_efficiency_snapshot }
+			set_variable = { ABDA_screen_defence_factor = global.ABDA_screen_defence_factor_snapshot }
+			set_variable = { ABDA_experience_gain_navy_unit_factor = global.ABDA_experience_gain_navy_unit_factor_snapshot }
+		}
+		FROM = { country_event = { id = ABDA_events.2 } }
+	}
+
+	option = {
+		name = ABDA_events.5.b
+		ai_chance = { base = 25 }
+		set_country_flag = abdacom_declined
+		FROM = { country_event = { id = ABDA_events.3 } }
+	}
+}
+
+# ABDA_events.4 - Fortress Singapore fortification choice (fires at ENG)
+# ROOT = ENG
+country_event = {
+	id = ABDA_events.4
+	title = ABDA_events.4.t
+	desc = ABDA_events.4.desc
+	picture = GFX_report_event_generic_sign_treaty1
+
+	is_triggered_only = yes
+
+	# Naval focus: coastal forts + AA
+	option = {
+		name = ABDA_events.4.a
+		1021 = {
+			add_building_construction = {
+				type = coastal_bunker
+				level = 4
+				instant_build = yes
+				province = { all_provinces = yes limit_to_naval_base = yes }
+			}
+			add_building_construction = {
+				type = anti_air_building
+				level = 2
+				instant_build = yes
+			}
+		}
+	}
+
+	# Land focus: land forts + AA
+	option = {
+		name = ABDA_events.4.b
+		1021 = {
+			add_building_construction = {
+				type = bunker
+				level = 4
+				instant_build = yes
+				province = { all_provinces = yes limit_to_victory_point > 0 }
+			}
+			add_building_construction = {
+				type = anti_air_building
+				level = 2
+				instant_build = yes
+			}
+		}
+	}
+
+	# Mixed: lighter naval and land forts + AA
+	option = {
+		name = ABDA_events.4.c
+		1021 = {
+			add_building_construction = {
+				type = coastal_bunker
+				level = 2
+				instant_build = yes
+				province = { all_provinces = yes limit_to_naval_base = yes }
+			}
+			add_building_construction = {
+				type = bunker
+				level = 2
+				instant_build = yes
+				province = { all_provinces = yes limit_to_victory_point > 0 }
+			}
+			add_building_construction = {
+				type = anti_air_building
+				level = 1
+				instant_build = yes
+			}
+		}
+	}
+}
