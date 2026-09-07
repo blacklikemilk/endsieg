@@ -3,18 +3,58 @@ on_actions = {
         effect = {
             # WW2 starts explicitly use the installed vanilla focus trees.
             if = {
-                limit = { date > 1935.12.30 }
+                limit = { date > 1936.1.1 }
                 every_country = {
-                    load_focus_tree = { tree = generic_focus keep_completed = yes }
+                    # Country tags without a history/capital are dormant definitions.
+                    # Loading a focus tree for them during scenario setup can dereference
+                    # an uninitialised country; only initialise countries on this map.
+                    limit = { any_owned_state = { is_capital = yes } }
+                    if = {
+                        limit = { tag = GER }
+                        load_focus_tree = { tree = german_focus keep_completed = yes }
+                    }
+                    if = {
+                        limit = { tag = FRA }
+                        load_focus_tree = { tree = french_focus keep_completed = yes }
+                    }
+                    if = {
+                        limit = { tag = ITA }
+                        load_focus_tree = { tree = italian_focus keep_completed = yes }
+                    }
+                    if = {
+                        limit = { tag = TUR }
+                        load_focus_tree = { tree = turkish_focus keep_completed = yes }
+                    }
+                    if = {
+                        limit = { tag = ENG }
+                        load_focus_tree = { tree = british_focus keep_completed = yes }
+                    }
+                    if = {
+                        limit = { tag = SOV }
+                        load_focus_tree = { tree = soviet_focus keep_completed = yes }
+                    }
+                    if = {
+                        limit = { OR = { tag = USA tag = USC } }
+                        load_focus_tree = { tree = usa_focus keep_completed = yes }
+                    }
+                    if = {
+                        limit = {
+                            NOT = {
+                                OR = {
+                                    tag = GER
+                                    tag = FRA
+                                    tag = ITA
+                                    tag = TUR
+                                    tag = ENG
+                                    tag = SOV
+                                    tag = USA
+                                    tag = USC
+                                }
+                            }
+                        }
+                        load_focus_tree = { tree = generic_focus keep_completed = yes }
+                    }
                 }
-                GER = { load_focus_tree = { tree = german_focus keep_completed = yes } }
-                FRA = { load_focus_tree = { tree = french_focus keep_completed = yes } }
-                ITA = { load_focus_tree = { tree = italian_focus keep_completed = yes } }
-                TUR = { load_focus_tree = { tree = turkish_focus keep_completed = yes } }
-                ENG = { load_focus_tree = { tree = british_focus keep_completed = yes } }
-                SOV = { load_focus_tree = { tree = soviet_focus keep_completed = yes } }
-                USA = { load_focus_tree = { tree = usa_focus keep_completed = yes } }
-                USC = { load_focus_tree = { tree = usa_focus keep_completed = yes } }
             }
         }
     }
