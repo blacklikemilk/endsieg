@@ -1,6 +1,34 @@
 on_actions = {
     on_startup = {
         effect = {
+            # Establish the Russian Civil War only after both sides are initialized.
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1919.1.1
+                    country_exists = SOV
+                    country_exists = WHR
+                }
+                SOV = {
+                    if = {
+                        limit = { NOT = { has_war_with = WHR } }
+                        declare_war_on = { target = WHR type = civil_war }
+                    }
+                }
+                if = {
+                    limit = {
+                        country_exists = KUB
+                        KUB = { NOT = { has_war_with = SOV } }
+                    }
+                    KUB = {
+                        add_to_war = {
+                            targeted_alliance = WHR
+                            enemy = SOV
+                        }
+                    }
+                }
+            }
+
             # Country histories are evaluated before every country is fully initialized.
             # Establish the United States' WWI wars after initialization instead.
             if = {
