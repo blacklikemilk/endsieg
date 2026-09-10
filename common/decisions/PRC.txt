@@ -2386,3 +2386,671 @@ political_actions = {
 		}
 	}
 }
+
+PRC_border_wars_cat = {
+PRC_the_westward_expedition_decision = {
+		icon = GFX_decision_generic_fortification
+		ai_will_do = {
+			base = 10
+
+			modifier = { ## Do it asap on historical, timing works out
+				is_historical_focus_on = yes 
+				factor = 5
+			}
+
+		}
+
+		visible = {
+			has_completed_focus = PRC_the_westward_expedition
+			NOT = {
+				controls_state = 283
+			}
+		}
+
+		available = {
+			has_border_war = no
+			has_war = no
+			has_civil_war = no
+			is_subject = no
+			NOT = {
+				any_allied_country = {
+					controls_state = 283
+				}
+			}
+			283 = {
+				controller = {
+					is_literally_china = yes
+				}
+			}
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 622
+				state = 283
+			}
+		}
+
+		fire_only_once = yes
+
+		ai_hint_pp_cost = 15
+		custom_cost_trigger = {
+			command_power > 14
+			has_political_power > 14
+		}
+		custom_cost_text = decision_cost_CP_15_pp_15
+
+		complete_effect = {
+			hidden_effect = {
+				add_command_power = -15
+				add_political_power = -15
+			}
+
+			activate_mission = PRC_assaulting_guyuan
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			start_border_war = {
+				change_state_after_war = no #overrides the transfer of state at the end of war
+				combat_width = 180 #combat width for border war
+				minimum_duration_in_days = 40 #minimum duration for combat
+				attacker = {
+					on_win = SEA_PRC_border_war_events.1
+					on_lose = SEA_PRC_border_war_events.2
+					on_cancel = SEA_PRC_border_war_events.2
+					state = 622 # state to start border war
+					num_provinces = 2 #number of provinces we want border war to be
+					#on_win = <event_id> #effect to call if wins
+					#on_lose = <event_id> #effect to call if loses
+					
+					leader_score = { # Optional score for selecting a leader 
+						base = 1
+						modifier = {
+						    skill > 2
+						    factor = 5
+						}
+						modifier = {
+						    skill > 3
+						    factor = 10
+						}
+					}
+					
+					dig_in_factor = 0 #dig in modifier factor (default value: 1.0)
+					terrain_factor = 0 #terrain modifier factor(default value: 1.0)
+				}
+				
+				defender = {
+					 state = 283 # state to start border war
+					 num_provinces = 2 #number of provinces we want border war to be
+					# on_win = <event_id> #effect to call if wins
+					on_lose = SEA_PRC_border_war_events.1
+					on_win = SEA_PRC_border_war_events.2
+					on_cancel = SEA_PRC_border_war_events.2
+				}
+			}
+
+			PRC_this_might_anger_china = yes
+
+			PRC_current_china_leader_gets_small_antagonize_strategy = yes
+	
+		}
+	}
+
+	#Western Expedition
+	PRC_assaulting_guyuan = {
+		icon = border_war
+		
+		allowed = { always = no }
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 622
+				state = 1045
+			}
+		}
+
+		days_mission_timeout = 275
+
+		cancel_trigger = {
+			1045 = {	
+				OR = {
+					is_fully_controlled_by = ROOT
+					controller = {
+						has_war_with = ROOT
+					}
+				}
+			}
+		}
+
+		cancel_effect = {
+			effect_tooltip = {
+				country_event = { id = SEA_PRC_border_war_events.1 }
+				transfer_state = 1045
+			}
+		}
+
+		timeout_effect = { #Fails
+			cancel_border_war = {
+				attacker = 622
+				defender = 1045
+			}
+		}
+	}
+	
+PRC_the_eastward_expedition_decision = {
+		icon = GFX_decision_generic_fortification
+		ai_will_do = {
+			base = 10
+
+			modifier = {
+				is_historical_focus_on = yes 
+				factor = 0
+			}
+		}
+
+		visible = {
+			has_completed_focus = PRC_the_eastward_expedition
+			NOT = {
+				controls_state = 615
+			}
+		}
+
+		available = {
+			controls_state = 622
+			has_border_war = no
+			has_war = no
+			has_civil_war = no
+			is_subject = no
+			NOT = {
+				any_allied_country = {
+					controls_state = 615
+				}
+			}
+			615 = {
+				controller = {
+					is_literally_china = yes
+				}
+			}
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 622
+				state = 615
+			}
+		}
+
+		fire_only_once = yes
+
+		ai_hint_pp_cost = 15
+		custom_cost_trigger = {
+			command_power > 14
+			has_political_power > 14
+		}
+		custom_cost_text = decision_cost_CP_15_pp_15
+
+		complete_effect = {
+			hidden_effect = {
+				add_command_power = -15
+				add_political_power = -15
+			}
+			
+			activate_mission = PRC_assaulting_shanxi
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			start_border_war = {
+				change_state_after_war = no #overrides the transfer of state at the end of war
+				combat_width = 180 #combat width for border war
+				minimum_duration_in_days = 40 #minimum duration for combat
+				attacker = {
+					on_win = SEA_PRC_border_war_events.3
+					on_lose = SEA_PRC_border_war_events.4
+					state = 622 # state to start border war
+					num_provinces = 2 #number of provinces we want border war to be
+					#on_win = <event_id> #effect to call if wins
+					#on_lose = <event_id> #effect to call if loses
+					
+					leader_score = { # Optional score for selecting a leader 
+						base = 1
+						modifier = {
+						    skill > 2
+						    factor = 5
+						}
+						modifier = {
+						    skill > 3
+						    factor = 10
+						}
+					}
+					
+					dig_in_factor = 0 #dig in modifier factor (default value: 1.0)
+					terrain_factor = 0 #terrain modifier factor(default value: 1.0)
+				}
+				
+				defender = {
+					state = 615 # state to start border war
+					num_provinces = 2 #number of provinces we want border war to be
+					# on_win = <event_id> #effect to call if wins
+					on_lose = SEA_PRC_border_war_events.3
+					on_win = SEA_PRC_border_war_events.4
+					# on_cancel = <event_id> #effect to call if cancels
+				}
+			}
+			PRC_this_might_anger_china = yes
+
+			PRC_current_china_leader_gets_small_antagonize_strategy = yes
+		}
+
+	}
+
+	#Eastern Expedition
+	PRC_assaulting_shanxi = {
+		icon = border_war
+		
+		allowed = { always = no }
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 1046
+				state = 615
+			}
+		}
+
+		days_mission_timeout = 275
+
+		cancel_trigger = {
+			615 = {	
+				OR = {
+					is_fully_controlled_by = ROOT
+					controller = {
+						has_war_with = ROOT
+					}
+				}
+			}
+		}
+
+		cancel_effect = {
+			effect_tooltip = {
+				country_event = { id = SEA_PRC_border_war_events.1 }
+				transfer_state = 615
+			}
+		}
+
+		timeout_effect = { #Fails
+			cancel_border_war = {
+				attacker = 1046
+				defender = 615
+			}
+		}
+	}
+
+PRC_usurp_control_over_yanan_decision = {
+		icon = GFX_decision_generic_fortification
+		ai_will_do = {
+			base = 10
+		}
+
+		visible = {
+			has_country_flag = PRC_usurp_control_over_yanan_flag
+			NOT = {
+				controls_state = 622
+			}
+		}
+
+		available = {
+			controls_state = 622
+			has_border_war = no
+			has_war = no
+			has_civil_war = no
+			is_subject = no
+			NOT = {
+				any_allied_country = {
+					controls_state = 622
+				}
+			}
+			622 = {
+				controller = {
+					is_literally_china = yes
+					NOT = {
+						tag = ROOT
+					}
+				}
+			}
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 622
+				state = 622
+			}
+		}
+
+		fire_only_once = yes
+
+		ai_hint_pp_cost = 15
+		custom_cost_trigger = {
+			command_power > 14
+			has_political_power > 14
+		}
+		custom_cost_text = decision_cost_CP_15_pp_15
+
+		complete_effect = {
+			hidden_effect = {
+				add_command_power = -15
+				add_political_power = -15
+			}
+
+			activate_mission = PRC_assaulting_yanan
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			start_border_war = {
+				change_state_after_war = no #overrides the transfer of state at the end of war
+				combat_width = 180 #combat width for border war
+				minimum_duration_in_days = 40 #minimum duration for combat
+				attacker = {
+					on_win = SEA_PRC_border_war_events.5
+					on_lose = SEA_PRC_border_war_events.6
+					state = 622 # state to start border war
+					num_provinces = 2 #number of provinces we want border war to be
+					#on_win = <event_id> #effect to call if wins
+					#on_lose = <event_id> #effect to call if loses
+					
+					leader_score = { # Optional score for selecting a leader 
+						base = 1
+						modifier = {
+						    skill > 2
+						    factor = 5
+						}
+						modifier = {
+						    skill > 3
+						    factor = 10
+						}
+					}
+					
+					dig_in_factor = 0 #dig in modifier factor (default value: 1.0)
+					terrain_factor = 0 #terrain modifier factor(default value: 1.0)
+				}
+				
+				defender = {
+					 state = 622 # state to start border war
+					 num_provinces = 2 #number of provinces we want border war to be
+					# on_win = <event_id> #effect to call if wins
+					on_lose = SEA_PRC_border_war_events.5
+					on_win = SEA_PRC_border_war_events.6
+					# on_cancel = <event_id> #effect to call if cancels
+				}
+			}
+			clr_country_flag = PRC_usurp_control_over_yanan_flag
+
+			PRC_this_might_anger_china = yes
+
+			PRC_current_china_leader_gets_small_antagonize_strategy = yes
+		}
+	}
+
+	#Usurp Control over Yan'an
+	PRC_assaulting_yanan = {
+		icon = border_war
+		
+		allowed = { always = no }
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 622
+				state = 1032
+			}
+		}
+
+		days_mission_timeout = 180
+
+		cancel_trigger = {
+			1032 = {	
+				OR = {
+					is_fully_controlled_by = ROOT
+					controller = {
+						has_war_with = ROOT
+					}
+				}
+			}
+		}
+
+		cancel_effect = {
+			effect_tooltip = {
+				country_event = { id = SEA_PRC_border_war_events.1 }
+				transfer_state = 1032
+			}
+		}
+
+		timeout_effect = { #Fails
+			cancel_border_war = {
+				attacker = 622
+				defender = 1032
+			}
+		}
+	}
+}
+
+PRC_economic_planning_cat = {
+	
+	PRC_initialize_five_year_plan_mission = {
+		icon = GFX_decision_generic_factory 
+
+		is_good = no
+
+		days_mission_timeout = PRC_five_year_plan_length
+
+		fire_only_once = yes
+
+		activation = {
+			has_completed_focus = PRC_initialize_five_year_plan 
+		}
+
+		available = {
+			AND = {
+				num_of_civilian_factories > PRC_initialize_five_year_plan_goal_civ_factories 
+				num_of_military_factories > PRC_initialize_five_year_plan_goal_mil_factories 
+			}
+		}
+
+
+
+		complete_effect = {
+			add_ideas = PRC_five_year_plan_completed
+			## If completed then get slight perfament bonus
+		}
+
+		timeout_effect = {
+			#When reach 0, fail - if fail get a Missed Five Year Plan Goal NS for 2 years with -10% in a bunch of stuff. 
+			add_timed_idea = {
+				idea = PRC_five_year_plan_failed
+				days = 730
+			}
+		}
+
+
+	}
+
+	PRC_initialize_shorter_market_plans_mission = {
+		icon = GFX_decision_generic_industry
+
+		is_good = no
+
+		fire_only_once = yes
+
+		days_mission_timeout = PRC_shorter_market_plan_length 
+
+		activation = {
+			has_completed_focus = PRC_establish_shorter_market_plans 
+		}
+
+		available = {
+			AND = {
+				num_of_civilian_factories > PRC_initialize_shorter_market_plans_goal_civ_factories 
+				num_of_military_factories > PRC_initialize_shorter_market_plans_goal_mil_factories 
+			}
+		}
+
+
+
+		complete_effect = {
+			add_ideas = PRC_shorter_market_plan_completed
+			## If completed then get slight perfament bonus
+		}
+
+		timeout_effect = {
+			#When reach 0
+			add_timed_idea = {
+				idea = PRC_shorter_market_plan_failed
+				days = 365 
+			}
+		}
+	}
+
+
+}
+
+PRC_rural_surveyer_decision_cat = {
+	PRC_rural_surveys = {
+		#icon = 
+		cost = 30 
+
+		available = {
+			has_completed_focus = PRC_rural_survey
+			custom_trigger_tooltip = { 
+				tooltip = PRC_rural_surveyer_tt 
+			}
+		}
+
+		visible = {
+			check_variable = {
+				PRC_amount_of_times_rural_survey < 5
+			}
+			has_completed_focus = PRC_rural_survey
+		}
+
+		days_remove = 30
+
+		complete_effect = {
+			if = {
+				limit = {
+					NOT = {
+						has_variable = PRC_amount_of_times_rural_survey
+					}
+				}
+				set_temp_variable = {
+					var = PRC_amount_of_times_rural_survey
+					value = 0
+				}
+			}
+			hidden_effect = {		
+				random_owned_controlled_state = {
+					set_state_flag = PRC_rural_survey_state_to_add
+				}
+			}
+
+		}
+
+		remove_effect = {
+			if = {
+				limit = {
+					NOT = {
+						has_decision = PRC_rural_surveys
+					}
+				}
+				effect_tooltip = {
+					random_owned_controlled_state = {
+						add_extra_state_shared_building_slots = 1
+					}
+				}
+			}
+			
+			add_to_variable = {
+				PRC_amount_of_times_rural_survey = 1
+			}
+			random_owned_controlled_state = {
+				limit = {
+					has_state_flag = PRC_rural_survey_state_to_add 
+				}
+				add_extra_state_shared_building_slots = 1
+				clr_state_flag = PRC_rural_survey_state_to_add
+			}
+		}
+	}
+
+
+}
+
+PRC_war_of_resistance_cat = {
+	PRC_the_peoples_doubt = { #MISSION
+		icon = GFX_decision_generic_ignite_civil_war
+		
+		allowed = { always = no }
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		is_good = no
+
+		days_mission_timeout = 90
+
+		cancel_trigger = {
+			custom_trigger_tooltip = {
+				tooltip = PRC_the_peoples_doubt_tt
+				any_other_country = {
+					is_literally_china = no
+					has_country_flag = PRC_invading_china_flag
+					OR = {
+						has_war_with = ROOT
+						AND = {
+							NOT = { has_war_with = CHI }
+							NOT = { has_war_with = PRC }
+							NOT = { has_war_with = GXC }
+							NOT = { has_war_with = YUN }
+							NOT = { has_war_with = SHX }
+							NOT = { has_war_with = XSM }
+							NOT = { has_war_with = SIK }
+							NOT = { has_war_with = GDC }
+							NOT = { has_war_with = SND }
+							NOT = { has_war_with = SIC }
+							NOT = { has_war_with = NXM }
+							NOT = { has_war_with = GSM }
+							NOT = { has_war_with = XIC }
+							NOT = { has_war_with = KHM }
+							NOT = { has_war_with = KUM }
+							NOT = { has_war_with = HBC }
+						}
+					}
+				}
+			}
+		}
+
+		cancel_effect = {
+			add_political_power = 25
+			add_stability = 0.05
+			add_war_support = 0.05
+		}
+
+		timeout_effect = {
+
+			country_event = { id = SEA_PRC_misc_events.2 hours = 1 }
+			effect_tooltip = {
+				add_ideas = PRC_passive_revolutionaries_idea
+			}
+
+		}
+	}
+}

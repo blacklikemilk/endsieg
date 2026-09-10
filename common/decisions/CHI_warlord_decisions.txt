@@ -276,3 +276,817 @@ CHI_seek_japanese_support = {
 		}
 	}
 }
+
+CHI_tsr_power_struggle_cat = {
+
+	CHI_seek_party_support = {
+
+		priority = 90
+
+		icon = GFX_decision_hol_exchange_intelligence_data
+
+		visible = {
+			NOT = { original_tag = event_target:WTT_current_china_leader }
+		}
+
+		available = {
+			is_subject = no
+			is_in_faction_with = event_target:WTT_current_china_leader
+		}	
+
+		fire_only_once = no
+
+		days_remove = 90
+
+		cost = ROOT.increase_party_support_decision_cost
+
+		cancel_if_not_visible = yes
+
+		complete_effect = {
+				add_faction_influence_ratio	= 0.02
+				add_to_variable = {
+					var = ROOT.increase_party_support_decision_cost
+					value = 25
+				}
+				add_to_variable = {
+					var = ROOT.warlord_faction_influence_contribution_factor
+					value = 0.02
+					tooltip = faction_influence_contribution_factor_tt
+				}
+				custom_effect_tooltip = CHI_seek_party_support_tt
+		}
+	
+	}
+
+	CHI_tsr_seek_warlord_support = {
+
+		priority = 50
+	
+		icon = generic_civil_support
+
+		visible = {
+			has_country_flag = tsr_warlord_support
+			NOT = { original_tag = event_target:WTT_current_china_leader }
+		}	
+	
+		available = {
+			is_subject = no
+			is_in_faction_with = event_target:WTT_current_china_leader
+		}
+	
+		target_root_trigger = {
+			has_country_flag = tsr_political_struggle
+		}
+	
+		targets = { GXC YUN SHX XSM SIK GDC XIC SND KHM NXM GSM SIC HBC }
+		targets_dynamic = yes
+	
+		target_trigger = {
+			FROM = {
+				exists = yes
+				NOT = { 
+					has_country_flag = tsr_political_struggle
+					has_war_with = ROOT
+				}
+				is_chinese_warlord = yes
+			}
+		}
+
+		fire_only_once = yes
+		
+		cost = 50
+
+		complete_effect = {
+			FROM = { set_country_flag = wtt_negotiating_support_with@ROOT }
+			FROM = { country_event = { id = SEA_warlords.14 } }
+		}
+
+	}
+
+	TSR_pay_for_support_from_warlord_PP = {
+		icon = generic_civil_support
+
+		allowed = { always = no } #Activated from effect
+
+		visible = {
+			FROM = { NOT = { has_country_flag = wtt_political_struggle } }
+			FROM = { NOT = { has_war_with = ROOT } }
+			NOT = { event_target:WTT_current_china_leader = { tag = ROOT } }
+		}
+
+		ai_will_do = {
+			base = 100
+		}
+
+		fire_only_once = yes
+	
+		cost = 75
+		
+		fixed_random_seed = no
+
+		days_mission_timeout = 120
+		selectable_mission = yes
+
+		timeout_effect = {
+			clr_country_flag = wtt_negotiating_support_with@ROOT
+		}
+
+		complete_effect = {
+			custom_effect_tooltip = TSR_warlord_supports_us
+			FROM = {
+				effect_tooltip = {
+					add_political_power = 100
+				}
+				set_country_flag = warlord_supports_@ROOT
+				clr_country_flag = wtt_negotiating_support_with@ROOT
+				country_event = { id = SEA_warlords.19 }
+			}
+			add_faction_influence_ratio	= 0.03
+			add_to_variable = {
+				var = ROOT.warlord_faction_influence_contribution_factor
+				value = 0.05
+				tooltip = faction_influence_contribution_factor_tt
+			}
+		}
+	}
+
+	TSR_pay_for_support_from_warlord_manpower = {
+		icon = generic_civil_support
+
+		allowed = { always = no } #Activated from effect
+
+		visible = {
+			FROM = { NOT = { has_country_flag = wtt_political_struggle } }
+			FROM = { NOT = { has_war_with = ROOT } }
+			NOT = { event_target:WTT_current_china_leader = { tag = ROOT } }
+		}
+
+		available = {
+			has_manpower > 5000
+		}
+
+		ai_will_do = {
+			base = 100
+		}
+
+		fire_only_once = yes
+	
+		cost = 0
+		
+		fixed_random_seed = no
+
+		days_mission_timeout = 120
+		selectable_mission = yes
+
+		timeout_effect = {
+			clr_country_flag = wtt_negotiating_support_with@ROOT
+		}
+
+		complete_effect = {
+			custom_effect_tooltip = TSR_warlord_supports_us
+			add_manpower = -5000
+			FROM = {
+				effect_tooltip = {
+					add_manpower = 5000
+				}
+				set_country_flag = warlord_supports_@ROOT
+				clr_country_flag = wtt_negotiating_support_with@ROOT
+				country_event = { id = SEA_warlords.20 }
+			}
+			add_faction_influence_ratio	= 0.03
+			add_to_variable = {
+				var = ROOT.warlord_faction_influence_contribution_factor
+				value = 0.05
+				tooltip = faction_influence_contribution_factor_tt
+			}
+		}
+	}
+
+	TSR_pay_for_support_from_warlord_equipment = {
+		icon = generic_civil_support
+
+		allowed = { always = no } #Activated from effect
+
+		visible = {
+			FROM = { 
+				NOT = { 
+					has_country_flag = wtt_political_struggle
+					has_war_with = ROOT 
+				} 
+			}
+			NOT = { event_target:WTT_current_china_leader = { tag = ROOT } }
+		}
+
+		available = {
+			has_equipment = { infantry_equipment > 1000 }
+		}
+
+		ai_will_do = {
+			base = 100
+		}
+
+		fire_only_once = yes
+	
+		cost = 0
+		
+		fixed_random_seed = no
+
+		days_mission_timeout = 120
+		selectable_mission = yes
+
+		timeout_effect = {
+			clr_country_flag = wtt_negotiating_support_with@ROOT
+		}
+
+		complete_effect = {
+			custom_effect_tooltip = TSR_warlord_supports_us
+			add_equipment_to_stockpile = { 
+			 	type = infantry_equipment
+			 	amount = -1000 
+			 	producer = ROOT
+			} 
+			FROM = {
+				effect_tooltip = {
+					add_equipment_to_stockpile = { 
+					 	type = infantry_equipment
+					 	amount = 1000 
+					 	producer = ROOT
+					} 
+				}
+				set_country_flag = warlord_supports_@ROOT
+				clr_country_flag = wtt_negotiating_support_with@ROOT
+				country_event = { id = SEA_warlords.21 }
+			}
+			add_faction_influence_ratio	= 0.03
+			add_to_variable = {
+				var = ROOT.warlord_faction_influence_contribution_factor
+				value = 0.05
+				tooltip = faction_influence_contribution_factor_tt
+			}
+		}
+	}
+
+	CHI_warlord_propaganda_army = {
+
+		priority = 90
+
+		icon = GFX_decision_SWE_set_army_budget
+
+		visible = {
+			has_country_flag = tsr_warlord_propaganda
+			NOT = { original_tag = event_target:WTT_current_china_leader }
+		}	
+
+		available = {
+			is_subject = no
+			is_in_faction_with = event_target:WTT_current_china_leader
+			has_army_manpower = {
+				size > 174999
+			}
+		}	
+
+		fire_only_once = yes
+
+		cost = 50
+
+		complete_effect = {
+			add_to_variable = {
+				var = ROOT.warlord_faction_influence_war_score_factor
+				value = 0.05
+				tooltip = faction_influence_war_score_factor_tt
+			}
+			army_experience = 25
+		}
+	
+	}
+
+	CHI_warlord_propaganda_air = {
+
+		priority = 90
+
+		icon = GFX_decision_SWE_set_air_budget
+
+		visible = {
+			has_country_flag = tsr_warlord_propaganda
+			NOT = { original_tag = event_target:WTT_current_china_leader }
+		}	
+
+		available = {
+			is_subject = no
+			is_in_faction_with = event_target:WTT_current_china_leader
+			has_deployed_air_force_size = {
+				size > 99
+			}
+		}	
+
+		fire_only_once = yes
+
+		cost = 50
+
+		complete_effect = {
+			add_to_variable = {
+				var = ROOT.warlord_faction_influence_war_score_factor
+				value = 0.05
+				tooltip = faction_influence_war_score_factor_tt
+			}
+			air_experience = 25
+		}
+	
+	}
+
+	CHI_warlord_propaganda_navy = {
+
+		priority = 90
+
+		icon = GFX_decision_generic_naval
+
+		visible = {
+			has_country_flag = tsr_warlord_propaganda
+			NOT = { original_tag = event_target:WTT_current_china_leader }
+		}	
+
+		available = {
+			is_subject = no
+			is_in_faction_with = event_target:WTT_current_china_leader
+			has_navy_size = {
+				size > 9
+			}
+		}	
+
+		fire_only_once = yes
+
+		cost = 50
+
+		complete_effect = {
+			add_to_variable = {
+				var = ROOT.warlord_faction_influence_war_score_factor
+				value = 0.05
+				tooltip = faction_influence_war_score_factor_tt
+			}
+			navy_experience = 25
+		}
+	
+	}
+
+	CHI_warlord_propaganda_stable = {
+
+		priority = 90
+
+		icon = GFX_decision_eng_propaganda_campaigns
+
+		visible = {
+			has_country_flag = tsr_warlord_propaganda
+			NOT = { original_tag = event_target:WTT_current_china_leader }
+		}	
+
+		available = {
+			is_subject = no
+			is_in_faction_with = event_target:WTT_current_china_leader
+			has_stability > 0.70
+		}	
+
+
+		fire_only_once = yes
+
+		cost = 50
+
+		complete_effect = {
+			add_to_variable = {
+				var = ROOT.warlord_faction_influence_war_score_factor
+				value = 0.05
+				tooltip = faction_influence_war_score_factor_tt
+			}
+			add_war_support = 0.05	
+		}
+	
+	}
+
+	CHI_tsr_take_national_leadership = {
+
+		priority = 100
+
+		icon = generic_nationalism
+
+		available = {
+			is_subject = no
+			event_target:WTT_current_china_leader = {
+				is_subject = no
+			}
+			is_in_faction_with = event_target:WTT_current_china_leader
+			NOT = { original_tag = event_target:WTT_current_china_leader }
+			faction_influence_ratio > 0.35
+			event_target:WTT_current_china_leader = {
+				faction_influence_ratio < 0.35
+			}
+		}	
+
+		ai_will_do = {
+			base = 100
+		}
+
+		fire_only_once = yes
+
+		cost = 75
+
+		cancel_if_not_visible = yes
+
+		complete_effect = {
+				if = {
+				limit = {
+					WTT_ROOT_is_not_current_leader_of_china = yes
+				}
+				event_target:WTT_current_china_leader = {
+					WTT_political_struggle_remove_current_country = yes
+					set_global_flag = { flag = wtt_national_leadership_takeover_in_progress value = 1 days =  14 }
+					country_event = wtt_take_national_leadership.1
+				}
+				custom_effect_tooltip = WTT_national_leadership_accept_tooltip
+				custom_effect_tooltip = WTT_national_leadership_join_wars_effect
+				effect_tooltip = {
+					annex_country = { target = event_target:WTT_current_china_leader transfer_troops = yes }
+				}
+				custom_effect_tooltip = WTT_national_leadership_refuse_tooltip
+				effect_tooltip = {
+					event_target:WTT_current_china_leader = { add_ideas = CHI_illegal_regime declare_war_on = { target = ROOT type = annex_everything } }
+				}
+			}
+			else = {
+				custom_effect_tooltip = WTT_national_leadership_effect_tooltip_leader
+				effect_tooltip = {
+					event_target:WTT_current_china_leader = { add_ideas = CHI_illegal_regime }
+				}
+			}
+		}
+	
+	}
+
+
+}
+
+CHI_war_in_liangguang = {
+	
+	CHI_war_in_south_halting = {
+
+		priority = 100
+
+		icon = GFX_decision_generic_ignite_civil_war
+
+		visible = {
+			original_tag = CHI 
+			has_war_with = GDC
+			GDC = {
+				has_cosmetic_tag = liangguang_clique
+			}
+		}
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		days_mission_timeout = 184
+
+		fire_only_once = yes
+
+		activation = {
+			always = no
+		}
+
+		cancel_if_not_visible = yes
+
+		is_good = no
+
+		timeout_effect = {
+			custom_effect_tooltip = CHI_stalemate_tt
+			country_event = {
+				id = SEA_warlords.49
+				hours = 6
+			}
+		}
+	
+	}
+
+	GDC_holding_out = {
+
+		priority = 100
+
+		icon = GFX_decision_generic_ignite_civil_war
+
+		visible = {
+			original_tag = GDC 
+			has_war_with = CHI
+			GDC = {
+				has_cosmetic_tag = liangguang_clique
+			}
+		}
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		days_mission_timeout = 184
+
+		fire_only_once = yes
+
+		activation = {
+			always = no
+		}
+
+		cancel_if_not_visible = yes
+
+		is_good = no
+
+		timeout_effect = {
+			custom_effect_tooltip = GDC_survival_tt
+		}
+	
+	}
+
+}
+
+CHI_war_in_sinkiang = {
+	
+	SIK_war_halting = {
+
+		priority = 100
+
+		icon = GFX_decision_generic_ignite_civil_war
+
+		visible = {
+			original_tag = SIK 
+			has_war_with = KHM
+		}
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		days_mission_timeout = 365
+
+		fire_only_once = yes
+
+		activation = {
+			always = no
+		}
+
+		cancel_if_not_visible = yes
+
+		is_good = no
+
+		timeout_effect = {
+				custom_effect_tooltip = SIK_stalemate_tt
+				country_event = {
+					id = SEA_warlords.5
+					hours = 6
+				}
+		}
+	
+	}
+
+	KHM_holding_out = {
+
+		priority = 100
+
+		icon = GFX_decision_generic_ignite_civil_war
+
+		visible = {
+			original_tag = KHM 
+			has_war_with = SIK
+		}
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		days_mission_timeout = 365
+
+		fire_only_once = yes
+
+		activation = {
+			always = no
+		}
+
+		cancel_if_not_visible = yes
+
+		is_good = no
+
+		timeout_effect = {
+				custom_effect_tooltip = KHM_survival_tt
+		}
+	
+	}
+
+}
+
+SIC_xikang_offensive = {
+	
+	SIC_push_into_xikang = {
+		icon = border_war
+		allowed = {
+			original_tag = SIC
+		}
+
+		available = {
+			has_completed_focus = SIC_push_back_the_tibetans
+			601 = {
+				owner = {
+					NOT = {
+						has_war_with = SIC
+						is_in_faction_with = SIC
+						has_non_aggression_pact_with = SIC
+						is_puppet_of = SIC
+					}
+				}
+			}
+		}
+
+		visible = {
+			has_completed_focus = SIC_push_back_the_tibetans
+			752 = {
+				is_controlled_by = SIC
+			}
+		}
+
+		highlight_states = {
+	 		highlight_state_targets = {
+				state = 752
+				state = 601
+			} 
+		}
+		
+		fire_only_once = yes
+
+		cost = 25
+
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 5
+				has_idea = SIC_push_into_xikang_idea
+			}
+		}
+
+		complete_effect = {
+
+			activate_mission = SIC_push_into_xikang_mission
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			start_border_war = {
+				change_state_after_war = no #overrides the transfer of state at the end of war
+				combat_width = 180 #combat width for border war
+				minimum_duration_in_days = 40 #minimum duration for combat
+				attacker = {
+					on_win = tsr_sichuan_border_war.1
+					on_lose = tsr_sichuan_border_war.2
+					on_cancel = tsr_sichuan_border_war.2
+					state = 752 # state to start border war
+					num_provinces = 2 #number of provinces we want border war to be
+					#on_win = <event_id> #effect to call if wins
+					#on_lose = <event_id> #effect to call if loses
+					
+					leader_score = { # Optional score for selecting a leader 
+						base = 1
+						modifier = {
+						    skill > 2
+						    factor = 5
+						}
+						modifier = {
+						    skill > 3
+						    factor = 10
+						}
+					}
+					
+					dig_in_factor = 0 #dig in modifier factor (default value: 1.0)
+					terrain_factor = 0 #terrain modifier factor(default value: 1.0)
+				}
+				
+				defender = {
+					 state = 601 # state to start border war
+					 num_provinces = 2 #number of provinces we want border war to be
+					# on_win = <event_id> #effect to call if wins
+					on_lose = tsr_sichuan_border_war.1
+					on_win = tsr_sichuan_border_war.2
+					on_cancel = tsr_sichuan_border_war.2
+				}
+			}
+	
+		}
+	}
+
+	SIC_push_into_xikang_mission = {
+		icon = border_war
+		
+		allowed = { always = no }
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 752
+				state = 601
+			}
+		}
+
+		days_mission_timeout = 240
+
+		cancel_trigger = {
+			601 = {	
+				is_fully_controlled_by = ROOT
+			}
+		}
+
+		cancel_effect = {
+			effect_tooltip = {
+				country_event = { id = tsr_sichuan_border_war.1 }
+				transfer_state = 601
+				601 = {
+					add_core_of = SIC
+				}
+			}
+		}
+
+		timeout_effect = { #Fails
+			cancel_border_war = {
+				attacker = 752
+				defender = 601
+			}
+		}
+	}
+
+}
+
+XIC_war_in_yanan = {
+	
+	XIC_war_halting = {
+
+		priority = 100
+
+		icon = GFX_decision_generic_ignite_civil_war
+
+		visible = {
+			original_tag = XIC 
+			has_war_with = PRC
+		}
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		days_mission_timeout = 180
+
+		fire_only_once = yes
+
+		activation = {
+			always = no
+		}
+
+		cancel_if_not_visible = yes
+
+		is_good = no
+
+		timeout_effect = {
+				custom_effect_tooltip = XIC_stalemate_tt
+				country_event = {
+					id = SEA_warlords.55
+					hours = 6
+				}
+		}
+	
+	}
+
+	PRC_holding_out = {
+
+		priority = 100
+
+		icon = GFX_decision_generic_ignite_civil_war
+
+		visible = {
+			original_tag = XIC 
+			has_war_with = PRC
+		}
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		days_mission_timeout = 180
+
+		fire_only_once = yes
+
+		activation = {
+			always = no
+		}
+
+		cancel_if_not_visible = yes
+
+		is_good = no
+
+		timeout_effect = {
+			custom_effect_tooltip = PRC_survival_tt
+		}
+	
+	}
+
+}
