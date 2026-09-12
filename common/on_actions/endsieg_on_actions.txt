@@ -198,7 +198,16 @@ on_actions = {
                         ENG = { is_in_faction = yes }
                     }
                     ENG = {
-                        if = { limit = { USA = { is_in_faction = no } } add_to_faction = USA }
+                        # The USA joins the Allies in the 1942 history block;
+                        # keeping it out during 1941 prevents startup war
+                        # propagation from putting it at war with Germany.
+                        if = {
+                            limit = {
+                                date > 1942.1.1
+                                USA = { is_in_faction = no }
+                            }
+                            add_to_faction = USA
+                        }
                         if = { limit = { FRA = { is_in_faction = no } } add_to_faction = FRA }
                         if = { limit = { CAN = { is_in_faction = no } } add_to_faction = CAN }
                         if = { limit = { AST = { is_in_faction = no } } add_to_faction = AST }
@@ -232,6 +241,112 @@ on_actions = {
                         KIT = { is_in_faction = no }
                     }
                     ENG = { add_to_faction = KIT }
+                }
+            }
+
+            # The Atlantic fortress divisions must be created after province
+            # controllers are initialized. Their historical OOB entries cannot
+            # deploy reliably because the provinces are French-owned pockets.
+            if = {
+                limit = {
+                    country_exists = GER
+                    date > 1944.11.30
+                    date < 1946.1.1
+                }
+                GER = {
+                    if = {
+                        limit = {
+                            date > 1944.12.31
+                            has_dlc = "No Step Back"
+                        }
+                        11465 = {
+                            create_unit = {
+                                division = "name = \"265. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
+                                owner = GER
+                                allow_spawning_on_enemy_provs = yes
+                                count = 1
+                            }
+                        }
+                    }
+                    else = {
+                        11465 = {
+                            create_unit = {
+                                division = "name = \"265. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
+                                owner = GER
+                                allow_spawning_on_enemy_provs = yes
+                                count = 1
+                            }
+                        }
+                    }
+                    6657 = {
+                        create_unit = {
+                            division = "name = \"1046. Festungs-Division\" division_template = \"Sicherungs-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
+                            owner = GER
+                            allow_spawning_on_enemy_provs = yes
+                            count = 1
+                        }
+                    }
+                    6536 = {
+                        create_unit = {
+                            division = "name = \"Festungs 'Lorient'\" division_template = \"Sicherungs-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
+                            owner = GER
+                            allow_spawning_on_enemy_provs = yes
+                            count = 1
+                        }
+                    }
+                }
+            }
+
+            # Dunkerque's 1945 garrison is created only after the German-French
+            # war relation exists.  Province 575 is French-controlled in the
+            # later scenarios, so these OOB entries cannot be loaded from
+            # history without failing to place the divisions.
+            if = {
+                limit = {
+                    country_exists = GER
+                    country_exists = FRA
+                    date > 1944.12.31
+                    date < 1946.1.1
+                    GER = {
+                        has_war_with = FRA
+                        NOT = { has_country_flag = endsieg_GER_1945_dunkerque_spawned }
+                    }
+                }
+                GER = {
+                    if = {
+                        limit = { has_dlc = "No Step Back" }
+                        575 = {
+                            create_unit = {
+                                division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                                owner = GER
+                                allow_spawning_on_enemy_provs = yes
+                                count = 1
+                            }
+                            create_unit = {
+                                division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                                owner = GER
+                                allow_spawning_on_enemy_provs = yes
+                                count = 1
+                            }
+                        }
+                    }
+                    else = {
+                        575 = {
+                            create_unit = {
+                                division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                                owner = GER
+                                allow_spawning_on_enemy_provs = yes
+                                count = 1
+                            }
+                            create_unit = {
+                                division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                                owner = GER
+                                allow_spawning_on_enemy_provs = yes
+                                count = 1
+                            }
+                        }
+                    }
+                    set_country_flag = endsieg_GER_1945_dunkerque_spawned
                 }
             }
 
@@ -341,6 +456,57 @@ on_actions = {
                     complete_national_focus = URG_la_teja_refinery
                     clr_country_flag = endsieg_defer_URG_la_teja_refinery
                 }
+            }
+        }
+    }
+
+    # If Germany declares the French war during a 1945 start, create the
+    # Dunkerque garrison immediately after that declaration.  The startup
+    # branch above covers scenarios that already begin with this war active.
+    on_declare_war = {
+        effect = {
+            if = {
+                limit = {
+                    tag = GER
+                    FROM = { original_tag = FRA }
+                    date > 1944.12.31
+                    date < 1946.1.1
+                    NOT = { has_country_flag = endsieg_GER_1945_dunkerque_spawned }
+                }
+                if = {
+                    limit = { has_dlc = "No Step Back" }
+                    575 = {
+                        create_unit = {
+                            division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                            owner = GER
+                            allow_spawning_on_enemy_provs = yes
+                            count = 1
+                        }
+                        create_unit = {
+                            division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                            owner = GER
+                            allow_spawning_on_enemy_provs = yes
+                            count = 1
+                        }
+                    }
+                }
+                else = {
+                    575 = {
+                        create_unit = {
+                            division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                            owner = GER
+                            allow_spawning_on_enemy_provs = yes
+                            count = 1
+                        }
+                        create_unit = {
+                            division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
+                            owner = GER
+                            allow_spawning_on_enemy_provs = yes
+                            count = 1
+                        }
+                    }
+                }
+                set_country_flag = endsieg_GER_1945_dunkerque_spawned
             }
         }
     }
