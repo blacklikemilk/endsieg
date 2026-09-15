@@ -12,9 +12,14 @@ capital = 16
 	oob = "FRA_1910"
 	add_ideas = { heavy_industry }
 
-    create_faction = Entente
-	add_to_faction = RIE
-	puppet = MOR
+    # The dated history is replayed for every later bookmark.  These
+    # diplomatic actions are only the pre-war Entente setup.
+    if = {
+        limit = { date < 1919.1.1 }
+        create_faction = Entente
+        add_to_faction = RIE
+        puppet = MOR
+    }
 
 	recruit_character = FR3_Rene_Viviani
 	recruit_character = FR3_Charles_Jonnart
@@ -253,8 +258,11 @@ create_equipment_variant = {
 
 1914.1.1 = {
 
-	add_to_faction = RIE
-	set_autonomy = { target = MOR autonomy_state = autonomy_free }
+    if = {
+        limit = { date < 1919.1.1 }
+        add_to_faction = RIE
+        set_autonomy = { target = MOR autonomy_state = autonomy_free }
+    }
 
 	if = {
 		limit = { date < 1936.1.1 }
@@ -287,7 +295,7 @@ create_equipment_variant = {
 	}
 	add_political_power = 150
 
-	retire_character = FR3_Rene_Viviani
+	retire_character = FR3_Aristide_Briand
 	promote_character = FR3_Gaston_Doumergue
 
 	set_stability = 0.8
@@ -409,7 +417,10 @@ create_equipment_variant = {
 
 1916.1.1 = {
 
-    add_to_faction = ALB
+    if = {
+        limit = { date < 1919.1.1 }
+        add_to_faction = ALB
+    }
 
 	add_political_power = 1500
 
@@ -422,8 +433,8 @@ create_equipment_variant = {
 	}
 
 	retire_character = FR3_Gaston_Doumergue
-	recruit_character = FR3_Paul_Painleve
-	promote_character = FR3_Paul_Painleve
+	recruit_character = FR3_Aristide_Briand
+	promote_character = FR3_Aristide_Briand
 
 	recruit_character = FR3_julian_byng
     recruit_character = FR3_hubert_gough
@@ -434,28 +445,32 @@ create_equipment_variant = {
     recruit_character = FR3_henry_rawlinson
 
 
-	add_to_faction = FRA
-	add_to_faction = EGY
-	add_to_faction = EN3
-	add_to_faction = GRE
-	if = {
-		limit = { NOT = { has_war_with = ITA } }
-		add_to_faction = ITA
-	}
-	add_to_faction = POR
-	add_to_faction = ENG
-	add_to_faction = BHU
-	add_to_faction = NEP
-	add_to_faction = BEL
-	add_to_faction = SIA
-	add_to_faction = SAF
-	add_to_faction = AST
-	add_to_faction = NZL
-	add_to_faction = MAL
-	add_to_faction = RAJ
-	add_to_faction = RCH
-	add_to_faction = JAP
-	add_to_faction = BRA
+    if = {
+        limit = { date < 1919.1.1 }
+        # FRA already leads the Entente; adding itself generated an invalid
+        # diplomatic command during history replay.
+        add_to_faction = EGY
+        add_to_faction = EN3
+        add_to_faction = GRE
+        if = {
+            limit = { NOT = { has_war_with = ITA } }
+            add_to_faction = ITA
+        }
+        add_to_faction = POR
+        add_to_faction = ENG
+        add_to_faction = BHU
+        add_to_faction = NEP
+        add_to_faction = BEL
+        add_to_faction = SIA
+        add_to_faction = SAF
+        add_to_faction = AST
+        add_to_faction = NZL
+        add_to_faction = MAL
+        add_to_faction = RAJ
+        add_to_faction = RCH
+        add_to_faction = JAP
+        add_to_faction = BRA
+    }
 
 	set_war_support = 0.65
 	set_stability = 0.6
@@ -608,7 +623,7 @@ if = {
 		complete_national_focus = FR3_war_effort
 	}
 	add_political_power = 1500
-	retire_character = FR3_Paul_Painleve
+	retire_character = FR3_Aristide_Briand
 	promote_character = FR3_Georges_Clemenceau
 
 	#adding ministers
@@ -804,7 +819,7 @@ dismantle_faction = yes
 	retire_character = FR3_Paul_Peytral
 #	retire_character = FR3_Georges_Clemenceau		#retire on FR3 History/coutries
 	retire_character = FR3_Alexandre_Millerand
-	retire_character = FR3_Aristide_Briand
+#	retire_character = FR3_Aristide_Briand		# retired in 1914
 	retire_character = FR3_Jean_Jaures
 	retire_character = FR3_Louis_Germain_Martin
 	retire_character = FRA_ferdinand_foch
@@ -2025,7 +2040,7 @@ if = {
 	complete_national_focus = FRA_invest_in_the_metropole
 
 	give_guarantee = POL
-	ENG = { add_to_faction = FRA }
+	# ENG adds France to the Allies after country initialization in endsieg_on_actions.
 
 
 	if = {
