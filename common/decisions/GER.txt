@@ -453,6 +453,7 @@ GER_reichskommissariats = {
 		available = {
 			has_completed_focus = GER_uplift_the_rosenberg_office
 			has_government = fascism
+			RKG = { exists = no }
 			controls_state = 110
 			controls_state = 142
 			controls_state = 143
@@ -471,6 +472,7 @@ GER_reichskommissariats = {
 		visible = {
 			has_completed_focus = GER_uplift_the_rosenberg_office
 			has_government = fascism
+			RKG = { exists = no }
 		}
 
 		complete_effect = {
@@ -542,6 +544,7 @@ GER_reichskommissariats = {
 		available = {
 			has_completed_focus = GER_uplift_the_rosenberg_office
 			has_government = fascism
+			RKN = { exists = no }
 			controls_state = 7
 			controls_state = 35
 			controls_state = 36
@@ -560,6 +563,7 @@ GER_reichskommissariats = {
 		visible = {
 			has_completed_focus = GER_uplift_the_rosenberg_office
 			has_government = fascism
+			RKN = { exists = no }
 		}
 
 		complete_effect = {
@@ -620,6 +624,143 @@ GER_reichskommissariats = {
 					}
 				}
 				set_autonomy = { target = HOL autonomy_state = autonomy_integrated_puppet }
+			}
+		}
+	}
+
+	GER_generalgouvernement = {
+
+		icon = ger_reichskommissariats
+
+		priority = 103
+
+		fire_only_once = yes
+
+		visible = {
+			has_completed_focus = GER_uplift_the_rosenberg_office
+			GEN = {
+				exists = no
+			}
+		}
+
+		available = {
+			is_subject = no
+			has_completed_focus = GER_reassert_eastern_claims
+			NOT = {
+				has_subject = POL # No need to create a worse Polish subject if you already have one
+			}
+			custom_trigger_tooltip = {
+				tooltip = GER_reichskommissariat_highlighted_required_states
+				88 = { is_controlled_by_ROOT_or_subject = yes }
+				90 = { is_controlled_by_ROOT_or_subject = yes }
+				92 = { is_controlled_by_ROOT_or_subject = yes }
+				10 = { is_controlled_by_ROOT_or_subject = yes }
+			}
+		}
+
+		cost = 30
+
+		ai_will_do = {
+			base = 2
+			modifier = {
+				add = 25
+				POL = { has_capitulated = yes }
+			}
+		}
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 10 # Warsaw
+				state = 90 # Kielce
+				state = 92 # Lublin
+				state = 88 # Krakow
+			}
+		}
+
+		complete_effect = {
+
+			GER_improve_rosenbergs_trait_effect = yes
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			88 = {
+				IF = {
+					limit = {
+						OWNER = { NOT = { original_tag = GER } }
+					}
+					OWNER = {
+						set_country_flag = GER_RK_capital_state_trasferred_GEN_victim_flag
+						set_country_flag = GER_reichskommissariats_puppet_flag
+					}
+				}
+				transfer_state_to = GEN
+				set_state_flag = GER_RK_capital_state_trasferred_GEN_flag
+				add_compliance = 25
+			}
+
+			custom_effect_tooltip = GER_generalgouvernement_effect_tt
+
+			set_autonomy = {
+				target = GEN
+				autonomy_state = autonomy_integrated_puppet
+			}
+
+			hidden_effect = {
+				every_state = {
+					limit = {
+						GER_is_GEN_state = yes
+						NOT = { state = 88 }
+						OR = {
+							is_owned_by = ROOT
+						owner = { is_subject_of = ROOT }
+						}
+					}
+					transfer_state_to = GEN
+					add_compliance = 25
+				}
+				every_state = {
+					limit = {
+						GER_is_GEN_state = yes
+						NOT = { state = 88 }
+						NOT = {
+							OR = {
+								is_owned_by = ROOT
+								any_country = {
+									is_subject_of = ROOT
+									owns_state = PREV
+								}
+							}
+						}
+					}
+					add_contested_owner = GEN
+					set_state_controller_to = GEN
+					add_claim_by = GEN
+					add_compliance = 25
+				}
+
+				GEN = {
+					add_manpower = 50000
+					add_equipment_to_stockpile = {
+						type = infantry_equipment
+						amount = 5000
+						producer = GER
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 500
+						producer = GER
+					}
+					inherit_technology = GER
+					add_offsite_building = { type = arms_factory level = 2 }
+					load_oob = "RK_OOB"
+				}
+			}
+
+			custom_effect_tooltip = generic_skip_one_line_tt
+
+			country_event = {
+				id = wuw_GER_reichskommissariats.12
+				hours = 0
 			}
 		}
 	}

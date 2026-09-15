@@ -16,11 +16,77 @@ on_actions = {
                     country_exists = SOV
                     country_exists = WHR
                 }
+
+                # The 1918 scenario starts after the Russian Civil War setup
+                # event is suppressed. Recreate its static-start OOB and the
+                # White alignment from the 1919 history setup after countries
+                # have finished initializing.
+                if = {
+                    limit = { country_exists = KUB }
+                    KUB = { load_oob = KUB_1918 }
+                }
+
+                WHR = {
+                    if = {
+                        limit = { is_in_faction = no }
+                        create_faction = white_movement_and_allies
+                    }
+                }
+
+                if = {
+                    limit = { country_exists = TSS TSS = { is_in_faction = no } }
+                    WHR = { add_to_faction = TSS }
+                }
+                if = {
+                    limit = { country_exists = KUB KUB = { is_in_faction = no } }
+                    WHR = { add_to_faction = KUB }
+                }
+                if = {
+                    limit = { country_exists = BLR BLR = { is_in_faction = no } }
+                    WHR = { add_to_faction = BLR }
+                }
+                if = {
+                    limit = { country_exists = LIT LIT = { is_in_faction = no } }
+                    WHR = { add_to_faction = LIT }
+                }
+                if = {
+                    limit = { country_exists = EST EST = { is_in_faction = no } }
+                    WHR = { add_to_faction = EST }
+                }
+                if = {
+                    limit = { country_exists = LAT LAT = { is_in_faction = no } }
+                    WHR = { add_to_faction = LAT }
+                }
+
+                if = {
+                    limit = { country_exists = TSS TSS = { is_subject = no } }
+                    WHR = { puppet = TSS }
+                }
+                if = {
+                    limit = { country_exists = TSS }
+                    TSS = {
+                        add_popularity = { ideology = neutrality popularity = 1 }
+                        set_politics = { ruling_party = neutrality elections_allowed = no }
+                    }
+                }
+
                 SOV = {
                     if = {
                         limit = { NOT = { has_war_with = WHR } }
                         declare_war_on = { target = WHR type = civil_war }
                         add_civil_war_target = WHR
+                    }
+                }
+                if = {
+                    limit = {
+                        country_exists = TSS
+                        TSS = { NOT = { has_war_with = SOV } }
+                    }
+                    TSS = {
+                        add_to_war = {
+                            targeted_alliance = WHR
+                            enemy = SOV
+                        }
                     }
                 }
             }
@@ -79,97 +145,330 @@ on_actions = {
                 }
             }
 
-            # WW2 starts explicitly use the installed vanilla focus trees.
+            # WW2 starts explicitly use the installed vanilla focus trees.  The
+            # WWI generic tree has an unconditional selector, so this must also
+            # cover the exact 1936 bookmark instead of starting a day later.
             if = {
-                limit = { date > 1936.1.1 }
+                limit = { date > 1935.12.31 }
                 every_country = {
                     # Country tags without a history/capital are dormant definitions.
                     # Loading a focus tree for them during scenario setup can dereference
                     # an uninitialised country; only initialise countries on this map.
                     limit = { any_owned_state = { is_capital = yes } }
                     if = {
-                        limit = {
-                            NOT = {
-                                OR = {
-                                    tag = GER tag = FRA tag = ITA tag = TUR tag = ENG tag = SOV tag = JAP
-                                    tag = HOL tag = EST tag = ROM tag = FIN tag = HUN tag = CAN tag = MEX
-                                    tag = NZL tag = NOR tag = URG tag = USA tag = USC
-                                }
-                            }
-                        }
-                        load_focus_tree = { tree = generic_focus keep_completed = yes }
-                    }
-                    if = {
                         limit = { tag = GER }
                         load_focus_tree = { tree = german_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = FRA }
-                        load_focus_tree = { tree = french_focus keep_completed = yes }
+                        if = {
+                            limit = {
+                                OR = {
+                                    has_cosmetic_tag = FRA_FRF
+                                    has_cosmetic_tag = FRA_FREE
+                                }
+                            }
+                            load_focus_tree = { tree = free_french_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = french_focus keep_completed = yes }
+                        }
                     }
-                    if = {
+                    else_if = {
+                        limit = { tag = EFR }
+                        load_focus_tree = { tree = vichy_french_focus keep_completed = yes }
+                    }
+                    else_if = {
                         limit = { tag = ITA }
                         load_focus_tree = { tree = italian_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = TUR }
                         load_focus_tree = { tree = turkish_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = ENG }
                         load_focus_tree = { tree = british_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = SOV }
                         load_focus_tree = { tree = soviet_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = JAP }
                         load_focus_tree = { tree = japan_wtt_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = HOL }
                         load_focus_tree = { tree = netherlands_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = EST }
                         load_focus_tree = { tree = estonia_tree keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = ROM }
                         load_focus_tree = { tree = romanian_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = FIN }
                         load_focus_tree = { tree = finnish_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = HUN }
-                        load_focus_tree = { tree = hungarian_focus keep_completed = yes }
+                        if = {
+                            limit = { has_dlc = "Gotterdammerung" }
+                            load_focus_tree = { tree = wuw_hungarian_focus keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Death or Dishonor" }
+                            load_focus_tree = { tree = hungarian_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = CAN }
                         load_focus_tree = { tree = canadian_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = MEX }
                         load_focus_tree = { tree = mexico_focus_tree keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = NZL }
                         load_focus_tree = { tree = new_zealander_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = NOR }
                         load_focus_tree = { tree = norwegian_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { tag = URG }
                         load_focus_tree = { tree = uruguay_focus keep_completed = yes }
                     }
-                    if = {
+                    else_if = {
                         limit = { OR = { tag = USA tag = USC } }
                         load_focus_tree = { tree = usa_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = SWE }
+                        load_focus_tree = { tree = sweden_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = DEN }
+                        load_focus_tree = { tree = danish_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = LAT }
+                        load_focus_tree = { tree = latvia_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = LIT }
+                        load_focus_tree = { tree = lithuania_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = POL }
+                        load_focus_tree = { tree = polish_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = CZE }
+                        load_focus_tree = { tree = czech_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = AUS }
+                        load_focus_tree = { tree = austria_focus_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = YUG }
+                        load_focus_tree = { tree = yugoslavian_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = BUL }
+                        load_focus_tree = { tree = bulgarian_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = ETH }
+                        load_focus_tree = { tree = ethiopia_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = GRE }
+                        load_focus_tree = { tree = greek_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = SWI }
+                        load_focus_tree = { tree = swiss_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = BEL }
+                        load_focus_tree = { tree = belgium_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = SPR }
+                        load_focus_tree = { tree = spanish_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = POR }
+                        load_focus_tree = { tree = portuguese_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = PER }
+                        load_focus_tree = { tree = persian_focus_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = AFG }
+                        load_focus_tree = { tree = afghanistan_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = IRQ }
+                        load_focus_tree = { tree = iraq_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = RAJ }
+                        if = {
+                            limit = { has_dlc = "Graveyard of Empires" }
+                            load_focus_tree = { tree = indian_focus_goe keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Together for Victory" }
+                            load_focus_tree = { tree = indian_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
+                    }
+                    else_if = {
+                        limit = { tag = MAN }
+                        if = {
+                            limit = { has_dlc = "No Compromise, No Surrender" }
+                            load_focus_tree = { tree = manchukuo_focus_tsr keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Waking the Tiger" }
+                            load_focus_tree = { tree = manchukuo_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
+                    }
+                    else_if = {
+                        limit = { tag = SIA }
+                        load_focus_tree = { tree = siam_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = INS }
+                        load_focus_tree = { tree = indonesia_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = AST }
+                        if = {
+                            limit = { has_dlc = "Thunder at Our Gates" }
+                            load_focus_tree = { tree = australia_taog_focus keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Together for Victory" }
+                            load_focus_tree = { tree = australian_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
+                    }
+                    else_if = {
+                        limit = { tag = BRA }
+                        load_focus_tree = { tree = brazil_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = CHL }
+                        load_focus_tree = { tree = chilean_focus_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = ARG }
+                        load_focus_tree = { tree = argentine_focus_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = PAR }
+                        load_focus_tree = { tree = paraguay_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = SAF }
+                        load_focus_tree = { tree = south_african_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = ICE }
+                        load_focus_tree = { tree = iceland_tree keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = PHI }
+                        load_focus_tree = { tree = philippines_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = COG }
+                        load_focus_tree = { tree = congo_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = CHI }
+                        if = {
+                            limit = { has_dlc = "No Compromise, No Surrender" }
+                            load_focus_tree = { tree = china_nationalist_sea_focus keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Waking the Tiger" }
+                            load_focus_tree = { tree = china_nationalist_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
+                    }
+                    else_if = {
+                        limit = { tag = PRC }
+                        if = {
+                            limit = { has_dlc = "No Compromise, No Surrender" }
+                            load_focus_tree = { tree = china_communist_focus_sea keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Waking the Tiger" }
+                            load_focus_tree = { tree = china_communist_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
+                    }
+                    else_if = {
+                        limit = { tag = RNG }
+                        if = {
+                            limit = { has_dlc = "No Compromise, No Surrender" }
+                            load_focus_tree = { tree = china_nationalist_warlord_focus keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Waking the Tiger" }
+                            load_focus_tree = { tree = china_nationalist_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
+                    }
+                    else_if = {
+                        limit = {
+                            OR = {
+                                tag = SHX tag = SIK tag = YUN tag = GXC tag = XSM tag = GDC tag = XIC
+                                tag = SND tag = KHM tag = NXM tag = GSM tag = SIC tag = KUM tag = HBC
+                            }
+                        }
+                        if = {
+                            limit = { has_dlc = "No Compromise, No Surrender" }
+                            load_focus_tree = { tree = china_warlord_sea_focus keep_completed = yes }
+                        }
+                        else_if = {
+                            limit = { has_dlc = "Waking the Tiger" }
+                            load_focus_tree = { tree = china_warlord_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = generic_focus keep_completed = yes }
+                        }
+                    }
+                    else = {
+                        load_focus_tree = { tree = generic_focus keep_completed = yes }
                     }
                 }
 
@@ -463,6 +762,26 @@ on_actions = {
     # If Germany declares the French war during a 1945 start, create the
     # Dunkerque garrison immediately after that declaration.  The startup
     # branch above covers scenarios that already begin with this war active.
+    # Argentina declared war on Germany on 27 March 1945, after the 20 March bookmark.
+    # Keep it date-gated so it is not already at war on the bookmark itself.
+    on_daily = {
+        effect = {
+            if = {
+                limit = {
+                    tag = ARG
+                    date > 1945.3.26
+                    country_exists = GER
+                    NOT = { has_country_flag = endsieg_ARG_declared_war_on_GER }
+                }
+                if = {
+                    limit = { NOT = { has_war_with = GER } }
+                    declare_war_on = { target = GER type = annex_everything }
+                }
+                set_country_flag = endsieg_ARG_declared_war_on_GER
+            }
+        }
+    }
+
     on_declare_war = {
         effect = {
             if = {
