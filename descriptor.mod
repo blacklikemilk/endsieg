@@ -28,5 +28,5 @@ tags={
 	"National Focuses"
 }
 name="Endsieg: Ultimate Victory"
-supported_version="1.19.*"
+supported_version="1.19.3"
 remote_file_id="1532883122"
