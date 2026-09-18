@@ -150,16 +150,51 @@ on_actions = {
                 }
             }
 
-            # Force the distinct WWI German tree after country initialization.
-            # This prevents the vanilla selector from replacing it in the early
-            # scenario starts.
+            # Force the distinct WWI trees after country initialization. Vanilla
+            # selectors otherwise replace them in early scenario starts.
             if = {
-                limit = {
-                    date < 1936.1.1
-                    country_exists = GER
-                }
-                GER = {
-                    load_focus_tree = { tree = german_focus_ww1 keep_completed = yes }
+                limit = { date < 1936.1.1 }
+                every_country = {
+                    # Dormant tags can have no country history or capital. Do
+                    # not dereference them while the scenario is loading.
+                    limit = { any_owned_state = { is_capital = yes } }
+                    if = {
+                        limit = { tag = GER }
+                        load_focus_tree = { tree = german_focus_ww1 keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = AUH }
+                        load_focus_tree = { tree = austria_hungary_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = FRA }
+                        load_focus_tree = { tree = french_focus_ww1 keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = ITA }
+                        load_focus_tree = { tree = italian_focus_ww1 keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = RIE }
+                        load_focus_tree = { tree = russian_empire_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = TUR }
+                        load_focus_tree = { tree = turkish_focus_ww1 keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = ENG }
+                        load_focus_tree = { tree = british_focus_ww1 keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = USA }
+                        load_focus_tree = { tree = usa_ww1_focus keep_completed = yes }
+                    }
+                    else = {
+                        # No separate WWI tree exists for this tag. Never let
+                        # a WW2-specific vanilla selector win in a WWI scenario.
+                        load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes }
+                    }
                 }
             }
 
