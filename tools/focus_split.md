@@ -2,7 +2,7 @@
 
 `common/national_focus/WWI - *.txt` contains the Endsieg trees for Austria-Hungary,
 France, Germany, Italy, the Russian Empire, Turkey, the United Kingdom and the
-United States (the existing `USC` tag), plus the generic early-scenario tree.
+United States (the vanilla `USA` tag), plus the generic early-scenario tree.
 The existing shared branches and Russian Civil War trees are retained.
 
 Before 1936, national Endsieg trees score 20,000 and the generic Endsieg tree

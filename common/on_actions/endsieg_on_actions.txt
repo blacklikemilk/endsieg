@@ -1,6 +1,11 @@
 on_actions = {
     on_startup = {
         effect = {
+            # Do not evaluate neighbour-dependent triggers while country
+            # history is still being applied. The country graph is ready by
+            # the time on_startup runs.
+            set_global_flag = endsieg_history_initialized
+
             # Country histories finish before startup effects. Standardise every
             # initialized country's political power after its scenario data loads.
             every_country = {
@@ -97,22 +102,22 @@ on_actions = {
                 limit = {
                     date > 1917.4.6
                     date < 1919.1.1
-                    country_exists = USC
+                    country_exists = USA
                 }
                 if = {
                     limit = {
                         country_exists = FRA
                         FRA = { is_in_faction = yes }
-                        USC = { is_in_faction = no }
+                        USA = { is_in_faction = no }
                     }
-                    FRA = { add_to_faction = USC }
+                    FRA = { add_to_faction = USA }
                 }
                 if = {
                     limit = { country_exists = GER }
                     GER = {
                         if = {
-                            limit = { NOT = { has_war_with = USC } }
-                            declare_war_on = { target = USC type = annex_everything }
+                            limit = { NOT = { has_war_with = USA } }
+                            declare_war_on = { target = USA type = annex_everything }
                         }
                     }
                 }
@@ -120,8 +125,8 @@ on_actions = {
                     limit = { country_exists = AUH }
                     AUH = {
                         if = {
-                            limit = { NOT = { has_war_with = USC } }
-                            declare_war_on = { target = USC type = annex_everything }
+                            limit = { NOT = { has_war_with = USA } }
+                            declare_war_on = { target = USA type = annex_everything }
                         }
                     }
                 }
@@ -129,8 +134,8 @@ on_actions = {
                     limit = { country_exists = BUL }
                     BUL = {
                         if = {
-                            limit = { NOT = { has_war_with = USC } }
-                            declare_war_on = { target = USC type = annex_everything }
+                            limit = { NOT = { has_war_with = USA } }
+                            declare_war_on = { target = USA type = annex_everything }
                         }
                     }
                 }
@@ -138,10 +143,23 @@ on_actions = {
                     limit = { country_exists = TUR }
                     TUR = {
                         if = {
-                            limit = { NOT = { has_war_with = USC } }
-                            declare_war_on = { target = USC type = annex_everything }
+                            limit = { NOT = { has_war_with = USA } }
+                            declare_war_on = { target = USA type = annex_everything }
                         }
                     }
+                }
+            }
+
+            # Force the distinct WWI German tree after country initialization.
+            # This prevents the vanilla selector from replacing it in the early
+            # scenario starts.
+            if = {
+                limit = {
+                    date < 1936.1.1
+                    country_exists = GER
+                }
+                GER = {
+                    load_focus_tree = { tree = german_focus_ww1 keep_completed = yes }
                 }
             }
 
@@ -249,7 +267,7 @@ on_actions = {
                         load_focus_tree = { tree = uruguay_focus keep_completed = yes }
                     }
                     else_if = {
-                        limit = { OR = { tag = USA tag = USC } }
+                        limit = { tag = USA }
                         load_focus_tree = { tree = usa_focus keep_completed = yes }
                     }
                     else_if = {
@@ -503,31 +521,69 @@ on_actions = {
                         if = {
                             limit = {
                                 date > 1942.1.1
+                                country_exists = USA
                                 USA = { is_in_faction = no }
                             }
                             add_to_faction = USA
                         }
-                        if = { limit = { FRA = { is_in_faction = no } } add_to_faction = FRA }
-                        if = { limit = { CAN = { is_in_faction = no } } add_to_faction = CAN }
-                        if = { limit = { AST = { is_in_faction = no } } add_to_faction = AST }
-                        if = { limit = { NZL = { is_in_faction = no } } add_to_faction = NZL }
-                        if = { limit = { RAJ = { is_in_faction = no } } add_to_faction = RAJ }
-                        if = { limit = { MAL = { is_in_faction = no } } add_to_faction = MAL }
-                        if = { limit = { ANA = { is_in_faction = no } } add_to_faction = ANA }
-                        if = { limit = { SAF = { is_in_faction = no } } add_to_faction = SAF }
-                        if = { limit = { PER = { is_in_faction = no } } add_to_faction = PER }
-                        if = { limit = { BRA = { is_in_faction = no } } add_to_faction = BRA }
-                        if = { limit = { IRQ = { is_in_faction = no } } add_to_faction = IRQ }
-                        if = { limit = { OMA = { is_in_faction = no } } add_to_faction = OMA }
-                        if = { limit = { YEM = { is_in_faction = no } } add_to_faction = YEM }
-                        if = { limit = { BEL = { is_in_faction = no } } add_to_faction = BEL }
-                        if = { limit = { HOL = { is_in_faction = no } } add_to_faction = HOL }
-                        if = { limit = { INS = { is_in_faction = no } } add_to_faction = INS }
-                        if = { limit = { ETH = { is_in_faction = no } } add_to_faction = ETH }
-                        if = { limit = { HAI = { is_in_faction = no } } add_to_faction = HAI }
-                        if = { limit = { DOM = { is_in_faction = no } } add_to_faction = DOM }
-                        if = { limit = { BHU = { is_in_faction = no } } add_to_faction = BHU }
-                        if = { limit = { NEP = { is_in_faction = no } } add_to_faction = NEP }
+                        if = { limit = { country_exists = FRA FRA = { is_in_faction = no } } add_to_faction = FRA }
+                        if = { limit = { country_exists = CAN CAN = { is_in_faction = no } } add_to_faction = CAN }
+                        if = { limit = { country_exists = AST AST = { is_in_faction = no } } add_to_faction = AST }
+                        if = { limit = { country_exists = NZL NZL = { is_in_faction = no } } add_to_faction = NZL }
+                        if = { limit = { country_exists = RAJ RAJ = { is_in_faction = no } } add_to_faction = RAJ }
+                        if = { limit = { country_exists = MAL MAL = { is_in_faction = no } } add_to_faction = MAL }
+                        if = { limit = { country_exists = ANA ANA = { is_in_faction = no } } add_to_faction = ANA }
+                        if = { limit = { country_exists = SAF SAF = { is_in_faction = no } } add_to_faction = SAF }
+                        if = { limit = { country_exists = PER PER = { is_in_faction = no } } add_to_faction = PER }
+                        if = { limit = { country_exists = BRA BRA = { is_in_faction = no } } add_to_faction = BRA }
+                        if = { limit = { country_exists = IRQ IRQ = { is_in_faction = no } } add_to_faction = IRQ }
+                        if = { limit = { country_exists = OMA OMA = { is_in_faction = no } } add_to_faction = OMA }
+                        if = { limit = { country_exists = YEM YEM = { is_in_faction = no } } add_to_faction = YEM }
+                        if = { limit = { country_exists = BEL BEL = { is_in_faction = no } } add_to_faction = BEL }
+                        if = { limit = { country_exists = HOL HOL = { is_in_faction = no } } add_to_faction = HOL }
+                        if = { limit = { country_exists = INS INS = { is_in_faction = no } } add_to_faction = INS }
+                        if = { limit = { country_exists = ETH ETH = { is_in_faction = no } } add_to_faction = ETH }
+                        # These countries declared war on Germany in December 1941.
+                        # Add them only in the 1942-and-later scenario recovery,
+                        # leaving the 1941 start neutral until its dated history block.
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = CUB CUB = { is_in_faction = no } }
+                            add_to_faction = CUB
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = GUA GUA = { is_in_faction = no } }
+                            add_to_faction = GUA
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = ELS ELS = { is_in_faction = no } }
+                            add_to_faction = ELS
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = HON HON = { is_in_faction = no } }
+                            add_to_faction = HON
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = NIC NIC = { is_in_faction = no } }
+                            add_to_faction = NIC
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = COS COS = { is_in_faction = no } }
+                            add_to_faction = COS
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = PAN PAN = { is_in_faction = no } }
+                            add_to_faction = PAN
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = HAI HAI = { is_in_faction = no } }
+                            add_to_faction = HAI
+                        }
+                        if = {
+                            limit = { date > 1941.12.10 country_exists = DOM DOM = { is_in_faction = no } }
+                            add_to_faction = DOM
+                        }
+                        if = { limit = { country_exists = BHU BHU = { is_in_faction = no } } add_to_faction = BHU }
+                        if = { limit = { country_exists = NEP NEP = { is_in_faction = no } } add_to_faction = NEP }
                     }
                 }
 
@@ -537,117 +593,14 @@ on_actions = {
                     limit = {
                         date > 1943.1.1
                         ENG = { is_in_faction = yes }
+                        country_exists = KIT
                         KIT = { is_in_faction = no }
                     }
                     ENG = { add_to_faction = KIT }
                 }
             }
 
-            # The Atlantic fortress divisions must be created after province
-            # controllers are initialized. Their historical OOB entries cannot
-            # deploy reliably because the provinces are French-owned pockets.
-            if = {
-                limit = {
-                    country_exists = GER
-                    date > 1944.11.30
-                    date < 1946.1.1
-                }
-                GER = {
-                    if = {
-                        limit = {
-                            date > 1944.12.31
-                            has_dlc = "No Step Back"
-                        }
-                        11465 = {
-                            create_unit = {
-                                division = "name = \"265. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
-                                owner = GER
-                                allow_spawning_on_enemy_provs = yes
-                                count = 1
-                            }
-                        }
-                    }
-                    else = {
-                        11465 = {
-                            create_unit = {
-                                division = "name = \"265. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
-                                owner = GER
-                                allow_spawning_on_enemy_provs = yes
-                                count = 1
-                            }
-                        }
-                    }
-                    6657 = {
-                        create_unit = {
-                            division = "name = \"1046. Festungs-Division\" division_template = \"Sicherungs-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
-                            owner = GER
-                            allow_spawning_on_enemy_provs = yes
-                            count = 1
-                        }
-                    }
-                    6536 = {
-                        create_unit = {
-                            division = "name = \"Festungs 'Lorient'\" division_template = \"Sicherungs-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.4"
-                            owner = GER
-                            allow_spawning_on_enemy_provs = yes
-                            count = 1
-                        }
-                    }
-                }
-            }
 
-            # Dunkerque's 1945 garrison is created only after the German-French
-            # war relation exists.  Province 575 is French-controlled in the
-            # later scenarios, so these OOB entries cannot be loaded from
-            # history without failing to place the divisions.
-            if = {
-                limit = {
-                    country_exists = GER
-                    country_exists = FRA
-                    date > 1944.12.31
-                    date < 1946.1.1
-                    GER = {
-                        has_war_with = FRA
-                        NOT = { has_country_flag = endsieg_GER_1945_dunkerque_spawned }
-                    }
-                }
-                GER = {
-                    if = {
-                        limit = { has_dlc = "No Step Back" }
-                        575 = {
-                            create_unit = {
-                                division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                                owner = GER
-                                allow_spawning_on_enemy_provs = yes
-                                count = 1
-                            }
-                            create_unit = {
-                                division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                                owner = GER
-                                allow_spawning_on_enemy_provs = yes
-                                count = 1
-                            }
-                        }
-                    }
-                    else = {
-                        575 = {
-                            create_unit = {
-                                division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                                owner = GER
-                                allow_spawning_on_enemy_provs = yes
-                                count = 1
-                            }
-                            create_unit = {
-                                division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                                owner = GER
-                                allow_spawning_on_enemy_provs = yes
-                                count = 1
-                            }
-                        }
-                    }
-                    set_country_flag = endsieg_GER_1945_dunkerque_spawned
-                }
-            }
 
             # Resource effects cannot run from country history.  The matching
             # history entries set these temporary flags; complete the original
@@ -678,6 +631,24 @@ on_actions = {
                     limit = { has_country_flag = endsieg_defer_ROM_hunedoara_steel_works }
                     complete_national_focus = ROM_hunedoara_steel_works
                     clr_country_flag = endsieg_defer_ROM_hunedoara_steel_works
+                }
+            }
+            GER = {
+                # The focus reward evaluates capital_scope and neighbouring countries.
+                # Country history runs before every country has initialized.
+                if = {
+                    limit = { has_country_flag = endsieg_defer_GER_anti_comintern_pact }
+                    complete_national_focus = GER_anti_comintern_pact
+                    clr_country_flag = endsieg_defer_GER_anti_comintern_pact
+                }
+            }
+            SOV = {
+                # This reward creates the penal division template and OOB. It
+                # must run only after the WW2 Soviet focus tree is installed.
+                if = {
+                    limit = { has_country_flag = endsieg_defer_SOV_penal_battalions }
+                    complete_national_focus = SOV_penal_battalions
+                    clr_country_flag = endsieg_defer_SOV_penal_battalions
                 }
             }
             TUR = {
@@ -766,6 +737,51 @@ on_actions = {
     # Keep it date-gated so it is not already at war on the bookmark itself.
     on_daily = {
         effect = {
+            # The civil Reichskommissariat replaced the military administration
+            # of Belgium and Northern France on 13 July 1944. Do not create it
+            # for bookmarks after its December 1944 replacement.
+            if = {
+                limit = {
+                    tag = GER
+                    date > 1944.7.12
+                    date < 1944.12.15
+                    NOT = { has_country_flag = endsieg_RKB_formed }
+                    6 = { is_owned_by = GER is_controlled_by = GER }
+                    29 = { is_owned_by = GER is_controlled_by = GER }
+                    34 = { is_owned_by = GER is_controlled_by = GER }
+                }
+                6 = { transfer_state_to = RKB }
+                29 = { transfer_state_to = RKB }
+                34 = { transfer_state_to = RKB }
+                set_autonomy = { target = RKB autonomy_state = autonomy_integrated_puppet }
+                add_to_faction = RKB
+                set_country_flag = endsieg_RKB_formed
+            }
+
+            # On 15 December 1944 the Reichskommissariat was replaced by the
+            # Reichsgaue. Restore liberated Belgian and French territory and
+            # remove the temporary subject.
+            if = {
+                limit = {
+                    tag = GER
+                    date > 1944.12.14
+                    NOT = { has_country_flag = endsieg_RKB_dissolved }
+                }
+                if = {
+                    limit = {
+                        RKB = {
+                            exists = yes
+                            is_subject_of = GER
+                        }
+                    }
+                    6 = { transfer_state_to = BEL }
+                    34 = { transfer_state_to = BEL }
+                    29 = { transfer_state_to = FRA }
+                    annex_country = { target = RKB transfer_troops = yes }
+                }
+                set_country_flag = endsieg_RKB_dissolved
+            }
+
             if = {
                 limit = {
                     tag = ARG
@@ -778,54 +794,6 @@ on_actions = {
                     declare_war_on = { target = GER type = annex_everything }
                 }
                 set_country_flag = endsieg_ARG_declared_war_on_GER
-            }
-        }
-    }
-
-    on_declare_war = {
-        effect = {
-            if = {
-                limit = {
-                    tag = GER
-                    FROM = { original_tag = FRA }
-                    date > 1944.12.31
-                    date < 1946.1.1
-                    NOT = { has_country_flag = endsieg_GER_1945_dunkerque_spawned }
-                }
-                if = {
-                    limit = { has_dlc = "No Step Back" }
-                    575 = {
-                        create_unit = {
-                            division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                            owner = GER
-                            allow_spawning_on_enemy_provs = yes
-                            count = 1
-                        }
-                        create_unit = {
-                            division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } force_equipment_variants = { light_tank_destroyer_equipment_2 = { owner = GER creator = GER version_name = \"Marder II\" } } force_equipment_variants = { light_tank_artillery_equipment_2 = { owner = GER creator = GER version_name = \"Wespe I\" } } force_equipment_variants = { light_tank_aa_equipment_2 = { owner = GER creator = GER version_name = \"Flakpanzer 38\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                            owner = GER
-                            allow_spawning_on_enemy_provs = yes
-                            count = 1
-                        }
-                    }
-                }
-                else = {
-                    575 = {
-                        create_unit = {
-                            division = "name = \"49. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                            owner = GER
-                            allow_spawning_on_enemy_provs = yes
-                            count = 1
-                        }
-                        create_unit = {
-                            division = "name = \"226. Infanterie-Division\" division_template = \"Infanterie-Division\" force_equipment_variants = { infantry_equipment_2 = { owner = \"GER\" } } start_experience_factor = 0.5 start_equipment_factor = 0.7"
-                            owner = GER
-                            allow_spawning_on_enemy_provs = yes
-                            count = 1
-                        }
-                    }
-                }
-                set_country_flag = endsieg_GER_1945_dunkerque_spawned
             }
         }
     }

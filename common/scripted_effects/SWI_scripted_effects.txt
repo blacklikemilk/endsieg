@@ -769,39 +769,8 @@ SWI_fill_neighbors = {
 }
 
 SWI_update_neighbor_opinion_balance = { #This is the one to call when you add opinion modifiers. 
-	hidden_effect = {
-		SWI_find_biggest_fascist_neighbor = yes
-		SWI_fill_neighbors = yes
-		clear_variable = SWI_country_to_appease_1_opinion
-		clear_variable = SWI_country_to_appease_2_opinion
-		clear_variable = SWI_country_to_appease_3_opinion
-		clear_variable = SWI_country_to_appease_4_opinion
-		var:SWI.SWI_country_to_appease_1 = {
-			SWI = {
-				set_variable = { SWI_country_to_appease_1_opinion = PREV.opinion@SWI }
-			}
-			SWI_check_if_angry = yes
-		}
-		var:SWI.SWI_country_to_appease_2 = {
-			SWI = {
-				set_variable = { SWI_country_to_appease_2_opinion = PREV.opinion@SWI }
-			}
-			SWI_check_if_angry = yes
-		}
-		var:SWI.SWI_country_to_appease_3 = {
-			SWI = {
-				set_variable = { SWI_country_to_appease_3_opinion = PREV.opinion@SWI }
-			}
-			SWI_check_if_angry = yes
-		}
-		var:SWI.SWI_country_to_appease_4 = {
-			SWI = {
-				set_variable = { SWI_country_to_appease_4_opinion = PREV.opinion@SWI }
-			}
-			SWI_check_if_angry = yes
-		}
-		SWI_check_if_anyone_angry = yes
-	}
+	# Disabled for Endsieg: the BBA startup hook runs before country neighbours
+	# exist and can crash scenario initialization.
 }
 
 SWI_check_if_angry = {
@@ -2831,7 +2800,7 @@ SWI_check_fascist_factories = {
 	}
 }
 
-SWI_find_best_democratic_ally = { #This looks for the most suitable democratic ally
+SWI_find_best_democratic_ally_core = { #This looks for the most suitable democratic ally
 	if = {
 		limit = {
 			FRA = {
@@ -2893,7 +2862,11 @@ SWI_find_best_democratic_ally = { #This looks for the most suitable democratic a
 	SWI = { mark_focus_tree_layout_dirty = yes }
 } 
 
-SWI_find_democratic_planes_seller = {
+SWI_find_best_democratic_ally = {
+	# Disabled during Endsieg scenario setup; see the compatibility note above.
+}
+
+SWI_find_democratic_planes_seller_core = {
 	SWI_find_best_democratic_ally = yes
 	if = {
 		limit = { SWI_dem_usa_valid_to_buy_planes = yes }
@@ -2904,7 +2877,11 @@ SWI_find_democratic_planes_seller = {
 	}
 }
 
-SWI_find_biggest_fascist_neighbor = { 
+SWI_find_democratic_planes_seller = {
+	# Disabled during Endsieg scenario setup; see the compatibility note above.
+}
+
+SWI_find_biggest_fascist_neighbor_core = {
 	if = {
 		limit = {
 			SWI_has_easy_fascist_neighbor_option = yes #Checking to see if will have to look elsewhere. 
@@ -3042,6 +3019,10 @@ SWI_find_biggest_fascist_neighbor = {
 		}
 		SWI = { set_country_flag = SWI_viable_fascist_in_europe }
 	}
+}
+
+SWI_find_biggest_fascist_neighbor = {
+	# Disabled during Endsieg scenario setup; see the compatibility note above.
 }
 
 SWI_turn_into_alpine = {
@@ -3210,7 +3191,7 @@ SWI_get_fighters_from_this_country = { #This checks the scoped country and tries
 			    amount = 50
 			    producer = USA
 			    variant_name = "P-36A"
-			}	
+			}
 		}
 	}
 }
