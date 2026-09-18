@@ -29,6 +29,8 @@ country_event = {
 		add_war_support = 0.20
 		news_event = { hours = 6 id = endsieg_news.188 }
 		set_global_flag = second_balkan_war
+		clr_global_flag = second_balkan_war_romania_joined
+		clr_global_flag = second_balkan_war_ottomans_joined
 		SER = {
 			create_faction = BALKAN_LEAGUE
 			add_to_faction = GRE
@@ -73,6 +75,7 @@ country_event = {
 		ROM = {
 			declare_war_on = { target = BUL type = annex_everything }
 		}
+		set_global_flag = second_balkan_war_romania_joined
 		SER = { add_to_faction = ROM }
 	}
 	option = {
@@ -100,6 +103,7 @@ country_event = {
 		TUR = {
 			declare_war_on = { target = BUL type = annex_everything }
 		}
+		set_global_flag = second_balkan_war_ottomans_joined
 		SER = { add_to_faction = TUR }
 	}
 	option = {
@@ -138,17 +142,21 @@ country_event = {
 		NOT = { date > 1914.1.1 }
 		tag = BUL
 		has_global_flag = second_balkan_war
+		# Romania and the Ottoman Empire join through delayed events.  Do not
+		# resolve the war before those declarations have taken effect.
+		has_global_flag = second_balkan_war_romania_joined
+		has_global_flag = second_balkan_war_ottomans_joined
 		OR = {
 			AND = {
-			is_ai = yes
+				is_ai = yes
 				OR = {
 					surrender_progress > 0.10
-					NOT = { 986 = { is_owned_and_controlled_by = BUL } }
+					NOT = { 1021 = { is_owned_and_controlled_by = BUL } }
 					NOT = { 184 = { is_owned_and_controlled_by = BUL } }
 				}
 			}
 			AND = {
-			is_ai = no
+				is_ai = no
 				OR = {
 					surrender_progress > 0.25 #should trigger if Varna falls
 				}
@@ -162,17 +170,16 @@ country_event = {
 		name = ww1_serbia.3.a
 		set_global_flag = treaty_of_bucharest_1913
 		clr_global_flag = second_balkan_war
+		clr_global_flag = second_balkan_war_romania_joined
+		clr_global_flag = second_balkan_war_ottomans_joined
 
 		SER = {
 			white_peace = BUL
-			transfer_state = 1038
 			transfer_state = 1021
 		}
 		ROM = {
 			white_peace = BUL
 			transfer_state = 77
-			transfer_state = 1030
-			transfer_state = 1015
 		}
 		TUR = {
 			white_peace = BUL
@@ -180,8 +187,9 @@ country_event = {
 		}
 		GRE = {
 			white_peace = BUL
-			transfer_state = 997
+			transfer_state = 184
 		}
+		ALB = { transfer_state = 934 }
 		BUL = {
 			white_peace = SER
 			white_peace = GRE

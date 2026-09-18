@@ -462,6 +462,9 @@ country_event = {
 		set_politics = {
 			ruling_party = democratic
 			elections_allowed = no    }
+		# Keep the Imperial Russia gameplay tag for the civil-war chain, while
+		# displaying the provisional Russian Republic identity.
+		set_cosmetic_tag = RRE
 
         set_popularities = {
             fascism = 0
@@ -663,13 +666,13 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		NOT = { has_global_flag = welcome_event_1918 }
 		tag = RIE
-		RIE = { surrender_progress > 0.20 }
 		has_global_flag = february_revolution1
 		has_global_flag = lenin_in_russia
+		date > 1917.10.24
 		NOT = { has_global_flag = player_wants_custom_peacedeals }
 	}
 
-	mean_time_to_happen = { days = 30 }
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_russia.34.a
@@ -677,6 +680,20 @@ country_event = {
 		SOV = {
 			annex_country = { target = RIE transfer_troops = no }
 			change_tag_from = RIE
+			drop_cosmetic_tag = yes
+			set_politics = {
+				ruling_party = communism
+				elections_allowed = no
+			}
+			set_popularities = {
+				fascism = 0
+				neutrality = 5
+				democratic = 15
+				communism = 80
+			}
+			retire_country_leader = yes
+			recruit_character = SOV_Vladimir_Lenin
+			SOV_Vladimir_Lenin = { promote_character = yes }
 			every_state = {
 				limit = { is_core_of = RIE }
 
@@ -733,15 +750,33 @@ country_event = {
 	desc = ww1_russia.37.d
 	picture = GFX_report_event_lenin_train
 
-	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		NOT = { has_global_flag = welcome_event_1918 }
+		NOT = { date > 1918.1.1 }
+		date > 1917.3.31
+		tag = RIE
+		has_global_flag = february_revolution1
+		GER = { has_completed_focus = GE1_send_lenin }
+		NOT = { has_global_flag = lenin_in_russia }
+		NOT = { has_global_flag = player_wants_custom_peacedeals }
+	}
+
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_russia.37.a
+		set_global_flag = lenin_in_russia
 		add_stability = -0.05
 		add_political_power = -100
 		add_popularity = {
 			ideology = communism
 			popularity = 0.10
+		}
+		hidden_effect = {
+			country_event = { id = ww1_russia.38 days = 7 }
 		}
 	}
 }
@@ -1057,7 +1092,9 @@ country_event = {
 		OR = {
 			AND = {
 				NOT = { date > 1919.1.1 }
+				date > 1918.2.28
 				tag = SOV #If they exist, the October revolution has occured, and Lenin historically looked for peace at any cost!
+				has_global_flag = october_revolution
 				NOT = { has_global_flag = welcome_event_1918 }
 				NOT = { has_global_flag = player_wants_custom_peacedeals }
 			}
@@ -1068,7 +1105,7 @@ country_event = {
 		}
 	}
 
-	mean_time_to_happen = { days = 10 }
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_russia.43.a
@@ -1177,19 +1214,54 @@ country_event = {
 			218 = { add_core_of = ROOT }
 			}
 
-			TRA = {
-			transfer_state = 78
-			transfer_state = 766
+			# Recreate the exact 1918 Finnish Civil War front. The earlier
+			# independence events use the pre-custom-state layout, so normalize
+			# ownership here when Russia signs Brest-Litovsk.
+			if = {
+				limit = { NOT = { country_exists = FNN } }
+				release = FNN
 			}
+			if = {
+				limit = { NOT = { country_exists = FNR } }
+				release = FNR
+			}
+			FNN = {
+				transfer_state = 145
+				transfer_state = 146
+				transfer_state = 147
+				transfer_state = 148
+				transfer_state = 149
+				transfer_state = 150
+				transfer_state = 929
+			}
+			FNR = {
+				transfer_state = 111
+				transfer_state = 926
+				transfer_state = 927
+				transfer_state = 928
+				transfer_state = 930
+				transfer_state = 986
+				transfer_state = 1017
+				set_state_controller = 146
+			}
+			WHR = { transfer_state = 722 }
+
+			# The Transcaucasian Republic uses the Endsieg tag TRC. TRA is the
+			# current vanilla Transylvania tag and must not be used here.
+			if = {
+				limit = { NOT = { country_exists = TRC } }
+				release = TRC
+			}
+			TRC = {
+				transfer_state = 229
+				transfer_state = 230
+				transfer_state = 231
+				transfer_state = 990
+				transfer_state = 1016
+			}
+			SOV = { transfer_state = 999 }
 
 			GER = {transfer_state = 137} #Crimea
-			if = {
-				limit = {
-					NOT = { country_exists = FNN } #Finland cannot into existence
-				}
-				RIE = { end_puppet = FNN }
-				release = FNN #can into existence. also more clay via Petsamo, I'm sure that the Germans would've wanted it.
-			}
 			if = {
 				limit = {
 					NOT = {
@@ -1271,8 +1343,8 @@ country_event = {
 			TUR = { transfer_state = 1033 } #Kars
 		}
 		else = {
-			TRA = { transfer_state = 1033}
-			TRA = { add_state_core = 1033}
+			TRC = { transfer_state = 1033}
+			TRC = { add_state_core = 1033}
 		}
 		hidden_effect = {
 			UKR = {
