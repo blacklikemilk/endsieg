@@ -605,16 +605,8 @@ country_event = {
 		news_event = { hours = 6 id = endsieg_news.219 }
 		add_stability = 0.05
 		retire_country_leader = yes
-		create_country_leader = {
-			name = "Alexander Kerensky"
-			desc = "POLITICS_ALEXANDER_KERENSKY_DESC"
-			picture = "Portrait_Russia_Alexander_Kerensky.dds"
-			expire = "1943.5.16"
-			ideology = conservatism
-			traits = {
-				man_of_the_people1
-			}
-		}
+		recruit_character = RIE_Alexander_Kerensky
+		RIE_Alexander_Kerensky = { promote_character = yes }
 	}
 }
 
@@ -1244,6 +1236,16 @@ country_event = {
 				transfer_state = 1017
 				set_state_controller = 146
 			}
+			# The two Finnish governments must remain separate countries after
+			# the settlement, otherwise the civil-war declaration is discarded.
+			if = {
+				limit = {
+					country_exists = FNN
+					country_exists = FNR
+					NOT = { FNN = { has_war_with = FNR } }
+				}
+				FNR = { declare_war_on = { target = FNN type = annex_everything } }
+			}
 			WHR = { transfer_state = 722 }
 
 			# The Transcaucasian Republic uses the Endsieg tag TRC. TRA is the
@@ -1269,6 +1271,13 @@ country_event = {
 					}
 				}
 				release = POL #can into existence
+			}
+			# Bialystok is ceded with the Polish territories at Brest-Litovsk.
+			# Keep this in the treaty settlement so it does not depend on
+			# Poland's later German-puppet status.
+			if = {
+				limit = { country_exists = POL }
+				POL = { transfer_state = 97 }
 			}
 			every_state = {
 				limit = {
@@ -1310,7 +1319,17 @@ country_event = {
 			else = {
 				78 = { add_core_of = RO2 }
 				766 = { add_core_of = RO2 }
-				release = RO2
+				if = {
+					limit = { NOT = { country_exists = RO2 } }
+					release = RO2
+				}
+				# The release effect can only use states that are currently valid
+				# cores. Transfer both Bessarabian states explicitly so the
+				# Moldavian Democratic Republic always receives its full territory.
+				RO2 = {
+					transfer_state = 78
+					transfer_state = 766
+				}
 				ROM = { puppet = RO2}
 			}
 		}
@@ -1321,13 +1340,11 @@ country_event = {
 			puppet = UKR
 			if = {
 				limit = {
-					POL = { is_puppet = no }
 					country_exists = POL
 				}
-				puppet = POL
 				if = {
-					limit = { 97 = { NOT = { is_owned_and_controlled_by = POL } } }
-					POL = { transfer_state = 97 }
+					limit = { POL = { is_puppet = no } }
+					puppet = POL
 				}
 			}
 			add_to_faction = UBD
@@ -1477,9 +1494,6 @@ country_event = {
 			set_province_controller = 13106
 			set_province_controller = 13103
 		}
-		FNN = {
-			change_tag_from = FNR
-		}
 	}
 	option = {
 		name = ww1_russia.46.b
@@ -1511,9 +1525,6 @@ country_event = {
 			set_province_controller = 13107
 			set_province_controller = 13106
 			set_province_controller = 13103
-		}
-		FNR = {
-			change_tag_from = FNN
 		}
 		every_owned_state = {
 			add_core_of = FNR

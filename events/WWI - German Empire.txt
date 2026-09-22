@@ -871,7 +871,22 @@ country_event = {
 	desc = ww1_germany.29.d
 	picture = GFX_report_event_bulgaria_joins_war1
 
-	is_triggered_only = yes
+	# Bulgaria entered the war on 14 October 1915.  This used to be reached
+	# only through Germany's focus tree, which left the historical campaign
+	# without a reliable entry point.
+	fire_only_once = yes
+
+	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		tag = GER
+		country_exists = BUL
+		date > 1915.10.13
+		NOT = { date > 1915.12.1 }
+		NOT = { has_global_flag = bulgaria_joins_cp }
+		BUL = { NOT = { is_in_faction_with = GER } }
+	}
+
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_germany.29.a
@@ -879,6 +894,22 @@ country_event = {
 		news_event = { hours = 6 id = endsieg_news.136 }
 		GER = {
 			add_to_faction = BUL
+		}
+		BUL = {
+			if = {
+				limit = {
+					country_exists = SER
+					NOT = { has_war_with = SER }
+				}
+				declare_war_on = { target = SER type = annex_everything }
+			}
+			if = {
+				limit = {
+					country_exists = MNT
+					NOT = { has_war_with = MNT }
+				}
+				declare_war_on = { target = MNT type = annex_everything }
+			}
 		}
 		hidden_effect = {
 			BUL = { country_event = { id = ww1_germany.2901 days = 1 } }
