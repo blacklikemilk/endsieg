@@ -1307,3 +1307,39 @@ country_event = {
 		add_equipment_to_stockpile = { type = infantry_equipment amount = 100000 producer = USA }
 	}
 }
+
+# Historical Romanian entry into the Great War
+country_event = {
+	id = ww1_france.56
+
+	hidden = yes
+	fire_only_once = yes
+
+	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		NOT = { has_global_flag = welcome_event_1918 }
+		NOT = { has_global_flag = player_wants_custom_peacedeals }
+		tag = FRA
+		date > 1916.8.26
+		country_exists = ROM
+		ROM = { NOT = { is_in_faction_with = FRA } }
+	}
+
+	mean_time_to_happen = { days = 1 }
+
+	option = {
+		# Romania entered the war against Austria-Hungary on 27 August 1916.
+		if = {
+			limit = { ROM = { is_in_faction = yes } }
+			ROM = { leave_faction = yes }
+		}
+		add_to_faction = ROM
+		ROM = {
+			if = {
+				limit = { NOT = { has_war_with = AUH } }
+				declare_war_on = { target = AUH type = annex_everything }
+			}
+		}
+		news_event = { hours = 6 id = endsieg_news.191 }
+	}
+}

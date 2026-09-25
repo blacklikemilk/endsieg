@@ -1,0 +1,226 @@
+ww1_mittelafrika_category = {
+	ww1_establish_mittelafrika = {
+		icon = ger_reichskommissariats
+		priority = 100
+		fire_only_once = yes
+		cost = 100
+		days_remove = 180
+
+		allowed = {
+			original_tag = GER
+		}
+
+		visible = {
+			has_country_flag = ww1_fate_of_colonial_empires_complete
+			date < 1936.1.1
+			RKA = { exists = no }
+		}
+
+		available = {
+			OR = {
+				owns_state = 546 # Tanganyika
+				owns_state = 547 # East Africa, ceded in Fate of the Colonial Empires
+			}
+		}
+
+		remove_effect = {
+			custom_effect_tooltip = ww1_establish_mittelafrika_effect_tt
+			hidden_effect = {
+				# Create Mittelafrika from an African state before transferring the rest.
+				if = {
+					limit = { owns_state = 546 }
+					546 = { transfer_state_to = RKA }
+				}
+				else = {
+					547 = { transfer_state_to = RKA }
+				}
+
+				# The custom map marks Madagascar and the other African islands as Africa.
+				every_owned_state = {
+					limit = { is_on_continent = africa }
+					transfer_state_to = RKA
+				}
+
+				puppet = RKA
+				RKA = {
+					inherit_technology = GER
+					drop_cosmetic_tag = yes
+					set_cosmetic_tag = RKA_WWI_MITTELAFRIKA
+					if = {
+						limit = { owns_state = 546 }
+						set_capital = { state = 546 }
+					}
+					else = {
+						set_capital = { state = 547 }
+					}
+					# Germany relinquishes its claims to the states assigned to Mittelafrika.
+					every_owned_state = {
+						GER = { remove_state_claim = PREV }
+					}
+				}
+			}
+		}
+
+		ai_will_do = { factor = 100 }
+	}
+
+	ww1_expand_mittelafrika_constabulary = {
+		icon = generic_political_actions
+		priority = 90
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		days_re_enable = 1
+
+		allowed = { original_tag = GER }
+		visible = {
+			date < 1936.1.1
+			country_exists = RKA
+			RKA = {
+				is_subject_of = GER
+				has_cosmetic_tag = RKA_WWI_MITTELAFRIKA
+			}
+		}
+		available = {
+			RKA = {
+				any_owned_state = {
+					NOT = { is_core_of = RKA }
+					resistance > 0
+				}
+			}
+		}
+		remove_effect = {
+			RKA = {
+				random_owned_state = {
+					limit = {
+						NOT = { is_core_of = RKA }
+						resistance > 0
+					}
+					add_resistance = -2
+				}
+			}
+		}
+		ai_will_do = { factor = 20 }
+	}
+
+	ww1_mittelafrika_local_councils = {
+		icon = generic_political_discourse
+		priority = 80
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		days_re_enable = 1
+
+		allowed = { original_tag = GER }
+		visible = {
+			date < 1936.1.1
+			country_exists = RKA
+			RKA = {
+				is_subject_of = GER
+				has_cosmetic_tag = RKA_WWI_MITTELAFRIKA
+			}
+		}
+		available = {
+			RKA = {
+				any_owned_state = {
+					NOT = { is_core_of = RKA }
+					compliance < 70
+				}
+			}
+		}
+		remove_effect = {
+			RKA = {
+				random_owned_state = {
+					limit = {
+						NOT = { is_core_of = RKA }
+						compliance < 70
+					}
+					add_compliance = 3
+					add_resistance = -2
+				}
+			}
+		}
+		ai_will_do = { factor = 20 }
+	}
+
+	ww1_mittelafrika_factory_investment = {
+		icon = generic_construction
+		priority = 70
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		days_re_enable = 1
+
+		allowed = { original_tag = GER }
+		visible = {
+			date < 1936.1.1
+			country_exists = RKA
+			RKA = {
+				is_subject_of = GER
+				has_cosmetic_tag = RKA_WWI_MITTELAFRIKA
+			}
+		}
+		available = {
+			RKA = { any_owned_state = { is_fully_controlled_by = RKA } }
+		}
+		remove_effect = {
+			RKA = {
+				random_owned_controlled_state = {
+					limit = { is_fully_controlled_by = RKA }
+					add_extra_state_shared_building_slots = 1
+					random_list = {
+						50 = {
+							add_building_construction = {
+								type = industrial_complex
+								level = 1
+								instant_build = yes
+							}
+						}
+						50 = {
+							add_building_construction = {
+								type = arms_factory
+								level = 1
+								instant_build = yes
+							}
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = { factor = 10 }
+	}
+
+	ww1_mittelafrika_resource_survey = {
+		icon = generic_construction
+		priority = 60
+		cost = 100
+		fire_only_once = no
+		days_remove = 180
+		days_re_enable = 1
+
+		allowed = { original_tag = GER }
+		visible = {
+			date < 1936.1.1
+			country_exists = RKA
+			RKA = {
+				is_subject_of = GER
+				has_cosmetic_tag = RKA_WWI_MITTELAFRIKA
+			}
+		}
+		available = {
+			RKA = { any_owned_state = { is_fully_controlled_by = RKA } }
+		}
+		remove_effect = {
+			RKA = {
+				random_owned_controlled_state = {
+					limit = { is_fully_controlled_by = RKA }
+					random_list = {
+						50 = { add_resource = { type = rubber amount = 2 } }
+						50 = { add_resource = { type = steel amount = 2 } }
+					}
+				}
+			}
+		}
+		ai_will_do = { factor = 10 }
+	}
+}

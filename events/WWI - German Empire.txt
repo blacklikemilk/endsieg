@@ -968,10 +968,23 @@ country_event = {
 			transfer_state = 1026
 		}
 		GER = {
-			add_to_faction = POL
+			puppet = POL
+		}
+	}
+	option = {
+		name = ww1_germany.31.b
+		news_event = { hours = 6 id = endsieg_news.137 }
+		POL = {
+			transfer_state = 10
+			transfer_state = 98
+			transfer_state = 92
+			transfer_state = 90
+			transfer_state = 87
 		}
 		GER = {
 			puppet = POL
+			transfer_state = 1026
+			transfer_state = 1028
 		}
 	}
 }
@@ -1765,16 +1778,11 @@ country_event = {
                 communism = 5
             }
 			kill_country_leader = yes
-			create_country_leader = {
-				name = "Victoriano Huerta"
-				desc = "POLITICS_VICTORIANO_HUERTA_DESC"
-				picture = "Portrait_Mexico_Victoriano_Huerta.dds"
-				expire = "1943.5.16"
-				ideology = despotism
-				traits = {
-					dictator
-				}
+			if = {
+				limit = { NOT = { has_character = MEX_victoriano_huerta } }
+				recruit_character = MEX_victoriano_huerta
 			}
+			promote_character = MEX_victoriano_huerta
 		}
 	}
 }
@@ -1941,13 +1949,12 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		NOT = { has_global_flag = player_wants_custom_peacedeals }
 		NOT = { has_global_flag = kaiserschlachtvictory }
-		has_global_flag = welcome_event_1918
 		tag = GER
 		OR = {
 			AND = {
 				date > 1918.11.11
 				NOT = { date > 1932.12.1 }
-				FRA = { controls_state = 29 }
+				FRA = { surrender_progress < 0.40 }
 				check_variable = { war_exhaustion_variable > 1200 }
 				#War exhaustion bought down twice, either method will stop this. Once kaiser abdicates/retains throne, keep buying down W/E with PP!
 			}
@@ -1980,6 +1987,22 @@ country_event = {
 		set_global_flag = compiegne
 		add_threat = -40
 
+		FRA = {
+			transfer_state = 28
+			transfer_state = 1019
+			transfer_state = 1044
+			transfer_state = 42
+		}
+		ENG = {
+			transfer_state = 546
+			transfer_state = 768
+			transfer_state = 769
+		}
+		if = {
+			limit = { BEL = { has_war_with = GER } }
+			BEL = { transfer_state = 1002 }
+		}
+
 		remove_from_faction = GER
 		every_country = {
 			limit = { has_war_with = GER }
@@ -2000,7 +2023,7 @@ country_event = {
 		UBD = { country_event = { id = baltic.1 days = 1 } }
 		LIT = { country_event = { id = baltic.11 days = 20 } }
 		GER = {
-			country_event = { id = ww2_germany.13 days = 15 }
+
 			country_event = { id = ww2_germany.15 days = 5 }
 		}
 
@@ -2104,6 +2127,22 @@ country_event = {
 		add_threat = -40
 		set_global_flag = compiegne
 
+		FRA = {
+			transfer_state = 28
+			transfer_state = 1019
+			transfer_state = 1044
+			transfer_state = 42
+		}
+		ENG = {
+			transfer_state = 546
+			transfer_state = 768
+			transfer_state = 769
+		}
+		if = {
+			limit = { BEL = { has_war_with = GER } }
+			BEL = { transfer_state = 1002 }
+		}
+
 		remove_from_faction = GER
 		every_country = {
 			limit = { has_war_with = GER }
@@ -2130,7 +2169,7 @@ country_event = {
 		LIT = { country_event = { id = baltic.11 days = 20 } }
 
 		GER = {
-			country_event = { id = ww2_germany.13 days = 15 }
+
 			country_event = { id = ww2_germany.15 days = 5 }
 		}
 
@@ -2469,7 +2508,7 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		tag = GER
 		NOT = { date > 1932.12.1 }
-		has_global_flag = welcome_event_1918
+		has_global_flag = treaty_of_brest_litovsk
 
 		AND = {
 			OR = {
@@ -2706,5 +2745,37 @@ country_event = {
 		}
 		complete_national_focus = GE1_rupprecht_plan
 		set_global_flag = rupprecht_plan
+	}
+}
+# Failure to ratify the Treaty of Versailles ends the Compiègne armistice.
+country_event = {
+	id = ww1_germany.52032
+	title = ww1_germany.52032.t
+	desc = ww1_germany.52032.d
+	picture = GFX_report_event_compiegne
+
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = {
+		tag = GER
+		has_global_flag = compiegne
+		NOT = { has_global_flag = versailles }
+	}
+
+	option = {
+		name = ww1_germany.52032.a
+		set_global_flag = ww1_compiegne_armistice_failed
+
+		# The Entente again treats Germany as the enemy; faction members are
+		# restored to the conflict alongside France and Britain.
+		if = {
+			limit = { country_exists = FRA NOT = { has_war_with = FRA } }
+			declare_war_on = { target = FRA type = annex_everything }
+		}
+		if = {
+			limit = { country_exists = ENG NOT = { has_war_with = ENG } }
+			declare_war_on = { target = ENG type = annex_everything }
+		}
 	}
 }

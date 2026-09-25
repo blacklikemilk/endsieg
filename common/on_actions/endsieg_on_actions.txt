@@ -776,6 +776,35 @@ on_actions = {
     # Keep it date-gated so it is not already at war on the bookmark itself.
     on_daily = {
         effect = {
+			# Track an Ottoman-held Benghazi enclave surrounded by Italian control.
+			# The Treaty of Ouchy event consumes this timer after more than sixty
+			# days, while retaining its existing historical date and war checks.
+			if = {
+				limit = {
+					tag = ITA
+					has_global_flag = welcome_event_WW1_active
+					has_global_flag = italo_turkish_war
+					NOT = { has_global_flag = treaty_of_ouchy }
+					NOT = { has_global_flag = ottoman_victory_italo_turkish_War }
+					has_war_with = TUR
+					450 = { is_controlled_by = TUR }
+					has_full_control_of_state = 448
+					has_full_control_of_state = 449
+					has_full_control_of_state = 451
+					has_full_control_of_state = 661
+					has_full_control_of_state = 662
+					has_full_control_of_state = 663
+				}
+				if = {
+					limit = { NOT = { has_country_flag = endsieg_benghazi_siege_started } }
+					set_country_flag = endsieg_benghazi_siege_started
+				}
+			}
+			else_if = {
+				limit = { tag = ITA }
+				clr_country_flag = endsieg_benghazi_siege_started
+			}
+
             # The civil Reichskommissariat replaced the military administration
             # of Belgium and Northern France on 13 July 1944. Do not create it
             # for bookmarks after its December 1944 replacement.
@@ -839,6 +868,26 @@ on_actions = {
 
     on_peaceconference_ended = {
         effect = {
+            # A Soviet victory over White Russia ends the Russian Civil War.
+            # Annex the White government and its Kuban puppet so neither can
+            # survive the conference as an unintended remnant.
+            if = {
+                limit = {
+                    has_global_flag = russian_civil_war
+                    ROOT = { tag = SOV }
+                    FROM = { tag = WHR }
+                }
+                SOV = {
+                    if = {
+                        limit = { country_exists = WHR }
+                        annex_country = { target = WHR transfer_troops = no }
+                    }
+                    if = {
+                        limit = { country_exists = KUB }
+                        annex_country = { target = KUB transfer_troops = no }
+                    }
+                }
+            }
             if = {
                 limit = {
                     ROOT = { TAG = SOV }

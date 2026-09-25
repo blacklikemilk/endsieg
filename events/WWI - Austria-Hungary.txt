@@ -1018,12 +1018,12 @@ country_event = {
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
 		tag = AUH
-		OR = {
-			check_variable = { war_exhaustion_variable > 1559 }
-			surrender_progress > 0.30
-		}
 		has_global_flag = banat_declaration
-		has_global_flag = welcome_event_1918
+		has_global_flag = aster_revolution
+		# Hungary and Czechoslovakia normally leave peacefully during the Aster
+		# Revolution, so their wars cannot be prerequisites for the armistice.
+		has_war_with = ITA
+		has_war_with = GRE
 		NOT = { has_global_flag = player_wants_custom_peacedeals }
 		NOT = { date > 1932.12.1 }
 	}
@@ -1045,6 +1045,7 @@ country_event = {
 	        transfer_state = 70
 	        transfer_state = 71
 	        transfer_state = 664
+	        transfer_state = 73
 
 			add_state_core = 69
 			add_state_core = 9
@@ -1054,6 +1055,7 @@ country_event = {
 			add_state_core = 70
 			add_state_core = 71
 			add_state_core = 664
+			add_state_core = 73
 
 	        every_country = {
 	            limit = {
@@ -1070,21 +1072,13 @@ country_event = {
 	    HUN = {
 	        transfer_state = 155
 	        transfer_state = 43
-	        transfer_state = 154
-	        transfer_state = 73
-	        transfer_state = 850
-	        transfer_state = 45
-	        transfer_state = 853
-	        transfer_state = 83
+			transfer_state = 154
+			transfer_state = 850
 
 			add_state_core = 155
 			add_state_core = 43
 			add_state_core = 154
-			add_state_core = 73
 			add_state_core = 850
-			add_state_core = 45
-			add_state_core = 853
-			add_state_core = 83
 
 	        country_event = { id = INT_hungary.2 days = 120 }
 	        country_event = { id = INT_hungary.3 days = 15 }
@@ -1105,6 +1099,7 @@ country_event = {
 	    }
 	    YUG = {
 			annex_country = { target = SER transfer_troops = yes }
+	        transfer_state = 45
 	        transfer_state = 102
 	        transfer_state = 103
 	        transfer_state = 104
@@ -1119,11 +1114,14 @@ country_event = {
 	        transfer_state = 1021
 	        transfer_state = 1038
 	        transfer_state = 1037
-	        transfer_state = 1039
-	        transfer_state = 803
-	        transfer_state = 1054
+			transfer_state = 1039
+			transfer_state = 803
+			transfer_state = 804
+			transfer_state = 853
+			transfer_state = 1054
 
 			add_state_core = 102
+			add_state_core = 45
 			add_state_core = 103
 			add_state_core = 104
 			add_state_core = 105
@@ -1139,6 +1137,8 @@ country_event = {
 			add_state_core = 1037
 			add_state_core = 1039
 			add_state_core = 803
+			add_state_core = 804
+			add_state_core = 853
 			add_state_core = 1054
 
 	        load_oob = YUG_1918
@@ -1156,12 +1156,32 @@ country_event = {
 	        transfer_state = 852
 	    }
 	    ALB = {
-	        transfer_state = 44
-	        transfer_state = 805
-	        transfer_state = 1024
+			transfer_state = 44
+			transfer_state = 805
+			transfer_state = 1024
+			transfer_state = 934
 			add_state_core = 44
 			add_state_core = 805
 			add_state_core = 1024
+			add_state_core = 934
+			if = {
+				limit = { has_character = ALB_wilhelm_of_wied }
+				retire_character = ALB_wilhelm_of_wied
+			}
+			if = {
+				limit = { NOT = { has_character = ALB_Turhan_Permeti } }
+				recruit_character = ALB_Turhan_Permeti
+			}
+			ALB_Turhan_Permeti = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = moderatism
+						expire = "1965.1.1.1"
+						id = -1
+					}
+				}
+			}
 
 	    }
 	    if = {
@@ -1199,17 +1219,23 @@ country_event = {
 	        WUR = { leave_faction = yes }
 	    }
 	    ROM = {
-	        transfer_state = 80
-	        transfer_state = 76
-	        transfer_state = 84
-	        transfer_state = 1053
-	        transfer_state = 1018
+			transfer_state = 80
+			transfer_state = 76
+			transfer_state = 83
+			transfer_state = 84
+			transfer_state = 1053
+			transfer_state = 1018
+			transfer_state = 1004
+			transfer_state = 1025
 
 			add_state_core = 80
 			add_state_core = 76
+			add_state_core = 83
 			add_state_core = 84
 			add_state_core = 1053
 			add_state_core = 1018
+			add_state_core = 1004
+			add_state_core = 1025
 	        set_politics = {
 	            ruling_party = democratic
 	        }
@@ -1258,6 +1284,15 @@ country_event = {
 
 			give_military_access = GER
 	        change_tag_from = AUH
+			# The republic is created after the WWI startup tree assignment.
+			set_popularities = {
+				democratic = 80
+				communism = 15
+				fascism = 5
+				neutrality = 0
+			}
+			set_politics = { ruling_party = democratic elections_allowed = no }
+			load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes }
 	    }
 	    BAN = {
 	        transfer_state = 764
@@ -1302,6 +1337,9 @@ country_event = {
 		tag = AUH
 		surrender_progress > 0.30
 		NOT = { has_global_flag = welcome_event_1918 }
+		# Let the Aster Revolution use its dedicated Villa Giusti settlement.
+		NOT = { has_global_flag = aster_revolution }
+		NOT = { has_global_flag = banat_declaration }
 		NOT = { has_global_flag = player_wants_custom_peacedeals }
 		NOT = { date > 1932.12.1 }
 	}
@@ -1323,6 +1361,7 @@ country_event = {
 	        transfer_state = 70
 	        transfer_state = 71
 	        transfer_state = 664
+	        transfer_state = 73
 
 			add_state_core = 69
 			add_state_core = 9
@@ -1332,6 +1371,7 @@ country_event = {
 			add_state_core = 70
 			add_state_core = 71
 			add_state_core = 664
+			add_state_core = 73
 
 	        every_country = {
 	            limit = {
@@ -1347,21 +1387,13 @@ country_event = {
 	    HUN = {
 	        transfer_state = 155
 	        transfer_state = 43
-	        transfer_state = 154
-	        transfer_state = 73
-	        transfer_state = 850
-	        transfer_state = 45
-	        transfer_state = 853
-	        transfer_state = 83
+			transfer_state = 154
+			transfer_state = 850
 
 			add_state_core = 155
 			add_state_core = 43
 			add_state_core = 154
-			add_state_core = 73
 			add_state_core = 850
-			add_state_core = 45
-			add_state_core = 853
-			add_state_core = 83
 	        country_event = { id = INT_hungary.2 days = 120 }
 	        country_event = { id = INT_hungary.3 days = 15 }
 	        country_event = { id = INT_hungary.4 days = 35 }
@@ -1395,10 +1427,13 @@ country_event = {
 	        transfer_state = 1021
 	        transfer_state = 1038
 	        transfer_state = 1037
-	        transfer_state = 1039
-	        transfer_state = 803
-	        transfer_state = 1054
+			transfer_state = 1039
+			transfer_state = 803
+			transfer_state = 804
+			transfer_state = 853
+			transfer_state = 1054
 
+			add_state_core = 45
 			add_state_core = 102
 			add_state_core = 103
 			add_state_core = 104
@@ -1415,6 +1450,8 @@ country_event = {
 			add_state_core = 1037
 			add_state_core = 1039
 			add_state_core = 803
+			add_state_core = 804
+			add_state_core = 853
 			add_state_core = 1054
 	        load_oob = YUG_1918
 	    }
@@ -1430,12 +1467,32 @@ country_event = {
 	        transfer_state = 852
 	    }
 	    ALB = {
-	        transfer_state = 44
-	        transfer_state = 805
-	        transfer_state = 1024
+			transfer_state = 44
+			transfer_state = 805
+			transfer_state = 1024
+			transfer_state = 934
 			add_state_core = 44
 			add_state_core = 805
 			add_state_core = 1024
+			add_state_core = 934
+			if = {
+				limit = { has_character = ALB_wilhelm_of_wied }
+				retire_character = ALB_wilhelm_of_wied
+			}
+			if = {
+				limit = { NOT = { has_character = ALB_Turhan_Permeti } }
+				recruit_character = ALB_Turhan_Permeti
+			}
+			ALB_Turhan_Permeti = {
+				add_country_leader_role = {
+					promote_leader = yes
+					country_leader = {
+						ideology = moderatism
+						expire = "1965.1.1.1"
+						id = -1
+					}
+				}
+			}
 	    }
 	    if = {
 	        limit = {
@@ -1483,6 +1540,7 @@ country_event = {
 
 			add_state_core = 80
 			add_state_core = 76
+			add_state_core = 83
 			add_state_core = 84
 			add_state_core = 1018
 			add_state_core = 1053
@@ -1532,6 +1590,15 @@ country_event = {
 
 			give_military_access = GER
 	        change_tag_from = AUH
+			# Keep the postwar republic out of Austria's 1936 focus branches.
+			set_popularities = {
+				democratic = 80
+				communism = 15
+				fascism = 5
+				neutrality = 0
+			}
+			set_politics = { ruling_party = democratic elections_allowed = no }
+			load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes }
 	    }
 	    BAN = {
 	        transfer_state = 764
@@ -1765,6 +1832,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.56.a
+		ai_chance = { factor = 100 }
 		news_event = { hours = 6 id = endsieg_news.171 }
 		set_global_flag = aster_revolution
 		HUN = {
@@ -1788,6 +1856,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_kuk.56.b
+		ai_chance = { factor = 0 }
 		news_event = { hours = 6 id = endsieg_news.171 }
 		set_global_flag = aster_revolution
 		HUN = {

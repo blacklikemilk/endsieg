@@ -1,0 +1,316 @@
+# Custom postwar settlement decision for the WWI campaign.
+ww1_postwar_settlement_category = {
+	ww1_establish_weimar_republic = {
+		icon = ger_mefo_bills
+		priority = 100
+
+		allowed = {
+			original_tag = GER
+		}
+
+		visible = {
+			has_global_flag = compiegne
+			NOT = { has_country_flag = ww1_weimar_republic_established }
+		}
+
+		available = {
+			has_global_flag = compiegne
+			NOT = { has_country_flag = ww1_weimar_republic_established }
+		}
+
+		fire_only_once = yes
+		days_remove = 30
+
+		remove_effect = {
+			set_country_flag = ww1_weimar_republic_established
+			drop_cosmetic_tag = yes
+			set_cosmetic_tag = GER_WEI
+		}
+
+		ai_will_do = {
+			factor = 100
+		}
+	}
+
+	ww1_treaty_of_versailles = {
+		icon = GFX_decision_treaty_of_versailles
+		priority = 99
+
+		allowed = {
+			original_tag = GER
+		}
+
+		visible = {
+			has_global_flag = compiegne
+			NOT = { has_global_flag = versailles }
+		}
+
+		available = {
+			has_global_flag = compiegne
+			NOT = { has_global_flag = versailles }
+
+			custom_trigger_tooltip = {
+				tooltip = ww1_treaty_of_versailles_weimar_prerequisite_tt
+				has_country_flag = ww1_weimar_republic_established
+			}
+		}
+
+		fire_only_once = yes
+		days_remove = 180
+		remove_effect = {
+			set_global_flag = versailles
+			add_ideas = treaty_of_versailles
+
+			# The armistice ends unrestricted submarine warfare for every participant
+			# that still carries its wartime national spirit.
+			every_country = {
+				limit = { has_idea = unrestricted_sub_warfare }
+				remove_ideas = unrestricted_sub_warfare
+			}
+
+			GER = {
+				# The settlement establishes the prescribed postwar laws.
+                remove_ideas = { censored_press state_press propaganda_press shorter_training_GE1 fall_of_russia blockade }
+				add_ideas = { civilian_economy free_press disarmed_nation }
+
+				transfer_state = 42
+				transfer_state = 1044
+
+
+				# Disarm Germany. This removes all existing army and air equipment before
+				# restoring only the 100,000-man Reichswehr allowed by the treaty.
+				# Britain receives the whole former Imperial Navy, air force, and their
+				# equipment stockpiles. Keep German officers in Germany for the
+				# treaty-limited Reichswehr formed below.
+				transfer_units_fraction = {
+					target = ENG
+					stockpile_ratio = 1.0
+					army_ratio = 0.0
+					navy_ratio = 1.0
+					air_ratio = 1.0
+					keep_unit_leaders_trigger = { always = yes }
+				}
+
+				# Disband the former Imperial Army before creating the 100,000-man Reichswehr.
+				every_country_division = {
+					destroy_unit = yes
+				}
+				# Remove every standard Great War template so only the treaty-limited
+				# formation can be recruited afterwards.
+				if = {
+					limit = { has_template = "Infanterie Division" }
+					delete_unit_template_and_units = { division_template = "Infanterie Division" }
+				}
+				if = {
+					limit = { has_template = "Stoßtruppen Division" }
+					delete_unit_template_and_units = { division_template = "Stoßtruppen Division" }
+				}
+				if = {
+					limit = { has_template = "Schutztruppe Division" }
+					delete_unit_template_and_units = { division_template = "Schutztruppe Division" }
+				}
+				if = {
+					limit = { has_template = "Gebirgsjäger Division" }
+					delete_unit_template_and_units = { division_template = "Gebirgsjäger Division" }
+				}
+				if = {
+					limit = { has_template = "Ersatz Division" }
+					delete_unit_template_and_units = { division_template = "Ersatz Division" }
+				}
+				if = {
+					limit = { has_template = "Marinein Division" }
+					delete_unit_template_and_units = { division_template = "Marinein Division" }
+				}
+				if = {
+					limit = { has_template = "Kavallerie-Division" }
+					delete_unit_template_and_units = { division_template = "Kavallerie-Division" }
+				}
+
+				division_template = {
+					name = "Reichswehr Division"
+					division_names_group = GER_Inf_01
+					is_locked = yes
+					force_allow_recruiting = yes
+					division_cap = 10
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 0 y = 3 }
+						infantry = { x = 0 y = 4 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+						infantry = { x = 1 y = 3 }
+						infantry = { x = 1 y = 4 }
+					}
+				}
+
+				add_equipment_to_stockpile = {
+					type = infantry_equipment_0
+					amount = 10000
+					producer = GER
+				}
+				capital_scope = {
+					create_unit = {
+						division = "name = \"Reichswehr Division\" division_template = \"Reichswehr Division\" start_experience_factor = 0.5 start_equipment_factor = 1"
+						owner = GER
+						count = 10
+					}
+				}
+				country_lock_all_division_template = yes
+			}
+
+			POL = {
+				transfer_state = 762
+				transfer_state = 86
+				transfer_state = 807
+				transfer_state = 89
+				transfer_state = 91
+			}
+			DEN = {
+				transfer_state = 912
+                add_state_core = 912
+			}
+
+            LIT = {
+                transfer_state = 188
+            }
+
+            # Resource rights must be granted by the current state owner.
+            984 = {
+                owner = { give_resource_rights = { receiver = FRA state = 984 } }
+            }
+            51 = {
+                owner = { give_resource_rights = { receiver = FRA state = 51 } }
+            }
+            1027 = {
+                owner = { give_resource_rights = { receiver = FRA state = 1027 } }
+            }
+            42 = {
+                owner = { give_resource_rights = { receiver = FRA state = 42 } }
+            }
+            1044 = {
+                owner = { give_resource_rights = { receiver = FRA state = 1044 } }
+            }
+            # Alsace-Lorraine returns to France without a German core.
+            28 = {
+                remove_core_of = GER
+                add_core_of = FRA
+            }
+
+            # Establish an independent Free City of Danzig. Assigning the state
+            # directly to DNZ avoids removing its tag during treaty cleanup.
+            85 = {
+                add_core_of = DNZ
+                remove_core_of = GER
+                set_demilitarized_zone = yes
+            }
+            DNZ = {
+                transfer_state = 85
+            }
+
+            # Treaty demilitarization of the western German states.
+            984 = {
+                set_demilitarized_zone = yes
+            }
+            51 = {
+                set_demilitarized_zone = yes
+            }
+            42 = {
+                set_demilitarized_zone = yes
+            }
+            1027 = {
+                set_demilitarized_zone = yes
+            }
+            55 = {
+                set_demilitarized_zone = yes
+            }
+            1044 = {
+                set_demilitarized_zone = yes
+            }
+            53 = {
+                set_demilitarized_zone = yes
+            }
+            1046 = {
+                set_demilitarized_zone = yes
+            }
+
+
+
+            # Dismantle most remaining German industry without exposing individual building changes.
+            GER = {
+                hidden_effect = {
+                    every_owned_state = {
+                        remove_building = { type = industrial_complex level = 3 }
+                        remove_building = { type = arms_factory level = 3 }
+                        remove_building = { type = dockyard level = 3 }
+                    }
+                }
+            }
+            # The postwar settlement ends both Great War alliances.
+            FRA = {
+                if = {
+                    limit = { is_in_faction = yes }
+                    faction_leader = { dismantle_faction = yes }
+                }
+            }
+            GER = {
+                if = {
+                    limit = { is_in_faction = yes }
+                    faction_leader = { dismantle_faction = yes }
+                }
+            }
+        }
+		ai_will_do = {
+			factor = 100
+		}
+
+	}
+	ww1_peace_treaty_due = {
+		icon = ger_mefo_bills
+		priority = 98
+
+		allowed = {
+			original_tag = GER
+		}
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		days_mission_timeout = 360
+		is_good = yes
+		fire_only_once = yes
+		selectable_mission = no
+
+		# Across this 360-day deadline, Germany falls from the 1918 history
+		# values of 45% stability / 40% war support to the 1919 values of
+		# 20% / 30%.
+		modifier = {
+			stability_weekly = -0.005
+			war_support_weekly = -0.002
+		}
+
+		activation = {
+			has_global_flag = compiegne
+			NOT = { has_global_flag = versailles }
+			NOT = { has_global_flag = ww1_compiegne_armistice_failed }
+		}
+
+		cancel_trigger = {
+			OR = {
+				has_global_flag = versailles
+				has_global_flag = ww1_compiegne_armistice_failed
+			}
+		}
+
+		timeout_effect = {
+			country_event = { id = ww1_germany.52032 days = 0 }
+		}
+
+		ai_will_do = {
+			factor = 100
+		}
+	}
+}
