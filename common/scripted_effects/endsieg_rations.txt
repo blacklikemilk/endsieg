@@ -1,0 +1,107 @@
+# One ration is consumed per 5,880 deployed service members each day.
+# The stockpile remains ordinary equipment.
+endsieg_rations_measure_demand = {
+	set_variable = { endsieg_ration_daily_use = deployed_total_manpower_k }
+	divide_variable = { endsieg_ration_daily_use = 5.88 }
+	round_variable = endsieg_ration_daily_use
+	clamp_variable = { var = endsieg_ration_daily_use min = 0 }
+
+	# This is a gauge target, not a stockpile limit.
+	set_variable = { endsieg_ration_target = endsieg_ration_daily_use }
+	multiply_variable = { endsieg_ration_target = 30 }
+	clamp_variable = { var = endsieg_ration_target min = 100 }
+}
+
+endsieg_rations_refresh_display = {
+	set_variable = { endsieg_ration_stockpile = num_equipment@rations_1 }
+	clamp_variable = { var = endsieg_ration_stockpile min = 0 }
+
+	set_variable = { endsieg_ration_days = 0 }
+	set_variable = { endsieg_ration_ratio = 1 }
+	if = {
+		limit = { check_variable = { endsieg_ration_daily_use > 0 } }
+		set_variable = { endsieg_ration_days = endsieg_ration_stockpile }
+		divide_variable = { endsieg_ration_days = endsieg_ration_daily_use }
+		set_variable = { endsieg_ration_ratio = endsieg_ration_stockpile }
+		divide_variable = { endsieg_ration_ratio = endsieg_ration_target }
+		clamp_variable = { var = endsieg_ration_ratio min = 0 max = 1 }
+	}
+	set_variable = { endsieg_ration_bar_frame = endsieg_ration_ratio }
+	multiply_variable = { endsieg_ration_bar_frame = 100 }
+	round_variable = endsieg_ration_bar_frame
+}
+
+endsieg_rations_initialize = {
+	if = {
+		limit = { NOT = { has_country_flag = endsieg_rations_initialized } }
+		endsieg_rations_measure_demand = yes
+		set_variable = { endsieg_ration_initial_supply = endsieg_ration_daily_use }
+		multiply_variable = { endsieg_ration_initial_supply = 31 }
+		add_to_variable = { endsieg_ration_initial_supply = 100 }
+		round_variable = endsieg_ration_initial_supply
+		add_equipment_to_stockpile = {
+			type = rations_1
+			amount = var:endsieg_ration_initial_supply
+		}
+		set_country_flag = endsieg_rations_initialized
+		endsieg_rations_refresh_display = yes
+	}
+}
+
+endsieg_rations_disable = {
+	set_country_flag = endsieg_rations_disabled
+	if = { limit = { has_idea = endsieg_low_rations } remove_ideas = endsieg_low_rations }
+	if = { limit = { has_idea = endsieg_no_rations } remove_ideas = endsieg_no_rations }
+	set_variable = { endsieg_ration_daily_use = 0 }
+	set_variable = { endsieg_ration_days = 0 }
+	set_variable = { endsieg_ration_target = 0 }
+	set_variable = { endsieg_ration_bar_frame = 0 }
+}
+
+endsieg_rations_enable = {
+	clr_country_flag = endsieg_rations_disabled
+	endsieg_rations_measure_demand = yes
+	endsieg_rations_refresh_display = yes
+}
+
+endsieg_rations_daily_tick = {
+	endsieg_rations_initialize = yes
+	endsieg_rations_measure_demand = yes
+
+	endsieg_rations_refresh_display = yes
+	set_variable = { endsieg_ration_before_meals = endsieg_ration_stockpile }
+
+	set_variable = { endsieg_ration_daily_burn = endsieg_ration_daily_use }
+	clamp_variable = { var = endsieg_ration_daily_burn min = 0 max = endsieg_ration_stockpile }
+	multiply_variable = { endsieg_ration_daily_burn = -1 }
+	if = {
+		limit = { check_variable = { endsieg_ration_daily_burn < 0 } }
+		add_equipment_to_stockpile = {
+			type = rations_1
+			amount = var:endsieg_ration_daily_burn
+		}
+	}
+
+	endsieg_rations_refresh_display = yes
+
+	if = {
+		limit = {
+			check_variable = { endsieg_ration_daily_use > 0 }
+			check_variable = { endsieg_ration_before_meals < endsieg_ration_daily_use }
+		}
+		if = { limit = { has_idea = endsieg_low_rations } remove_ideas = endsieg_low_rations }
+		if = { limit = { NOT = { has_idea = endsieg_no_rations } } add_ideas = endsieg_no_rations }
+	}
+	else_if = {
+		limit = {
+			check_variable = { endsieg_ration_daily_use > 0 }
+			check_variable = { endsieg_ration_days < 7 }
+		}
+		if = { limit = { has_idea = endsieg_no_rations } remove_ideas = endsieg_no_rations }
+		if = { limit = { NOT = { has_idea = endsieg_low_rations } } add_ideas = endsieg_low_rations }
+	}
+	else = {
+		if = { limit = { has_idea = endsieg_no_rations } remove_ideas = endsieg_no_rations }
+		if = { limit = { has_idea = endsieg_low_rations } remove_ideas = endsieg_low_rations }
+	}
+}
