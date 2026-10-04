@@ -1,0 +1,1276 @@
+# The Turkish interwar tree is loaded after Mudros or a Central Powers victory.
+# Keep the WWI and 1936 vanilla trees separate.
+focus_tree = {
+	id = INT_turkey
+	shared_focus = shared_INT_depression_emergency
+	shared_focus = shared_INT_depression_public_works
+	shared_focus = shared_INT_depression_austerity
+	shared_focus = shared_INT_depression_stabilization
+	default = no
+	country = { factor = 0 }
+	initial_show_position = { x = 14 y = 0 }
+	continuous_focus_position = { x = 80 y = 1850 }
+
+	# Defeat and the national movement, 1918-1920.
+	focus = {
+		id = INT_TUR_aftermath_of_mudros
+		icon = GFX_goal_generic_forceful_treaty
+		x = 14 y = 0 cost = 3
+		mutually_exclusive = { focus = INT_TUR_ottoman_victory }
+		available = { has_global_flag = armistice_of_mudros }
+		completion_reward = {
+			set_cosmetic_tag = TUR_ottoman_empire
+			# The 1919 bookmark skips the Mudros event's French occupation.
+			if = {
+				limit = { country_exists = FRA 345 = { is_owned_by = TUR } }
+				FRA = { transfer_state = 345 }
+			}
+			add_ideas = INT_TUR_occupation
+			add_political_power = 30
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_italian_landing
+		icon = GFX_goal_generic_demand_territory
+		x = 20 y = 1 cost = 3
+		prerequisite = { focus = INT_TUR_aftermath_of_mudros }
+		available = { date > 1919.3.27 }
+		completion_reward = {
+			if = {
+				limit = { country_exists = ITA 342 = { is_owned_by = TUR } }
+				ITA = { transfer_state = 342 }
+			}
+			add_war_support = 0.02
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_occupation_of_izmir
+		icon = GFX_goal_generic_defence
+		x = 14 y = 1 cost = 3
+		prerequisite = { focus = INT_TUR_aftermath_of_mudros }
+		available = { date > 1919.5.14 }
+		completion_reward = {
+			country_event = { id = ww1_turkey.64 days = 0 }
+			if = { limit = { date < 1920.1.1 has_start_date < 1920.1.1 } news_event = { id = INT_turkey_news.10 days = 1 } }
+		}
+		ai_will_do = { factor = 30 }
+	}
+	focus = {
+		id = INT_TUR_samsun
+		icon = GFX_goal_generic_national_unity
+		x = 14 y = 2 cost = 3
+		prerequisite = { focus = INT_TUR_occupation_of_izmir }
+		available = { date > 1919.5.18 }
+		completion_reward = {
+			add_ideas = INT_TUR_national_resistance
+			if = { limit = { date < 1920.1.1 has_start_date < 1920.1.1 } news_event = { id = INT_turkey_news.11 days = 1 } }
+		}
+		ai_will_do = { factor = 30 }
+	}
+	focus = {
+		id = INT_TUR_amasya_circular
+		icon = GFX_goal_generic_political_pressure
+		x = 14 y = 3 cost = 3
+		prerequisite = { focus = INT_TUR_samsun }
+		available = { date > 1919.6.21 }
+		completion_reward = { add_political_power = 45 }
+		ai_will_do = { factor = 30 }
+	}
+	focus = {
+		id = INT_TUR_erzurum_congress
+		icon = GFX_goal_generic_major_alliance
+		x = 11 y = 4 cost = 3
+		prerequisite = { focus = INT_TUR_amasya_circular }
+		available = { date > 1919.7.22 }
+		completion_reward = { add_war_support = 0.04 }
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_sivas_congress
+		icon = GFX_goal_generic_major_alliance
+		x = 17 y = 4 cost = 3
+		prerequisite = { focus = INT_TUR_amasya_circular }
+		available = { date > 1919.9.3 }
+		completion_reward = {  }
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_representative_committee
+		icon = GFX_goal_generic_national_unity
+		x = 14 y = 5 cost = 3
+		prerequisite = { focus = INT_TUR_erzurum_congress }
+		prerequisite = { focus = INT_TUR_sivas_congress }
+		completion_reward = { add_political_power = 50 }
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_national_pact
+		icon = GFX_focus_TUR_misak_i_milli
+		x = 14 y = 6 cost = 3
+		prerequisite = { focus = INT_TUR_representative_committee }
+		available = { date > 1920.1.27 }
+		completion_reward = {
+			set_country_flag = INT_TUR_national_pact_accepted
+			add_war_support = 0.05
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_occupation_of_istanbul
+		icon = GFX_goal_generic_occupy_start_war
+		x = 14 y = 7 cost = 3
+		prerequisite = { focus = INT_TUR_national_pact }
+		available = { date > 1920.3.15 }
+		completion_reward = {
+			add_stability = -0.03
+			add_war_support = 0.05
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_grand_national_assembly
+		icon = GFX_goal_generic_political_pressure
+		x = 14 y = 8 cost = 3
+		prerequisite = { focus = INT_TUR_occupation_of_istanbul }
+		available = { date > 1920.4.22 }
+		completion_reward = {
+			set_country_flag = INT_TUR_ankara_assembly
+			set_capital = 49
+			add_political_power = 75
+			if = { limit = { date < 1921.1.1 has_start_date < 1921.1.1 } news_event = { id = INT_turkey_news.12 days = 1 } }
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	# Western front: irregular resistance, a regular army, and the Greek war.
+	focus = {
+		id = INT_TUR_kuvayi_milliye
+		icon = GFX_goal_generic_small_arms
+		x = 6 y = 9 cost = 4
+		prerequisite = { focus = INT_TUR_grand_national_assembly }
+		completion_reward = {
+			add_ideas = INT_TUR_kuvayi_milliye_spirit
+			add_manpower = 12000
+			add_war_support = 0.03
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_regular_army
+		icon = GFX_goal_generic_army_doctrines
+		x = 6 y = 10 cost = 4
+		prerequisite = { focus = INT_TUR_kuvayi_milliye }
+		available = { date > 1920.10.1 }
+		completion_reward = {
+			remove_ideas = INT_TUR_kuvayi_milliye_spirit
+			add_ideas = INT_TUR_regular_army_spirit
+			army_experience = 20
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_western_front
+		icon = GFX_goal_generic_major_war
+		x = 6 y = 11 cost = 3
+		prerequisite = { focus = INT_TUR_regular_army }
+		available = { date > 1920.11.1 }
+		completion_reward = { country_event = { id = ww1_turkey.62 days = 0 } }
+		ai_will_do = { factor = 30 }
+	}
+	focus = {
+		id = INT_TUR_first_inonu
+		icon = GFX_goal_generic_defence
+		x = 6 y = 12 cost = 3
+		prerequisite = { focus = INT_TUR_western_front }
+		available = { date > 1921.1.5 }
+		completion_reward = {
+			army_experience = 15
+			add_war_support = 0.03
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_second_inonu
+		icon = GFX_goal_generic_defence
+		x = 6 y = 13 cost = 3
+		prerequisite = { focus = INT_TUR_first_inonu }
+		available = { date > 1921.3.22 }
+		completion_reward = {
+			army_experience = 15
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_kutahya_eskisehir
+		icon = GFX_goal_generic_army_artillery2
+		x = 6 y = 14 cost = 3
+		prerequisite = { focus = INT_TUR_second_inonu }
+		available = { date > 1921.7.7 }
+		completion_reward = {
+			add_stability = -0.04
+			if = {
+				limit = { 340 = { is_owned_by = TUR } country_exists = GRE has_war_with = GRE }
+				GRE = { transfer_state = 340 }
+			}
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_tekalif_i_milliye
+		icon = GFX_goal_generic_production
+		x = 6 y = 15 cost = 3
+		prerequisite = { focus = INT_TUR_kutahya_eskisehir }
+		available = { date > 1921.8.4 }
+		completion_reward = {
+			add_timed_idea = { idea = INT_TUR_emergency_requisitions days = 240 }
+			add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 1500 producer = TUR }
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_sakarya
+		icon = GFX_goal_generic_defence
+		x = 6 y = 16 cost = 4
+		prerequisite = { focus = INT_TUR_tekalif_i_milliye }
+		available = { date > 1921.9.12 }
+		completion_reward = {
+			add_ideas = INT_TUR_sakarya_victory
+			add_war_support = 0.08
+			army_experience = 25
+			if = { limit = { date < 1922.1.1 has_start_date < 1922.1.1 } news_event = { id = INT_turkey_news.14 days = 1 } }
+		}
+		ai_will_do = { factor = 30 }
+	}
+	focus = {
+		id = INT_TUR_great_offensive
+		icon = GFX_goal_generic_major_war
+		x = 6 y = 17 cost = 5
+		prerequisite = { focus = INT_TUR_sakarya }
+		available = { date > 1922.8.25 }
+		completion_reward = {
+			add_timed_idea = { idea = INT_TUR_great_offensive_spirit days = 90 }
+			army_experience = 25
+		}
+		ai_will_do = { factor = 35 }
+	}
+	focus = {
+		id = INT_TUR_liberate_izmir
+		icon = GFX_goal_generic_demand_territory
+		x = 6 y = 18 cost = 2
+		prerequisite = { focus = INT_TUR_great_offensive }
+		available = { date > 1922.9.8 }
+		completion_reward = {
+			if = { limit = { 339 = { is_owned_by = GRE } } transfer_state = 339 }
+			if = { limit = { 340 = { is_owned_by = GRE } } transfer_state = 340 }
+			add_war_support = 0.05
+			if = { limit = { date < 1923.1.1 has_start_date < 1923.1.1 } news_event = { id = INT_turkey_news.15 days = 1 } }
+		}
+		ai_will_do = { factor = 35 }
+	}
+	focus = {
+		id = INT_TUR_mudanya
+		icon = GFX_goal_generic_forceful_treaty
+		x = 6 y = 19 cost = 2
+		prerequisite = { focus = INT_TUR_liberate_izmir }
+		available = { date > 1922.10.10 }
+		completion_reward = {
+			if = { limit = { has_war_with = GRE } white_peace = GRE }
+			if = { limit = { country_exists = GRE GRE = { has_idea = INT_GRE_anatolian_overstretch } } GRE = { remove_ideas = INT_GRE_anatolian_overstretch } }
+			if = { limit = { 1036 = { is_owned_by = GRE } } transfer_state = 1036 }
+			if = {
+				limit = { 1036 = { is_owned_by = TUR } country_exists = GRE }
+				if = { limit = { GRE = { controls_province = 922 } } set_province_controller = 922 }
+				if = { limit = { GRE = { controls_province = 3893 } } set_province_controller = 3893 }
+				if = { limit = { GRE = { controls_province = 11842 } } set_province_controller = 11842 }
+				if = { limit = { GRE = { controls_province = 13411 } } set_province_controller = 13411 }
+			}
+			set_country_flag = INT_TUR_mudanya_signed
+		}
+		ai_will_do = { factor = 35 }
+	}
+
+	# The eastern and southern settlements run beside the Greek campaign.
+	focus = {
+		id = INT_TUR_eastern_front
+		icon = GFX_goal_generic_attack_allies
+		x = 13 y = 9 cost = 4
+		prerequisite = { focus = INT_TUR_grand_national_assembly }
+		available = { date > 1920.9.1 }
+		completion_reward = {
+			country_event = { id = ww1_turkey.68 days = 0 }
+			army_experience = 15
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_alexandropol
+		icon = GFX_goal_generic_forceful_treaty
+		x = 13 y = 10 cost = 3
+		prerequisite = { focus = INT_TUR_eastern_front }
+		available = { date > 1920.12.1 }
+		completion_reward = {
+			if = {
+				limit = {
+					1033 = {
+						OR = { is_owned_by = ARM is_owned_by = GEO is_owned_by = TRC is_owned_by = SOV }
+					}
+				}
+				transfer_state = 1033
+				add_state_core = 1033
+			}
+			add_political_power = 35
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_moscow_treaty
+		icon = GFX_goal_generic_dangerous_deal
+		x = 13 y = 11 cost = 3
+		prerequisite = { focus = INT_TUR_alexandropol }
+		available = { date > 1921.3.15 }
+		completion_reward = { country_event = { id = ww1_turkey.63 days = 0 } }
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_kars_treaty
+		icon = GFX_goal_generic_forceful_treaty
+		x = 13 y = 12 cost = 3
+		prerequisite = { focus = INT_TUR_moscow_treaty }
+		available = { date > 1921.10.12 }
+		completion_reward = {
+			if = {
+				limit = {
+					1033 = {
+						OR = { is_owned_by = ARM is_owned_by = GEO is_owned_by = TRC is_owned_by = SOV }
+					}
+				}
+				transfer_state = 1033
+			}
+			if = { limit = { 1033 = { is_owned_by = TUR } } add_state_core = 1033 }
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_cilician_resistance
+		icon = GFX_goal_generic_defence
+		x = 20 y = 9 cost = 4
+		prerequisite = { focus = INT_TUR_grand_national_assembly }
+		completion_reward = {
+			country_event = { id = ww1_turkey.67 days = 0 }
+			add_manpower = 6000
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_italian_withdrawal
+		icon = GFX_goal_generic_improve_relations
+		x = 24 y = 10 cost = 3
+		prerequisite = { focus = INT_TUR_cilician_resistance }
+		prerequisite = { focus = INT_TUR_italian_landing }
+		available = { date > 1921.7.1 }
+		completion_reward = {
+			if = { limit = { 342 = { is_owned_by = ITA } } transfer_state = 342 }
+			add_political_power = 30
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ankara_accord
+		icon = GFX_goal_generic_forceful_treaty
+		x = 20 y = 11 cost = 3
+		prerequisite = { focus = INT_TUR_cilician_resistance }
+		available = { date > 1921.10.19 }
+		completion_reward = { country_event = { id = ww1_turkey.70 days = 0 } }
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_sevres
+		icon = GFX_goal_generic_forceful_treaty
+		x = 29 y = 9 cost = 3
+		prerequisite = { focus = INT_TUR_grand_national_assembly }
+		available = { date > 1920.8.9 }
+		completion_reward = { country_event = { id = ww1_turkey.61 days = 0 } }
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_reject_sevres
+		icon = GFX_goal_generic_national_unity
+		x = 29 y = 10 cost = 3
+		prerequisite = { focus = INT_TUR_sevres }
+		completion_reward = {
+			set_country_flag = INT_TUR_sevres_rejected
+			add_war_support = 0.05
+			if = { limit = { date < 1921.1.1 has_start_date < 1921.1.1 } news_event = { id = INT_turkey_news.13 days = 1 } }
+		}
+		ai_will_do = { factor = 20 }
+	}
+
+	# The settlement and early republic.
+	focus = {
+		id = INT_TUR_abolish_sultanate
+		icon = GFX_goal_generic_political_pressure
+		x = 14 y = 20 cost = 3
+		prerequisite = { focus = INT_TUR_mudanya }
+		available = { date > 1922.10.31 }
+		completion_reward = {
+			INT_TUR_end_sultanate = yes
+		}
+		ai_will_do = { factor = 35 }
+	}
+	focus = {
+		id = INT_TUR_lausanne
+		icon = GFX_goal_generic_forceful_treaty
+		x = 14 y = 21 cost = 3
+		prerequisite = { focus = INT_TUR_abolish_sultanate }
+		available = { date > 1923.7.23 }
+		completion_reward = { country_event = { id = ww1_turkey.66 days = 0 } }
+		ai_will_do = { factor = 35 }
+	}
+	focus = {
+		id = INT_TUR_republic
+		icon = GFX_goal_generic_national_unity
+		x = 14 y = 22 cost = 3
+		prerequisite = { focus = INT_TUR_lausanne }
+		available = { date > 1923.10.28 }
+		completion_reward = {
+			set_cosmetic_tag = TUR_neutrality
+			set_politics = { ruling_party = neutrality elections_allowed = yes }
+			set_country_flag = INT_TUR_republic_proclaimed
+			add_ideas = INT_TUR_republican_institutions
+			if = { limit = { date < 1924.10.30 has_start_date < 1924.10.30 } news_event = { id = INT_turkey_news.2 days = 1 } }
+		}
+		ai_will_do = { factor = 35 }
+	}
+	focus = {
+		id = INT_TUR_abolish_caliphate
+		icon = GFX_goal_generic_political_pressure
+		x = 14 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_republic }
+		available = { date > 1924.3.2 }
+		completion_reward = {
+			add_stability = -0.03
+			add_political_power = 70
+			if = { limit = { date < 1925.1.1 has_start_date < 1925.1.1 } news_event = { id = INT_turkey_news.17 days = 1 } }
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_unify_education
+		icon = GFX_focus_research
+		x = 14 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_abolish_caliphate }
+		available = { date > 1924.3.2 }
+		completion_reward = {
+			add_tech_bonus = { name = INT_TUR_education_bonus bonus = 0.5 uses = 1 category = industry }
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_civil_code
+		icon = GFX_goal_generic_political_pressure
+		x = 14 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_unify_education }
+		available = { date > 1926.2.16 }
+		completion_reward = {
+			add_political_power = 50
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_alphabet_reform
+		icon = GFX_focus_research
+		x = 14 y = 26 cost = 4
+		prerequisite = { focus = INT_TUR_civil_code }
+		available = { date > 1928.10.31 }
+		completion_reward = {
+			add_tech_bonus = { name = INT_TUR_alphabet_reform_bonus bonus = 0.5 uses = 1 category = industry }
+			if = { limit = { date < 1929.1.1 has_start_date < 1929.1.1 } news_event = { id = INT_turkey_news.18 days = 1 } }
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_surname_law
+		icon = GFX_goal_generic_political_pressure
+		x = 14 y = 27 cost = 3
+		prerequisite = { focus = INT_TUR_alphabet_reform }
+		available = { date > 1934.6.20 }
+		completion_reward = {
+			add_political_power = 30
+			if = { limit = { date < 1935.1.1 has_start_date < 1935.1.1 } news_event = { id = INT_turkey_news.21 days = 1 } }
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_ataturk_surname
+		icon = GFX_goal_generic_national_unity
+		x = 14 y = 28 cost = 2
+		prerequisite = { focus = INT_TUR_surname_law }
+		available = { date > 1934.11.23 }
+		completion_reward = {
+			if = {
+				limit = { has_country_leader = { character = TUR_mustafa_kemal ruling_only = yes } }
+				retire_country_leader = yes
+			}
+			if = { limit = { has_character = TUR_mustafa_kemal } retire_character = TUR_mustafa_kemal }
+			if = { limit = { NOT = { has_character = TUR_mustafa_kemal_ataturk } } recruit_character = TUR_mustafa_kemal_ataturk }
+			TUR_mustafa_kemal_ataturk = { promote_character = yes }
+		}
+		ai_will_do = { factor = 25 }
+	}
+	focus = {
+		id = INT_TUR_womens_suffrage
+		icon = GFX_goal_generic_national_unity
+		x = 14 y = 29 cost = 4
+		prerequisite = { focus = INT_TUR_ataturk_surname }
+		available = { date > 1934.12.4 }
+		completion_reward = {
+			if = { limit = { date < 1935.12.5 has_start_date < 1935.12.5 } news_event = { id = INT_turkey_news.7 days = 1 } }
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_izmir_economic_congress
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 5 y = 22 cost = 4
+		prerequisite = { focus = INT_TUR_abolish_sultanate }
+		available = { date > 1923.2.16 }
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			}
+			add_political_power = 40
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_railway_nationalization
+		icon = GFX_goal_generic_construct_infrastructure
+		x = 5 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_izmir_economic_congress }
+		completion_reward = {
+			49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			add_ideas = INT_TUR_railways
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_isbank
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 5 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_railway_nationalization }
+		available = { date > 1924.8.25 }
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			}
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_early_statism
+		icon = GFX_goal_generic_production2
+		x = 5 y = 25 cost = 5
+		prerequisite = { focus = INT_TUR_isbank }
+		available = { date > 1931.1.1 }
+		completion_reward = {
+			add_ideas = INT_TUR_statism
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = arms_factory size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+			}
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_republican_peoples_party
+		icon = GFX_goal_generic_political_pressure
+		x = 23 y = 22 cost = 4
+		prerequisite = { focus = INT_TUR_republic }
+		completion_reward = { add_political_power = 80 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_progressive_republican_party
+		icon = GFX_goal_generic_political_pressure
+		x = 23 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_republican_peoples_party }
+		available = { date > 1924.11.16 }
+		completion_reward = {
+			add_stability = -0.02
+			add_political_power = 40
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_sheikh_said_rebellion
+		icon = GFX_goal_generic_defence
+		x = 23 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_progressive_republican_party }
+		available = { date > 1925.2.12 }
+		completion_reward = {
+			add_stability = -0.04
+			add_timed_idea = { idea = INT_TUR_internal_unrest days = 180 }
+			if = { limit = { date < 1926.1.1 has_start_date < 1926.1.1 } news_event = { id = INT_turkey_news.22 days = 1 } }
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_six_arrows
+		icon = GFX_focus_TUR_ratify_the_six_arrows
+		x = 23 y = 25 cost = 5
+		prerequisite = { focus = INT_TUR_sheikh_said_rebellion }
+		available = { date > 1931.5.9 }
+		completion_reward = {
+			add_political_power = 60
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_1936_handoff
+		icon = GFX_goal_generic_national_unity
+		x = 14 y = 31 cost = 1
+		prerequisite = { focus = INT_TUR_womens_suffrage }
+		prerequisite = { focus = INT_TUR_early_statism }
+		prerequisite = { focus = INT_TUR_six_arrows }
+		available = { date > 1935.9.1 }
+		completion_reward = {
+			set_country_flag = INT_TUR_1936_transition_prepared
+			add_political_power = 50
+		}
+		ai_will_do = { factor = 25 }
+	}
+
+	# Constitutional and social reforms of the republic.
+	focus = {
+		id = INT_TUR_1924_constitution
+		icon = GFX_goal_generic_political_pressure
+		x = 10 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_republic }
+		available = { date > 1924.4.19 }
+		completion_reward = {  add_political_power = 40 country_event = { id = INT_turkey.1 days = 0 } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_civil_courts
+		icon = GFX_goal_generic_national_unity
+		x = 10 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_1924_constitution }
+		available = { date > 1924.4.20 }
+		completion_reward = { add_political_power = 30 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_hat_reform
+		icon = GFX_goal_generic_political_pressure
+		x = 8 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_civil_courts }
+		available = { date > 1925.11.24 }
+		completion_reward = { add_stability = -0.02 add_political_power = 45 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_close_lodges
+		icon = GFX_goal_generic_national_unity
+		x = 12 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_civil_courts }
+		available = { date > 1925.11.29 }
+		completion_reward = { add_stability = -0.02 add_political_power = 45 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_common_calendar
+		icon = GFX_focus_research
+		x = 10 y = 26 cost = 4
+		prerequisite = { focus = INT_TUR_hat_reform }
+		prerequisite = { focus = INT_TUR_close_lodges }
+		available = { date > 1925.12.25 }
+		completion_reward = { add_tech_bonus = { name = INT_TUR_standardization bonus = 0.5 uses = 1 category = industry } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_local_womens_vote
+		icon = GFX_goal_generic_national_unity
+		x = 10 y = 27 cost = 4
+		prerequisite = { focus = INT_TUR_common_calendar }
+		available = { date > 1930.4.2 }
+		completion_reward = {  add_political_power = 35 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_historical_society
+		icon = GFX_focus_research
+		x = 8 y = 28 cost = 4
+		prerequisite = { focus = INT_TUR_local_womens_vote }
+		available = { date > 1931.4.14 }
+		completion_reward = { add_tech_bonus = { name = INT_TUR_historical_studies bonus = 0.5 uses = 1 category = industry } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_language_society
+		icon = GFX_focus_research
+		x = 12 y = 28 cost = 4
+		prerequisite = { focus = INT_TUR_local_womens_vote }
+		available = { date > 1932.7.11 }
+		completion_reward = { add_tech_bonus = { name = INT_TUR_language_studies bonus = 0.5 uses = 1 category = industry } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_peoples_houses
+		icon = GFX_goal_generic_national_unity
+		x = 8 y = 29 cost = 4
+		prerequisite = { focus = INT_TUR_historical_society }
+		available = { date > 1932.2.18 }
+		completion_reward = {  add_political_power = 30 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_university_reform
+		icon = GFX_focus_research
+		x = 10 y = 30 cost = 4
+		prerequisite = { focus = INT_TUR_peoples_houses }
+		prerequisite = { focus = INT_TUR_language_society }
+		available = { date > 1933.5.30 }
+		completion_reward = { add_tech_bonus = { name = INT_TUR_university_reform_bonus bonus = 0.5 uses = 2 category = industry } }
+		ai_will_do = { factor = 18 }
+	}
+
+	# Rural recovery, credit, and the first state industries.
+	focus = {
+		id = INT_TUR_abolish_ashar
+		icon = GFX_goal_generic_consumer_goods
+		x = 1 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_izmir_economic_congress }
+		available = { date > 1925.2.16 }
+		completion_reward = { add_ideas = INT_TUR_agricultural_recovery }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_agricultural_credit
+		icon = GFX_goal_generic_positive_trade_relations
+		x = 1 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_abolish_ashar }
+		available = { date > 1925.3.1 }
+		completion_reward = { add_political_power = 40 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_model_farms
+		icon = GFX_goal_generic_construct_infrastructure
+		x = 1 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_agricultural_credit }
+		available = { date > 1925.5.5 }
+		completion_reward = { 49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_sugar_industry
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 1 y = 26 cost = 4
+		prerequisite = { focus = INT_TUR_model_farms }
+		available = { date > 1926.1.1 }
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			}
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_industry_incentives
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 9 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_railway_nationalization }
+		available = { date > 1927.5.27 }
+		completion_reward = { add_ideas = INT_TUR_industry_incentive_spirit add_political_power = 25 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_central_bank
+		icon = GFX_goal_generic_consumer_goods
+		x = 9 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_industry_incentives }
+		available = { date > 1930.6.10 }
+		completion_reward = { add_ideas = INT_TUR_central_bank_spirit }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_depression_response
+		icon = GFX_goal_generic_consumer_goods
+		x = 5 y = 26 cost = 4
+		prerequisite = { focus = INT_TUR_isbank }
+		available = { date > 1929.10.23 }
+		completion_reward = { add_political_power = 35  }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_first_industrial_plan
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 5 y = 27 cost = 4
+		prerequisite = { focus = INT_TUR_early_statism }
+		prerequisite = { focus = INT_TUR_depression_response }
+		available = { date > 1933.4.16 }
+		completion_reward = { add_ideas = INT_TUR_five_year_plan random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			} country_event = { id = INT_turkey.6 days = 0 } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_textile_mills
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 1 y = 28 cost = 4
+		prerequisite = { focus = INT_TUR_first_industrial_plan }
+		available = { date > 1934.1.1 }
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			}
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_etibank
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 9 y = 28 cost = 4
+		prerequisite = { focus = INT_TUR_first_industrial_plan }
+		available = { date > 1935.6.13 }
+		completion_reward = { add_ideas = INT_TUR_mining_investment random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			} }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_industrial_recovery
+		icon = GFX_goal_generic_production2
+		x = 5 y = 29 cost = 4
+		prerequisite = { focus = INT_TUR_textile_mills }
+		prerequisite = { focus = INT_TUR_etibank }
+		available = { date > 1935.7.1 }
+		completion_reward = { remove_ideas = INT_TUR_industry_incentive_spirit add_political_power = 50 }
+		ai_will_do = { factor = 18 }
+	}
+
+	# Parliamentary politics, diplomacy, and defense through 1935.
+	focus = {
+		id = INT_TUR_maintenance_of_order
+		icon = GFX_goal_generic_political_pressure
+		x = 19 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_sheikh_said_rebellion }
+		available = { date > 1925.3.3 }
+		completion_reward = { add_ideas = INT_TUR_emergency_order }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_izmir_conspiracy
+		icon = GFX_goal_generic_defence
+		x = 19 y = 26 cost = 4
+		prerequisite = { focus = INT_TUR_maintenance_of_order }
+		available = { date > 1926.6.14 }
+		completion_reward = { remove_ideas = INT_TUR_emergency_order  }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_great_speech
+		icon = GFX_goal_generic_national_unity
+		x = 19 y = 27 cost = 4
+		prerequisite = { focus = INT_TUR_izmir_conspiracy }
+		available = { date > 1927.10.14 }
+		completion_reward = {  add_political_power = 45 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_free_republican_party
+		icon = GFX_goal_generic_political_pressure
+		x = 27 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_progressive_republican_party }
+		available = { date > 1930.8.11 }
+		completion_reward = { add_stability = -0.02 add_political_power = 50 country_event = { id = INT_turkey.2 days = 0 } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_menemen_incident
+		icon = GFX_goal_generic_defence
+		x = 27 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_free_republican_party }
+		available = { date > 1930.12.22 }
+		completion_reward = { add_stability = -0.03 add_political_power = 40 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_1935_assembly
+		icon = GFX_goal_generic_political_pressure
+		x = 23 y = 28 cost = 4
+		prerequisite = { focus = INT_TUR_six_arrows }
+		prerequisite = { focus = INT_TUR_menemen_incident }
+		available = { date > 1935.2.8 }
+		completion_reward = {  add_political_power = 60 country_event = { id = INT_turkey.5 days = 0 } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_civil_administration
+		icon = GFX_goal_generic_national_unity
+		x = 23 y = 29 cost = 4
+		prerequisite = { focus = INT_TUR_1935_assembly }
+		prerequisite = { focus = INT_TUR_great_speech }
+		available = { date > 1935.3.1 }
+		completion_reward = { add_ideas = INT_TUR_civil_service add_political_power = 40 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_soviet_friendship
+		icon = GFX_goal_generic_positive_trade_relations
+		x = 28 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_lausanne }
+		available = { date > 1925.12.16 }
+		completion_reward = { add_political_power = 40 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_mosul_settlement
+		icon = GFX_goal_generic_forceful_treaty
+		x = 32 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_lausanne }
+		available = { date > 1926.6.4 }
+		completion_reward = {
+			add_political_power = 45
+			if = { limit = { date < 1927.1.1 has_start_date < 1927.1.1 } news_event = { id = INT_turkey_news.20 days = 1 } }
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_italian_rapprochement
+		icon = GFX_goal_generic_improve_relations
+		x = 36 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_mosul_settlement }
+		available = { date > 1928.5.29 }
+		completion_reward = { add_political_power = 40 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_greek_rapprochement
+		icon = GFX_goal_generic_improve_relations
+		x = 32 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_soviet_friendship }
+		prerequisite = { focus = INT_TUR_italian_rapprochement }
+		available = { date > 1930.10.29 }
+		completion_reward = { add_political_power = 50  country_event = { id = INT_turkey.3 days = 0 } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_league_of_nations
+		icon = GFX_goal_generic_major_alliance
+		x = 32 y = 26 cost = 4
+		prerequisite = { focus = INT_TUR_greek_rapprochement }
+		available = { date > 1932.7.17 }
+		completion_reward = {
+			add_political_power = 45
+			if = { limit = { date < 1934.1.1 has_start_date < 1934.1.1 } news_event = { id = INT_turkey_news.5 days = 1 } }
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_balkan_entente
+		icon = GFX_goal_generic_major_alliance
+		x = 30 y = 27 cost = 4
+		prerequisite = { focus = INT_TUR_league_of_nations }
+		available = { date > 1934.2.8 }
+		completion_reward = { add_ideas = INT_TUR_balkan_security add_war_support = 0.02 country_event = { id = INT_turkey.4 days = 0 } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_eastern_diplomacy
+		icon = GFX_goal_generic_positive_trade_relations
+		x = 34 y = 27 cost = 4
+		prerequisite = { focus = INT_TUR_league_of_nations }
+		available = { date > 1935.1.1 }
+		completion_reward = { add_political_power = 45 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_peace_at_home
+		icon = GFX_goal_generic_national_unity
+		x = 32 y = 28 cost = 4
+		prerequisite = { focus = INT_TUR_balkan_entente }
+		prerequisite = { focus = INT_TUR_eastern_diplomacy }
+		available = { date > 1935.7.1 }
+		completion_reward = {  add_political_power = 45 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_general_staff_reform
+		icon = GFX_goal_generic_army_doctrines
+		x = 42 y = 23 cost = 4
+		prerequisite = { focus = INT_TUR_republic }
+		available = { date > 1924.3.2 }
+		completion_reward = { army_experience = 15 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_officer_schools
+		icon = GFX_goal_generic_army_doctrines
+		x = 45 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_general_staff_reform }
+		available = { date > 1925.1.1 }
+		completion_reward = { army_experience = 20 add_tech_bonus = { name = INT_TUR_officer_training bonus = 0.5 uses = 1 category = land_doctrine } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_reserve_system
+		icon = GFX_goal_generic_small_arms
+		x = 39 y = 24 cost = 4
+		prerequisite = { focus = INT_TUR_general_staff_reform }
+		available = { date > 1926.1.1 }
+		completion_reward = { add_manpower = 10000 army_experience = 10 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_border_roads
+		icon = GFX_goal_generic_construct_infrastructure
+		x = 39 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_reserve_system }
+		available = { date > 1930.1.1 }
+		completion_reward = { 49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } army_experience = 10 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_air_service
+		icon = GFX_goal_generic_air_fighter
+		x = 45 y = 25 cost = 4
+		prerequisite = { focus = INT_TUR_officer_schools }
+		available = { date > 1932.1.1 }
+		completion_reward = { air_experience = 20 49 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_naval_training
+		icon = GFX_goal_generic_navy_battleship
+		x = 45 y = 26 cost = 4
+		prerequisite = { focus = INT_TUR_officer_schools }
+		available = { date > 1933.1.1 }
+		completion_reward = { navy_experience = 20 add_political_power = 20 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_defense_review
+		icon = GFX_goal_generic_defence
+		x = 42 y = 27 cost = 4
+		prerequisite = { focus = INT_TUR_border_roads }
+		prerequisite = { focus = INT_TUR_air_service }
+		prerequisite = { focus = INT_TUR_naval_training }
+		available = { date > 1935.1.1 }
+		completion_reward = { add_ideas = INT_TUR_defense_preparedness army_experience = 20 }
+		ai_will_do = { factor = 18 }
+	}
+
+	# Alternate result: an Ottoman state continuing after a Central Powers victory.
+	focus = {
+		id = INT_TUR_ottoman_victory
+		icon = GFX_goal_generic_national_unity
+		x = 35 y = 0 cost = 4
+		mutually_exclusive = { focus = INT_TUR_aftermath_of_mudros }
+		available = {
+			has_global_flag = central_powers_victory
+			NOT = { has_global_flag = armistice_of_mudros }
+		}
+		completion_reward = {
+			set_cosmetic_tag = TUR_ottoman_empire
+			add_ideas = INT_TUR_ottoman_reconstruction
+		}
+		ai_will_do = { factor = 20 }
+	}
+	focus = {
+		id = INT_TUR_constitutional_restoration
+		icon = GFX_goal_generic_political_pressure
+		x = 35 y = 1 cost = 5
+		prerequisite = { focus = INT_TUR_ottoman_victory }
+		completion_reward = {
+			add_political_power = 60
+		}
+		ai_will_do = { factor = 16 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_provincial_reform
+		icon = GFX_goal_generic_national_unity
+		x = 31 y = 2 cost = 5
+		prerequisite = { focus = INT_TUR_constitutional_restoration }
+		completion_reward = {  }
+		ai_will_do = { factor = 15 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_railways
+		icon = GFX_goal_generic_construct_infrastructure
+		x = 39 y = 2 cost = 5
+		prerequisite = { focus = INT_TUR_constitutional_restoration }
+		completion_reward = {
+			49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			add_ideas = INT_TUR_railways
+		}
+		ai_will_do = { factor = 15 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_army_reorganization
+		icon = GFX_goal_generic_army_doctrines
+		x = 35 y = 3 cost = 5
+		prerequisite = { focus = INT_TUR_ottoman_provincial_reform }
+		prerequisite = { focus = INT_TUR_ottoman_railways }
+		completion_reward = {
+			add_ideas = INT_TUR_regular_army_spirit
+			army_experience = 20
+		}
+		ai_will_do = { factor = 15 }
+	}
+
+	# A surviving empire remains playable into the mid-1930s.
+	focus = {
+		id = INT_TUR_ottoman_parliament
+		icon = GFX_goal_generic_political_pressure
+		x = 35 y = 4 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_army_reorganization }
+		available = { date > 1920.1.1 }
+		completion_reward = {  add_political_power = 50 country_event = { id = INT_turkey.7 days = 0 } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_provincial_compromise
+		icon = GFX_goal_generic_national_unity
+		x = 31 y = 5 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_parliament }
+		available = { date > 1921.1.1 }
+		completion_reward = { add_ideas = INT_TUR_provincial_compromise_spirit }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_customs_compromise
+		icon = GFX_goal_generic_positive_trade_relations
+		x = 39 y = 5 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_parliament }
+		available = { date > 1921.1.1 }
+		completion_reward = { add_political_power = 45 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_budget
+		icon = GFX_goal_generic_consumer_goods
+		x = 35 y = 6 cost = 4
+		prerequisite = { focus = INT_TUR_provincial_compromise }
+		prerequisite = { focus = INT_TUR_customs_compromise }
+		available = { date > 1923.1.1 }
+		completion_reward = { add_ideas = INT_TUR_ottoman_budget_spirit add_political_power = 40 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_schools
+		icon = GFX_focus_research
+		x = 31 y = 7 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_budget }
+		available = { date > 1924.1.1 }
+		completion_reward = { add_tech_bonus = { name = INT_TUR_ottoman_education_bonus bonus = 0.5 uses = 1 category = industry } }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_officers
+		icon = GFX_goal_generic_army_doctrines
+		x = 39 y = 7 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_budget }
+		available = { date > 1925.1.1 }
+		completion_reward = { army_experience = 25 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_industry
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 35 y = 8 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_schools }
+		prerequisite = { focus = INT_TUR_ottoman_officers }
+		available = { date > 1927.1.1 }
+		completion_reward = { random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			} add_ideas = INT_TUR_ottoman_industry_spirit }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_slump
+		icon = GFX_goal_generic_consumer_goods
+		x = 35 y = 9 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_industry }
+		available = { date > 1929.10.23 }
+		completion_reward = { add_political_power = 35 }
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_recovery
+		icon = GFX_goal_generic_construct_civ_factory
+		x = 35 y = 10 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_slump }
+		available = { date > 1933.1.1 }
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = ROOT
+					is_fully_controlled_by = ROOT
+					free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
+				}
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+			}
+		}
+		ai_will_do = { factor = 18 }
+	}
+	focus = {
+		id = INT_TUR_ottoman_1935_settlement
+		icon = GFX_goal_generic_national_unity
+		x = 35 y = 11 cost = 4
+		prerequisite = { focus = INT_TUR_ottoman_recovery }
+		available = { date > 1935.7.1 }
+		completion_reward = { remove_ideas = INT_TUR_ottoman_reconstruction add_ideas = INT_TUR_ottoman_constitutional_order }
+		ai_will_do = { factor = 18 }
+	}
+}

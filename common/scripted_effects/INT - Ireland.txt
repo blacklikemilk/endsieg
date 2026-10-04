@@ -1,0 +1,228 @@
+# The 1919-21 guerrilla conflict is represented by pressure on the British
+# administration, rather than prematurely transferring all twenty-six counties.
+# The Irish territory set excludes Northern Ireland (119) and the Isle of Man.
+INT_IRE_offer_truce = {
+	if = {
+		limit = {
+			tag = ENG date > 1921.7.10 date < 1921.9.1
+			has_global_flag = INT_IRE_war_of_independence
+			NOT = { has_global_flag = INT_IRE_truce_offered }
+			OR = { owns_state = 113 owns_state = 134 owns_state = 135 has_war_with = IRE }
+		}
+		set_global_flag = INT_IRE_truce_offered
+		country_event = { id = INT_ireland.4 days = 0 }
+	}
+}
+
+INT_IRE_offer_treaty = {
+	if = {
+		limit = {
+			tag = ENG date > 1921.12.5 date < 1922.1.7
+			has_global_flag = INT_IRE_truce
+			NOT = { has_global_flag = INT_IRE_treaty_offered }
+			OR = { owns_state = 113 owns_state = 134 owns_state = 135 has_war_with = IRE }
+		}
+		set_global_flag = INT_IRE_treaty_offered
+		set_country_flag = INT_ENG_event_2
+		country_event = { id = INT_uk_interwar.2 days = 0 }
+	}
+}
+
+# Run in ENG scope. Only British-held states pass to the provisional government.
+INT_IRE_transfer_administration = {
+	if = { limit = { has_war_with = IRE } white_peace = IRE }
+	if = { limit = { 113 = { is_owned_by = ENG } } 113 = { transfer_state_to = IRE } }
+	if = { limit = { 134 = { is_owned_by = ENG } } 134 = { transfer_state_to = IRE } }
+	if = { limit = { 135 = { is_owned_by = ENG } } 135 = { transfer_state_to = IRE } }
+	remove_ideas = INT_ENG_irish_guerrilla_war
+	set_global_flag = INT_IRE_provisional_government
+	if = {
+		limit = { country_exists = IRE }
+		if = { limit = { has_global_flag = INT_IRE_silent_initialization } IRE = { set_country_flag = INT_IRE_bookmark_setup_pending country_event = { id = INT_ireland.21 days = 1 } } }
+		else = { IRE = { country_event = { id = INT_ireland.7 days = 1 } } }
+	}
+}
+
+# Run only after IRE has received land and completed country initialization.
+INT_IRE_setup_provisional_government = {
+	if = {
+		limit = { tag = IRE NOT = { has_country_flag = INT_IRE_national_army_loaded } }
+		set_country_flag = INT_IRE_national_army_loaded
+		set_capital = 113
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 60 last_election = "1921.5.24" }
+		set_popularities = { democratic = 85 neutrality = 10 communism = 5 fascism = 0 }
+		if = {
+			limit = { date < 1922.8.22 }
+			if = { limit = { NOT = { has_character = INT_IRE_michael_collins } } recruit_character = INT_IRE_michael_collins }
+			INT_IRE_michael_collins = { promote_character = yes }
+		}
+		else = {
+			if = { limit = { NOT = { has_character = INT_IRE_wt_cosgrave } } recruit_character = INT_IRE_wt_cosgrave }
+			INT_IRE_wt_cosgrave = { promote_character = yes }
+		}
+		if = { limit = { date < 1923.5.24 } add_ideas = INT_IRE_treaty_divisions }
+		# Newly released countries already retain their dated technology history.
+		load_oob = INT_IRE_national_army
+	}
+}
+
+INT_IRE_start_civil_war = {
+	if = {
+		limit = { tag = IRE owns_state = 113 owns_state = 134 owns_state = 135 NOT = { country_exists = IRA } }
+		set_global_flag = INT_IRE_civil_war
+		134 = { add_core_of = IRA transfer_state_to = IRA }
+		135 = { add_core_of = IRA transfer_state_to = IRA }
+		add_ideas = INT_IRE_civil_war_damage
+		IRA = { country_event = { id = INT_ireland.10 hours = 1 } }
+		country_event = { id = INT_ireland.11 hours = 3 }
+	}
+}
+
+# A late bookmark gets the current situation silently, not a backlog of news.
+INT_IRE_initialize_bookmark = {
+	if = {
+		limit = { date > 1918.12.27 date < 1922.1.16 OR = { owns_state = 113 owns_state = 134 owns_state = 135 } }
+		set_global_flag = INT_IRE_election_1918
+		if = {
+			limit = { date > 1919.1.20 date < 1921.7.11 }
+			set_global_flag = INT_IRE_war_of_independence
+			add_ideas = INT_ENG_irish_guerrilla_war
+		}
+		if = {
+			limit = { date > 1921.7.10 }
+			set_global_flag = INT_IRE_war_of_independence
+			set_global_flag = INT_IRE_truce
+			set_global_flag = INT_IRE_truce_offered
+		}
+		if = { limit = { date > 1921.12.5 } set_global_flag = INT_IRE_treaty_offered set_global_flag = INT_IRE_treaty_signed }
+		if = { limit = { date > 1922.1.6 } set_global_flag = INT_IRE_treaty_ratified }
+		if = { limit = { date > 1920.11.20 } set_global_flag = INT_IRE_bloody_sunday }
+	}
+	if = {
+		limit = { date > 1922.1.15 date < 1922.12.6 owns_state = 113 owns_state = 134 owns_state = 135 }
+		set_global_flag = INT_IRE_treaty_signed
+		set_global_flag = INT_IRE_treaty_ratified
+		set_global_flag = INT_IRE_silent_initialization
+		INT_IRE_transfer_administration = yes
+		clr_global_flag = INT_IRE_silent_initialization
+	}
+	else_if = {
+		limit = { date > 1922.1.15 date < 1923.5.24 country_exists = IRE IRE = { owns_state = 113 has_government = democratic } }
+		set_global_flag = INT_IRE_treaty_signed
+		set_global_flag = INT_IRE_treaty_ratified
+		set_global_flag = INT_IRE_provisional_government
+		IRE = { set_country_flag = INT_IRE_bookmark_setup_pending country_event = { id = INT_ireland.21 days = 1 } }
+	}
+	if = {
+		limit = { date > 1922.12.5 date < 1936.1.1 country_exists = IRE IRE = { owns_state = 113 has_government = democratic } }
+		set_global_flag = INT_IRE_treaty_signed
+		set_global_flag = INT_IRE_treaty_ratified
+		set_global_flag = INT_IRE_free_state
+		IRE = {
+			set_cosmetic_tag = INT_IRE_free_state
+			if = { limit = { date < 1931.12.11 } add_ideas = INT_IRE_dominion_settlement }
+			if = { limit = { date > 1925.12.2 } set_country_flag = INT_IRE_boundary_agreement }
+			if = { limit = { date > 1931.12.10 } set_country_flag = INT_IRE_westminster }
+			if = { limit = { date > 1932.3.8 } set_country_flag = INT_IRE_fianna_fail }
+			if = { limit = { date > 1933.5.2 } set_country_flag = INT_IRE_oath_abolished }
+		}
+		if = { limit = { date > 1923.5.23 } set_global_flag = INT_IRE_civil_war_ended }
+	}
+}
+
+# Run after country initialization, so a bookmark in the civil war gets its
+# current armies and conflict without publishing a historical announcement.
+INT_IRE_setup_bookmark = {
+	INT_IRE_setup_provisional_government = yes
+	if = { limit = { date > 1922.3.17 } set_global_flag = INT_IRE_army_split }
+	if = { limit = { date > 1922.8.21 } set_country_flag = INT_IRE_collins_death }
+	if = {
+		limit = {
+			date > 1922.6.27 date < 1923.5.24
+			owns_state = 113 owns_state = 134 owns_state = 135
+			NOT = { country_exists = IRA }
+			NOT = { has_global_flag = INT_IRE_civil_war }
+			NOT = { has_global_flag = INT_IRE_civil_war_avoided }
+		}
+		set_country_flag = INT_IRE_silent_civil_war_setup
+		INT_IRE_start_civil_war = yes
+	}
+}
+
+INT_IRE_schedule_british_events = {
+	if = {
+		limit = { date > 1918.12.27 date < 1919.1.21 NOT = { has_global_flag = INT_IRE_election_1918 } OR = { owns_state = 113 owns_state = 134 owns_state = 135 } }
+		set_global_flag = INT_IRE_election_1918
+		country_event = { id = INT_ireland.1 days = 0 }
+	}
+	if = {
+		limit = { date > 1919.1.20 date < 1919.3.1 NOT = { has_global_flag = INT_IRE_war_of_independence } OR = { owns_state = 113 owns_state = 134 owns_state = 135 } }
+		set_global_flag = INT_IRE_war_of_independence
+		country_event = { id = INT_ireland.2 days = 0 }
+	}
+	if = {
+		limit = { date > 1920.11.20 date < 1920.12.15 has_global_flag = INT_IRE_war_of_independence NOT = { has_global_flag = INT_IRE_bloody_sunday } NOT = { has_global_flag = INT_IRE_truce } OR = { owns_state = 113 owns_state = 134 owns_state = 135 has_war_with = IRE } }
+		set_global_flag = INT_IRE_bloody_sunday
+		country_event = { id = INT_ireland.3 days = 0 }
+	}
+	INT_IRE_offer_truce = yes
+	INT_IRE_offer_treaty = yes
+	if = {
+		limit = { date > 1922.1.6 date < 1922.1.16 has_global_flag = INT_IRE_treaty_signed NOT = { has_global_flag = INT_IRE_treaty_ratified } }
+		set_global_flag = INT_IRE_treaty_ratified
+		country_event = { id = INT_ireland.5 days = 0 }
+	}
+	if = {
+		limit = { date > 1922.1.15 date < 1922.3.1 has_global_flag = INT_IRE_treaty_ratified NOT = { has_global_flag = INT_IRE_provisional_government } OR = { owns_state = 113 owns_state = 134 owns_state = 135 } }
+		set_global_flag = INT_IRE_provisional_government
+		country_event = { id = INT_ireland.6 days = 0 }
+	}
+}
+
+INT_IRE_schedule_irish_events = {
+	if = {
+		limit = { date > 1922.3.17 date < 1922.4.15 has_global_flag = INT_IRE_provisional_government NOT = { has_global_flag = INT_IRE_army_split } NOT = { has_global_flag = INT_IRE_civil_war_avoided } }
+		set_global_flag = INT_IRE_army_split
+		country_event = { id = INT_ireland.8 days = 0 }
+	}
+	if = {
+		limit = { date > 1922.6.27 date < 1922.8.1 has_global_flag = INT_IRE_army_split NOT = { has_global_flag = INT_IRE_civil_war_avoided } NOT = { has_global_flag = INT_IRE_civil_war } owns_state = 113 owns_state = 134 owns_state = 135 NOT = { country_exists = IRA } }
+		set_global_flag = INT_IRE_civil_war_queued
+		if = { limit = { NOT = { has_country_flag = INT_IRE_four_courts_event } } set_country_flag = INT_IRE_four_courts_event country_event = { id = INT_ireland.9 days = 0 } }
+	}
+	if = {
+		limit = { date > 1922.8.21 date < 1922.9.15 has_global_flag = INT_IRE_civil_war has_war_with = IRA NOT = { has_country_flag = INT_IRE_collins_death } }
+		set_country_flag = INT_IRE_collins_death
+		country_event = { id = INT_ireland.12 days = 0 }
+	}
+	if = {
+		limit = { date > 1922.12.5 date < 1923.1.1 has_global_flag = INT_IRE_treaty_ratified NOT = { has_global_flag = INT_IRE_free_state } owns_state = 113 }
+		set_global_flag = INT_IRE_free_state
+		country_event = { id = INT_ireland.13 days = 0 }
+	}
+	if = {
+		limit = { date > 1923.5.23 date < 1923.7.1 has_global_flag = INT_IRE_civil_war NOT = { has_global_flag = INT_IRE_civil_war_ended } country_exists = IRA has_war_with = IRA owns_state = 113 controls_state = 113 }
+		set_global_flag = INT_IRE_civil_war_ended
+		country_event = { id = INT_ireland.14 days = 0 }
+	}
+	if = {
+		limit = { date > 1925.12.2 date < 1926.1.1 has_global_flag = INT_IRE_free_state ENG = { owns_state = 119 } NOT = { has_country_flag = INT_IRE_boundary_agreement } }
+		set_country_flag = INT_IRE_boundary_agreement
+		country_event = { id = INT_ireland.15 days = 0 }
+	}
+	if = {
+		limit = { date > 1931.12.10 date < 1932.1.15 has_global_flag = INT_IRE_free_state NOT = { has_country_flag = INT_IRE_westminster } }
+		set_country_flag = INT_IRE_westminster
+		country_event = { id = INT_ireland.16 days = 0 }
+	}
+	if = {
+		limit = { date > 1932.3.8 date < 1932.4.1 has_global_flag = INT_IRE_free_state has_government = democratic NOT = { has_country_flag = INT_IRE_fianna_fail } }
+		set_country_flag = INT_IRE_fianna_fail
+		country_event = { id = INT_ireland.17 days = 0 }
+	}
+	if = {
+		limit = { date > 1933.5.2 date < 1933.6.1 has_country_flag = INT_IRE_fianna_fail NOT = { has_country_flag = INT_IRE_oath_abolished } }
+		set_country_flag = INT_IRE_oath_abolished
+		country_event = { id = INT_ireland.18 days = 0 }
+	}
+}

@@ -401,7 +401,8 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		NOT = { date > 1919.1.1 }
 		tag = RIE
-		date > 1914.9.1
+		has_start_date < 1915.1.1
+		date > 1914.8.30
 		has_war_with = GER
 	}
 
@@ -410,7 +411,8 @@ country_event = {
 	option = {
 		name = ww1_russia.22.a
 		news_event = { hours = 6 id = endsieg_news.216 }
-		set_province_name = { id = 3151 name = "Petrograd"}
+		195 = { set_state_name = SOV_petrograd }
+		set_province_name = { id = 3151 name = SOV_petrograd }
 	}
 }
 
@@ -637,6 +639,15 @@ country_event = {
 	picture = GFX_report_event_kornilov_affair
 
 	is_triggered_only = yes
+	trigger = {
+		tag = RIE
+		has_global_flag = february_revolution1
+		date > 1917.7.1
+		date < 1918.1.1
+		NOT = { has_global_flag = october_revolution }
+		NOT = { has_global_flag = kaiserschlachtvictory }
+		NOT = { has_global_flag = central_powers_victory }
+	}
 
 	option = {
 		name = ww1_russia.33.a
@@ -662,7 +673,10 @@ country_event = {
 		has_global_flag = february_revolution1
 		has_global_flag = lenin_in_russia
 		has_global_flag = lenin_returned_100_days_ago
-		date > 1916.10.24
+		date > 1917.10.24
+		date < 1919.1.1
+		NOT = { has_global_flag = kaiserschlachtvictory }
+		NOT = { has_global_flag = central_powers_victory }
 		NOT = { has_global_flag = player_wants_custom_peacedeals }
 	}
 
@@ -676,6 +690,12 @@ country_event = {
 			transfer_state = 722
 			change_tag_from = RIE
 			drop_cosmetic_tag = yes
+			# Keep the contemporary name after the ownership/tag transfer.
+			217 = { set_state_name = SOV_Tsaritsyn }
+			1064 = { set_state_name = "East Tsaritsyn" }
+			set_province_name = { id = 3529 name = SOV_Tsaritsyn }
+			195 = { set_state_name = SOV_petrograd }
+			set_province_name = { id = 3151 name = SOV_petrograd }
 			set_politics = {
 				ruling_party = communism
 				elections_allowed = no
@@ -686,9 +706,11 @@ country_event = {
 				democratic = 15
 				communism = 80
 			}
-			retire_country_leader = yes
-			recruit_character = SOV_Vladimir_Lenin
-			SOV_Vladimir_Lenin = { promote_character = yes }
+			if = {
+				limit = { NOT = { has_character = SOV_Vladimir_Lenin } }
+				recruit_character = SOV_Vladimir_Lenin
+			}
+			promote_character = { character = SOV_Vladimir_Lenin ideology = leninism }
 			# Soviet Russia is likewise created during the campaign. Recruit the
 			# historical Red Army and political roster used by its WWI history.
 			recruit_character = SO2_Lev_Trotsky
@@ -1008,8 +1030,13 @@ country_event = {
 				add_core_of = WHR
 			}
 			WHR = { load_oob = WHR_1918 }
-			SOV = { load_oob = SOV_1918 }
+			SOV = {
+				load_oob = SOV_1918
+				INT_SOV_civil_war_support = yes
+			}
 		}
+		SOV = { load_focus_tree = { tree = Soviet_Russia keep_completed = yes } }
+		WHR = { load_focus_tree = { tree = White_Russia keep_completed = yes } }
 	}
 	option = {
 		name = ww1_russia.42.b
@@ -1114,6 +1141,7 @@ country_event = {
 		hidden_effect = {
 			SOV = {
 				load_oob = SOV_1918
+				INT_SOV_civil_war_support = yes
 				set_province_controller = 9391
 				set_province_controller = 9243
 				set_province_controller = 9365
@@ -1140,6 +1168,8 @@ country_event = {
 				set_province_controller = 4791
 			}
 		}
+		SOV = { load_focus_tree = { tree = Soviet_Russia keep_completed = yes } }
+		WHR = { load_focus_tree = { tree = White_Russia keep_completed = yes } }
 	}
 }
 
@@ -1305,6 +1335,7 @@ country_event = {
 				transfer_state = 149
 				transfer_state = 150
 				transfer_state = 929
+				every_owned_state = { remove_core_of = RIE }
 			}
 			FNR = {
 				transfer_state = 111
@@ -1315,6 +1346,7 @@ country_event = {
 				transfer_state = 986
 				transfer_state = 1017
 				set_state_controller = 146
+				every_owned_state = { remove_core_of = RIE }
 			}
 			# The two Finnish governments must remain separate countries after
 			# the settlement, otherwise the civil-war declaration is discarded.
@@ -1449,6 +1481,11 @@ country_event = {
 				recruit_character = UKR_pavlo_skoropadsky
 				UKR_pavlo_skoropadsky = { promote_character = yes }
 			}
+			LIT = { load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } }
+			if = {
+				limit = { country_exists = POL }
+				POL = { load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } }
+			}
 		}
 	}
 }
@@ -1536,6 +1573,7 @@ country_event = {
 			}
 			every_owned_state = {
 				add_core_of = FNR
+				remove_core_of = RIE
 			}
 		}
 		FNR = {
@@ -1550,6 +1588,7 @@ country_event = {
 			}
 			every_owned_state = {
 				add_core_of = FNN
+				remove_core_of = RIE
 			}
 		}
 		FNN = {
@@ -1596,11 +1635,19 @@ country_event = {
 			set_province_controller = 13106
 			set_province_controller = 13103
 		}
-		every_owned_state = {
-			add_core_of = FNR
+		FNN = {
+			every_owned_state = {
+				add_core_of = FNN
+				add_core_of = FNR
+				remove_core_of = RIE
+			}
 		}
-		every_owned_state = {
-			add_core_of = FNN
+		FNR = {
+			every_owned_state = {
+				add_core_of = FNR
+				add_core_of = FNN
+				remove_core_of = RIE
+			}
 		}
 	}
 }

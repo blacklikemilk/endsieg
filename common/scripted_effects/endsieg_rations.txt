@@ -1,8 +1,8 @@
-# One ration is consumed per 5,880 deployed service members each day.
+# One ration is consumed per 14,700 deployed service members each day.
 # The stockpile remains ordinary equipment.
 endsieg_rations_measure_demand = {
 	set_variable = { endsieg_ration_daily_use = deployed_total_manpower_k }
-	divide_variable = { endsieg_ration_daily_use = 5.88 }
+	divide_variable = { endsieg_ration_daily_use = 14.7 }
 	round_variable = endsieg_ration_daily_use
 	clamp_variable = { var = endsieg_ration_daily_use min = 0 }
 
@@ -31,7 +31,38 @@ endsieg_rations_refresh_display = {
 	round_variable = endsieg_ration_bar_frame
 }
 
+# Give the AI a reserve before it releases ration factories. Separate start and
+# stop thresholds prevent its production line from being repeatedly restarted.
+endsieg_rations_update_ai_production = {
+	if = {
+		limit = {
+			is_ai = yes
+			NOT = { has_country_flag = endsieg_rations_disabled }
+			check_variable = { endsieg_ration_daily_use > 0 }
+		}
+		if = {
+			limit = { check_variable = { endsieg_ration_days < 90 } }
+			set_country_flag = endsieg_rations_ai_produce
+		}
+		else_if = {
+			limit = { check_variable = { endsieg_ration_days > 180 } }
+			clr_country_flag = endsieg_rations_ai_produce
+		}
+	}
+	else = { clr_country_flag = endsieg_rations_ai_produce }
+}
+
 endsieg_rations_initialize = {
+	# Some country histories (including late releases) do not grant either
+	# unlock. Keep ration-enabled countries able to produce or buy rations.
+	if = {
+		limit = {
+			NOT = { has_country_flag = endsieg_rations_disabled }
+			NOT = { has_tech = early_infantry_weapons }
+			NOT = { has_tech = rations }
+		}
+		set_technology = { rations = 1 popup = no }
+	}
 	if = {
 		limit = { NOT = { has_country_flag = endsieg_rations_initialized } }
 		endsieg_rations_measure_demand = yes
@@ -45,11 +76,13 @@ endsieg_rations_initialize = {
 		}
 		set_country_flag = endsieg_rations_initialized
 		endsieg_rations_refresh_display = yes
+		endsieg_rations_update_ai_production = yes
 	}
 }
 
 endsieg_rations_disable = {
 	set_country_flag = endsieg_rations_disabled
+	clr_country_flag = endsieg_rations_ai_produce
 	if = { limit = { has_idea = endsieg_low_rations } remove_ideas = endsieg_low_rations }
 	if = { limit = { has_idea = endsieg_no_rations } remove_ideas = endsieg_no_rations }
 	set_variable = { endsieg_ration_daily_use = 0 }
@@ -62,6 +95,7 @@ endsieg_rations_enable = {
 	clr_country_flag = endsieg_rations_disabled
 	endsieg_rations_measure_demand = yes
 	endsieg_rations_refresh_display = yes
+	endsieg_rations_update_ai_production = yes
 }
 
 endsieg_rations_daily_tick = {
@@ -83,6 +117,7 @@ endsieg_rations_daily_tick = {
 	}
 
 	endsieg_rations_refresh_display = yes
+	endsieg_rations_update_ai_production = yes
 
 	if = {
 		limit = {

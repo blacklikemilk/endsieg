@@ -25,6 +25,8 @@ ww1_postwar_settlement_category = {
 			set_country_flag = ww1_weimar_republic_established
 			drop_cosmetic_tag = yes
 			set_cosmetic_tag = GER_WEI
+			set_country_flag = GER_INT_transition_started
+			country_event = { id = INT_weimar.8 days = 0 }
 		}
 
 		ai_will_do = {
@@ -61,16 +63,20 @@ ww1_postwar_settlement_category = {
 			set_global_flag = versailles
 			add_ideas = treaty_of_versailles
 
-			# The armistice ends unrestricted submarine warfare for every participant
-			# that still carries its wartime national spirit.
+			# The settlement ends these wartime spirits for every remaining participant.
 			every_country = {
-				limit = { has_idea = unrestricted_sub_warfare }
-				remove_ideas = unrestricted_sub_warfare
+				limit = {
+					OR = {
+						has_idea = unrestricted_sub_warfare
+						has_idea = fall_of_russia
+					}
+				}
+				remove_ideas = { unrestricted_sub_warfare fall_of_russia }
 			}
 
 			GER = {
 				# The settlement establishes the prescribed postwar laws.
-                remove_ideas = { censored_press state_press propaganda_press shorter_training_GE1 fall_of_russia blockade }
+				remove_ideas = { censored_press state_press propaganda_press shorter_training_GE1 blockade }
 				add_ideas = { civilian_economy free_press disarmed_nation }
 
 				transfer_state = 42
@@ -260,6 +266,20 @@ ww1_postwar_settlement_category = {
                     limit = { is_in_faction = yes }
                     faction_leader = { dismantle_faction = yes }
                 }
+            }
+            load_focus_tree = { tree = INT_germany keep_completed = yes }
+            # A late armistice still inherits the 1929 crash. Do not replay the
+            # historical news event years after its date.
+            if = {
+                limit = {
+                    date > 1929.10.23
+                    date < 1936.1.1
+                    NOT = { has_country_flag = INT_depression_event_fired }
+                    NOT = { has_country_flag = INT_depression_hit }
+                }
+                set_country_flag = INT_depression_event_fired
+                set_country_flag = INT_depression_hit
+                add_ideas = INT_GER_great_depression
             }
         }
 		ai_will_do = {

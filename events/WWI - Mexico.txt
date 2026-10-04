@@ -496,11 +496,15 @@ country_event = {
 		NOT = { date > 1932.1.1 }
 		tag = MEX
 		date > 1914.1.1
+		NOT = { has_global_flag = fall_of_huerta }
+		has_country_leader = { ruling_only = yes character = MEX_victoriano_huerta }
 		OR = {
 			MAD = { controls_state = 277 }
 			ZAP = { controls_state = 277 }
 			CNT = { controls_state = 277 }
 			VIL = { controls_state = 277 }
+			# Historical fallback if the rebels have not reached Mexico City.
+			date > 1914.7.14
 		}
 	}
 
@@ -512,20 +516,29 @@ country_event = {
 		name = ww1_mexico.20.a
 		news_event = { hours = 6 id = endsieg_news.206 }
 		set_global_flag = fall_of_huerta
-		remove_from_faction = ZAP
-		remove_from_faction = CNT
-		remove_from_faction = VIL
-		MEX = {
-			annex_country = { target = ZAP transfer_troops = no }
-			change_tag_from = ZAP
+		if = {
+			limit = { country_exists = ZAP }
+			remove_from_faction = ZAP
+			MEX = {
+				annex_country = { target = ZAP transfer_troops = no }
+				change_tag_from = ZAP
+			}
 		}
-		MEX = {
-			annex_country = { target = CNT transfer_troops = no }
-			change_tag_from = CNT
+		if = {
+			limit = { country_exists = CNT }
+			remove_from_faction = CNT
+			MEX = {
+				annex_country = { target = CNT transfer_troops = no }
+				change_tag_from = CNT
+			}
 		}
-		MEX = {
-			annex_country = { target = VIL transfer_troops = no }
-			change_tag_from = VIL
+		if = {
+			limit = { country_exists = VIL }
+			remove_from_faction = VIL
+			MEX = {
+				annex_country = { target = VIL transfer_troops = no }
+				change_tag_from = VIL
+			}
 		}
 		MEX = {
 			set_politics = {

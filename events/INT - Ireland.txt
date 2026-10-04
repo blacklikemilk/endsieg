@@ -1,0 +1,196 @@
+add_namespace = INT_ireland
+add_namespace = INT_ireland_news
+
+country_event = {
+	id = INT_ireland.1 title = INT_ireland.1.t desc = INT_ireland.1.d
+	picture = GFX_report_event_generic_parliament is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.1.a add_stability = -0.02 news_event = { id = INT_ireland_news.1 days = 0 } }
+}
+country_event = {
+	id = INT_ireland.2 title = INT_ireland.2.t desc = INT_ireland.2.d
+	picture = GFX_report_event_irish_war_independence is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.2.a add_ideas = INT_ENG_irish_guerrilla_war news_event = { id = endsieg_news.60 days = 0 } }
+}
+country_event = {
+	id = INT_ireland.3 title = INT_ireland.3.t desc = INT_ireland.3.d
+	picture = GFX_report_event_irish_war_independence is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.3.a add_stability = -0.03 add_war_support = -0.02 news_event = { id = INT_ireland_news.2 days = 0 } }
+}
+country_event = {
+	id = INT_ireland.4 title = INT_ireland.4.t desc = INT_ireland.4.d
+	picture = GFX_report_event_generic_sign_treaty1 is_triggered_only = yes fire_only_once = yes
+	option = {
+		name = INT_ireland.4.a ai_chance = { factor = 100 }
+		set_global_flag = INT_IRE_truce remove_ideas = INT_ENG_irish_guerrilla_war
+		if = { limit = { has_war_with = IRE } white_peace = IRE }
+		 news_event = { id = INT_ireland_news.3 days = 0 }
+	}
+	option = { name = INT_ireland.4.b ai_chance = { factor = 0 } set_global_flag = INT_IRE_truce_rejected add_stability = -0.05 }
+}
+country_event = {
+	id = INT_ireland.5 title = INT_ireland.5.t desc = INT_ireland.5.d
+	picture = GFX_report_event_generic_parliament is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.5.a add_political_power = 10 }
+}
+country_event = {
+	id = INT_ireland.6 title = INT_ireland.6.t desc = INT_ireland.6.d
+	picture = GFX_news_event_anglo_irish_treaty is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.6.a INT_IRE_transfer_administration = yes  }
+}
+country_event = {
+	id = INT_ireland.7 title = INT_ireland.7.t desc = INT_ireland.7.d
+	picture = GFX_news_event_anglo_irish_treaty is_triggered_only = yes fire_only_once = yes
+	trigger = { tag = IRE owns_state = 113 }
+	immediate = { INT_IRE_setup_provisional_government = yes }
+	option = { name = INT_ireland.7.a add_political_power = 25 }
+}
+country_event = {
+	id = INT_ireland.8 title = INT_ireland.8.t desc = INT_ireland.8.d
+	picture = GFX_report_event_irish_civil_war is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.8.a ai_chance = { factor = 100 } add_stability = -0.04 add_ideas = INT_IRE_treaty_divisions }
+	option = { name = INT_ireland.8.b ai_chance = { factor = 0 } set_global_flag = INT_IRE_civil_war_avoided add_political_power = -100 remove_ideas = INT_IRE_treaty_divisions }
+}
+country_event = {
+	id = INT_ireland.9 title = INT_ireland.9.t desc = INT_ireland.9.d
+	picture = GFX_report_event_irish_civil_war is_triggered_only = yes fire_only_once = yes
+	trigger = { tag = IRE owns_state = 113 owns_state = 134 owns_state = 135 NOT = { country_exists = IRA } }
+	option = { name = INT_ireland.9.a INT_IRE_start_civil_war = yes }
+}
+country_event = {
+	id = INT_ireland.10 hidden = yes is_triggered_only = yes
+	trigger = { tag = IRA country_exists = IRE has_global_flag = INT_IRE_civil_war }
+	immediate = {
+		set_capital = 135
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 85 democratic = 10 communism = 5 fascism = 0 }
+		if = { limit = { NOT = { has_character = IRA_eamon_valera } } recruit_character = IRA_eamon_valera }
+		IRA_eamon_valera = { promote_character = yes }
+		set_cosmetic_tag = INT_IRE_republic
+		if = {
+			limit = { NOT = { has_country_flag = INT_IRA_republican_army_loaded } }
+			set_country_flag = INT_IRA_republican_army_loaded
+			# Remove only the two legacy templates automatically loaded by IRA history.
+			delete_unit_template_and_units = { division_template = "Infantry Division" disband = no }
+			delete_unit_template_and_units = { division_template = "Infantry Brigade" disband = no }
+			load_oob = INT_IRA_republicans
+		}
+	}
+}
+country_event = {
+	id = INT_ireland.11 hidden = yes is_triggered_only = yes
+	trigger = { tag = IRE country_exists = IRA has_global_flag = INT_IRE_civil_war NOT = { has_war_with = IRA } }
+	immediate = {
+		declare_war_on = { target = IRA type = annex_everything }
+		if = { limit = { has_country_flag = INT_IRE_silent_civil_war_setup } clr_country_flag = INT_IRE_silent_civil_war_setup }
+		else = { news_event = { id = endsieg_news.62 days = 0 } }
+	}
+}
+country_event = {
+	id = INT_ireland.12 title = INT_ireland.12.t desc = INT_ireland.12.d
+	picture = GFX_report_event_irish_civil_war is_triggered_only = yes fire_only_once = yes
+	option = {
+		name = INT_ireland.12.a
+		if = { limit = { has_character = INT_IRE_arthur_griffith } retire_character = INT_IRE_arthur_griffith }
+		if = { limit = { has_character = INT_IRE_michael_collins } retire_character = INT_IRE_michael_collins }
+		if = { limit = { NOT = { has_character = INT_IRE_wt_cosgrave } } recruit_character = INT_IRE_wt_cosgrave }
+		INT_IRE_wt_cosgrave = { promote_character = yes }
+		add_stability = -0.03 news_event = { id = INT_ireland_news.10 days = 0 }
+	}
+}
+country_event = {
+	id = INT_ireland.13 title = INT_ireland.13.t desc = INT_ireland.13.d
+	picture = GFX_news_event_anglo_irish_treaty is_triggered_only = yes fire_only_once = yes
+	option = {
+		name = INT_ireland.13.a set_cosmetic_tag = INT_IRE_free_state add_ideas = INT_IRE_dominion_settlement
+		# Britain cannot retain the land of the new Free State, but no third-party
+		# occupation or Northern Irish territory is overridden by this settlement.
+		if = { limit = { 134 = { is_owned_by = ENG } } transfer_state = 134 }
+		if = { limit = { 135 = { is_owned_by = ENG } } transfer_state = 135 }
+		 news_event = { id = INT_ireland_news.4 days = 0 }
+	}
+}
+country_event = {
+	id = INT_ireland.14 title = INT_ireland.14.t desc = INT_ireland.14.d
+	picture = GFX_report_event_irish_civil_war is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.14.a set_country_flag = INT_IRE_government_victory country_event = { id = INT_ireland.19 hours = 1 } }
+}
+country_event = {
+	id = INT_ireland.15 title = INT_ireland.15.t desc = INT_ireland.15.d
+	picture = GFX_report_event_generic_sign_treaty2 is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.15.a add_political_power = 25  news_event = { id = INT_ireland_news.6 days = 0 } }
+}
+country_event = {
+	id = INT_ireland.16 title = INT_ireland.16.t desc = INT_ireland.16.d
+	picture = GFX_report_event_generic_sign_treaty1 is_triggered_only = yes fire_only_once = yes
+	option = {
+		name = INT_ireland.16.a remove_ideas = INT_IRE_dominion_settlement add_political_power = 40
+		if = { limit = { is_subject_of = ENG } ENG = { set_autonomy = { target = IRE autonomy_state = autonomy_free } } }
+		news_event = { id = INT_ireland_news.7 days = 0 }
+	}
+}
+country_event = {
+	id = INT_ireland.17 title = INT_ireland.17.t desc = INT_ireland.17.d
+	picture = GFX_report_event_generic_parliament is_triggered_only = yes fire_only_once = yes
+	option = {
+		name = INT_ireland.17.a
+		if = { limit = { has_character = INT_IRE_wt_cosgrave } retire_character = INT_IRE_wt_cosgrave }
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 60 last_election = "1932.2.16" }
+		if = { limit = { NOT = { has_character = IRE_Éamon_de_valera } } recruit_character = IRE_Éamon_de_valera }
+		IRE_Éamon_de_valera = { promote_character = yes }
+		add_political_power = 25
+		news_event = { id = INT_ireland_news.11 days = 0 }
+	}
+}
+country_event = {
+	id = INT_ireland.18 title = INT_ireland.18.t desc = INT_ireland.18.d
+	picture = GFX_report_event_generic_parliament is_triggered_only = yes fire_only_once = yes
+	option = { name = INT_ireland.18.a  news_event = { id = INT_ireland_news.8 days = 0 } }
+}
+# Full annexation also covers additional Irish states should the map expand.
+country_event = {
+	id = INT_ireland.19 hidden = yes is_triggered_only = yes fire_only_once = yes
+	trigger = { tag = IRE has_country_flag = INT_IRE_government_victory has_global_flag = INT_IRE_civil_war }
+	immediate = {
+		clr_country_flag = INT_IRE_government_victory
+		if = { limit = { country_exists = IRA } annex_country = { target = IRA transfer_troops = no } }
+		134 = { remove_core_of = IRA }
+		135 = { remove_core_of = IRA }
+		set_global_flag = INT_IRE_civil_war_ended
+		remove_ideas = INT_IRE_treaty_divisions
+		remove_ideas = INT_IRE_civil_war_damage
+		add_timed_idea = { idea = INT_IRE_civil_war_damage days = 730 }
+		if = { limit = { NOT = { has_global_flag = INT_IRE_civil_war_end_news } } set_global_flag = INT_IRE_civil_war_end_news news_event = { id = INT_ireland_news.5 days = 0 } }
+	}
+}
+country_event = {
+	id = INT_ireland.20 hidden = yes is_triggered_only = yes fire_only_once = yes
+	trigger = { tag = IRA has_country_flag = INT_IRE_republican_victory has_global_flag = INT_IRE_civil_war }
+	immediate = {
+		clr_country_flag = INT_IRE_republican_victory
+		if = { limit = { country_exists = IRE } annex_country = { target = IRE transfer_troops = no } }
+		113 = { add_core_of = IRA }
+		set_capital = 113
+		set_global_flag = INT_IRE_civil_war_ended
+		set_cosmetic_tag = INT_IRE_republic
+		news_event = { id = INT_ireland_news.9 days = 0 }
+	}
+}
+
+# Silent setup for a bookmark after the provisional government was formed.
+country_event = {
+	id = INT_ireland.21 hidden = yes is_triggered_only = yes
+	trigger = { tag = IRE owns_state = 113 date < 1936.1.1 }
+	immediate = { clr_country_flag = INT_IRE_bookmark_setup_pending INT_IRE_setup_bookmark = yes }
+}
+
+news_event = { id = INT_ireland_news.1 title = INT_ireland_news.1.t desc = INT_ireland_news.1.d picture = GFX_report_event_generic_parliament major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.2 title = INT_ireland_news.2.t desc = INT_ireland_news.2.d picture = GFX_news_event_irish_war_independence major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.3 title = INT_ireland_news.3.t desc = INT_ireland_news.3.d picture = GFX_news_event_anglo_irish_treaty major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.4 title = INT_ireland_news.4.t desc = INT_ireland_news.4.d picture = GFX_news_event_anglo_irish_treaty major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.5 title = INT_ireland_news.5.t desc = INT_ireland_news.5.d picture = GFX_news_event_irish_civil_war major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.6 title = INT_ireland_news.6.t desc = INT_ireland_news.6.d picture = GFX_report_event_generic_sign_treaty2 major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.7 title = INT_ireland_news.7.t desc = INT_ireland_news.7.d picture = GFX_report_event_generic_sign_treaty1 major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.8 title = INT_ireland_news.8.t desc = INT_ireland_news.8.d picture = GFX_report_event_generic_parliament major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.9 title = INT_ireland_news.9.t desc = INT_ireland_news.9.d picture = GFX_news_event_irish_civil_war major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.10 title = INT_ireland_news.10.t desc = INT_ireland_news.10.d picture = GFX_report_event_irish_civil_war major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }
+news_event = { id = INT_ireland_news.11 title = INT_ireland_news.11.t desc = INT_ireland_news.11.d picture = GFX_report_event_generic_parliament major = yes is_triggered_only = yes fire_only_once = yes option = { name = INT_ireland_news.a } }

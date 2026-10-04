@@ -2,6 +2,24 @@ on_actions = {
     on_startup = {
         effect = {
 
+            # Use the historical names in the pre-Soviet and WWI starts.
+            if = {
+                limit = { date < 1914.8.31 }
+                195 = { set_state_name = SOV_StPetersburg }
+                set_province_name = { id = 3151 name = SOV_StPetersburg }
+            }
+            else_if = {
+                limit = { date < 1924.1.26 }
+                195 = { set_state_name = SOV_petrograd }
+                set_province_name = { id = 3151 name = SOV_petrograd }
+            }
+            if = {
+                limit = { date < 1925.4.10 }
+                217 = { set_state_name = SOV_Tsaritsyn }
+                1064 = { set_state_name = "East Tsaritsyn" }
+                set_province_name = { id = 3529 name = SOV_Tsaritsyn }
+            }
+
             every_country = {
                 country_event = { id = welcome.131 }
             }
@@ -309,14 +327,27 @@ on_actions = {
                         date < 1919.2.1
                     }
                     set_global_flag = armistice_of_mudros
+                    set_global_flag = compiegne
+
+                    # The 1919 bookmark begins after the German withdrawal.
+                    # Dissolve only the duchy's remaining holdings; Soviet-held
+                    # Baltic territory stays contested until the 1920 treaties.
+                    if = {
+                        limit = { country_exists = UBD NOT = { has_global_flag = ubd_dead } }
+                        UBD = { INT_eastern_dissolve_ubd = yes }
+                    }
+                    GER = { country_event = { id = INT_eastern.3 days = 1 } }
+                    SOV = { news_event = { id = endsieg_news.36 days = 1 } }
 
                     every_country = {
                         country_event = { id = welcome.1919 }
                     }
 
                     GER = {
-                        white_peace = FRA
-                        country_event = { id = ww2_germany.13 days = 179 }
+                        if = {
+                            limit = { has_war_with = FRA }
+                            white_peace = FRA
+                        }
                     }
 
                     HUN = {

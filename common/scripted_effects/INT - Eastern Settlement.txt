@@ -1,0 +1,136 @@
+# Invoked by the Compiègne event and silently for the 1919 bookmark.
+# Only the duchy's remaining states change hands; the 1919 Soviet-held
+# territories remain contested until the 1920 Baltic peace treaties.
+INT_eastern_dissolve_ubd = {
+	set_global_flag = ubd_dead
+	if = { limit = { is_in_faction = yes } leave_faction = yes }
+	# The regency's duplicate Estonian and Latvian formations do not survive
+	# alongside the new national armies.
+	delete_unit = { disband = yes }
+	EST = {
+		if = { limit = { has_start_date < 1918.1.1 } load_oob = "EST_1918" }
+		if = { limit = { UBD = { owns_state = 191 } } transfer_state = 191 }
+		if = { limit = { UBD = { owns_state = 13 } } transfer_state = 13 }
+		if = { limit = { UBD = { owns_state = 811 } } transfer_state = 811 }
+		if = { limit = { UBD = { owns_state = 812 } } transfer_state = 812 }
+		if = { limit = { UBD = { owns_state = 813 } } transfer_state = 813 }
+	}
+	LAT = {
+		if = { limit = { has_start_date < 1918.1.1 } load_oob = "LAT_1918" }
+		if = { limit = { UBD = { owns_state = 12 } } transfer_state = 12 }
+		if = { limit = { UBD = { owns_state = 190 } } transfer_state = 190 }
+		if = { limit = { UBD = { owns_state = 808 } } transfer_state = 808 }
+		if = { limit = { UBD = { owns_state = 809 } } transfer_state = 809 }
+		if = { limit = { UBD = { owns_state = 810 } } transfer_state = 810 }
+		INT_eastern_initialize_latvian_republic = yes
+	}
+	# The regency's claims end with the duchy, including territory already
+	# held by another country in a later bookmark.
+	12 = { remove_core_of = UBD }
+	13 = { remove_core_of = UBD }
+	190 = { remove_core_of = UBD }
+	191 = { remove_core_of = UBD }
+	808 = { remove_core_of = UBD }
+	809 = { remove_core_of = UBD }
+	810 = { remove_core_of = UBD }
+	811 = { remove_core_of = UBD }
+	812 = { remove_core_of = UBD }
+	813 = { remove_core_of = UBD }
+}
+
+# Independent Latvia retains the dormant 1910 non-aligned government unless
+# the post-Compiègne republic is initialized. Its democratic flag already exists.
+INT_eastern_initialize_latvian_republic = {
+	if = {
+		limit = {
+			tag = LAT
+			exists = yes
+			date < 1934.5.15
+			has_global_flag = compiegne
+			OR = {
+				has_global_flag = ubd_dead
+				NOT = { country_exists = UBD }
+			}
+			NOT = { has_global_flag = central_powers_victory }
+			NOT = { has_country_flag = INT_LAT_republic_initialized }
+			is_subject = no
+			OR = { has_government = neutrality has_government = democratic }
+		}
+		set_politics = { ruling_party = democratic elections_allowed = yes }
+		if = {
+			limit = { date < 1927.3.14 }
+			if = {
+				limit = { NOT = { has_character = LAT_janis_cakste } }
+				recruit_character = LAT_janis_cakste
+			}
+			LAT_janis_cakste = { promote_character = yes }
+		}
+		set_country_flag = INT_LAT_republic_initialized
+	}
+}
+
+# The conference can release Moldova from Ukrainian cores instead of leaving
+# those states in the USSR. Integrate only Soviet subjects, including dynamic
+# Moldova tags and the older custom Moldavia tag; independent neighbours stay out.
+INT_eastern_absorb_moldavian_subjects = {
+	if = {
+		limit = {
+			tag = SOV
+			date > 1917.12.31
+			date < 1936.1.1
+			OR = {
+				has_country_flag = INT_ukraine_integrated
+				# Repair older campaigns where the victory flag did not exist.
+				AND = {
+					NOT = { country_exists = UKR }
+					any_owned_state = { is_core_of = UKR }
+				}
+			}
+		}
+		every_subject_country = {
+			limit = { OR = { original_tag = MOL original_tag = RO2 } }
+			SOV = { annex_country = { target = PREV transfer_troops = no } }
+		}
+	}
+}
+
+# Belarusian and Ukrainian forces face a fragmented command and disrupted arsenals
+# during the civil-war period. Apply after country initialization and to old saves.
+INT_eastern_update_army_readiness = {
+	if = {
+		limit = {
+			exists = yes
+			OR = { tag = BLR tag = UKR }
+			date > 1917.12.31
+			date < 1923.1.1
+		}
+		if = {
+			limit = { tag = UKR }
+			# Replace the earlier shared penalty in existing campaigns.
+			if = {
+				limit = { has_idea = INT_eastern_fragmented_army }
+				remove_ideas = INT_eastern_fragmented_army
+			}
+			if = {
+				limit = { NOT = { has_idea = INT_UKR_fragmented_army } }
+				add_ideas = INT_UKR_fragmented_army
+			}
+		}
+		else = {
+			if = {
+				limit = { NOT = { has_idea = INT_eastern_fragmented_army } }
+				add_ideas = INT_eastern_fragmented_army
+			}
+		}
+	}
+	else = {
+		if = {
+			limit = { has_idea = INT_eastern_fragmented_army }
+			remove_ideas = INT_eastern_fragmented_army
+		}
+		if = {
+			limit = { has_idea = INT_UKR_fragmented_army }
+			remove_ideas = INT_UKR_fragmented_army
+		}
+	}
+}

@@ -17,15 +17,85 @@ country_event = {
 		name = ww1_greece.1.a
 		news_event = { hours = 6 id = endsieg_news.240 }
 		retire_country_leader = yes
-		create_country_leader = {
-			name = "Constantine I"
-			desc = "POLITICS_CONSTANTINE_I_DESC"
-			picture = "Portrait_Greece_Constantine_I.dds"
-			expire = "1943.5.16"
-			ideology = despotism
-			traits = {
-				#
-			}
+		if = {
+			limit = { NOT = { has_character = GRE_constantine_i } }
+			recruit_character = GRE_constantine_i
 		}
+		promote_character = GRE_constantine_i
+	}
+}
+
+# The 1917 Allied ultimatum deposes Constantine even if France has not
+# completed its blockade focus in a campaign starting before 1917.
+country_event = {
+	id = ww1_greece.2
+	title = ww1_greece.2.t
+	desc = ww1_greece.2.d
+	picture = GFX_report_event_greece_blockade
+	fire_only_once = yes
+	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		tag = GRE
+		date > 1917.6.11
+		date < 1919.1.1
+		NOT = { has_global_flag = constantine_abdicates }
+		NOT = { has_global_flag = central_powers_victory }
+		NOT = { has_global_flag = compiegne }
+		has_country_leader = { ruling_only = yes character = GRE_constantine_i }
+		FRA = { has_war_with = GER }
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		name = ww1_greece.2.a
+		set_global_flag = constantine_abdicates
+		retire_character = GRE_constantine_i
+		if = {
+			limit = { NOT = { has_character = GRE_alexander_i } }
+			recruit_character = GRE_alexander_i
+		}
+		promote_character = GRE_alexander_i
+	}
+}
+
+# Give Greece itself the choice to join; it need not wait for the French AI.
+country_event = {
+	id = ww1_greece.3
+	title = ww1_greece.3.t
+	desc = ww1_greece.3.d
+	picture = GFX_report_event_greece_joins_entente
+	fire_only_once = yes
+	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		tag = GRE
+		date > 1917.6.26
+		date < 1919.1.1
+		has_global_flag = constantine_abdicates
+		NOT = { has_global_flag = central_powers_victory }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_war_with = GER }
+		OR = { is_in_faction = no is_in_faction_with = FRA }
+		FRA = { is_faction_leader = yes has_war_with = GER }
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		name = ww1_greece.3.a
+		ai_chance = { factor = 100 }
+		set_global_flag = greece_joins_entente
+		if = {
+			limit = { NOT = { is_in_faction_with = FRA } }
+			FRA = { add_to_faction = GRE }
+		}
+		if = {
+			limit = { FRA = { has_war_with = GER } NOT = { has_war_with = GER } }
+			add_to_war = { targeted_alliance = FRA enemy = GER }
+		}
+		if = {
+			limit = { country_exists = BUL FRA = { has_war_with = BUL } NOT = { has_war_with = BUL } }
+			add_to_war = { targeted_alliance = FRA enemy = BUL }
+		}
+	}
+	option = {
+		name = ww1_greece.3.b
+		ai_chance = { factor = 0 }
 	}
 }

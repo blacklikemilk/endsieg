@@ -1,0 +1,41 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			if = { limit = { date > 1918.11.11 date < 1936.1.1 country_exists = ENG } ENG = { INT_IRE_initialize_bookmark = yes } }
+		}
+	}
+	on_daily = {
+		effect = {
+			if = {
+				limit = { date > 1918.11.11 date < 1936.1.1 }
+				if = { limit = { tag = ENG } INT_IRE_schedule_british_events = yes }
+				else_if = { limit = { tag = IRE NOT = { has_country_flag = INT_IRE_bookmark_setup_pending } } INT_IRE_schedule_irish_events = yes }
+			}
+		}
+	}
+	# Defer annexation until the engine has finished processing capitulation.
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = { date < 1936.1.1 has_global_flag = INT_IRE_civil_war ROOT = { tag = IRA } FROM = { tag = IRE } }
+				IRE = { set_country_flag = INT_IRE_government_victory country_event = { id = INT_ireland.19 hours = 1 } }
+			}
+			if = {
+				limit = { date < 1936.1.1 has_global_flag = INT_IRE_civil_war ROOT = { tag = IRE } FROM = { tag = IRA } }
+				IRA = { set_country_flag = INT_IRE_republican_victory country_event = { id = INT_ireland.20 hours = 1 } }
+			}
+		}
+	}
+	on_peaceconference_ended = {
+		effect = {
+			if = {
+				limit = { date < 1936.1.1 has_global_flag = INT_IRE_civil_war ROOT = { tag = IRE } FROM = { tag = IRA } }
+				IRE = { set_country_flag = INT_IRE_government_victory country_event = { id = INT_ireland.19 hours = 1 } }
+			}
+			if = {
+				limit = { date < 1936.1.1 has_global_flag = INT_IRE_civil_war ROOT = { tag = IRA } FROM = { tag = IRE } }
+				IRA = { set_country_flag = INT_IRE_republican_victory country_event = { id = INT_ireland.20 hours = 1 } }
+			}
+		}
+	}
+}

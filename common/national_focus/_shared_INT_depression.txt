@@ -1,0 +1,72 @@
+# This branch is attached to the early-scenario trees. The 1929 event makes it available only to affected majors.
+shared_focus = {
+	id = shared_INT_depression_emergency
+	icon = GFX_goal_generic_consumer_goods
+	cost = 10
+	x = 90
+	y = 0
+	available = { date > 1929.10.23 has_country_flag = INT_depression_hit }
+	ai_will_do = { factor = 15 }
+	completion_reward = {
+		add_political_power = 50
+	}
+}
+
+shared_focus = {
+	id = shared_INT_depression_public_works
+	icon = GFX_goal_generic_construct_civ_factory
+	cost = 10
+	x = 88
+	y = 1
+	prerequisite = { focus = shared_INT_depression_emergency }
+	mutually_exclusive = { focus = shared_INT_depression_austerity }
+	ai_will_do = { factor = 10 }
+	completion_reward = {
+		random_owned_controlled_state = {
+			limit = {
+				is_core_of = ROOT
+				is_fully_controlled_by = ROOT
+				free_building_slots = { building = industrial_complex size > 1 include_locked = yes }
+			}
+			add_extra_state_shared_building_slots = 2
+			add_building_construction = { type = industrial_complex level = 2 instant_build = yes }
+		}
+	}
+}
+
+shared_focus = {
+	id = shared_INT_depression_austerity
+	icon = GFX_goal_generic_political_pressure
+	cost = 10
+	x = 92
+	y = 1
+	prerequisite = { focus = shared_INT_depression_emergency }
+	mutually_exclusive = { focus = shared_INT_depression_public_works }
+	ai_will_do = { factor = 5 }
+	completion_reward = {
+		add_political_power = 100
+		add_stability = -0.02
+	}
+}
+
+shared_focus = {
+	id = shared_INT_depression_stabilization
+	icon = GFX_goal_generic_positive_trade_relations
+	cost = 10
+	x = 90
+	y = 2
+	prerequisite = { focus = shared_INT_depression_public_works focus = shared_INT_depression_austerity }
+	available = { date > 1932.12.31 }
+	ai_will_do = { factor = 15 }
+	completion_reward = {
+		if = { limit = { has_idea = INT_great_depression } remove_ideas = INT_great_depression }
+		if = { limit = { has_idea = INT_GER_great_depression } remove_ideas = INT_GER_great_depression }
+		if = { limit = { has_idea = INT_USA_great_depression } remove_ideas = INT_USA_great_depression }
+		if = { limit = { has_idea = INT_ENG_great_depression } remove_ideas = INT_ENG_great_depression }
+		if = { limit = { has_idea = INT_FRA_great_depression } remove_ideas = INT_FRA_great_depression }
+		if = { limit = { has_idea = INT_ITA_great_depression } remove_ideas = INT_ITA_great_depression }
+		if = { limit = { has_idea = INT_JAP_great_depression } remove_ideas = INT_JAP_great_depression }
+		if = { limit = { has_idea = INT_SOV_great_depression } remove_ideas = INT_SOV_great_depression }
+		if = { limit = { NOT = { tag = SOV } } add_ideas = INT_depression_aftershock }
+	}
+}

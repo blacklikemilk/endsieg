@@ -1,0 +1,296 @@
+# Share the settlement between a military victory and the historical fallback.
+# Country annexation includes every custom state without resetting research.
+INT_SOV_finish_russian_civil_war = {
+	if = {
+		limit = {
+			tag = SOV
+			date < 1936.1.1
+			has_global_flag = russian_civil_war
+			NOT = { has_global_flag = RUS_CW_Over }
+			has_capitulated = no
+			is_subject = no
+		}
+		set_global_flag = RUS_CW_Over
+		remove_ideas = INT_SOV_red_army_mobilization
+		# Integrate domestic White allies before annexing their overlord.
+		every_country = {
+			limit = {
+				exists = yes
+				OR = { original_tag = KUB original_tag = TSS original_tag = DON }
+				OR = { has_war_with = SOV is_subject_of = WHR is_subject_of = SOV }
+			}
+			SOV = { annex_country = { target = PREV transfer_troops = no } }
+		}
+		if = {
+			limit = {
+				country_exists = WHR
+				OR = {
+					has_war_with = WHR
+					has_country_flag = INT_SOV_white_government_defeated
+					WHR = { is_subject_of = SOV }
+				}
+			}
+			annex_country = { target = WHR transfer_troops = no }
+		}
+		clr_country_flag = INT_SOV_rcw_fallback_queued
+		clr_country_flag = INT_SOV_white_government_defeated
+		news_event = { id = INT_russian_news.14 hours = 6 }
+	}
+}
+
+# The fall of Vladivostok on 25 October 1922 provides a deterministic end date.
+# The open lower bound also repairs older campaigns whose war is still running.
+INT_SOV_schedule_civil_war_fallback = {
+	if = {
+		limit = {
+			tag = SOV
+			date > 1922.10.24
+			date < 1936.1.1
+			has_global_flag = russian_civil_war
+			NOT = { has_global_flag = RUS_CW_Over }
+			NOT = { has_country_flag = INT_SOV_rcw_fallback_queued }
+			NOT = { has_country_flag = INT_SOV_white_government_defeated }
+			has_government = communism
+			has_capitulated = no
+			is_subject = no
+			has_war_with = WHR
+		}
+		set_country_flag = INT_SOV_rcw_fallback_queued
+		country_event = { id = interwar_soviet.62 days = 0 }
+	}
+}
+
+# The Red Army mobilizes once against the White government. This also covers
+# existing saves and scenario starts that bypass the civil-war setup event.
+INT_SOV_civil_war_support = {
+	if = {
+		limit = {
+			tag = SOV
+			date < 1936.1.1
+			has_war_with = WHR
+			NOT = { has_global_flag = RUS_CW_Over }
+		}
+		# The October transition can carry the obsolete Imperial army penalties.
+		remove_ideas = { russia_sucks russia_sucks_less russia_meh }
+		if = {
+			limit = { NOT = { has_idea = INT_SOV_red_army_mobilization } }
+			add_ideas = INT_SOV_red_army_mobilization
+		}
+		if = {
+			limit = { NOT = { has_country_flag = INT_SOV_civil_war_support_received } }
+			set_country_flag = INT_SOV_civil_war_support_received
+			add_manpower = 100000
+			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 15000 }
+			add_equipment_to_stockpile = { type = support_equipment_1 amount = 750 }
+			add_equipment_to_stockpile = { type = ww1_artillery_3 amount = 500 }
+		}
+	}
+	else_if = {
+		limit = { has_idea = INT_SOV_red_army_mobilization }
+		remove_ideas = INT_SOV_red_army_mobilization
+	}
+}
+
+# Applied by the interwar focus when a running campaign adopts the 1936 tree.
+# Country-history date blocks only populate the roster for new scenario starts.
+INT_SOV_1936_roster_handoff = {
+	if = { limit = { has_character = SO2_Lev_Trotsky } retire_character = SO2_Lev_Trotsky }
+	if = { limit = { has_character = SOV_Vladimir_Lenin } retire_character = SOV_Vladimir_Lenin }
+	if = { limit = { has_character = SO2_Lev_Kamenev } retire_character = SO2_Lev_Kamenev }
+	if = { limit = { has_character = SOV_sergey_kamenev } retire_character = SOV_sergey_kamenev }
+	if = { limit = { has_character = SOV_Joseph_Stalin } retire_character = SOV_Joseph_Stalin }
+	if = { limit = { has_character = SOV_Mikhail_Frunze } retire_character = SOV_Mikhail_Frunze }
+	if = { limit = { has_character = SO2_Kliment_Voroshilov } retire_character = SO2_Kliment_Voroshilov }
+	if = { limit = { has_character = SOV_Grigori_Zinoviev } retire_character = SOV_Grigori_Zinoviev }
+	if = { limit = { has_character = SO2_Nikolay_Yezhov } retire_character = SO2_Nikolay_Yezhov }
+	if = { limit = { has_character = SOV_Felix_Dzerzhinsky } retire_character = SOV_Felix_Dzerzhinsky }
+	if = { limit = { has_character = SOV_Pyotr_Voykov } retire_character = SOV_Pyotr_Voykov }
+	if = { limit = { has_character = SOV_Maxim_Litvinov } retire_character = SOV_Maxim_Litvinov }
+	if = { limit = { has_character = SO2_Ivan_Smirnov } retire_character = SO2_Ivan_Smirnov }
+	if = { limit = { has_character = SOV_Georgi_Chicherin } retire_character = SOV_Georgi_Chicherin }
+	if = { limit = { has_character = SOV_Nikolai_Bukharin } retire_character = SOV_Nikolai_Bukharin }
+	if = { limit = { has_character = SOV_Martin_Latsis } retire_character = SOV_Martin_Latsis }
+	if = { limit = { has_character = SOV_Grigori_Sokolnikov } retire_character = SOV_Grigori_Sokolnikov }
+	if = { limit = { has_character = SOV_Andrei_Bubnov } retire_character = SOV_Andrei_Bubnov }
+	if = { limit = { has_character = SOV_Yan_Berzin } retire_character = SOV_Yan_Berzin }
+	if = { limit = { has_character = SOV_Leonid_Krasin } retire_character = SOV_Leonid_Krasin }
+	if = { limit = { has_character = SOV_Andrey_Vyshinsky } retire_character = SOV_Andrey_Vyshinsky }
+	if = { limit = { has_character = SOV_Alexei_Rykov } retire_character = SOV_Alexei_Rykov }
+	if = { limit = { has_character = SOV_Ivan_Isakov } retire_character = SOV_Ivan_Isakov }
+	if = { limit = { has_character = SO2_Nikolay_Kuznetsov } retire_character = SO2_Nikolay_Kuznetsov }
+	if = { limit = { has_character = SOV_Mikhail_Tukachevsky } retire_character = SOV_Mikhail_Tukachevsky }
+	if = { limit = { has_character = SOV_jukums_vacietis } retire_character = SOV_jukums_vacietis }
+	if = { limit = { has_character = SO2_Vitaly_Primakov } retire_character = SO2_Vitaly_Primakov }
+	if = { limit = { has_character = SOV_Ieronim_Uborevich } retire_character = SOV_Ieronim_Uborevich }
+	if = { limit = { has_character = SOV_Ioana_Yakir } retire_character = SOV_Ioana_Yakir }
+	if = { limit = { has_character = SO2_Semyon_Budyonny } retire_character = SO2_Semyon_Budyonny }
+	if = { limit = { has_character = SOV_Yakov_Alksnis } retire_character = SOV_Yakov_Alksnis }
+	if = { limit = { has_character = SOV_Konstantin_Akashev } retire_character = SOV_Konstantin_Akashev }
+	if = { limit = { has_character = SOV_Konstantin_Artseuolov } retire_character = SOV_Konstantin_Artseuolov }
+
+	if = { limit = { NOT = { has_character = SOV_iosif_stalin } } recruit_character = SOV_iosif_stalin }
+	if = { limit = { NOT = { has_character = SOV_supreme_soviet } } recruit_character = SOV_supreme_soviet }
+	if = { limit = { NOT = { has_character = SOV_mikhail_kalinin } } recruit_character = SOV_mikhail_kalinin }
+	if = { limit = { NOT = { has_character = SOV_nikita_khrushchyov } } recruit_character = SOV_nikita_khrushchyov }
+	if = { limit = { NOT = { has_character = SOV_nikolay_voznesensky } } recruit_character = SOV_nikolay_voznesensky }
+	if = { limit = { NOT = { has_character = SOV_lazar_kaganovich } } recruit_character = SOV_lazar_kaganovich }
+	if = { limit = { NOT = { has_character = SOV_genrikh_yagoda } } recruit_character = SOV_genrikh_yagoda }
+	if = { limit = { NOT = { has_character = SOV_nikolay_yezhov } } recruit_character = SOV_nikolay_yezhov }
+	if = { limit = { NOT = { has_character = SOV_lavrenty_beriya } } recruit_character = SOV_lavrenty_beriya }
+	if = { limit = { NOT = { has_character = SOV_vsevolod_merkulov } } recruit_character = SOV_vsevolod_merkulov }
+	if = { limit = { NOT = { has_character = SOV_vyacheslav_molotov } } recruit_character = SOV_vyacheslav_molotov }
+	if = { limit = { NOT = { has_character = SOV_maksim_litvinov } } recruit_character = SOV_maksim_litvinov }
+	if = { limit = { NOT = { has_character = SOV_lev_trotsky } } recruit_character = SOV_lev_trotsky }
+	if = { limit = { NOT = { has_character = SOV_ivan_smirnov } } recruit_character = SOV_ivan_smirnov }
+	if = { limit = { NOT = { has_character = SOV_ivar_smilga } } recruit_character = SOV_ivar_smilga }
+	if = { limit = { NOT = { has_character = SOV_karl_radek } } recruit_character = SOV_karl_radek }
+	if = { limit = { NOT = { has_character = SOV_yevgeny_preobrazhensky } } recruit_character = SOV_yevgeny_preobrazhensky }
+	if = { limit = { NOT = { has_character = SOV_aleksandr_shlyapnikov } } recruit_character = SOV_aleksandr_shlyapnikov }
+	if = { limit = { NOT = { has_character = SOV_nikolay_bukharin } } recruit_character = SOV_nikolay_bukharin }
+	if = { limit = { NOT = { has_character = SOV_aleksey_rykov } } recruit_character = SOV_aleksey_rykov }
+	if = { limit = { NOT = { has_character = SOV_mikhail_tomsky } } recruit_character = SOV_mikhail_tomsky }
+	if = { limit = { NOT = { has_character = SOV_grigory_sokolnikov } } recruit_character = SOV_grigory_sokolnikov }
+	if = { limit = { NOT = { has_character = SOV_grigory_zinovyev } } recruit_character = SOV_grigory_zinovyev }
+	if = { limit = { NOT = { has_character = SOV_lev_kamenev } } recruit_character = SOV_lev_kamenev }
+	if = { limit = { NOT = { has_character = SOV_martemyan_ryutin } } recruit_character = SOV_martemyan_ryutin }
+	if = { limit = { NOT = { has_character = SOV_patriarch_sergy } } recruit_character = SOV_patriarch_sergy }
+	if = { limit = { NOT = { has_character = SOV_aleksandr_kerensky } } recruit_character = SOV_aleksandr_kerensky }
+	if = { limit = { NOT = { has_character = SOV_konstantin_rodzayevsky } } recruit_character = SOV_konstantin_rodzayevsky }
+	if = { limit = { NOT = { has_character = SOV_aleksandr_vasilevsky } } recruit_character = SOV_aleksandr_vasilevsky }
+	if = { limit = { NOT = { has_character = SOV_aleksandr_golovanov } } recruit_character = SOV_aleksandr_golovanov }
+	if = { limit = { NOT = { has_character = SOV_aleksandr_gorbatov } } recruit_character = SOV_aleksandr_gorbatov }
+	if = { limit = { NOT = { has_character = SOV_aleksandr_novikov } } recruit_character = SOV_aleksandr_novikov }
+	if = { limit = { NOT = { has_character = SOV_aleksandr_yegorov } } recruit_character = SOV_aleksandr_yegorov }
+	if = { limit = { NOT = { has_character = SOV_andrey_grechko } } recruit_character = SOV_andrey_grechko }
+	if = { limit = { NOT = { has_character = SOV_andrey_vlasov } } recruit_character = SOV_andrey_vlasov }
+	if = { limit = { NOT = { has_character = SOV_andrey_yeryomenko } } recruit_character = SOV_andrey_yeryomenko }
+	if = { limit = { NOT = { has_character = SOV_arseny_golovko } } recruit_character = SOV_arseny_golovko }
+	if = { limit = { NOT = { has_character = SOV_boris_shaposhnikov } } recruit_character = SOV_boris_shaposhnikov }
+	if = { limit = { NOT = { has_character = SOV_dmitry_lelyushenko } } recruit_character = SOV_dmitry_lelyushenko }
+	if = { limit = { NOT = { has_character = SOV_filipp_golikov } } recruit_character = SOV_filipp_golikov }
+	if = { limit = { NOT = { has_character = SOV_filipp_oktyabrsky } } recruit_character = SOV_filipp_oktyabrsky }
+	if = { limit = { NOT = { has_character = SOV_georgy_zakharov } } recruit_character = SOV_georgy_zakharov }
+	if = { limit = { NOT = { has_character = SOV_georgy_zhukov } } recruit_character = SOV_georgy_zhukov }
+	if = { limit = { NOT = { has_character = SOV_gordey_levchenko } } recruit_character = SOV_gordey_levchenko }
+	if = { limit = { NOT = { has_character = SOV_grigory_kulik } } recruit_character = SOV_grigory_kulik }
+	if = { limit = { NOT = { has_character = SOV_igor_kurchatov } } recruit_character = SOV_igor_kurchatov }
+	if = { limit = { NOT = { has_character = SOV_issa_pliyev } } recruit_character = SOV_issa_pliyev }
+	if = { limit = { NOT = { has_character = SOV_ivan_chernyakhovsky } } recruit_character = SOV_ivan_chernyakhovsky }
+	if = { limit = { NOT = { has_character = SOV_ivan_fedyuninsky } } recruit_character = SOV_ivan_fedyuninsky }
+	if = { limit = { NOT = { has_character = SOV_ivan_konev } } recruit_character = SOV_ivan_konev }
+	if = { limit = { NOT = { has_character = SOV_ivan_yumashev } } recruit_character = SOV_ivan_yumashev }
+	if = { limit = { NOT = { has_character = SOV_kirill_meretskov } } recruit_character = SOV_kirill_meretskov }
+	if = { limit = { NOT = { has_character = SOV_kirill_moskalenko } } recruit_character = SOV_kirill_moskalenko }
+	if = { limit = { NOT = { has_character = SOV_kliment_voroshilov } } recruit_character = SOV_kliment_voroshilov }
+	if = { limit = { NOT = { has_character = SOV_konstantin_rokossovsky } } recruit_character = SOV_konstantin_rokossovsky }
+	if = { limit = { NOT = { has_character = SOV_konstantin_vershinin } } recruit_character = SOV_konstantin_vershinin }
+	if = { limit = { NOT = { has_character = SOV_kuzma_galitsky } } recruit_character = SOV_kuzma_galitsky }
+	if = { limit = { NOT = { has_character = SOV_leonid_govorov } } recruit_character = SOV_leonid_govorov }
+	if = { limit = { NOT = { has_character = SOV_maksim_purkayev } } recruit_character = SOV_maksim_purkayev }
+	if = { limit = { NOT = { has_character = SOV_markian_popov } } recruit_character = SOV_markian_popov }
+	if = { limit = { NOT = { has_character = SOV_maks_reyter } } recruit_character = SOV_maks_reyter }
+	if = { limit = { NOT = { has_character = SOV_mikhail_frinovsky } } recruit_character = SOV_mikhail_frinovsky }
+	if = { limit = { NOT = { has_character = SOV_mikhail_tukhachevsky } } recruit_character = SOV_mikhail_tukhachevsky }
+	if = { limit = { NOT = { has_character = SOV_nikandr_chibisov } } recruit_character = SOV_nikandr_chibisov }
+	if = { limit = { NOT = { has_character = SOV_nikolay_berzarin } } recruit_character = SOV_nikolay_berzarin }
+	if = { limit = { NOT = { has_character = SOV_nikolay_vatutin } } recruit_character = SOV_nikolay_vatutin }
+	if = { limit = { NOT = { has_character = SOV_nikolay_kuznetsov } } recruit_character = SOV_nikolay_kuznetsov }
+	if = { limit = { NOT = { has_character = SOV_pavel_rychagov } } recruit_character = SOV_pavel_rychagov }
+	if = { limit = { NOT = { has_character = SOV_pavel_zhigarev } } recruit_character = SOV_pavel_zhigarev }
+	if = { limit = { NOT = { has_character = SOV_pyotr_smirnov } } recruit_character = SOV_pyotr_smirnov }
+	if = { limit = { NOT = { has_character = SOV_rodion_malinovsky } } recruit_character = SOV_rodion_malinovsky }
+	if = { limit = { NOT = { has_character = SOV_semyon_budyonny } } recruit_character = SOV_semyon_budyonny }
+	if = { limit = { NOT = { has_character = SOV_semyon_timoshenko } } recruit_character = SOV_semyon_timoshenko }
+	if = { limit = { NOT = { has_character = SOV_sergey_khudyakov } } recruit_character = SOV_sergey_khudyakov }
+	if = { limit = { NOT = { has_character = SOV_sergey_korolyov } } recruit_character = SOV_sergey_korolyov }
+	if = { limit = { NOT = { has_character = SOV_sergey_rudenko } } recruit_character = SOV_sergey_rudenko }
+	if = { limit = { NOT = { has_character = SOV_sergey_gorshkov } } recruit_character = SOV_sergey_gorshkov }
+	if = { limit = { NOT = { has_character = SOV_stepan_krasovsky } } recruit_character = SOV_stepan_krasovsky }
+	if = { limit = { NOT = { has_character = SOV_vasily_blyukher } } recruit_character = SOV_vasily_blyukher }
+	if = { limit = { NOT = { has_character = SOV_vasily_chuykov } } recruit_character = SOV_vasily_chuykov }
+	if = { limit = { NOT = { has_character = SOV_vasily_kuznetsov } } recruit_character = SOV_vasily_kuznetsov }
+	if = { limit = { NOT = { has_character = SOV_vladimir_kasatonov } } recruit_character = SOV_vladimir_kasatonov }
+	if = { limit = { NOT = { has_character = SOV_vladimir_tributs } } recruit_character = SOV_vladimir_tributs }
+	if = { limit = { NOT = { has_character = SOV_yakov_cherevichenko } } recruit_character = SOV_yakov_cherevichenko }
+	if = { limit = { NOT = { has_character = SOV_yakov_smushkevich } } recruit_character = SOV_yakov_smushkevich }
+	if = { limit = { NOT = { has_character = SOV_vitaly_primakov } } recruit_character = SOV_vitaly_primakov }
+	if = { limit = { NOT = { has_character = SOV_vasily_korzh } } recruit_character = SOV_vasily_korzh }
+	if = { limit = { NOT = { has_character = SOV_sidor_kovpak } } recruit_character = SOV_sidor_kovpak }
+	if = { limit = { NOT = { has_character = SOV_lev_dovator } } recruit_character = SOV_lev_dovator }
+	if = { limit = { NOT = { has_character = SOV_pavel_rybalko } } recruit_character = SOV_pavel_rybalko }
+
+	# Vanilla's 1936 characters require their political alignments for purge and exile content.
+	SOV_mikhail_kalinin = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_nikita_khrushchyov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_lazar_kaganovich = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_genrikh_yagoda = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_nikolay_yezhov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_lavrenty_beriya = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_vsevolod_merkulov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_vyacheslav_molotov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_patriarch_sergy = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_konstantin_rodzayevsky = { set_character_flag = SOV_exiled_flag }
+	SOV_aleksandr_kerensky = { set_character_flag = SOV_exiled_flag }
+	SOV_lev_trotsky = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_ivan_smirnov = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_ivar_smilga = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_karl_radek = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_yevgeny_preobrazhensky = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_aleksandr_shlyapnikov = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_nikolay_bukharin = { set_character_flag = SOV_aligned_right_opposition_flag }
+	SOV_aleksey_rykov = { set_character_flag = SOV_aligned_right_opposition_flag }
+	SOV_mikhail_tomsky = { set_character_flag = SOV_aligned_right_opposition_flag }
+	SOV_grigory_sokolnikov = { set_character_flag = SOV_aligned_right_opposition_flag }
+	if = {
+		limit = { NOT = { has_completed_focus = SO2_INT_left_opposition } }
+		SOV_lev_trotsky = { set_character_flag = SOV_exiled_flag }
+	}
+	if = {
+		limit = { has_completed_focus = SO2_INT_general_secretary }
+		SOV_ivan_smirnov = { set_character_flag = SOV_imprisoned_flag }
+		SOV_ivar_smilga = { set_character_flag = SOV_imprisoned_flag }
+		SOV_aleksandr_shlyapnikov = { set_character_flag = SOV_imprisoned_flag }
+		SOV_grigory_zinovyev = { set_character_flag = SOV_imprisoned_flag }
+		SOV_lev_kamenev = { set_character_flag = SOV_imprisoned_flag }
+		SOV_martemyan_ryutin = { set_character_flag = SOV_imprisoned_flag }
+	}
+	if = {
+		limit = { has_dlc = "No Step Back" }
+		if = { limit = { NOT = { has_character = SOV_provisional_government } } recruit_character = SOV_provisional_government }
+		if = { limit = { NOT = { has_character = SOV_anastasy_vonsyatsky } } recruit_character = SOV_anastasy_vonsyatsky }
+		if = { limit = { NOT = { has_character = SOV_metropolitan_anastasy } } recruit_character = SOV_metropolitan_anastasy }
+		if = { limit = { NOT = { has_character = SOV_metropolitan_nikolay } } recruit_character = SOV_metropolitan_nikolay }
+		if = { limit = { NOT = { has_character = SOV_nikolay_ustryalov } } recruit_character = SOV_nikolay_ustryalov }
+		if = { limit = { NOT = { has_character = SOV_aleksandr_kazembek } } recruit_character = SOV_aleksandr_kazembek }
+		if = { limit = { NOT = { has_character = SOV_metropolitan_aleksy } } recruit_character = SOV_metropolitan_aleksy }
+		if = { limit = { NOT = { has_character = SOV_metropolitan_meletius } } recruit_character = SOV_metropolitan_meletius }
+		if = { limit = { NOT = { has_character = SOV_aleksandr_prokofyev_seversky } } recruit_character = SOV_aleksandr_prokofyev_seversky }
+		if = { limit = { NOT = { has_character = SOV_vyacheslav_tkachyov } } recruit_character = SOV_vyacheslav_tkachyov }
+		if = { limit = { NOT = { has_character = SOV_yan_nagursky } } recruit_character = SOV_yan_nagursky }
+		if = { limit = { NOT = { has_character = SOV_vasily_yanchenko } } recruit_character = SOV_vasily_yanchenko }
+		if = { limit = { NOT = { has_character = SOV_tsar_vladimir_kirillovich } } recruit_character = SOV_tsar_vladimir_kirillovich }
+		if = { limit = { NOT = { has_character = SOV_pyotr_krasnov } } recruit_character = SOV_pyotr_krasnov }
+		if = { limit = { NOT = { has_character = SOV_konstantin_nechayev } } recruit_character = SOV_konstantin_nechayev }
+		if = { limit = { NOT = { has_character = SOV_aleksandr_rodzyanko } } recruit_character = SOV_aleksandr_rodzyanko }
+		if = { limit = { NOT = { has_character = SOV_vladimir_kosmin } } recruit_character = SOV_vladimir_kosmin }
+		if = { limit = { NOT = { has_character = SOV_andrey_shkuro } } recruit_character = SOV_andrey_shkuro }
+		if = { limit = { NOT = { has_character = SOV_anton_denikin } } recruit_character = SOV_anton_denikin }
+		set_country_flag = vlasov_owner_flag
+		SOV_metropolitan_anastasy = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_metropolitan_nikolay = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_metropolitan_aleksy = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_metropolitan_meletius = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_anastasy_vonsyatsky = { set_character_flag = SOV_exiled_flag }
+		SOV_aleksandr_kazembek = { set_character_flag = SOV_exiled_flag }
+		SOV_aleksandr_prokofyev_seversky = { set_character_flag = SOV_exiled_flag }
+		SOV_vyacheslav_tkachyov = { set_character_flag = SOV_exiled_flag }
+		SOV_yan_nagursky = { set_character_flag = SOV_exiled_flag }
+		SOV_vasily_yanchenko = { set_character_flag = SOV_exiled_flag }
+		SOV_anton_denikin = { set_character_flag = SOV_exiled_flag }
+		SOV_pyotr_krasnov = { set_character_flag = SOV_exiled_flag }
+		SOV_konstantin_nechayev = { set_character_flag = SOV_exiled_flag }
+		SOV_vladimir_kosmin = { set_character_flag = SOV_exiled_flag }
+		SOV_aleksandr_rodzyanko = { set_character_flag = SOV_exiled_flag }
+		SOV_andrey_shkuro = { set_character_flag = SOV_exiled_flag }
+	}
+}

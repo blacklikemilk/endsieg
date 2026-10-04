@@ -1,0 +1,131 @@
+# Borders in Eastern Europe consolidate in stages after the Central Powers'
+# defeat. The 1919 bookmark uses the same events as a continuing WWI campaign.
+add_namespace = INT_eastern
+
+# Equip the successor governments after the Duchy's remaining land has
+# passed to Estonia and Latvia.
+country_event = {
+	id = INT_eastern.3
+	hidden = yes
+	is_triggered_only = yes
+	immediate = { INT_eastern_arm_successors = yes }
+}
+
+# A Ukrainian surrender to the Soviets must absorb the whole country,
+# including custom states, without waiting for its other allies to surrender.
+country_event = {
+	id = INT_eastern.4
+	hidden = yes
+	is_triggered_only = yes
+	trigger = {
+		tag = SOV
+		date > 1917.12.31
+		date < 1936.1.1
+		OR = {
+			has_country_flag = INT_ukraine_integrated
+			AND = {
+				country_exists = UKR
+				UKR = {
+					has_country_flag = INT_ukraine_defeated_by_soviets
+					has_capitulated = yes
+				}
+			}
+			AND = {
+				NOT = { country_exists = UKR }
+				any_owned_state = { is_core_of = UKR }
+			}
+		}
+	}
+	immediate = {
+		if = {
+			limit = {
+				country_exists = UKR
+				UKR = { has_country_flag = INT_ukraine_defeated_by_soviets }
+			}
+			UKR = { clr_country_flag = INT_ukraine_defeated_by_soviets }
+			set_country_flag = INT_ukraine_integrated
+			annex_country = { target = UKR transfer_troops = no }
+		}
+		INT_eastern_absorb_moldavian_subjects = yes
+	}
+}
+
+# The Polish-Ukrainian War ends with Poland holding Eastern Galicia in July 1919.
+country_event = {
+	id = INT_eastern.1
+	title = INT_eastern.1.t
+	desc = INT_eastern.1.d
+	picture = GFX_report_event_ukrop_polishwar
+	fire_only_once = yes
+	trigger = {
+		tag = POL
+		has_global_flag = compiegne
+		NOT = { has_global_flag = central_powers_victory }
+		date > 1919.7.15
+		date < 1919.8.15
+		country_exists = WUR
+		owns_state = 10
+		WUR = { OR = { owns_state = 89 owns_state = 91 } }
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		name = INT_eastern.1.a
+		if = { limit = { has_war_with = WUR } white_peace = WUR }
+		transfer_state = 89
+		transfer_state = 91
+		news_event = { id = INT_eastern.11 days = 0 }
+	}
+}
+
+# The March 1921 Treaty of Riga sets the eastern Polish frontier. Vilnius
+# (state 784) follows the separate 1920 Polish-Lithuanian event chain.
+country_event = {
+	id = INT_eastern.2
+	title = INT_eastern.2.t
+	desc = INT_eastern.2.d
+	picture = GFX_report_event_riga_treaty
+	fire_only_once = yes
+	trigger = {
+		tag = POL
+		has_global_flag = compiegne
+		NOT = { has_global_flag = central_powers_victory }
+		date > 1921.3.17
+		date < 1921.6.1
+		country_exists = SOV
+		owns_state = 10
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		name = INT_eastern.2.a
+		set_global_flag = sov_pol_ceasefire
+		if = { limit = { has_war_with = SOV } white_peace = SOV }
+		if = { limit = { country_exists = UKR has_war_with = UKR } white_peace = UKR }
+		if = { limit = { country_exists = BLR has_war_with = BLR } white_peace = BLR }
+		transfer_state = 93
+		transfer_state = 94
+		transfer_state = 95
+		95 = { add_core_of = POL }
+		transfer_state = 96
+		news_event = { id = INT_eastern.12 days = 0 }
+	}
+}
+
+news_event = {
+	id = INT_eastern.11
+	title = INT_eastern.11.t
+	desc = INT_eastern.11.d
+	picture = GFX_news_event_ukrop_polishwar
+	major = yes
+	is_triggered_only = yes
+	option = { name = INT_eastern.11.a }
+}
+
+news_event = {
+	id = INT_eastern.12
+	title = INT_eastern.12.t
+	desc = INT_eastern.12.d
+	picture = GFX_news_event_peace_of_riga
+	major = yes
+	is_triggered_only = yes
+	option = { name = INT_eastern.12.a }
+}

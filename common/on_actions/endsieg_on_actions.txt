@@ -13,6 +13,18 @@ on_actions = {
                 set_political_power = 50
             }
 
+            # White armies cooperate through their own governments and subjects,
+            # rather than a faction that brings all the borderlands into the war.
+            if = {
+                limit = { date < 1936.1.1 country_exists = WHR }
+                WHR = {
+                    if = {
+                        limit = { is_faction_leader = yes }
+                        dismantle_faction = yes
+                    }
+                }
+            }
+
             # Establish the Russian Civil War only after both sides are initialized.
             if = {
                 limit = {
@@ -23,44 +35,11 @@ on_actions = {
                 }
 
                 # The 1918 scenario starts after the Russian Civil War setup
-                # event is suppressed. Recreate its static-start OOB and the
-                # White alignment from the 1919 history setup after countries
-                # have finished initializing.
+                # event is suppressed. Recreate its static-start OOB after
+                # countries have finished initializing.
                 if = {
                     limit = { country_exists = KUB }
                     KUB = { load_oob = KUB_1918 }
-                }
-
-                WHR = {
-                    if = {
-                        limit = { is_in_faction = no }
-                        create_faction = white_movement_and_allies
-                    }
-                }
-
-                if = {
-                    limit = { country_exists = TSS TSS = { is_in_faction = no } }
-                    WHR = { add_to_faction = TSS }
-                }
-                if = {
-                    limit = { country_exists = KUB KUB = { is_in_faction = no } }
-                    WHR = { add_to_faction = KUB }
-                }
-                if = {
-                    limit = { country_exists = BLR BLR = { is_in_faction = no } }
-                    WHR = { add_to_faction = BLR }
-                }
-                if = {
-                    limit = { country_exists = LIT LIT = { is_in_faction = no } }
-                    WHR = { add_to_faction = LIT }
-                }
-                if = {
-                    limit = { country_exists = EST EST = { is_in_faction = no } }
-                    WHR = { add_to_faction = EST }
-                }
-                if = {
-                    limit = { country_exists = LAT LAT = { is_in_faction = no } }
-                    WHR = { add_to_faction = LAT }
                 }
 
                 if = {
@@ -94,6 +73,48 @@ on_actions = {
                         }
                     }
                 }
+            }
+
+            if = {
+                limit = { country_exists = SOV }
+                SOV = {
+                    INT_SOV_civil_war_support = yes
+                    INT_eastern_absorb_moldavian_subjects = yes
+                    INT_SOV_schedule_civil_war_fallback = yes
+                }
+            }
+
+            if = {
+                limit = { country_exists = BLR }
+                BLR = { INT_eastern_update_army_readiness = yes }
+            }
+            if = {
+                limit = { country_exists = UKR }
+                UKR = { INT_eastern_update_army_readiness = yes }
+            }
+
+            if = {
+                limit = { country_exists = LAT }
+                LAT = { INT_eastern_initialize_latvian_republic = yes }
+            }
+
+            if = {
+                limit = { country_exists = ENG }
+                ENG = { INT_ENG_undo_postwar_senussi_release = yes }
+            }
+
+            # The 1918 scenario already has two Finnish governments. Russian
+            # cores on their territory should not allow an extra Russia to be
+            # released from the Finnish Civil War peace conference.
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1919.1.1
+                    country_exists = FNN
+                    country_exists = FNR
+                }
+                FNN = { every_owned_state = { remove_core_of = RIE } }
+                FNR = { every_owned_state = { remove_core_of = RIE } }
             }
 
             # Country histories are evaluated before every country is fully initialized.
@@ -168,15 +189,31 @@ on_actions = {
                     }
                     else_if = {
                         limit = { tag = FRA }
-                        load_focus_tree = { tree = french_focus_ww1 keep_completed = yes }
+                        if = {
+                            limit = { date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
+                            load_focus_tree = { tree = INT_france keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = french_focus_ww1 keep_completed = yes }
+                        }
                     }
                     else_if = {
                         limit = { tag = ITA }
-                        load_focus_tree = { tree = italian_focus_ww1 keep_completed = yes }
+                        if = {
+                            limit = { date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
+                            load_focus_tree = { tree = INT_italy keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = italian_focus_ww1 keep_completed = yes }
+                        }
                     }
                     else_if = {
                         limit = { tag = RIE }
                         load_focus_tree = { tree = russian_empire_focus keep_completed = yes }
+                    }
+                    else_if = {
+                        limit = { tag = SOV }
+                        load_focus_tree = { tree = Soviet_Russia keep_completed = yes }
                     }
                     else_if = {
                         limit = { tag = WHR }
@@ -184,15 +221,37 @@ on_actions = {
                     }
                     else_if = {
                         limit = { tag = TUR }
-                        load_focus_tree = { tree = turkish_focus_ww1 keep_completed = yes }
+                        if = {
+                            limit = { date > 1918.12.30 }
+                            load_focus_tree = { tree = INT_turkey keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = turkish_focus_ww1 keep_completed = yes }
+                        }
                     }
                     else_if = {
                         limit = { tag = ENG }
-                        load_focus_tree = { tree = british_focus_ww1 keep_completed = yes }
+                        if = {
+                            limit = { date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
+                            load_focus_tree = { tree = INT_britain keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = british_focus_ww1 keep_completed = yes }
+                        }
                     }
                     else_if = {
                         limit = { tag = USA }
-                        load_focus_tree = { tree = usa_ww1_focus keep_completed = yes }
+                        if = {
+                            limit = { date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
+                            load_focus_tree = { tree = INT_united_states keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = usa_ww1_focus keep_completed = yes }
+                        }
+                    }
+                    else_if = {
+                        limit = { tag = JAP date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
+                        load_focus_tree = { tree = INT_japan keep_completed = yes }
                     }
                     else = {
                         # No separate WWI tree exists for this tag. Never let
@@ -774,8 +833,691 @@ on_actions = {
     # branch above covers scenarios that already begin with this war active.
     # Argentina declared war on Germany on 27 March 1945, after the 20 March bookmark.
     # Keep it date-gated so it is not already at war on the bookmark itself.
-    on_daily = {
+		on_daily = {
         effect = {
+			if = {
+				limit = { tag = WHR date < 1936.1.1 is_faction_leader = yes }
+				dismantle_faction = yes
+			}
+            if = {
+                limit = { tag = SOV }
+                INT_SOV_civil_war_support = yes
+                INT_eastern_absorb_moldavian_subjects = yes
+                INT_SOV_schedule_civil_war_fallback = yes
+            }
+            if = {
+                limit = { OR = { tag = BLR tag = UKR } }
+                INT_eastern_update_army_readiness = yes
+            }
+            if = {
+                limit = { tag = LAT }
+                INT_eastern_initialize_latvian_republic = yes
+            }
+			# Cover historical interwar wars started outside the Turkish focus.
+			if = {
+				limit = {
+					tag = GRE
+					date > 1918.10.29
+					date < 1924.1.1
+					has_war_with = TUR
+					has_global_flag = armistice_of_mudros
+					NOT = { has_global_flag = central_powers_victory }
+					NOT = { has_idea = INT_GRE_anatolian_overstretch }
+					TUR = { NOT = { has_country_flag = INT_TUR_lausanne_signed } }
+				}
+				add_ideas = INT_GRE_anatolian_overstretch
+			}
+			# Greek Anatolian campaign penalties end with the Turkish-Greek war,
+			# including peace conferences that bypass the scripted settlement.
+			if = {
+				limit = { tag = GRE has_idea = INT_GRE_anatolian_overstretch NOT = { has_war_with = TUR } }
+				remove_ideas = INT_GRE_anatolian_overstretch
+			}
+			# An Entente settlement opens the US interwar programme; the
+			# 1936 boundary restores the existing vanilla USA tree.
+			if = {
+				limit = { tag = USA has_focus_tree = INT_united_states date < 1936.1.1 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = usa_ww1_focus keep_completed = yes }
+			}
+			if = {
+				limit = { tag = USA has_focus_tree = usa_ww1_focus date > 1935.12.31 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = usa_focus keep_completed = yes }
+			}
+			if = {
+				limit = { tag = USA has_focus_tree = INT_united_states date < 1936.1.1 NOT = { has_global_flag = central_powers_victory } }
+				INT_USA_schedule_interwar_events = yes
+			}
+			if = {
+				limit = {
+					tag = USA
+					any_owned_state = { is_capital = yes }
+					has_start_date < 1936.1.1
+					date > 1918.11.10
+					date < 1936.1.1
+					has_global_flag = compiegne
+					NOT = { has_global_flag = central_powers_victory }
+					NOT = { has_focus_tree = INT_united_states }
+				}
+				load_focus_tree = { tree = INT_united_states keep_completed = yes }
+			}
+			if = {
+				limit = { tag = USA has_focus_tree = INT_united_states date > 1935.12.31 }
+				remove_ideas = {
+					INT_USA_postwar_readjustment_spirit INT_USA_isolationist_congress_spirit INT_USA_red_scare_spirit
+					INT_USA_normalcy_spirit INT_USA_immigration_restrictions_spirit INT_USA_postwar_recession_spirit
+					INT_USA_protectionism_spirit INT_USA_motor_industry_spirit INT_USA_electrification_spirit
+					INT_USA_farm_crisis_spirit INT_USA_industrial_boom_spirit INT_USA_smoot_hawley_spirit
+					INT_USA_bank_failures_spirit INT_USA_reconstruction_finance_spirit INT_USA_bank_holiday_spirit
+					INT_USA_banking_reform_spirit INT_USA_civilian_conservation_spirit INT_USA_tva_spirit
+					INT_USA_agricultural_adjustment_spirit INT_USA_industrial_recovery_spirit INT_USA_deposit_insurance_spirit
+					INT_USA_gold_policy_spirit INT_USA_public_works_spirit INT_USA_collective_bargaining_spirit
+					INT_USA_social_security_spirit INT_USA_new_deal_mandate_spirit INT_USA_naval_treaty_spirit
+					INT_USA_good_neighbor_spirit INT_USA_reciprocal_trade_spirit INT_USA_neutrality_policy_spirit
+					INT_USA_naval_construction_spirit INT_USA_prohibition_spirit
+					INT_USA_army_reform_spirit INT_USA_farm_relief_spirit INT_USA_labor_relations_spirit
+					INT_USA_mass_production_spirit INT_USA_mobilization_planning_spirit INT_USA_naval_aviation_spirit
+					INT_USA_new_deal_recovery_spirit INT_USA_non_intervention_spirit INT_USA_pacific_defense_spirit
+					INT_USA_pan_american_spirit INT_USA_progressive_reform_spirit INT_USA_public_power_spirit
+					INT_USA_great_depression INT_depression_aftershock
+				}
+				if = { limit = { NOT = { has_idea = undisturbed_isolation } } add_ideas = undisturbed_isolation }
+				if = { limit = { NOT = { has_idea = great_depression } } add_ideas = great_depression }
+				if = { limit = { NOT = { has_idea = disarmed_nation } } add_ideas = disarmed_nation }
+				if = { limit = { NOT = { has_idea = free_trade } } add_ideas = free_trade }
+				if = { limit = { NOT = { has_idea = home_of_the_free } } add_ideas = home_of_the_free }
+				if = { limit = { NOT = { has_character = USA_franklin_delano_roosevelt } } recruit_character = USA_franklin_delano_roosevelt }
+				if = {
+					limit = { has_government = democratic NOT = { has_country_leader = { ruling_only = yes character = USA_franklin_delano_roosevelt } } }
+					retire_country_leader = yes
+					USA_franklin_delano_roosevelt = { promote_character = yes }
+				}
+				set_variable = { var = senators_support value = 48 }
+				set_variable = { var = senators_total value = 96 }
+				set_variable = { var = representatives_support value = 218 }
+				set_variable = { var = representatives_total value = 435 }
+				set_variable = { var = quorum_low value = 39 }
+				set_variable = { var = quorum_medium value = 49 }
+				set_variable = { var = quorum_high value = 58 }
+				USA_recalc_congress_icon_frames = yes
+				country_event = { id = usa.50 days = 2 }
+				country_event = { id = usa.51 days = 2 }
+				load_focus_tree = { tree = usa_focus keep_completed = yes }
+			}
+			# Japan retains the generic WWI tree until the historical armistice.
+			if = {
+				limit = { tag = JAP has_focus_tree = INT_japan date < 1936.1.1 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes }
+			}
+			if = {
+				limit = { tag = JAP has_focus_tree = INT_japan date < 1936.1.1 NOT = { has_global_flag = central_powers_victory } }
+				INT_JAP_schedule_interwar_events = yes
+			}
+			# The imperial succession also occurs if a different WWI outcome keeps the generic tree.
+			if = {
+				limit = { tag = JAP has_focus_tree = generic_focus_ww1 date > 1926.12.24 date < 1927.1.15 has_government = neutrality NOT = { has_country_flag = INT_JAP_event_6 } }
+				set_country_flag = INT_JAP_event_6
+				country_event = { id = INT_japan_interwar.6 days = 0 }
+			}
+			if = {
+				limit = {
+					tag = JAP
+					has_focus_tree = generic_focus_ww1
+					has_start_date < 1936.1.1
+					date > 1918.11.10
+					date < 1936.1.1
+					has_global_flag = compiegne
+					NOT = { has_global_flag = central_powers_victory }
+				}
+				load_focus_tree = { tree = INT_japan keep_completed = yes }
+			}
+			if = {
+				limit = { tag = JAP has_focus_tree = generic_focus_ww1 date > 1935.12.31 }
+				load_focus_tree = { tree = japan_wtt_focus keep_completed = yes }
+			}
+			if = {
+				limit = { tag = JAP has_focus_tree = INT_japan date > 1935.12.31 }
+				remove_ideas = {
+					INT_JAP_imperial_commitments INT_JAP_export_boom INT_JAP_postwar_slump
+					INT_JAP_zaibatsu_growth INT_JAP_kanto_damage INT_JAP_kanto_reconstruction
+					INT_JAP_banking_crisis INT_JAP_gold_deflation INT_JAP_reflation
+					INT_JAP_industrial_recovery INT_JAP_colonial_unrest INT_JAP_party_cabinets
+					INT_JAP_peace_preservation INT_JAP_military_pressure INT_JAP_national_unity_cabinet
+					INT_JAP_league_cooperation INT_JAP_naval_limitations INT_JAP_kwantung_autonomy
+					INT_JAP_naval_expansion INT_JAP_naval_aviation
+					INT_JAP_civilian_control_spirit INT_JAP_rural_relief_spirit
+					INT_JAP_great_depression INT_depression_aftershock
+				}
+				if = { limit = { NOT = { has_idea = JAP_zaibatsus } } add_ideas = JAP_zaibatsus }
+				if = { limit = { NOT = { has_idea = JAP_militarism } } add_ideas = JAP_militarism }
+				if = { limit = { NOT = { has_idea = state_shintoism } } add_ideas = state_shintoism }
+				if = { limit = { has_dlc = "Waking the Tiger" NOT = { has_idea = JAP_interservice_rivalry_balanced } } add_ideas = JAP_interservice_rivalry_balanced }
+				if = { limit = { has_dlc = "Man the Guns" NOT = { has_idea = MTG_naval_treaty_adherent } } add_ideas = MTG_naval_treaty_adherent }
+				INT_JAP_1936_character_handoff = yes
+				if = {
+					limit = { has_government = neutrality }
+					set_politics = { ruling_party = fascism last_election = "1936.1.1" election_frequency = 48 elections_allowed = no }
+					set_popularities = { fascism = 100 }
+					JAP_emperor_hirohito = { promote_character = yes }
+					if = { limit = { has_character = INT_JAP_emperor_showa } retire_character = INT_JAP_emperor_showa }
+				}
+				load_focus_tree = { tree = japan_wtt_focus keep_completed = yes }
+			}
+			# Britain follows its own 1919-1935 tree after an Entente settlement.
+			if = {
+				limit = { tag = ENG has_global_flag = senussi_uprising_2 }
+				INT_ENG_undo_postwar_senussi_release = yes
+			}
+			if = {
+				limit = { tag = ENG has_focus_tree = INT_britain date < 1936.1.1 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = british_focus_ww1 keep_completed = yes }
+			}
+			if = {
+				limit = { tag = ENG has_focus_tree = british_focus_ww1 date > 1935.12.31 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = british_focus keep_completed = yes }
+			}
+			if = {
+				limit = { tag = ENG has_focus_tree = INT_britain date < 1936.1.1 NOT = { has_global_flag = central_powers_victory } }
+				INT_ENG_schedule_interwar_events = yes
+			}
+			if = {
+				limit = {
+					tag = ENG
+					any_owned_state = { is_capital = yes }
+					has_start_date < 1936.1.1
+					date > 1918.11.10
+					date < 1936.1.1
+					has_global_flag = compiegne
+					NOT = { has_global_flag = central_powers_victory }
+					NOT = { has_focus_tree = INT_britain }
+				}
+				load_focus_tree = { tree = INT_britain keep_completed = yes }
+			}
+			if = {
+				limit = { tag = ENG has_focus_tree = INT_britain date > 1935.12.31 }
+				remove_ideas = {
+					INT_ENG_postwar_burden_spirit INT_ENG_housing_program_spirit INT_ENG_postwar_slump_spirit
+					INT_ENG_trade_recovery_spirit INT_ENG_gold_standard_spirit INT_ENG_general_strike_spirit
+					INT_ENG_depression_pressure_spirit INT_ENG_unemployment_relief_spirit INT_ENG_sterling_recovery_spirit
+					INT_ENG_sterling_area_spirit INT_ENG_imperial_preference_spirit INT_ENG_special_areas_spirit
+					INT_ENG_recovery_spirit INT_ENG_national_government_spirit INT_ENG_dominion_equality_spirit
+					INT_ENG_westminster_statute_spirit INT_ENG_indian_reform_spirit INT_ENG_league_policy_spirit
+					INT_ENG_ten_year_rule_spirit INT_ENG_defence_review_spirit INT_ENG_raf_expansion_spirit
+					INT_ENG_naval_rearmament_spirit INT_ENG_great_depression INT_depression_aftershock
+				}
+				if = { limit = { NOT = { has_idea = stiff_upper_lip } } add_ideas = stiff_upper_lip }
+				if = { limit = { NOT = { has_idea = ENG_the_war_to_end_all_wars } } add_ideas = ENG_the_war_to_end_all_wars }
+				if = { limit = { NOT = { has_idea = george_v } } add_ideas = george_v }
+				if = {
+					limit = { NOT = { has_country_leader = { ruling_only = yes character = ENG_stanley_baldwin } } }
+					if = { limit = { NOT = { has_character = ENG_stanley_baldwin } } recruit_character = ENG_stanley_baldwin }
+					retire_country_leader = yes
+					ENG_stanley_baldwin = { promote_character = yes }
+				}
+				load_focus_tree = { tree = british_focus keep_completed = yes }
+			}
+			if = {
+				limit = { tag = ENG has_focus_tree = british_focus date > 1937.5.27 date < 1937.6.15 NOT = { has_country_flag = INT_ENG_chamberlain_1937 } has_country_leader = { ruling_only = yes character = ENG_stanley_baldwin } }
+				set_country_flag = INT_ENG_chamberlain_1937
+				if = { limit = { NOT = { has_character = ENG_neville_chamberlain } } recruit_character = ENG_neville_chamberlain }
+				retire_country_leader = yes
+				ENG_neville_chamberlain = { promote_character = yes }
+			}
+			# France keeps the Great War tree until its settlement, then
+			# moves through the interwar tree to the 1936 vanilla tree.
+			if = {
+				limit = { tag = FRA has_focus_tree = INT_france date < 1936.1.1 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = french_focus_ww1 keep_completed = yes }
+			}
+			if = {
+				limit = { tag = ITA has_focus_tree = INT_italy date < 1936.1.1 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = italian_focus_ww1 keep_completed = yes }
+			}
+			if = {
+				limit = { tag = FRA has_focus_tree = french_focus_ww1 date > 1935.12.31 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = french_focus keep_completed = yes }
+			}
+			if = {
+				limit = { tag = ITA has_focus_tree = italian_focus_ww1 date > 1935.12.31 has_global_flag = central_powers_victory }
+				load_focus_tree = { tree = italian_focus keep_completed = yes }
+			}
+			if = {
+				limit = {
+					tag = FRA
+					has_focus_tree = INT_france
+					date < 1936.1.1
+					NOT = { has_global_flag = central_powers_victory }
+				}
+				INT_FRA_schedule_interwar_events = yes
+			}
+			if = {
+				limit = {
+					tag = FRA
+					any_owned_state = { is_capital = yes }
+					has_start_date < 1936.1.1
+					date > 1918.3.20
+					date < 1936.1.1
+					has_global_flag = compiegne
+					NOT = { has_global_flag = central_powers_victory }
+					NOT = { has_focus_tree = INT_france }
+				}
+				load_focus_tree = { tree = INT_france keep_completed = yes }
+			}
+			if = {
+				limit = {
+					tag = FRA
+					has_focus_tree = INT_france
+					date > 1935.12.31
+				}
+				remove_ideas = {
+					INT_FRA_war_damage INT_FRA_veterans_support
+					INT_FRA_reconstruction INT_FRA_heavy_industry
+					INT_FRA_agricultural_recovery_spirit INT_FRA_industrial_credit_spirit
+					INT_FRA_fiscal_pressure INT_FRA_stable_franc
+					INT_FRA_public_works INT_FRA_depression_pressure
+					INT_FRA_budget_restraint INT_FRA_modern_industry
+					INT_FRA_parliamentary_majority INT_FRA_cartel_government
+					INT_FRA_national_union INT_FRA_cabinet_stability_spirit
+					INT_FRA_political_tension INT_FRA_popular_front_spirit
+					INT_FRA_reparations_expectation INT_FRA_frontier_security
+					INT_FRA_collective_security INT_FRA_european_cooperation
+					INT_FRA_trained_reserve INT_FRA_maginot_construction
+					INT_FRA_mobile_reserve_spirit INT_FRA_air_defense
+					INT_FRA_mediterranean_security_spirit INT_FRA_rearmament
+					INT_FRA_family_allowances INT_FRA_marquet_public_works_spirit INT_FRA_reparations_settlement
+					INT_FRA_antifascist_mobilization INT_FRA_two_year_service_spirit INT_FRA_independent_air_force_spirit
+					INT_FRA_aircraft_engineering_spirit INT_FRA_alpine_defense_spirit INT_FRA_british_entente_spirit
+					INT_FRA_colonial_recruitment_spirit INT_FRA_electricification_spirit INT_FRA_labor_compromise_spirit
+					INT_FRA_levante_administration_spirit INT_FRA_mechanized_experiments_spirit INT_FRA_military_railways_spirit
+					INT_FRA_rural_modernization_spirit INT_FRA_state_reconstruction_spirit
+					INT_FRA_great_depression INT_depression_aftershock
+				}
+				if = {
+					limit = { has_global_flag = versailles }
+					add_ideas = {
+						FRA_victors_of_wwi FRA_disjointed_government
+						FRA_full_employment FRA_political_violence
+						FRA_inefficient_economy_2
+					}
+					if = {
+						limit = {
+							OR = {
+								has_completed_focus = INT_FRA_maginot_program
+								has_country_flag = INT_FRA_event_16_fired
+							}
+						}
+						add_ideas = FRA_protected_by_the_maginot_line
+					}
+				}
+				load_focus_tree = { tree = french_focus keep_completed = yes }
+			}
+			# Italy moves from its WWI settlement through the interwar tree
+			# before the existing 1936 focus tree takes over.
+			if = {
+				limit = {
+					tag = ITA
+					has_focus_tree = INT_italy
+					date < 1936.1.1
+					NOT = { has_global_flag = central_powers_victory }
+				}
+				INT_ITA_schedule_interwar_events = yes
+			}
+			if = {
+				limit = { tag = ITA has_focus_tree = INT_italy date > 1918.12.30 NOT = { has_country_flag = INT_ITA_interwar_initialized } }
+				remove_ideas = { americans_are_here war_economy service_by_requirement }
+				add_ideas = { civilian_economy limited_conscription }
+				set_country_flag = INT_ITA_interwar_initialized
+			}
+			if = {
+				limit = {
+					tag = ITA
+					any_owned_state = { is_capital = yes }
+					has_start_date < 1936.1.1
+					date > 1918.3.20
+					date < 1936.1.1
+					OR = {
+						has_global_flag = armistice_of_villa_giusti
+						has_global_flag = compiegne
+					}
+					NOT = { has_global_flag = central_powers_victory }
+					NOT = { has_focus_tree = INT_italy }
+				}
+				load_focus_tree = { tree = INT_italy keep_completed = yes }
+			}
+			if = {
+				limit = { tag = ITA has_focus_tree = INT_italy date > 1935.12.31 }
+				remove_ideas = {
+					INT_ITA_postwar_dislocation INT_ITA_veterans_question INT_ITA_veterans_settlement INT_ITA_adriatic_compromise INT_ITA_southern_land_reform
+					INT_ITA_social_unrest
+					INT_ITA_squadrist_violence INT_ITA_fascist_institutions INT_ITA_matteotti_crisis_spirit INT_ITA_authoritarian_regime INT_ITA_censored_press INT_ITA_police_state
+					INT_ITA_corporatism INT_ITA_lateran_settlement INT_ITA_war_debt INT_ITA_northern_industry INT_ITA_southern_infrastructure_spirit INT_ITA_industrial_credit_spirit
+					INT_ITA_grain_campaign_spirit INT_ITA_strong_lira INT_ITA_hydroelectric_program INT_ITA_public_works_spirit INT_ITA_depression_pressure INT_ITA_state_intervention
+					INT_ITA_iri_spirit INT_ITA_recovered_industry INT_ITA_adriatic_policy_spirit INT_ITA_mediterranean_trade_spirit INT_ITA_stresa_cooperation
+					INT_ITA_colonial_ambition INT_ITA_army_reform INT_ITA_alpine_defense INT_ITA_naval_program INT_ITA_air_program
+					INT_ITA_logistics_reform
+					INT_ITA_fiume_integrated INT_ITA_party_militia INT_ITA_electoral_coercion INT_ITA_one_party_state
+					INT_ITA_plebiscitary_chamber INT_ITA_motor_roads INT_ITA_land_reclamation INT_ITA_imi_credit
+					INT_ITA_tirana_influence INT_ITA_albanian_military_mission INT_ITA_danubian_protocols
+					INT_ITA_french_consultation INT_ITA_treaty_navy INT_ITA_capital_ship_program INT_ITA_alpine_wall_spirit
+					INT_ITA_colonial_service INT_ITA_divisional_reforms INT_ITA_electrification
+					INT_ITA_general_staff INT_ITA_league_diplomacy INT_ITA_mobilization
+					INT_ITA_modern_command INT_ITA_public_industry INT_ITA_reconstruction
+					INT_ITA_social_insurance INT_ITA_steel_consortium
+					INT_ITA_great_depression INT_depression_aftershock
+				}
+				if = { limit = { NOT = { has_idea = vittorio_emanuele } } add_ideas = vittorio_emanuele }
+				if = {
+					limit = {
+						NOT = { has_global_flag = central_powers_victory }
+						NOT = { has_idea = vittoria_mutilata }
+					}
+					add_ideas = vittoria_mutilata
+				}
+				load_focus_tree = { tree = italian_focus keep_completed = yes }
+			}
+
+			# Mudros or a Central Powers victory ends the WWI Ottoman focus period.
+			# A continuous campaign hands the interwar tree to vanilla in 1936.
+			if = {
+				limit = {
+					tag = TUR
+					any_owned_state = { is_capital = yes }
+					has_start_date < 1936.1.1
+					date > 1918.10.29
+					date < 1936.1.1
+					OR = {
+						has_global_flag = armistice_of_mudros
+						has_global_flag = central_powers_victory
+					}
+					NOT = { has_focus_tree = INT_turkey }
+				}
+				load_focus_tree = { tree = INT_turkey keep_completed = yes }
+			}
+			if = {
+				limit = {
+					tag = TUR
+					has_focus_tree = INT_turkey
+					has_country_flag = INT_TUR_republic_proclaimed
+					date > 1935.12.31
+				}
+				if = {
+					limit = { has_country_leader = { character = TUR_mustafa_kemal ruling_only = yes } }
+					retire_country_leader = yes
+					if = { limit = { has_character = TUR_mustafa_kemal } retire_character = TUR_mustafa_kemal }
+					if = { limit = { NOT = { has_character = TUR_mustafa_kemal_ataturk } } recruit_character = TUR_mustafa_kemal_ataturk }
+					TUR_mustafa_kemal_ataturk = { promote_character = yes }
+				}
+				remove_ideas = {
+					INT_TUR_occupation INT_TUR_national_resistance
+					INT_TUR_regular_army_spirit INT_TUR_sakarya_victory
+					INT_TUR_sevres_pressure
+				}
+				load_focus_tree = { tree = turkish_focus keep_completed = yes }
+			}
+			# Recover the Denikin council in saves where the former invalid
+			# paternal_autocrat ideology left WHR with a generated leader.
+			if = {
+				limit = {
+					tag = WHR
+					date < 1936.1.1
+					has_government = neutrality
+					has_global_flag = BOC_denikin_victory
+					has_country_leader = { ruling_only = yes name = "Semyon Ivanov" }
+				}
+				retire_country_leader = yes
+				create_country_leader = {
+					name = "Various Leaders"
+					desc = "POLITICS_VARIOUS_LEADERS_DESC"
+					picture = "Portrait_Russia_Various_Leaders_Denikin_Wins.dds"
+					expire = "1965.1.1"
+					ideology = despotism
+					traits = { stout_defender }
+				}
+			}
+			# Countries released or changed by civil wars after startup can be
+			# given a WW2 tree by their default selector or a vanilla on_action.
+			# Restore the appropriate early tree throughout the pre-1936 campaign.
+			if = {
+				limit = { date < 1936.1.1 any_owned_state = { always = yes } }
+				if = {
+					limit = { tag = GER NOT = { has_focus_tree = german_focus_ww1 } NOT = { has_focus_tree = INT_germany } }
+					if = {
+						limit = { has_global_flag = versailles has_country_flag = ww1_weimar_republic_established NOT = { has_global_flag = central_powers_victory } }
+						load_focus_tree = { tree = INT_germany keep_completed = yes }
+					}
+					else = { load_focus_tree = { tree = german_focus_ww1 keep_completed = yes } }
+				}
+				else_if = {
+					limit = { tag = AUH NOT = { has_focus_tree = austria_hungary_focus } }
+					load_focus_tree = { tree = austria_hungary_focus keep_completed = yes }
+				}
+				else_if = {
+					limit = { tag = FRA NOT = { has_focus_tree = french_focus_ww1 } NOT = { has_focus_tree = INT_france } }
+					if = {
+						limit = { date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
+						load_focus_tree = { tree = INT_france keep_completed = yes }
+					}
+					else = { load_focus_tree = { tree = french_focus_ww1 keep_completed = yes } }
+				}
+				else_if = {
+					limit = { tag = ITA NOT = { has_focus_tree = italian_focus_ww1 } NOT = { has_focus_tree = INT_italy } }
+					if = {
+						limit = { date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
+						load_focus_tree = { tree = INT_italy keep_completed = yes }
+					}
+					else = { load_focus_tree = { tree = italian_focus_ww1 keep_completed = yes } }
+				}
+				else_if = {
+					limit = { tag = RIE NOT = { has_focus_tree = russian_empire_focus } }
+					load_focus_tree = { tree = russian_empire_focus keep_completed = yes }
+				}
+				else_if = {
+					limit = { tag = SOV NOT = { has_focus_tree = Soviet_Russia } }
+					load_focus_tree = { tree = Soviet_Russia keep_completed = yes }
+				}
+				else_if = {
+					limit = { tag = WHR NOT = { has_focus_tree = White_Russia } }
+					load_focus_tree = { tree = White_Russia keep_completed = yes }
+				}
+				else_if = {
+					limit = { tag = TUR NOT = { has_focus_tree = turkish_focus_ww1 } NOT = { has_focus_tree = INT_turkey } }
+					if = {
+						limit = { date > 1918.12.30 }
+						load_focus_tree = { tree = INT_turkey keep_completed = yes }
+					}
+					else = { load_focus_tree = { tree = turkish_focus_ww1 keep_completed = yes } }
+				}
+				else_if = {
+					limit = { tag = ENG NOT = { has_focus_tree = british_focus_ww1 } NOT = { has_focus_tree = INT_britain } }
+					if = {
+						limit = { date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
+						load_focus_tree = { tree = INT_britain keep_completed = yes }
+					}
+					else = { load_focus_tree = { tree = british_focus_ww1 keep_completed = yes } }
+				}
+				else_if = {
+					limit = { tag = USA NOT = { has_focus_tree = usa_ww1_focus } NOT = { has_focus_tree = INT_united_states } }
+					if = {
+						limit = { date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
+						load_focus_tree = { tree = INT_united_states keep_completed = yes }
+					}
+					else = { load_focus_tree = { tree = usa_ww1_focus keep_completed = yes } }
+				}
+				else_if = {
+					limit = { tag = JAP NOT = { has_focus_tree = generic_focus_ww1 } NOT = { has_focus_tree = INT_japan } }
+					if = {
+						limit = { date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
+						load_focus_tree = { tree = INT_japan keep_completed = yes }
+					}
+					else = { load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } }
+				}
+				else_if = {
+					limit = {
+						NOT = { OR = { tag = GER tag = AUH tag = FRA tag = ITA tag = RIE tag = SOV tag = WHR tag = TUR tag = ENG tag = USA tag = JAP } }
+						NOT = { has_focus_tree = generic_focus_ww1 }
+					}
+					load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes }
+				}
+			}
+			# The interwar crash is a campaign event, not a replay in WW2 bookmarks.
+			if = {
+				limit = {
+					date > 1929.10.23
+					date < 1930.1.1
+					NOT = { has_country_flag = INT_depression_event_fired }
+					OR = {
+						is_major = yes
+						tag = GER tag = USA tag = ENG tag = FRA
+						tag = ITA tag = JAP tag = SOV tag = TUR
+					}
+				}
+				set_country_flag = INT_depression_event_fired
+				country_event = { id = INT_depression.1 days = 0 }
+			}
+			# Keep the Weimar president as country leader and the historical
+			# chancellor in the cabinet. Alternative governments stop this sequence.
+			if = {
+				limit = {
+					tag = GER
+					has_country_flag = ww1_weimar_republic_established
+					date < 1936.1.1
+					NOT = { has_country_flag = GER_INT_transition_started }
+				}
+				set_country_flag = GER_INT_transition_started
+				country_event = { id = INT_weimar.8 days = 0 }
+			}
+			# Repair Weimar saves created before both WWI staff variants were
+			# removed by the transition. The republic marker prevents this from
+			# affecting alternate WWI-victory empires.
+			if = {
+				limit = {
+					tag = GER
+					has_country_flag = ww1_weimar_republic_established
+					date < 1936.1.1
+					OR = {
+						has_idea = WWI_general_staff
+						has_idea = WWI_general_staff_upgraded
+					}
+				}
+				remove_ideas = {
+					WWI_general_staff
+					WWI_general_staff_upgraded
+				}
+			}
+			# The same transition also repairs old Weimar saves that still have
+			# imperial field, corps, or naval leaders recruited.
+			if = {
+				limit = {
+					tag = GER
+					has_country_flag = ww1_weimar_republic_established
+					date < 1936.1.1
+					OR = {
+						GER_paul_von_hindenburg = { is_unit_leader = yes }
+						has_character = GER_helmuth_von_moltke
+						has_character = GER_hermann_von_eichorn
+						has_character = GER_erich_ludendorff
+						has_character = GER_erich_von_falkenhayn
+						has_character = GER_alexander_von_kluck
+						has_character = GER_friedrich_sixt_von_armin
+						has_character = GER_felix_von_bothmer
+						has_character = GER_ferdinand_von_quast
+						has_character = GER_fritz_von_below
+						has_character = GER_hermann_von_francois
+						has_character = GER_paul_von_lettowvorbeck
+						has_character = GER_karl_von_einem
+						has_character = GER_prince_leopold_of_bavaria
+						has_character = GER_prince_rupprecht_of_bavaria
+						has_character = GER_crown_prince_wilhelm
+						has_character = GER_karl_von_bulow
+						has_character = GER_hugo_von_pohl
+						has_character = GER_wilhelm_souchon
+						has_character = GER_maximilian_von_spee
+						has_character = GER_adolf_von_trotha
+						has_character = GER_ludwig_von_reuter
+						has_character = GER_alfred_von_tirpitz
+						has_character = GER_franz_von_hipper
+					}
+				}
+				GER_INT_replace_imperial_command = yes
+			}
+			if = {
+				limit = {
+					tag = GER
+					has_country_flag = ww1_weimar_republic_established
+					has_country_flag = GER_INT_cabinet_ready
+					has_government = democratic
+					date < 1933.1.30
+					NOT = { has_completed_focus = INT_GER_defend_democracy }
+					NOT = { has_completed_focus = INT_GER_appoint_hitler }
+				}
+				GER_INT_update_chancellor = yes
+			}
+			if = {
+				limit = {
+					tag = GER
+					has_country_flag = GER_INT_cabinet_ready
+					has_government = democratic
+					date < 1933.3.24
+					NOT = { has_completed_focus = INT_GER_defend_democracy }
+					NOT = { has_completed_focus = INT_GER_appoint_hitler }
+				}
+				GER_INT_schedule_advisor_changes = yes
+			}
+			# The January and April 1919 crises precede the Versailles decision.
+			if = {
+				limit = {
+					tag = GER
+					has_country_flag = ww1_weimar_republic_established
+					has_country_flag = GER_INT_cabinet_ready
+					has_government = democratic
+					date < 1919.6.1
+					NOT = { has_global_flag = versailles }
+					NOT = { has_global_flag = kaiserschlachtvictory }
+				}
+				GER_INT_schedule_historical_milestones = yes
+			}
+			if = {
+				limit = {
+					tag = GER
+					has_global_flag = versailles
+					has_country_flag = ww1_weimar_republic_established
+					has_country_flag = GER_INT_cabinet_ready
+					has_focus_tree = INT_germany
+					date < 1936.1.1
+				}
+				GER_INT_schedule_historical_milestones = yes
+			}
+			if = {
+				limit = {
+					tag = GER
+					has_country_flag = GER_INT_cabinet_ready
+					date > 1935.12.31
+					NOT = { has_country_flag = GER_INT_ww2_cabinet_handoff }
+				}
+				set_country_flag = GER_INT_ww2_cabinet_handoff
+				GER_INT_retire_weimar_advisors = yes
+			}
+			if = {
+				limit = {
+					tag = GER
+					has_idea = GER_INT_kurt_von_schleicher
+					date > 1933.1.29
+				}
+				GER_INT_clear_chancellor = yes
+			}
+			if = {
+				limit = {
+					tag = GER
+					has_global_flag = versailles
+					has_country_flag = ww1_weimar_republic_established
+					has_focus_tree = INT_germany
+					has_government = democratic
+					date > 1924.3.12
+					date < 1933.2.2
+					NOT = { has_completed_focus = INT_GER_defend_democracy }
+					NOT = { has_completed_focus = INT_GER_appoint_hitler }
+				}
+				GER_INT_schedule_dissolutions = yes
+			}
 			# Track an Ottoman-held Benghazi enclave surrounded by Italian control.
 			# The Treaty of Ouchy event consumes this timer after more than sixty
 			# days, while retaining its existing historical date and war checks.
@@ -866,38 +1608,161 @@ on_actions = {
         }
     }
 
-    on_peaceconference_ended = {
+    # ROOT is the capitulated country; FROM is the winner. Defer annexation
+    # until the capitulation callbacks have finished, even in a wider war.
+    on_capitulation = {
         effect = {
-            # A Soviet victory over White Russia ends the Russian Civil War.
-            # Annex the White government and its Kuban puppet so neither can
-            # survive the conference as an unintended remnant.
             if = {
                 limit = {
+                    date < 1936.1.1
                     has_global_flag = russian_civil_war
-                    ROOT = { tag = SOV }
-                    FROM = { tag = WHR }
+                    NOT = { has_global_flag = RUS_CW_Over }
+                    ROOT = { original_tag = WHR }
+                    FROM = { tag = SOV }
                 }
                 SOV = {
-                    if = {
-                        limit = { country_exists = WHR }
-                        annex_country = { target = WHR transfer_troops = no }
-                    }
-                    if = {
-                        limit = { country_exists = KUB }
-                        annex_country = { target = KUB transfer_troops = no }
-                    }
+                    set_country_flag = INT_SOV_white_government_defeated
+                    country_event = { id = interwar_soviet.63 hours = 1 }
                 }
+            }
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1936.1.1
+                    ROOT = { tag = UKR }
+                    FROM = { tag = SOV }
+                    country_exists = UKR
+                }
+                ROOT = { set_country_flag = INT_ukraine_defeated_by_soviets }
+                SOV = {
+                    set_country_flag = INT_ukraine_integrated
+                    country_event = { id = INT_eastern.4 hours = 1 }
+                }
+            }
+            if = {
+                limit = {
+                    date < 1936.1.1
+                    ROOT = { original_tag = DER }
+                    country_exists = ENG
+                }
+                set_global_flag = endsieg_dervish_capitulated
+                ENG = { country_event = { id = ww1_britain.47 hours = 1 } }
+            }
+            if = {
+                limit = {
+                    date < 1936.1.1
+                    ROOT = { original_tag = GER }
+                    country_exists = AST
+                }
+                set_global_flag = endsieg_germany_ww1_capitulated
+                AST = { country_event = { id = ww1_germany.71 hours = 1 } }
+            }
+        }
+    }
+
+    # ROOT is the annexing country; FROM is the country being annexed.
+    on_annex = {
+        effect = {
+            if = {
+                limit = {
+                    date < 1936.1.1
+                    has_global_flag = russian_civil_war
+                    NOT = { has_global_flag = RUS_CW_Over }
+                    ROOT = { tag = SOV }
+                    FROM = { original_tag = WHR }
+                }
+                SOV = {
+                    set_country_flag = INT_SOV_white_government_defeated
+                    country_event = { id = interwar_soviet.63 hours = 1 }
+                }
+            }
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1936.1.1
+                    ROOT = { tag = SOV }
+                    FROM = { original_tag = UKR }
+                }
+                ROOT = {
+                    set_country_flag = INT_ukraine_integrated
+                    country_event = { id = INT_eastern.4 hours = 1 }
+                }
+            }
+        }
+    }
+
+    on_peaceconference_ended = {
+        effect = {
+            # This callback scopes ROOT to a participant returning to peace,
+            # not to a winner with the defeated country in FROM.
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1936.1.1
+                    tag = SOV
+                    has_country_flag = INT_ukraine_integrated
+                }
+                country_event = { id = INT_eastern.4 hours = 1 }
+            }
+            # A Finnish Civil War victory must reunify Finland even if the
+            # conference would otherwise leave the defeated side as a puppet.
+            if = {
+                limit = {
+                    ROOT = { tag = FNR }
+                    FROM = { tag = FNN }
+                    country_exists = FNN
+                }
+                FNN = { every_owned_state = { transfer_state_to = FNR } }
+                FNR = { annex_country = { target = FNN transfer_troops = no } }
+            }
+            if = {
+                limit = {
+                    ROOT = { tag = FNN }
+                    FROM = { tag = FNR }
+                    country_exists = FNR
+                }
+                FNR = { every_owned_state = { transfer_state_to = FNN } }
+                FNN = { annex_country = { target = FNR transfer_troops = no } }
+            }
+            # Complete only a recorded Soviet victory; this callback does not
+            # provide a defeated country in FROM.
+            if = {
+                limit = {
+                    date < 1936.1.1
+                    has_global_flag = russian_civil_war
+                    tag = SOV
+                    has_country_flag = INT_SOV_white_government_defeated
+                    NOT = { has_global_flag = RUS_CW_Over }
+                }
+                country_event = { id = interwar_soviet.63 hours = 1 }
+            }
+            # Soviet victories in the civil-war period absorb every remaining
+            # Belarusian holding, including a puppet left by the conference.
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1936.1.1
+                    ROOT = { tag = SOV }
+                    FROM = { tag = BLR }
+                    country_exists = BLR
+                }
+                SOV = { annex_country = { target = BLR transfer_troops = no } }
             }
             if = {
                 limit = {
                     ROOT = { TAG = SOV }
                     FROM = { TAG = UKR }
-                    SOV = { is_ai = yes }
+                    country_exists = UKR
+                    OR = {
+                        SOV = { is_ai = yes }
+                        AND = { date > 1918.11.11 date < 1936.1.1 }
+                    }
                 }
                 SOV = { annex_country = { target = UKR transfer_troops = no } }
             }
             if = {
                 limit = {
+                    date < 1936.1.1
                     ROOT = { TAG = ITA }
                     FROM = { TAG = SES }
                     ITA = { is_ai = yes }
@@ -924,6 +1789,16 @@ on_actions = {
     }
     on_puppet = {
         effect = {
+            # Resolve a Moldavian conference puppet after the callback finishes.
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1936.1.1
+                    OR = { original_tag = MOL original_tag = RO2 }
+                    FROM = { tag = SOV }
+                }
+                SOV = { country_event = { id = INT_eastern.4 hours = 1 } }
+            }
             if = {
                 limit = {
                     original_tag = EGY
@@ -963,6 +1838,15 @@ on_actions = {
 
     on_release_as_puppet = {
         effect = {
+            if = {
+                limit = {
+                    date > 1917.12.31
+                    date < 1936.1.1
+                    OR = { original_tag = MOL original_tag = RO2 }
+                    FROM = { tag = SOV }
+                }
+                SOV = { country_event = { id = INT_eastern.4 hours = 1 } }
+            }
             if = {
                 limit = {
                     original_tag = EGY
