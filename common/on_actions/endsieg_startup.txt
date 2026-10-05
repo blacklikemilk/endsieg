@@ -649,15 +649,6 @@ on_actions = {
                     CHI = { declare_war_on = { target = PRC type = annex_everything } }
                 }
 
-                #1944.12-1945
-                if = {
-                    limit = {
-                        date > 1944.10.1
-                        date < 1946.1.1
-                    }
-                	SOV = { white_peace = FIN }
-                }
-
                 #WW2 German add to war countries
                 if = {
                     limit = {
@@ -697,6 +688,42 @@ on_actions = {
                 		}
                 	}
 
+                }
+
+                # Clear inherited Finnish wars after the scenario war setup.
+                if = {
+                    limit = {
+                        NOT = { date < 1944.9.19 }
+                        date < 1946.1.1
+                        country_exists = FIN
+                    }
+                    FIN = {
+                        if = {
+                            limit = { is_in_faction_with = GER }
+                            leave_faction = yes
+                        }
+                        every_country = {
+                            limit = {
+                                has_war_with = FIN
+                                NOT = { tag = GER }
+                                OR = {
+                                    tag = ENG
+                                    tag = SOV
+                                    is_in_faction_with = ENG
+                                    is_in_faction_with = SOV
+                                }
+                            }
+                            white_peace = FIN
+                        }
+                        if = {
+                            limit = {
+                                country_exists = GER
+                                GER = { has_capitulated = no }
+                                NOT = { has_war_with = GER }
+                            }
+                            declare_war_on = { target = GER type = annex_everything }
+                        }
+                    }
                 }
 
                 # Run after all scenario-specific wars and factions have been established.

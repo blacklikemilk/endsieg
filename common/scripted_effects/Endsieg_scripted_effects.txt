@@ -1,3 +1,117 @@
+# Preserve legacy WW1 crypto bonuses without affecting La Resistance cryptology.
+endsieg_ww1_crypto_effects = {
+	if = {
+		limit = { has_dlc = "La Resistance" }
+		if = {
+			limit = {
+				OR = {
+					has_tech = endsieg_ww1_cipher_crypto
+					has_tech = endsieg_ww1_teleprinter_crypto
+				}
+			}
+			set_technology = {
+				endsieg_ww1_cipher_crypto = 0
+				endsieg_ww1_teleprinter_crypto = 0
+				popup = no
+			}
+		}
+	}
+	else = {
+		if = {
+			limit = {
+				has_tech = cipher_machine
+				NOT = { has_tech = endsieg_ww1_cipher_crypto }
+			}
+			set_technology = { endsieg_ww1_cipher_crypto = 1 popup = no }
+		}
+		if = {
+			limit = {
+				has_tech = teleprinter
+				NOT = { has_tech = endsieg_ww1_teleprinter_crypto }
+			}
+			set_technology = { endsieg_ww1_teleprinter_crypto = 1 popup = no }
+		}
+	}
+}
+
+# Invite historical co-belligerents from Britain, never the other way round.
+endsieg_join_historical_allies = {
+	if = {
+		limit = {
+			NOT = { date < 1936.1.1 }
+			date < 1946.1.1
+			country_exists = ENG
+			NOT = { tag = ENG }
+			is_subject = no
+			NOT = { is_in_faction_with = ENG }
+			ENG = {
+				is_in_faction = yes
+				NOT = { is_in_faction_with = SOV }
+			}
+		}
+		if = { limit = { is_in_faction = yes } leave_faction = yes }
+		ENG = { add_to_faction = PREV }
+	}
+}
+
+# Repair inherited Comintern membership once, then enact Turkey's dated war entry.
+endsieg_TUR_historical_alignment = {
+	if = {
+		limit = {
+			tag = TUR
+			NOT = { date < 1936.1.1 }
+			date < 1946.1.1
+			is_subject = no
+		}
+		if = {
+			limit = {
+				date < 1945.2.23
+				NOT = { has_country_flag = endsieg_TUR_pre_entry_alignment_checked }
+			}
+			if = {
+				limit = { is_in_faction_with = SOV }
+				leave_faction = yes
+				if = {
+					limit = { country_exists = GER has_war_with = GER }
+					GER = { white_peace = PREV }
+				}
+				if = {
+					limit = { country_exists = JAP has_war_with = JAP }
+					JAP = { white_peace = PREV }
+				}
+			}
+			set_country_flag = endsieg_TUR_pre_entry_alignment_checked
+		}
+		if = {
+			limit = {
+				NOT = { date < 1945.2.23 }
+				NOT = { has_country_flag = endsieg_TUR_historical_allied_entry }
+			}
+			endsieg_join_historical_allies = yes
+			if = {
+				limit = { is_in_faction_with = ENG }
+				if = {
+					limit = {
+						country_exists = GER
+						GER = { has_capitulated = no }
+						NOT = { has_war_with = GER }
+					}
+					declare_war_on = { target = GER type = annex_everything }
+				}
+				if = {
+					limit = {
+						country_exists = JAP
+						JAP = { has_capitulated = no }
+						NOT = { has_war_with = JAP }
+					}
+					declare_war_on = { target = JAP type = annex_everything }
+				}
+				set_country_flag = endsieg_TUR_historical_allied_entry
+			}
+		}
+	}
+}
+
 #This should only be used for AXIS vs ALLIES, or JAPAN vs ALLIES
 declare_war_on_all_allies = {
 	if = {

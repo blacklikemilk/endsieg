@@ -17,3 +17,86 @@ INT_TUR_end_sultanate = {
 		if = { limit = { date < 1923.7.24 has_start_date < 1923.7.24 } news_event = { id = INT_turkey_news.16 days = 1 } }
 	}
 }
+
+# Shared settlement effects, also used for silent late-bookmark initialization.
+INT_TUR_apply_lausanne_settlement = {
+	set_country_flag = INT_TUR_lausanne_signed
+	if = { limit = { date < 1924.7.24 has_start_date < 1923.7.25 } news_event = { id = INT_turkey_news.1 days = 1 } }
+	if = { limit = { has_war_with = GRE } white_peace = GRE }
+	if = { limit = { country_exists = GRE GRE = { has_idea = INT_GRE_anatolian_overstretch } } GRE = { remove_ideas = INT_GRE_anatolian_overstretch } }
+	if = { limit = { 339 = { is_owned_by = GRE } } transfer_state = 339 }
+	if = { limit = { 340 = { is_owned_by = GRE } } transfer_state = 340 }
+	if = { limit = { 1036 = { is_owned_by = GRE } } transfer_state = 1036 }
+	if = {
+		limit = { 1036 = { is_owned_by = TUR } country_exists = GRE }
+		if = { limit = { GRE = { controls_province = 922 } } set_province_controller = 922 }
+		if = { limit = { GRE = { controls_province = 3893 } } set_province_controller = 3893 }
+		if = { limit = { GRE = { controls_province = 11842 } } set_province_controller = 11842 }
+		if = { limit = { GRE = { controls_province = 13411 } } set_province_controller = 13411 }
+	}
+	remove_ideas = { INT_TUR_occupation INT_TUR_national_resistance INT_TUR_sevres_pressure }
+	add_stability = 0.08
+}
+
+# Seed past constitutional transitions without replaying their announcements.
+INT_TUR_initialize_historical_bookmark = {
+	if = {
+		limit = {
+			tag = TUR
+			NOT = { has_start_date < 1918.7.4 }
+			has_start_date < 1919.1.1
+			date < 1919.1.1
+			has_country_leader = { name = "Mehmed V" ruling_only = yes }
+		}
+		retire_country_leader = yes
+		if = { limit = { has_character = TUR_mehmed_v } retire_character = TUR_mehmed_v }
+		if = { limit = { NOT = { has_character = TUR_mehmed_vi } } recruit_character = TUR_mehmed_vi }
+		TUR_mehmed_vi = { promote_character = yes }
+	}
+	if = {
+		limit = {
+			tag = TUR
+			date < 1936.1.1
+			has_focus_tree = INT_turkey
+			has_global_flag = armistice_of_mudros
+			NOT = { has_global_flag = central_powers_victory }
+			owns_state = 49
+		}
+		if = {
+			limit = {
+				NOT = { has_start_date < 1922.11.2 }
+				NOT = { has_country_flag = INT_TUR_sultanate_abolished }
+			}
+			if = {
+				limit = { NOT = { has_completed_focus = INT_TUR_grand_national_assembly } }
+				complete_national_focus = INT_TUR_grand_national_assembly
+			}
+			INT_TUR_end_sultanate = yes
+			if = {
+				limit = { NOT = { has_completed_focus = INT_TUR_abolish_sultanate } }
+				complete_national_focus = INT_TUR_abolish_sultanate
+			}
+		}
+		if = {
+			limit = {
+				NOT = { has_start_date < 1923.7.25 }
+				has_country_flag = INT_TUR_sultanate_abolished
+				NOT = { has_country_flag = INT_TUR_lausanne_signed }
+			}
+			if = {
+				limit = { NOT = { has_completed_focus = INT_TUR_lausanne } }
+				complete_national_focus = INT_TUR_lausanne
+			}
+			else = { INT_TUR_apply_lausanne_settlement = yes }
+		}
+		if = {
+			limit = {
+				NOT = { has_start_date < 1923.10.30 }
+				has_country_flag = INT_TUR_lausanne_signed
+				NOT = { has_country_flag = INT_TUR_republic_proclaimed }
+				NOT = { has_completed_focus = INT_TUR_republic }
+			}
+			complete_national_focus = INT_TUR_republic
+		}
+	}
+}
