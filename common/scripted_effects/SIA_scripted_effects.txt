@@ -1767,3 +1767,59 @@ SIA_thai_students_in_the_oss_effect = {
 		level = 2
 	}
 }
+
+SIA_plant_indochina_port_charges = {
+	custom_effect_tooltip = SIA_plant_indochina_port_charges_tt
+
+	for_each_scope_loop = {
+		array = SIA.indochina_states
+
+		set_state_flag = SIA_port_charges_planted
+	}
+
+	# Nothing to lie dormant for if we are already at war with a holder
+	hidden_effect = {
+		SIA_detonate_indochina_port_charges = yes
+	}
+}
+
+SIA_detonate_indochina_port_charges = {
+	for_each_scope_loop = {
+		array = SIA.indochina_states
+		if = {
+			limit = {
+				has_state_flag = SIA_port_charges_planted
+				OR = {
+					controller = { original_tag = SIA }
+					controller = { has_war_with = SIA }
+				}
+			}
+			if = {
+				limit = {
+					naval_base > 0
+					controller = { NOT = { original_tag = SIA } }
+				}
+				damage_building = {
+					type = naval_base
+					damage = 20
+				}
+			}
+			clr_state_flag = SIA_port_charges_planted
+		}
+	}
+}
+
+SIA_raid_destroy_all_indochina_ports = {
+	for_each_scope_loop = {
+		array = SIA.indochina_states
+		if = {
+			limit = {
+				NOT = { is_controlled_by = SIA }
+			}
+			if = {
+				limit = { naval_base > 0 }
+				damage_building = { type = naval_base damage = 20 }
+			}
+		}
+	}
+}
