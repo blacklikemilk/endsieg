@@ -202,7 +202,7 @@ on_actions = {
                     else_if = {
                         limit = { tag = ITA }
                         if = {
-                            limit = { date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
+                            limit = { IT1_ww1_has_alternative_settlement = no  date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
                             load_focus_tree = { tree = INT_italy keep_completed = yes }
                         }
                         else = {
@@ -1241,7 +1241,7 @@ on_actions = {
 			# Italy moves from its WWI settlement through the interwar tree
 			# before the existing 1936 focus tree takes over.
 			if = {
-				limit = {
+				limit = { IT1_ww1_has_alternative_settlement = no
 					tag = ITA
 					has_focus_tree = INT_italy
 					date < 1936.1.1
@@ -1250,13 +1250,13 @@ on_actions = {
 				INT_ITA_schedule_interwar_events = yes
 			}
 			if = {
-				limit = { tag = ITA has_focus_tree = INT_italy date > 1918.12.30 NOT = { has_country_flag = INT_ITA_interwar_initialized } }
+				limit = { IT1_ww1_has_alternative_settlement = no  tag = ITA has_focus_tree = INT_italy date > 1918.12.30 NOT = { has_country_flag = INT_ITA_interwar_initialized } }
 				remove_ideas = { americans_are_here war_economy service_by_requirement }
 				add_ideas = { civilian_economy limited_conscription }
 				set_country_flag = INT_ITA_interwar_initialized
 			}
 			if = {
-				limit = {
+				limit = { IT1_ww1_has_alternative_settlement = no
 					tag = ITA
 					any_owned_state = { is_capital = yes }
 					has_start_date < 1936.1.1
@@ -1272,7 +1272,7 @@ on_actions = {
 				load_focus_tree = { tree = INT_italy keep_completed = yes }
 			}
 			if = {
-				limit = { tag = ITA has_focus_tree = INT_italy date > 1935.12.31 }
+				limit = { IT1_ww1_has_alternative_settlement = no  tag = ITA has_focus_tree = INT_italy date > 1935.12.31 }
 				remove_ideas = {
 					INT_ITA_postwar_dislocation INT_ITA_veterans_question INT_ITA_veterans_settlement INT_ITA_adriatic_compromise INT_ITA_southern_land_reform
 					INT_ITA_social_unrest
@@ -1402,7 +1402,7 @@ on_actions = {
 				else_if = {
 					limit = { tag = ITA NOT = { has_focus_tree = italian_focus_ww1 } NOT = { has_focus_tree = INT_italy } }
 					if = {
-						limit = { date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
+						limit = { IT1_ww1_has_alternative_settlement = no  date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
 						load_focus_tree = { tree = INT_italy keep_completed = yes }
 					}
 					else = { load_focus_tree = { tree = italian_focus_ww1 keep_completed = yes } }
@@ -1708,7 +1708,20 @@ on_actions = {
                 }
                 set_country_flag = endsieg_ARG_declared_war_on_GER
             }
-        }
+
+            # Continuous alternative campaigns enter vanilla1936 without a regime reset.
+            if = {
+                limit = {
+                    tag = ITA has_start_date < 1936.1.1 date > 1935.12.31
+                    NOT = { has_country_flag = IT1_ww1_handoff_completed }
+                }
+                IT1_ww1_end_administration = yes
+                remove_ideas = { IT1_ww1_general_staff IT1_ww1_alpini IT1_ww1_assault_corps IT1_ww1_artillery_survey IT1_ww1_logistics_service IT1_ww1_aviation_service IT1_ww1_caproni_contracts IT1_ww1_adriatic_patrols IT1_ww1_fleet_command IT1_ww1_army_transition IT1_ww1_modernized_army IT1_ww1_industrial_mobilization_spirit IT1_ww1_industrial_labor IT1_ww1_state_arsenals IT1_ww1_private_consortia_spirit IT1_ww1_transition_economy IT1_ww1_saver_protection IT1_ww1_domestic_credit IT1_ww1_trade_credit IT1_ww1_consular_network IT1_ww1_colonial_trade_board IT1_ww1_armed_neutrality_spirit IT1_ww1_mediterranean_council IT1_ww1_parliamentary_government IT1_ww1_catholic_coalition IT1_ww1_liberal_cabinet_spirit IT1_ww1_royal_cabinet_spirit IT1_ww1_professional_civil_service IT1_ww1_republican_guarantees IT1_ww1_factory_councils }
+                if = { limit = { has_focus_tree = italian_focus_ww1 } load_focus_tree = { tree = italian_focus keep_completed = yes } }
+                if = { limit = { has_focus_tree = INT_italy IT1_ww1_has_alternative_settlement = yes } load_focus_tree = { tree = italian_focus keep_completed = yes } }
+                set_country_flag = IT1_ww1_handoff_completed
+            }
+}
     }
 
     # ROOT is the capitulated country; FROM is the winner. Defer annexation
@@ -1968,5 +1981,21 @@ on_actions = {
     # Temporary WWI munitions plants close when their owner returns to peace.
     on_weekly = {
         effect = { endsieg_ww1_update_war_industry = yes }
+    }
+
+    # Country-scoped monthly administration; also expires remaining imperial penalties in1936.
+    on_monthly = {
+        effect = {
+            if = {
+                limit = {
+                    OR = { tag = AUH has_country_flag = AUH_ww1_administration_initialized }
+                }
+                AUH_ww1_monthly_administration = yes
+            }
+                    if = {
+                limit = { OR = { tag = ITA has_country_flag = IT1_ww1_administration_initialized } }
+                IT1_ww1_monthly_administration = yes
+            }
+}
     }
 }

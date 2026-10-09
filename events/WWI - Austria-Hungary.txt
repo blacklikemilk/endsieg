@@ -15,11 +15,9 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1.a
-		set_global_flag = annexation_of_bosnia
-		AUH = { 
-		transfer_state = 104 
-		transfer_state = 804
-		}
+		add_political_power = -25
+		add_timed_idea = { idea = AUH_ww1_civil_administration days = 180 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -34,7 +32,22 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.2.a
-		AUH = { add_opinion_modifier = { target = SER modifier = serbia_enemy } }
+		ai_chance = {
+			factor = 100
+		}
+		if = { limit = { country_exists = SER } add_opinion_modifier = { target = SER modifier = serbia_enemy } }
+		add_war_support = 0.03
+	}
+
+	option = {
+		name = ww1_kuk.2.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -25
+		add_timed_idea = { idea = AUH_ww1_local_police_reform days = 120 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -49,7 +62,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.3.a
-		add_political_power = 100
+		add_political_power = 25
 	}
 }
 
@@ -64,7 +77,8 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.4.a
-		AUH = { add_opinion_modifier = { target = GER modifier = germany_friend } }
+		if = { limit = { country_exists = GER } add_opinion_modifier = { target = GER modifier = germany_friend } }
+		army_experience = 5
 	}
 }
 
@@ -79,7 +93,8 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.5.a
-		AUH = { add_opinion_modifier = { target = BUL modifier = bulgaria_friend } }
+		if = { limit = { country_exists = BUL } add_opinion_modifier = { target = BUL modifier = bulgaria_friend } }
+		add_political_power = 10
 	}
 }
 
@@ -94,7 +109,8 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.6.a
-		AUH = { add_opinion_modifier = { target = TUR modifier = turkey_friend } }
+		if = { limit = { country_exists = TUR } add_opinion_modifier = { target = TUR modifier = turkey_friend } }
+		army_experience = 5
 	}
 }
 
@@ -109,8 +125,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.7.a
-		add_manpower = 250000
-		add_political_power = 150
+		add_political_power = -25
+		army_experience = 15
+		add_war_support = 0.03
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -125,8 +143,9 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.8.a
-		add_manpower = 35000
-		load_oob = albanian_legion
+		add_political_power = -20
+		army_experience = 10
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -141,9 +160,39 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.9.a
-		add_political_power = 75
-		add_ideas = SER_grain
-		add_equipment_to_stockpile = {  type = rations_1 amount = 5 producer = SER }
+		trigger = {
+			controls_state = 107
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_to_variable = { AUH_ww1_food_security = 7 }
+		add_stability = -0.02
+		add_war_support = -0.01
+		AUH_ww1_refresh_administration = yes
+	}
+
+	option = {
+		name = ww1_kuk.9.b
+		trigger = {
+			controls_state = 107
+		}
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -35
+		add_to_variable = { AUH_ww1_food_security = 5 }
+		add_timed_idea = { idea = AUH_ww1_civil_administration days = 90 }
+		AUH_ww1_refresh_administration = yes
+	}
+
+	option = {
+		name = ww1_kuk.9.c
+		trigger = {
+			NOT = { controls_state = 107 }
+		}
+		add_political_power = 5
 	}
 }
 
@@ -158,11 +207,11 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.10.a
-		BUL = {
-			transfer_state = 1038
-			transfer_state = 1021
-			transfer_state = 803
-			transfer_state = 106
+		if = { limit = { country_exists = BUL is_in_faction_with = BUL }
+			if = { limit = { owns_state = 1038 } BUL = { transfer_state = 1038 } }
+			if = { limit = { owns_state = 1021 } BUL = { transfer_state = 1021 } }
+			if = { limit = { owns_state = 803 } BUL = { transfer_state = 803 } }
+			if = { limit = { owns_state = 106 } BUL = { transfer_state = 106 } }
 		}
 	}
 }
@@ -178,8 +227,11 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.11.a
-		#add_war_effort = 0.03
-		add_political_power = 25
+		add_political_power = -30
+		army_experience = 10
+		add_war_support = 0.03
+		add_to_variable = { AUH_ww1_food_security = -3 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -188,14 +240,27 @@ country_event = {
 	id = ww1_kuk.12
 	title = ww1_kuk.12.t
 	desc = ww1_kuk.12.d
-	picture = GFX_report_event_cease_fire
+	picture = GFX_report_event_ceasefire
 
 	is_triggered_only = yes
 
 	option = {
 		name = ww1_kuk.12.a
-		add_political_power = -75
-		AUH = { add_opinion_modifier = { target = GER modifier = upset_germany } }
+		trigger = {
+			date > 1917.1.28
+			country_exists = FRA
+			has_war_with = FRA
+			NOT = { has_country_flag = AUH_ww1_sixtus_open }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		country_event = { id = ww1_kuk.103 days = 1 }
+	}
+
+	option = {
+		name = ww1_kuk.12.b
+		add_political_power = 10
 	}
 }
 
@@ -210,7 +275,8 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.13.a
-		AUH = { add_opinion_modifier = { target = ITA modifier = italy_improved_relations } }
+		if = { limit = { country_exists = ITA } add_opinion_modifier = { target = ITA modifier = italy_improved_relations } }
+		add_political_power = -10
 	}
 }
 
@@ -225,8 +291,8 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.14.a
-		set_global_flag = AH_subdues_ITA #Not sure if this is used, probably TODO
-		add_political_power = 50
+		set_global_flag = AH_subdues_ITA
+		add_political_power = -15
 	}
 }
 
@@ -241,7 +307,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.15.a
-		ITA = { country_event = { id = ww1_kuk.1501 days = 1 } }
+		if = { limit = { country_exists = ITA NOT = { has_war_with = ITA } owns_state = 850 } ITA = { country_event = { id = ww1_kuk.1501 days = 1 } } }
 	}
 }
 
@@ -256,16 +322,29 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1501.a
-		ai_chance = { factor = 60 }
-		ITA = {
-			transfer_state = 850
-			transfer_state = 39
+		trigger = {
+			country_exists = AUH
+			NOT = { has_war_with = AUH }
+			AUH = { owns_state = 850 }
 		}
-		AUH = { country_event = { id = ww1_kuk.1502 days = 1 } }
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		AUH = {
+			if = { limit = { owns_state = 850 } ITA = { transfer_state = 850 } }
+			if = { limit = { owns_state = 39 } ITA = { transfer_state = 39 } }
+			set_global_flag = ITA_neutrality_guaranteed
+			country_event = { id = ww1_kuk.1502 days = 1 }
+		}
+		set_country_flag = AUH_ww1_italian_neutrality_agreement
 	}
+
 	option = {
 		name = ww1_kuk.1501.b
-		ai_chance = { factor = 40 }
+		ai_chance = {
+			factor = 100
+		}
 		AUH = { country_event = { id = ww1_kuk.1503 days = 1 } }
 	}
 }
@@ -281,6 +360,8 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1502.a
+		add_stability = -0.02
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -296,6 +377,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1503.a
+		add_political_power = -10
 	}
 }
 
@@ -310,14 +392,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.16.a
-		ITA = {
-			transfer_state = 850
-			transfer_state = 39
-			transfer_state = 736
-			transfer_state = 1013
-			transfer_state = 856
-		}
-		set_global_flag = ITA_neutrality_guaranteed
+		if = { limit = { country_exists = ITA NOT = { has_war_with = ITA } owns_state = 850 } ITA = { country_event = { id = ww1_kuk.1601 days = 1 } } }
 	}
 }
 
@@ -332,6 +407,34 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1601.a
+		trigger = {
+			country_exists = AUH
+			NOT = { has_war_with = AUH }
+			AUH = { owns_state = 850 }
+		}
+		ai_chance = {
+			factor = 80
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		AUH = {
+			if = { limit = { owns_state = 850 } ITA = { transfer_state = 850 } }
+			if = { limit = { owns_state = 39 } ITA = { transfer_state = 39 } }
+			if = { limit = { owns_state = 736 } ITA = { transfer_state = 736 } }
+			if = { limit = { owns_state = 1013 } ITA = { transfer_state = 1013 } }
+			if = { limit = { owns_state = 852 } ITA = { transfer_state = 852 } }
+			set_global_flag = ITA_neutrality_guaranteed
+			add_stability = -0.04
+			AUH_ww1_refresh_administration = yes
+		}
+		set_country_flag = AUH_ww1_italian_neutrality_agreement
+	}
+
+	option = {
+		name = ww1_kuk.1601.b
+		ai_chance = {
+			factor = 100
+		}
+		AUH = { country_event = { id = ww1_kuk.1503 days = 1 } }
 	}
 }
 
@@ -346,7 +449,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.17.a
-		ITA = { country_event = { id = ww1_kuk.1703 days = 1 } }
+		if = { limit = { country_exists = ITA country_exists = GER NOT = { has_war_with = ITA } } ITA = { country_event = { id = ww1_kuk.1703 days = 1 } } }
 	}
 }
 
@@ -361,6 +464,8 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1701.a
+		set_country_flag = AUH_ww1_italian_alliance_offer_accepted
+		add_political_power = 15
 	}
 }
 
@@ -375,6 +480,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1702.a
+		add_political_power = -10
 	}
 }
 
@@ -389,17 +495,26 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.1703.a
-		ai_chance = {
-			factor = 75
+		trigger = { IT1_ww1_may_join_central = yes
+			is_in_faction = no
+			country_exists = AUH
+			country_exists = GER
+			NOT = { has_war_with = AUH }
 		}
-		AUH = { country_event = { id = ww1_kuk.1701 days = 1 } }
-	}
-	option = {
-		name = ww1_kuk.1703.a
 		ai_chance = {
 			factor = 25
+			modifier = { factor = 0 is_historical_focus_on = yes }
 		}
+		set_country_flag = AUH_ww1_central_powers_offer
 		AUH = { country_event = { id = ww1_kuk.1701 days = 1 } }
+	}
+
+	option = {
+		name = ww1_kuk.1703.b
+		ai_chance = {
+			factor = 100
+		}
+		AUH = { country_event = { id = ww1_kuk.1702 days = 1 } }
 	}
 }
 
@@ -414,9 +529,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.18.a
-		news_event = { hours = 6 id = endsieg_news.159 }
-		GER = {
-			add_to_faction = ITA
+		if = { limit = { country_exists = GER country_exists = ITA has_country_flag = AUH_ww1_italian_alliance_offer_accepted ITA = { IT1_ww1_may_join_central = yes  has_country_flag = AUH_ww1_central_powers_offer is_in_faction = no NOT = { has_war_with = AUH } } GER = { is_faction_leader = yes } }
+			GER = { add_to_faction = ITA }
+			ITA = { set_country_flag = IT1_ww1_central_offer_accepted set_country_flag = IT1_ww1_central_alignment }
+			news_event = { hours = 6 id = endsieg_news.159 }
 		}
 	}
 }
@@ -432,9 +548,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.19.a
-		AUH = {
-			add_ideas = ww1_german_advisors
-		}
+		if = { limit = { country_exists = GER is_in_faction_with = GER } add_political_power = -20 army_experience = 10 add_timed_idea = { idea = ww1_german_advisors days = 180 } }
 	}
 }
 
@@ -449,7 +563,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.20.a
-		load_oob = german_reinforcements
+		if = { limit = { country_exists = GER is_in_faction_with = GER } GER = { country_event = { id = ww1_kuk.2001 days = 1 } } }
 	}
 }
 
@@ -464,9 +578,24 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.21.a
-		GER = {
-			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 5000 producer = AUH }
+		trigger = {
+			country_exists = GER
+			is_in_faction_with = GER
+			has_equipment = { early_infantry_equipment_3 > 999 }
 		}
+		ai_chance = {
+			factor = 70
+		}
+		add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = -1000 }
+		GER = { add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 1000 producer = AUH } country_event = { id = ww1_kuk.2101 days = 1 } }
+	}
+
+	option = {
+		name = ww1_kuk.21.b
+		ai_chance = {
+			factor = 30
+		}
+		army_experience = 2
 	}
 }
 
@@ -481,11 +610,25 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.22.a
-		GER = {
-			country_event = { id = ww1_kuk.2201 days = 1 }
-			load_oob = austrian_reinforcements
-			add_manpower = 25000
+		trigger = {
+			country_exists = GER
+			is_in_faction_with = GER
+			has_manpower > 2999
 		}
+		ai_chance = {
+			factor = 70
+		}
+		add_manpower = -3000
+		add_political_power = -15
+		GER = { add_manpower = 3000 country_event = { id = ww1_kuk.2201 days = 1 } }
+	}
+
+	option = {
+		name = ww1_kuk.22.b
+		ai_chance = {
+			factor = 30
+		}
+		army_experience = 2
 	}
 }
 
@@ -500,6 +643,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.2201.a
+		army_experience = 5
 	}
 }
 
@@ -514,7 +658,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.23.a
-		load_oob = turkish_reinforcements
+		if = { limit = { country_exists = TUR is_in_faction_with = TUR } TUR = { country_event = { id = ww1_kuk.2301 days = 1 } } }
 	}
 }
 
@@ -523,15 +667,31 @@ country_event = {
 	id = ww1_kuk.24
 	title = ww1_kuk.24.t
 	desc = ww1_kuk.24.d
-	picture = GFX_report_event_austrian_reinforcements_2
+	picture = GFX_report_event_austrian_reinforcements
 
 	is_triggered_only = yes
 
 	option = {
 		name = ww1_kuk.24.a
-		TUR = {
-			load_oob = austrian_reinforcement_2
+		trigger = {
+			country_exists = TUR
+			is_in_faction_with = TUR
+			has_manpower > 2999
 		}
+		ai_chance = {
+			factor = 70
+		}
+		add_manpower = -3000
+		add_political_power = -15
+		TUR = { add_manpower = 3000 country_event = { id = ww1_kuk.2401 days = 1 } }
+	}
+
+	option = {
+		name = ww1_kuk.24.b
+		ai_chance = {
+			factor = 30
+		}
+		army_experience = 2
 	}
 }
 
@@ -546,9 +706,24 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.25.a
-		TUR = {
-			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 5000 producer = AUH }
+		trigger = {
+			country_exists = TUR
+			is_in_faction_with = TUR
+			has_equipment = { early_infantry_equipment_3 > 999 }
 		}
+		ai_chance = {
+			factor = 70
+		}
+		add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = -1000 }
+		TUR = { add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 1000 producer = AUH } country_event = { id = ww1_kuk.2501 days = 1 } }
+	}
+
+	option = {
+		name = ww1_kuk.25.b
+		ai_chance = {
+			factor = 30
+		}
+		army_experience = 2
 	}
 }
 
@@ -563,7 +738,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.27.a
-		add_ideas = military_focus
+		add_political_power = -30
+		army_experience = 15
+		add_timed_idea = { idea = AUH_ww1_common_army days = 120 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -578,7 +756,9 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.28.a
-		add_ideas = internal_focus
+		add_political_power = -25
+		add_timed_idea = { idea = AUH_ww1_civil_administration days = 180 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -593,7 +773,23 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.29.a
-		add_ideas = supressed_minorities
+		ai_chance = {
+			factor = 100
+		}
+		add_timed_idea = { idea = AUH_ww1_imperial_censorship days = 120 }
+		add_stability = -0.02
+		AUH_ww1_refresh_administration = yes
+	}
+
+	option = {
+		name = ww1_kuk.29.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -30
+		add_timed_idea = { idea = AUH_ww1_parliamentary_scrutiny days = 180 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -602,12 +798,13 @@ country_event = {
 	id = ww1_kuk.30
 	title = ww1_kuk.30.t
 	desc = ww1_kuk.30.d
-	picture = GFX_report_event_
+	picture = GFX_report_event_internal_focus
 
 	is_triggered_only = yes
 
 	option = {
 		name = ww1_kuk.30.a
+		country_event = { id = ww1_kuk.100 days = 1 }
 	}
 }
 
@@ -622,7 +819,9 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.31.a
-		load_oob = Polish_Legion_1914
+		add_political_power = -20
+		army_experience = 10
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -637,8 +836,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.32.a
-		add_stability = 0.05
-		add_war_support = 0.10
+		add_political_power = -20
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 180 }
+		add_war_support = 0.02
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -649,12 +850,23 @@ country_event = {
 	desc = ww1_kuk.33.d
 	picture = GFX_report_event_charles_coronation
 
-	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		tag = AUH
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1916.12.31
+		date > 1916.12.29
+		date < 1917.1.15
+		NOT = { has_country_flag = AUH_ww1_karl_coronated }
+	}
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_kuk.33.a
+		set_country_flag = AUH_ww1_karl_coronated
 		news_event = { hours = 6 id = endsieg_news.160 }
-		add_stability = 0.05
+		add_stability = 0.02
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -669,7 +881,9 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.34.a
-		add_war_support = 0.025
+		add_political_power = -20
+		add_timed_idea = { idea = AUH_ww1_public_works days = 90 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -684,7 +898,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.35.a
-		add_war_support = 0.025
+		add_political_power = -20
+		army_experience = 5
+		add_to_variable = { AUH_ww1_food_security = -2 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -693,13 +910,15 @@ country_event = {
 	id = ww1_kuk.36
 	title = ww1_kuk.36.t
 	desc = ww1_kuk.36.d
-	picture = GFX_report_event_war_effort_AUH
+	picture = GFX_report_event_home_front
 
 	is_triggered_only = yes
 
 	option = {
 		name = ww1_kuk.36.a
-		add_war_support = 0.025
+		add_political_power = -20
+		add_to_variable = { AUH_ww1_food_security = 5 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -714,7 +933,9 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.37.a
-		add_war_support = 0.05
+		add_political_power = -20
+		army_experience = 10
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -729,7 +950,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.38.a
-		add_war_support = 0.05
+		add_political_power = -25
+		army_experience = 10
+		add_timed_idea = { idea = AUH_ww1_siege_artillery days = 120 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -744,7 +968,11 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.39.a
-		add_war_support = 0.05
+		add_political_power = -30
+		army_experience = 10
+		add_war_support = 0.02
+		add_to_variable = { AUH_ww1_food_security = -2 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -759,7 +987,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.40.a
-		add_stability = 0.05
+		add_political_power = -20
+		add_to_variable = { AUH_ww1_food_security = 4 }
+		add_timed_idea = { idea = AUH_ww1_food_distribution days = 120 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -774,7 +1005,9 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.41.a
-		add_stability = 0.05
+		add_political_power = -25
+		add_timed_idea = { idea = AUH_ww1_strike_concessions days = 90 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -789,7 +1022,10 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.42.a
-		add_stability = 0.05
+		add_political_power = -25
+		add_timed_idea = { idea = AUH_ww1_civilian_kitchens days = 120 }
+		add_to_variable = { AUH_ww1_food_security = 5 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -801,32 +1037,21 @@ country_event = {
 	picture = GFX_report_event_franz_dead
 
 	fire_only_once = yes
-
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
 		has_start_date < 1916.11.22
 		tag = AUH
 		date > 1916.11.20
-		NOT = { date > 1917.1.1 }
+		date < 1917.1.1
 	}
-
 	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_kuk.43.a
-		news_event = { hours = 6 id = endsieg_news.161 }
 		set_global_flag = franz_josef_dead
-		kill_country_leader = yes
-		create_country_leader = {
-			name = "Karl I"
-			desc = "POLITICS_KARL_I_DESC"
-			picture = "Portrait_Austria_Charles_I.dds"
-			expire = "1965.1.1"
-			ideology = despotism
-			traits = {
-				stout_defender
-			}
-		}
+		news_event = { hours = 6 id = endsieg_news.161 }
+		if = { limit = { has_character = AUH_franz_joseph } retire_character = AUH_franz_joseph }
+		promote_character = AUH_karl_i
 	}
 }
 
@@ -838,21 +1063,20 @@ country_event = {
 	picture = GFX_report_event_franz_assassinated
 
 	fire_only_once = yes
-
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
 		has_start_date < 1914.6.29
 		tag = AUH
 		date > 1914.6.27
-		NOT = { date > 1915.1.1 }
+		date < 1914.7.15
 	}
-
 	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_kuk.44.a
 		set_global_flag = franz_dead
 		news_event = { hours = 6 id = endsieg_news.162 }
+		add_stability = -0.02
 	}
 }
 
@@ -864,22 +1088,39 @@ country_event = {
 	picture = GFX_report_event_hoyos
 
 	fire_only_once = yes
-
-
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
 		has_start_date < 1914.7.4
 		tag = AUH
+		has_global_flag = franz_dead
 		date > 1914.7.2
-		NOT = { date > 1915.1.1 }
+		date < 1914.7.20
 	}
-
 	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_kuk.45.a
+		trigger = {
+			country_exists = GER
+		}
+		ai_chance = {
+			factor = 100
+		}
 		set_global_flag = AUH_expecting_blank_cheque
 		GER = { country_event = { id = ww1_kuk.4501 days = 1 } }
+	}
+
+	option = {
+		name = ww1_kuk.45.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		set_country_flag = AUH_ww1_july_mediation
+		add_political_power = -35
+		add_war_support = -0.03
+		news_event = { id = ww1_kuk.120 hours = 6 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -894,8 +1135,20 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.4501.a
+		ai_chance = {
+			factor = 100
+		}
 		set_global_flag = GE1_gives_blank_cheque
 		AUH = { country_event = { id = ww1_kuk.46 days = 1 } }
+	}
+
+	option = {
+		name = ww1_kuk.4501.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		AUH = { set_country_flag = AUH_ww1_july_mediation add_political_power = -15 news_event = { id = ww1_kuk.120 hours = 6 } }
 	}
 }
 
@@ -910,8 +1163,23 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.46.a
-		add_political_power = 25
-		hidden_effect = { country_event = { id = ww1_kuk.47 days = 15 } }
+		ai_chance = {
+			factor = 100
+		}
+		set_country_flag = AUH_ww1_ultimatum_prepared
+		add_political_power = 10
+	}
+
+	option = {
+		name = ww1_kuk.46.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		set_country_flag = AUH_ww1_july_mediation
+		add_political_power = -35
+		news_event = { id = ww1_kuk.120 hours = 6 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -922,13 +1190,39 @@ country_event = {
 	desc = ww1_kuk.47.d
 	picture = GFX_report_event_servian_ultimatum
 
-	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		tag = AUH
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1914.7.24
+		date > 1914.7.22
+		date < 1914.8.1
+		has_country_flag = AUH_ww1_ultimatum_prepared
+		NOT = { has_country_flag = AUH_ww1_july_mediation }
+		country_exists = SER
+		NOT = { has_war_with = SER }
+	}
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_kuk.47.a
-		news_event = { hours = 6 id = endsieg_news.163 }
-		hidden_effect = { country_event = { id = ww1_kuk.48 days = 3 } }
+		ai_chance = {
+			factor = 100
+		}
 		set_global_flag = ultimatum_to_servia_sent
+		news_event = { hours = 6 id = endsieg_news.163 }
+		SER = { country_event = { id = ww1_kuk.48 days = 2 } }
+	}
+
+	option = {
+		name = ww1_kuk.47.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		set_country_flag = AUH_ww1_july_mediation
+		add_political_power = -35
+		news_event = { id = ww1_kuk.120 hours = 6 }
 	}
 }
 
@@ -940,12 +1234,31 @@ country_event = {
 	picture = GFX_report_event_servian_ultimatum
 
 	is_triggered_only = yes
+	trigger = {
+		tag = SER
+		country_exists = AUH
+		NOT = { has_war_with = AUH }
+	}
 
 	option = {
 		name = ww1_kuk.48.a
+		ai_chance = {
+			factor = 100
+		}
+		set_global_flag = ultimatum_rejected
 		news_event = { hours = 6 id = endsieg_news.164 }
 		AUH = { country_event = { id = ww1_kuk.49 days = 2 } }
-		set_global_flag = ultimatum_rejected
+	}
+
+	option = {
+		name = ww1_kuk.48.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -75
+		add_stability = -0.05
+		AUH = { set_country_flag = AUH_ww1_july_mediation add_war_support = -0.03 news_event = { id = ww1_kuk.120 hours = 6 } }
 	}
 }
 
@@ -957,30 +1270,34 @@ country_event = {
 	picture = GFX_report_event_WWI_begins
 
 	is_triggered_only = yes
+	trigger = {
+		tag = AUH
+		country_exists = SER
+		NOT = { has_war_with = SER }
+		NOT = { has_country_flag = AUH_ww1_july_mediation }
+	}
 
 	option = {
-		name = ww1_kuk.40.a
-		hidden_effect = {
-			if = {
-				limit = { NOT = { country_exists = SER } }
-				SER = {
-					transfer_state = 107
-					transfer_state = 108
-					transfer_state = 803
-					load_oob = SER_annexed
-				}
-			}
+		name = ww1_kuk.49.a
+		ai_chance = {
+			factor = 100
 		}
-		AUH = { declare_war_on = { target = SER type = annex_everything } }
-		GER = {
-			add_to_war = {
-				targeted_alliance = AUH
-				enemy = SER
-				hostility_reason = asked_to_join
-			}
-		}
-		FRA = { add_to_faction = SER }
+		declare_war_on = { target = SER type = annex_everything }
+		if = { limit = { country_exists = GER has_global_flag = GE1_gives_blank_cheque is_in_faction_with = GER } GER = { add_to_war = { targeted_alliance = AUH enemy = SER hostility_reason = asked_to_join } } }
+		if = { limit = { country_exists = FRA SER = { is_in_faction = no } FRA = { is_faction_leader = yes } } FRA = { add_to_faction = SER } }
 		set_global_flag = WW1_starts
+	}
+
+	option = {
+		name = ww1_kuk.49.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		set_country_flag = AUH_ww1_july_mediation
+		add_political_power = -50
+		add_war_support = -0.05
+		news_event = { id = ww1_kuk.120 hours = 6 }
 	}
 }
 
@@ -992,21 +1309,34 @@ country_event = {
 	picture = GFX_report_event_sarajevo_riots
 
 	fire_only_once = yes
-
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
 		has_start_date < 1914.6.30
 		tag = AUH
 		has_global_flag = franz_dead
 		date > 1914.6.28
-		NOT = { date > 1915.1.1 }
+		date < 1914.7.15
 	}
-
 	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_kuk.50.a
-		#set_stability = 0.025
+		ai_chance = {
+			factor = 100
+		}
+		add_stability = -0.04
+		AUH_ww1_refresh_administration = yes
+	}
+
+	option = {
+		name = ww1_kuk.50.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -20
+		add_timed_idea = { idea = AUH_ww1_local_police_reform days = 120 }
+		AUH_ww1_refresh_administration = yes
 	}
 }
 
@@ -1077,17 +1407,13 @@ country_event = {
 	        transfer_state = 155
 	        transfer_state = 43
 			transfer_state = 154
-			transfer_state = 850
+			transfer_state = 1022
 
 			add_state_core = 155
 			add_state_core = 43
 			add_state_core = 154
 			add_state_core = 850
 
-	        country_event = { id = INT_hungary.2 days = 120 }
-	        country_event = { id = INT_hungary.3 days = 15 }
-	        country_event = { id = INT_hungary.4 days = 35 }
-	        country_event = { id = INT_hungary.7 days = 75 }
 
 	        every_country = {
 	            limit = {
@@ -1156,7 +1482,6 @@ country_event = {
 	        transfer_state = 736
 	        transfer_state = 1013
 	        transfer_state = 163
-	        transfer_state = 850
 	        transfer_state = 852
 	    }
 	    ALB = {
@@ -1262,6 +1587,7 @@ country_event = {
 				autonomy_state = autonomy_free
 			}
 		}
+		AUH = { AUH_ww1_end_administration = yes }
 	    AUS = {
 			add_state_core = 4
 			add_state_core = 152
@@ -1392,16 +1718,12 @@ country_event = {
 	        transfer_state = 155
 	        transfer_state = 43
 			transfer_state = 154
-			transfer_state = 850
+			transfer_state = 1022
 
 			add_state_core = 155
 			add_state_core = 43
 			add_state_core = 154
 			add_state_core = 850
-	        country_event = { id = INT_hungary.2 days = 120 }
-	        country_event = { id = INT_hungary.3 days = 15 }
-	        country_event = { id = INT_hungary.4 days = 35 }
-	        country_event = { id = INT_hungary.7 days = 75 }
 
 	        every_country = {
 	            limit = {
@@ -1467,7 +1789,6 @@ country_event = {
 	        transfer_state = 736
 	        transfer_state = 1013
 	        transfer_state = 163
-	        transfer_state = 850
 	        transfer_state = 852
 	    }
 	    ALB = {
@@ -1572,6 +1893,7 @@ country_event = {
 				autonomy_state = autonomy_free
 			}
 		}
+		AUH = { AUH_ww1_end_administration = yes }
 	    AUS = {
 			add_state_core = 4
 			add_state_core = 152
@@ -1643,6 +1965,16 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
+		NOT = { has_country_flag = AUH_ww1_orderly_partition }
+		# Ratified reform can hold the monarchy together until civic order or the army collapses.
+		OR = {
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
+			has_stability < 0.40
+			surrender_progress > 0.30
+			has_capitulated = yes
+			check_variable = { war_exhaustion_variable > 1700 }
+		}
 		has_global_flag = welcome_event_WW1_active
 		tag = AUH
 		check_variable = { war_exhaustion_variable > 1556 }
@@ -1696,6 +2028,16 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
+		NOT = { has_country_flag = AUH_ww1_orderly_partition }
+		# Ratified reform can hold the monarchy together until civic order or the army collapses.
+		OR = {
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
+			has_stability < 0.40
+			surrender_progress > 0.30
+			has_capitulated = yes
+			check_variable = { war_exhaustion_variable > 1700 }
+		}
 		has_global_flag = welcome_event_WW1_active
 		tag = AUH
 		check_variable = { war_exhaustion_variable > 1554 }
@@ -1757,6 +2099,10 @@ country_event = {
 	picture = GFX_report_event_west_ukraine
 
 	is_triggered_only = yes
+	trigger = {
+		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
+		NOT = { has_country_flag = AUH_ww1_orderly_partition }
+	}
 
 	option = {
 		name = ww1_kuk.54.a
@@ -1803,6 +2149,16 @@ country_event = {
 	is_triggered_only = yes
 
 	trigger = {
+		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
+		NOT = { has_country_flag = AUH_ww1_orderly_partition }
+		# Ratified reform can hold the monarchy together until civic order or the army collapses.
+		OR = {
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
+			has_stability < 0.40
+			surrender_progress > 0.30
+			has_capitulated = yes
+			check_variable = { war_exhaustion_variable > 1700 }
+		}
 		has_global_flag = welcome_event_WW1_active country_exists = CZE }
 
 	option = {
@@ -1827,6 +2183,16 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
+		NOT = { has_country_flag = AUH_ww1_orderly_partition }
+		# Ratified reform can hold the monarchy together until civic order or the army collapses.
+		OR = {
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
+			has_stability < 0.40
+			surrender_progress > 0.30
+			has_capitulated = yes
+			check_variable = { war_exhaustion_variable > 1700 }
+		}
 		has_global_flag = welcome_event_WW1_active
 		tag = AUH
 		check_variable = { war_exhaustion_variable > 1554 }
@@ -1984,7 +2350,7 @@ country_event = {
 	id = ww1_kuk.61
 	title = ww1_kuk.61.t
 	desc = ww1_kuk.61.d
-	picture = GFX_report_event_BEF
+	picture = GFX_report_event_prepare_for_war
 
 	fire_only_once = yes
 
@@ -2013,3 +2379,1423 @@ country_event = {
 #	remove_unit_leader = 6110
 #	remove_unit_leader = 6108
 #}
+
+
+# Imperial administration, constitutional settlements and peace diplomacy
+
+country_event = {
+	id = ww1_kuk.26
+	title = ww1_kuk.26.t
+	desc = ww1_kuk.26.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.26.a
+		add_political_power = -25
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 180 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.100
+	title = ww1_kuk.100.t
+	desc = ww1_kuk.100.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.100.a
+		add_political_power = -25
+		set_country_flag = AUH_ww1_council_compromise
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 180 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.101
+	title = ww1_kuk.101.t
+	desc = ww1_kuk.101.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.101.a
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -35
+		set_country_flag = AUH_ww1_constitutional_process
+		set_country_flag = AUH_ww1_trialist_initiative
+		country_event = { id = ww1_kuk.200 days = 1 }
+	}
+
+	option = {
+		name = ww1_kuk.101.b
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -20
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.102
+	title = ww1_kuk.102.t
+	desc = ww1_kuk.102.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.102.a
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -40
+		set_country_flag = AUH_ww1_constitutional_process
+		set_country_flag = AUH_ww1_federal_initiative
+		country_event = { id = ww1_kuk.200 days = 1 }
+	}
+
+	option = {
+		name = ww1_kuk.102.b
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -20
+		add_timed_idea = { idea = AUH_ww1_civil_administration days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.103
+	title = ww1_kuk.103.t
+	desc = ww1_kuk.103.d
+	picture = GFX_report_event_ceasefire
+
+	is_triggered_only = yes
+	trigger = {
+		tag = AUH
+		date > 1917.1.28
+		date < 1936.1.1
+		NOT = { has_country_flag = AUH_ww1_sixtus_open }
+	}
+
+	option = {
+		name = ww1_kuk.103.a
+		trigger = {
+			country_exists = FRA
+			has_war_with = FRA
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -40
+		set_country_flag = AUH_ww1_sixtus_open
+		FRA = { country_event = { id = ww1_kuk.104 days = 14 } }
+	}
+
+	option = {
+		name = ww1_kuk.103.b
+		ai_chance = {
+			factor = 15
+		}
+		add_political_power = 10
+		set_country_flag = AUH_ww1_sixtus_failed
+	}
+}
+
+country_event = {
+	id = ww1_kuk.104
+	title = ww1_kuk.104.t
+	desc = ww1_kuk.104.d
+	picture = GFX_report_event_ceasefire
+
+	is_triggered_only = yes
+	trigger = { tag = FRA country_exists = AUH has_war_with = AUH }
+
+	option = {
+		name = ww1_kuk.104.a
+		ai_chance = {
+			factor = 30
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		AUH = { country_event = { id = ww1_kuk.105 days = 7 } }
+	}
+
+	option = {
+		name = ww1_kuk.104.b
+		ai_chance = {
+			factor = 100
+		}
+		AUH = { country_event = { id = ww1_kuk.106 days = 7 } }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.105
+	title = ww1_kuk.105.t
+	desc = ww1_kuk.105.d
+	picture = GFX_report_event_ceasefire
+
+	is_triggered_only = yes
+	trigger = { tag = AUH country_exists = FRA has_war_with = FRA }
+
+	option = {
+		name = ww1_kuk.105.a
+		trigger = {
+			is_in_faction = no
+			country_exists = FRA
+			FRA = { is_in_faction = no }
+			has_war_with = FRA
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -75
+		set_country_flag = AUH_ww1_sixtus_terms
+		white_peace = FRA
+		set_country_flag = AUH_ww1_sixtus_settlement
+		add_war_support = -0.05
+		news_event = { id = ww1_kuk.123 hours = 6 }
+	}
+
+	option = {
+		name = ww1_kuk.105.b
+		ai_chance = {
+			factor = 100
+		}
+		set_country_flag = AUH_ww1_sixtus_failed
+		set_country_flag = AUH_ww1_sixtus_terms
+		country_event = { id = ww1_kuk.106 days = 1 }
+	}
+
+	option = {
+		name = ww1_kuk.105.c
+		ai_chance = {
+			factor = 30
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -50
+		set_country_flag = AUH_ww1_sixtus_humanitarian
+		add_to_variable = { AUH_ww1_food_security = 5 }
+		add_timed_idea = { idea = AUH_ww1_food_distribution days = 120 }
+		news_event = { id = ww1_kuk.127 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.106
+	title = ww1_kuk.106.t
+	desc = ww1_kuk.106.d
+	picture = GFX_report_event_ceasefire
+
+	fire_only_once = no
+	trigger = {
+		tag = AUH
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.4.13
+		date > 1918.4.11
+		date < 1918.6.1
+		has_country_flag = AUH_ww1_sixtus_failed
+		NOT = { has_country_flag = AUH_ww1_sixtus_exposed }
+	}
+	mean_time_to_happen = { days = 1 }
+
+	option = {
+		name = ww1_kuk.106.a
+		set_country_flag = AUH_ww1_sixtus_failed
+		add_political_power = -20
+		if = { limit = { country_exists = GER } add_opinion_modifier = { target = GER modifier = upset_germany } }
+		if = { limit = { date > 1918.4.11 date < 1918.6.1 NOT = { has_country_flag = AUH_ww1_sixtus_exposed } }
+			set_country_flag = AUH_ww1_sixtus_exposed
+			add_stability = -0.04
+			news_event = { id = ww1_kuk.124 hours = 6 }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_kuk.107
+	title = ww1_kuk.107.t
+	desc = ww1_kuk.107.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.107.a
+		add_political_power = -25
+		add_timed_idea = { idea = AUH_ww1_parliamentary_scrutiny days = 180 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.108
+	title = ww1_kuk.108.t
+	desc = ww1_kuk.108.d
+	picture = GFX_report_event_hungarian_support
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.108.a
+		add_political_power = -25
+		add_to_variable = { AUH_ww1_food_security = 10 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.109
+	title = ww1_kuk.109.t
+	desc = ww1_kuk.109.d
+	picture = GFX_report_event_military_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.109.a
+		army_experience = 15
+	}
+}
+
+country_event = {
+	id = ww1_kuk.110
+	title = ww1_kuk.110.t
+	desc = ww1_kuk.110.d
+	picture = GFX_report_event_triple_alliance
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.110.a
+		navy_experience = 10
+	}
+}
+
+country_event = {
+	id = ww1_kuk.111
+	title = ww1_kuk.111.t
+	desc = ww1_kuk.111.d
+	picture = GFX_report_event_home_front
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.111.a
+		add_political_power = -25
+		add_to_variable = { AUH_ww1_food_security = 5 }
+		add_timed_idea = { idea = AUH_ww1_civil_administration days = 120 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.112
+	title = ww1_kuk.112.t
+	desc = ww1_kuk.112.d
+	picture = GFX_report_event_home_front
+
+	fire_only_once = yes
+	trigger = {
+		tag = AUH
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.1.15
+		date > 1918.1.13
+		date < 1918.2.1
+		has_war = yes
+		OR = { check_variable = { AUH_ww1_food_security < 40 } has_stability < 0.40 }
+	}
+	mean_time_to_happen = { days = 1 }
+
+	immediate = {
+		set_country_flag = AUH_ww1_january_strikes
+		add_stability = -0.03
+		news_event = { id = ww1_kuk.125 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+	}
+
+	option = {
+		name = ww1_kuk.112.a
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -15
+		custom_effect_tooltip = AUH_ww1_crisis_decisions_tt
+	}
+
+	option = {
+		name = ww1_kuk.112.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_timed_idea = { idea = AUH_ww1_imperial_censorship days = 90 }
+		add_stability = -0.02
+		AUH_ww1_refresh_administration = yes
+		custom_effect_tooltip = AUH_ww1_crisis_decisions_tt
+	}
+}
+
+country_event = {
+	id = ww1_kuk.113
+	title = ww1_kuk.113.t
+	desc = ww1_kuk.113.d
+	picture = GFX_report_event_triple_alliance
+
+	fire_only_once = yes
+	trigger = {
+		tag = AUH
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.2.2
+		date > 1918.1.31
+		date < 1918.3.1
+		has_war = yes
+		has_navy_size = { size > 0 }
+		OR = { check_variable = { AUH_ww1_food_security < 40 } has_stability < 0.40 }
+	}
+	mean_time_to_happen = { days = 1 }
+
+	immediate = {
+		set_country_flag = AUH_ww1_cattaro_unrest
+		add_stability = -0.02
+		news_event = { id = ww1_kuk.126 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+	}
+
+	option = {
+		name = ww1_kuk.113.a
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		add_political_power = -15
+		custom_effect_tooltip = AUH_ww1_crisis_decisions_tt
+	}
+
+	option = {
+		name = ww1_kuk.113.b
+		add_political_power = -15
+		add_war_support = -0.02
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_refresh_administration = yes
+		custom_effect_tooltip = AUH_ww1_crisis_decisions_tt
+	}
+}
+
+country_event = {
+	id = ww1_kuk.2001
+	title = ww1_kuk.2001.t
+	desc = ww1_kuk.2001.d
+	picture = GFX_report_event_german_officers
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.2001.a
+		trigger = {
+			country_exists = AUH
+			is_in_faction_with = AUH
+			has_manpower > 2999
+		}
+		ai_chance = {
+			factor = 70
+		}
+		add_manpower = -3000
+		AUH = { add_manpower = 3000 army_experience = 5 }
+	}
+
+	option = {
+		name = ww1_kuk.2001.b
+		ai_chance = {
+			factor = 30
+		}
+		add_political_power = 5
+	}
+}
+
+country_event = {
+	id = ww1_kuk.2101
+	title = ww1_kuk.2101.t
+	desc = ww1_kuk.2101.d
+	picture = GFX_report_event_weapons_cache
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.2101.a
+		add_political_power = 5
+	}
+}
+
+country_event = {
+	id = ww1_kuk.2301
+	title = ww1_kuk.2301.t
+	desc = ww1_kuk.2301.d
+	picture = GFX_report_event_turkish_reinforcements
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.2301.a
+		trigger = {
+			country_exists = AUH
+			is_in_faction_with = AUH
+			has_manpower > 2999
+		}
+		ai_chance = {
+			factor = 60
+		}
+		add_manpower = -3000
+		AUH = { add_manpower = 3000 army_experience = 5 }
+	}
+
+	option = {
+		name = ww1_kuk.2301.b
+		ai_chance = {
+			factor = 40
+		}
+		add_political_power = 5
+	}
+}
+
+country_event = {
+	id = ww1_kuk.2401
+	title = ww1_kuk.2401.t
+	desc = ww1_kuk.2401.d
+	picture = GFX_report_event_austrian_reinforcements
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.2401.a
+		army_experience = 5
+	}
+}
+
+country_event = {
+	id = ww1_kuk.2501
+	title = ww1_kuk.2501.t
+	desc = ww1_kuk.2501.d
+	picture = GFX_report_event_weapons_cache
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.2501.a
+		add_political_power = 5
+	}
+}
+
+news_event = {
+	id = ww1_kuk.120
+	title = ww1_kuk.120.t
+	desc = ww1_kuk.120.d
+	picture = GFX_report_event_servian_ultimatum
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.120.a }
+}
+
+news_event = {
+	id = ww1_kuk.121
+	title = ww1_kuk.121.t
+	desc = ww1_kuk.121.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.121.a }
+}
+
+news_event = {
+	id = ww1_kuk.122
+	title = ww1_kuk.122.t
+	desc = ww1_kuk.122.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.122.a }
+}
+
+news_event = {
+	id = ww1_kuk.123
+	title = ww1_kuk.123.t
+	desc = ww1_kuk.123.d
+	picture = GFX_report_event_ceasefire
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.123.a }
+}
+
+news_event = {
+	id = ww1_kuk.124
+	title = ww1_kuk.124.t
+	desc = ww1_kuk.124.d
+	picture = GFX_report_event_ceasefire
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.124.a }
+}
+
+news_event = {
+	id = ww1_kuk.125
+	title = ww1_kuk.125.t
+	desc = ww1_kuk.125.d
+	picture = GFX_report_event_home_front
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.125.a }
+}
+
+news_event = {
+	id = ww1_kuk.126
+	title = ww1_kuk.126.t
+	desc = ww1_kuk.126.d
+	picture = GFX_report_event_triple_alliance
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.126.a }
+}
+
+news_event = {
+	id = ww1_kuk.127
+	title = ww1_kuk.127.t
+	desc = ww1_kuk.127.d
+	picture = GFX_report_event_ceasefire
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.127.a }
+}
+
+
+# Negotiated constitutional transformations
+
+country_event = {
+	id = ww1_kuk.200
+	title = ww1_kuk.200.t
+	desc = ww1_kuk.200.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH date < 1936.1.1 NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } } }
+
+	option = {
+		name = ww1_kuk.200.a
+		ai_chance = {
+			factor = 75
+		}
+		add_political_power = -30
+		set_country_flag = AUH_ww1_constitutional_process
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 180 }
+		news_event = { id = ww1_kuk.250 hours = 6 }
+	}
+
+	option = {
+		name = ww1_kuk.200.b
+		ai_chance = {
+			factor = 25
+		}
+		add_political_power = -10
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.201
+	title = ww1_kuk.201.t
+	desc = ww1_kuk.201.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } } }
+
+	option = {
+		name = ww1_kuk.201.a
+		trigger = {
+			owns_state = 9
+			controls_state = 9
+			OR = { NOT = { country_exists = CZE } CZE = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -35
+		set_country_flag = AUH_ww1_bohemian_consent
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+
+		add_tech_bonus = { name = AUH_ww1_bohemian_schools_bonus bonus = 0.25 uses = 1 category = industry }
+	}
+
+	option = {
+		name = ww1_kuk.201.b
+		ai_chance = { factor = 0 }
+		add_political_power = -10
+		clr_country_flag = AUH_ww1_bohemian_consent
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.202
+	title = ww1_kuk.202.t
+	desc = ww1_kuk.202.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } } }
+
+	option = {
+		name = ww1_kuk.202.a
+		trigger = {
+			owns_state = 43
+			controls_state = 43
+			OR = { NOT = { country_exists = HUN } HUN = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -35
+		set_country_flag = AUH_ww1_hungarian_consent
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+		set_country_flag = AUH_ww1_slovak_consent
+
+		hidden_effect = { add_to_variable = { AUH_ww1_food_security = 5 } AUH_ww1_refresh_administration = yes }
+	}
+
+	option = {
+		name = ww1_kuk.202.b
+		ai_chance = { factor = 0 }
+		add_political_power = -10
+		clr_country_flag = AUH_ww1_hungarian_consent
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.203
+	title = ww1_kuk.203.t
+	desc = ww1_kuk.203.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } } }
+
+	option = {
+		name = ww1_kuk.203.a
+		trigger = {
+			owns_state = 109
+			controls_state = 109
+			OR = { NOT = { country_exists = CRO } CRO = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -35
+		set_country_flag = AUH_ww1_croatian_consent
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+
+		army_experience = 8
+		navy_experience = 5
+	}
+
+	option = {
+		name = ww1_kuk.203.b
+		ai_chance = { factor = 0 }
+		add_political_power = -10
+		clr_country_flag = AUH_ww1_croatian_consent
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.204
+	title = ww1_kuk.204.t
+	desc = ww1_kuk.204.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } } }
+
+	option = {
+		name = ww1_kuk.204.a
+		trigger = {
+			owns_state = 89
+			controls_state = 89
+			OR = { NOT = { country_exists = GLO } GLO = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -35
+		set_country_flag = AUH_ww1_galician_consent
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+
+		hidden_effect = { add_to_variable = { AUH_ww1_food_security = 3 } AUH_ww1_refresh_administration = yes }
+		add_timed_idea = { idea = AUH_ww1_civil_administration days = 120 }
+	}
+
+	option = {
+		name = ww1_kuk.204.b
+		ai_chance = { factor = 0 }
+		add_political_power = -10
+		clr_country_flag = AUH_ww1_galician_consent
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.205
+	title = ww1_kuk.205.t
+	desc = ww1_kuk.205.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } } }
+
+	option = {
+		name = ww1_kuk.205.a
+		trigger = {
+			owns_state = 104
+			controls_state = 104
+			OR = { NOT = { country_exists = BOS } BOS = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -35
+		set_country_flag = AUH_ww1_bosnian_consent
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+
+		add_timed_idea = { idea = AUH_ww1_local_police_reform days = 180 }
+		army_experience = 5
+	}
+
+	option = {
+		name = ww1_kuk.205.b
+		ai_chance = { factor = 0 }
+		add_political_power = -10
+		clr_country_flag = AUH_ww1_bosnian_consent
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.206
+	title = ww1_kuk.206.t
+	desc = ww1_kuk.206.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } } }
+
+	option = {
+		name = ww1_kuk.206.a
+		trigger = {
+			owns_state = 853
+			controls_state = 853
+			OR = { NOT = { country_exists = SLV } SLV = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		add_political_power = -35
+		set_country_flag = AUH_ww1_slovenian_consent
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+
+		853 = { if = { limit = { is_owned_and_controlled_by = ROOT infrastructure < 5 } add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
+	}
+
+	option = {
+		name = ww1_kuk.206.b
+		ai_chance = { factor = 0 }
+		add_political_power = -10
+		clr_country_flag = AUH_ww1_slovenian_consent
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 120 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.207
+	title = ww1_kuk.207.t
+	desc = ww1_kuk.207.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process }
+
+	option = {
+		name = ww1_kuk.207.a
+		trigger = {
+			has_stability > 0.499
+			has_country_flag = AUH_ww1_hungarian_consent
+			has_country_flag = AUH_ww1_croatian_consent
+			has_country_flag = AUH_ww1_bosnian_consent
+			owns_state = 43
+			controls_state = 43
+			owns_state = 109
+			controls_state = 109
+			owns_state = 104
+			controls_state = 104
+			NOT = { has_capitulated = yes }
+			surrender_progress < 0.20
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_ratify_trialism = yes
+	}
+
+	option = {
+		name = ww1_kuk.207.b
+		ai_chance = { factor = 0 }
+		add_political_power = -15
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.208
+	title = ww1_kuk.208.t
+	desc = ww1_kuk.208.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process }
+
+	option = {
+		name = ww1_kuk.208.a
+		trigger = {
+			has_stability > 0.549
+			has_country_flag = AUH_ww1_bohemian_consent
+			has_country_flag = AUH_ww1_hungarian_consent
+			has_country_flag = AUH_ww1_croatian_consent
+			has_country_flag = AUH_ww1_galician_consent
+			has_country_flag = AUH_ww1_bosnian_consent
+			has_country_flag = AUH_ww1_slovenian_consent
+			owns_state = 1051
+			controls_state = 1051
+			owns_state = 9
+			controls_state = 9
+			owns_state = 43
+			controls_state = 43
+			owns_state = 109
+			controls_state = 109
+			owns_state = 89
+			controls_state = 89
+			owns_state = 104
+			controls_state = 104
+			owns_state = 853
+			controls_state = 853
+			owns_state = 70
+			controls_state = 70
+			NOT = { has_capitulated = yes }
+			surrender_progress < 0.20
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_ratify_integrated_federation = yes
+	}
+
+	option = {
+		name = ww1_kuk.208.b
+		ai_chance = { factor = 0 }
+		add_political_power = -15
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.209
+	title = ww1_kuk.209.t
+	desc = ww1_kuk.209.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process }
+
+	option = {
+		name = ww1_kuk.209.a
+		trigger = {
+						has_stability > 0.499
+			has_country_flag = AUH_ww1_bohemian_consent
+			has_country_flag = AUH_ww1_hungarian_consent
+			has_country_flag = AUH_ww1_croatian_consent
+			has_country_flag = AUH_ww1_galician_consent
+			has_country_flag = AUH_ww1_bosnian_consent
+			has_country_flag = AUH_ww1_slovenian_consent
+			owns_state = 1051
+			controls_state = 1051
+			owns_state = 9
+			controls_state = 9
+			owns_state = 43
+			controls_state = 43
+			owns_state = 109
+			controls_state = 109
+			owns_state = 89
+			controls_state = 89
+			owns_state = 104
+			controls_state = 104
+			owns_state = 853
+			controls_state = 853
+			owns_state = 70
+			controls_state = 70
+			NOT = { has_capitulated = yes }
+			surrender_progress < 0.20
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } }
+
+			OR = { NOT = { country_exists = CZE } CZE = { is_puppet_of = AUH } } OR = { NOT = { country_exists = HUN } HUN = { is_puppet_of = AUH } } OR = { NOT = { country_exists = SLO } SLO = { is_puppet_of = AUH } } OR = { NOT = { country_exists = CRO } CRO = { is_puppet_of = AUH } } OR = { NOT = { country_exists = BOS } BOS = { is_puppet_of = AUH } } OR = { NOT = { country_exists = SLV } SLV = { is_puppet_of = AUH } } OR = { NOT = { country_exists = GLO } GLO = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_ratify_crownland_confederation = yes
+	}
+
+	option = {
+		name = ww1_kuk.209.b
+		ai_chance = { factor = 0 }
+		add_political_power = -15
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.210
+	title = ww1_kuk.210.t
+	desc = ww1_kuk.210.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process }
+
+	option = {
+		name = ww1_kuk.210.a
+		trigger = {
+			has_war = no
+			has_stability > 0.399
+			has_country_flag = AUH_ww1_bohemian_consent
+			has_country_flag = AUH_ww1_hungarian_consent
+			has_country_flag = AUH_ww1_croatian_consent
+			has_country_flag = AUH_ww1_galician_consent
+			has_country_flag = AUH_ww1_bosnian_consent
+			has_country_flag = AUH_ww1_slovenian_consent
+			owns_state = 1051
+			controls_state = 1051
+			owns_state = 9
+			controls_state = 9
+			owns_state = 43
+			controls_state = 43
+			owns_state = 109
+			controls_state = 109
+			owns_state = 89
+			controls_state = 89
+			owns_state = 104
+			controls_state = 104
+			owns_state = 853
+			controls_state = 853
+			owns_state = 70
+			controls_state = 70
+			NOT = { has_capitulated = yes }
+			surrender_progress < 0.20
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } }
+
+			OR = { NOT = { country_exists = CZE } CZE = { is_puppet_of = AUH } } OR = { NOT = { country_exists = HUN } HUN = { is_puppet_of = AUH } } OR = { NOT = { country_exists = SLO } SLO = { is_puppet_of = AUH } } OR = { NOT = { country_exists = CRO } CRO = { is_puppet_of = AUH } } OR = { NOT = { country_exists = BOS } BOS = { is_puppet_of = AUH } } OR = { NOT = { country_exists = SLV } SLV = { is_puppet_of = AUH } } OR = { NOT = { country_exists = GLO } GLO = { is_puppet_of = AUH } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_ratify_orderly_partition = yes
+	}
+
+	option = {
+		name = ww1_kuk.210.b
+		ai_chance = { factor = 0 }
+		add_political_power = -15
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.211
+	title = ww1_kuk.211.t
+	desc = ww1_kuk.211.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process }
+
+	option = {
+		name = ww1_kuk.211.a
+		trigger = {
+			date > 1916.12.31
+			has_stability > 0.499
+			has_country_flag = AUH_ww1_bohemian_consent
+			has_country_flag = AUH_ww1_hungarian_consent
+			has_country_flag = AUH_ww1_croatian_consent
+			has_country_flag = AUH_ww1_galician_consent
+			has_country_flag = AUH_ww1_bosnian_consent
+			has_country_flag = AUH_ww1_slovenian_consent
+			owns_state = 1051
+			controls_state = 1051
+			owns_state = 9
+			controls_state = 9
+			owns_state = 43
+			controls_state = 43
+			owns_state = 109
+			controls_state = 109
+			owns_state = 89
+			controls_state = 89
+			owns_state = 104
+			controls_state = 104
+			owns_state = 853
+			controls_state = 853
+			owns_state = 70
+			controls_state = 70
+			NOT = { has_capitulated = yes }
+			surrender_progress < 0.20
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_ratify_danubian_republic = yes
+	}
+
+	option = {
+		name = ww1_kuk.211.b
+		ai_chance = { factor = 0 }
+		add_political_power = -15
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.212
+	title = ww1_kuk.212.t
+	desc = ww1_kuk.212.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process }
+
+	option = {
+		name = ww1_kuk.212.a
+		trigger = {
+			has_stability > 0.399
+			owns_state = 1051
+			controls_state = 1051
+			NOT = { has_capitulated = yes }
+			surrender_progress < 0.20
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_ratify_centralism = yes
+	}
+
+	option = {
+		name = ww1_kuk.212.b
+		ai_chance = { factor = 0 }
+		add_political_power = -15
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.213
+	title = ww1_kuk.213.t
+	desc = ww1_kuk.213.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+	trigger = { tag = AUH
+	date < 1936.1.1
+	has_country_flag = AUH_ww1_constitutional_process }
+
+	option = {
+		name = ww1_kuk.213.a
+		trigger = {
+			has_stability > 0.399
+			has_country_flag = AUH_ww1_hungarian_consent
+			owns_state = 43
+			controls_state = 43
+			owns_state = 1051
+			controls_state = 1051
+			NOT = { has_capitulated = yes }
+			surrender_progress < 0.20
+			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_orderly_partition has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_dualism_renewed } }
+		}
+		ai_chance = {
+			factor = 100
+		}
+		AUH_ww1_ratify_dualism = yes
+	}
+
+	option = {
+		name = ww1_kuk.213.b
+		ai_chance = { factor = 0 }
+		add_political_power = -15
+		add_timed_idea = { idea = AUH_ww1_constitutional_dispute days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.214
+	title = ww1_kuk.214.t
+	desc = ww1_kuk.214.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.214.a
+		add_political_power = -35
+		set_country_flag = AUH_ww1_nationality_charter_signed
+		add_ideas = AUH_ww1_nationality_charter
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.215
+	title = ww1_kuk.215.t
+	desc = ww1_kuk.215.d
+	picture = GFX_report_event_military_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.215.a
+		add_political_power = -25
+		army_experience = 10
+		add_ideas = AUH_ww1_regimental_language_service
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.216
+	title = ww1_kuk.216.t
+	desc = ww1_kuk.216.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.216.a
+		ai_chance = {
+			factor = 70
+		}
+		add_political_power = -35
+		add_stability = 0.03
+		add_timed_idea = { idea = AUH_ww1_crown_amnesty days = 180 }
+		news_event = { id = ww1_kuk.258 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+	}
+
+	option = {
+		name = ww1_kuk.216.b
+		ai_chance = {
+			factor = 30
+		}
+		add_political_power = -10
+		add_timed_idea = { idea = AUH_ww1_parliamentary_scrutiny days = 90 }
+	}
+}
+
+country_event = {
+	id = ww1_kuk.217
+	title = ww1_kuk.217.t
+	desc = ww1_kuk.217.d
+	picture = GFX_report_event_internal_focus
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.217.a
+		add_political_power = -30
+		add_timed_idea = { idea = AUH_ww1_civil_administration days = 180 }
+		add_timed_idea = { idea = AUH_ww1_provincial_consultation days = 120 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.218
+	title = ww1_kuk.218.t
+	desc = ww1_kuk.218.d
+	picture = GFX_report_event_triple_alliance
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.218.a
+		ai_chance = {
+			factor = 70
+		}
+		add_political_power = -30
+		navy_experience = 15
+		add_timed_idea = { idea = AUH_ww1_naval_command days = 180 }
+	}
+
+	option = {
+		name = ww1_kuk.218.b
+		ai_chance = {
+			factor = 30
+		}
+		add_political_power = -20
+		add_to_variable = { AUH_ww1_food_security = 3 }
+		add_timed_idea = { idea = AUH_ww1_food_distribution days = 90 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+country_event = {
+	id = ww1_kuk.219
+	title = ww1_kuk.219.t
+	desc = ww1_kuk.219.d
+	picture = GFX_report_event_home_front
+
+	is_triggered_only = yes
+
+	option = {
+		name = ww1_kuk.219.a
+		add_political_power = -30
+		add_timed_idea = { idea = AUH_ww1_public_works days = 180 }
+		add_to_variable = { AUH_ww1_food_security = 3 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+news_event = {
+	id = ww1_kuk.250
+	title = ww1_kuk.250.t
+	desc = ww1_kuk.250.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.250.a }
+}
+
+news_event = {
+	id = ww1_kuk.251
+	title = ww1_kuk.251.t
+	desc = ww1_kuk.251.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.251.a }
+}
+
+news_event = {
+	id = ww1_kuk.252
+	title = ww1_kuk.252.t
+	desc = ww1_kuk.252.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.252.a }
+}
+
+news_event = {
+	id = ww1_kuk.253
+	title = ww1_kuk.253.t
+	desc = ww1_kuk.253.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.253.a }
+}
+
+news_event = {
+	id = ww1_kuk.254
+	title = ww1_kuk.254.t
+	desc = ww1_kuk.254.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.254.a }
+}
+
+news_event = {
+	id = ww1_kuk.255
+	title = ww1_kuk.255.t
+	desc = ww1_kuk.255.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.255.a }
+}
+
+news_event = {
+	id = ww1_kuk.256
+	title = ww1_kuk.256.t
+	desc = ww1_kuk.256.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.256.a }
+}
+
+news_event = {
+	id = ww1_kuk.257
+	title = ww1_kuk.257.t
+	desc = ww1_kuk.257.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.257.a }
+}
+
+news_event = {
+	id = ww1_kuk.258
+	title = ww1_kuk.258.t
+	desc = ww1_kuk.258.d
+	picture = GFX_report_event_internal_focus
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_kuk.258.a }
+}

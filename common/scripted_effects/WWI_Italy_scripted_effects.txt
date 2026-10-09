@@ -1,0 +1,158 @@
+# Italy's WWI administration uses food security and social tension only.
+# Historical and alternative governments share these mechanics until 1936.
+IT1_ww1_clamp_administration = {
+
+	clamp_variable = { var = IT1_ww1_food_security min = 0 max = 100 }
+	clamp_variable = { var = IT1_ww1_social_tension min = 0 max = 100 }
+}
+
+IT1_ww1_initialize_administration = {
+	clear_variable = IT1_ww1_debt
+	clear_variable = IT1_ww1_debt_monthly_change
+	clr_country_flag = IT1_ww1_treasury_programme_active
+	if = {
+		limit = { tag = ITA date < 1936.1.1 NOT = { has_country_flag = IT1_ww1_administration_initialized } }
+
+		if = {
+			limit = { NOT = { has_variable = IT1_ww1_food_security } }
+			if = {
+				limit = { date > 1917.12.31 }
+				set_variable = { IT1_ww1_food_security = 30 }
+			}
+			else_if = {
+				limit = { date > 1915.12.31 }
+				set_variable = { IT1_ww1_food_security = 45 }
+			}
+			else_if = {
+				limit = { date > 1913.12.31 }
+				set_variable = { IT1_ww1_food_security = 70 }
+			}
+			else = { set_variable = { IT1_ww1_food_security = 75 } }
+		}
+		if = {
+			limit = { NOT = { has_variable = IT1_ww1_social_tension } }
+			if = {
+				limit = { date > 1917.12.31 }
+				set_variable = { IT1_ww1_social_tension = 65 }
+			}
+			else_if = {
+				limit = { date > 1915.12.31 }
+				set_variable = { IT1_ww1_social_tension = 45 }
+			}
+			else_if = {
+				limit = { date > 1913.12.31 }
+				set_variable = { IT1_ww1_social_tension = 35 }
+			}
+			else = { set_variable = { IT1_ww1_social_tension = 20 } }
+		}
+		set_country_flag = IT1_ww1_administration_initialized
+	}
+	IT1_ww1_refresh_administration = yes
+}
+
+IT1_ww1_refresh_administration = {
+	if = {
+		limit = { tag = ITA date < 1936.1.1 has_country_flag = IT1_ww1_administration_initialized }
+		IT1_ww1_clamp_administration = yes
+
+		if = {
+			limit = { check_variable = { IT1_ww1_food_security = 20 compare = less_than } }
+			remove_ideas = IT1_ww1_food_shortage
+			if = {
+				limit = { NOT = { has_idea = IT1_ww1_food_crisis } }
+				add_ideas = IT1_ww1_food_crisis
+			}
+		}
+		else_if = {
+			limit = { check_variable = { IT1_ww1_food_security = 40 compare = less_than } }
+			remove_ideas = IT1_ww1_food_crisis
+			if = {
+				limit = { NOT = { has_idea = IT1_ww1_food_shortage } }
+				add_ideas = IT1_ww1_food_shortage
+			}
+		}
+		else = {
+			remove_ideas = IT1_ww1_food_crisis
+			remove_ideas = IT1_ww1_food_shortage
+		}
+		if = {
+			limit = { check_variable = { IT1_ww1_social_tension = 75 compare = greater_than_or_equals } }
+			remove_ideas = IT1_ww1_social_unrest
+			if = {
+				limit = { NOT = { has_idea = IT1_ww1_social_crisis } }
+				add_ideas = IT1_ww1_social_crisis
+			}
+		}
+		else_if = {
+			limit = { check_variable = { IT1_ww1_social_tension = 50 compare = greater_than_or_equals } }
+			remove_ideas = IT1_ww1_social_crisis
+			if = {
+				limit = { NOT = { has_idea = IT1_ww1_social_unrest } }
+				add_ideas = IT1_ww1_social_unrest
+			}
+		}
+		else = {
+			remove_ideas = IT1_ww1_social_crisis
+			remove_ideas = IT1_ww1_social_unrest
+		}
+
+		set_variable = { IT1_ww1_food_monthly_change = 1 }
+		set_variable = { IT1_ww1_tension_monthly_change = -1 }
+		if = {
+			limit = { has_war = yes }
+
+			set_variable = { IT1_ww1_food_monthly_change = -2 }
+			set_variable = { IT1_ww1_tension_monthly_change = 0 }
+
+			if = {
+				limit = { has_completed_focus = IT1_ww1_grain_imports }
+				set_variable = { IT1_ww1_food_monthly_change = -1 }
+			}
+			if = {
+				limit = {
+					OR = {
+						check_variable = { IT1_ww1_food_security = 25 compare = less_than }
+
+					}
+				}
+				set_variable = { IT1_ww1_tension_monthly_change = 1 }
+			}
+		}
+	}
+	else = { IT1_ww1_end_administration = yes }
+}
+
+IT1_ww1_monthly_administration = {
+	if = {
+		limit = { tag = ITA date < 1936.1.1 }
+		IT1_ww1_initialize_administration = yes
+
+		add_to_variable = { IT1_ww1_food_security = IT1_ww1_food_monthly_change }
+		add_to_variable = { IT1_ww1_social_tension = IT1_ww1_tension_monthly_change }
+		IT1_ww1_refresh_administration = yes
+	}
+	else = { IT1_ww1_end_administration = yes }
+}
+
+# Clear all WWI home-front administrative penalties.
+IT1_ww1_end_administration = {
+	clear_variable = IT1_ww1_debt
+	clear_variable = IT1_ww1_debt_monthly_change
+
+	remove_ideas = IT1_ww1_food_shortage
+	remove_ideas = IT1_ww1_food_crisis
+	remove_ideas = IT1_ww1_social_unrest
+	remove_ideas = IT1_ww1_social_crisis
+
+	remove_ideas = IT1_ww1_rationing
+	remove_ideas = IT1_ww1_strike_agreement
+	remove_ideas = IT1_ww1_colonial_constabulary
+	remove_ideas = IT1_ww1_colonial_investment
+	remove_ideas = IT1_ww1_neutral_trade
+	remove_ideas = IT1_ww1_mediation_mission
+	clr_country_flag = IT1_ww1_administration_initialized
+	clr_country_flag = IT1_ww1_treasury_programme_active
+	clr_country_flag = IT1_ww1_home_front_programme_active
+	clr_country_flag = IT1_ww1_colonial_programme_active
+	clr_country_flag = IT1_ww1_diplomatic_programme_active
+}
