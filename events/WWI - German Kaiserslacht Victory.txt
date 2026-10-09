@@ -249,7 +249,18 @@ country_event = {
 			country_event =  {id = kaiserschlachtvictory.242 days = 5 } #To frankfurt - German-French Border.
 
 			if = {
-				limit = { has_global_flag = belgium_neutrality_violated }
+				# A formal Anglo-German victory must not open the historical
+				# Belgium/colonial chain against Britain's ally. Other French,
+				# Russian, Italian and Balkan settlements remain queued above.
+				limit = {
+					has_global_flag = belgium_neutrality_violated
+					NOT = {
+						AND = {
+							has_global_flag = GE1_anglo_german_alliance
+							ENG = { is_in_faction_with = GER }
+						}
+					}
+				}
 				country_event = { id = kaiserschlachtvictory.123 days = 10 } #Treaty of Ghent
 				country_event = { id = kaiserschlachtvictory.257 days = 12 } #Fate of the Colonial Empires
 			}
@@ -276,6 +287,12 @@ country_event = {
 			if = {
 				limit = {
 					TUR = { is_in_faction_with = GER }
+					NOT = {
+						AND = {
+							has_global_flag = GE1_anglo_german_alliance
+							ENG = { is_in_faction_with = GER }
+						}
+					}
 					OR = {
 						GER = { has_war_with = ENG }
 						656 = {
@@ -342,7 +359,8 @@ country_event = {
 	}
 }
 
-# End the Entente and Central Powers after the Kaiserschlacht settlement chain.
+# End the defeated continental faction after the Kaiserschlacht settlement
+# chain. A formal Anglo-German partnership remains intact after victory.
 country_event = {
 	id = kaiserschlachtvictory.259
 	hidden = yes
@@ -357,7 +375,15 @@ country_event = {
 		}
 		GER = {
 			if = {
-				limit = { is_in_faction = yes }
+				limit = {
+					is_in_faction = yes
+					NOT = {
+						AND = {
+							has_global_flag = GE1_anglo_german_alliance
+							ENG = { is_in_faction_with = GER }
+						}
+					}
+				}
 				faction_leader = { dismantle_faction = yes }
 			}
 		}
