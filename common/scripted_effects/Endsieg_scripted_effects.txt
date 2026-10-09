@@ -187,6 +187,454 @@ indonesia_increase_escalation_1_effect = {
 
 
 
+# WWI munitions expansion: real state factories, not permanent off-map industry.
+# PREV must be the recipient country when this state-scoped effect is called.
+# State flags survive conquest and Russian tag changes, preventing duplicate grants.
+endsieg_ww1_expand_state_war_industry = {
+        while_loop_effect = {
+            limit = {
+                check_variable = { endsieg_ww1_factories_to_add > 0 }
+                check_variable = { arms_factory_level < 20 }
+            }
+            if = {
+                limit = { NOT = { has_state_flag = endsieg_ww1_industry_active } }
+                set_variable = { endsieg_ww1_industry_base = arms_factory_level }
+                set_state_flag = endsieg_ww1_industry_active
+            }
+            if = {
+                limit = { NOT = { free_building_slots = { building = arms_factory size > 0 } } }
+                add_extra_state_shared_building_slots = 1
+                add_to_variable = { endsieg_ww1_industry_slots = 1 }
+            }
+            set_temp_variable = { endsieg_ww1_industry_before = arms_factory_level }
+            add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+            if = {
+                limit = { check_variable = { arms_factory_level > endsieg_ww1_industry_before } }
+                add_to_variable = { endsieg_ww1_industry_added = 1 }
+                PREV = { set_country_flag = endsieg_ww1_industry_mobilized }
+            }
+            subtract_from_temp_variable = { endsieg_ww1_factories_to_add = 1 }
+        }
+}
+
+endsieg_ww1_expand_state_war_industry_stage_1 = {
+    if = {
+        limit = {
+            is_owned_and_controlled_by = PREV
+            NOT = { has_state_flag = endsieg_ww1_industry_demobilized }
+            NOT = { has_state_flag = endsieg_ww1_industry_stage_1 }
+        }
+        endsieg_ww1_expand_state_war_industry = yes
+        set_state_flag = endsieg_ww1_industry_stage_1
+    }
+}
+
+endsieg_ww1_expand_state_war_industry_stage_2 = {
+    if = {
+        limit = {
+            is_owned_and_controlled_by = PREV
+            NOT = { has_state_flag = endsieg_ww1_industry_demobilized }
+            NOT = { has_state_flag = endsieg_ww1_industry_stage_2 }
+        }
+        endsieg_ww1_expand_state_war_industry = yes
+        set_state_flag = endsieg_ww1_industry_stage_2
+    }
+}
+
+# Close only the temporary munitions plants. Existing industry is the lower bound.
+# Player-built factories above the recorded addition remain; transferred states
+# carry their own ledger, rather than deleting factories from the former capital.
+endsieg_ww1_demobilize_state_war_industry = {
+    while_loop_effect = {
+        limit = {
+            check_variable = { endsieg_ww1_industry_added > 0 }
+            check_variable = { arms_factory_level > endsieg_ww1_industry_base }
+        }
+        remove_building = { type = arms_factory level = 1 }
+        subtract_from_variable = { endsieg_ww1_industry_added = 1 }
+    }
+    # Already converted or destroyed plants must not be replaced by deleting
+    # the original factory base during a later weekly cleanup.
+    set_variable = { endsieg_ww1_industry_added = 0 }
+    # Emergency building plots can be reused for postwar reconstruction;
+    # demobilization grants no civilian factories or off-map industry.
+    set_state_flag = endsieg_ww1_industry_demobilized
+    clr_state_flag = endsieg_ww1_industry_active
+    clear_variable = endsieg_ww1_industry_base
+    clear_variable = endsieg_ww1_industry_added
+    clear_variable = endsieg_ww1_industry_slots
+}
+
+# Country scope; called after scenario war setup and weekly thereafter.
+# A neutral country gets no factories. No later WWII bookmark can enter this system.
+endsieg_ww1_update_war_industry = {
+    if = {
+        limit = { has_start_date < 1919.1.1 }
+        if = {
+            limit = { OR = { has_war = no NOT = { date < 1936.1.1 } } }
+            every_owned_state = {
+                limit = { has_state_flag = endsieg_ww1_industry_active }
+                endsieg_ww1_demobilize_state_war_industry = yes
+            }
+            if = {
+                limit = { has_country_flag = endsieg_ww1_industry_mobilized }
+                set_country_flag = endsieg_ww1_industry_demobilized
+            }
+        }
+        else_if = {
+            limit = {
+                date < 1936.1.1
+                NOT = { has_country_flag = endsieg_ww1_industry_demobilized }
+                NOT = { has_global_flag = compiegne }
+                NOT = { has_global_flag = central_powers_victory }
+            }
+            if = {
+                limit = { tag = FRA }
+                # FRA: +16 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    16 = { set_temp_variable = { endsieg_ww1_factories_to_add = 5 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    24 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    27 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    15 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    19 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    20 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    30 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    31 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    25 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # FRA: +12 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    16 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    24 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    27 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    15 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    19 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    20 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    30 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    26 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = ENG }
+                # ENG: +18 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    126 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    128 = { set_temp_variable = { endsieg_ww1_factories_to_add = 5 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    129 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    130 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    131 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    132 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    125 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # ENG: +14 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    126 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    128 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    129 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    130 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    131 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    132 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    125 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = GER }
+                # GER: +20 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    64 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    65 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    51 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    55 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    57 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    984 = { set_temp_variable = { endsieg_ww1_factories_to_add = 6 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    1050 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # GER: +16 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    64 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    65 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    51 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    55 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    57 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    984 = { set_temp_variable = { endsieg_ww1_factories_to_add = 4 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    1050 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = AUH }
+                # AUH: +10 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    1051 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    4 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    43 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    75 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # AUH: +6 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    1051 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    4 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    43 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    75 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { OR = { tag = RIE tag = SOV tag = WHR } }
+                # RUS: +12 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    195 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    219 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    223 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    398 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    653 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    40 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # RUS: +6 temporary military factories from 1916.7.1.
+                if = {
+                    limit = { NOT = { date < 1916.7.1 } }
+                    195 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    219 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    223 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    653 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = USA }
+                # USA: +16 temporary military factories from 1917.7.1.
+                if = {
+                    limit = { NOT = { date < 1917.7.1 } }
+                    357 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    358 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    360 = { set_temp_variable = { endsieg_ww1_factories_to_add = 4 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    393 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    395 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    378 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # USA: +24 temporary military factories from 1918.1.1.
+                if = {
+                    limit = { NOT = { date < 1918.1.1 } }
+                    357 = { set_temp_variable = { endsieg_ww1_factories_to_add = 4 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    358 = { set_temp_variable = { endsieg_ww1_factories_to_add = 5 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    360 = { set_temp_variable = { endsieg_ww1_factories_to_add = 6 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    393 = { set_temp_variable = { endsieg_ww1_factories_to_add = 4 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    395 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    378 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = ITA }
+                # ITA: +10 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    158 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    159 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    117 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    162 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    2 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # ITA: +8 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    158 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    159 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    162 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    2 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = JAP }
+                # JAP: +4 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    531 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    529 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # JAP: +2 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    531 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    529 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = TUR }
+                # TUR: +4 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    341 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    49 = { set_temp_variable = { endsieg_ww1_factories_to_add = 2 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # TUR: +2 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    341 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    49 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = CAN }
+                # CAN: +4 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    276 = { set_temp_variable = { endsieg_ww1_factories_to_add = 3 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    473 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # CAN: +2 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    276 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    473 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = AST }
+                # AST: +2 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    285 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    517 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # AST: +2 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    285 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    517 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = NZL }
+                # NZL: +1 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    1079 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # NZL: +1 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    1079 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = SAF }
+                # SAF: +1 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    275 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # SAF: +1 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    275 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = RAJ }
+                # RAJ: +2 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    429 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    431 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # RAJ: +2 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    429 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    431 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = ROM }
+                # ROM: +2 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    46 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                    81 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # ROM: +2 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    46 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    81 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = BUL }
+                # BUL: +1 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    48 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # BUL: +1 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    48 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = GRE }
+                # GRE: +1 temporary military factories from 1917.7.1.
+                if = {
+                    limit = { NOT = { date < 1917.7.1 } }
+                    1005 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # GRE: +2 temporary military factories from 1918.1.1.
+                if = {
+                    limit = { NOT = { date < 1918.1.1 } }
+                    1005 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                    47 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = POR }
+                # POR: +1 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    112 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # POR: +1 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    112 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = BEL }
+                # BEL: +1 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    6 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # BEL: +1 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    6 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+            if = {
+                limit = { tag = SER }
+                # SER: +1 temporary military factories from 1915.7.1.
+                if = {
+                    limit = { NOT = { date < 1915.7.1 } }
+                    108 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_1 = yes }
+                }
+                # SER: +1 temporary military factories from 1917.1.1.
+                if = {
+                    limit = { NOT = { date < 1917.1.1 } }
+                    1008 = { set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry_stage_2 = yes }
+                }
+            }
+        }
+    }
+}
+
 # BEGIN GENERATED ENDSIEG CHARACTER LIFECYCLE
 endsieg_character_activate_alb_turhan_permeti_a4997255 = {
 	# PREV is the activation country inside the immediate character scope.
