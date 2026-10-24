@@ -1,6 +1,9 @@
 on_actions = {
     on_startup = {
         effect = {
+            every_country = { endsieg_sync_infantry_technology_aliases = yes }
+
+
             # Do not evaluate neighbour-dependent triggers while country
             # history is still being applied. The country graph is ready by
             # the time on_startup runs.
@@ -121,57 +124,7 @@ on_actions = {
 
             # Country histories are evaluated before every country is fully initialized.
             # Establish the United States' WWI wars after initialization instead.
-            if = {
-                limit = {
-                    date > 1917.4.6
-                    date < 1919.1.1
-                    country_exists = USA
-                }
-                if = {
-                    limit = {
-                        country_exists = FRA
-                        FRA = { is_in_faction = yes }
-                        USA = { is_in_faction = no }
-                    }
-                    FRA = { add_to_faction = USA }
-                }
-                if = {
-                    limit = { country_exists = GER }
-                    GER = {
-                        if = {
-                            limit = { NOT = { has_war_with = USA } }
-                            declare_war_on = { target = USA type = annex_everything }
-                        }
-                    }
-                }
-                if = {
-                    limit = { country_exists = AUH }
-                    AUH = {
-                        if = {
-                            limit = { NOT = { has_war_with = USA } }
-                            declare_war_on = { target = USA type = annex_everything }
-                        }
-                    }
-                }
-                if = {
-                    limit = { country_exists = BUL }
-                    BUL = {
-                        if = {
-                            limit = { NOT = { has_war_with = USA } }
-                            declare_war_on = { target = USA type = annex_everything }
-                        }
-                    }
-                }
-                if = {
-                    limit = { country_exists = TUR }
-                    TUR = {
-                        if = {
-                            limit = { NOT = { has_war_with = USA } }
-                            declare_war_on = { target = USA type = annex_everything }
-                        }
-                    }
-                }
-            }
+            USA = { US2_R_initialize_bookmark = yes }
 
             # Force the distinct WWI trees after country initialization. Vanilla
             # selectors otherwise replace them in early scenario starts.
@@ -255,6 +208,7 @@ on_actions = {
                         limit = { tag = JAP date > 1918.12.30 NOT = { has_global_flag = central_powers_victory } }
                         load_focus_tree = { tree = INT_japan keep_completed = yes }
                     }
+                    else_if = { limit = { tag = JAP } load_focus_tree = { tree = JAP_ww1_focus keep_completed = yes } }
                     else = {
                         # No separate WWI tree exists for this tag. Never let
                         # a WW2-specific vanilla selector win in a WWI scenario.
@@ -914,7 +868,28 @@ on_actions = {
     # Keep it date-gated so it is not already at war on the bookmark itself.
 		on_daily = {
         effect = {
-			if = { limit = { tag = GER } GE1_v2_migrate_ww1_rework = yes }
+ if = { limit = { tag = RIE } RUS_ww1_finish_neutral_withdrawal = yes }
+
+ if = { limit = { tag = JAP } JP1_R_update_tree = yes }
+
+if = { limit = { tag = TUR } OT1_R_update_tree = yes }
+
+if = { limit = { tag = USA } US2_R_update_tree = yes }
+
+if = { limit = { tag = FRA } FR3_R_update_tree = yes }
+
+if = { limit = { tag = ENG } EN1_R_update_tree = yes }
+
+
+            # Surviving Russian WW1 alternatives hand over without changing their leader or borders.
+            if = {
+                limit = { tag = RIE has_start_date < 1936.1.1 date > 1935.12.31 has_focus_tree = russian_empire_focus NOT = { has_country_flag = RUS_ww1_handoff_completed } }
+                hidden_effect = { if = { limit = { has_idea = RUS_ww1_state_council } remove_ideas = RUS_ww1_state_council } if = { limit = { has_idea = RUS_ww1_zemstvo_services } remove_ideas = RUS_ww1_zemstvo_services } if = { limit = { has_idea = RUS_ww1_land_bank } remove_ideas = RUS_ww1_land_bank } if = { limit = { has_idea = RUS_ww1_workers_insurance } remove_ideas = RUS_ww1_workers_insurance } if = { limit = { has_idea = RUS_ww1_imperial_cabinet } remove_ideas = RUS_ww1_imperial_cabinet } if = { limit = { has_idea = RUS_ww1_responsible_ministry } remove_ideas = RUS_ww1_responsible_ministry } if = { limit = { has_idea = RUS_ww1_republican_institutions } remove_ideas = RUS_ww1_republican_institutions } if = { limit = { has_idea = RUS_ww1_social_coalition } remove_ideas = RUS_ww1_social_coalition } if = { limit = { has_idea = RUS_ww1_military_directorate } remove_ideas = RUS_ww1_military_directorate } if = { limit = { has_idea = RUS_ww1_civil_registers } remove_ideas = RUS_ww1_civil_registers } if = { limit = { has_idea = RUS_ww1_national_compact } remove_ideas = RUS_ww1_national_compact } if = { limit = { has_idea = RUS_ww1_federal_union } remove_ideas = RUS_ww1_federal_union } if = { limit = { has_idea = RUS_ww1_unitary_administration } remove_ideas = RUS_ww1_unitary_administration } if = { limit = { has_idea = RUS_ww1_common_market } remove_ideas = RUS_ww1_common_market } if = { limit = { has_idea = RUS_ww1_zemgor } remove_ideas = RUS_ww1_zemgor } if = { limit = { has_idea = RUS_ww1_refugee_services } remove_ideas = RUS_ww1_refugee_services } if = { limit = { has_idea = RUS_ww1_front_coordination } remove_ideas = RUS_ww1_front_coordination } if = { limit = { has_idea = RUS_ww1_neutral_diplomacy } remove_ideas = RUS_ww1_neutral_diplomacy } if = { limit = { has_idea = RUS_ww1_diplomatic_corps } remove_ideas = RUS_ww1_diplomatic_corps } if = { limit = { has_idea = RUS_ww1_allied_purchasing } remove_ideas = RUS_ww1_allied_purchasing } if = { limit = { has_idea = RUS_ww1_balkan_liaison } remove_ideas = RUS_ww1_balkan_liaison } if = { limit = { has_idea = RUS_ww1_caucasus_administration } remove_ideas = RUS_ww1_caucasus_administration } if = { limit = { has_idea = RUS_ww1_far_eastern_commerce } remove_ideas = RUS_ww1_far_eastern_commerce } if = { limit = { has_idea = RUS_ww1_reconstruction } remove_ideas = RUS_ww1_reconstruction } if = { limit = { has_idea = RUS_ww1_soldier_committees } remove_ideas = RUS_ww1_soldier_committees } if = { limit = { has_idea = RUS_idea_imperial_supply_bureau } remove_ideas = RUS_idea_imperial_supply_bureau } if = { limit = { has_idea = RUS_idea_ural_steel_trust } remove_ideas = RUS_idea_ural_steel_trust } if = { limit = { has_idea = RUS_idea_railway_corps } remove_ideas = RUS_idea_railway_corps } if = { limit = { has_idea = RUS_idea_officer_academies } remove_ideas = RUS_idea_officer_academies } if = { limit = { has_idea = RUS_idea_gas_defence } remove_ideas = RUS_idea_gas_defence } if = { limit = { has_idea = RUS_idea_artillery_school } remove_ideas = RUS_idea_artillery_school } if = { limit = { has_idea = RUS_idea_cossack_screen } remove_ideas = RUS_idea_cossack_screen } if = { limit = { has_idea = RUS_idea_air_observation } remove_ideas = RUS_idea_air_observation } if = { limit = { has_idea = RUS_idea_fighter_school } remove_ideas = RUS_idea_fighter_school } if = { limit = { has_idea = RUS_idea_bomber_command } remove_ideas = RUS_idea_bomber_command } if = { limit = { has_idea = RUS_idea_baltic_fleet } remove_ideas = RUS_idea_baltic_fleet } if = { limit = { has_idea = RUS_idea_black_sea_shipyards } remove_ideas = RUS_idea_black_sea_shipyards } if = { limit = { has_idea = RUS_idea_submarine_bureau } remove_ideas = RUS_idea_submarine_bureau } if = { limit = { has_idea = RUS_idea_coastal_defence } remove_ideas = RUS_idea_coastal_defence } RUS_ww1_clear_government_spirits = yes clr_country_flag = RUS_ww1_programme_running }
+                load_focus_tree = { tree = generic_focus keep_completed = no }
+                set_country_flag = RUS_ww1_handoff_completed
+            }
+
+			if = { limit = { tag = GER } GE1_v2_migrate_ww1_rework = yes GE1_R_initialize_tree = yes }
 			if = { limit = { tag = GER } GE1_cleanup_ww1_rework = yes }
 
             endsieg_ww1_crypto_effects = yes
@@ -1037,7 +1012,7 @@ on_actions = {
 			# Japan retains the generic WWI tree until the historical armistice.
 			if = {
 				limit = { tag = JAP has_focus_tree = INT_japan date < 1936.1.1 has_global_flag = central_powers_victory }
-				load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes }
+				load_focus_tree = { tree = JAP_ww1_focus keep_completed = yes }
 			}
 			if = {
 				limit = { tag = JAP has_focus_tree = INT_japan date < 1936.1.1 NOT = { has_global_flag = central_powers_victory } }
@@ -1045,24 +1020,24 @@ on_actions = {
 			}
 			# The imperial succession also occurs if a different WWI outcome keeps the generic tree.
 			if = {
-				limit = { tag = JAP has_focus_tree = generic_focus_ww1 date > 1926.12.24 date < 1927.1.15 has_government = neutrality NOT = { has_country_flag = INT_JAP_event_6 } }
+				limit = { tag = JAP has_focus_tree = JAP_ww1_focus date > 1926.12.24 date < 1927.1.15 has_government = neutrality NOT = { has_country_flag = INT_JAP_event_6 } }
 				set_country_flag = INT_JAP_event_6
 				country_event = { id = INT_japan_interwar.6 days = 0 }
 			}
 			if = {
 				limit = {
 					tag = JAP
-					has_focus_tree = generic_focus_ww1
+					has_focus_tree = JAP_ww1_focus
 					has_start_date < 1936.1.1
 					date > 1918.11.10
 					date < 1936.1.1
-					has_global_flag = compiegne
+					has_global_flag = compiegne NOT = { has_country_flag = JP1_R_asian_alignment } NOT = { has_country_flag = JP1_R_german_alignment } NOT = { has_country_flag = JP1_R_neutrality }
 					NOT = { has_global_flag = central_powers_victory }
 				}
 				load_focus_tree = { tree = INT_japan keep_completed = yes }
 			}
 			if = {
-				limit = { tag = JAP has_focus_tree = generic_focus_ww1 date > 1935.12.31 }
+				limit = { tag = JAP has_focus_tree = JAP_ww1_focus date > 1935.12.31 }
 				load_focus_tree = { tree = japan_wtt_focus keep_completed = yes }
 			}
 			if = {
@@ -1079,13 +1054,13 @@ on_actions = {
 					INT_JAP_great_depression INT_depression_aftershock
 				}
 				if = { limit = { NOT = { has_idea = JAP_zaibatsus } } add_ideas = JAP_zaibatsus }
-				if = { limit = { NOT = { has_idea = JAP_militarism } } add_ideas = JAP_militarism }
+				if = { limit = { NOT = { has_idea = JAP_militarism }  JP1_R_may_follow_interwar_cabinets = yes } add_ideas = JAP_militarism }
 				if = { limit = { NOT = { has_idea = state_shintoism } } add_ideas = state_shintoism }
 				if = { limit = { has_dlc = "Waking the Tiger" NOT = { has_idea = JAP_interservice_rivalry_balanced } } add_ideas = JAP_interservice_rivalry_balanced }
 				if = { limit = { has_dlc = "Man the Guns" NOT = { has_idea = MTG_naval_treaty_adherent } } add_ideas = MTG_naval_treaty_adherent }
-				INT_JAP_1936_character_handoff = yes
+				if = { limit = { JP1_R_may_follow_interwar_cabinets = yes } INT_JAP_1936_character_handoff = yes }
 				if = {
-					limit = { has_government = neutrality }
+					limit = { has_government = neutrality  JP1_R_may_follow_interwar_cabinets = yes }
 					set_politics = { ruling_party = fascism last_election = "1936.1.1" election_frequency = 48 elections_allowed = no }
 					set_popularities = { fascism = 100 }
 					JAP_emperor_hirohito = { promote_character = yes }
@@ -1328,10 +1303,7 @@ on_actions = {
 					has_start_date < 1936.1.1
 					date > 1918.10.29
 					date < 1936.1.1
-					OR = {
-						has_global_flag = armistice_of_mudros
-						has_global_flag = central_powers_victory
-					}
+					OR = { has_global_flag = armistice_of_mudros OT1_R_surviving_ottoman_settlement = yes }
 					NOT = { has_focus_tree = INT_turkey }
 				}
 				load_focus_tree = { tree = INT_turkey keep_completed = yes }
@@ -1391,7 +1363,7 @@ on_actions = {
 					else = { load_focus_tree = { tree = german_focus_ww1 keep_completed = yes } }
 				}
 				else_if = {
-					limit = { tag = AUH NOT = { has_focus_tree = austria_hungary_focus } }
+					limit = { tag = AUH NOT = { has_focus_tree = austria_hungary_focus }  NOT = { has_country_flag = AUH_ww1_austrian_remnant } }
 					load_focus_tree = { tree = austria_hungary_focus keep_completed = yes }
 				}
 				else_if = {
@@ -1425,7 +1397,7 @@ on_actions = {
 				else_if = {
 					limit = { tag = TUR NOT = { has_focus_tree = turkish_focus_ww1 } NOT = { has_focus_tree = INT_turkey } }
 					if = {
-						limit = { date > 1918.12.30 }
+						limit = { date > 1918.12.30  OR = { has_global_flag = armistice_of_mudros OT1_R_surviving_ottoman_settlement = yes }}
 						load_focus_tree = { tree = INT_turkey keep_completed = yes }
 					}
 					else = { load_focus_tree = { tree = turkish_focus_ww1 keep_completed = yes } }
@@ -1447,12 +1419,12 @@ on_actions = {
 					else = { load_focus_tree = { tree = usa_ww1_focus keep_completed = yes } }
 				}
 				else_if = {
-					limit = { tag = JAP NOT = { has_focus_tree = generic_focus_ww1 } NOT = { has_focus_tree = INT_japan } }
+					limit = { tag = JAP NOT = { has_focus_tree = JAP_ww1_focus } NOT = { has_focus_tree = INT_japan } }
 					if = {
 						limit = { date > 1918.12.30 has_global_flag = compiegne NOT = { has_global_flag = central_powers_victory } }
 						load_focus_tree = { tree = INT_japan keep_completed = yes }
 					}
-					else = { load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } }
+					else = { load_focus_tree = { tree = JAP_ww1_focus keep_completed = yes } }
 				}
 				else_if = {
 					limit = {
@@ -1724,6 +1696,13 @@ on_actions = {
                 if = { limit = { has_focus_tree = INT_italy IT1_ww1_has_alternative_settlement = yes } load_focus_tree = { tree = italian_focus keep_completed = yes } }
                 set_country_flag = IT1_ww1_handoff_completed
             }
+
+if = {
+ limit = { tag = TUR has_start_date < 1936.1.1 date > 1935.12.31 OR = { has_focus_tree = turkish_focus_ww1 has_focus_tree = INT_turkey } }
+ OT1_R_clear_all_programmes = yes OT1_R_end_administration = yes
+ if = { limit = { has_dlc = "Battle for the Bosporus" } load_focus_tree = { tree = turkish_focus keep_completed = yes } }
+ else = { load_focus_tree = { tree = generic_focus keep_completed = yes } }
+}
 }
     }
 

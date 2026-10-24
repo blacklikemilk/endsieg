@@ -1,0 +1,32 @@
+# Preparation is a bargaining mandate. Only actual coalition ratification binds it.
+GE1_D_belgian_neutrality_offer_ready = {
+ tag = GER has_start_date < 1936.1.1 date < 1936.1.1
+ OR = { has_country_flag = GE1_D_belgian_neutrality_prepared has_country_flag = GE1_D_belgian_neutrality_pledged has_completed_focus = GE1_D_belgian_neutrality_guarantee }
+ NOT = { has_country_flag = GE1_D_belgian_neutrality_withdrawn }
+ NOT = { has_country_flag = GE1_D_belgian_neutrality_breached }
+}
+GE1_D_belgian_coalition_ratified = {
+ tag = GER has_start_date < 1936.1.1 date < 1936.1.1
+ WW1_ratified_anglo_german_alliance = yes
+ NOT = { has_country_flag = GE1_D_belgian_neutrality_withdrawn }
+ NOT = { has_country_flag = GE1_D_belgian_neutrality_breached }
+}
+GE1_D_belgian_neutrality_in_force = {
+ GE1_D_belgian_coalition_ratified = yes
+ has_country_flag = GE1_D_belgian_neutrality_enforced
+}
+GE1_D_may_attack_low_countries = {
+ NOT = { GE1_D_belgian_neutrality_in_force = yes }
+}
+GE1_D_has_offensive_low_countries_war = {
+ OR = { has_offensive_war_with = BEL has_offensive_war_with = HOL has_offensive_war_with = LUX }
+}
+
+# Native diplomatic-action callback documented in the installed vanilla header.
+# ROOT is the initiator; FROM is the target. This does not govern script effects.
+DIPLOMACY_WAR_ENABLE_TRIGGER = {
+ if = {
+  limit = { tag = GER FROM = { OR = { tag = BEL tag = HOL tag = LUX } } }
+  custom_trigger_tooltip = { tooltip = GE1_D_belgian_protocol_active_tt GE1_D_may_attack_low_countries = yes }
+ }
+}

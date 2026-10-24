@@ -119,6 +119,8 @@ focus_tree = {
 		available = { date > 1922.10.27 }
 		completion_reward = { country_event = { id = INT_ita_interwar.5 days = 0 } }
 		ai_will_do = { factor = 75 }
+
+		mutually_exclusive = { focus = INT_ITA_constitutional_guard }
 	}
 
 	focus = {
@@ -348,7 +350,7 @@ focus_tree = {
 		icon = GFX_goal_generic_improve_relations
 		x = 80 y = 2 cost = 5
 		prerequisite = { focus = INT_ITA_adriatic_policy }
-		completion_reward = { add_political_power = 40 }
+		completion_reward = { if = { limit = { country_exists = ALB NOT = { has_war_with = ALB } } add_opinion_modifier = { target = ALB modifier = small_increase } ALB = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -672,7 +674,7 @@ focus_tree = {
 		x = 33 y = 2 cost = 5
 		prerequisite = { focus = INT_ITA_red_biennium }
 		available = { date > 1919.9.1 }
-		completion_reward = { add_political_power = 25 }
+		completion_reward = { add_stability = 0.02 }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -699,7 +701,7 @@ focus_tree = {
 	focus = {
 		id = INT_ITA_liberal_coalition
 		icon = GFX_goal_generic_national_unity
-		x = 21 y = 4 cost = 5
+		x = 21 y = 3 cost = 5
 		prerequisite = { focus = INT_ITA_proportional_reform focus = INT_ITA_popular_partito }
 		available = { date > 1921.5.15 }
 		completion_reward = { remove_ideas = INT_ITA_social_unrest  add_political_power = 20 }
@@ -709,21 +711,23 @@ focus_tree = {
 	focus = {
 		id = INT_ITA_labor_compromise
 		icon = GFX_goal_generic_improve_relations
-		x = 33 y = 4 cost = 5
+		x = 30 y = 4 cost = 5
 		prerequisite = { focus = INT_ITA_factory_commissions focus = INT_ITA_social_insurance }
 		available = { date > 1921.1.1 }
-		completion_reward = {  add_political_power = 15 }
+		completion_reward = { add_stability = 0.02 }
 		ai_will_do = { factor = 15 }
 	}
 
 	focus = {
 		id = INT_ITA_constitutional_guard
 		icon = GFX_goal_generic_defence
-		x = 17 y = 5 cost = 5
+		x = 34 y = 4 cost = 5
 		prerequisite = { focus = INT_ITA_liberal_coalition }
 		available = { date > 1922.1.1 }
-		completion_reward = {  }
-		ai_will_do = { factor = 15 }
+		completion_reward = { add_stability = 0.03 }
+		ai_will_do = { factor = 15 modifier = { factor = 0 is_historical_focus_on = yes } }
+
+		mutually_exclusive = { focus = INT_ITA_march_on_rome }
 	}
 
 	focus = {
@@ -732,8 +736,12 @@ focus_tree = {
 		x = 25 y = 5 cost = 5
 		prerequisite = { focus = INT_ITA_social_insurance }
 		available = { date > 1921.1.1 }
-		completion_reward = { add_political_power = 25 }
+		completion_reward = { add_tech_bonus = { name = INT_ITA_national_education_programme_bonus bonus = 0.5 uses = 1 category = industry }
+			if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = INT_ITA_national_education_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+		}
 		ai_will_do = { factor = 15 }
+
+		search_filters = { FOCUS_FILTER_RESEARCH }
 	}
 
 	focus = {
@@ -750,7 +758,7 @@ focus_tree = {
 		id = INT_ITA_chamber_reform
 		icon = GFX_goal_generic_political_pressure
 		x = 25 y = 6 cost = 5
-		prerequisite = { focus = INT_ITA_liberal_coalition focus = INT_ITA_constitutional_guard }
+		prerequisite = { focus = INT_ITA_constitutional_guard }
 		available = { date > 1922.2.1 }
 		completion_reward = { add_political_power = 30 }
 		ai_will_do = { factor = 15 }
@@ -762,7 +770,7 @@ focus_tree = {
 		x = 17 y = 9 cost = 5
 		prerequisite = { focus = INT_ITA_railway_reintegration focus = INT_ITA_national_education }
 		available = { date > 1923.1.1 }
-		completion_reward = { add_political_power = 10 }
+		completion_reward = { add_stability = 0.02 }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -770,9 +778,9 @@ focus_tree = {
 		id = INT_ITA_civic_compromise
 		icon = GFX_goal_generic_national_unity
 		x = 25 y = 7 cost = 5
-		prerequisite = { focus = INT_ITA_chamber_reform focus = INT_ITA_labor_compromise }
+		prerequisite = { focus = INT_ITA_chamber_reform }
 		available = { date > 1923.1.1 }
-		completion_reward = {  add_political_power = 20 }
+		completion_reward = { add_stability = 0.02 }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -793,7 +801,7 @@ focus_tree = {
 		x = 76 y = 7 cost = 5
 		prerequisite = { focus = INT_ITA_northern_factories }
 		available = { date > 1924.1.1 }
-		completion_reward = { add_political_power = 20 }
+		completion_reward = { if = { limit = { 158 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT free_building_slots = { building = arms_factory size > 0 include_locked = yes } } } 158 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } } }
 		ai_will_do = { factor = 25 }
 	}
 
@@ -843,7 +851,7 @@ focus_tree = {
 		x = 64 y = 10 cost = 5
 		prerequisite = { focus = INT_ITA_southern_infrastructure }
 		available = { date > 1925.1.1 }
-		completion_reward = { add_political_power = 20 }
+		completion_reward = { add_tech_bonus = { name = INT_ITA_mezzogiorno_credit_programme_bonus bonus = 0.35 uses = 1 category = construction_tech } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -853,7 +861,7 @@ focus_tree = {
 		x = 72 y = 10 cost = 5
 		prerequisite = { focus = INT_ITA_grain_campaign }
 		available = { date > 1926.1.1 }
-		completion_reward = { add_political_power = 15 }
+		completion_reward = { add_tech_bonus = { name = INT_ITA_cooperative_farms_programme_bonus bonus = 0.25 uses = 1 category = industry } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -863,7 +871,7 @@ focus_tree = {
 		x = 80 y = 11 cost = 5
 		prerequisite = { focus = INT_ITA_cooperative_farms }
 		available = { date > 1927.1.1 }
-		completion_reward = { add_political_power = 25 }
+		completion_reward = { add_tech_bonus = { name = INT_ITA_fertilizer_program_programme_bonus bonus = 0.25 uses = 1 category = industry } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -934,7 +942,7 @@ focus_tree = {
 		x = 84 y = 3 cost = 5
 		prerequisite = { focus = INT_ITA_league_of_nations }
 		available = { date > 1925.10.16 }
-		completion_reward = {  }
+		completion_reward = { if = { limit = { country_exists = GER NOT = { has_war_with = GER } } add_opinion_modifier = { target = GER modifier = small_increase } GER = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -944,7 +952,7 @@ focus_tree = {
 		x = 116 y = 3 cost = 5
 		prerequisite = { focus = INT_ITA_league_of_nations focus = INT_ITA_mediterranean_trade }
 		available = { date > 1927.1.1 }
-		completion_reward = { add_political_power = 20 }
+		completion_reward = { if = { limit = { country_exists = FRA NOT = { has_war_with = FRA } } add_opinion_modifier = { target = FRA modifier = small_increase } FRA = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } if = { limit = { country_exists = ENG NOT = { has_war_with = ENG } } add_opinion_modifier = { target = ENG modifier = small_increase } ENG = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } if = { limit = { country_exists = TUR NOT = { has_war_with = TUR } } add_opinion_modifier = { target = TUR modifier = small_increase } TUR = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -954,7 +962,7 @@ focus_tree = {
 		x = 76 y = 4 cost = 5
 		prerequisite = { focus = INT_ITA_mediterranean_conference }
 		available = { date > 1928.5.30 country_exists = TUR }
-		completion_reward = { add_political_power = 20 }
+		completion_reward = { if = { limit = { country_exists = TUR NOT = { has_war_with = TUR } } add_opinion_modifier = { target = TUR modifier = small_increase } TUR = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -984,7 +992,7 @@ focus_tree = {
 		x = 112 y = 4 cost = 5
 		prerequisite = { focus = INT_ITA_colonial_ambitions }
 		available = { date > 1922.1.1 }
-		completion_reward = { add_political_power = 20 }
+		completion_reward = { if = { limit = { 550 = { is_owned_by = ROOT is_fully_controlled_by = ROOT infrastructure < 5 } } 550 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -994,7 +1002,7 @@ focus_tree = {
 		x = 84 y = 4 cost = 5
 		prerequisite = { focus = INT_ITA_colonial_ambitions }
 		available = { date > 1922.1.1 }
-		completion_reward = { add_political_power = 20 }
+		completion_reward = { if = { limit = { 559 = { is_owned_by = ROOT is_fully_controlled_by = ROOT infrastructure < 5 } } 559 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } }
 		ai_will_do = { factor = 15 }
 	}
 
@@ -1095,7 +1103,7 @@ focus_tree = {
 		x = 108 y = 3 cost = 5
 		prerequisite = { focus = INT_ITA_general_staff }
 		available = { date > 1923.1.1 }
-		completion_reward = { add_political_power = 20 }
+		completion_reward = { add_stability = 0.02 }
 		ai_will_do = { factor = 15 }
 	}
 

@@ -1,0 +1,92 @@
+# Russian revolution stages are driven by political support and actual war history.
+RUS_ww1_october_context = {
+    tag = RIE
+    exists = yes
+    is_subject = no
+    has_capitulated = no
+    has_start_date < 1918.1.1
+    date < 1936.1.1
+    has_global_flag = welcome_event_WW1_active
+
+}
+
+RUS_ww1_october_ready = {
+    RUS_ww1_october_context = yes
+    communism > 0.5
+    NOT = { has_global_flag = october_revolution }
+    NOT = { country_exists = SOV }
+    any_owned_state = { is_capital = yes }
+}
+
+# A recorded German war survives the source country's annexation. It remains
+# pending only while a German treaty is still a coherent diplomatic outcome.
+RUS_ww1_brest_pending = {
+    country_exists = GER
+    GER = { has_capitulated = no }
+    NOT = { is_in_faction_with = GER }
+    NOT = { has_global_flag = player_wants_custom_peacedeals }
+    NOT = { has_global_flag = kaiserschlachtvictory }
+    NOT = { has_global_flag = central_powers_victory }
+    NOT = { has_global_flag = compiegne }
+    OR = { has_global_flag = RUS_ww1_brest_negotiations has_war_with = GER }
+}
+
+RUS_ww1_brest_ready = {
+    exists = yes
+    has_start_date < 1918.1.1
+    date < 1936.1.1
+    has_global_flag = welcome_event_WW1_active
+    NOT = { has_global_flag = treaty_of_brest_litovsk }
+    NOT = { has_global_flag = player_wants_custom_peacedeals }
+    NOT = { has_global_flag = kaiserschlachtvictory }
+    NOT = { has_global_flag = central_powers_victory }
+    NOT = { has_global_flag = compiegne }
+    country_exists = GER
+    GER = { has_capitulated = no }
+    NOT = { is_in_faction_with = GER }
+    OR = {
+        AND = {
+            tag = SOV
+            has_government = communism
+            has_capitulated = no
+            has_global_flag = { flag = october_revolution days > 45 }
+            OR = { has_global_flag = RUS_ww1_brest_negotiations has_war_with = GER }
+        }
+        AND = {
+            tag = RIE
+            RUS_ww1_historical_revolution_allowed = yes
+            has_capitulated = yes
+            has_war_with = GER
+        }
+    }
+}
+
+RUS_ww1_civil_war_ready = {
+    tag = SOV
+    exists = yes
+    is_subject = no
+    has_capitulated = no
+    has_government = communism
+    has_start_date < 1918.1.1
+    date < 1936.1.1
+    has_global_flag = welcome_event_WW1_active
+    has_global_flag = october_revolution
+    OR = {
+        has_global_flag = { flag = treaty_of_brest_litovsk days > 59 }
+        AND = {
+            NOT = { has_global_flag = treaty_of_brest_litovsk }
+            has_global_flag = { flag = october_revolution days > 105 }
+            NOT = { RUS_ww1_brest_pending = yes }
+            NOT = { has_war_with = GER }
+        }
+    }
+    NOT = { has_global_flag = russian_civil_war }
+    NOT = { has_global_flag = RUS_CW_Over }
+    OR = { country_exists = WHR owns_state = 251 }
+}
+
+RUS_ww1_lenin_can_lead = {
+    has_global_flag = lenin_in_russia
+    has_character = SOV_Vladimir_Lenin
+    date < 1924.1.21
+}

@@ -1,0 +1,1768 @@
+AUH_stab_refresh_food = {
+ clamp_variable = { var = AUH_ww1_food_security min = 0 max = 100 }
+ if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } }
+  remove_ideas = AUH_ww1_food_strained
+  if = { limit = { NOT = { has_idea = AUH_ww1_food_crisis } } add_ideas = AUH_ww1_food_crisis }
+ }
+ else_if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } }
+  remove_ideas = AUH_ww1_food_crisis
+  if = { limit = { NOT = { has_idea = AUH_ww1_food_strained } } add_ideas = AUH_ww1_food_strained }
+ }
+ else = { remove_ideas = AUH_ww1_food_strained remove_ideas = AUH_ww1_food_crisis }
+}
+# The existing multi_ethnic spirit becomes one variable-driven national spirit.
+AUH_stab_initialize = {
+ if = {
+  limit = { AUH_stab_active = yes }
+  if = {
+   limit = { NOT = { has_country_flag = AUH_stab_initialized } }
+   set_country_flag = AUH_stab_initialized
+   set_variable = { AUH_stab_months = 0 }
+   set_variable = { AUH_stab_consolidation_months = 0 }
+   set_variable = { AUH_stab_selected_region = 1 }
+   set_variable = { AUH_stab_active_programmes = 0 }
+   set_variable = { AUH_stab_discontent_austria = 28 }
+   set_variable = { AUH_stab_discontent_hungary = 38 }
+   set_variable = { AUH_stab_discontent_bohemia = 52 }
+   set_variable = { AUH_stab_discontent_slovakia = 55 }
+   set_variable = { AUH_stab_discontent_galicia = 35 }
+   set_variable = { AUH_stab_discontent_ruthenia = 58 }
+   set_variable = { AUH_stab_discontent_croatia = 55 }
+   set_variable = { AUH_stab_discontent_slovenia = 40 }
+   set_variable = { AUH_stab_discontent_bosnia = 68 }
+   set_variable = { AUH_stab_discontent_transylvania = 60 }
+   set_variable = { AUH_stab_discontent_italian_lands = 55 }
+   if = { limit = { has_war = yes date > 1913.12.31 } AUH_stab_seed_wartime_strain = yes }
+   AUH_stab_retire_old_system = yes
+   country_event = { id = ww1_auh_stability.1 days = 1 }
+  }
+  AUH_stab_refresh = yes
+ }
+}
+AUH_stab_seed_wartime_strain = {
+ add_to_variable = { AUH_stab_discontent_austria = 10 }
+ add_to_variable = { AUH_stab_discontent_hungary = 10 }
+ add_to_variable = { AUH_stab_discontent_bohemia = 10 }
+ add_to_variable = { AUH_stab_discontent_slovakia = 10 }
+ add_to_variable = { AUH_stab_discontent_galicia = 10 }
+ add_to_variable = { AUH_stab_discontent_ruthenia = 10 }
+ add_to_variable = { AUH_stab_discontent_croatia = 10 }
+ add_to_variable = { AUH_stab_discontent_slovenia = 10 }
+ add_to_variable = { AUH_stab_discontent_bosnia = 10 }
+ add_to_variable = { AUH_stab_discontent_transylvania = 10 }
+ add_to_variable = { AUH_stab_discontent_italian_lands = 10 }
+}
+AUH_stab_refresh = {
+ hidden_effect = {
+ if = {
+  limit = { AUH_stab_active = yes has_country_flag = AUH_stab_initialized }
+  clr_country_flag = AUH_stab_suspended
+  AUH_stab_refresh_food = yes
+  remove_ideas = multi_ethnic
+  set_variable = { AUH_stab_average = 0 }
+  set_variable = { AUH_stab_present_count = 0 }
+  clamp_variable = { var = AUH_stab_active_programmes min = 0 max = 2 }
+  clamp_variable = { var = AUH_stab_discontent_austria min = 0 max = 100 }
+  set_variable = { AUH_stab_present_austria = 0 }
+  set_variable = { AUH_stab_controlled_austria = 0 }
+  if = { limit = { AUH_stab_owns_austria = yes }
+   set_variable = { AUH_stab_present_austria = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_austria }
+   if = { limit = { AUH_stab_controls_austria = yes } set_variable = { AUH_stab_controlled_austria = 1 } }
+  }
+  4 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  39 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  152 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  153 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  848 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  976 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1007 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1051 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1052 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1061 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_austria value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_austria value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_hungary min = 0 max = 100 }
+  set_variable = { AUH_stab_present_hungary = 0 }
+  set_variable = { AUH_stab_controlled_hungary = 0 }
+  if = { limit = { AUH_stab_owns_hungary = yes }
+   set_variable = { AUH_stab_present_hungary = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_hungary }
+   if = { limit = { AUH_stab_controls_hungary = yes } set_variable = { AUH_stab_controlled_hungary = 1 } }
+  }
+  43 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  45 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  154 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  155 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  764 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1008 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1022 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_hungary value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_hungary value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_bohemia min = 0 max = 100 }
+  set_variable = { AUH_stab_present_bohemia = 0 }
+  set_variable = { AUH_stab_controlled_bohemia = 0 }
+  if = { limit = { AUH_stab_owns_bohemia = yes }
+   set_variable = { AUH_stab_present_bohemia = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_bohemia }
+   if = { limit = { AUH_stab_controls_bohemia = yes } set_variable = { AUH_stab_controlled_bohemia = 1 } }
+  }
+  9 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  69 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  72 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  74 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  75 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bohemia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bohemia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_slovakia min = 0 max = 100 }
+  set_variable = { AUH_stab_present_slovakia = 0 }
+  set_variable = { AUH_stab_controlled_slovakia = 0 }
+  if = { limit = { AUH_stab_owns_slovakia = yes }
+   set_variable = { AUH_stab_present_slovakia = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_slovakia }
+   if = { limit = { AUH_stab_controls_slovakia = yes } set_variable = { AUH_stab_controlled_slovakia = 1 } }
+  }
+  70 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovakia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovakia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  71 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovakia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovakia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  664 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovakia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovakia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovakia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_galicia min = 0 max = 100 }
+  set_variable = { AUH_stab_present_galicia = 0 }
+  set_variable = { AUH_stab_controlled_galicia = 0 }
+  if = { limit = { AUH_stab_owns_galicia = yes }
+   set_variable = { AUH_stab_present_galicia = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_galicia }
+   if = { limit = { AUH_stab_controls_galicia = yes } set_variable = { AUH_stab_controlled_galicia = 1 } }
+  }
+  88 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_galicia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_galicia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_galicia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_galicia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_galicia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_ruthenia min = 0 max = 100 }
+  set_variable = { AUH_stab_present_ruthenia = 0 }
+  set_variable = { AUH_stab_controlled_ruthenia = 0 }
+  if = { limit = { AUH_stab_owns_ruthenia = yes }
+   set_variable = { AUH_stab_present_ruthenia = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_ruthenia }
+   if = { limit = { AUH_stab_controls_ruthenia = yes } set_variable = { AUH_stab_controlled_ruthenia = 1 } }
+  }
+  73 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  80 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  89 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  91 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1025 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_ruthenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_ruthenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_croatia min = 0 max = 100 }
+  set_variable = { AUH_stab_present_croatia = 0 }
+  set_variable = { AUH_stab_controlled_croatia = 0 }
+  if = { limit = { AUH_stab_owns_croatia = yes }
+   set_variable = { AUH_stab_present_croatia = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_croatia }
+   if = { limit = { AUH_stab_controls_croatia = yes } set_variable = { AUH_stab_controlled_croatia = 1 } }
+  }
+  103 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  109 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  163 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1039 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_croatia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_croatia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_slovenia min = 0 max = 100 }
+  set_variable = { AUH_stab_present_slovenia = 0 }
+  set_variable = { AUH_stab_controlled_slovenia = 0 }
+  if = { limit = { AUH_stab_owns_slovenia = yes }
+   set_variable = { AUH_stab_present_slovenia = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_slovenia }
+   if = { limit = { AUH_stab_controls_slovenia = yes } set_variable = { AUH_stab_controlled_slovenia = 1 } }
+  }
+  102 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  853 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1003 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovenia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_slovenia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_slovenia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_bosnia min = 0 max = 100 }
+  set_variable = { AUH_stab_present_bosnia = 0 }
+  set_variable = { AUH_stab_controlled_bosnia = 0 }
+  if = { limit = { AUH_stab_owns_bosnia = yes }
+   set_variable = { AUH_stab_present_bosnia = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_bosnia }
+   if = { limit = { AUH_stab_controls_bosnia = yes } set_variable = { AUH_stab_controlled_bosnia = 1 } }
+  }
+  104 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bosnia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bosnia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bosnia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bosnia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bosnia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  804 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bosnia value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bosnia value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bosnia value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_bosnia value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_bosnia value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_transylvania min = 0 max = 100 }
+  set_variable = { AUH_stab_present_transylvania = 0 }
+  set_variable = { AUH_stab_controlled_transylvania = 0 }
+  if = { limit = { AUH_stab_owns_transylvania = yes }
+   set_variable = { AUH_stab_present_transylvania = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_transylvania }
+   if = { limit = { AUH_stab_controls_transylvania = yes } set_variable = { AUH_stab_controlled_transylvania = 1 } }
+  }
+  76 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  82 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  83 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  84 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1004 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1053 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_transylvania value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_transylvania value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  clamp_variable = { var = AUH_stab_discontent_italian_lands min = 0 max = 100 }
+  set_variable = { AUH_stab_present_italian_lands = 0 }
+  set_variable = { AUH_stab_controlled_italian_lands = 0 }
+  if = { limit = { AUH_stab_owns_italian_lands = yes }
+   set_variable = { AUH_stab_present_italian_lands = 1 }
+   add_to_variable = { AUH_stab_present_count = 1 }
+   add_to_variable = { AUH_stab_average = AUH_stab_discontent_italian_lands }
+   if = { limit = { AUH_stab_controls_italian_lands = yes } set_variable = { AUH_stab_controlled_italian_lands = 1 } }
+  }
+  736 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  850 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  852 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1013 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  1054 = {
+   if = { limit = { is_owned_by = AUH }
+    if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = greater_than_or_equals } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_severe_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 75 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_high_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_high_discontent } }
+    }
+    else_if = { limit = { AUH = { check_variable = { var = AUH_stab_discontent_italian_lands value = 25 compare = greater_than_or_equals } check_variable = { var = AUH_stab_discontent_italian_lands value = 50 compare = less_than } } }
+     remove_dynamic_modifier = { modifier = AUH_stab_high_discontent }
+     remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent }
+     if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } } } add_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } }
+    }
+    else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+   }
+   else = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+  }
+  if = { limit = { NOT = { OR = { AND = { check_variable = { var = AUH_stab_selected_region value = 1 compare = equals } check_variable = { var = AUH_stab_present_austria value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 2 compare = equals } check_variable = { var = AUH_stab_present_hungary value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 3 compare = equals } check_variable = { var = AUH_stab_present_bohemia value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 4 compare = equals } check_variable = { var = AUH_stab_present_slovakia value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 5 compare = equals } check_variable = { var = AUH_stab_present_galicia value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 6 compare = equals } check_variable = { var = AUH_stab_present_ruthenia value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 7 compare = equals } check_variable = { var = AUH_stab_present_croatia value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 8 compare = equals } check_variable = { var = AUH_stab_present_slovenia value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 9 compare = equals } check_variable = { var = AUH_stab_present_bosnia value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 10 compare = equals } check_variable = { var = AUH_stab_present_transylvania value = 1 compare = equals } } AND = { check_variable = { var = AUH_stab_selected_region value = 11 compare = equals } check_variable = { var = AUH_stab_present_italian_lands value = 1 compare = equals } } } } }
+   set_variable = { AUH_stab_selection_found = 0 }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_austria value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 1 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_hungary value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 2 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_bohemia value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 3 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_slovakia value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 4 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_galicia value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 5 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_ruthenia value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 6 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_croatia value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 7 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_slovenia value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 8 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_bosnia value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 9 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_transylvania value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 10 } set_variable = { AUH_stab_selection_found = 1 } }
+   if = { limit = { check_variable = { var = AUH_stab_selection_found value = 0 compare = equals } check_variable = { var = AUH_stab_present_italian_lands value = 1 compare = equals } } set_variable = { AUH_stab_selected_region = 11 } set_variable = { AUH_stab_selection_found = 1 } }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_count value = 0 compare = greater_than } } divide_variable = { AUH_stab_average = AUH_stab_present_count } }
+  set_variable = { AUH_stab_stability_penalty = AUH_stab_average }
+  multiply_variable = { AUH_stab_stability_penalty = -0.002 }
+  set_variable = { AUH_stab_war_support_penalty = AUH_stab_average }
+  multiply_variable = { AUH_stab_war_support_penalty = -0.0015 }
+  set_variable = { AUH_stab_army_penalty = AUH_stab_average }
+  multiply_variable = { AUH_stab_army_penalty = -0.0015 }
+  if = { limit = { NOT = { has_dynamic_modifier = { modifier = AUH_stab_multi_ethnic } } } add_dynamic_modifier = { modifier = AUH_stab_multi_ethnic } }
+ }
+ else = { AUH_stab_suspend = yes }
+ }
+}
+
+AUH_stab_monthly = {
+ if = { limit = { AUH_stab_active = yes }
+  AUH_stab_initialize = yes
+  add_to_variable = { AUH_stab_months = 1 }
+  if = { limit = { check_variable = { var = AUH_stab_present_austria value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_austria value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_austria_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_austria_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_austria_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_austria_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_ww1_january_strikes } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   add_to_variable = { AUH_stab_discontent_austria = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_hungary value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_hungary value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_hungary_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_hungary_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_hungary_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_hungary_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   add_to_variable = { AUH_stab_discontent_hungary = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_bohemia value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_bohemia value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_bohemia_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_bohemia_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_bohemia_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_bohemia_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_ww1_january_strikes } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   add_to_variable = { AUH_stab_discontent_bohemia = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_slovakia value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_slovakia value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_slovakia_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_slovakia_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_slovakia_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_slovakia_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   add_to_variable = { AUH_stab_discontent_slovakia = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_galicia value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_galicia value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_galicia_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_galicia_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_galicia_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_galicia_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   add_to_variable = { AUH_stab_discontent_galicia = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_ruthenia value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_ruthenia value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_ruthenia_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_ruthenia_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_ruthenia_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_ruthenia_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   add_to_variable = { AUH_stab_discontent_ruthenia = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_croatia value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_croatia value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_croatia_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_croatia_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_croatia_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_croatia_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_security_backlash } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { has_country_flag = AUH_ww1_cattaro_unrest } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   add_to_variable = { AUH_stab_discontent_croatia = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_slovenia value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_slovenia value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_slovenia_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_slovenia_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_slovenia_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_slovenia_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   add_to_variable = { AUH_stab_discontent_slovenia = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_bosnia value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_bosnia value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_bosnia_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_bosnia_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_bosnia_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_bosnia_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_security_backlash } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   add_to_variable = { AUH_stab_discontent_bosnia = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_transylvania value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_transylvania value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_transylvania_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_transylvania_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_transylvania_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_transylvania_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   add_to_variable = { AUH_stab_discontent_transylvania = AUH_stab_monthly_delta }
+  }
+  if = { limit = { check_variable = { var = AUH_stab_present_italian_lands value = 1 compare = equals } }
+   set_variable = { AUH_stab_monthly_delta = 0.10 }
+   if = { limit = { has_war = yes } add_to_variable = { AUH_stab_monthly_delta = 0.60 } }
+   if = { limit = { surrender_progress > 0.10 } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 40 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.25 } }
+   if = { limit = { check_variable = { var = AUH_ww1_food_security value = 20 compare = less_than } } add_to_variable = { AUH_stab_monthly_delta = 0.35 } }
+   if = { limit = { check_variable = { var = AUH_stab_controlled_italian_lands value = 0 compare = equals } } add_to_variable = { AUH_stab_monthly_delta = 0.50 } }
+   if = { limit = { has_country_flag = AUH_stab_italian_lands_languages } add_to_variable = { AUH_stab_monthly_delta = -0.12 } }
+   if = { limit = { has_country_flag = AUH_stab_italian_lands_budgets } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   if = { limit = { has_country_flag = AUH_stab_italian_lands_schools } add_to_variable = { AUH_stab_monthly_delta = -0.08 } }
+   if = { limit = { has_country_flag = AUH_stab_italian_lands_compact } add_to_variable = { AUH_stab_monthly_delta = -0.2 } }
+   if = { limit = { has_war = yes has_completed_focus = AUH_ww1_regimental_languages } add_to_variable = { AUH_stab_monthly_delta = -0.15 } }
+   add_to_variable = { AUH_stab_discontent_italian_lands = AUH_stab_monthly_delta }
+  }
+  AUH_stab_refresh = yes
+  if = {
+   limit = { AUH_stab_constitution_adopted = yes AUH_stab_all_implemented = yes has_war = no AUH_stab_all_calm = yes check_variable = { var = AUH_stab_months value = 48 compare = greater_than } check_variable = { var = AUH_ww1_food_security value = 50 compare = greater_than_or_equals } }
+   add_to_variable = { AUH_stab_consolidation_months = 1 }
+   clamp_variable = { var = AUH_stab_consolidation_months min = 0 max = 12 }
+   if = { limit = { check_variable = { var = AUH_stab_consolidation_months value = 12 compare = greater_than_or_equals } NOT = { has_country_flag = AUH_stab_durable_settlement } }
+    set_country_flag = AUH_stab_durable_settlement
+    set_country_flag = AUH_stab_ever_settled
+    country_event = { id = ww1_auh_stability.20 days = 1 }
+   }
+  }
+  else = { set_variable = { AUH_stab_consolidation_months = 0 } }
+  if = { limit = { has_country_flag = AUH_stab_durable_settlement AUH_stab_any_severe_relapse = yes }
+   clr_country_flag = AUH_stab_durable_settlement
+   if = { limit = { NOT = { has_country_flag = AUH_stab_relapse_notice_cooldown } }
+    set_country_flag = { flag = AUH_stab_relapse_notice_cooldown days = 365 }
+    country_event = { id = ww1_auh_stability.21 days = 1 }
+   }
+  }
+  if = { limit = { NOT = { has_country_flag = AUH_stab_setback_cooldown } }
+   random_list = {
+    60 = { }
+    10 = { modifier = { factor = 0 NOT = { AUH_stab_may_queue_budget = yes } } AUH_stab_queue_budget_dispute = yes }
+    10 = { modifier = { factor = 0 NOT = { AUH_stab_may_queue_language = yes } } AUH_stab_queue_language_dispute = yes }
+    10 = { modifier = { factor = 0 NOT = { AUH_stab_may_queue_food = yes } } AUH_stab_queue_food_dispute = yes }
+    10 = { modifier = { factor = 0 NOT = { AUH_stab_may_queue_strike = yes } } AUH_stab_queue_strike_dispute = yes }
+    10 = { modifier = { factor = 0 NOT = { AUH_stab_may_queue_security = yes } } AUH_stab_queue_security_dispute = yes }
+   }
+  }
+ }
+ else = { AUH_stab_suspend = yes }
+}
+AUH_stab_queue_budget_dispute = { set_country_flag = { flag = AUH_stab_setback_cooldown days = 180 } country_event = { id = ww1_auh_stability.10 hours = 6 } }
+AUH_stab_queue_language_dispute = { set_country_flag = { flag = AUH_stab_setback_cooldown days = 180 } country_event = { id = ww1_auh_stability.11 hours = 6 } }
+AUH_stab_queue_food_dispute = { set_country_flag = { flag = AUH_stab_setback_cooldown days = 180 } country_event = { id = ww1_auh_stability.12 hours = 6 } }
+AUH_stab_queue_strike_dispute = { set_country_flag = { flag = AUH_stab_setback_cooldown days = 180 } country_event = { id = ww1_auh_stability.13 hours = 6 } }
+AUH_stab_queue_security_dispute = { set_country_flag = { flag = AUH_stab_setback_cooldown days = 180 } country_event = { id = ww1_auh_stability.14 hours = 6 } }
+AUH_stab_retire_old_system = {
+ remove_decision = AUH_ww1_joint_delegations
+ remove_decision = AUH_ww1_provincial_commissions
+ remove_decision = AUH_ww1_army_language_services
+ remove_decision = AUH_ww1_local_welfare_committees
+ remove_decision = AUH_ww1_imperial_press_directives
+ remove_decision = AUH_ww1_january_strike_settlement
+ remove_decision = AUH_ww1_regional_representative_panels
+ remove_decision = AUH_ww1_provincial_police_training
+ remove_decision = AUH_ww1_parliamentary_question_days
+ remove_decision = AUH_ww1_bohemian_negotiations_retry
+ remove_decision = AUH_ww1_hungarian_negotiations_retry
+ remove_decision = AUH_ww1_croatian_negotiations_retry
+ remove_decision = AUH_ww1_galician_negotiations_retry
+ remove_decision = AUH_ww1_bosnian_negotiations_retry
+ remove_decision = AUH_ww1_slovenian_negotiations_retry
+ remove_decision = AUH_ww1_grain_transport_priority
+ remove_decision = AUH_ww1_civilian_kitchen_network
+ remove_decision = AUH_ww1_urban_rationing
+ remove_decision = AUH_ww1_seed_and_harvest_supplies
+ remove_decision = AUH_ww1_municipal_food_inspections
+ remove_decision = AUH_ww1_hungarian_grain_deliveries
+ remove_decision = AUH_ww1_cattaro_crew_delegation
+ remove_decision = AUH_ww1_refugee_registration_offices
+ remove_decision = AUH_ww1_municipal_health_services
+ remove_decision = AUH_ww1_civilian_bulk_purchasing
+ remove_decision = AUH_ww1_civil_register_reorganization
+ remove_decision = AUH_ww1_technical_school_courses
+ remove_decision = AUH_ww1_local_road_contracts
+ remove_decision = AUH_ww1_administrative_budget_review
+ remove_decision = AUH_ww1_civil_service_procurement
+ remove_decision = AUH_ww1_municipal_service_reconstruction
+ remove_decision = AUH_ww1_food_warehouse_repairs
+ remove_decision = AUH_ww1_demobilized_labor_offices
+ remove_decision = AUH_ww1_industrial_liaison_offices
+ remove_decision = AUH_ww1_renew_dualism_ratification_retry
+ remove_decision = AUH_ww1_common_executive_ratification_retry
+ remove_decision = AUH_ww1_three_crowns_ratification_retry
+ remove_decision = AUH_ww1_united_federation_ratification_retry
+ remove_decision = AUH_ww1_autonomous_crowns_ratification_retry
+ remove_decision = AUH_ww1_republican_convention_ratification_retry
+ remove_decision = AUH_ww1_negotiated_separation_ratification_retry
+ remove_ideas = AUH_ww1_stable_institutions
+ remove_ideas = AUH_ww1_strained_institutions
+ remove_ideas = AUH_ww1_fragile_institutions
+ remove_ideas = AUH_ww1_fragmented_institutions
+ clr_country_flag = AUH_ww1_council_programme_active
+ clr_country_flag = AUH_ww1_home_front_programme_active
+ clr_country_flag = AUH_ww1_stability_programme_active
+ clr_country_flag = AUH_ww1_treasury_programme_active
+ clear_variable = AUH_ww1_debt
+ clear_variable = AUH_ww1_cohesion
+ clear_variable = AUH_ww1_debt_monthly_change
+ clear_variable = AUH_ww1_cohesion_monthly_change
+ clear_variable = AUH_ww1_stability_monthly_change
+}
+AUH_stab_suspend = {
+ if = { limit = { NOT = { has_country_flag = AUH_stab_suspended } }
+ set_country_flag = AUH_stab_suspended
+ AUH_stab_retire_old_system = yes
+ remove_dynamic_modifier = { modifier = AUH_stab_multi_ethnic }
+ remove_ideas = multi_ethnic
+ remove_decision = AUH_stab_austria_consult
+ remove_decision = AUH_stab_austria_languages
+ remove_decision = AUH_stab_austria_budgets
+ remove_decision = AUH_stab_austria_schools
+ remove_decision = AUH_stab_austria_compact
+ remove_decision = AUH_stab_austria_relief
+ remove_decision = AUH_stab_hungary_consult
+ remove_decision = AUH_stab_hungary_languages
+ remove_decision = AUH_stab_hungary_budgets
+ remove_decision = AUH_stab_hungary_schools
+ remove_decision = AUH_stab_hungary_compact
+ remove_decision = AUH_stab_hungary_relief
+ remove_decision = AUH_stab_bohemia_consult
+ remove_decision = AUH_stab_bohemia_languages
+ remove_decision = AUH_stab_bohemia_budgets
+ remove_decision = AUH_stab_bohemia_schools
+ remove_decision = AUH_stab_bohemia_compact
+ remove_decision = AUH_stab_bohemia_relief
+ remove_decision = AUH_stab_slovakia_consult
+ remove_decision = AUH_stab_slovakia_languages
+ remove_decision = AUH_stab_slovakia_budgets
+ remove_decision = AUH_stab_slovakia_schools
+ remove_decision = AUH_stab_slovakia_compact
+ remove_decision = AUH_stab_slovakia_relief
+ remove_decision = AUH_stab_galicia_consult
+ remove_decision = AUH_stab_galicia_languages
+ remove_decision = AUH_stab_galicia_budgets
+ remove_decision = AUH_stab_galicia_schools
+ remove_decision = AUH_stab_galicia_compact
+ remove_decision = AUH_stab_galicia_relief
+ remove_decision = AUH_stab_ruthenia_consult
+ remove_decision = AUH_stab_ruthenia_languages
+ remove_decision = AUH_stab_ruthenia_budgets
+ remove_decision = AUH_stab_ruthenia_schools
+ remove_decision = AUH_stab_ruthenia_compact
+ remove_decision = AUH_stab_ruthenia_relief
+ remove_decision = AUH_stab_croatia_consult
+ remove_decision = AUH_stab_croatia_languages
+ remove_decision = AUH_stab_croatia_budgets
+ remove_decision = AUH_stab_croatia_schools
+ remove_decision = AUH_stab_croatia_compact
+ remove_decision = AUH_stab_croatia_relief
+ remove_decision = AUH_stab_slovenia_consult
+ remove_decision = AUH_stab_slovenia_languages
+ remove_decision = AUH_stab_slovenia_budgets
+ remove_decision = AUH_stab_slovenia_schools
+ remove_decision = AUH_stab_slovenia_compact
+ remove_decision = AUH_stab_slovenia_relief
+ remove_decision = AUH_stab_bosnia_consult
+ remove_decision = AUH_stab_bosnia_languages
+ remove_decision = AUH_stab_bosnia_budgets
+ remove_decision = AUH_stab_bosnia_schools
+ remove_decision = AUH_stab_bosnia_compact
+ remove_decision = AUH_stab_bosnia_relief
+ remove_decision = AUH_stab_transylvania_consult
+ remove_decision = AUH_stab_transylvania_languages
+ remove_decision = AUH_stab_transylvania_budgets
+ remove_decision = AUH_stab_transylvania_schools
+ remove_decision = AUH_stab_transylvania_compact
+ remove_decision = AUH_stab_transylvania_relief
+ remove_decision = AUH_stab_italian_lands_consult
+ remove_decision = AUH_stab_italian_lands_languages
+ remove_decision = AUH_stab_italian_lands_budgets
+ remove_decision = AUH_stab_italian_lands_schools
+ remove_decision = AUH_stab_italian_lands_compact
+ remove_decision = AUH_stab_italian_lands_relief
+ remove_decision = AUH_stab_food
+ remove_decision = AUH_stab_reconstruction
+ remove_decision = AUH_ww1_joint_delegations
+ remove_decision = AUH_ww1_provincial_commissions
+ remove_decision = AUH_ww1_army_language_services
+ remove_decision = AUH_ww1_local_welfare_committees
+ remove_decision = AUH_ww1_imperial_press_directives
+ remove_decision = AUH_ww1_january_strike_settlement
+ remove_decision = AUH_ww1_regional_representative_panels
+ remove_decision = AUH_ww1_provincial_police_training
+ remove_decision = AUH_ww1_parliamentary_question_days
+ remove_decision = AUH_ww1_bohemian_negotiations_retry
+ remove_decision = AUH_ww1_hungarian_negotiations_retry
+ remove_decision = AUH_ww1_croatian_negotiations_retry
+ remove_decision = AUH_ww1_galician_negotiations_retry
+ remove_decision = AUH_ww1_bosnian_negotiations_retry
+ remove_decision = AUH_ww1_slovenian_negotiations_retry
+ remove_decision = AUH_ww1_grain_transport_priority
+ remove_decision = AUH_ww1_civilian_kitchen_network
+ remove_decision = AUH_ww1_urban_rationing
+ remove_decision = AUH_ww1_seed_and_harvest_supplies
+ remove_decision = AUH_ww1_municipal_food_inspections
+ remove_decision = AUH_ww1_hungarian_grain_deliveries
+ remove_decision = AUH_ww1_cattaro_crew_delegation
+ remove_decision = AUH_ww1_refugee_registration_offices
+ remove_decision = AUH_ww1_municipal_health_services
+ remove_decision = AUH_ww1_civilian_bulk_purchasing
+ remove_decision = AUH_ww1_civil_register_reorganization
+ remove_decision = AUH_ww1_technical_school_courses
+ remove_decision = AUH_ww1_local_road_contracts
+ remove_decision = AUH_ww1_administrative_budget_review
+ remove_decision = AUH_ww1_civil_service_procurement
+ remove_decision = AUH_ww1_municipal_service_reconstruction
+ remove_decision = AUH_ww1_food_warehouse_repairs
+ remove_decision = AUH_ww1_demobilized_labor_offices
+ remove_decision = AUH_ww1_industrial_liaison_offices
+ remove_decision = AUH_ww1_renew_dualism_ratification_retry
+ remove_decision = AUH_ww1_common_executive_ratification_retry
+ remove_decision = AUH_ww1_three_crowns_ratification_retry
+ remove_decision = AUH_ww1_united_federation_ratification_retry
+ remove_decision = AUH_ww1_autonomous_crowns_ratification_retry
+ remove_decision = AUH_ww1_republican_convention_ratification_retry
+ remove_decision = AUH_ww1_negotiated_separation_ratification_retry
+ clr_country_flag = AUH_stab_austria_busy
+ clr_country_flag = AUH_stab_austria_running_consult
+ clr_country_flag = AUH_stab_austria_running_languages
+ clr_country_flag = AUH_stab_austria_running_budgets
+ clr_country_flag = AUH_stab_austria_running_schools
+ clr_country_flag = AUH_stab_austria_running_compact
+ clr_country_flag = AUH_stab_austria_running_relief
+ 4 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 39 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 152 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 153 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 848 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 976 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1007 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1051 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1052 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1061 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_hungary_busy
+ clr_country_flag = AUH_stab_hungary_running_consult
+ clr_country_flag = AUH_stab_hungary_running_languages
+ clr_country_flag = AUH_stab_hungary_running_budgets
+ clr_country_flag = AUH_stab_hungary_running_schools
+ clr_country_flag = AUH_stab_hungary_running_compact
+ clr_country_flag = AUH_stab_hungary_running_relief
+ 43 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 45 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 154 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 155 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 764 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1008 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1022 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_bohemia_busy
+ clr_country_flag = AUH_stab_bohemia_running_consult
+ clr_country_flag = AUH_stab_bohemia_running_languages
+ clr_country_flag = AUH_stab_bohemia_running_budgets
+ clr_country_flag = AUH_stab_bohemia_running_schools
+ clr_country_flag = AUH_stab_bohemia_running_compact
+ clr_country_flag = AUH_stab_bohemia_running_relief
+ 9 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 69 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 72 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 74 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 75 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_slovakia_busy
+ clr_country_flag = AUH_stab_slovakia_running_consult
+ clr_country_flag = AUH_stab_slovakia_running_languages
+ clr_country_flag = AUH_stab_slovakia_running_budgets
+ clr_country_flag = AUH_stab_slovakia_running_schools
+ clr_country_flag = AUH_stab_slovakia_running_compact
+ clr_country_flag = AUH_stab_slovakia_running_relief
+ 70 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 71 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 664 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_galicia_busy
+ clr_country_flag = AUH_stab_galicia_running_consult
+ clr_country_flag = AUH_stab_galicia_running_languages
+ clr_country_flag = AUH_stab_galicia_running_budgets
+ clr_country_flag = AUH_stab_galicia_running_schools
+ clr_country_flag = AUH_stab_galicia_running_compact
+ clr_country_flag = AUH_stab_galicia_running_relief
+ 88 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_ruthenia_busy
+ clr_country_flag = AUH_stab_ruthenia_running_consult
+ clr_country_flag = AUH_stab_ruthenia_running_languages
+ clr_country_flag = AUH_stab_ruthenia_running_budgets
+ clr_country_flag = AUH_stab_ruthenia_running_schools
+ clr_country_flag = AUH_stab_ruthenia_running_compact
+ clr_country_flag = AUH_stab_ruthenia_running_relief
+ 73 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 80 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 89 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 91 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1025 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_croatia_busy
+ clr_country_flag = AUH_stab_croatia_running_consult
+ clr_country_flag = AUH_stab_croatia_running_languages
+ clr_country_flag = AUH_stab_croatia_running_budgets
+ clr_country_flag = AUH_stab_croatia_running_schools
+ clr_country_flag = AUH_stab_croatia_running_compact
+ clr_country_flag = AUH_stab_croatia_running_relief
+ 103 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 109 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 163 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1039 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_slovenia_busy
+ clr_country_flag = AUH_stab_slovenia_running_consult
+ clr_country_flag = AUH_stab_slovenia_running_languages
+ clr_country_flag = AUH_stab_slovenia_running_budgets
+ clr_country_flag = AUH_stab_slovenia_running_schools
+ clr_country_flag = AUH_stab_slovenia_running_compact
+ clr_country_flag = AUH_stab_slovenia_running_relief
+ 102 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 853 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1003 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_bosnia_busy
+ clr_country_flag = AUH_stab_bosnia_running_consult
+ clr_country_flag = AUH_stab_bosnia_running_languages
+ clr_country_flag = AUH_stab_bosnia_running_budgets
+ clr_country_flag = AUH_stab_bosnia_running_schools
+ clr_country_flag = AUH_stab_bosnia_running_compact
+ clr_country_flag = AUH_stab_bosnia_running_relief
+ 104 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 804 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_transylvania_busy
+ clr_country_flag = AUH_stab_transylvania_running_consult
+ clr_country_flag = AUH_stab_transylvania_running_languages
+ clr_country_flag = AUH_stab_transylvania_running_budgets
+ clr_country_flag = AUH_stab_transylvania_running_schools
+ clr_country_flag = AUH_stab_transylvania_running_compact
+ clr_country_flag = AUH_stab_transylvania_running_relief
+ 76 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 82 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 83 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 84 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1004 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1053 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ clr_country_flag = AUH_stab_italian_lands_busy
+ clr_country_flag = AUH_stab_italian_lands_running_consult
+ clr_country_flag = AUH_stab_italian_lands_running_languages
+ clr_country_flag = AUH_stab_italian_lands_running_budgets
+ clr_country_flag = AUH_stab_italian_lands_running_schools
+ clr_country_flag = AUH_stab_italian_lands_running_compact
+ clr_country_flag = AUH_stab_italian_lands_running_relief
+ 736 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 850 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 852 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1013 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ 1054 = { remove_dynamic_modifier = { modifier = AUH_stab_elevated_discontent } remove_dynamic_modifier = { modifier = AUH_stab_high_discontent } remove_dynamic_modifier = { modifier = AUH_stab_severe_discontent } }
+ set_variable = { AUH_stab_active_programmes = 0 }
+ set_variable = { AUH_stab_consolidation_months = 0 }
+ clr_country_flag = AUH_stab_national_programme
+ clr_country_flag = AUH_stab_running_food
+ clr_country_flag = AUH_stab_running_reconstruction
+ clr_country_flag = AUH_stab_durable_settlement
+ }
+}

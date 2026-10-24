@@ -2,10 +2,10 @@
 
 	shared_focus = {
 		id = shared_GEN_political_effort
-		icon = GFX_goal_generic_intelligence_exchange
+		icon = GFX_focus_AST_a_democratic_bulwark
 		cost = 10.00
-		x = 44
-		y = 0
+		x = -22
+		y = -11
 		relative_position_id = shared_GEN_powered_flight
 		ai_will_do = { factor = 5 }
 		bypass = { has_global_flag = welcome_event_INT }
@@ -13,6 +13,8 @@
 		completion_reward = {
 			add_political_power = 100
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 29 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 	shared_focus = {
 		id = shared_GEN_take_position
@@ -20,7 +22,7 @@
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_political_effort }
 		relative_position_id = shared_GEN_political_effort
-		x = -4
+		x = -1
 		y = 1
 		ai_will_do = { factor = 5 }
 		available_if_capitulated = yes
@@ -28,11 +30,13 @@
 		completion_reward = {
 			add_political_power = 50
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -3 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_support_central_powers
-		icon = GFX_goal_generic_neutrality_focus
+		icon = GFX_focus_generic_league_of_nations
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_take_position }
 		mutually_exclusive = { focus = shared_GEN_support_entente }
@@ -42,12 +46,12 @@
 		y = 1
 		ai_will_do = { factor = 1 }
 		available = {
-			date > 1915.1.1
+			WW1_generic_alignment_preparation_allowed = yes
 			is_puppet = no
 			NOT = {
 				has_war_with = GER
 			}
-			is_in_faction = no
+			OR = { is_in_faction = no WW1_is_balkan_league_member = yes }
 			GER = {
 				exists = yes
 				is_faction_leader = yes
@@ -67,6 +71,8 @@
 				modifier = turkey_friend
 			}
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
@@ -75,19 +81,24 @@
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_support_central_powers }
 		relative_position_id = shared_GEN_support_central_powers
-		x = 0
-		y = 1
+		x = -2
+		y = 2
 		ai_will_do = { factor = 1 }
 		available_if_capitulated = yes
 		bypass = { has_global_flag = welcome_event_INT }
 		completion_reward = {
-			add_political_power = 75
+
+
+			add_political_power = 50
+			add_war_support = 0.03
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 0 y = -1 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_send_aid
-		icon = GFX_goal_generic_positive_trade_relations
+		icon = GFX_goal_generic_trade
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_state_claims }
 		relative_position_id = shared_GEN_state_claims
@@ -96,10 +107,10 @@
 		ai_will_do = { factor = 2 }
 		bypass = { has_global_flag = welcome_event_INT }
 		available = {
-			date > 1915.1.1
+			WW1_generic_alignment_preparation_allowed = yes
 			is_puppet = no
 			NOT = { has_war_with = GER }
-			is_in_faction = no
+			OR = { is_in_faction = no WW1_is_balkan_league_member = yes }
 			GER = {
 				exists = yes
 				is_faction_leader = yes
@@ -108,39 +119,40 @@
 		completion_reward = {
 			add_equipment_to_stockpile = {
 				type = early_infantry_equipment_2
-				amount = 7000
+				amount = 1000
 				producer = GER
 			}
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_send_volunteers_1
-		icon = GFX_goal_rhineland
+		icon = GFX_focus_generic_manpower
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_send_aid }
 		mutually_exclusive = {
 			focus = shared_GEN_join_cp
 		}
 		relative_position_id = shared_GEN_send_aid
-		x = 1
+		x = 0
 		y = 1
 		ai_will_do = { factor = 2 }
 		bypass = { has_global_flag = welcome_event_INT }
 		available = {
-			date > 1915.1.1
+			WW1_generic_alignment_preparation_allowed = yes
 			is_puppet = no
 			NOT = { has_war_with = GER }
-			is_in_faction = no
+			OR = { is_in_faction = no WW1_is_balkan_league_member = yes }
 			GER = {
 				exists = yes
 				is_faction_leader = yes
 			}
 		}
 		completion_reward = {
-			GER = {
-				add_manpower = 25000
-			}
+			if = { limit = { has_manpower > 4999 country_exists = GER } add_manpower = -5000 GER = { add_manpower = 5000 } }
+army_experience = 5
 		}
 	}
 
@@ -154,17 +166,19 @@
 		mutually_exclusive = {
 			focus = shared_GEN_send_volunteers_1
 		}
-		x = -1
+		x = -2
 		y = 1
 
-		completion_reward = {
-			GER = { add_to_faction = ROOT }
-		}
+		completion_reward = { set_country_flag = WW1_focus_faction_central_pending WW1_complete_focus_faction_entry = yes }
+
+	available = {
+is_subject = no OR = { is_in_faction = no WW1_is_balkan_league_member = yes is_in_faction_with = GER } NOT = { has_war_with = GER } GER = { exists = yes is_faction_leader = yes GE1_ww1_may_choose_central_bloc = yes } GER = { ROOT = { WW1_country_faction_path_allows_previous = yes } }
 	}
+}
 
 	shared_focus = {
 		id = shared_GEN_support_entente
-		icon = GFX_goal_generic_neutrality_focus
+		icon = GFX_focus_generic_treaty
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_take_position }
 		mutually_exclusive = {
@@ -172,16 +186,16 @@
 		}
 		bypass = { has_global_flag = welcome_event_INT }
 		relative_position_id = shared_GEN_take_position
-		x = 2
+		x = 0
 		y = 1
 		ai_will_do = { factor = 1 }
 		available = {
-			date > 1915.1.1
+			WW1_generic_alignment_preparation_allowed = yes
 			is_puppet = no
 			NOT = {
 				has_war_with = FRA
 			}
-			is_in_faction = no
+			OR = { is_in_faction = no WW1_is_balkan_league_member = yes }
 			FRA = {
 				exists = yes
 				is_faction_leader = yes
@@ -201,22 +215,29 @@
 				modifier = russia_friend
 			}
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_state_claims_2
-		icon = GFX_goal_generic_more_territorial_claims
+		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_support_entente }
 		relative_position_id = shared_GEN_support_entente
-		x = 0
-		y = 1
+		x = -2
+		y = 2
 		ai_will_do = { factor = 1 }
 		available_if_capitulated = yes
 		bypass = { has_global_flag = welcome_event_INT }
 		completion_reward = {
-			add_political_power = 75
+
+
+			add_political_power = 50
+			add_war_support = 0.03
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 0 y = -1 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
@@ -230,10 +251,10 @@
 		ai_will_do = { 	factor = 2 	}
 		bypass = { has_global_flag = welcome_event_INT }
 		available = {
-			date > 1915.1.1
+			WW1_generic_alignment_preparation_allowed = yes
 			is_puppet = no
 			NOT = { has_war_with = FRA }
-			is_in_faction = no
+			OR = { is_in_faction = no WW1_is_balkan_league_member = yes }
 			FRA = {
 				exists = yes
 				is_faction_leader = yes
@@ -242,7 +263,7 @@
 		completion_reward = {
 			add_equipment_to_stockpile = {
 				type = early_infantry_equipment_2
-				amount = 7000
+				amount = 1000
 				producer = FRA
 			}
 		}
@@ -250,7 +271,7 @@
 
 	shared_focus = {
 		id = shared_GEN_send_volunteers_2
-		icon = GFX_goal_rhineland
+		icon = GFX_focus_generic_infiltration
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_send_aid_2 }
 		mutually_exclusive = {
@@ -258,50 +279,55 @@
 		}
 		bypass = { has_global_flag = welcome_event_INT }
 		relative_position_id = shared_GEN_send_aid_2
-		x = -1
+		x = 0
 		y = 1
 		ai_will_do = { factor = 2 }
 		available = {
-			date > 1915.1.1
+			WW1_generic_alignment_preparation_allowed = yes
 			is_puppet = no
 			NOT = { has_war_with = FRA }
-			is_in_faction = no
+			OR = { is_in_faction = no WW1_is_balkan_league_member = yes }
 			FRA = {
 				exists = yes
 				is_faction_leader = yes
 			}
 		}
 		completion_reward = {
-			FRA = {
-				add_manpower = 25000
-			}
+			if = { limit = { has_manpower > 4999 country_exists = FRA } add_manpower = -5000 FRA = { add_manpower = 5000 } }
+army_experience = 5
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_join_entente
-		icon = GFX_goal_generic_major_alliance
+		icon = GFX_focus_renounce_the_treaty_of_trianon
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_send_aid_2 }
 		mutually_exclusive = {
 			focus = shared_GEN_send_volunteers_2
 		}
 		relative_position_id = shared_GEN_send_aid_2
-		x = 1
+		x = 2
 		y = 1
 		bypass = { has_global_flag = welcome_event_INT }
 
-		completion_reward = {
-			FRA = { add_to_faction = ROOT }
-		}
+		completion_reward = { set_country_flag = WW1_focus_faction_entente_pending WW1_complete_focus_faction_entry = yes }
+
+	available = {
+is_subject = no OR = { is_in_faction = no WW1_is_balkan_league_member = yes is_in_faction_with = FRA } NOT = { has_war_with = FRA } FRA = { exists = yes is_faction_leader = yes FR3_R_may_enter_entente = yes } FRA = { ROOT = { WW1_country_faction_path_allows_previous = yes } }
 	}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
 	shared_focus = {
 		id = shared_GEN_internal_politics
-		icon = GFX_goal_tripartite_pact
+		icon = GFX_focus_SWI_dissolve_the_federal_council
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_political_effort }
-		x = 4
+		x = 1
 		y = 1
 		relative_position_id = shared_GEN_political_effort
 		ai_will_do = { factor = 5 }
@@ -310,13 +336,15 @@
 		completion_reward = {
 			add_political_power = 50
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_collectivism
-		icon = GFX_goal_generic_national_unity
+		icon = GFX_focus_FIN_finnish_federation_of_trade_unions
 		cost = 10.00
-		x = -2
+		x = 0
 		y = 1
 		relative_position_id = shared_GEN_internal_politics
 		prerequisite = { focus = shared_GEN_internal_politics }
@@ -339,19 +367,23 @@
 			add_ideas = collectivist_ethos_focus
 			remove_ideas = neutrality_idea
 		}
+
+		mutually_exclusive = { focus = shared_GEN_liberty_focus }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_internationalism_focus
-		icon = GFX_goal_support_communism
+		icon = GFX_focus_generic_join_comintern
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_collectivism }
 		mutually_exclusive = {
 			focus = shared_GEN_nationalism_focus
 		}
 		relative_position_id = shared_GEN_collectivism
-		x = -1
-		y = 1
+		x = -2
+		y = 2
 		bypass = { has_global_flag = welcome_event_INT }
 		available = {
 			if = {
@@ -382,13 +414,15 @@
 			}
 		}
 		completion_reward = {
-			add_ideas = internationalism
+			add_timed_idea = { idea = internationalism days = 720 }
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 0 y = -1 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_political_correctness
-		icon = GFX_goal_generic_dangerous_deal
+		icon = GFX_SOV_the_workers_dictatorship_ccp_2d_sov_compatibility
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_internationalism_focus }
 		x = 0
@@ -402,17 +436,24 @@
 				limit = { has_idea = neutrality_idea }
 				remove_ideas = neutrality_idea
 			}
-			add_political_power = 200
+
 			add_ideas = idea_political_correctness
-		}
+
+			set_politics = { ruling_party = communism elections_allowed = no }
+			add_popularity = { ideology = communism popularity = 0.15 }
+ if = { limit = { has_idea = internationalism } remove_ideas = internationalism }
+WW1_consolidate_chosen_government = yes
+ }
+
+		available = { OR = { is_ai = no is_historical_focus_on = no has_government = communism } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_indoctrination
-		icon = GFX_goal_generic_propaganda
+		icon = GFX_focus_GER_proletarian_solidarity
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_political_correctness }
-		x = 0
+		x = 2
 		y = 1
 		relative_position_id = shared_GEN_political_correctness
 		ai_will_do = { factor = 5 }
@@ -420,16 +461,20 @@
 		bypass = { has_global_flag = welcome_event_INT }
 		completion_reward = {
 			add_ideas = indoctrination_focus
-			add_political_power = 150
+
+
+			add_popularity = { ideology = communism popularity = 0.05 }
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_political_commisars
-		icon = GFX_goal_generic_forceful_treaty
+		icon = GFX_focus_ICE_embrace_the_workers_revolution
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_indoctrination }
-		x = 0
+		x = -2
 		y = 1
 		relative_position_id = shared_GEN_indoctrination
 		ai_will_do = { factor = 5 }
@@ -437,32 +482,23 @@
 		bypass = { has_global_flag = welcome_event_INT }
 		completion_reward = {
 			add_ideas = political_commissars_focus
-			if = {
-				limit = {
-					has_government = fascism
-				}
-			}
-			if = {
-				limit = {
-					OR = {
-						has_government = communism
-					}
-				}
-			}
-			add_political_power = 200
+army_experience = 10
+add_popularity = { ideology = communism popularity = 0.05 }
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 2 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_nationalism_focus
-		icon = GFX_goal_support_fascism
+		icon = GFX_focus_CZE_coalition_building
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_collectivism }
 		mutually_exclusive = {
 			focus = shared_GEN_internationalism_focus
 		}
-		x = 1
-		y = 1
+		x = 0
+		y = 2
 		relative_position_id = shared_GEN_collectivism
 		available = {
 			has_government = fascism
@@ -489,16 +525,18 @@
 			}
 		}
 		completion_reward = {
-			add_ideas = nationalism
+			add_timed_idea = { idea = nationalism days = 720 }
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 0 y = -1 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_militarism
-		icon = GFX_goal_rhineland
+		icon = GFX_SOV_national_specialists_ccp_2d_sov_compatibility
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_nationalism_focus }
-		x = 0
+		x = 2
 		y = 1
 		relative_position_id = shared_GEN_nationalism_focus
 		ai_will_do = { factor = 5 }
@@ -517,14 +555,16 @@
 				can_send_volunteers = yes
 			}
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -2 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_military_youth
-		icon = GFX_goal_generic_more_territorial_claims
+		icon = GFX_goal_generic_military_sphere
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_militarism }
-		x = 0
+		x = 1
 		y = 1
 		relative_position_id = shared_GEN_militarism
 		ai_will_do = { factor = 5 }
@@ -537,10 +577,10 @@
 
 	shared_focus = {
 		id = shared_GEN_paramilitarism
-		icon = GFX_goal_generic_military_sphere
+		icon = GFX_focus_FIN_strengthen_military_administration
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_military_youth }
-		x = 0
+		x = -3
 		y = 1
 		relative_position_id = shared_GEN_military_youth
 		ai_will_do = { factor = 5 }
@@ -549,11 +589,13 @@
 		completion_reward = {
 			add_ideas = paramilitarism_focus
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 3 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_liberty_focus
-		icon = GFX_goal_support_democracy
+		icon = GFX_focus_ETH_re-convene_the_parliament
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_internal_politics }
 		x = 2
@@ -583,7 +625,14 @@
 		completion_reward = {
 			add_ideas = liberty_ethos_focus
 			remove_ideas = neutrality_idea
-		}
+
+			add_popularity = { ideology = democratic popularity = 0.05 }
+ WW1_support_democratic_programme = yes
+ }
+
+		mutually_exclusive = { focus = shared_GEN_collectivism }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
@@ -594,14 +643,14 @@
 		mutually_exclusive = {
 			focus = shared_GEN_interventionism_focus
 		}
-		x = -1
-		y = 1
+		x = 0
+		y = 2
 		relative_position_id = shared_GEN_liberty_focus
 		ai_will_do = { factor = 5 }
 		available_if_capitulated = yes
 		bypass = { has_global_flag = welcome_event_INT }
 		completion_reward = {
-			add_political_power = 150
+
 			if = {
 				limit = {
 					NOT = {
@@ -610,15 +659,19 @@
 				}
 				add_ideas = neutrality_idea
 			}
+
+			add_political_power = 50
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 0 y = -1 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_deterrence
-		icon = GFX_goal_generic_defence
+		icon = GFX_goal_generic_construct_military
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_neutrality_focus }
-		x = 0
+		x = -2
 		y = 1
 		relative_position_id = shared_GEN_neutrality_focus
 		ai_will_do = { factor = 5 }
@@ -627,18 +680,20 @@
 		completion_reward = {
 			add_ideas = deterrence
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 2 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_interventionism_focus
-		icon = GFX_goal_demand_sudetenland
+		icon = GFX_goal_generic_major_war
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_liberty_focus }
 		mutually_exclusive = {
 			focus = shared_GEN_neutrality_focus
 		}
-		x = 1
-		y = 1
+		x = 2
+		y = 2
 		relative_position_id = shared_GEN_liberty_focus
 		available_if_capitulated = yes
 		bypass = { has_global_flag = welcome_event_INT }
@@ -657,13 +712,17 @@
 			set_rule = {
 				can_send_volunteers = yes
 			}
-			add_political_power = 150
+
+
+			add_political_power = 50
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 0 y = -1 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
 		id = shared_GEN_volunteer_corps
-		icon = GFX_goal_generic_allies_build_infantry
+		icon = GFX_focus_generic_jungle_troops
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_interventionism_focus }
 		x = 0
@@ -679,10 +738,10 @@
 
 	shared_focus = {
 		id = shared_GEN_foreign_expeditions
-		icon = GFX_goal_generic_more_territorial_claims
+		icon = GFX_focus_generic_military_mission
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_volunteer_corps }
-		x = 0
+		x = 1
 		y = 1
 		relative_position_id = shared_GEN_volunteer_corps
 		ai_will_do = { factor = 5 }
@@ -691,6 +750,8 @@
 		completion_reward = {
 			add_ideas = foreign_expeditions_focus
 		}
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -1 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 
 	shared_focus = {
@@ -698,7 +759,7 @@
 		icon = GFX_goal_generic_propaganda
 		cost = 10.00
 		prerequisite = { focus = shared_GEN_foreign_expeditions focus = shared_GEN_deterrence }
-		x = -2
+		x = -3
 		y = 1
 		relative_position_id = shared_GEN_foreign_expeditions
 		bypass = { has_global_flag = welcome_event_INT }
@@ -707,6 +768,8 @@
 				threat > 0.75
 				has_defensive_war = yes
 			}
+
+			OR = { is_ai = no is_historical_focus_on = no has_government = democratic }
 		}
 		available_if_capitulated = yes
 		completion_reward = {
@@ -718,6 +781,12 @@
 					set_rule = { can_create_factions = yes }
 				}
 			}
-		}
+
+			set_politics = { ruling_party = democratic elections_allowed = yes }
+			add_popularity = { ideology = democratic popularity = 0.15 }
+ WW1_consolidate_chosen_government = yes
+ }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = 2 y = 0 trigger = { has_focus_tree = generic_focus_ww1 } }
 	}
 

@@ -32,3 +32,36 @@ IT1_ww1_end_administration = {
 		clr_country_flag = IT1_ww1_diplomatic_programme_active
 	}
 }
+
+# The declaration represents the initial October 1911 landings together. Only
+# the two harbour provinces change wartime controller; Ottoman ownership and
+# the inland campaign remain intact. The legacy event and declaration share
+# one flag, so retries or repeated event calls cannot duplicate the expedition.
+IT1_ww1_deploy_libyan_expedition = {
+	if = {
+		limit = {
+			tag = ITA
+			date < 1936.1.1
+			has_country_flag = IT1_ww1_libyan_campaign_started
+			has_war_with = TUR
+			NOT = { has_country_flag = IT1_ww1_italian_libya_oob_loaded }
+			NOT = { has_country_flag = IT1_ww1_ottoman_accommodation }
+			NOT = { has_global_flag = treaty_of_ouchy }
+			448 = { OR = { is_owned_by = TUR is_owned_by = ITA } }
+			450 = { OR = { is_owned_by = TUR is_owned_by = ITA } }
+			OR = { controls_province = 1149 TUR = { controls_province = 1149 } }
+			OR = { controls_province = 11954 TUR = { controls_province = 11954 } }
+		}
+		set_country_flag = IT1_ww1_italian_libya_oob_loaded
+		TUR = {
+			if = {
+				limit = { NOT = { has_country_flag = IT1_ww1_ottoman_libya_oob_loaded } }
+				load_oob = TUR_Libya
+				set_country_flag = IT1_ww1_ottoman_libya_oob_loaded
+			}
+		}
+		set_province_controller = 1149 # Tripoli harbour, state 448
+		set_province_controller = 11954 # Benghazi harbour, state 450
+		load_oob = ITA_Libya
+	}
+}

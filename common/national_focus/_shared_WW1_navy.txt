@@ -1,320 +1,224 @@
-### WW1
+# WW1 national development: named programmes, limited capacity and service choices.
 
-	shared_focus = {
-		id = shared_GEN_naval_effort
-		icon = GFX_goal_generic_construct_naval_dockyard
-		cost = 10.00
-		relative_position_id = shared_GEN_powered_flight
-		x = 31
-		y = 0
-		ai_will_do = { factor = 5 }
-		bypass = { has_global_flag = welcome_event_INT }
-		available_if_capitulated = yes
-		available = {
-			any_state = {
-				is_coastal = yes
-				is_owned_and_controlled_by = ROOT
-			}
-		}
-		complete_tooltip = {
-			navy_experience = 25
-			add_extra_state_shared_building_slots = 3
-			add_building_construction = {
-				type = dockyard
-				level = 3
-				instant_build = yes
-			}
-		}
-		completion_reward = {
-			navy_experience = 25
-			if = {
-				limit = {
-					NOT = {
-						any_owned_state = {
-							dockyard > 0
-							free_building_slots = {
-								building = dockyard
-								size > 2
-								include_locked = yes
-							}
-						}
-					}
-					any_owned_state = {
-						is_coastal = yes
-					}
-				}
-				random_owned_controlled_state = {
-					limit = {
-						is_coastal = yes
-						free_building_slots = {
-							building = dockyard
-							size > 2
-							include_locked = yes
-						}
-					}
-					add_extra_state_shared_building_slots = 3
-					add_building_construction = {
-						type = dockyard
-						level = 3
-						instant_build = yes
-					}
-				}
-				set_country_flag = naval_effort_built
-			}
-		}
-	}
-	shared_focus = {
-		id = shared_GEN_defensive_navy
-		icon = GFX_goal_generic_defence
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_naval_effort }
-		x = -3
-		y = 1
-		bypass = { has_global_flag = welcome_event_INT }
-		relative_position_id = shared_GEN_naval_effort
-		ai_will_do = {
-			factor = 5
-			modifier = {
-				factor = 0
-				all_owned_state = {
-					OR = {
-						is_coastal = no
-						dockyard < 1
-					}
-				}
-			}
-		}
-		completion_reward = {
-			add_tech_bonus = {
-				name = fleet_in_being_bonus
-				bonus = 0.5
-				uses = 2
-				category = naval_doctrine
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_naval_effort
+    icon = GFX_focus_BEL_antwerp_maritime_academy
+    x = 52
+    y = 12
+    cost = 5
 
-	shared_focus = {
-		id = shared_GEN_destroyer_effort
-		icon = GFX_goal_generic_navy_anti_submarine
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_defensive_navy }
-		x = 0
-		y = 1
-		relative_position_id = shared_GEN_defensive_navy
-		bypass = { has_global_flag = welcome_event_INT }
-		ai_will_do = {
-			factor = 5
-			modifier = {
-				factor = 0
-				all_owned_state = {
-					OR = {
-						is_coastal = no
-						dockyard < 1
-					}
-				}
-			}
-		}
-		completion_reward = {
-			add_tech_bonus = {
-				name = dd_bonus
-				bonus = 0.5
-				ahead_reduction = 1
-				uses = 2
-				category = dd_tech
-			}
-		}
-	}
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1 any_owned_state = { is_coastal = yes is_controlled_by = ROOT } }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { navy_experience = 15 }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -18 y = -1 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
-	shared_focus = {
-		id = shared_GEN_cruiser_effort
-		icon = GFX_goal_generic_navy_cruiser
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_destroyer_effort }
-		bypass = { has_global_flag = welcome_event_INT }
-		relative_position_id = shared_GEN_destroyer_effort
-		x = 0
-		y = 1
-		ai_will_do = {
-			factor = 5
-			modifier = {
-				factor = 0
-				all_owned_state = {
-					OR = {
-						is_coastal = no
-						dockyard < 1
-					}
-				}
-			}
-		}
-		completion_reward = {
-			add_tech_bonus = {
-				name = cruiser_bonus
-				bonus = 0.5
-				ahead_reduction = 1
-				uses = 2
-				category = cl_tech
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_defensive_navy
+    icon = GFX_focus_generic_coastal_fort
+    x = 51
+    y = 14
+    cost = 5
+    prerequisite = { focus = shared_GEN_naval_effort }
+mutually_exclusive = { focus = shared_GEN_large_navy_effort }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_timed_idea = { idea = WW1_GEN_coastal_patrols days = 365 } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -18 y = -2 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
-	shared_focus = {
-		id = shared_GEN_large_navy_effort
-		icon = GFX_goal_generic_navy_battleship
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_naval_effort }
-		x = 3
-		y = 1
-		relative_position_id = shared_GEN_naval_effort
-		available_if_capitulated = yes
-		bypass = { has_global_flag = welcome_event_INT }
-		ai_will_do = {
-			factor = 5
-			modifier = {
-				factor = 0
-				all_owned_state = {
-					OR = {
-						is_coastal = no
-						dockyard < 1
-					}
-				}
-			}
-		}
-		completion_reward = {
-			add_tech_bonus = {
-					name = navy_doctrine_bonus_bonus
-					bonus = 0.5
-					uses = 2
-					category = naval_doctrine
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_large_navy_effort
+    icon = GFX_focus_generic_large_navy
+    x = 53
+    y = 14
+    cost = 8
+    prerequisite = { focus = shared_GEN_naval_effort }
+mutually_exclusive = { focus = shared_GEN_defensive_navy }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_timed_idea = { idea = WW1_GEN_battle_fleet_trials days = 365 } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -18 y = -2 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
-	shared_focus = {
-		id = shared_GEN_experimental_submarine
-		icon = GFX_goal_generic_navy_submarine
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_defensive_navy  focus = shared_GEN_large_navy_effort }
-		relative_position_id = shared_GEN_naval_effort
-		x = 0
-		y = 2
-		ai_will_do = { factor = 5 }
-		available_if_capitulated = yes
-		bypass = { has_global_flag = welcome_event_INT }
-		completion_reward = {
-			add_tech_bonus = {
-				name = sub_bonus
-				bonus = 0.35
-				uses = 1
-				category = ss_tech
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_destroyer_effort
+    icon = GFX_focus_JAP_expand_navy_technical_department
+    x = 49
+    y = 16
+    cost = 5
+    prerequisite = { focus = shared_GEN_defensive_navy }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_tech_bonus = { name = WW1_GEN_equipment_programme bonus = 0.5 uses = 1 category = dd_tech } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -17 y = -3 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
-	shared_focus = {
-		id = shared_GEN_submarine_research
-		icon = GFX_goal_generic_navy_submarine
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_experimental_submarine }
-		relative_position_id = shared_GEN_experimental_submarine
-		x = 0
-		y = 1
-		ai_will_do = { factor = 5 }
-		available_if_capitulated = yes
-		bypass = { has_global_flag = welcome_event_INT }
-		completion_reward = {
-			add_tech_bonus = {
-				name = sub_bonus
-				bonus = 0.35
-				uses = 1
-				category = ss_tech
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_cruiser_effort
+    icon = GFX_focus_CHI_commemorate_labour_corp
+    x = 48
+    y = 18
+    cost = 8
+    prerequisite = { focus = shared_GEN_destroyer_effort }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_tech_bonus = { name = WW1_GEN_equipment_programme bonus = 0.5 uses = 1 category = cl_tech } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -16 y = -4 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
-	shared_focus = {
-		id = shared_GEN_capital_effort
-		icon = GFX_goal_generic_navy_battleship
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_large_navy_effort }
-		relative_position_id = shared_GEN_large_navy_effort
-		x = 0
-		y = 1
-		bypass = { has_global_flag = welcome_event_INT }
-		ai_will_do = {
-			factor = 5
-			modifier = {
-				factor = 0
-				all_owned_state = {
-					OR = {
-						is_coastal = no
-						dockyard < 1
-					}
-				}
-			}
-		}
-		completion_reward = {
-			add_tech_bonus = {
-				name = bb_bonus
-				bonus = 0.5
-				ahead_reduction = 1
-				uses = 2
-				category = bb_tech
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_capital_effort
+    icon = GFX_goal_generic_navy_battleship
+    x = 55
+    y = 16
+    cost = 10
+    prerequisite = { focus = shared_GEN_large_navy_effort }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_tech_bonus = { name = WW1_GEN_equipment_programme bonus = 0.5 uses = 1 category = bb_tech } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -19 y = -3 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
-	shared_focus = {
-		id = shared_GEN_battle_cruiser_effort
-		icon = GFX_goal_generic_navy_cruiser
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_capital_effort }
-		relative_position_id = shared_GEN_capital_effort
-		x = 0
-		y = 1
-		bypass = { has_global_flag = welcome_event_INT }
-		ai_will_do = {
-			factor = 5
-			modifier = {
-				factor = 0
-				all_owned_state = {
-					OR = {
-						is_coastal = no
-						dockyard < 1
-					}
-				}
-			}
-		}
-		completion_reward = {
-			add_tech_bonus = {
-				name = bc_bonus
-				bonus = 0.5
-				ahead_reduction = 1
-				uses = 1
-				category = bc_tech
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_battle_cruiser_effort
+    icon = GFX_focus_JAP_assure_superior_naval_quality
+    x = 56
+    y = 18
+    cost = 8
+    prerequisite = { focus = shared_GEN_capital_effort }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_tech_bonus = { name = WW1_GEN_equipment_programme bonus = 0.5 uses = 1 category = bc_tech } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -20 y = -4 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
-	shared_focus = {
-		id = shared_GEN_modern_navy
-		icon = GFX_goal_generic_navy_battleship
-		cost = 10.00
-		prerequisite = { focus = shared_GEN_cruiser_effort }
-		prerequisite = { focus = shared_GEN_battle_cruiser_effort }
-		relative_position_id = shared_GEN_cruiser_effort
-		x = 3
-		y = 1
-		ai_will_do = { factor = 5 }
-		available_if_capitulated = yes
-		bypass = { has_global_flag = welcome_event_INT }
-		completion_reward = {
-			add_tech_bonus = {
-				name = navy_doctrine_bonus
-				bonus = 0.35
-				uses = 2
-				category = naval_doctrine
-			}
-		}
-	}
+shared_focus = {
+    id = shared_GEN_experimental_submarine
+    icon = GFX_focus_generic_cruiser_submarines
+    x = 52
+    y = 15
+    cost = 5
+    prerequisite = { focus = shared_GEN_defensive_navy focus = shared_GEN_large_navy_effort }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_tech_bonus = { name = WW1_GEN_equipment_programme bonus = 0.4 uses = 1 category = ss_tech } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -18 y = -2 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
 
+shared_focus = {
+    id = shared_GEN_submarine_research
+    icon = GFX_goal_generic_navy_submarine
+    x = 52
+    y = 17
+    cost = 5
+    prerequisite = { focus = shared_GEN_experimental_submarine }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_tech_bonus = { name = WW1_GEN_equipment_programme bonus = 0.5 uses = 1 category = ss_tech }
+navy_experience = 15 }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -18 y = -3 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
+
+shared_focus = {
+    id = shared_GEN_merchant_protection
+    icon = GFX_focus_generic_merchant_fleet
+    x = 47
+    y = 20
+    cost = 5
+    prerequisite = { focus = shared_GEN_cruiser_effort focus = shared_GEN_battle_cruiser_effort }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { add_timed_idea = { idea = WW1_GEN_merchant_protection days = 365 } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -15 y = -5 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
+
+shared_focus = {
+    id = shared_GEN_gunnery_school
+    icon = GFX_focus_generic_battleship_guns
+    x = 57
+    y = 20
+    cost = 5
+    prerequisite = { focus = shared_GEN_cruiser_effort focus = shared_GEN_battle_cruiser_effort }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { navy_experience = 25 }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -21 y = -5 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
+
+shared_focus = {
+    id = shared_GEN_modern_navy
+    icon = GFX_goal_generic_navy_doctrines_tactics
+    x = 52
+    y = 22
+    cost = 8
+    prerequisite = { focus = shared_GEN_cruiser_effort focus = shared_GEN_battle_cruiser_effort }
+prerequisite = { focus = shared_GEN_submarine_research }
+    available_if_capitulated = no
+    cancel_if_invalid = yes
+    available = { date < 1936.1.1  }
+    bypass = { has_global_flag = welcome_event_INT }
+    ai_will_do = { factor = 3 }
+    search_filters = { FOCUS_FILTER_RESEARCH }
+    completion_reward = { navy_experience = 25
+add_timed_idea = { idea = WW1_GEN_fleet_exercises days = 180 } }
+	# Scoped WW1 native layout: thematic groups and compact chains.
+	offset = { x = -18 y = -7 trigger = { has_focus_tree = generic_focus_ww1 } }
+}
+
+# Legacy history and save compatibility.

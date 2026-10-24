@@ -1,0 +1,82 @@
+# Montenegro, Serbia and Albania are separate actors in the London settlement.
+WW1_SCUTARI_era = {
+ has_start_date < 1936.1.1
+ date < 1936.1.1
+}
+
+# State scope. The London settlement cannot erase a third power's occupation.
+WW1_SCUTARI_london_state_local = {
+ OR = { is_owned_by = TUR is_owned_by = ALB is_owned_by = MNT }
+ OR = { is_controlled_by = TUR is_controlled_by = ALB is_controlled_by = MNT is_controlled_by = SER is_controlled_by = GRE is_controlled_by = BUL }
+}
+
+WW1_SCUTARI_montenegrin_position = {
+ tag = MNT
+ WW1_SCUTARI_era = yes
+ country_exists = ALB
+ is_subject = no
+ NOT = { has_capitulated = yes }
+ NOT = { has_war_with = ALB }
+ NOT = { has_war_with = AUH }
+ ALB = { is_subject = no NOT = { has_capitulated = yes } }
+ controls_state = 934
+ 934 = { OR = { is_owned_by = TUR is_owned_by = MNT is_owned_by = ALB } }
+ OR = { has_war = no AND = { has_global_flag = first_balkan_war has_war_with = TUR } }
+ NOT = { any_enemy_country = { NOT = { tag = TUR } } }
+}
+
+WW1_SCUTARI_can_open = {
+ WW1_SCUTARI_montenegrin_position = yes
+ controls_state = 934
+ NOT = { has_country_flag = WW1_SCUTARI_started }
+ NOT = { has_country_flag = WW1_SCUTARI_withdrawn }
+ OR = { has_global_flag = treaty_of_london_1913 AND = { has_global_flag = first_balkan_war has_war_with = TUR } }
+}
+
+WW1_SCUTARI_autonomous_start = {
+ WW1_SCUTARI_can_open = yes
+ NOT = { date < 1913.4.23 }
+ date < 1914.1.1
+}
+
+WW1_SCUTARI_can_handover = {
+ WW1_SCUTARI_montenegrin_position = yes
+ controls_state = 934
+}
+
+WW1_SCUTARI_coordinator_available = {
+ tag = AUH
+ WW1_SCUTARI_era = yes
+ is_subject = no
+ NOT = { has_capitulated = yes }
+ has_war = no
+ country_exists = MNT
+ country_exists = ALB
+ NOT = { is_in_faction_with = MNT }
+ MNT = { WW1_SCUTARI_montenegrin_position = yes has_country_flag = WW1_SCUTARI_open }
+}
+
+WW1_SCUTARI_can_prepare_intervention = {
+ WW1_SCUTARI_coordinator_available = yes
+ NOT = { has_country_flag = AUH_ww1_july_mediation }
+ NOT = { has_idea = neutrality_idea }
+ NOT = { has_completed_focus = shared_GEN_neutrality_focus }
+ NOT = { has_non_aggression_pact_with = MNT }
+ NOT = { has_guaranteed = MNT }
+ MNT = { owns_state = 934 controls_state = 934 NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+}
+
+WW1_SCUTARI_supporter_available = {
+ WW1_SCUTARI_era = yes
+ is_subject = no
+ NOT = { has_capitulated = yes }
+ has_war = no
+ NOT = { is_in_faction_with = MNT }
+ NOT = { has_idea = neutrality_idea }
+ OR = {
+  AND = { tag = ENG NOT = { has_country_flag = EN1_R_neutral_policy } NOT = { has_completed_focus = EN1_stay_neutral } NOT = { has_global_flag = british_neutrality } }
+  AND = { tag = ITA NOT = { has_country_flag = IT1_ww1_armed_neutrality } NOT = { has_completed_focus = IT1_ww1_armed_neutrality } }
+ }
+ MNT = { has_country_flag = WW1_SCUTARI_open NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+ AUH = { WW1_SCUTARI_coordinator_available = yes has_country_flag = WW1_SCUTARI_committed }
+}

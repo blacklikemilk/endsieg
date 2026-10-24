@@ -19,6 +19,17 @@ country_event = {
 		GER = {
 			add_opinion_modifier = { target = TUR modifier = turkey_friend }
 		}
+
+	trigger = {
+GE1_ww1_may_choose_central_bloc = yes
+	}
+ set_country_flag = GE1_ww1_bloc_central
+}
+
+	trigger = {
+		tag = GER
+		GE1_ww1_may_choose_central_bloc = yes
+		TUR = { OT1_R_may_follow_historical_alignment = yes }
 	}
 }
 
@@ -85,9 +96,11 @@ country_event = {
 	option = {
 		name = ww1_germany.5.a
 		GER = {
-			add_to_faction = DER
+			if = { limit = { DER = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = DER }
 		}
 	}
+
+ trigger = { DER = { has_completed_focus = shared_GEN_join_cp } }
 }
 
 # Invite Jabal Shammar
@@ -102,9 +115,11 @@ country_event = {
 	option = {
 		name = ww1_germany.6.a
 		GER = {
-			add_to_faction = SHA
+			if = { limit = { SHA = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = SHA }
 		}
 	}
+
+ trigger = { SHA = { has_completed_focus = shared_GEN_join_cp } }
 }
 
 # Berlin Baghdad Railway Part 1
@@ -280,8 +295,14 @@ country_event = {
 		has_start_date < 1917.1.1
 		date > 1917.1.1
 		NOT = { date > 1918.1.1 }
+
+		has_completed_focus = GE1_zimmerman
 		NOT = { has_global_flag = zimmerman_telegram }
-	}
+	 NOT = { has_country_flag = GE1_R_restricted_submarine_policy } NOT = { has_completed_focus = GE1_D_submarine_warning_policy }
+ has_completed_focus = GE1_zimmerman OR = { NOT = { WW1_historical_ai_preparation = yes } NOT = { date < 1917.3.1 } }
+
+ NOT = { has_country_flag = WW1_focus_action_ww1_germany_13_seen }
+}
 	option = {
 		name = ww1_germany.13.a
 		set_global_flag = zimmerman_telegram
@@ -289,10 +310,12 @@ country_event = {
 		# Previously this flag only unlocked a U.S. focus, leaving the event
 		# chain stalled whenever that focus was not selected.
 		if = {
-			limit = { country_exists = USA }
+			limit = { country_exists = USA NOT = { has_global_flag = compiegne } NOT = { has_global_flag = central_powers_victory } USA = { NOT = { is_in_faction_with = GER } NOT = { has_country_flag = US2_R_german_agreement } } }
 			USA = { country_event = { id = ww1_usa.7 days = 1 } }
 		}
-	}
+
+ set_country_flag = WW1_focus_action_ww1_germany_13_seen clr_country_flag = WW1_focus_action_ww1_germany_13_queued
+}
 }
 
 # Zimmerman Telegram Part 2
@@ -318,7 +341,7 @@ country_event = {
 			factor = 5
 		}
 		GER = {
-			add_to_faction = MEX
+			if = { limit = { MEX = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = MEX }
 		}
 	}
 	option = {
@@ -343,7 +366,9 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		tag = SWE
 		has_global_flag = sweden_negotiations
-	}
+
+ has_completed_focus = shared_GEN_join_cp
+}
 
 	mean_time_to_happen = { days = 1 }
 
@@ -354,7 +379,7 @@ country_event = {
 		}
 		set_global_flag = sweden_says_yes
 		GER = {
-			add_to_faction = SWE
+			if = { limit = { SWE = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = SWE }
 		}
 	}
 	option = {
@@ -810,14 +835,20 @@ country_event = {
 			news_event = { hours = 6 id = endsieg_news.130 }
 			GER = {
 				declare_war_on = { target = SWI type = annex_everything }
-				declare_war_on = { target = RIE type = annex_everything }
-				declare_war_on = { target = FRA type = annex_everything }
+				if = { limit = { country_exists = RIE RIE = { RUS_ww1_may_be_historical_war_target = yes } } declare_war_on = { target = RIE type = annex_everything } }
+				if = {
+					limit = {
+						NOT = { has_non_aggression_pact_with = FRA }
+						NOT = { is_in_faction_with = FRA }
+					}
+					declare_war_on = { target = FRA type = annex_everything }
+				}
 			}
 			FRA = {
 				add_timed_idea = { idea = surprise_attack days = 30 }
-				add_to_faction = SWI
-				add_to_faction = SER
-				add_to_faction = MNT
+				if = { limit = { SWI = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = SWI }
+				if = { limit = { SER = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = SER }
+				if = { limit = { MNT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = MNT }
 			}
 			SWI = {
 				add_timed_idea = { idea = surprise_attack days = 30 }
@@ -838,27 +869,39 @@ country_event = {
 	option = {
 		name = ww1_germany.21.a
 		if = {
-			limit = { NOT = { has_global_flag = GE1_anglo_german_alliance } }
+			limit = { NOT = { has_global_flag = GE1_anglo_german_alliance } GE1_D_may_attack_low_countries = yes }
 			set_global_flag = schlieffen_plan
 			news_event = { hours = 6 id = endsieg_news.133 }
 			GER = {
-				declare_war_on = { target = FRA type = annex_everything }
+				if = {
+					limit = {
+						NOT = { has_non_aggression_pact_with = FRA }
+						NOT = { is_in_faction_with = FRA }
+					}
+					declare_war_on = { target = FRA type = annex_everything }
+				}
 				declare_war_on = { target = BEL type = annex_everything }
 				declare_war_on = { target = LUX type = annex_everything }
-				declare_war_on = { target = RIE type = annex_everything }
+				if = { limit = { country_exists = RIE RIE = { RUS_ww1_may_be_historical_war_target = yes } } declare_war_on = { target = RIE type = annex_everything } }
 			}
 			FRA = {
 				add_timed_idea = { idea = surprise_attack days = 30 }
-				add_to_faction = LUX
-				add_to_faction = BEL
-				add_to_faction = SER
-				add_to_faction = MNT
+				if = { limit = { LUX = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = LUX }
+				if = { limit = { BEL = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = BEL }
+				if = { limit = { SER = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = SER }
+				if = { limit = { MNT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = MNT }
 			}
 			BEL = {
 				add_timed_idea = { idea = surprise_attack days = 30 }
 			}
 		}
-	}
+
+ set_country_flag = WW1_focus_action_ww1_germany_21_seen clr_country_flag = WW1_focus_action_ww1_germany_21_queued
+}
+
+ trigger = { has_completed_focus = GE1_schlieffen_plan OR = { NOT = { WW1_historical_ai_preparation = yes } NOT = { date < 1914.8.4 } }
+ NOT = { has_country_flag = WW1_focus_action_ww1_germany_21_seen }
+}
 }
 
 # Kronprinz Plan
@@ -880,12 +923,18 @@ country_event = {
 		else = {
 			news_event = { hours = 6 id = endsieg_news.132 }
 			GER = {
-				declare_war_on = { target = FRA type = annex_everything }
-				declare_war_on = { target = RIE type = annex_everything }
+				if = {
+					limit = {
+						NOT = { has_non_aggression_pact_with = FRA }
+						NOT = { is_in_faction_with = FRA }
+					}
+					declare_war_on = { target = FRA type = annex_everything }
+				}
+				if = { limit = { country_exists = RIE RIE = { RUS_ww1_may_be_historical_war_target = yes } } declare_war_on = { target = RIE type = annex_everything } }
 			}
 			FRA = {
-				add_to_faction = SER
-				add_to_faction = MNT
+				if = { limit = { SER = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = SER }
+				if = { limit = { MNT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = MNT }
 			}
 		}
 	}
@@ -899,6 +948,22 @@ country_event = {
 	picture = GFX_report_event_goeben_and_breslau
 
 	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		country_exists = TUR
+		NOT = { has_global_flag = goeben_und_breslau }
+		OR = {
+			has_completed_focus = GE1_D_ottoman_military_convention
+			has_completed_focus = GE1_ottoman_german_alliance
+			has_idea = GE1_D_ottoman_mission
+		}
+		TUR = {
+			NOT = { has_war_with = GER }
+			NOT = { is_in_faction_with = ENG }
+			NOT = { is_in_faction_with = FRA }
+			NOT = { is_in_faction_with = RIE }
+		}
+	}
 
 	option = {
 		name = ww1_germany.23.a
@@ -933,9 +998,11 @@ country_event = {
 		name = ww1_germany.24.a
 		news_event = { hours = 6 id = endsieg_news.134 }
 		GER = {
-			add_to_faction = ALB
+			if = { limit = { ALB = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ALB }
 		}
 	}
+
+ trigger = { ALB = { has_completed_focus = shared_GEN_join_cp } }
 }
 
 # Asien Corps Part 1
@@ -1081,31 +1148,19 @@ country_event = {
 	desc = ww1_germany.29.d
 	picture = GFX_report_event_bulgaria_joins_war1
 
-	# Bulgaria entered the war on 14 October 1915.  This used to be reached
-	# only through Germany's focus tree, which left the historical campaign
-	# without a reliable entry point.
+	# Legacy military follow-up for an invitation already accepted by Bulgaria.
 	fire_only_once = yes
+ is_triggered_only = yes
 
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1915.10.15
-		tag = GER
-		country_exists = BUL
-		date > 1915.10.13
-		NOT = { date > 1915.12.1 }
-		NOT = { has_global_flag = bulgaria_joins_cp }
-		BUL = { NOT = { is_in_faction_with = GER } }
-	}
+	trigger = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 GE1_ww1_may_choose_central_bloc = yes BUL = { is_in_faction_with = GER } has_global_flag = GE1_RP_bulgaria_joined NOT = { has_global_flag = WW1_bulgarian_war_entry } }
 
-	mean_time_to_happen = { days = 1 }
+
 
 	option = {
 		name = ww1_germany.29.a
-		set_global_flag = bulgaria_joins_cp
+		set_global_flag = WW1_bulgarian_war_entry
 		news_event = { hours = 6 id = endsieg_news.136 }
-		GER = {
-			add_to_faction = BUL
-		}
+
 		BUL = {
 			if = {
 				limit = {
@@ -1154,7 +1209,9 @@ country_event = {
 
 	option = {
 		name = ww1_germany.30.a
-	}
+
+			add_war_support = 0.03
+		}
 }
 
 # Regency Kingdom of Poland Formed
@@ -1316,7 +1373,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.33.a
-		RIE = {
+		if = { limit = { country_exists = RIE } RIE = {
 			if = {
 				limit = {
 					date > 1917.3.31
@@ -1328,7 +1385,7 @@ country_event = {
 				}
 				country_event = { id = ww1_russia.37 days = 1 }
 			}
-		}
+		} }
 	}
 }
 
@@ -1428,9 +1485,14 @@ country_event = {
 		tag = GER
 		has_start_date < 1915.2.18
 		date > 1915.2.17
-		NOT = { date > 1916.1.1 }
 		NOT = { has_global_flag = unrestricted_submarine_warfare }
-	}
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = central_powers_victory }
+	 NOT = { has_country_flag = GE1_R_restricted_submarine_policy } NOT = { has_completed_focus = GE1_D_submarine_warning_policy }
+ has_completed_focus = GE1_unrestricted_sub OR = { NOT = { WW1_historical_ai_preparation = yes } NOT = { date < 1915.2.18 } }
+
+ NOT = { has_country_flag = WW1_focus_action_ww1_germany_39_seen }
+}
 	option = {
 		name = ww1_germany.39.a
 		set_global_flag = unrestricted_submarine_warfare
@@ -1438,16 +1500,16 @@ country_event = {
 		# U.S. diplomatic pressure follows the initial resumption of
 		# unrestricted submarine warfare. This starts the German reply chain.
 		if = {
-			limit = { country_exists = USA }
+			limit = { country_exists = USA NOT = { has_war_with = USA } }
 			USA = { country_event = { id = ww1_usa.6 days = 1 } }
 		}
-		ENG = {
+		every_enemy_country = {
+			limit = { has_war_with = GER }
 			add_ideas = unrestricted_sub_warfare
 		}
-		FRA = {
-			add_ideas = unrestricted_sub_warfare
-		}
-	}
+
+ set_country_flag = WW1_focus_action_ww1_germany_39_seen clr_country_flag = WW1_focus_action_ww1_germany_39_queued
+}
 }
 
 # Home Front Part 1
@@ -1736,14 +1798,16 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		tag = GER
 		has_global_flag = afgahnistan_says_yes
-	}
+
+ AFG = { has_completed_focus = shared_GEN_join_cp }
+}
 
 	mean_time_to_happen = { days = 1 }
 
 	option = {
 		name = ww1_germany.5103.a
 		GER = {
-			add_to_faction = AFG
+			if = { limit = { AFG = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = AFG }
 		}
 	}
 }
@@ -1828,7 +1892,7 @@ country_event = {
 			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 10000 producer = GER }
 		}
 		GER = {
-			add_to_faction = IND
+			if = { limit = { IND = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = IND }
 		}
 	}
 }
@@ -2163,7 +2227,9 @@ country_event = {
 		date > 1916.3.8
 		GER = { has_war_with = ENG }
 		NOT = { date > 1918.1.1 }
-	}
+
+ OR = { ENG = { has_completed_focus = EN1_invite_portugal } POR = { has_completed_focus = shared_GEN_join_entente } }
+}
 
 	mean_time_to_happen = { days = 1 }
 
@@ -2172,7 +2238,7 @@ country_event = {
 		news_event = { hours = 6 id = endsieg_news.148 }
 		set_global_flag = germany_declares_war_portugal
 		FRA = {
-			add_to_faction = POR
+			if = { limit = { POR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = POR }
 		}
 		GER = {
 			declare_war_on = { target = POR type = annex_everything }
@@ -2227,21 +2293,38 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		tag = GER
 		has_start_date < 1917.1.31
-		date > 1917.1.30
-		NOT = { date > 1917.3.1 }
+		NOT = { date < 1917.1.31 }
 		NOT = { has_global_flag = GE1_resumes_USW }
-	}
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = central_powers_victory }
+
+date < 1918.1.1
+ NOT = { has_country_flag = GE1_R_restricted_submarine_policy } NOT = { has_completed_focus = GE1_D_submarine_warning_policy }
+ has_completed_focus = GE1_continue_unrestricted_sub OR = { NOT = { WW1_historical_ai_preparation = yes } NOT = { date < 1917.2.1 } }
+
+ NOT = { has_country_flag = WW1_focus_action_ww1_germany_57_seen }
+}
 	mean_time_to_happen = { days = 1 }
 
 	option = {
+set_global_flag = unrestricted_submarine_warfare
+set_global_flag = GE1_continues_USW
+
 		name = ww1_germany.57.a
 		set_global_flag = GE1_resumes_USW
 		news_event = { hours = 6 id = endsieg_news.150 }
 		clr_global_flag = GE1_backs_down
-		ENG = {
+		if = {
+			limit = { country_exists = USA USA = { US2_R_no_great_war = yes NOT = { is_in_faction_with = GER } NOT = { has_country_flag = US2_R_german_agreement } } }
+			USA = { country_event = { id = ww1_usa.207 days = 1 } }
+		}
+		every_enemy_country = {
+			limit = { has_war_with = GER }
 			add_ideas = unrestricted_sub_warfare
 		}
-	}
+
+ set_country_flag = WW1_focus_action_ww1_germany_57_seen clr_country_flag = WW1_focus_action_ww1_germany_57_queued
+}
 }
 
 # 1918 Compiegne Armistice
@@ -2432,10 +2515,10 @@ country_event = {
 			WHR = { transfer_state = 137 }
 		}
 		UKR = {
-			create_faction = "temp_faction"
-			add_to_faction = BLR
-			add_to_faction = LIT
-			add_to_faction = ROM
+
+			if = { limit = { BLR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = BLR }
+			if = { limit = { LIT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = LIT }
+			if = { limit = { ROM = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ROM }
 			every_country = {
 				limit = { has_war_with = UKR }
 				white_peace = UKR
@@ -2474,7 +2557,7 @@ country_event = {
 	id = ww1_germany.112
 	title = ww1_germany.112.t
 	desc = ww1_germany.112.d
-	picture = GFX_news_event_greater_poland_uprising
+	picture = GFX_report_event_greater_poland_uprising
 	fire_only_once = yes
 	trigger = {
 		tag = GER
@@ -2851,7 +2934,7 @@ country_event = {
 	id = ww1_germany.68
 	title = ww1_germany.68.t
 	desc = ww1_germany.68.d
-	picture = GFX_report_event_german_mobilization
+	picture = GFX_report_event_prepare_for_war
 
 	fire_only_once = yes
 
@@ -2902,7 +2985,7 @@ country_event = {
 	id = ww1_germany.70
 	title = ww1_germany.70.t
 	desc = ww1_germany.70.d
-	picture = GFX_report_event_german_mobilization
+	picture = GFX_report_event_german_officers
 
 	fire_only_once = yes
 
@@ -3009,11 +3092,24 @@ country_event = {
 		# The Entente again treats Germany as the enemy; faction members are
 		# restored to the conflict alongside France and Britain.
 		if = {
-			limit = { country_exists = FRA NOT = { has_war_with = FRA } }
+			limit = {
+				country_exists = FRA
+				NOT = { has_war_with = FRA }
+				NOT = { has_non_aggression_pact_with = FRA }
+				NOT = { is_in_faction_with = FRA }
+				FRA = {
+					NOT = { has_country_flag = FR3_R_neutral_policy }
+					NOT = { has_country_flag = FR3_R_diplomatic_accommodation }
+				}
+			}
 			declare_war_on = { target = FRA type = annex_everything }
 		}
 		if = {
-			limit = { country_exists = ENG NOT = { has_war_with = ENG } }
+			limit = {
+				country_exists = ENG
+				NOT = { has_war_with = ENG }
+				NOT = { is_in_faction_with = ENG }
+			}
 			declare_war_on = { target = ENG type = annex_everything }
 		}
 	}
@@ -3055,7 +3151,7 @@ country_event = {
 	id = ww1_germany.101
 	title = ww1_germany.101.t
 	desc = ww1_germany.101.d
-	picture = GFX_report_event_german_mobilization
+	picture = GFX_report_event_prepare_for_war
 	fire_only_once = yes
 	trigger = {
 		tag = GER
@@ -3312,7 +3408,7 @@ country_event = {
 	id = ww1_germany.108
 	title = ww1_germany.108.t
 	desc = ww1_germany.108.d
-	picture = GFX_report_event_german_mobilization
+	picture = GFX_report_event_prepare_for_war
 	fire_only_once = yes
 	trigger = {
 		tag = GER
@@ -3794,7 +3890,7 @@ country_event = {
 	trigger = { tag = ENG has_global_flag = GE1_D_haldane_pending NOT = { has_war_with = GER } }
 	option = {
 		name = ww1_germany.211.a
-		ai_chance = { factor = 15 modifier = { factor = 2 is_historical_focus_on = no } }
+		ai_chance = { factor = 100 }
 		set_global_flag = GE1_D_haldane_accepted
 		clr_global_flag = GE1_D_haldane_pending
 		add_opinion_modifier = { target = GER modifier = britain_friend }
@@ -3802,7 +3898,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.211.b
-		ai_chance = { factor = 85 modifier = { factor = 2 is_historical_focus_on = yes } }
+		ai_chance = { factor = 0 }
 		set_global_flag = GE1_D_haldane_refused
 		clr_global_flag = GE1_D_haldane_pending
 		GER = { country_event = { id = ww1_germany.212 days = 1 } }
@@ -3812,7 +3908,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.212
 	title = ww1_germany.212.t
+	title = { text = ww1_germany.212.accepted.t trigger = { has_global_flag = GE1_D_haldane_accepted } }
+	title = { text = ww1_germany.212.refused.t trigger = { has_global_flag = GE1_D_haldane_refused } }
 	desc = ww1_germany.212.d
+	desc = { text = ww1_germany.212.accepted.d trigger = { has_global_flag = GE1_D_haldane_accepted } }
+	desc = { text = ww1_germany.212.refused.d trigger = { has_global_flag = GE1_D_haldane_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_haldane_accepted has_global_flag = GE1_D_haldane_refused } }
@@ -3823,14 +3923,18 @@ country_event = {
 		add_stability = 0.02
 		add_political_power = 15
 		clr_global_flag = GE1_D_haldane_accepted
-	}
+
+ hidden_effect = { GW_D_haldane_accepted = yes }
+}
 	option = {
 		name = ww1_germany.212.b
 		trigger = { has_global_flag = GE1_D_haldane_refused }
 		add_war_support = 0.02
 		add_political_power = -10
 		clr_global_flag = GE1_D_haldane_refused
-	}
+
+ hidden_effect = { GW_D_haldane_refused = yes }
+}
 }
 
 # Naval restraint proposal and response.
@@ -3840,7 +3944,9 @@ country_event = {
 	desc = ww1_germany.213.d
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
-	trigger = { tag = GER country_exists = ENG ENG = { NOT = { has_war_with = GER } } }
+	trigger = { tag = GER country_exists = ENG ENG = { NOT = { has_war_with = GER } }
+		GE1_ww1_may_choose_british_bloc = yes
+}
 	option = {
 		name = ww1_germany.213.a
 		set_global_flag = GE1_D_naval_restraint_pending
@@ -3854,10 +3960,12 @@ country_event = {
 	desc = ww1_germany.214.d
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
-	trigger = { tag = ENG has_global_flag = GE1_D_naval_restraint_pending NOT = { has_war_with = GER } }
+	trigger = { tag = ENG has_global_flag = GE1_D_naval_restraint_pending NOT = { has_war_with = GER }
+		GER = { GE1_ww1_may_choose_british_bloc = yes }
+}
 	option = {
 		name = ww1_germany.214.a
-		ai_chance = { factor = 20 modifier = { factor = 2 is_historical_focus_on = no } }
+		ai_chance = { factor = 100 }
 		set_global_flag = GE1_D_naval_restraint_accepted
 		clr_global_flag = GE1_D_naval_restraint_pending
 		add_opinion_modifier = { target = GER modifier = britain_friend }
@@ -3865,7 +3973,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.214.b
-		ai_chance = { factor = 80 modifier = { factor = 2 is_historical_focus_on = yes } }
+		ai_chance = { factor = 0 }
 		set_global_flag = GE1_D_naval_restraint_refused
 		clr_global_flag = GE1_D_naval_restraint_pending
 		GER = { country_event = { id = ww1_germany.215 days = 1 } }
@@ -3875,7 +3983,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.215
 	title = ww1_germany.215.t
+	title = { text = ww1_germany.215.accepted.t trigger = { has_global_flag = GE1_D_naval_restraint_accepted } }
+	title = { text = ww1_germany.215.refused.t trigger = { has_global_flag = GE1_D_naval_restraint_refused } }
 	desc = ww1_germany.215.d
+	desc = { text = ww1_germany.215.accepted.d trigger = { has_global_flag = GE1_D_naval_restraint_accepted } }
+	desc = { text = ww1_germany.215.refused.d trigger = { has_global_flag = GE1_D_naval_restraint_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_naval_restraint_accepted has_global_flag = GE1_D_naval_restraint_refused } }
@@ -3886,13 +3998,20 @@ country_event = {
 		add_war_support = -0.01
 		add_stability = 0.02
 		clr_global_flag = GE1_D_naval_restraint_accepted
-	}
+
+		custom_effect_tooltip = GE1_D_naval_convention_terms_tt
+		hidden_effect = { GE1_D_activate_naval_convention = yes }
+
+ hidden_effect = { GW_D_naval_accepted = yes }
+}
 	option = {
 		name = ww1_germany.215.b
 		trigger = { has_global_flag = GE1_D_naval_restraint_refused }
 		add_war_support = 0.02
 		clr_global_flag = GE1_D_naval_restraint_refused
-	}
+
+ hidden_effect = { GW_D_naval_refused = yes }
+}
 }
 
 # Dutch trade proposal and response.
@@ -3937,7 +4056,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.218
 	title = ww1_germany.218.t
+	title = { text = ww1_germany.218.accepted.t trigger = { has_global_flag = GE1_D_dutch_trade_accepted } }
+	title = { text = ww1_germany.218.refused.t trigger = { has_global_flag = GE1_D_dutch_trade_refused } }
 	desc = ww1_germany.218.d
+	desc = { text = ww1_germany.218.accepted.d trigger = { has_global_flag = GE1_D_dutch_trade_accepted } }
+	desc = { text = ww1_germany.218.refused.d trigger = { has_global_flag = GE1_D_dutch_trade_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_dutch_trade_accepted has_global_flag = GE1_D_dutch_trade_refused } }
@@ -3947,14 +4070,18 @@ country_event = {
 		add_ideas = GE1_D_mitteleuropa_trade
 		add_political_power = 20
 		clr_global_flag = GE1_D_dutch_trade_accepted
-	}
+
+ hidden_effect = { GW_D_dutch_accepted = yes }
+}
 	option = {
 		name = ww1_germany.218.b
 		trigger = { has_global_flag = GE1_D_dutch_trade_refused }
 		add_political_power = -10
 		add_stability = -0.01
 		clr_global_flag = GE1_D_dutch_trade_refused
-	}
+
+ hidden_effect = { GW_D_dutch_refused = yes }
+}
 }
 
 # Austrian consultation and Balkan restraint responses.
@@ -3999,7 +4126,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.221
 	title = ww1_germany.221.t
+	title = { text = ww1_germany.221.accepted.t trigger = { has_global_flag = GE1_D_vienna_accepted } }
+	title = { text = ww1_germany.221.refused.t trigger = { has_global_flag = GE1_D_vienna_refused } }
 	desc = ww1_germany.221.d
+	desc = { text = ww1_germany.221.accepted.d trigger = { has_global_flag = GE1_D_vienna_accepted } }
+	desc = { text = ww1_germany.221.refused.d trigger = { has_global_flag = GE1_D_vienna_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_vienna_accepted has_global_flag = GE1_D_vienna_refused } }
@@ -4009,13 +4140,17 @@ country_event = {
 		add_political_power = 20
 		add_stability = 0.02
 		clr_global_flag = GE1_D_vienna_accepted
-	}
+
+ hidden_effect = { GW_D_vienna_accepted = yes }
+}
 	option = {
 		name = ww1_germany.221.b
 		trigger = { has_global_flag = GE1_D_vienna_refused }
 		add_political_power = -10
 		clr_global_flag = GE1_D_vienna_refused
-	}
+
+ hidden_effect = { GW_D_vienna_refused = yes }
+}
 }
 
 country_event = {
@@ -4059,7 +4194,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.224
 	title = ww1_germany.224.t
+	title = { text = ww1_germany.224.accepted.t trigger = { has_global_flag = GE1_D_balkan_accepted } }
+	title = { text = ww1_germany.224.refused.t trigger = { has_global_flag = GE1_D_balkan_refused } }
 	desc = ww1_germany.224.d
+	desc = { text = ww1_germany.224.accepted.d trigger = { has_global_flag = GE1_D_balkan_accepted } }
+	desc = { text = ww1_germany.224.refused.d trigger = { has_global_flag = GE1_D_balkan_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_balkan_accepted has_global_flag = GE1_D_balkan_refused } }
@@ -4069,14 +4208,18 @@ country_event = {
 		add_stability = 0.02
 		add_political_power = 15
 		clr_global_flag = GE1_D_balkan_accepted
-	}
+
+ hidden_effect = { GW_D_balkan_accepted = yes }
+}
 	option = {
 		name = ww1_germany.224.b
 		trigger = { has_global_flag = GE1_D_balkan_refused }
 		add_war_support = 0.01
 		add_political_power = -10
 		clr_global_flag = GE1_D_balkan_refused
-	}
+
+ hidden_effect = { GW_D_balkan_refused = yes }
+}
 }
 
 # Ottoman economic mission response.
@@ -4121,7 +4264,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.227
 	title = ww1_germany.227.t
+	title = { text = ww1_germany.227.accepted.t trigger = { has_global_flag = GE1_D_ottoman_accepted } }
+	title = { text = ww1_germany.227.refused.t trigger = { has_global_flag = GE1_D_ottoman_refused } }
 	desc = ww1_germany.227.d
+	desc = { text = ww1_germany.227.accepted.d trigger = { has_global_flag = GE1_D_ottoman_accepted } }
+	desc = { text = ww1_germany.227.refused.d trigger = { has_global_flag = GE1_D_ottoman_refused } }
 	picture = GFX_report_event_german_advisors_turkey
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_ottoman_accepted has_global_flag = GE1_D_ottoman_refused } }
@@ -4131,13 +4278,17 @@ country_event = {
 		add_ideas = GE1_D_ottoman_mission
 		add_political_power = 20
 		clr_global_flag = GE1_D_ottoman_accepted
-	}
+
+ hidden_effect = { GW_D_ottoman_accepted = yes }
+}
 	option = {
 		name = ww1_germany.227.b
 		trigger = { has_global_flag = GE1_D_ottoman_refused }
 		add_political_power = -10
 		clr_global_flag = GE1_D_ottoman_refused
-	}
+
+ hidden_effect = { GW_D_ottoman_refused = yes }
+}
 }
 
 # Scandinavian shipping response.
@@ -4182,7 +4333,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.230
 	title = ww1_germany.230.t
+	title = { text = ww1_germany.230.accepted.t trigger = { has_global_flag = GE1_D_scandinavian_accepted } }
+	title = { text = ww1_germany.230.refused.t trigger = { has_global_flag = GE1_D_scandinavian_refused } }
 	desc = ww1_germany.230.d
+	desc = { text = ww1_germany.230.accepted.d trigger = { has_global_flag = GE1_D_scandinavian_accepted } }
+	desc = { text = ww1_germany.230.refused.d trigger = { has_global_flag = GE1_D_scandinavian_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_scandinavian_accepted has_global_flag = GE1_D_scandinavian_refused } }
@@ -4192,13 +4347,17 @@ country_event = {
 		add_political_power = 15
 		add_stability = 0.01
 		clr_global_flag = GE1_D_scandinavian_accepted
-	}
+
+ hidden_effect = { GW_D_scandinavian_accepted = yes }
+}
 	option = {
 		name = ww1_germany.230.b
 		trigger = { has_global_flag = GE1_D_scandinavian_refused }
 		add_political_power = -10
 		clr_global_flag = GE1_D_scandinavian_refused
-	}
+
+ hidden_effect = { GW_D_scandinavian_refused = yes }
+}
 }
 
 # Italian terms response.
@@ -4243,7 +4402,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.233
 	title = ww1_germany.233.t
+	title = { text = ww1_germany.233.accepted.t trigger = { has_global_flag = GE1_D_italian_accepted } }
+	title = { text = ww1_germany.233.refused.t trigger = { has_global_flag = GE1_D_italian_refused } }
 	desc = ww1_germany.233.d
+	desc = { text = ww1_germany.233.accepted.d trigger = { has_global_flag = GE1_D_italian_accepted } }
+	desc = { text = ww1_germany.233.refused.d trigger = { has_global_flag = GE1_D_italian_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_italian_accepted has_global_flag = GE1_D_italian_refused } }
@@ -4253,14 +4416,18 @@ country_event = {
 		add_political_power = 20
 		add_stability = 0.02
 		clr_global_flag = GE1_D_italian_accepted
-	}
+
+ hidden_effect = { GW_D_italian_accepted = yes }
+}
 	option = {
 		name = ww1_germany.233.b
 		trigger = { has_global_flag = GE1_D_italian_refused }
 		add_war_support = 0.02
 		add_political_power = -10
 		clr_global_flag = GE1_D_italian_refused
-	}
+
+ hidden_effect = { GW_D_italian_refused = yes }
+}
 }
 
 # Eastern peace framework response.
@@ -4305,7 +4472,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.236
 	title = ww1_germany.236.t
+	title = { text = ww1_germany.236.accepted.t trigger = { has_global_flag = GE1_D_eastern_accepted } }
+	title = { text = ww1_germany.236.refused.t trigger = { has_global_flag = GE1_D_eastern_refused } }
 	desc = ww1_germany.236.d
+	desc = { text = ww1_germany.236.accepted.d trigger = { has_global_flag = GE1_D_eastern_accepted } }
+	desc = { text = ww1_germany.236.refused.d trigger = { has_global_flag = GE1_D_eastern_refused } }
 	picture = GFX_report_event_peace_of_riga
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_eastern_accepted has_global_flag = GE1_D_eastern_refused } }
@@ -4315,14 +4486,18 @@ country_event = {
 		add_stability = 0.03
 		add_political_power = 20
 		clr_global_flag = GE1_D_eastern_accepted
-	}
+
+ hidden_effect = { GW_D_eastern_accepted = yes }
+}
 	option = {
 		name = ww1_germany.236.b
 		trigger = { has_global_flag = GE1_D_eastern_refused }
 		add_war_support = 0.02
 		add_political_power = -10
 		clr_global_flag = GE1_D_eastern_refused
-	}
+
+ hidden_effect = { GW_D_eastern_refused = yes }
+}
 }
 
 # American commercial outreach response.
@@ -4332,7 +4507,15 @@ country_event = {
 	desc = ww1_germany.237.d
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
-	trigger = { tag = GER country_exists = USA USA = { NOT = { has_war_with = GER } } }
+	trigger = {
+		tag = GER
+		USA = { US2_R_no_great_war = yes }
+		country_exists = USA
+		USA = {
+			NOT = { has_war_with = GER }
+			US2_R_may_accept_alignment = yes
+		}
+	}
 	option = {
 		name = ww1_germany.237.a
 		set_global_flag = GE1_D_american_pending
@@ -4346,7 +4529,12 @@ country_event = {
 	desc = ww1_germany.238.d
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
-	trigger = { tag = USA has_global_flag = GE1_D_american_pending NOT = { has_war_with = GER } }
+	trigger = {
+		tag = USA
+		has_global_flag = GE1_D_american_pending
+		NOT = { has_war_with = GER }
+		US2_R_may_accept_alignment = yes
+	}
 	option = {
 		name = ww1_germany.238.a
 		ai_chance = { factor = 65 modifier = { factor = 2 is_historical_focus_on = yes } }
@@ -4367,7 +4555,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.239
 	title = ww1_germany.239.t
+	title = { text = ww1_germany.239.accepted.t trigger = { has_global_flag = GE1_D_american_accepted } }
+	title = { text = ww1_germany.239.refused.t trigger = { has_global_flag = GE1_D_american_refused } }
 	desc = ww1_germany.239.d
+	desc = { text = ww1_germany.239.accepted.d trigger = { has_global_flag = GE1_D_american_accepted } }
+	desc = { text = ww1_germany.239.refused.d trigger = { has_global_flag = GE1_D_american_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = { tag = GER OR = { has_global_flag = GE1_D_american_accepted has_global_flag = GE1_D_american_refused } }
@@ -4377,14 +4569,18 @@ country_event = {
 		add_stability = 0.02
 		add_political_power = 20
 		clr_global_flag = GE1_D_american_accepted
-	}
+
+ hidden_effect = { GW_D_american_accepted = yes }
+}
 	option = {
 		name = ww1_germany.239.b
 		trigger = { has_global_flag = GE1_D_american_refused }
 		add_political_power = -10
 		add_war_support = 0.01
 		clr_global_flag = GE1_D_american_refused
-	}
+
+ hidden_effect = { GW_D_american_refused = yes }
+}
 }
 
 # Staged events for the pre-1914 Anglo-German / Franco-Russian route.
@@ -4406,10 +4602,10 @@ country_event = {
 		country_exists = ENG
 		country_exists = RIE
 		# The formal offer follows the completed naval-restraint focus and the
-		# visible Belgian guarantee. Haldane's separate historical answer is
+		# prepared Belgian terms. Haldane's separate historical answer is
 		# deliberately not a hard prerequisite for this alternate route.
 		has_completed_focus = GE1_D_limit_naval_rivalry
-		has_country_flag = GE1_D_belgian_neutrality_pledged
+		GE1_D_belgian_neutrality_offer_ready = yes
 		NOT = { has_global_flag = GE1_D_anglo_german_pending }
 		NOT = { has_global_flag = GE1_D_anglo_german_accepted }
 		NOT = { has_global_flag = GE1_D_anglo_german_refused }
@@ -4417,18 +4613,23 @@ country_event = {
 		NOT = { has_war_with = ENG }
 		ENG = { NOT = { has_war_with = GER } }
 		RIE = { NOT = { has_capitulated = yes } }
-	}
+
+		GE1_ww1_may_choose_british_bloc = yes
+		NOT = { has_country_flag = GE1_D_naval_convention_withdrawn }
+}
 	option = {
 		name = ww1_germany.240.a
-		ai_chance = { factor = 75 }
-		set_country_flag = GE1_D_naval_convention_accepted
-		set_country_flag = GE1_D_belgian_neutrality_pledged
+		ai_chance = { factor = 75  modifier = { factor = 100 has_country_flag = WW1_AI_GER_british NOT = { is_historical_focus_on = yes } } }
+		set_country_flag = GE1_D_naval_convention_offered
+		set_country_flag = GE1_D_belgian_neutrality_prepared
 		set_global_flag = GE1_D_anglo_german_pending
 		ENG = { country_event = { id = ww1_germany.241 days = 1 } }
+
+		custom_effect_tooltip = GE1_D_naval_convention_terms_tt
 	}
 	option = {
 		name = ww1_germany.240.b
-		ai_chance = { factor = 25 }
+		ai_chance = { factor = 25  modifier = { factor = 0 has_country_flag = WW1_AI_GER_british NOT = { is_historical_focus_on = yes } } }
 		set_global_flag = GE1_D_anglo_german_refused
 	}
 }
@@ -4447,16 +4648,27 @@ country_event = {
 		has_start_date < 1914.7.1
 		GER = {
 			has_global_flag = GE1_D_anglo_german_pending
-			has_country_flag = GE1_D_naval_convention_accepted
-			has_country_flag = GE1_D_belgian_neutrality_pledged
+			OR = { has_country_flag = GE1_D_naval_convention_accepted has_country_flag = GE1_D_naval_convention_offered }
+			GE1_D_belgian_neutrality_offer_ready = yes
 			NOT = { has_war_with = ENG }
 		}
 		NOT = { has_war_with = GER }
 		RIE = { exists = yes NOT = { has_capitulated = yes } }
-	}
+
+		GER = { GE1_ww1_may_choose_british_bloc = yes }
+}
 	option = {
 		name = ww1_germany.241.a
-		ai_chance = { factor = 60 }
+		trigger = {
+NOT = { has_country_flag = EN1_R_neutral_policy } NOT = { has_country_flag = EN1_R_entente_policy }
+
+GER = { GE1_ww1_may_choose_british_bloc = yes has_war = no } EN1_R_no_continental_war = yes
+
+NOT = { has_completed_focus = EN1_stay_neutral } NOT = { has_completed_focus = EN1_back_france } NOT = { has_country_flag = EN1_R_entente_policy }
+}
+		# A valid German invitation is a response to negotiated terms; Britain
+		# still cannot initiate its own pre-1916 alignment.
+		ai_chance = { factor = 100 }
 		set_global_flag = GE1_D_anglo_german_accepted
 		set_country_flag = GE1_D_anglo_german_accepted
 		add_opinion_modifier = { target = GER modifier = britain_friend }
@@ -4468,7 +4680,7 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.241.b
-		ai_chance = { factor = 40 }
+		ai_chance = { factor = 100 modifier = { factor = 0 NOT = { has_country_flag = EN1_R_neutral_policy } NOT = { has_country_flag = EN1_R_entente_policy } NOT = { has_completed_focus = EN1_stay_neutral } NOT = { has_completed_focus = EN1_back_france } GER = { GE1_ww1_may_choose_british_bloc = yes has_war = no } EN1_R_no_continental_war = yes } }
 		set_global_flag = GE1_D_anglo_german_refused
 		set_country_flag = GE1_D_anglo_german_refused
 		GER = {
@@ -4483,7 +4695,15 @@ country_event = {
 country_event = {
 	id = ww1_germany.242
 	title = ww1_germany.242.t
+	title = { text = ww1_germany.242.accepted.t trigger = { has_global_flag = GE1_D_anglo_german_accepted
+GE1_ww1_may_choose_british_bloc = yes has_war = no ENG = { EN1_R_no_continental_war = yes }
+} }
+	title = { text = ww1_germany.242.refused.t trigger = { has_global_flag = GE1_D_anglo_german_refused } }
 	desc = ww1_germany.242.d
+	desc = { text = ww1_germany.242.accepted.d trigger = { has_global_flag = GE1_D_anglo_german_accepted
+GE1_ww1_may_choose_british_bloc = yes has_war = no ENG = { EN1_R_no_continental_war = yes }
+} }
+	desc = { text = ww1_germany.242.refused.d trigger = { has_global_flag = GE1_D_anglo_german_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = {
@@ -4492,14 +4712,34 @@ country_event = {
 			has_global_flag = GE1_D_anglo_german_accepted
 			has_global_flag = GE1_D_anglo_german_refused
 		}
-	}
+
+		GE1_ww1_may_choose_british_bloc = yes
+}
 	option = {
 		name = ww1_germany.242.a
-		trigger = { has_global_flag = GE1_D_anglo_german_accepted }
+		trigger = { has_global_flag = GE1_D_anglo_german_accepted
+GE1_ww1_may_choose_british_bloc = yes has_war = no ENG = { EN1_R_no_continental_war = yes }
+}
+		# The accepted offer is the persistent British-route marker. It is set
+		# before the faction helper so AUH is detached and left independent.
+		set_global_flag = GE1_D_british_route_active
+		set_country_flag = GE1_D_british_route_active
+		set_global_flag = GE1_R_AUH_british_route
+		set_country_flag = GE1_R_AUH_british_route
+		clr_global_flag = GE1_gives_blank_cheque
+		clr_global_flag = AUH_expecting_blank_cheque
+		custom_effect_tooltip = GE1_D_naval_convention_terms_tt
+		hidden_effect = { GE1_D_activate_naval_convention = yes }
 		GE1_D_form_anglo_german_faction = yes
 		if = {
 			limit = { has_global_flag = GE1_anglo_german_alliance }
 			GE1_D_prepare_kronprinz_plan = yes
+			if = {
+				limit = { country_exists = AUH NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete } }
+				# .284 is Germany's decision event; the following .285 event is
+				# the one that belongs to Austria-Hungary.
+				country_event = { id = ww1_germany.284 days = 7 }
+			}
 			# Start the separate continental proposal only after the real
 			# Anglo-German faction has been confirmed.
 			country_event = { id = ww1_germany.243 days = 1 }
@@ -4511,10 +4751,16 @@ country_event = {
 	option = {
 		name = ww1_germany.242.b
 		trigger = { has_global_flag = GE1_D_anglo_german_refused }
+		# Refusal creates no coalition and starts no later pressure sequence.
+		# Completed alignment focuses remain mutually exclusive.
+		set_global_flag = GE1_R_AUH_british_refused
+		set_country_flag = GE1_R_AUH_british_refused
 		add_war_support = 0.01
 		clr_global_flag = GE1_D_anglo_german_accepted
 		clr_global_flag = GE1_D_anglo_german_refused
-	}
+
+news_event = { id = ww1_world_diplomacy.105 hours = 6 }
+}
 }
 
 # Once the Anglo-German faction exists, Germany asks France to lead a separate
@@ -4562,7 +4808,14 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.243.b
-		trigger = { tag = FRA }
+		trigger = {
+			tag = FRA
+			NOT = { has_country_flag = FR3_R_neutral_policy }
+			NOT = { has_country_flag = FR3_R_diplomatic_accommodation }
+			RIE = { RUS_ww1_may_be_historical_war_target = yes }
+
+FR3_R_may_choose_continental_alignment = yes
+}
 		ai_chance = { factor = 60 }
 		set_global_flag = GE1_D_franco_russian_accepted
 		GER = {
@@ -4604,6 +4857,9 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.244.a
+		trigger = { RUS_ww1_may_be_historical_war_target = yes
+FRA = { FR3_R_may_choose_continental_alignment = yes }
+}
 		ai_chance = { factor = 65 }
 		set_global_flag = GE1_D_franco_russian_accepted
 		GER = {
@@ -4625,7 +4881,15 @@ country_event = {
 country_event = {
 	id = ww1_germany.245
 	title = ww1_germany.245.t
+	title = { text = ww1_germany.245.accepted.t trigger = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused }
+FRA = { FR3_R_may_choose_continental_alignment = yes } RIE = { RUS_ww1_may_be_historical_war_target = yes }
+} }
+	title = { text = ww1_germany.245.refused.t trigger = { has_global_flag = GE1_D_franco_russian_refused } }
 	desc = ww1_germany.245.d
+	desc = { text = ww1_germany.245.accepted.d trigger = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused }
+FRA = { FR3_R_may_choose_continental_alignment = yes } RIE = { RUS_ww1_may_be_historical_war_target = yes }
+} }
+	desc = { text = ww1_germany.245.refused.d trigger = { has_global_flag = GE1_D_franco_russian_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = {
@@ -4637,7 +4901,9 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.245.a
-		trigger = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused } }
+		trigger = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused }
+FRA = { FR3_R_may_choose_continental_alignment = yes } RIE = { RUS_ww1_may_be_historical_war_target = yes }
+}
 		GE1_D_form_continental_faction = yes
 		if = {
 			limit = { has_global_flag = GE1_continental_alliance_active country_exists = ITA }
@@ -4678,6 +4944,13 @@ country_event = {
 			NOT = { has_capitulated = yes }
 			NOT = { has_war_with = GER }
 			NOT = { has_war_with = FRA }
+			NOT = { has_global_flag = ITA_neutrality_guaranteed }
+			NOT = { has_country_flag = AUH_ww1_italian_neutrality_agreement }
+			NOT = { has_country_flag = IT1_ww1_armed_neutrality }
+			NOT = { has_country_flag = IT1_ww1_entente_offer_accepted }
+			NOT = { has_country_flag = IT1_ww1_entente_alignment }
+			NOT = { has_country_flag = IT1_ww1_central_offer_accepted }
+			NOT = { has_country_flag = IT1_ww1_central_alignment }
 		}
 		NOT = { has_global_flag = GE1_D_italian_accession_pending }
 	}
@@ -4703,6 +4976,13 @@ country_event = {
 		FRA = { is_faction_leader = yes NOT = { has_war_with = ITA } }
 		NOT = { has_war_with = GER }
 		NOT = { has_capitulated = yes }
+		NOT = { has_global_flag = ITA_neutrality_guaranteed }
+		NOT = { has_country_flag = AUH_ww1_italian_neutrality_agreement }
+		NOT = { has_country_flag = IT1_ww1_armed_neutrality }
+		NOT = { has_country_flag = IT1_ww1_entente_offer_accepted }
+		NOT = { has_country_flag = IT1_ww1_entente_alignment }
+		NOT = { has_country_flag = IT1_ww1_central_offer_accepted }
+		NOT = { has_country_flag = IT1_ww1_central_alignment }
 	}
 	option = {
 		name = ww1_germany.247.a
@@ -4735,7 +5015,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.248
 	title = ww1_germany.248.t
+	title = { text = ww1_germany.248.accepted.t trigger = { has_global_flag = GE1_D_italian_accession_accepted } }
+	title = { text = ww1_germany.248.refused.t trigger = { has_global_flag = GE1_D_italian_accession_refused } }
 	desc = ww1_germany.248.d
+	desc = { text = ww1_germany.248.accepted.d trigger = { has_global_flag = GE1_D_italian_accession_accepted } }
+	desc = { text = ww1_germany.248.refused.d trigger = { has_global_flag = GE1_D_italian_accession_refused } }
 	picture = GFX_report_event_swedish_negotiations
 	is_triggered_only = yes
 	trigger = {
@@ -4775,7 +5059,10 @@ country_event = {
 		date > 1914.6.1
 		has_start_date < 1914.7.1
 		country_exists = RIE
-		RIE = { NOT = { has_capitulated = yes } }
+		RIE = {
+			RUS_ww1_may_be_historical_war_target = yes
+			NOT = { has_capitulated = yes }
+		}
 		NOT = { has_global_flag = GE1_D_anglo_german_war_pending }
 		NOT = { has_war_with = ENG }
 		NOT = { has_war_with = FRA }
@@ -4831,7 +5118,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.251
 	title = ww1_germany.251.t
+	title = { text = ww1_germany.251.accepted.t trigger = { has_global_flag = GE1_D_anglo_german_war_accepted } }
+	title = { text = ww1_germany.251.refused.t trigger = { has_global_flag = GE1_D_anglo_german_war_refused } }
 	desc = ww1_germany.251.d
+	desc = { text = ww1_germany.251.accepted.d trigger = { has_global_flag = GE1_D_anglo_german_war_accepted } }
+	desc = { text = ww1_germany.251.refused.d trigger = { has_global_flag = GE1_D_anglo_german_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
 	is_triggered_only = yes
 	trigger = {
@@ -4861,6 +5152,7 @@ country_event = {
 	is_triggered_only = yes
 	trigger = {
 		tag = RIE
+		RUS_ww1_may_be_historical_war_target = yes
 		GER = {
 			has_global_flag = GE1_D_continental_war_pending
 			NOT = { has_global_flag = GE1_D_continental_war_refused }
@@ -4885,7 +5177,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.253
 	title = ww1_germany.253.t
+	title = { text = ww1_germany.253.accepted.t trigger = { has_global_flag = GE1_D_continental_war_accepted } }
+	title = { text = ww1_germany.253.refused.t trigger = { has_global_flag = GE1_D_continental_war_refused } }
 	desc = ww1_germany.253.d
+	desc = { text = ww1_germany.253.accepted.d trigger = { has_global_flag = GE1_D_continental_war_accepted } }
+	desc = { text = ww1_germany.253.refused.d trigger = { has_global_flag = GE1_D_continental_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
 	is_triggered_only = yes
 	trigger = {
@@ -4924,6 +5220,9 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.254.a
+		trigger = {
+			RIE = { RUS_ww1_may_be_historical_war_target = yes }
+		}
 		ai_chance = { factor = 70 }
 		set_global_flag = GE1_D_continental_war_accepted
 		GER = { country_event = { id = ww1_germany.257 days = 1 } }
@@ -4953,6 +5252,11 @@ country_event = {
 	}
 	option = {
 		name = ww1_germany.255.a
+		trigger = {
+			NOT = { has_global_flag = ITA_neutrality_guaranteed }
+			NOT = { has_country_flag = AUH_ww1_italian_neutrality_agreement }
+			NOT = { has_country_flag = IT1_ww1_armed_neutrality }
+		}
 		ai_chance = { factor = 55 }
 		set_global_flag = GE1_D_italian_war_accepted
 		set_country_flag = GE1_continental_war_entry_agreed
@@ -4969,7 +5273,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.256
 	title = ww1_germany.256.t
+	title = { text = ww1_germany.256.accepted.t trigger = { has_global_flag = GE1_D_italian_war_accepted } }
+	title = { text = ww1_germany.256.refused.t trigger = { has_global_flag = GE1_D_italian_war_refused } }
 	desc = ww1_germany.256.d
+	desc = { text = ww1_germany.256.accepted.d trigger = { has_global_flag = GE1_D_italian_war_accepted } }
+	desc = { text = ww1_germany.256.refused.d trigger = { has_global_flag = GE1_D_italian_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
 	is_triggered_only = yes
 	trigger = {
@@ -4994,7 +5302,11 @@ country_event = {
 country_event = {
 	id = ww1_germany.257
 	title = ww1_germany.257.t
+	title = { text = ww1_germany.257.accepted.t trigger = { has_global_flag = GE1_D_continental_war_accepted } }
+	title = { text = ww1_germany.257.refused.t trigger = { has_global_flag = GE1_D_continental_war_refused } }
 	desc = ww1_germany.257.d
+	desc = { text = ww1_germany.257.accepted.d trigger = { has_global_flag = GE1_D_continental_war_accepted } }
+	desc = { text = ww1_germany.257.refused.d trigger = { has_global_flag = GE1_D_continental_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
 	is_triggered_only = yes
 	trigger = {
@@ -5032,7 +5344,10 @@ country_event = {
 		has_start_date < 1914.7.1
 		date > 1914.6.1
 		country_exists = RIE
-		RIE = { NOT = { has_capitulated = yes } }
+		RIE = {
+			RUS_ww1_may_be_historical_war_target = yes
+			NOT = { has_capitulated = yes }
+		}
 		NOT = { has_war_with = ENG }
 		NOT = { has_war_with = FRA }
 		NOT = { has_war_with = RIE }
@@ -5099,5 +5414,1178 @@ country_event = {
 	immediate = {
 		GE1_D_clear_war_coordination = yes
 		clr_country_flag = GE1_continental_war_programme
+	}
+}
+
+# Germany's constitutional redesign choices. These events are deliberately
+# focus-driven and keep the existing armistice, Versailles, and victory chains
+# untouched.
+country_event = {
+	id = ww1_germany.265
+	title = ww1_germany.265.t
+	desc = ww1_germany.265.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_265_resolved }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
+	option = {
+		name = ww1_germany.265.a
+		trigger = { has_completed_focus = GE1_P_prussian_franchise }
+		set_country_flag = GE1_RP_265_resolved
+		set_country_flag = GE1_RP_prussian_path
+		if = {
+			limit = { has_idea = GE1_RP_equal_franchise }
+			remove_ideas = GE1_RP_equal_franchise
+		}
+		add_ideas = GE1_RP_prussian_franchise
+		add_political_power = 20
+	}
+	option = {
+		name = ww1_germany.265.b
+		trigger = { has_completed_focus = GE1_P_universal_reichstag_franchise }
+		set_country_flag = GE1_RP_265_resolved
+		set_country_flag = GE1_RP_equal_path
+		if = {
+			limit = { has_idea = GE1_RP_prussian_franchise }
+			remove_ideas = GE1_RP_prussian_franchise
+		}
+		add_ideas = GE1_RP_equal_franchise
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ww1_germany.266
+	title = ww1_germany.266.t
+	desc = ww1_germany.266.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_266_resolved }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
+	option = {
+		name = ww1_germany.266.a
+		set_country_flag = GE1_RP_266_resolved
+		set_country_flag = GE1_RP_zabern_reviewed
+		add_ideas = GE1_RP_zabern_accountability
+		add_stability = 0.02
+	}
+	option = {
+		name = ww1_germany.266.b
+		set_country_flag = GE1_RP_266_resolved
+		set_country_flag = GE1_RP_zabern_shelved
+		add_war_support = 0.02
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ww1_germany.267
+	title = ww1_germany.267.t
+	desc = ww1_germany.267.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_war = yes
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_267_resolved }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
+	option = {
+		name = ww1_germany.267.a
+		set_country_flag = GE1_RP_267_resolved
+		set_country_flag = GE1_RP_war_credit_hearing
+		add_ideas = GE1_RP_civilian_control
+		add_political_power = 15
+	}
+	option = {
+		name = ww1_germany.267.b
+		set_country_flag = GE1_RP_267_resolved
+		set_country_flag = GE1_RP_war_credit_emergency
+		add_ideas = GE1_RP_ohl_directive
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ww1_germany.268
+	title = ww1_germany.268.t
+	desc = ww1_germany.268.d
+	picture = GFX_report_event_the_military
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_war = yes
+		has_start_date < 1936.1.1
+		date > 1916.8.30
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_268_resolved }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
+	option = {
+		name = ww1_germany.268.a
+		trigger = { has_completed_focus = GE1_P_ohl_partnership }
+		set_country_flag = GE1_RP_268_resolved
+		set_country_flag = GE1_RP_third_ohl
+		if = {
+			limit = { has_idea = GE1_RP_civilian_control }
+			remove_ideas = GE1_RP_civilian_control
+		}
+		add_ideas = GE1_RP_ohl_directive
+		army_experience = 10
+	}
+	option = {
+		name = ww1_germany.268.b
+		trigger = { has_completed_focus = GE1_P_civilian_chancellery }
+		set_country_flag = GE1_RP_268_resolved
+		set_country_flag = GE1_RP_civilian_ministry
+		if = {
+			limit = { has_idea = GE1_RP_ohl_directive }
+			remove_ideas = GE1_RP_ohl_directive
+		}
+		add_ideas = GE1_RP_civilian_control
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ww1_germany.269
+	title = ww1_germany.269.t
+	desc = ww1_germany.269.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_war = yes
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_269_resolved }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
+	option = {
+		name = ww1_germany.269.a
+		trigger = { has_completed_focus = GE1_P_1917_peace_resolution }
+		set_country_flag = GE1_RP_269_resolved
+		set_country_flag = GE1_RP_peace_bloc
+		if = {
+			limit = { has_idea = GE1_RP_fatherland_mobilisation }
+			remove_ideas = GE1_RP_fatherland_mobilisation
+		}
+		add_ideas = GE1_RP_peace_resolution
+		add_war_support = -0.02
+	}
+	option = {
+		name = ww1_germany.269.b
+		trigger = { has_completed_focus = GE1_R_fatherland_party }
+		set_country_flag = GE1_RP_269_resolved
+		set_country_flag = GE1_RP_fatherland_bloc
+		if = {
+			limit = { has_idea = GE1_RP_peace_resolution }
+			remove_ideas = GE1_RP_peace_resolution
+		}
+		add_ideas = GE1_RP_fatherland_mobilisation
+		add_war_support = 0.03
+	}
+}
+
+country_event = {
+	id = ww1_germany.270
+	title = ww1_germany.270.t
+	desc = ww1_germany.270.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date > 1917.3.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_270_resolved }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
+	option = {
+		name = ww1_germany.270.a
+		set_country_flag = GE1_RP_270_resolved
+		set_country_flag = GE1_RP_easter_message
+		add_ideas = GE1_RP_easter_promise
+		add_stability = 0.02
+	}
+	option = {
+		name = ww1_germany.270.b
+		set_country_flag = GE1_RP_270_resolved
+		set_country_flag = GE1_RP_easter_deferred
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ww1_germany.271
+	title = ww1_germany.271.t
+	desc = ww1_germany.271.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date > 1918.9.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_271_resolved }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
+	option = {
+		name = ww1_germany.271.a
+		set_country_flag = GE1_RP_271_resolved
+		set_country_flag = GE1_RP_october_reforms_enacted
+		if = {
+			limit = { has_idea = GE1_RP_abdication_crisis }
+			remove_ideas = GE1_RP_abdication_crisis
+		}
+		add_ideas = GE1_RP_october_reforms
+		add_stability = 0.03
+
+			if = { limit = { NOT = { has_government = democratic } } add_popularity = { ideology = democratic popularity = .10 } }
+			WW1_GER_parliamentary_crown = yes
+		}
+	option = {
+		name = ww1_germany.271.b
+		set_country_flag = GE1_RP_271_resolved
+		set_country_flag = GE1_RP_october_reforms_delayed
+		add_war_support = -0.03
+		add_political_power = 25
+	}
+}
+
+country_event = {
+	id = ww1_germany.272
+	title = ww1_germany.272.t
+	desc = ww1_germany.272.d
+	picture = GFX_report_event_the_military
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_war = yes
+		has_start_date < 1936.1.1
+		date > 1918.9.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_272_resolved }
+		NOT = { has_global_flag = compiegne }
+	}
+	option = {
+		name = ww1_germany.272.a
+		set_country_flag = GE1_RP_272_resolved
+		set_country_flag = GE1_RP_crown_retained
+		if = {
+			limit = { has_idea = GE1_RP_abdication_crisis }
+			remove_ideas = GE1_RP_abdication_crisis
+		}
+		add_ideas = GE1_RP_constitutional_empire
+		add_stability = 0.03
+
+			WW1_GER_parliamentary_crown = yes
+			add_popularity = { ideology = democratic popularity = 0.10 }
+		}
+	option = {
+		name = ww1_germany.272.b
+		set_country_flag = GE1_RP_272_resolved
+		set_country_flag = GE1_RP_abdication_requested
+		add_ideas = GE1_RP_abdication_crisis
+		country_event = { id = ww1_germany.273 days = 1 }
+	}
+}
+
+country_event = {
+	id = ww1_germany.273
+	title = ww1_germany.273.t
+	desc = ww1_germany.273.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_country_flag = GE1_RP_abdication_requested
+		has_start_date < 1936.1.1
+		OR = { has_war = yes has_global_flag = compiegne }
+		date > 1918.8.1
+		date < 1936.1.1
+		NOT = { has_country_flag = GE1_RP_273_resolved }
+	}
+	option = {
+		name = ww1_germany.273.a
+		set_country_flag = GE1_RP_273_resolved
+		set_country_flag = GE1_RP_ebert_government
+		set_politics = { ruling_party = democratic elections_allowed = yes }
+		set_popularities = { democratic = 55 neutrality = 25 communism = 20 fascism = 0 }
+		drop_cosmetic_tag = yes
+		retire_country_leader = yes
+		endsieg_character_retire_ger_kaiser_wilhelm_ii_78f5ba46 = yes
+		if = {
+			limit = { has_character = GER_friedrich_ebert }
+			endsieg_character_activate_ger_friedrich_ebert_ce86c504 = yes
+		}
+		if = {
+			limit = { NOT = { has_character = GER_friedrich_ebert } }
+			create_country_leader = {
+				name = "Friedrich Ebert"
+				desc = "POLITICS_FRIEDRICH_EBERT_DESC"
+				picture = "portrait_germany_ebert.dds"
+				expire = "1925.2.28"
+				ideology = socialism
+				traits = { }
+			}
+		}
+		if = {
+			limit = { has_idea = kaiser }
+			remove_ideas = kaiser
+		}
+		if = {
+			limit = { has_idea = shadow_kaiser }
+			remove_ideas = shadow_kaiser
+		}
+		if = {
+			limit = { has_idea = kaiser2 }
+			remove_ideas = kaiser2
+		}
+		if = {
+			limit = { has_idea = kaiser3 }
+			remove_ideas = kaiser3
+		}
+		if = {
+			limit = { has_idea = GE1_RP_abdication_crisis }
+			remove_ideas = GE1_RP_abdication_crisis
+		}
+		if = {
+			limit = { has_idea = GE1_RP_constitutional_empire }
+			remove_ideas = GE1_RP_constitutional_empire
+		}
+		add_ideas = GE1_RP_ebert_republic
+		add_stability = -0.05
+		add_political_power = 35
+
+			WW1_GER_social_democratic_cabinet = yes
+		}
+}
+
+country_event = {
+	id = ww1_germany.274
+	title = ww1_germany.274.t
+	desc = ww1_germany.274.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		has_country_flag = GE1_RP_victory_settlement_requested
+		NOT = { has_country_flag = GE1_RP_274_resolved }
+	}
+	option = {
+		name = ww1_germany.274.a
+		set_country_flag = GE1_RP_274_resolved
+		set_country_flag = GE1_RP_constitutional_victory
+		if = {
+			limit = { has_idea = GE1_RP_abdication_crisis }
+			remove_ideas = GE1_RP_abdication_crisis
+		}
+		add_ideas = GE1_RP_constitutional_empire
+		add_stability = 0.05
+		add_war_support = 0.03
+		country_event = { id = ww1_germany.275 days = 7 }
+
+			if = { limit = { NOT = { has_government = democratic } } add_popularity = { ideology = democratic popularity = .10 } }
+			WW1_GER_parliamentary_crown = yes
+		}
+	option = {
+		name = ww1_germany.274.b
+		set_country_flag = GE1_RP_274_resolved
+		set_country_flag = GE1_RP_crown_compromise
+		add_political_power = 35
+		country_event = { id = ww1_germany.275 days = 7 }
+	}
+}
+
+country_event = {
+	id = ww1_germany.275
+	title = ww1_germany.275.t
+	desc = ww1_germany.275.d
+	picture = GFX_report_event_home_front
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		OR = { has_country_flag = GE1_RP_constitutional_victory has_country_flag = GE1_RP_crown_compromise }
+		NOT = { has_country_flag = GE1_RP_275_resolved }
+	}
+	option = {
+		name = ww1_germany.275.a
+		set_country_flag = GE1_RP_275_resolved
+		add_ideas = GE1_RP_reconciliation
+		add_stability = 0.04
+		add_war_support = 0.02
+		news_event = { hours = 6 id = ww1_germany.283 }
+	}
+}
+
+# A bounded Russo-German offer complements the existing eastern settlement
+# event (234) without forcing a war, faction, or territorial transfer.
+country_event = {
+	id = ww1_germany.276
+	title = ww1_germany.276.t
+	desc = ww1_germany.276.d
+	picture = GFX_report_event_swedish_negotiations
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1914.7.1
+		date < 1914.7.1
+		country_exists = RIE
+		NOT = { has_war_with = RIE }
+		RIE = {
+			NOT = { has_country_flag = RUS_ww1_armed_neutrality }
+			NOT = { has_country_flag = RUS_ww1_german_agreement }
+		}
+		NOT = { has_global_flag = GE1_D_franco_russian_pending }
+		NOT = { has_global_flag = GE1_D_franco_russian_accepted }
+		NOT = { has_global_flag = GE1_continental_alliance_active }
+		NOT = { has_country_flag = GE1_RP_276_resolved }
+		NOT = { has_global_flag = GE1_RP_russian_offer_pending }
+
+		GE1_ww1_may_choose_russian_bloc = yes
+
+RIE = { NOT = { has_completed_focus = RUS_entente_diplomacy } }
+}
+	option = {
+		name = ww1_germany.276.a
+		set_country_flag = GE1_RP_276_resolved
+		set_global_flag = GE1_RP_russian_offer_pending
+		RIE = { country_event = { id = ww1_germany.277 days = 1 } }
+	}
+	option = {
+		name = ww1_germany.276.b
+		set_country_flag = GE1_RP_276_resolved
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ww1_germany.277
+	title = ww1_germany.277.t
+	desc = ww1_germany.277.d
+	picture = GFX_report_event_peace_of_riga
+	is_triggered_only = yes
+	trigger = {
+		tag = RIE
+		has_global_flag = GE1_RP_russian_offer_pending
+		country_exists = GER
+		has_start_date < 1914.7.1
+		date < 1914.7.1
+		NOT = { has_war_with = GER }
+		NOT = { has_country_flag = RUS_ww1_armed_neutrality }
+		NOT = { has_country_flag = RUS_ww1_german_agreement }
+		NOT = { has_global_flag = GE1_D_franco_russian_pending }
+		NOT = { has_global_flag = GE1_D_franco_russian_accepted }
+		NOT = { has_global_flag = GE1_continental_alliance_active }
+		NOT = { has_country_flag = GE1_RP_277_resolved }
+
+		GER = { GE1_ww1_may_choose_russian_bloc = yes }
+
+NOT = { has_completed_focus = RUS_entente_diplomacy }
+}
+	option = {
+		name = ww1_germany.277.a
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		set_country_flag = GE1_RP_277_resolved
+		set_global_flag = GE1_RP_russian_offer_accepted
+		add_opinion_modifier = { target = GER modifier = russia_friend }
+		GER = { country_event = { id = ww1_germany.278 days = 1 } }
+
+	trigger = {
+GER = { GE1_ww1_may_choose_russian_bloc = yes has_war = no } has_war = no NOT = { has_completed_focus = RUS_entente_diplomacy }
+	}
+}
+	option = {
+		name = ww1_germany.277.b
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 2 is_historical_focus_on = yes }
+		}
+		set_country_flag = GE1_RP_277_resolved
+		set_global_flag = GE1_RP_russian_offer_refused
+		GER = { country_event = { id = ww1_germany.278 days = 1 } }
+	}
+}
+
+country_event = {
+	id = ww1_germany.278
+	title = ww1_germany.278.t
+	title = { text = ww1_germany.278.accepted.t trigger = { has_global_flag = GE1_RP_russian_offer_accepted
+GE1_ww1_may_choose_russian_bloc = yes has_war = no RIE = { has_war = no }
+
+RIE = { NOT = { has_completed_focus = RUS_entente_diplomacy } }
+} }
+	title = { text = ww1_germany.278.refused.t trigger = { has_global_flag = GE1_RP_russian_offer_refused } }
+	desc = ww1_germany.278.d
+	desc = { text = ww1_germany.278.accepted.d trigger = { has_global_flag = GE1_RP_russian_offer_accepted
+GE1_ww1_may_choose_russian_bloc = yes has_war = no RIE = { has_war = no }
+
+RIE = { NOT = { has_completed_focus = RUS_entente_diplomacy } }
+} }
+	desc = { text = ww1_germany.278.refused.d trigger = { has_global_flag = GE1_RP_russian_offer_refused } }
+	picture = GFX_report_event_swedish_negotiations
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_start_date < 1914.7.1
+		date < 1914.7.1
+		OR = { has_global_flag = GE1_RP_russian_offer_accepted has_global_flag = GE1_RP_russian_offer_refused }
+		NOT = { has_country_flag = GE1_RP_278_resolved }
+
+		GE1_ww1_may_choose_russian_bloc = yes
+}
+	option = {
+		name = ww1_germany.278.a
+		trigger = { has_global_flag = GE1_RP_russian_offer_accepted
+GE1_ww1_may_choose_russian_bloc = yes has_war = no RIE = { has_war = no }
+
+RIE = { NOT = { has_completed_focus = RUS_entente_diplomacy } }
+}
+		set_country_flag = GE1_RP_278_resolved
+		set_global_flag = GE1_RP_russian_neutrality_accepted
+		set_country_flag = GE1_RP_russian_neutrality_accepted
+		if = { limit = { RIE = { is_in_faction = yes is_faction_leader = yes } } RIE = { dismantle_faction = yes } }
+		else_if = { limit = { RIE = { is_in_faction = yes } } RIE = { leave_faction = yes } }
+		RIE = {
+			set_country_flag = RUS_ww1_german_agreement
+			set_country_flag = RUS_ww1_german_understanding
+			diplomatic_relation = { country = GER relation = non_aggression_pact active = yes }
+		}
+		add_ideas = GE1_RP_russian_neutrality
+		add_opinion_modifier = { target = RIE modifier = russia_friend }
+		clr_global_flag = GE1_RP_russian_offer_pending
+		clr_global_flag = GE1_RP_russian_offer_accepted
+	}
+	option = {
+		name = ww1_germany.278.b
+		trigger = { has_global_flag = GE1_RP_russian_offer_refused }
+		set_country_flag = GE1_RP_278_resolved
+		add_political_power = 10
+		add_war_support = 0.01
+		clr_global_flag = GE1_RP_russian_offer_pending
+		clr_global_flag = GE1_RP_russian_offer_refused
+	}
+}
+
+# A diplomatic invitation to Bulgaria is deliberately separate from the
+# historical 1915 entry chain above. Acceptance only opens a faction route;
+# it never declares war on Bulgaria or on its neighbours.
+country_event = {
+	id = ww1_germany.279
+	title = ww1_germany.279.t
+	desc = ww1_germany.279.d
+	picture = GFX_report_event_bulgaria_friend
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date > 1915.1.1
+		date < 1936.1.1
+		is_faction_leader = yes
+		country_exists = BUL
+
+		NOT = { has_country_flag = GE1_RP_279_resolved }
+		NOT = { has_global_flag = GE1_RP_bulgaria_invitation_pending }
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+		NOT = { has_global_flag = central_powers_victory }
+		NOT = { has_global_flag = welcome_event_WW2 }
+		BUL = {
+			is_subject = no
+			is_in_faction = no
+			NOT = { has_war_with = GER }
+		}
+
+GE1_ww1_may_choose_central_bloc = yes has_completed_focus = GE1_invite_bulgaria
+
+ has_completed_focus = GE1_invite_bulgaria OR = { NOT = { WW1_historical_ai_preparation = yes } NOT = { date < 1915.10.14 } }
+
+ NOT = { has_country_flag = WW1_focus_action_ww1_germany_279_seen }
+}
+	option = {
+		name = ww1_germany.279.a
+		ai_chance = { factor = 90 }
+		set_country_flag = GE1_RP_279_resolved
+		set_global_flag = GE1_RP_bulgaria_invitation_pending
+		BUL = { country_event = { id = ww1_germany.280 days = 1 } }
+
+ set_country_flag = WW1_focus_action_ww1_germany_279_seen clr_country_flag = WW1_focus_action_ww1_germany_279_queued
+}
+	option = {
+		name = ww1_germany.279.b
+		ai_chance = { factor = 10  modifier = { factor = 0 is_historical_focus_on = yes } }
+		set_country_flag = GE1_RP_279_resolved
+		add_political_power = 15
+
+ set_country_flag = WW1_focus_action_ww1_germany_279_seen clr_country_flag = WW1_focus_action_ww1_germany_279_queued
+}
+}
+
+country_event = {
+	id = ww1_germany.280
+	title = ww1_germany.280.t
+	desc = ww1_germany.280.d
+	picture = GFX_report_event_bulgaria_friend
+	is_triggered_only = yes
+	trigger = {
+		tag = BUL
+		has_start_date < 1936.1.1
+		date > 1915.1.1
+		date < 1936.1.1
+		has_global_flag = GE1_RP_bulgaria_invitation_pending
+		country_exists = GER
+
+		NOT = { has_country_flag = GE1_RP_280_resolved }
+		GER = {
+			is_faction_leader = yes
+			NOT = { has_war_with = BUL }
+		}
+		is_subject = no
+		is_in_faction = no
+		NOT = { has_war_with = GER }
+
+GER = { GE1_ww1_may_choose_central_bloc = yes has_completed_focus = GE1_invite_bulgaria }
+}
+	option = {
+		name = ww1_germany.280.a
+		ai_chance = { factor = 90 }
+		set_country_flag = GE1_RP_280_resolved
+		set_global_flag = GE1_RP_bulgaria_invitation_accepted
+		add_opinion_modifier = { target = GER modifier = germany_friend }
+		GER = { country_event = { id = ww1_germany.281 days = 1 } }
+
+	trigger = {
+is_subject = no is_in_faction = no NOT = { has_war_with = GER } NOT = { has_war_with = AUH } NOT = { has_war_with = TUR } GER = { is_faction_leader = yes GE1_ww1_may_choose_central_bloc = yes has_completed_focus = GE1_invite_bulgaria }
+	}
+ GER = { if = { limit = { ROOT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ROOT } }
+ if = { limit = { is_in_faction_with = GER }
+  set_global_flag = GE1_RP_bulgaria_joined
+  set_global_flag = bulgaria_joins_cp
+  news_event = { id = ww1_germany.282 hours = 6 }
+ }
+}
+	option = {
+		name = ww1_germany.280.b
+		ai_chance = { factor = 10  modifier = { factor = 0 is_historical_focus_on = yes } }
+		set_country_flag = GE1_RP_280_resolved
+		set_global_flag = GE1_RP_bulgaria_invitation_refused
+		GER = { country_event = { id = ww1_germany.281 days = 1 } }
+	}
+}
+
+country_event = {
+	id = ww1_germany.281
+	title = ww1_germany.281.t
+	title = { text = ww1_germany.281.accepted.t trigger = { has_global_flag = GE1_RP_bulgaria_invitation_accepted } }
+	title = { text = ww1_germany.281.refused.t trigger = { has_global_flag = GE1_RP_bulgaria_invitation_refused } }
+	desc = ww1_germany.281.d
+	desc = { text = ww1_germany.281.accepted.d trigger = { has_global_flag = GE1_RP_bulgaria_invitation_accepted } }
+	desc = { text = ww1_germany.281.refused.d trigger = { has_global_flag = GE1_RP_bulgaria_invitation_refused } }
+	picture = GFX_report_event_bulgaria_joins_war1
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_focus_tree = german_focus_ww1
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		OR = {
+			has_global_flag = GE1_RP_bulgaria_invitation_accepted
+			has_global_flag = GE1_RP_bulgaria_invitation_refused
+		}
+		NOT = { has_country_flag = GE1_RP_281_resolved }
+	}
+	option = {
+		name = ww1_germany.281.a
+		trigger = { has_global_flag = GE1_RP_bulgaria_invitation_accepted }
+		set_country_flag = GE1_RP_281_resolved
+
+		clr_global_flag = GE1_RP_bulgaria_invitation_pending
+		clr_global_flag = GE1_RP_bulgaria_invitation_accepted
+	}
+	option = {
+		name = ww1_germany.281.b
+		trigger = { has_global_flag = GE1_RP_bulgaria_invitation_refused }
+		set_country_flag = GE1_RP_281_resolved
+		add_political_power = 10
+		clr_global_flag = GE1_RP_bulgaria_invitation_pending
+		clr_global_flag = GE1_RP_bulgaria_invitation_refused
+	}
+}
+
+news_event = {
+	id = ww1_germany.282
+	title = ww1_germany.282.t
+	desc = ww1_germany.282.d
+	picture = GFX_news_event_bulgaria_WWI
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_germany.282.a }
+}
+
+news_event = {
+	id = ww1_germany.283
+	title = ww1_germany.283.t
+	desc = ww1_germany.283.d
+	picture = GFX_news_event_generic_parliament
+	major = yes
+	is_triggered_only = yes
+	option = { name = ww1_germany.283.a }
+}
+
+# German-British route: a staged Danubian pressure sequence. AUH is kept out
+# of the British faction and remains independent until a negotiated settlement
+# or an actual German victory makes a partition available.
+country_event = {
+	id = ww1_germany.284
+	title = ww1_germany.284.t
+	desc = ww1_germany.284.d
+	picture = GFX_report_event_swedish_negotiations
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		date < 1936.1.1
+		has_start_date < 1936.1.1
+		has_global_flag = GE1_anglo_german_alliance
+		has_global_flag = GE1_D_british_route_active
+		country_exists = AUH
+		NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
+		NOT = { has_global_flag = GE1_R_AUH_pressure_pending }
+	}
+	option = {
+		name = ww1_germany.284.a
+		ai_chance = { factor = 70 }
+		set_global_flag = GE1_R_AUH_pressure_pending
+		set_global_flag = GE1_R_AUH_managed_partition_active
+		AUH = { country_event = { id = ww1_germany.285 days = 1 } }
+	}
+	option = {
+		name = ww1_germany.284.b
+		ai_chance = { factor = 30 }
+		set_global_flag = GE1_R_AUH_route_deferred
+			country_event = { id = ww1_germany.284 days = 30 }
+	}
+}
+
+# AUH receives the commercial and diplomatic pressure before any ultimatum.
+country_event = {
+	id = ww1_germany.285
+	title = ww1_germany.285.t
+	desc = ww1_germany.285.d
+	picture = GFX_report_event_internal_focus
+	is_triggered_only = yes
+	trigger = {
+		tag = AUH
+		date < 1936.1.1
+		has_global_flag = GE1_R_AUH_pressure_pending
+		country_exists = GER
+		GER = { has_global_flag = GE1_D_british_route_active }
+		NOT = { has_country_flag = GE1_R_AUH_commercial_resolved }
+	}
+	option = {
+		name = ww1_germany.285.a
+		ai_chance = { factor = 65 }
+		set_country_flag = GE1_R_AUH_commercial_resolved
+		set_country_flag = GE1_R_AUH_commercial_accepted
+		add_timed_idea = { idea = AUH_ww1_german_commercial_pressure days = 180 }
+	}
+	option = {
+		name = ww1_germany.285.b
+		ai_chance = { factor = 35 }
+		set_country_flag = GE1_R_AUH_commercial_resolved
+		set_country_flag = GE1_R_AUH_commercial_refused
+		add_timed_idea = { idea = AUH_ww1_german_commercial_pressure days = 180 }
+	}
+}
+
+# Germany chooses whether to support local Czech and Hungarian interlocutors.
+country_event = {
+	id = ww1_germany.286
+	title = ww1_germany.286.t
+	desc = ww1_germany.286.d
+	picture = GFX_report_event_internal_focus
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_global_flag = GE1_R_AUH_pressure_pending
+		country_exists = AUH
+		AUH = { has_country_flag = GE1_R_AUH_commercial_resolved }
+		NOT = { has_country_flag = GE1_R_AUH_leaders_requested }
+	}
+	option = {
+		name = ww1_germany.286.a
+		ai_chance = { factor = 70 }
+		set_country_flag = GE1_R_AUH_leaders_requested
+		set_global_flag = GE1_R_AUH_local_support
+		AUH = { country_event = { id = ww1_germany.287 days = 1 } }
+	}
+	option = {
+		name = ww1_germany.286.b
+		ai_chance = { factor = 30 }
+		set_country_flag = GE1_R_AUH_leaders_requested
+		AUH = { country_event = { id = ww1_germany.287 days = 1 } }
+	}
+}
+
+# AUH answers the local-leadership proposal and receives a bounded temporary
+# institutional penalty. Existing constitutional focuses remain available.
+country_event = {
+	id = ww1_germany.287
+	title = ww1_germany.287.t
+	desc = ww1_germany.287.d
+	picture = GFX_report_event_internal_focus
+	is_triggered_only = yes
+	trigger = {
+		tag = AUH
+		has_global_flag = GE1_R_AUH_pressure_pending
+		country_exists = GER
+		GER = { has_country_flag = GE1_R_AUH_leaders_requested }
+		NOT = { has_country_flag = GE1_R_AUH_local_resolved }
+	}
+	option = {
+		name = ww1_germany.287.a
+		ai_chance = { factor = 60 }
+		set_country_flag = GE1_R_AUH_local_resolved
+		set_country_flag = GE1_R_AUH_local_accepted
+		add_timed_idea = { idea = AUH_ww1_german_local_pressure days = 365 }
+	}
+	option = {
+		name = ww1_germany.287.b
+		ai_chance = { factor = 40 }
+		set_country_flag = GE1_R_AUH_local_resolved
+		set_country_flag = GE1_R_AUH_local_refused
+		add_timed_idea = { idea = AUH_ww1_german_local_pressure days = 365 }
+	}
+}
+
+# The ultimatum is a real diplomatic choice. Refusal leads to a wargoal and
+# leaves the partition outcome locked until AUH actually capitulates.
+country_event = {
+	id = ww1_germany.288
+	title = ww1_germany.288.t
+	desc = ww1_germany.288.d
+	picture = GFX_report_event_swedish_negotiations
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_global_flag = GE1_R_AUH_pressure_pending
+		country_exists = AUH
+		AUH = { has_country_flag = GE1_R_AUH_local_resolved }
+		NOT = { has_country_flag = GE1_R_AUH_ultimatum_resolved }
+	}
+	option = {
+		name = ww1_germany.288.a
+		ai_chance = { factor = 65 }
+		set_country_flag = GE1_R_AUH_ultimatum_resolved
+		set_country_flag = GE1_R_AUH_negotiation_offered
+		set_global_flag = GE1_R_AUH_negotiation_pending
+		AUH = { country_event = { id = ww1_germany.289 days = 1 } }
+
+		trigger = { has_completed_focus = GE1_R_AUH_offer_settlement }
+	}
+	option = {
+		name = ww1_germany.288.b
+		ai_chance = { factor = 35 }
+		set_country_flag = GE1_R_AUH_ultimatum_resolved
+		set_country_flag = GE1_R_AUH_ultimatum_issued
+		set_global_flag = GE1_R_AUH_negotiation_pending
+		AUH = { country_event = { id = ww1_germany.289 days = 1 } }
+
+		trigger = { has_completed_focus = GE1_R_AUH_issue_ultimatum }
+	}
+}
+
+country_event = {
+	id = ww1_germany.289
+	title = ww1_germany.289.t
+	desc = ww1_germany.289.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+	trigger = {
+		tag = AUH
+		has_global_flag = GE1_R_AUH_negotiation_pending
+		country_exists = GER
+		GER = { has_country_flag = GE1_R_AUH_ultimatum_resolved }
+		NOT = { has_country_flag = GE1_R_AUH_settlement_resolved }
+	}
+	option = {
+		name = ww1_germany.289.a
+		ai_chance = { factor = 65 }
+		set_country_flag = GE1_R_AUH_settlement_resolved
+		set_country_flag = GE1_R_AUH_settlement_accepted
+		set_global_flag = GE1_R_AUH_settlement_accepted
+        set_country_flag = WW1_HAB_vienna_sovereignty_guaranteed
+        custom_effect_tooltip = WW1_HAB_vienna_tt
+		add_timed_idea = { idea = AUH_ww1_german_ultimatum_pressure days = 180 }
+		clr_global_flag = GE1_R_AUH_negotiation_pending
+		GER = { country_event = { id = ww1_germany.290 days = 1 } }
+	}
+	option = {
+		name = ww1_germany.289.b
+		ai_chance = { factor = 35 }
+		set_country_flag = GE1_R_AUH_settlement_resolved
+		set_country_flag = GE1_R_AUH_settlement_refused
+		set_global_flag = GE1_R_AUH_settlement_refused
+		add_timed_idea = { idea = AUH_ww1_german_ultimatum_pressure days = 365 }
+		clr_global_flag = GE1_R_AUH_negotiation_pending
+		GER = { country_event = { id = ww1_germany.291 days = 1 } }
+	}
+}
+
+# A negotiated settlement, or a German victory after refusal, only marks the
+# branch ready. The mutually exclusive German focuses invoke the three
+# state-safe partition helpers from their intended country scope.
+country_event = {
+	id = ww1_germany.290
+	title = ww1_germany.290.t
+	desc = ww1_germany.290.d
+	picture = GFX_report_event_saint_germain
+	is_triggered_only = yes
+	trigger = { tag = GER date < 1936.1.1 has_start_date < 1936.1.1
+            OR = { has_global_flag = GE1_R_AUH_settlement_accepted WW1_HAB_military_settlement = yes }
+            NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
+        }
+	option = {
+		name = ww1_germany.290.a
+		set_global_flag = GE1_R_AUH_settlement_ready
+		AUH = { set_country_flag = GE1_R_AUH_settlement_ready }
+	}
+}
+
+# Refusal creates a conventional wargoal. The player still has to wage and
+# win the war; no state transfer or annexation happens at this point.
+country_event = {
+	id = ww1_germany.291
+	hidden = yes
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		date < 1936.1.1
+		has_global_flag = GE1_R_AUH_settlement_refused
+		country_exists = AUH
+		NOT = { has_global_flag = GE1_R_AUH_wargoal_created }
+	}
+	option = {
+		name = ww1_germany.291.a
+		create_wargoal = { type = annex_everything target = AUH }
+		set_global_flag = GE1_R_AUH_wargoal_created
+		country_event = { id = ww1_germany.292 days = 1 }
+	}
+}
+
+country_event = {
+id = ww1_germany.292
+        hidden = yes
+        is_triggered_only = yes
+        trigger = { tag = GER date < 1936.1.1 has_global_flag = GE1_R_AUH_settlement_refused
+          NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
+          NOT = { has_global_flag = GE1_R_AUH_settlement_ready }
+        }
+        immediate = {
+          if = { limit = { WW1_HAB_military_settlement = yes }
+            set_global_flag = WW1_HAB_defeat_recorded
+            set_global_flag = GE1_R_AUH_settlement_ready
+            AUH = { set_country_flag = GE1_R_AUH_settlement_ready }
+            country_event = { id = ww1_germany.290 days = 1 }
+          }
+          else = { country_event = { id = ww1_germany.292 days = 1 } }
+        }
+}
+
+
+# Optional wartime London channel. This is deliberately separate from the
+# pre-war Haldane/naval chain: it can only be opened while GER and ENG are at
+# war, and it never makes peace with France or Russia.
+country_event = {
+	id = ww1_germany.293
+	title = ww1_germany.293.t
+	desc = ww1_germany.293.d
+	picture = GFX_report_event_swedish_negotiations
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		date > 1914.7.1
+		date < 1936.1.1
+		has_start_date < 1936.1.1
+		country_exists = ENG
+		has_war_with = ENG
+		NOT = { has_global_flag = GE1_R_AUH_british_truce_pending }
+		NOT = { has_global_flag = GE1_R_AUH_british_truce_accepted }
+		NOT = { has_global_flag = GE1_R_AUH_british_truce_refused }
+
+		GE1_ww1_may_choose_british_bloc = yes
+}
+	option = {
+		name = ww1_germany.293.a
+		add_political_power = -70
+		if = { limit = { is_ai = no } set_country_flag = GE1_R_AUH_reconsider_alliance }
+		set_global_flag = GE1_R_AUH_british_truce_pending
+		set_country_flag = GE1_R_AUH_british_truce_pending
+		ENG = { country_event = { id = ww1_germany.294 days = 1 } }
+	}
+}
+
+country_event = {
+	id = ww1_germany.294
+	title = ww1_germany.294.t
+	desc = ww1_germany.294.d
+	picture = GFX_report_event_swedish_negotiations
+	is_triggered_only = yes
+	trigger = {
+		tag = ENG
+		date > 1914.7.1
+		date < 1936.1.1
+		GER = {
+			has_global_flag = GE1_R_AUH_british_truce_pending
+			has_war_with = ENG
+		}
+
+		GER = { GE1_ww1_may_choose_british_bloc = yes }
+}
+	option = {
+		name = ww1_germany.294.a
+		trigger = {
+GER = { has_country_flag = GE1_R_AUH_reconsider_alliance } NOT = { has_country_flag = EN1_R_neutral_policy }
+
+NOT = { has_completed_focus = EN1_stay_neutral } NOT = { has_completed_focus = EN1_back_france } NOT = { has_country_flag = EN1_R_entente_policy }
+}
+		# The offer itself is the explicit counterfactual choice. Without that
+		# choice the acceptance branch is unavailable to historical AI.
+		ai_chance = {
+factor = 35 modifier = { factor = 0 is_historical_focus_on = yes }
+}
+		set_global_flag = GE1_R_AUH_british_truce_accepted
+		set_country_flag = GE1_R_AUH_british_truce_accepted
+		clr_global_flag = GE1_R_AUH_british_truce_pending
+		GER = { country_event = { id = ww1_germany.295 days = 1 } }
+	}
+	option = {
+		name = ww1_germany.294.b
+		ai_chance = { factor = 100 }
+		set_global_flag = GE1_R_AUH_british_truce_refused
+		set_country_flag = GE1_R_AUH_british_truce_refused
+		clr_global_flag = GE1_R_AUH_british_truce_pending
+		GER = { country_event = { id = ww1_germany.295 days = 1 } }
+	}
+}
+
+country_event = {
+	id = ww1_germany.295
+	title = ww1_germany.295.t
+	title = { text = ww1_germany.295.accepted.t trigger = { has_global_flag = GE1_R_AUH_british_truce_accepted } }
+	title = { text = ww1_germany.295.refused.t trigger = { has_global_flag = GE1_R_AUH_british_truce_refused } }
+	desc = ww1_germany.295.d
+	desc = { text = ww1_germany.295.accepted.d trigger = { has_global_flag = GE1_R_AUH_british_truce_accepted } }
+	desc = { text = ww1_germany.295.refused.d trigger = { has_global_flag = GE1_R_AUH_british_truce_refused } }
+	picture = GFX_report_event_swedish_negotiations
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		OR = {
+			has_global_flag = GE1_R_AUH_british_truce_accepted
+			has_global_flag = GE1_R_AUH_british_truce_refused
+		}
+
+		GE1_ww1_may_choose_british_bloc = yes
+}
+	option = {
+		name = ww1_germany.295.a
+		trigger = { has_global_flag = GE1_R_AUH_british_truce_accepted }
+		# Britain leaves the Entente before the bilateral white peace. The
+		# Belgian guarantee is a real peace and state restoration, not a flag
+		# shortcut; France and Russia remain outside this settlement.
+		if = {
+			limit = { ENG = { is_faction_leader = yes } }
+			ENG = { dismantle_faction = yes }
+		}
+		else_if = { limit = { ENG = { is_in_faction = yes } } ENG = { leave_faction = yes } }
+		white_peace = ENG
+		# The accepted Low Countries undertaking also settles any separate
+		# Dutch/Luxembourg war, without moving their territory.
+		if = { limit = { country_exists = HOL has_war_with = HOL } white_peace = HOL }
+		if = { limit = { country_exists = LUX has_war_with = LUX } white_peace = LUX }
+		if = {
+			limit = { country_exists = BEL }
+			BEL = { white_peace = GER }
+			every_state = {
+				limit = { is_owned_by = BEL is_controlled_by = GER }
+				transfer_state_to = BEL
+			}
+			every_state = {
+				limit = { is_owned_by = GER is_core_of = BEL is_controlled_by = GER }
+				remove_core_of = GER
+				transfer_state_to = BEL
+			}
+		}
+		set_global_flag = GE1_R_AUH_british_truce
+		set_country_flag = GE1_R_AUH_british_truce
+		set_global_flag = GE1_R_AUH_wartime_truce_accepted
+		set_country_flag = GE1_R_AUH_wartime_truce_accepted
+		set_global_flag = GE1_D_naval_convention_accepted
+		set_country_flag = GE1_D_naval_convention_accepted
+		set_country_flag = GE1_D_belgian_neutrality_prepared
+		set_global_flag = GE1_D_british_route_active
+		set_country_flag = GE1_D_british_route_active
+		set_global_flag = GE1_R_AUH_british_route
+		set_country_flag = GE1_R_AUH_british_route
+		clr_global_flag = GE1_gives_blank_cheque
+		clr_global_flag = AUH_expecting_blank_cheque
+		GE1_D_form_anglo_german_faction = yes
+		clr_global_flag = GE1_R_AUH_british_truce_accepted
+		clr_global_flag = GE1_R_AUH_british_truce_refused
+		clr_global_flag = GE1_R_AUH_british_truce_pending
+
+ENG = { clr_country_flag = EN1_R_entente_policy clr_country_flag = EN1_R_neutral_policy set_country_flag = EN1_R_berlin_ratified } clr_global_flag = back_france clr_global_flag = british_neutrality clr_global_flag = britain_joins_entente
+}
+	option = {
+		name = ww1_germany.295.b
+		trigger = { has_global_flag = GE1_R_AUH_british_truce_refused }
+		# Keep this marker persistent so the Austrian route can still be
+		# selected after a failed wartime approach.
+		set_global_flag = GE1_R_AUH_british_refused
+		set_country_flag = GE1_R_AUH_british_refused
+		clr_global_flag = GE1_R_AUH_british_truce_accepted
+		clr_global_flag = GE1_R_AUH_british_truce_refused
+		clr_global_flag = GE1_R_AUH_british_truce_pending
+		add_war_support = 0.01
 	}
 }

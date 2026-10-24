@@ -1,0 +1,233 @@
+# This is selected once at the October transition. Lenin must actually have
+# returned; otherwise Trotsky leads until an actual return event or succession.
+RUS_ww1_select_october_leader = {
+    if = {
+        limit = { tag = SOV exists = yes NOT = { has_country_flag = RUS_ww1_october_leader_selected } }
+        if = {
+            limit = { RUS_ww1_lenin_can_lead = yes }
+            if = {
+                limit = { NOT = { endsieg_character_active_sov_vladimir_lenin_c95c867e = yes } }
+                endsieg_character_activate_sov_vladimir_lenin_c95c867e = yes
+            }
+            promote_character = { character = SOV_Vladimir_Lenin ideology = leninism }
+        }
+        else = {
+            if = {
+                limit = { endsieg_character_active_sov_vladimir_lenin_c95c867e = yes }
+                endsieg_character_retire_sov_vladimir_lenin_c95c867e = yes
+            }
+            if = {
+                limit = { has_character = SOV_lev_trotsky }
+                endsieg_character_activate_sov_lev_trotsky_f0fa5e52 = yes
+                add_country_leader_role = {
+                    character = SOV_lev_trotsky
+                    country_leader = { ideology = leninism traits = { } expire = "1953.3.1.1" }
+                    promote_leader = yes
+                }
+                set_country_flag = RUS_ww1_trotsky_october_caretaker
+            }
+        }
+        set_country_flag = RUS_ww1_october_leader_selected
+    }
+}
+
+# Only the caretaker chosen above yields on Lenin's actual return. Later player
+# or focus successions are never undone by the daily scheduler.
+RUS_ww1_handle_lenin_return = {
+    if = {
+        limit = {
+            tag = SOV exists = yes has_government = communism
+            has_global_flag = october_revolution
+            has_country_flag = RUS_ww1_trotsky_october_caretaker
+            has_country_leader = { character = SOV_lev_trotsky }
+            RUS_ww1_lenin_can_lead = yes
+        }
+        SOV_lev_trotsky = { remove_country_leader_role = { ideology = leninism } }
+        endsieg_character_activate_sov_vladimir_lenin_c95c867e = yes
+        promote_character = { character = SOV_Vladimir_Lenin ideology = leninism }
+        clr_country_flag = RUS_ww1_trotsky_october_caretaker
+    }
+}
+
+# Initialize the country before running country-scoped character/equipment effects.
+# change_tag_from only hands a human player to the new tag; release creates it.
+RUS_ww1_initialize_october_government = {
+    if = {
+        limit = { tag = SOV exists = yes NOT = { has_country_flag = RUS_ww1_october_initialized } }
+        drop_cosmetic_tag = yes
+        # Keep the contemporary name after the ownership/tag transfer.
+        217 = { set_state_name = SOV_Tsaritsyn }
+        1064 = { set_state_name = "East Tsaritsyn" }
+        set_province_name = { id = 3529 name = SOV_Tsaritsyn }
+        195 = { set_state_name = SOV_petrograd }
+        set_province_name = { id = 3151 name = SOV_petrograd }
+        set_politics = {
+            ruling_party = communism
+            elections_allowed = no
+        }
+        set_popularities = {
+            fascism = 0
+            neutrality = 5
+            democratic = 15
+            communism = 80
+        }
+        RUS_ww1_select_october_leader = yes
+        # Soviet Russia is likewise created during the campaign. Recruit the
+        # historical Red Army and political roster used by its WWI history.
+        endsieg_character_activate_so2_lev_trotsky_660a5a92 = yes
+        endsieg_character_activate_so2_lev_kamenev_33dd563c = yes
+        endsieg_character_activate_sov_sergey_kamenev_28c7c402 = yes
+        endsieg_character_activate_sov_joseph_stalin_b6507383 = yes
+        endsieg_character_activate_sov_mikhail_frunze_3f9354db = yes
+        endsieg_character_activate_so2_kliment_voroshilov_d64acf65 = yes
+        endsieg_character_activate_sov_grigori_zinoviev_a0c19e50 = yes
+        endsieg_character_activate_so2_nikolay_yezhov_2aab4c48 = yes
+        endsieg_character_activate_sov_felix_dzerzhinsky_7a5d7b70 = yes
+        endsieg_character_activate_sov_pyotr_voykov_9fa5a003 = yes
+        endsieg_character_activate_sov_maxim_litvinov_ea3e36ea = yes
+        endsieg_character_activate_so2_ivan_smirnov_e1a9a079 = yes
+        endsieg_character_activate_sov_georgi_chicherin_74d99e2f = yes
+        endsieg_character_activate_sov_nikolai_bukharin_8cf61385 = yes
+        endsieg_character_activate_sov_martin_latsis_e8901b0a = yes
+        endsieg_character_activate_sov_grigori_sokolnikov_99832ae2 = yes
+        endsieg_character_activate_sov_andrei_bubnov_6176430f = yes
+        endsieg_character_activate_sov_yan_berzin_4dd21eb2 = yes
+        endsieg_character_activate_sov_leonid_krasin_17cfb149 = yes
+        endsieg_character_activate_sov_andrey_vyshinsky_d65e202a = yes
+        endsieg_character_activate_sov_alexei_rykov_5643ae8f = yes
+        endsieg_character_activate_sov_ivan_isakov_d692685c = yes
+        endsieg_character_activate_so2_nikolay_kuznetsov_9e9a290c = yes
+        endsieg_character_activate_sov_mikhail_tukachevsky_33d507c6 = yes
+        endsieg_character_activate_sov_jukums_vacietis_88cc3664 = yes
+        endsieg_character_activate_so2_vitaly_primakov_4ef17b87 = yes
+        endsieg_character_activate_sov_ieronim_uborevich_b0f5f29a = yes
+        endsieg_character_activate_sov_ioana_yakir_581b5aeb = yes
+        endsieg_character_activate_so2_semyon_budyonny_b2e8e7bc = yes
+        endsieg_character_activate_sov_yakov_alksnis_975bad1f = yes
+        endsieg_character_activate_sov_konstantin_akashev_cd78c285 = yes
+        endsieg_character_activate_sov_konstantin_artseuolov_b9c24037 = yes
+        every_state = {
+            limit = { is_core_of = RIE }
+
+            add_core_of = SOV
+        }
+        give_military_access = GER
+        give_military_access = AUH
+        if = {
+            limit = { NOT = { has_global_flag = october_revolution } }
+            news_event = { id = endsieg_news.222 hours = 6 }
+            set_global_flag = october_revolution
+        }
+        set_country_flag = RUS_ww1_october_initialized
+        if = {
+            limit = { NOT = { country_exists = FNN } NOT = { has_country_flag = RUS_ww1_finland_queued } }
+            set_country_flag = RUS_ww1_finland_queued
+            country_event = { id = ww1_russia.45 days = 25 }
+        }
+    }
+}
+
+RUS_ww1_execute_october_transition = {
+    if = {
+        limit = {
+            RUS_ww1_october_context = yes
+            NOT = { country_exists = SOV }
+            any_owned_state = { is_capital = yes }
+        }
+        # Preserve evidence of the Russian-German war before annexation ends it.
+        if = { limit = { has_war_with = GER } set_global_flag = RUS_ww1_brest_negotiations }
+        capital_scope = { add_core_of = SOV }
+        release = SOV
+        set_autonomy = { target = SOV autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+        if = {
+            limit = { country_exists = SOV }
+            SOV = {
+                inherit_technology = RIE
+                change_tag_from = RIE
+                annex_country = { target = RIE transfer_troops = no }
+            }
+            # Resolve SOV again after ownership changes; never continue a dead RIE scope.
+            SOV = {
+                transfer_state = 722
+                RUS_ww1_initialize_october_government = yes
+            }
+        }
+    }
+}
+
+RUS_ww1_seed_white_government = {
+    if = {
+        limit = { tag = SOV NOT = { country_exists = WHR } owns_state = 251 }
+        251 = { add_core_of = WHR }
+        release = WHR
+        set_autonomy = { target = WHR autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+        WHR = { if = { limit = { is_in_faction = yes } leave_faction = yes } }
+    }
+    if = {
+        limit = { tag = SOV NOT = { country_exists = KUB } owns_state = 245 }
+        245 = { add_core_of = KUB }
+        release = KUB
+        set_autonomy = { target = KUB autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+    }
+}
+
+# Called after history initialization and daily for RIE/SOV. No date-only coup.
+# Queued flags suppress duplicate notifications; the stage flags suppress replays.
+RUS_ww1_repair_revolution_chain = {
+    if = {
+        limit = { tag = RIE exists = yes }
+        if = {
+            limit = {
+                RUS_ww1_october_context = yes
+                has_global_flag = october_revolution
+                NOT = { country_exists = SOV }
+                OR = { communism > 0.5 RUS_ww1_historical_revolution_allowed = yes }
+            }
+            RUS_ww1_execute_october_transition = yes
+        }
+        else = {
+            if = {
+                limit = { RUS_ww1_october_ready = yes NOT = { has_country_flag = RUS_ww1_october_queued } }
+                set_country_flag = RUS_ww1_october_queued
+                country_event = { id = ww1_russia.34 hours = 1 }
+            }
+            if = { limit = { NOT = { RUS_ww1_october_ready = yes } } clr_country_flag = RUS_ww1_october_queued }
+            # Preserve the existing capitulated-imperial-Russia treaty route.
+            if = {
+                limit = { RUS_ww1_brest_ready = yes NOT = { has_country_flag = RUS_ww1_brest_queued } }
+                set_country_flag = RUS_ww1_brest_queued
+                country_event = { id = ww1_russia.43 hours = 1 }
+            }
+            if = { limit = { NOT = { RUS_ww1_brest_ready = yes } } clr_country_flag = RUS_ww1_brest_queued }
+        }
+    }
+    else_if = {
+        limit = { tag = SOV exists = yes has_start_date < 1918.1.1 date < 1936.1.1 }
+        if = {
+            limit = { has_global_flag = october_revolution NOT = { has_global_flag = russian_civil_war } NOT = { has_country_flag = RUS_ww1_october_initialized } }
+            RUS_ww1_initialize_october_government = yes
+        }
+        # Migrate only the erroneous Lenin choice made by the previous helper.
+        if = {
+            limit = {
+                has_global_flag = october_revolution
+                has_country_flag = RUS_ww1_october_initialized
+                NOT = { has_country_flag = RUS_ww1_october_leader_selected }
+                has_country_leader = { character = SOV_Vladimir_Lenin }
+            }
+            RUS_ww1_select_october_leader = yes
+        }
+        if = {
+            limit = { RUS_ww1_brest_ready = yes NOT = { has_country_flag = RUS_ww1_brest_queued } }
+            set_country_flag = RUS_ww1_brest_queued
+            country_event = { id = ww1_russia.43 hours = 1 }
+        }
+        if = { limit = { NOT = { RUS_ww1_brest_ready = yes } } clr_country_flag = RUS_ww1_brest_queued }
+        if = {
+            limit = { RUS_ww1_civil_war_ready = yes NOT = { has_country_flag = RUS_ww1_civil_war_queued } }
+            set_country_flag = RUS_ww1_civil_war_queued
+            country_event = { id = ww1_russia.42 hours = 1 }
+        }
+        if = { limit = { NOT = { RUS_ww1_civil_war_ready = yes } } clr_country_flag = RUS_ww1_civil_war_queued }
+    }
+}

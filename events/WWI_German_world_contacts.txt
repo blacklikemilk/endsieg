@@ -1,0 +1,718 @@
+add_namespace = ww1_world_contacts
+
+# GE1_D_mexican_reply: MEX decides; no rewards before German ratification.
+country_event = {
+    id = ww1_world_contacts.1
+    title = ww1_world_contacts.1.t
+    desc = ww1_world_contacts.1.d
+    picture = GFX_report_event_zimmerman_telegram
+    is_triggered_only = yes
+    trigger = {
+        tag = MEX
+        country_exists = GER
+        GER = {
+            has_country_flag = GW_D_mexican_reply_pending
+            NOT = { has_country_flag = GW_D_mexican_reply_answered }
+            NOT = { has_country_flag = GW_D_mexican_reply_resolved }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.1.a
+        trigger = {
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            NOT = { has_war_with = GER }
+            GER = {
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = MEX }
+                has_country_flag = GW_D_mexican_reply_pending
+                NOT = { has_country_flag = GW_D_mexican_reply_answered }
+                NOT = { has_country_flag = GW_D_mexican_reply_resolved }
+            }
+        }
+        ai_chance = { factor = 25 modifier = { factor = 0 is_historical_focus_on = yes } }
+        if = {
+            limit = {
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = GER }
+                GER = {
+                    NOT = { has_capitulated = yes }
+                    NOT = { has_war_with = MEX }
+                    has_country_flag = GW_D_mexican_reply_pending
+                    NOT = { has_country_flag = GW_D_mexican_reply_answered }
+                    NOT = { has_country_flag = GW_D_mexican_reply_resolved }
+                }
+            }
+            GER = {
+                set_country_flag = GW_D_mexican_reply_answered
+                set_country_flag = GW_D_mexican_reply_accepted
+                country_event = { id = ww1_world_contacts.2 days = 1 }
+            }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.1.b
+        ai_chance = { factor = 75 }
+        if = {
+            limit = { GER = { has_country_flag = GW_D_mexican_reply_pending NOT = { has_country_flag = GW_D_mexican_reply_answered } NOT = { has_country_flag = GW_D_mexican_reply_resolved } } }
+            GER = {
+                set_country_flag = GW_D_mexican_reply_answered
+                set_country_flag = GW_D_mexican_reply_refused
+                country_event = { id = ww1_world_contacts.2 days = 1 }
+            }
+        }
+    }
+}
+
+country_event = {
+    id = ww1_world_contacts.2
+    title = ww1_world_contacts.2.t
+    desc = {
+        text = ww1_world_contacts.2.accepted.d
+        trigger = { has_country_flag = GW_D_mexican_reply_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = MEX
+            NOT = { has_war_with = MEX }
+            MEX = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+    }
+    desc = { text = ww1_world_contacts.2.refused.d trigger = { has_country_flag = GW_D_mexican_reply_refused } }
+    desc = {
+        text = ww1_world_contacts.2.withdrawn.d
+        trigger = { OR = { has_country_flag = GW_D_mexican_reply_withdrawn AND = { has_country_flag = GW_D_mexican_reply_accepted NOT = {
+                    has_start_date < 1936.1.1
+                    date < 1936.1.1
+                    NOT = { has_capitulated = yes }
+                    country_exists = MEX
+                    NOT = { has_war_with = MEX }
+                    MEX = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+    }
+    picture = GFX_report_event_zimmerman_telegram
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_mexican_reply_pending
+        has_country_flag = GW_D_mexican_reply_answered
+        NOT = { has_country_flag = GW_D_mexican_reply_resolved }
+    }
+    option = {
+        name = ww1_world_contacts.2.a
+        trigger = { has_country_flag = GW_D_mexican_reply_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = MEX
+            NOT = { has_war_with = MEX }
+            MEX = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+        if = {
+            limit = {
+                has_country_flag = GW_D_mexican_reply_pending
+                has_country_flag = GW_D_mexican_reply_accepted
+                NOT = { has_country_flag = GW_D_mexican_reply_resolved }
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = MEX
+                NOT = { has_war_with = MEX }
+                MEX = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+            }
+            set_country_flag = GW_D_mexican_reply_resolved
+            set_country_flag = GW_D_mexican_cooperation_agreed
+            clr_country_flag = GW_D_mexican_reply_pending
+            army_experience = 10
+            MEX = {
+                army_experience = 5
+                add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 250 producer = GER }
+                add_opinion_modifier = { target = GER modifier = germany_friend }
+            }
+            add_opinion_modifier = { target = MEX modifier = long_term_trade_partner }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.2.b
+        trigger = { has_country_flag = GW_D_mexican_reply_refused }
+        if = {
+            limit = { has_country_flag = GW_D_mexican_reply_pending NOT = { has_country_flag = GW_D_mexican_reply_resolved } }
+            set_country_flag = GW_D_mexican_reply_resolved
+            clr_country_flag = GW_D_mexican_reply_pending
+        }
+    }
+    option = {
+        name = ww1_world_contacts.2.c
+        trigger = { OR = { has_country_flag = GW_D_mexican_reply_withdrawn AND = { has_country_flag = GW_D_mexican_reply_accepted NOT = {
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = MEX
+                NOT = { has_war_with = MEX }
+                MEX = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+        if = {
+            limit = { has_country_flag = GW_D_mexican_reply_pending NOT = { has_country_flag = GW_D_mexican_reply_resolved } }
+            set_country_flag = GW_D_mexican_reply_resolved
+            set_country_flag = GW_D_mexican_reply_withdrawn
+            clr_country_flag = GW_D_mexican_reply_pending
+        }
+    }
+}
+
+# A single expiry callback bounds an unanswered or lost offer without polling.
+country_event = {
+    id = ww1_world_contacts.101
+    hidden = yes
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_mexican_reply_pending
+        NOT = { has_country_flag = GW_D_mexican_reply_answered }
+        NOT = { has_country_flag = GW_D_mexican_reply_resolved }
+    }
+    immediate = {
+        set_country_flag = GW_D_mexican_reply_answered
+        set_country_flag = GW_D_mexican_reply_withdrawn
+        country_event = { id = ww1_world_contacts.2 hours = 1 }
+    }
+}
+
+# GE1_D_persian_transit: PER decides; no rewards before German ratification.
+country_event = {
+    id = ww1_world_contacts.3
+    title = ww1_world_contacts.3.t
+    desc = ww1_world_contacts.3.d
+    picture = GFX_report_event_swedish_negotiations
+    is_triggered_only = yes
+    trigger = {
+        tag = PER
+        country_exists = GER
+        GER = {
+            has_country_flag = GW_D_persian_transit_pending
+            NOT = { has_country_flag = GW_D_persian_transit_answered }
+            NOT = { has_country_flag = GW_D_persian_transit_resolved }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.3.a
+        trigger = {
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            NOT = { has_war_with = GER }
+            GER = {
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = PER }
+                has_country_flag = GW_D_persian_transit_pending
+                NOT = { has_country_flag = GW_D_persian_transit_answered }
+                NOT = { has_country_flag = GW_D_persian_transit_resolved }
+            }
+        }
+        ai_chance = { factor = 35  }
+        if = {
+            limit = {
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = GER }
+                GER = {
+                    NOT = { has_capitulated = yes }
+                    NOT = { has_war_with = PER }
+                    has_country_flag = GW_D_persian_transit_pending
+                    NOT = { has_country_flag = GW_D_persian_transit_answered }
+                    NOT = { has_country_flag = GW_D_persian_transit_resolved }
+                }
+            }
+            GER = {
+                set_country_flag = GW_D_persian_transit_answered
+                set_country_flag = GW_D_persian_transit_accepted
+                country_event = { id = ww1_world_contacts.4 days = 1 }
+            }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.3.b
+        ai_chance = { factor = 65 }
+        if = {
+            limit = { GER = { has_country_flag = GW_D_persian_transit_pending NOT = { has_country_flag = GW_D_persian_transit_answered } NOT = { has_country_flag = GW_D_persian_transit_resolved } } }
+            GER = {
+                set_country_flag = GW_D_persian_transit_answered
+                set_country_flag = GW_D_persian_transit_refused
+                country_event = { id = ww1_world_contacts.4 days = 1 }
+            }
+        }
+    }
+}
+
+country_event = {
+    id = ww1_world_contacts.4
+    title = ww1_world_contacts.4.t
+    desc = {
+        text = ww1_world_contacts.4.accepted.d
+        trigger = { has_country_flag = GW_D_persian_transit_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = PER
+            NOT = { has_war_with = PER }
+            PER = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+    }
+    desc = { text = ww1_world_contacts.4.refused.d trigger = { has_country_flag = GW_D_persian_transit_refused } }
+    desc = {
+        text = ww1_world_contacts.4.withdrawn.d
+        trigger = { OR = { has_country_flag = GW_D_persian_transit_withdrawn AND = { has_country_flag = GW_D_persian_transit_accepted NOT = {
+                    has_start_date < 1936.1.1
+                    date < 1936.1.1
+                    NOT = { has_capitulated = yes }
+                    country_exists = PER
+                    NOT = { has_war_with = PER }
+                    PER = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+    }
+    picture = GFX_report_event_swedish_negotiations
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_persian_transit_pending
+        has_country_flag = GW_D_persian_transit_answered
+        NOT = { has_country_flag = GW_D_persian_transit_resolved }
+    }
+    option = {
+        name = ww1_world_contacts.4.a
+        trigger = { has_country_flag = GW_D_persian_transit_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = PER
+            NOT = { has_war_with = PER }
+            PER = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+        if = {
+            limit = {
+                has_country_flag = GW_D_persian_transit_pending
+                has_country_flag = GW_D_persian_transit_accepted
+                NOT = { has_country_flag = GW_D_persian_transit_resolved }
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = PER
+                NOT = { has_war_with = PER }
+                PER = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+            }
+            set_country_flag = GW_D_persian_transit_resolved
+            set_country_flag = GW_D_persian_transit_agreed
+            clr_country_flag = GW_D_persian_transit_pending
+            PER = {
+                diplomatic_relation = { country = GER relation = military_access active = yes }
+                add_opinion_modifier = { target = GER modifier = long_term_trade_partner }
+            }
+            add_opinion_modifier = { target = PER modifier = long_term_trade_partner }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.4.b
+        trigger = { has_country_flag = GW_D_persian_transit_refused }
+        if = {
+            limit = { has_country_flag = GW_D_persian_transit_pending NOT = { has_country_flag = GW_D_persian_transit_resolved } }
+            set_country_flag = GW_D_persian_transit_resolved
+            clr_country_flag = GW_D_persian_transit_pending
+        }
+    }
+    option = {
+        name = ww1_world_contacts.4.c
+        trigger = { OR = { has_country_flag = GW_D_persian_transit_withdrawn AND = { has_country_flag = GW_D_persian_transit_accepted NOT = {
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = PER
+                NOT = { has_war_with = PER }
+                PER = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+        if = {
+            limit = { has_country_flag = GW_D_persian_transit_pending NOT = { has_country_flag = GW_D_persian_transit_resolved } }
+            set_country_flag = GW_D_persian_transit_resolved
+            set_country_flag = GW_D_persian_transit_withdrawn
+            clr_country_flag = GW_D_persian_transit_pending
+        }
+    }
+}
+
+# A single expiry callback bounds an unanswered or lost offer without polling.
+country_event = {
+    id = ww1_world_contacts.103
+    hidden = yes
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_persian_transit_pending
+        NOT = { has_country_flag = GW_D_persian_transit_answered }
+        NOT = { has_country_flag = GW_D_persian_transit_resolved }
+    }
+    immediate = {
+        set_country_flag = GW_D_persian_transit_answered
+        set_country_flag = GW_D_persian_transit_withdrawn
+        country_event = { id = ww1_world_contacts.4 hours = 1 }
+    }
+}
+
+# GE1_D_ukrainian_grain_compact: UKR decides; no rewards before German ratification.
+country_event = {
+    id = ww1_world_contacts.5
+    title = ww1_world_contacts.5.t
+    desc = ww1_world_contacts.5.d
+    picture = GFX_report_event_home_front
+    is_triggered_only = yes
+    trigger = {
+        tag = UKR
+        country_exists = GER
+        GER = {
+            has_country_flag = GW_D_ukrainian_grain_pending
+            NOT = { has_country_flag = GW_D_ukrainian_grain_answered }
+            NOT = { has_country_flag = GW_D_ukrainian_grain_resolved }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.5.a
+        trigger = {
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            NOT = { has_war_with = GER }
+            GER = {
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = UKR }
+                has_country_flag = GW_D_ukrainian_grain_pending
+                NOT = { has_country_flag = GW_D_ukrainian_grain_answered }
+                NOT = { has_country_flag = GW_D_ukrainian_grain_resolved }
+            }
+        }
+        ai_chance = { factor = 80  }
+        if = {
+            limit = {
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = GER }
+                GER = {
+                    NOT = { has_capitulated = yes }
+                    NOT = { has_war_with = UKR }
+                    has_country_flag = GW_D_ukrainian_grain_pending
+                    NOT = { has_country_flag = GW_D_ukrainian_grain_answered }
+                    NOT = { has_country_flag = GW_D_ukrainian_grain_resolved }
+                }
+            }
+            GER = {
+                set_country_flag = GW_D_ukrainian_grain_answered
+                set_country_flag = GW_D_ukrainian_grain_accepted
+                country_event = { id = ww1_world_contacts.6 days = 1 }
+            }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.5.b
+        ai_chance = { factor = 20 }
+        if = {
+            limit = { GER = { has_country_flag = GW_D_ukrainian_grain_pending NOT = { has_country_flag = GW_D_ukrainian_grain_answered } NOT = { has_country_flag = GW_D_ukrainian_grain_resolved } } }
+            GER = {
+                set_country_flag = GW_D_ukrainian_grain_answered
+                set_country_flag = GW_D_ukrainian_grain_refused
+                country_event = { id = ww1_world_contacts.6 days = 1 }
+            }
+        }
+    }
+}
+
+country_event = {
+    id = ww1_world_contacts.6
+    title = ww1_world_contacts.6.t
+    desc = {
+        text = ww1_world_contacts.6.accepted.d
+        trigger = { has_country_flag = GW_D_ukrainian_grain_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = UKR
+            NOT = { has_war_with = UKR }
+            UKR = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+    }
+    desc = { text = ww1_world_contacts.6.refused.d trigger = { has_country_flag = GW_D_ukrainian_grain_refused } }
+    desc = {
+        text = ww1_world_contacts.6.withdrawn.d
+        trigger = { OR = { has_country_flag = GW_D_ukrainian_grain_withdrawn AND = { has_country_flag = GW_D_ukrainian_grain_accepted NOT = {
+                    has_start_date < 1936.1.1
+                    date < 1936.1.1
+                    NOT = { has_capitulated = yes }
+                    country_exists = UKR
+                    NOT = { has_war_with = UKR }
+                    UKR = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+    }
+    picture = GFX_report_event_home_front
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_ukrainian_grain_pending
+        has_country_flag = GW_D_ukrainian_grain_answered
+        NOT = { has_country_flag = GW_D_ukrainian_grain_resolved }
+    }
+    option = {
+        name = ww1_world_contacts.6.a
+        trigger = { has_country_flag = GW_D_ukrainian_grain_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = UKR
+            NOT = { has_war_with = UKR }
+            UKR = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+        if = {
+            limit = {
+                has_country_flag = GW_D_ukrainian_grain_pending
+                has_country_flag = GW_D_ukrainian_grain_accepted
+                NOT = { has_country_flag = GW_D_ukrainian_grain_resolved }
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = UKR
+                NOT = { has_war_with = UKR }
+                UKR = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+            }
+            set_country_flag = GW_D_ukrainian_grain_resolved
+            set_country_flag = GW_D_ukrainian_grain_agreed
+            clr_country_flag = GW_D_ukrainian_grain_pending
+            add_timed_idea = { idea = GW_D_grain_deliveries days = 365 }
+            UKR = {
+                add_equipment_to_stockpile = { type = early_train_equipment_1 amount = 10 producer = GER }
+                add_equipment_to_stockpile = { type = support_equipment_1 amount = 50 producer = GER }
+                add_opinion_modifier = { target = GER modifier = long_term_trade_partner }
+            }
+            add_opinion_modifier = { target = UKR modifier = long_term_trade_partner }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.6.b
+        trigger = { has_country_flag = GW_D_ukrainian_grain_refused }
+        if = {
+            limit = { has_country_flag = GW_D_ukrainian_grain_pending NOT = { has_country_flag = GW_D_ukrainian_grain_resolved } }
+            set_country_flag = GW_D_ukrainian_grain_resolved
+            clr_country_flag = GW_D_ukrainian_grain_pending
+        }
+    }
+    option = {
+        name = ww1_world_contacts.6.c
+        trigger = { OR = { has_country_flag = GW_D_ukrainian_grain_withdrawn AND = { has_country_flag = GW_D_ukrainian_grain_accepted NOT = {
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = UKR
+                NOT = { has_war_with = UKR }
+                UKR = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+        if = {
+            limit = { has_country_flag = GW_D_ukrainian_grain_pending NOT = { has_country_flag = GW_D_ukrainian_grain_resolved } }
+            set_country_flag = GW_D_ukrainian_grain_resolved
+            set_country_flag = GW_D_ukrainian_grain_withdrawn
+            clr_country_flag = GW_D_ukrainian_grain_pending
+        }
+    }
+}
+
+# A single expiry callback bounds an unanswered or lost offer without polling.
+country_event = {
+    id = ww1_world_contacts.105
+    hidden = yes
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_ukrainian_grain_pending
+        NOT = { has_country_flag = GW_D_ukrainian_grain_answered }
+        NOT = { has_country_flag = GW_D_ukrainian_grain_resolved }
+    }
+    immediate = {
+        set_country_flag = GW_D_ukrainian_grain_answered
+        set_country_flag = GW_D_ukrainian_grain_withdrawn
+        country_event = { id = ww1_world_contacts.6 hours = 1 }
+    }
+}
+
+# GE1_R_baltic_transit: LIT decides; no rewards before German ratification.
+country_event = {
+    id = ww1_world_contacts.7
+    title = ww1_world_contacts.7.t
+    desc = ww1_world_contacts.7.d
+    picture = GFX_report_event_swedish_negotiations
+    is_triggered_only = yes
+    trigger = {
+        tag = LIT
+        country_exists = GER
+        GER = {
+            has_country_flag = GW_D_baltic_transit_pending
+            NOT = { has_country_flag = GW_D_baltic_transit_answered }
+            NOT = { has_country_flag = GW_D_baltic_transit_resolved }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.7.a
+        trigger = {
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            NOT = { has_war_with = GER }
+            GER = {
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = LIT }
+                has_country_flag = GW_D_baltic_transit_pending
+                NOT = { has_country_flag = GW_D_baltic_transit_answered }
+                NOT = { has_country_flag = GW_D_baltic_transit_resolved }
+            }
+        }
+        ai_chance = { factor = 65  }
+        if = {
+            limit = {
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                NOT = { has_war_with = GER }
+                GER = {
+                    NOT = { has_capitulated = yes }
+                    NOT = { has_war_with = LIT }
+                    has_country_flag = GW_D_baltic_transit_pending
+                    NOT = { has_country_flag = GW_D_baltic_transit_answered }
+                    NOT = { has_country_flag = GW_D_baltic_transit_resolved }
+                }
+            }
+            GER = {
+                set_country_flag = GW_D_baltic_transit_answered
+                set_country_flag = GW_D_baltic_transit_accepted
+                country_event = { id = ww1_world_contacts.8 days = 1 }
+            }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.7.b
+        ai_chance = { factor = 35 }
+        if = {
+            limit = { GER = { has_country_flag = GW_D_baltic_transit_pending NOT = { has_country_flag = GW_D_baltic_transit_answered } NOT = { has_country_flag = GW_D_baltic_transit_resolved } } }
+            GER = {
+                set_country_flag = GW_D_baltic_transit_answered
+                set_country_flag = GW_D_baltic_transit_refused
+                country_event = { id = ww1_world_contacts.8 days = 1 }
+            }
+        }
+    }
+}
+
+country_event = {
+    id = ww1_world_contacts.8
+    title = ww1_world_contacts.8.t
+    desc = {
+        text = ww1_world_contacts.8.accepted.d
+        trigger = { has_country_flag = GW_D_baltic_transit_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = LIT
+            NOT = { has_war_with = LIT }
+            LIT = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+    }
+    desc = { text = ww1_world_contacts.8.refused.d trigger = { has_country_flag = GW_D_baltic_transit_refused } }
+    desc = {
+        text = ww1_world_contacts.8.withdrawn.d
+        trigger = { OR = { has_country_flag = GW_D_baltic_transit_withdrawn AND = { has_country_flag = GW_D_baltic_transit_accepted NOT = {
+                    has_start_date < 1936.1.1
+                    date < 1936.1.1
+                    NOT = { has_capitulated = yes }
+                    country_exists = LIT
+                    NOT = { has_war_with = LIT }
+                    LIT = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+    }
+    picture = GFX_report_event_swedish_negotiations
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_baltic_transit_pending
+        has_country_flag = GW_D_baltic_transit_answered
+        NOT = { has_country_flag = GW_D_baltic_transit_resolved }
+    }
+    option = {
+        name = ww1_world_contacts.8.a
+        trigger = { has_country_flag = GW_D_baltic_transit_accepted
+            has_start_date < 1936.1.1
+            date < 1936.1.1
+            NOT = { has_capitulated = yes }
+            country_exists = LIT
+            NOT = { has_war_with = LIT }
+            LIT = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        }
+        if = {
+            limit = {
+                has_country_flag = GW_D_baltic_transit_pending
+                has_country_flag = GW_D_baltic_transit_accepted
+                NOT = { has_country_flag = GW_D_baltic_transit_resolved }
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = LIT
+                NOT = { has_war_with = LIT }
+                LIT = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+            }
+            set_country_flag = GW_D_baltic_transit_resolved
+            set_country_flag = GW_D_baltic_transit_agreed
+            clr_country_flag = GW_D_baltic_transit_pending
+            LIT = {
+                diplomatic_relation = { country = GER relation = military_access active = yes }
+                add_opinion_modifier = { target = GER modifier = long_term_trade_partner }
+            }
+            add_tech_bonus = { name = GW_D_baltic_transit_research bonus = 0.25 uses = 1 category = logistics_tech }
+            add_opinion_modifier = { target = LIT modifier = long_term_trade_partner }
+        }
+    }
+    option = {
+        name = ww1_world_contacts.8.b
+        trigger = { has_country_flag = GW_D_baltic_transit_refused }
+        if = {
+            limit = { has_country_flag = GW_D_baltic_transit_pending NOT = { has_country_flag = GW_D_baltic_transit_resolved } }
+            set_country_flag = GW_D_baltic_transit_resolved
+            clr_country_flag = GW_D_baltic_transit_pending
+        }
+    }
+    option = {
+        name = ww1_world_contacts.8.c
+        trigger = { OR = { has_country_flag = GW_D_baltic_transit_withdrawn AND = { has_country_flag = GW_D_baltic_transit_accepted NOT = {
+                has_start_date < 1936.1.1
+                date < 1936.1.1
+                NOT = { has_capitulated = yes }
+                country_exists = LIT
+                NOT = { has_war_with = LIT }
+                LIT = { NOT = { has_capitulated = yes } NOT = { has_war_with = GER } }
+        } } } }
+        if = {
+            limit = { has_country_flag = GW_D_baltic_transit_pending NOT = { has_country_flag = GW_D_baltic_transit_resolved } }
+            set_country_flag = GW_D_baltic_transit_resolved
+            set_country_flag = GW_D_baltic_transit_withdrawn
+            clr_country_flag = GW_D_baltic_transit_pending
+        }
+    }
+}
+
+# A single expiry callback bounds an unanswered or lost offer without polling.
+country_event = {
+    id = ww1_world_contacts.107
+    hidden = yes
+    is_triggered_only = yes
+    trigger = {
+        tag = GER
+        has_country_flag = GW_D_baltic_transit_pending
+        NOT = { has_country_flag = GW_D_baltic_transit_answered }
+        NOT = { has_country_flag = GW_D_baltic_transit_resolved }
+    }
+    immediate = {
+        set_country_flag = GW_D_baltic_transit_answered
+        set_country_flag = GW_D_baltic_transit_withdrawn
+        country_event = { id = ww1_world_contacts.8 hours = 1 }
+    }
+}

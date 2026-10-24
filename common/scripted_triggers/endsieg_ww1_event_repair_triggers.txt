@@ -1,0 +1,42 @@
+# Country scopes for historical British intervention.
+WW1_belgian_neutrality_violated = {
+ OR = {
+  has_global_flag = WW1_belgian_neutrality_violated
+  AND = { has_start_date > 1914.8.3 has_start_date < 1936.1.1 }
+  GER = { has_war_with = BEL }
+  BEL = { any_owned_state = { is_controlled_by = GER } }
+ }
+}
+WW1_british_entente_entry_allowed = {
+ tag = ENG has_start_date < 1936.1.1 date < 1936.1.1
+ OR = {
+  WW1_belgian_neutrality_violated = yes
+  AND = { NOT = { date < 1916.1.1 } has_completed_focus = EN1_join_war }
+ }
+ NOT = { has_country_flag = EN1_R_neutral_policy }
+ NOT = { has_completed_focus = EN1_stay_neutral }
+ NOT = { has_country_flag = EN1_R_berlin_ratified }
+ NOT = { has_completed_focus = EN1_R_ratify_berlin }
+ NOT = { has_global_flag = GE1_anglo_german_alliance }
+ NOT = { has_global_flag = british_neutrality }
+ NOT = { is_in_faction_with = GER }
+
+ NOT = { has_global_flag = compiegne }
+ NOT = { has_global_flag = versailles }
+ NOT = { has_global_flag = central_powers_victory }
+}
+
+# Reactive historical intervention requires an actual German attack or occupation;
+# the date of a later bookmark by itself does not authorise intervention.
+WW1_british_historical_belgian_response = {
+ tag = ENG
+ is_ai = yes
+ is_historical_focus_on = yes
+ has_focus_tree = british_focus_ww1
+ is_subject = no
+ WW1_british_entente_entry_allowed = yes
+ OR = {
+  AND = { has_global_flag = WW1_belgian_neutrality_violated GER = { has_war_with = BEL } }
+  BEL = { any_owned_state = { is_controlled_by = GER } }
+ }
+}
