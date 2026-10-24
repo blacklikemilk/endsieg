@@ -1,0 +1,86 @@
+# All effects in this file run in GER country scope.
+GE1_D_enforce_naval_convention = {
+ if = {
+  limit = { GE1_D_naval_convention_in_force = yes }
+  # Finite native loop: each pass removes exactly one counted vessel.
+  while_loop_effect = {
+   limit = { GE1_D_naval_convention_above_limit = yes OR = { has_navy_size = { unit = early_hc size > 0 } has_navy_size = { unit = early_heavy_cruiser size > 0 } has_navy_size = { unit = early_light_cruiser size > 0 } has_navy_size = { unit = basic_destroyer size > 0 } has_navy_size = { unit = early_sub size > 0 } has_navy_size = { unit = early_bc size > 0 } has_navy_size = { unit = dreadnought size > 0 } has_navy_size = { unit = heavy_cruiser size > 0 } has_navy_size = { unit = light_cruiser size > 0 } has_navy_size = { unit = destroyer size > 0 } has_navy_size = { unit = submarine size > 0 } has_navy_size = { unit = battle_cruiser size > 0 } has_navy_size = { unit = battleship size > 0 } has_navy_size = { unit = carrier size > 0 } } }
+  if = { limit = { has_navy_size = { unit = early_hc size > 0 } } destroy_ships = { type = early_ship_hull_heavy count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = early_heavy_cruiser size > 0 } } destroy_ships = { type = early_ship_hull_cruiser count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = early_light_cruiser size > 0 } } destroy_ships = { type = early_ship_hull_cruiser count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = basic_destroyer size > 0 } } destroy_ships = { type = early_ship_hull_light count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = early_sub size > 0 } } destroy_ships = { type = early_ship_hull_submarine count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = early_bc size > 0 } } destroy_ships = { type = early_ship_hull_heavy count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = dreadnought size > 0 } } destroy_ships = { type = early_ship_hull_heavy count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = heavy_cruiser size > 0 } } destroy_ships = { type = ship_hull_cruiser count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = light_cruiser size > 0 } } destroy_ships = { type = ship_hull_cruiser count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = destroyer size > 0 } } destroy_ships = { type = ship_hull_light count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = submarine size > 0 } } destroy_ships = { type = ship_hull_submarine count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = battle_cruiser size > 0 } } destroy_ships = { type = ship_hull_heavy count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = battleship size > 0 } } destroy_ships = { type = ship_hull_heavy count = 1 } }
+  else_if = { limit = { has_navy_size = { unit = carrier size > 0 } } destroy_ships = { type = ship_hull_carrier count = 1 } }
+  }
+ }
+}
+GE1_D_activate_naval_convention = {
+ if = {
+  limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 country_exists = ENG NOT = { has_war_with = ENG } NOT = { has_country_flag = GE1_D_naval_convention_withdrawn } }
+  set_country_flag = GE1_D_naval_convention_accepted
+  set_country_flag = GE1_D_naval_convention_enforced
+  if = { limit = { NOT = { has_idea = GE1_D_naval_convention } } add_ideas = GE1_D_naval_convention }
+  GE1_D_enforce_naval_convention = yes
+ }
+}
+GE1_D_withdraw_naval_convention = {
+ if = {
+  limit = { tag = GER has_country_flag = GE1_D_naval_convention_enforced }
+  set_country_flag = GE1_D_naval_convention_withdrawn
+  clr_country_flag = GE1_D_naval_convention_enforced
+  clr_country_flag = GE1_D_naval_convention_accepted
+  clr_country_flag = GE1_D_naval_convention_offered
+  clr_global_flag = GE1_D_anglo_german_pending
+  clr_global_flag = GE1_D_anglo_german_accepted
+  clr_global_flag = GE1_D_anglo_german_refused
+  remove_ideas = GE1_D_naval_convention
+  add_stability = -0.03
+  ENG = { add_opinion_modifier = { target = GER modifier = GE1_D_naval_convention_broken } }
+  # Breaking the ratified treaty deliberately ends the Anglo-German alliance.
+  if = {
+   limit = { has_global_flag = GE1_anglo_german_alliance ENG = { is_in_faction_with = GER } }
+   every_country = { limit = { is_subject_of = ENG is_in_faction_with = GER } leave_faction = yes }
+   ENG = { leave_faction = yes clr_country_flag = GE1_anglo_german_alliance }
+   clr_global_flag = GE1_anglo_german_alliance
+   clr_country_flag = GE1_anglo_german_alliance
+   remove_ideas = GE1_D_anglo_german_compact
+  }
+ }
+}
+GE1_D_update_naval_convention = {
+ if = {
+  limit = { tag = GER }
+  # Repair only the observed old-save AI departure, once per save. A human
+  # Britain or a later incompatible commitment is never moved by this repair.
+  if = {
+   limit = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_country_flag = GE1_D_alliance_membership_reviewed } }
+   set_country_flag = GE1_D_alliance_membership_reviewed
+   if = {
+    limit = { has_global_flag = GE1_anglo_german_alliance has_country_flag = GE1_anglo_german_alliance has_country_flag = GE1_D_british_route_active is_faction_leader = yes NOT = { has_country_flag = GE1_D_naval_convention_withdrawn }
+     ENG = { exists = yes is_ai = yes is_subject = no is_in_faction = no has_country_flag = GE1_anglo_german_alliance NOT = { has_capitulated = yes } NOT = { has_war_with = GER } NOT = { has_country_flag = EN1_R_neutral_policy } NOT = { has_country_flag = EN1_R_entente_policy } NOT = { has_completed_focus = EN1_stay_neutral } NOT = { has_completed_focus = EN1_back_france } }
+    }
+    add_to_faction = ENG
+   }
+  }
+  # Existing accepted alliances receive a visible ratification choice once.
+  if = {
+   limit = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = GE1_anglo_german_alliance ENG = { is_in_faction_with = GER } has_country_flag = GE1_D_naval_convention_accepted NOT = { has_country_flag = GE1_D_naval_convention_enforced } NOT = { has_country_flag = GE1_D_naval_convention_withdrawn } NOT = { has_country_flag = GE1_D_naval_convention_save_offer } }
+   set_country_flag = GE1_D_naval_convention_save_offer
+   country_event = { id = endsieg_naval_convention.1 days = 1 }
+  }
+  if = { limit = { GE1_D_naval_convention_in_force = yes } GE1_D_enforce_naval_convention = yes }
+  else_if = {
+   limit = { has_country_flag = GE1_D_naval_convention_enforced }
+   clr_country_flag = GE1_D_naval_convention_enforced
+   if = { limit = { has_idea = GE1_D_naval_convention } remove_ideas = GE1_D_naval_convention }
+  }
+ }
+}

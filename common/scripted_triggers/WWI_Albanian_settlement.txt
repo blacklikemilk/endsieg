@@ -1,0 +1,46 @@
+WW1_SER_frontier_countries_valid = {
+ tag = SER has_start_date < 1914.1.1 date < 1936.1.1
+ is_subject = no has_war = no NOT = { has_capitulated = yes }
+ NOT = { is_in_faction_with = ALB }
+ OR = {
+  AND = { date < 1914.1.1 ALB = { exists = yes is_subject = no NOT = { has_capitulated = yes } owns_state = 44 } }
+  AND = {
+   has_country_flag = WW1_SER_albanian_legacy_coast
+   OR = { owns_state = 44 owns_state = 934 }
+   ALB = { OR = { exists = no AND = { exists = yes is_subject = no NOT = { has_capitulated = yes } } } }
+  }
+ }
+}
+WW1_SER_frontier_crisis_active = {
+ WW1_SER_frontier_countries_valid = yes
+ has_country_flag = WW1_SER_albanian_frontier_v2
+ has_country_flag = WW1_SER_albanian_border_operations
+ NOT = { has_country_flag = WW1_SER_albanian_question_resolved }
+}
+WW1_SER_can_withdraw_from_albania = {
+ WW1_SER_frontier_crisis_active = yes
+ if = { limit = { has_country_flag = WW1_SER_albanian_legacy_coast } if = { limit = { owns_state = 44 } controls_state = 44 } if = { limit = { owns_state = 934 } controls_state = 934 } }
+}
+# Retained helper ID: no normal frontier branch depends on owning Albanian land.
+WW1_SER_albanian_question_valid = { WW1_SER_frontier_crisis_active = yes }
+WW1_AUH_can_manage_albanian_frontier = {
+ tag = AUH has_start_date < 1914.1.1 date < 1914.1.1
+ exists = yes is_subject = no NOT = { has_capitulated = yes }
+ NOT = { has_war_with = SER } NOT = { has_war_with = ALB }
+ SER = { WW1_SER_frontier_crisis_active = yes }
+}
+WW1_AUH_can_issue_albanian_ultimatum = {
+ WW1_AUH_can_manage_albanian_frontier = yes has_war = no
+ NOT = { is_in_faction_with = SER }
+ SER = { NOT = { has_country_flag = WW1_SER_albanian_withdrawal } NOT = { has_country_flag = WW1_SER_albanian_ultimatum_issued_v2 } }
+}
+WW1_AUH_can_enforce_albanian_ultimatum = {
+ WW1_AUH_can_manage_albanian_frontier = yes has_war = no
+ NOT = { is_in_faction_with = SER }
+ NOT = { has_non_aggression_pact_with = SER }
+ NOT = { has_guaranteed = SER }
+ NOT = { has_idea = neutrality_idea }
+ NOT = { has_country_flag = AUH_ww1_july_mediation }
+ NOT = { has_completed_focus = shared_GEN_neutrality_focus }
+ SER = { has_country_flag = WW1_SER_albanian_ultimatum_issued_v2 has_country_flag = WW1_SER_albanian_ultimatum_failed_v2 NOT = { has_country_flag = WW1_SER_albanian_withdrawal } }
+}

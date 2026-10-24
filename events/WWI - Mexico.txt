@@ -116,44 +116,18 @@ country_event = {
 
 	is_triggered_only = yes
 
-	immediate = {
-		hidden_effect = { country_event = { id = ww1_mexico.8 days = 45 } }
-	}
+	# Reinforcement scheduling is guarded together with the initial deployment.
 
 	option = {
 		name = ww1_mexico.6.a
-		news_event = { hours = 6 id = endsieg_news.202 }
-		set_global_flag = maderista_revolution
-		# The USA's Monroe Doctrine guarantee must not turn this domestic war into a US war.
-		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
-		MAD = {
-			transfer_state = 482
-			declare_war_on = { target = MEX type = civil_war }
-		}
-		MAD = {
-			load_oob = Maderistas_1911
-		}
-		MAD = {
-			add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 15000 producer = USA }
-		}
-
+		MEX = { endsieg_ww1_start_maderista_revolution = yes }
 	}
 	option = {
 		name = ww1_mexico.6.b
-		news_event = { hours = 6 id = endsieg_news.202 }
-		set_global_flag = maderista_revolution
-		# The USA's Monroe Doctrine guarantee must not turn this domestic war into a US war.
-		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
-		MAD = {
-			transfer_state = 482
-			declare_war_on = { target = MEX type = civil_war }
-			change_tag_from = MEX
-		}
-		MAD = {
-			load_oob = Maderistas_1911
-		}
-		MAD = {
-			add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 15000 producer = USA }
+		MEX = { endsieg_ww1_start_maderista_revolution = yes }
+		if = {
+			limit = { MEX = { is_ai = no } country_exists = MDS }
+			MDS = { change_tag_from = MEX }
 		}
 	}
 }
@@ -172,8 +146,13 @@ country_event = {
 		NOT = { date > 1932.12.1 }
 		NOT = { has_global_flag = maderista_victory }
 		tag = MEX
+		has_global_flag = maderista_revolution
 		surrender_progress > 0.10
 		has_global_flag = welcome_event_1910
+		OR = {
+			MDS = { has_war_with = MEX }
+			MAD = { has_war_with = MEX owns_state = 482 }
+		}
 	}
 
 	mean_time_to_happen = {
@@ -185,25 +164,14 @@ country_event = {
 		news_event = { hours = 6 id = endsieg_news.203 }
 		set_global_flag = maderista_victory
 		MEX = {
-			annex_country = { target = MAD transfer_troops = no }
-			change_tag_from = MAD
+			endsieg_ww1_absorb_maderistas = yes
 			country_event = { id = ww1_mexico.9 days = 15 }
-		}
-		MEX = {
 			remove_ideas = unpopular_dictatorship_1
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = yes        }
-
-            set_popularities = {
-                fascism = 0
-                neutrality = 5
-                democratic = 80
-                communism = 15
-			}
 			retire_country_leader = yes
 			endsieg_character_activate_mex_francisco_madero_37c9ca5c = yes
-			promote_character = MEX_francisco_madero
+			set_politics = { ruling_party = democratic elections_allowed = yes }
+			set_popularities = { fascism = 0 neutrality = 5 democratic = 80 communism = 15 }
+			promote_character = { character = MEX_francisco_madero ideology = liberalism }
 		}
 	}
 }
@@ -219,9 +187,14 @@ country_event = {
 
 	option = {
 		name = ww1_mexico.8.a
-		MAD = {
-			transfer_state = 485
-			load_oob = Zapatistas_1911
+		# A queued reinforcement must never resurrect the defeated rebels.
+		if = {
+			limit = { NOT = { has_global_flag = maderista_victory } MDS = { has_war_with = MEX } }
+			MDS = { transfer_state = 485 load_oob = Zapatistas_1911 }
+		}
+		else_if = {
+			limit = { NOT = { has_global_flag = maderista_victory } MAD = { has_war_with = MEX owns_state = 482 } }
+			MAD = { transfer_state = 485 load_oob = Zapatistas_1911 }
 		}
 	}
 }
@@ -332,34 +305,27 @@ country_event = {
 
 	option = {
 		name = ww1_mexico.14.a
-		news_event = { hours = 6 id = endsieg_news.204 }
-		set_global_flag = huerta_takes_power
-		MEX = {
-			add_political_power = -150
-			add_stability = -0.05
-			add_war_support = -0.1
-			country_event = { id = ww1_mexico.17 days = 1 }
-			country_event = { id = ww1_mexico.18 days = 44 }
-			country_event = { id = ww1_mexico.19 days = 45 }
-		}
-		MEX = {
-			add_ideas = unpopular_dictatorship_2
-			set_politics = {
-				ruling_party = neutrality
-				elections_allowed = yes        }
-
-            set_popularities = {
-                fascism = 0
-                neutrality = 55
-                democratic = 40
-                communism = 5
-            }
-			kill_country_leader = yes
-			if = {
-				limit = { NOT = { endsieg_character_active_mex_victoriano_huerta_ff0e42d0 = yes } }
-				endsieg_character_activate_mex_victoriano_huerta_ff0e42d0 = yes
+		if = {
+			limit = { NOT = { has_global_flag = huerta_takes_power } NOT = { has_global_flag = fall_of_huerta } }
+			news_event = { hours = 6 id = endsieg_news.204 }
+			set_global_flag = huerta_takes_power
+			MEX = {
+				add_political_power = -150
+				add_stability = -0.05
+				add_war_support = -0.1
+				country_event = { id = ww1_mexico.17 days = 1 }
+				country_event = { id = ww1_mexico.18 days = 44 }
+				country_event = { id = ww1_mexico.19 days = 45 }
+				add_ideas = unpopular_dictatorship_2
+				set_politics = { ruling_party = neutrality elections_allowed = no }
+				set_popularities = { fascism = 0 neutrality = 55 democratic = 40 communism = 5 }
+				kill_country_leader = yes
+				if = {
+					limit = { NOT = { endsieg_character_active_mex_victoriano_huerta_ff0e42d0 = yes } }
+					endsieg_character_activate_mex_victoriano_huerta_ff0e42d0 = yes
+				}
+				promote_character = { character = MEX_victoriano_huerta ideology = despotism }
 			}
-			promote_character = MEX_victoriano_huerta
 		}
 	}
 }
@@ -400,13 +366,7 @@ country_event = {
 
 	option = {
 		name = ww1_mexico.16.a
-		# The USA's Monroe Doctrine guarantee must not turn this domestic war into a US war.
-		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
-		ZAP = {
-			transfer_state = 485
-			declare_war_on = { target = MEX type = civil_war }
-			load_oob = Zapatistas_1911
-		}
+		MEX = { endsieg_ww1_start_zapatista_revolt = yes }
 	}
 }
 
@@ -421,24 +381,7 @@ country_event = {
 
 	option = {
 		name = ww1_mexico.17.a
-		news_event = { hours = 6 id = endsieg_news.205 }
-		set_global_flag = anti_huerta_revolution
-		# The USA's Monroe Doctrine guarantee must not turn this domestic war into a US war.
-		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
-		CNT = {
-			transfer_state = 483
-			transfer_state = 479
-			transfer_state = 480
-			transfer_state = 484
-			transfer_state = 1041
-			declare_war_on = { target = MEX type = civil_war }
-			load_oob = Constitutionalistas_1913
-		}
-		CNT = {
-			create_faction = ANTI_HUERTA_FORCES
-			add_to_faction = ZAP
-			add_to_faction = VIL
-		}
+		MEX = { endsieg_ww1_start_constitutionalist_revolt = yes }
 	}
 }
 
@@ -453,14 +396,7 @@ country_event = {
 
 	option = {
 		name = ww1_mexico.18.a
-		# The USA's Monroe Doctrine guarantee must not turn this domestic war into a US war.
-		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
-		VIL = {
-			transfer_state = 481
-			transfer_state = 482
-			declare_war_on = { target = MEX type = civil_war }
-			load_oob = Villistas_1913
-		}
+		MEX = { endsieg_ww1_start_villista_revolt = yes }
 	}
 }
 
@@ -475,13 +411,7 @@ country_event = {
 
 	option = {
 		name = ww1_mexico.19.a
-		# The USA's Monroe Doctrine guarantee must not turn this domestic war into a US war.
-		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
-		ZAP = {
-			transfer_state = 485
-			declare_war_on = { target = MEX type = civil_war }
-			load_oob = Zapatistas_1913
-		}
+		MEX = { endsieg_ww1_start_zapatista_revolt_1913 = yes }
 	}
 }
 
@@ -501,13 +431,18 @@ country_event = {
 		tag = MEX
 		date > 1914.1.1
 		NOT = { has_global_flag = fall_of_huerta }
-		has_country_leader = { ruling_only = yes character = MEX_victoriano_huerta }
 		OR = {
-			MAD = { controls_state = 277 }
+			has_country_leader = { ruling_only = yes character = MEX_victoriano_huerta }
+			# Older saves may have run the imported 1940 election during the revolution.
+			AND = { has_global_flag = huerta_takes_power has_global_flag = anti_huerta_revolution }
+		}
+		OR = {
+			MDS = { controls_state = 277 }
+			MAD = { has_war_with = MEX owns_state = 482 controls_state = 277 }
 			ZAP = { controls_state = 277 }
 			CNT = { controls_state = 277 }
 			VIL = { controls_state = 277 }
-			# Historical fallback if the rebels have not reached Mexico City.
+			# Huerta resigned on 15 July 1914 even if the AI fronts are still static.
 			date > 1914.7.14
 		}
 	}
@@ -520,47 +455,40 @@ country_event = {
 		name = ww1_mexico.20.a
 		news_event = { hours = 6 id = endsieg_news.206 }
 		set_global_flag = fall_of_huerta
-		if = {
-			limit = { country_exists = ZAP }
-			remove_from_faction = ZAP
-			MEX = {
-				annex_country = { target = ZAP transfer_troops = no }
-				change_tag_from = ZAP
-			}
-		}
-		if = {
-			limit = { country_exists = CNT }
-			remove_from_faction = CNT
-			MEX = {
-				annex_country = { target = CNT transfer_troops = no }
-				change_tag_from = CNT
-			}
-		}
-		if = {
-			limit = { country_exists = VIL }
-			remove_from_faction = VIL
-			MEX = {
-				annex_country = { target = VIL transfer_troops = no }
-				change_tag_from = VIL
-			}
-		}
 		MEX = {
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = yes        }
-
-            set_popularities = {
-                fascism = 0
-                neutrality = 20
-                democratic = 70
-                communism = 10
-            }
+			endsieg_ww1_absorb_revolutionaries = yes
+			remove_ideas = unpopular_dictatorship_1
+			remove_ideas = unpopular_dictatorship_2
 			retire_country_leader = yes
+			endsieg_character_retire_mex_victoriano_huerta_ff0e42d0 = yes
 			if = {
 				limit = { NOT = { endsieg_character_active_mex_venustiano_carranza_89bf253f = yes } }
 				endsieg_character_activate_mex_venustiano_carranza_89bf253f = yes
 			}
-			promote_character = MEX_venustiano_carranza
+			set_politics = { ruling_party = democratic elections_allowed = yes }
+			set_popularities = { fascism = 0 neutrality = 20 democratic = 70 communism = 10 }
+			promote_character = { character = MEX_venustiano_carranza ideology = conservatism }
 		}
+	}
+}
+
+# Repair existing WW1 saves as well as history-loaded rebel tags. No repeated OOB load.
+country_event = {
+	id = ww1_mexico.21
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = MEX
+		has_global_flag = welcome_event_WW1_active
+		date < 1936.1.1
+		NOT = { has_global_flag = fall_of_huerta }
+		OR = { ZAP = { has_war_with = MEX } CNT = { has_war_with = MEX } VIL = { has_war_with = MEX } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { ZAP = { has_war_with = MEX } } ZAP = { endsieg_ww1_restore_zapata = yes } }
+		if = { limit = { CNT = { has_war_with = MEX } } CNT = { endsieg_ww1_restore_carranza = yes } }
+		if = { limit = { VIL = { has_war_with = MEX } } VIL = { endsieg_ww1_restore_villa = yes } }
+		endsieg_ww1_anti_huerta_coalition = yes
 	}
 }

@@ -1,0 +1,119 @@
+# The autumn frontier incursion is represented by operations and diplomatic
+# commitments, not by annexing whole Albanian states to Serbia.
+WW1_SER_begin_frontier_operations = {
+ if = {
+  limit = { WW1_SER_frontier_countries_valid = yes date < 1914.1.1 NOT = { has_country_flag = WW1_SER_albanian_frontier_v2 } }
+  set_country_flag = WW1_SER_albanian_frontier_v2
+  set_country_flag = WW1_SER_albanian_border_operations
+  set_country_flag = WW1_SER_albanian_question_open
+  add_ideas = ww1_serbian_frontier_operations
+  ALB = { country_event = { id = ww1_serbia.11 hours = 6 } }
+ }
+}
+WW1_AUH_issue_albanian_ultimatum = {
+ if = {
+  limit = { WW1_AUH_can_issue_albanian_ultimatum = yes }
+  SER = {
+   set_country_flag = WW1_SER_albanian_ultimatum_issued_v2
+   set_country_flag = WW1_SER_albanian_ultimatum
+   activate_mission = ww1_serbian_albanian_ultimatum
+   country_event = { id = ww1_serbia.12 hours = 1 }
+  }
+  if = { limit = { ITA = { exists = yes is_subject = no NOT = { has_war_with = AUH } } } ITA = { country_event = { id = ww1_serbia.8 hours = 2 } } }
+ }
+}
+WW1_SER_start_albanian_withdrawal = {
+ if = {
+  limit = { WW1_SER_can_withdraw_from_albania = yes NOT = { has_country_flag = WW1_SER_albanian_withdrawal } }
+  set_country_flag = WW1_SER_albanian_withdrawal
+  activate_mission = ww1_serbian_albanian_withdrawal
+ }
+}
+WW1_SER_ultimatum_expired = {
+ if = {
+  limit = { WW1_SER_frontier_crisis_active = yes has_country_flag = WW1_SER_albanian_ultimatum_issued_v2 has_country_flag = WW1_SER_albanian_ultimatum }
+  clr_country_flag = WW1_SER_albanian_ultimatum
+  set_country_flag = WW1_SER_albanian_ultimatum_failed_v2
+  if = { limit = { AUH = { WW1_AUH_can_manage_albanian_frontier = yes } } AUH = { country_event = { id = ww1_serbia.13 hours = 1 } } }
+ }
+}
+WW1_SER_finish_albanian_withdrawal = {
+ if = {
+  limit = { WW1_SER_can_withdraw_from_albania = yes has_country_flag = WW1_SER_albanian_withdrawal }
+  # Explicit withdrawal may restore coastal land held by the superseded chain
+  # in an older save. Fresh campaigns never receive such Serbian ownership.
+  if = {
+   limit = { has_country_flag = WW1_SER_albanian_legacy_coast }
+   if = { limit = { owns_state = 44 } ALB = { transfer_state = 44 } }
+   if = { limit = { owns_state = 934 } ALB = { transfer_state = 934 } }
+  }
+  set_country_flag = WW1_SER_albanian_question_resolved
+  WW1_SER_cancel_albanian_withdrawal = yes
+  WW1_SER_clear_albanian_intervention_goals = yes
+  add_stability = 0.01
+  if = { limit = { AUH = { exists = yes } } AUH = { remove_opinion_modifier = { target = SER modifier = ww1_albanian_coastal_dispute } remove_opinion_modifier = { target = SER modifier = ww1_albanian_ultimatum_rejected } add_opinion_modifier = { target = SER modifier = ww1_albanian_agreement_honoured } } }
+  ALB = {
+   add_opinion_modifier = { target = SER modifier = ww1_albanian_agreement_honoured }
+   if = { limit = { NOT = { has_country_flag = WW1_SER_albanian_frontier_recognized } } set_country_flag = WW1_SER_albanian_frontier_recognized add_stability = 0.03 country_event = { id = ww1_serbia.11 hours = 6 } }
+  }
+  country_event = { id = ww1_serbia.6 hours = 6 }
+  if = { limit = { NOT = { has_country_flag = WW1_SER_albanian_settlement_news } } set_country_flag = WW1_SER_albanian_settlement_news news_event = { id = ww1_serbia.16 hours = 6 } }
+ }
+}
+WW1_SER_cancel_albanian_withdrawal = {
+ remove_mission = ww1_serbian_albanian_withdrawal
+ remove_mission = ww1_serbian_albanian_ultimatum
+ remove_decision = ww1_serbian_reconsider_albania
+ remove_ideas = ww1_serbian_frontier_operations
+ clr_country_flag = WW1_SER_albanian_withdrawal
+ clr_country_flag = WW1_SER_albanian_border_operations
+ clr_country_flag = WW1_SER_albanian_question_open
+ clr_country_flag = WW1_SER_albanian_coast_retained
+ clr_country_flag = WW1_SER_albanian_ultimatum
+ clr_country_flag = WW1_SER_albanian_ultimatum_failed_v2
+}
+WW1_AUH_abandon_albanian_demand = {
+ if = {
+  limit = { WW1_AUH_can_manage_albanian_frontier = yes }
+  add_stability = -0.02
+  SER = {
+   remove_mission = ww1_serbian_albanian_ultimatum
+   clr_country_flag = WW1_SER_albanian_ultimatum
+   clr_country_flag = WW1_SER_albanian_ultimatum_failed_v2
+   set_country_flag = WW1_SER_albanian_coast_retained
+   if = { limit = { NOT = { has_country_flag = WW1_SER_albanian_backdown_rewarded } } set_country_flag = WW1_SER_albanian_backdown_rewarded add_war_support = 0.02 }
+   country_event = { id = ww1_serbia.9 hours = 6 }
+  }
+ }
+}
+WW1_AUH_enforce_albanian_ultimatum = {
+ if = {
+  limit = { WW1_AUH_can_enforce_albanian_ultimatum = yes }
+  set_country_flag = WW1_AUH_albanian_intervention_v2
+  create_wargoal = { type = ww1_albanian_frontier_wargoal target = SER expire = 90 }
+  declare_war_on = { target = SER type = ww1_albanian_frontier_wargoal }
+  SER = { set_country_flag = WW1_SER_albanian_question_resolved WW1_SER_cancel_albanian_withdrawal = yes }
+  news_event = { id = ww1_serbia.17 hours = 6 }
+ }
+}
+WW1_SER_clear_albanian_intervention_goals = {
+ # The dedicated goal belongs only to this chain. Never remove generic goals.
+ if = { limit = { has_country_flag = WW1_SER_albanian_legacy_coast AUH = { exists = yes NOT = { has_war_with = SER } } } AUH = { remove_wargoal = { type = ww1_albanian_frontier_wargoal target = SER } } }
+ if = { limit = { has_country_flag = WW1_SER_albanian_legacy_coast ITA = { exists = yes NOT = { has_war_with = SER } } } ITA = { remove_wargoal = { type = ww1_albanian_frontier_wargoal target = SER } } }
+}
+# Compatibility aliases for old queued callbacks. They cannot recreate the old
+# post-London annexation or an Italian-led version of the Austrian ultimatum.
+WW1_SER_consult_adriatic_powers = { if = { limit = { WW1_SER_frontier_crisis_active = yes date > 1913.10.17 } country_event = { id = ww1_serbia.10 hours = 1 } } }
+WW1_SER_refuse_albanian_withdrawal = { if = { limit = { WW1_SER_frontier_crisis_active = yes has_country_flag = WW1_SER_albanian_ultimatum_issued_v2 } set_country_flag = WW1_SER_albanian_ultimatum_rejected_v2 } }
+WW1_SER_retain_albanian_coast = { if = { limit = { WW1_SER_frontier_crisis_active = yes } set_country_flag = WW1_SER_albanian_coast_retained } }
+WW1_SER_prepare_albanian_intervention = { if = { limit = { tag = AUH WW1_AUH_can_enforce_albanian_ultimatum = yes } country_event = { id = ww1_serbia.13 hours = 1 } } }
+WW1_SER_migrate_albanian_frontier = {
+ if = {
+  limit = { tag = SER has_start_date < 1914.1.1 date < 1936.1.1 NOT = { has_country_flag = WW1_SER_albanian_frontier_v2 } OR = { has_country_flag = WW1_SER_albanian_question_open has_country_flag = WW1_SER_albanian_withdrawal has_country_flag = WW1_SER_albanian_coast_retained has_country_flag = WW1_SER_albanian_ultimatum } }
+  if = { limit = { OR = { owns_state = 44 owns_state = 934 } } set_country_flag = WW1_SER_albanian_legacy_coast }
+  WW1_SER_cancel_albanian_withdrawal = yes
+  set_country_flag = WW1_SER_albanian_frontier_v2
+  if = { limit = { has_country_flag = WW1_SER_albanian_legacy_coast WW1_SER_frontier_countries_valid = yes } set_country_flag = WW1_SER_albanian_border_operations set_country_flag = WW1_SER_albanian_coast_retained add_ideas = ww1_serbian_frontier_operations }
+  else = { set_country_flag = WW1_SER_albanian_question_resolved }
+ }
+}

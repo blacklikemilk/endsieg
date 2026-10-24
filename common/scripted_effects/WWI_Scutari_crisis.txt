@@ -1,0 +1,207 @@
+# SER scope, before the Treaty of London makes peace and resets controllers.
+WW1_SCUTARI_record_london_control = {
+ # A treaty that was already signed belongs to a bookmark or an old save.
+ # Its later territorial history must not be replayed as a fresh settlement.
+ if = { limit = { WW1_SCUTARI_era = yes has_global_flag = treaty_of_london_1913 } set_global_flag = WW1_SCUTARI_london_frontier_applied }
+ MNT = {
+  clr_country_flag = WW1_SCUTARI_london_held_snapshot
+  if = {
+   limit = { WW1_SCUTARI_era = yes NOT = { has_global_flag = WW1_SCUTARI_london_frontier_applied } 934 = { WW1_SCUTARI_london_state_local = yes } OR = { owns_state = 934 controls_state = 934 } NOT = { has_country_flag = WW1_SCUTARI_withdrawn } OR = { has_country_flag = WW1_SCUTARI_open has_country_flag = WW1_SCUTARI_retained NOT = { has_country_flag = WW1_SCUTARI_started } } }
+   set_country_flag = WW1_SCUTARI_london_held_snapshot
+  }
+ }
+}
+
+# SER scope, after the other London territorial transfers. Never gives934 toSER.
+WW1_SCUTARI_apply_london_frontier = {
+ if = {
+  limit = { WW1_SCUTARI_era = yes country_exists = ALB NOT = { has_global_flag = WW1_SCUTARI_london_frontier_applied } }
+  set_global_flag = WW1_SCUTARI_london_frontier_applied
+  if = {
+   limit = { 934 = { WW1_SCUTARI_london_state_local = yes } NOT = { MNT = { has_country_flag = WW1_SCUTARI_withdrawn OR = { owns_state = 934 controls_state = 934 } } } }
+   if = {
+    limit = { ALB = { is_subject = no NOT = { has_capitulated = yes } } MNT = { exists = yes has_country_flag = WW1_SCUTARI_london_held_snapshot NOT = { has_country_flag = WW1_SCUTARI_withdrawn } is_subject = no NOT = { has_capitulated = yes } OR = { has_country_flag = WW1_SCUTARI_open has_country_flag = WW1_SCUTARI_retained NOT = { has_country_flag = WW1_SCUTARI_started } } } }
+    MNT = {
+     if = { limit = { NOT = { owns_state = 934 } } transfer_state = 934 }
+     add_state_claim = 934
+     WW1_SCUTARI_open_crisis = yes
+     if = { limit = { has_country_flag = WW1_SCUTARI_pending_enforcement } WW1_SCUTARI_request_final_note = yes }
+    }
+   }
+   else = { ALB = { if = { limit = { NOT = { owns_state = 934 } } transfer_state = 934 } } }
+  }
+ }
+ MNT = { clr_country_flag = WW1_SCUTARI_london_held_snapshot }
+}
+
+WW1_SCUTARI_open_crisis = {
+ if = {
+  limit = { WW1_SCUTARI_can_open = yes }
+  set_country_flag = WW1_SCUTARI_started
+  set_country_flag = WW1_SCUTARI_open
+  add_state_claim = 934
+  country_event = { id = ww1_scutari.1 hours = 6 }
+ }
+}
+
+WW1_SCUTARI_defy_the_powers = {
+ if = {
+  limit = { WW1_SCUTARI_montenegrin_position = yes has_country_flag = WW1_SCUTARI_open NOT = { has_country_flag = WW1_SCUTARI_defied } NOT = { has_country_flag = WW1_SCUTARI_withdrawing } NOT = { has_country_flag = WW1_SCUTARI_withdrawn } }
+  set_country_flag = WW1_SCUTARI_defied
+  add_war_support = 0.02
+  if = { limit = { AUH = { WW1_SCUTARI_coordinator_available = yes } } AUH = { country_event = { id = ww1_scutari.2 days = 1 } } }
+  else = { WW1_SCUTARI_accept_fait_accompli = yes }
+ }
+}
+
+WW1_SCUTARI_impose_blockade = {
+ if = {
+  limit = { WW1_SCUTARI_coordinator_available = yes MNT = { NOT = { has_country_flag = WW1_SCUTARI_withdrawing } NOT = { has_country_flag = WW1_SCUTARI_blockade } NOT = { has_country_flag = WW1_SCUTARI_response_sent } } }
+  set_country_flag = WW1_SCUTARI_committed
+  MNT = {
+   set_country_flag = WW1_SCUTARI_blockade
+   add_ideas = WW1_SCUTARI_international_blockade
+   activate_mission = WW1_SCUTARI_blockade_review
+  }
+  if = { limit = { ENG = { WW1_SCUTARI_supporter_available = yes } } ENG = { country_event = { id = ww1_scutari.4 days = 1 } } }
+  if = { limit = { ITA = { WW1_SCUTARI_supporter_available = yes } } ITA = { country_event = { id = ww1_scutari.4 days = 1 } } }
+ }
+}
+
+WW1_SCUTARI_request_response = {
+ if = {
+  limit = { WW1_SCUTARI_montenegrin_position = yes has_country_flag = WW1_SCUTARI_open NOT = { has_country_flag = WW1_SCUTARI_withdrawing } NOT = { has_country_flag = WW1_SCUTARI_response_sent } }
+  set_country_flag = WW1_SCUTARI_response_sent
+  country_event = { id = ww1_scutari.3 hours = 6 }
+ }
+}
+
+WW1_SCUTARI_review_blockade = {
+ if = {
+  limit = { NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+  WW1_SCUTARI_lift_blockade = yes
+  if = { limit = { AUH = { WW1_SCUTARI_coordinator_available = yes } } WW1_SCUTARI_request_response = yes }
+  else = { WW1_SCUTARI_accept_fait_accompli = yes }
+ }
+}
+
+WW1_SCUTARI_start_handover = {
+ if = {
+  limit = { WW1_SCUTARI_can_handover = yes NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+  set_country_flag = WW1_SCUTARI_withdrawing
+  set_country_flag = WW1_SCUTARI_open
+  clr_country_flag = WW1_SCUTARI_retained
+  clr_country_flag = WW1_SCUTARI_pending_enforcement
+  WW1_SCUTARI_clear_intervention_goal = yes
+  remove_mission = WW1_SCUTARI_blockade_review
+  activate_mission = WW1_SCUTARI_handover
+ }
+}
+
+WW1_SCUTARI_finish_handover = {
+ if = {
+  limit = { WW1_SCUTARI_can_handover = yes has_country_flag = WW1_SCUTARI_withdrawing }
+  WW1_SCUTARI_restore_albanian_administration = yes
+  set_country_flag = WW1_SCUTARI_withdrawn
+  add_stability = -0.02
+  WW1_SCUTARI_close_crisis = yes
+  if = { limit = { NOT = { has_global_flag = WW1_SCUTARI_handover_news } } set_global_flag = WW1_SCUTARI_handover_news news_event = { id = ww1_scutari.10 hours = 6 } }
+ }
+}
+
+# Before London the legal Ottoman title is preserved; only the occupation ends.
+WW1_SCUTARI_restore_albanian_administration = {
+ if = {
+  limit = { country_exists = ALB ALB = { is_subject = no NOT = { has_capitulated = yes } } NOT = { has_war_with = AUH } 934 = { OR = { is_owned_by = TUR is_owned_by = MNT is_owned_by = ALB } OR = { is_controlled_by = MNT is_controlled_by = AUH is_controlled_by = ALB } } }
+  if = { limit = { OR = { has_global_flag = treaty_of_london_1913 owns_state = 934 } } ALB = { transfer_state = 934 } }
+  else_if = { limit = { 934 = { is_owned_by = TUR } } ALB = { set_state_controller = 934 } }
+  else_if = { limit = { 934 = { is_owned_by = ALB } } ALB = { set_state_controller = 934 } }
+  934 = { remove_claim_by = MNT }
+ }
+}
+
+WW1_SCUTARI_refuse_withdrawal = {
+ if = {
+  limit = { WW1_SCUTARI_montenegrin_position = yes has_country_flag = WW1_SCUTARI_open NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+  WW1_SCUTARI_lift_blockade = yes
+  if = { limit = { AUH = { WW1_SCUTARI_coordinator_available = yes } } WW1_SCUTARI_request_final_note = yes }
+  else = { WW1_SCUTARI_accept_fait_accompli = yes }
+ }
+}
+
+WW1_SCUTARI_request_final_note = {
+ if = {
+  limit = { has_country_flag = WW1_SCUTARI_open NOT = { has_country_flag = WW1_SCUTARI_withdrawing } NOT = { has_country_flag = WW1_SCUTARI_final_note_sent } AUH = { WW1_SCUTARI_coordinator_available = yes } }
+  set_country_flag = WW1_SCUTARI_final_note_sent
+  AUH = { country_event = { id = ww1_scutari.5 days = 1 } }
+ }
+}
+
+WW1_SCUTARI_prepare_intervention_goal = {
+ if = {
+  limit = { WW1_SCUTARI_can_prepare_intervention = yes NOT = { has_wargoal_against = { target = MNT type = ww1_scutari_intervention_wargoal } } }
+  create_wargoal = { type = ww1_scutari_intervention_wargoal target = MNT generator = { 934 } expire = 90 }
+ }
+}
+
+WW1_SCUTARI_accept_fait_accompli = {
+ if = {
+  limit = { tag = MNT OR = { owns_state = 934 controls_state = 934 } NOT = { has_country_flag = WW1_SCUTARI_withdrawn } NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+  set_country_flag = WW1_SCUTARI_retained
+  add_state_claim = 934
+  WW1_SCUTARI_close_crisis = yes
+  if = { limit = { NOT = { has_global_flag = WW1_SCUTARI_retention_news } } set_global_flag = WW1_SCUTARI_retention_news news_event = { id = ww1_scutari.11 hours = 6 } }
+ }
+}
+
+WW1_SCUTARI_lift_blockade = {
+ clr_country_flag = WW1_SCUTARI_blockade
+ if = { limit = { has_idea = WW1_SCUTARI_international_blockade } remove_ideas = WW1_SCUTARI_international_blockade }
+}
+
+WW1_SCUTARI_clear_intervention_goal = {
+ AUH = { remove_wargoal = { type = ww1_scutari_intervention_wargoal target = MNT } }
+}
+
+WW1_SCUTARI_close_crisis = {
+ clr_country_flag = WW1_SCUTARI_open
+ clr_country_flag = WW1_SCUTARI_withdrawing
+ clr_country_flag = WW1_SCUTARI_pending_enforcement
+ clr_country_flag = WW1_SCUTARI_london_held_snapshot
+ WW1_SCUTARI_lift_blockade = yes
+ WW1_SCUTARI_clear_intervention_goal = yes
+ remove_mission = WW1_SCUTARI_blockade_review
+ remove_mission = WW1_SCUTARI_handover
+ AUH = { clr_country_flag = WW1_SCUTARI_committed }
+}
+
+WW1_SCUTARI_daily_update = {
+ if = {
+  limit = { tag = MNT }
+  if = { limit = { WW1_SCUTARI_autonomous_start = yes } WW1_SCUTARI_open_crisis = yes }
+  if = {
+   limit = { has_country_flag = WW1_SCUTARI_open has_country_flag = WW1_SCUTARI_defied has_country_flag = WW1_SCUTARI_blockade NOT = { has_country_flag = WW1_SCUTARI_withdrawing } is_ai = yes is_historical_focus_on = yes NOT = { date < 1913.5.5 } }
+   WW1_SCUTARI_request_response = yes
+  }
+  if = { limit = { has_country_flag = WW1_SCUTARI_pending_enforcement owns_state = 934 } WW1_SCUTARI_request_final_note = yes }
+  if = {
+   limit = { OR = { has_country_flag = WW1_SCUTARI_open has_country_flag = WW1_SCUTARI_withdrawing has_idea = WW1_SCUTARI_international_blockade } NOT = { WW1_SCUTARI_montenegrin_position = yes } NOT = { AND = { has_war_with = AUH AUH = { has_country_flag = WW1_SCUTARI_intervention } } } }
+   WW1_SCUTARI_close_crisis = yes
+  }
+ }
+ if = {
+  limit = { tag = AUH has_country_flag = WW1_SCUTARI_intervention }
+  if = {
+   limit = { WW1_SCUTARI_era = yes has_war_with = MNT country_exists = ALB ALB = { is_subject = no NOT = { has_capitulated = yes } } NOT = { any_enemy_country = { NOT = { tag = MNT } } } MNT = { exists = yes owns_state = 934 NOT = { any_enemy_country = { NOT = { tag = AUH } } } } controls_state = 934 }
+   white_peace = MNT
+   if = {
+    limit = { MNT = { owns_state = 934 } 934 = { OR = { is_controlled_by = MNT is_controlled_by = AUH } } country_exists = ALB }
+    MNT = { WW1_SCUTARI_restore_albanian_administration = yes }
+   }
+   MNT = { set_country_flag = WW1_SCUTARI_withdrawn WW1_SCUTARI_close_crisis = yes }
+   clr_country_flag = WW1_SCUTARI_intervention
+   if = { limit = { NOT = { has_global_flag = WW1_SCUTARI_handover_news } } set_global_flag = WW1_SCUTARI_handover_news news_event = { id = ww1_scutari.10 hours = 6 } }
+  }
+  else_if = { limit = { OR = { NOT = { has_war_with = MNT } NOT = { country_exists = ALB } NOT = { WW1_SCUTARI_era = yes } } } clr_country_flag = WW1_SCUTARI_intervention MNT = { WW1_SCUTARI_close_crisis = yes } }
+ }
+}

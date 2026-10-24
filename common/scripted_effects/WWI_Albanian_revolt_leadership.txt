@@ -1,0 +1,168 @@
+WW1_ALB_revolt_1910_leadership = {
+	if = {
+		limit = { tag = ALB has_start_date < 1936.1.1 date < 1914.1.1 }
+		# Keep the revolt coalition consistent with its appointed government.
+		set_popularities = { neutrality = 100 democratic = 0 communism = 0 fascism = 0 }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		if = {
+			limit = { has_character = ALB_WWI_isa_boletini }
+			ALB_WWI_isa_boletini = {
+				if = {
+					limit = { NOT = { has_ideology = moderatism } }
+					add_country_leader_role = {
+						country_leader = { ideology = moderatism expire = "1916.1.23" traits = { } }
+						promote_leader = yes
+					}
+				}
+				set_portraits = { civilian = { large = GFX_portrait_ALB_ww1_isa_boletini } }
+			}
+			promote_character = { character = ALB_WWI_isa_boletini ideology = moderatism }
+		}
+		else_if = {
+			# Existing saves may predate history registration of this identity.
+			limit = { NOT = { has_country_leader = { name = "Isa Boletini" ruling_only = yes } } }
+			create_country_leader = {
+				name = "Isa Boletini"
+				picture = GFX_portrait_ALB_ww1_isa_boletini
+				expire = "1916.1.23"
+				ideology = moderatism
+				traits = { }
+			}
+		}
+		set_country_flag = WW1_ALB_revolt_1910_leadership
+		set_country_flag = WW1_ALB_revolt_setup_current
+	}
+}
+
+WW1_ALB_revolt_1911_leadership = {
+	if = {
+		limit = { tag = ALB has_start_date < 1936.1.1 date < 1914.1.1 }
+		# Keep the revolt coalition consistent with its appointed government.
+		set_popularities = { neutrality = 100 democratic = 0 communism = 0 fascism = 0 }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		if = {
+			limit = { has_character = ALB_WWI_dede_gjo_luli }
+			ALB_WWI_dede_gjo_luli = {
+				if = {
+					limit = { NOT = { has_ideology = moderatism } }
+					add_country_leader_role = {
+						country_leader = { ideology = moderatism expire = "1915.9.24" traits = { } }
+						promote_leader = yes
+					}
+				}
+				set_portraits = { civilian = { large = GFX_portrait_ALB_ww1_dede_gjo_luli } }
+			}
+			promote_character = { character = ALB_WWI_dede_gjo_luli ideology = moderatism }
+		}
+		else_if = {
+			# Existing saves may predate history registration of this identity.
+			limit = { NOT = { has_country_leader = { name = "Dedë Gjo Luli" ruling_only = yes } } }
+			create_country_leader = {
+				name = "Dedë Gjo Luli"
+				picture = GFX_portrait_ALB_ww1_dede_gjo_luli
+				expire = "1915.9.24"
+				ideology = moderatism
+				traits = { }
+			}
+		}
+		set_country_flag = WW1_ALB_revolt_1911_leadership
+		set_country_flag = WW1_ALB_revolt_setup_current
+	}
+}
+
+WW1_ALB_revolt_1912_leadership = {
+	if = {
+		limit = { tag = ALB has_start_date < 1936.1.1 date < 1914.1.1 }
+		# Keep the revolt coalition consistent with its appointed government.
+		set_popularities = { neutrality = 100 democratic = 0 communism = 0 fascism = 0 }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		if = {
+			limit = { has_character = ALB_Hasan_Prishtina }
+			ALB_Hasan_Prishtina = {
+				if = {
+					limit = { NOT = { has_ideology = moderatism } }
+					add_country_leader_role = {
+						country_leader = { ideology = moderatism expire = "1933.8.13" traits = { } }
+						promote_leader = yes
+					}
+				}
+				set_portraits = { civilian = { large = GFX_portrait_ALB_ww1_hasan_prishtina } }
+			}
+			promote_character = { character = ALB_Hasan_Prishtina ideology = moderatism }
+		}
+		else_if = {
+			# Existing saves may predate history registration of this identity.
+			limit = { NOT = { has_country_leader = { name = "Hasan Prishtina" ruling_only = yes } } }
+			create_country_leader = {
+				name = "Hasan Prishtina"
+				picture = GFX_portrait_ALB_ww1_hasan_prishtina
+				expire = "1933.8.13"
+				ideology = moderatism
+				traits = { }
+			}
+		}
+		set_country_flag = WW1_ALB_revolt_1912_leadership
+		set_country_flag = WW1_ALB_revolt_setup_current
+	}
+}
+
+# Repair only the observed artificial 1911 ideological splinter. Albania
+# must still be fighting the Ottomans; do not reopen a completed revolt.
+WW1_ALB_restore_1911_revolt = {
+	if = {
+		limit = {
+			tag = ALB
+			has_start_date < 1911.3.24
+			date > 1911.3.23
+			date < 1912.1.1
+			has_country_flag = WW1_ALB_revolt_1911_leadership
+			NOT = { has_country_flag = WW1_ALB_1911_coalition_restored }
+			has_government = neutrality
+			has_war_with = TUR
+			is_subject = no
+			OR = { owns_state = 44 owns_state = 805 }
+		}
+		every_other_country = {
+			limit = {
+				original_tag = ALB
+				is_dynamic_country = yes
+				has_government = democratic
+				has_war_with = ALB
+				NOT = { has_war_with = TUR }
+				is_subject = no
+				is_in_faction = no
+				OR = { owns_state = 44 owns_state = 805 }
+			}
+			ALB = { annex_country = { target = PREV transfer_troops = yes } }
+		}
+		WW1_ALB_revolt_1911_leadership = yes
+		set_country_flag = WW1_ALB_1911_coalition_restored
+	}
+}
+
+# Refresh only a still-active, known early revolt once after an update.
+# Do not transfer territory, spawn another OOB or restart an ended war.
+WW1_ALB_refresh_active_revolt = {
+	if = {
+		limit = {
+			tag = ALB
+			has_start_date < 1914.1.1
+			date < 1914.1.1
+			has_war_with = TUR
+			NOT = { has_country_flag = WW1_ALB_revolt_setup_current }
+			OR = { owns_state = 44 owns_state = 805 }
+		}
+		if = {
+			limit = { has_country_flag = WW1_ALB_revolt_1912_leadership }
+			WW1_ALB_revolt_1912_leadership = yes
+		}
+		else_if = {
+			limit = { has_country_flag = WW1_ALB_revolt_1911_leadership }
+			WW1_ALB_revolt_1911_leadership = yes
+		}
+		else_if = {
+			limit = { has_country_flag = WW1_ALB_revolt_1910_leadership }
+			WW1_ALB_revolt_1910_leadership = yes
+		}
+	}
+}

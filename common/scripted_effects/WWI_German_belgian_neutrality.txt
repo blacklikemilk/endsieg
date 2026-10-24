@@ -1,0 +1,112 @@
+# Public APIs run in GER country scope. Prepared terms grant no relation or reward.
+GE1_D_prepare_belgian_neutrality = {
+ if = { limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 } set_country_flag = GE1_D_belgian_neutrality_prepared }
+}
+GE1_D_activate_belgian_neutrality = {
+ if = {
+  limit = { GE1_D_belgian_neutrality_offer_ready = yes GE1_D_belgian_coalition_ratified = yes NOT = { GE1_D_has_offensive_low_countries_war = yes } }
+  set_country_flag = GE1_D_belgian_neutrality_prepared
+  set_country_flag = GE1_D_belgian_neutrality_enforced
+  set_country_flag = GE1_D_belgian_neutrality_pledged
+  set_global_flag = GE1_D_belgian_neutrality_pledged
+  # Revoke only guarantees created by this protocol, not a manual/French one.
+  if = { limit = { country_exists = BEL NOT = { has_war_with = BEL } NOT = { has_guaranteed = BEL } }
+   give_guarantee = BEL
+   set_country_flag = GE1_D_belgian_guarantee_managed
+  }
+  # Root's narrative helper owns the charter, news and conditional rewards.
+  if = { limit = { NOT = { has_country_flag = GE1_D_belgian_protocol_announced } }
+   set_country_flag = GE1_D_belgian_protocol_announced
+   GE1_D_announce_ratified_belgian_protocol = yes
+  }
+ }
+}
+GE1_D_clear_belgian_neutrality = {
+ if = {
+  limit = { tag = GER }
+  if = { limit = { has_country_flag = GE1_D_belgian_guarantee_managed country_exists = BEL has_guaranteed = BEL }
+   diplomatic_relation = { country = BEL relation = guarantee active = no }
+  }
+  clr_country_flag = GE1_D_belgian_guarantee_managed
+  clr_country_flag = GE1_D_belgian_neutrality_enforced
+  clr_global_flag = GE1_D_belgian_neutrality_pledged
+  # France's separate accommodation contract retains its own legacy marker.
+  if = { limit = { NOT = { FRA = { has_country_flag = FR3_R_german_offer_accepted } } }
+   clr_country_flag = GE1_D_belgian_neutrality_pledged
+  }
+ }
+}
+GE1_D_end_belgian_coalition = {
+ if = {
+  limit = { tag = GER }
+  GE1_D_clear_belgian_neutrality = yes
+  clr_global_flag = GE1_D_anglo_german_pending
+  clr_global_flag = GE1_D_anglo_german_accepted
+  clr_global_flag = GE1_D_anglo_german_refused
+  if = { limit = { has_global_flag = GE1_anglo_german_alliance }
+   if = { limit = { ENG = { is_in_faction_with = GER } }
+    if = { limit = { ENG = { is_faction_leader = yes } } set_faction_leader = yes }
+    every_country = { limit = { is_subject_of = ENG is_in_faction_with = GER } leave_faction = yes }
+    ENG = { leave_faction = yes }
+   }
+   clr_global_flag = GE1_anglo_german_alliance
+   clr_country_flag = GE1_anglo_german_alliance
+   ENG = { clr_country_flag = GE1_anglo_german_alliance }
+   if = { limit = { has_idea = GE1_D_anglo_german_compact } remove_ideas = GE1_D_anglo_german_compact }
+  }
+ }
+}
+GE1_D_withdraw_belgian_neutrality = {
+ if = {
+  limit = { GE1_D_belgian_neutrality_in_force = yes }
+  set_country_flag = GE1_D_belgian_neutrality_withdrawn
+  GE1_D_end_belgian_coalition = yes
+ }
+}
+GE1_D_breach_belgian_neutrality = {
+ if = {
+  limit = { GE1_D_belgian_neutrality_in_force = yes NOT = { has_country_flag = GE1_D_belgian_neutrality_breached } }
+  set_country_flag = GE1_D_belgian_neutrality_breached
+  set_global_flag = GE1_D_belgian_neutrality_breached
+  GE1_D_end_belgian_coalition = yes
+ }
+}
+GE1_D_update_belgian_neutrality = {
+ if = {
+  limit = { tag = GER }
+  if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 }
+   # Old focus completions are preparation, never evidence of British consent.
+   if = { limit = { has_completed_focus = GE1_D_belgian_neutrality_guarantee } set_country_flag = GE1_D_belgian_neutrality_prepared }
+   if = { limit = { NOT = { has_country_flag = GE1_D_belgian_neutrality_enforced } GE1_D_belgian_neutrality_offer_ready = yes GE1_D_belgian_coalition_ratified = yes }
+    if = { limit = { GE1_D_has_offensive_low_countries_war = yes }
+     # An old accepted coalition already fighting an offensive Low Countries
+     # war has breached the terms; it cannot earn a ratification reward.
+     set_country_flag = GE1_D_belgian_neutrality_enforced
+     GE1_D_breach_belgian_neutrality = yes
+    }
+    else = { GE1_D_activate_belgian_neutrality = yes }
+   }
+  }
+  if = { limit = { has_country_flag = GE1_D_belgian_neutrality_enforced }
+   if = { limit = { NOT = { GE1_D_belgian_coalition_ratified = yes } }
+    GE1_D_clear_belgian_neutrality = yes
+   }
+   else_if = { limit = { GE1_D_has_offensive_low_countries_war = yes }
+    GE1_D_breach_belgian_neutrality = yes
+   }
+   else = {
+    # Restore an engine-lost managed guarantee while the actual treaty lasts.
+    if = { limit = { country_exists = BEL NOT = { has_war_with = BEL } NOT = { has_guaranteed = BEL } }
+     give_guarantee = BEL
+     set_country_flag = GE1_D_belgian_guarantee_managed
+    }
+   }
+  }
+  else_if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { GE1_D_belgian_coalition_ratified = yes } NOT = { FRA = { has_country_flag = FR3_R_german_offer_accepted } } }
+   # Clear the obsolete early-pledge marker. An untracked legacy/manual native
+   # guarantee is deliberately preserved because its provenance is unknown.
+   clr_country_flag = GE1_D_belgian_neutrality_pledged
+   clr_global_flag = GE1_D_belgian_neutrality_pledged
+  }
+ }
+}

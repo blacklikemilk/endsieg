@@ -1,0 +1,193 @@
+# Dedicated WW1 Mexican revolution lifecycle. Runtime helpers do not recruit characters.
+endsieg_ww1_restore_zapata = {
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	set_popularities = { fascism = 0 neutrality = 100 democratic = 0 communism = 0 }
+	if = { limit = { has_character = ZAP_emiliano_zapata } promote_character = { character = ZAP_emiliano_zapata ideology = anarchism } }
+	if = { limit = { owns_state = 485 } set_capital = { state = 485 } }
+}
+endsieg_ww1_restore_carranza = {
+	set_politics = { ruling_party = democratic elections_allowed = no }
+	if = { limit = { has_character = CNT_venustiano_carranza } promote_character = { character = CNT_venustiano_carranza ideology = liberalism } }
+	if = { limit = { owns_state = 483 } set_capital = { state = 483 } }
+}
+endsieg_ww1_restore_villa = {
+	set_politics = { ruling_party = communism elections_allowed = no }
+	if = { limit = { has_character = VIL_pancho_villa } promote_character = { character = VIL_pancho_villa ideology = marxism } }
+	if = { limit = { owns_state = 482 } set_capital = { state = 482 } }
+}
+endsieg_ww1_anti_huerta_coalition = {
+	if = {
+		limit = { CNT = { has_war_with = MEX }  CNT = { has_completed_focus = shared_GEN_revolutionary_cooperation } }
+		CNT = {
+			if = { limit = { is_in_faction = no } if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 } create_faction_from_template = { template = faction_template_ww1_anti_huerta name = ANTI_HUERTA_FORCES } }
+else = { create_faction = ANTI_HUERTA_FORCES } }
+			if = {
+				limit = { is_faction_leader = yes }
+				if = { limit = { ZAP = { has_war_with = MEX is_in_faction = no } } add_to_faction = ZAP }
+				if = { limit = { VIL = { has_war_with = MEX is_in_faction = no } } add_to_faction = VIL }
+			}
+		}
+	}
+}
+endsieg_ww1_start_maderista_revolution = {
+	if = {
+		limit = { tag = MEX NOT = { has_global_flag = maderista_revolution } NOT = { has_global_flag = maderista_victory } }
+		set_global_flag = maderista_revolution
+		news_event = { hours = 6 id = endsieg_news.202 }
+		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
+		MDS = {
+			transfer_state = 482
+			set_cosmetic_tag = MDS
+			set_capital = { state = 482 }
+			set_politics = { ruling_party = democratic elections_allowed = no }
+			promote_character = { character = MDS_francisco_madero ideology = conservatism }
+			declare_war_on = { target = MEX type = civil_war }
+			load_oob = Maderistas_1911
+			add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 15000 producer = USA }
+		}
+		country_event = { id = ww1_mexico.8 days = 45 }
+	}
+}
+endsieg_ww1_start_constitutionalist_revolt = {
+	if = {
+		limit = { tag = MEX NOT = { has_global_flag = fall_of_huerta } NOT = { has_country_flag = endsieg_ww1_constitutionalists_raised } }
+		set_country_flag = endsieg_ww1_constitutionalists_raised
+		set_global_flag = anti_huerta_revolution
+		news_event = { hours = 6 id = endsieg_news.205 }
+		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
+		if = {
+			limit = { NOT = { country_exists = CNT } }
+			CNT = {
+				transfer_state = 483
+				transfer_state = 479
+				transfer_state = 480
+				transfer_state = 484
+				transfer_state = 1041
+				load_oob = Constitutionalistas_1913
+			}
+		}
+		CNT = {
+			endsieg_ww1_restore_carranza = yes
+			if = { limit = { NOT = { has_war_with = MEX } } declare_war_on = { target = MEX type = civil_war } }
+		}
+		endsieg_ww1_anti_huerta_coalition = yes
+	}
+}
+endsieg_ww1_start_villista_revolt = {
+	if = {
+		limit = { tag = MEX NOT = { has_global_flag = fall_of_huerta } NOT = { has_country_flag = endsieg_ww1_villistas_raised } }
+		set_country_flag = endsieg_ww1_villistas_raised
+		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
+		if = {
+			limit = { NOT = { country_exists = VIL } }
+			VIL = { transfer_state = 481 transfer_state = 482 load_oob = Villistas_1913 }
+		}
+		VIL = {
+			endsieg_ww1_restore_villa = yes
+			if = { limit = { NOT = { has_war_with = MEX } } declare_war_on = { target = MEX type = civil_war } }
+		}
+		endsieg_ww1_anti_huerta_coalition = yes
+	}
+}
+endsieg_ww1_start_zapatista_revolt = {
+	if = {
+		limit = { tag = MEX NOT = { has_global_flag = fall_of_huerta } NOT = { has_country_flag = endsieg_ww1_zapatistas_raised } }
+		set_country_flag = endsieg_ww1_zapatistas_raised
+		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
+		if = {
+			limit = { NOT = { country_exists = ZAP } }
+			ZAP = { transfer_state = 485 load_oob = Zapatistas_1911 }
+		}
+		ZAP = {
+			endsieg_ww1_restore_zapata = yes
+			if = { limit = { NOT = { has_war_with = MEX } } declare_war_on = { target = MEX type = civil_war } }
+		}
+		endsieg_ww1_anti_huerta_coalition = yes
+	}
+}
+endsieg_ww1_start_zapatista_revolt_1913 = {
+	if = {
+		limit = { tag = MEX NOT = { has_global_flag = fall_of_huerta } NOT = { has_country_flag = endsieg_ww1_zapatistas_raised } }
+		set_country_flag = endsieg_ww1_zapatistas_raised
+		USA = { diplomatic_relation = { country = MEX relation = guarantee active = no } }
+		if = {
+			limit = { NOT = { country_exists = ZAP } }
+			ZAP = { transfer_state = 485 load_oob = Zapatistas_1913 }
+		}
+		ZAP = {
+			endsieg_ww1_restore_zapata = yes
+			if = { limit = { NOT = { has_war_with = MEX } } declare_war_on = { target = MEX type = civil_war } }
+		}
+		endsieg_ww1_anti_huerta_coalition = yes
+	}
+}
+endsieg_ww1_absorb_maderistas = {
+	if = {
+		limit = { country_exists = MDS  }
+		MDS = {
+			if = { limit = { is_faction_leader = yes } dismantle_faction = yes }
+			else = { leave_faction = yes }
+		}
+		# Native reunification order: preserve the human player before removing their tag.
+		if = { limit = { is_ai = yes MDS = { is_ai = no } } change_tag_from = MDS }
+		annex_country = { target = MDS transfer_troops = yes }
+	}
+	if = {
+		limit = { country_exists = MAD MAD = { has_war_with = MEX owns_state = 482 } }
+		MAD = {
+			if = { limit = { is_faction_leader = yes } dismantle_faction = yes }
+			else = { leave_faction = yes }
+		}
+		# Native reunification order: preserve the human player before removing their tag.
+		if = { limit = { is_ai = yes MAD = { is_ai = no } } change_tag_from = MAD }
+		annex_country = { target = MAD transfer_troops = yes }
+	}
+}
+endsieg_ww1_absorb_revolutionaries = {
+	if = {
+		limit = { country_exists = ZAP  }
+		ZAP = {
+			if = { limit = { is_faction_leader = yes } dismantle_faction = yes }
+			else = { leave_faction = yes }
+		}
+		# Native reunification order: preserve the human player before removing their tag.
+		if = { limit = { is_ai = yes ZAP = { is_ai = no } } change_tag_from = ZAP }
+		annex_country = { target = ZAP transfer_troops = yes }
+	}
+	if = {
+		limit = { country_exists = VIL  }
+		VIL = {
+			if = { limit = { is_faction_leader = yes } dismantle_faction = yes }
+			else = { leave_faction = yes }
+		}
+		# Native reunification order: preserve the human player before removing their tag.
+		if = { limit = { is_ai = yes VIL = { is_ai = no } } change_tag_from = VIL }
+		annex_country = { target = VIL transfer_troops = yes }
+	}
+	if = {
+		limit = { country_exists = CNT  }
+		CNT = {
+			if = { limit = { is_faction_leader = yes } dismantle_faction = yes }
+			else = { leave_faction = yes }
+		}
+		# Native reunification order: preserve the human player before removing their tag.
+		if = { limit = { is_ai = yes CNT = { is_ai = no } } change_tag_from = CNT }
+		annex_country = { target = CNT transfer_troops = yes }
+	}
+	endsieg_ww1_absorb_maderistas = yes
+}
+
+# MAD is Madagascar in the effective tag registry. Only the old Mexican
+# revolution tag receives the MDS cosmetic identity; real Madagascar is left alone.
+endsieg_ww1_restore_maderista_names = {
+ if = {
+  limit = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = maderista_revolution NOT = { has_global_flag = maderista_victory } }
+  if = { limit = { country_exists = MDS } MDS = { set_cosmetic_tag = MDS } }
+  if = {
+   limit = {
+    MAD = { has_war_with = MEX owns_state = 482 NOT = { owns_state = 543 } }
+   }
+   MAD = { set_cosmetic_tag = MDS }
+  }
+ }
+}

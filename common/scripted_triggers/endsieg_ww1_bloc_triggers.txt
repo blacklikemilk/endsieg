@@ -1,0 +1,196 @@
+# WW1 commitments apply to focus choices, event transactions and diplomacy.
+# Faction membership at scenario start is deliberately not a route choice.
+GE1_ww1_may_choose_central_bloc = {
+ NOT = { has_country_flag = GE1_ww1_bloc_british }
+ NOT = { has_completed_focus = GE1_D_limit_naval_rivalry }
+ NOT = { has_country_flag = GE1_ww1_bloc_russian }
+ NOT = { has_completed_focus = GE1_R_eastern_neutrality }
+ NOT = { has_global_flag = GE1_anglo_german_alliance }
+ NOT = { has_country_flag = GE1_D_british_route_active }
+ NOT = { has_global_flag = GE1_ww1_russian_bloc_active }
+ NOT = { has_global_flag = GE1_RP_russian_neutrality_accepted }
+ NOT = { has_completed_focus = GE1_D_restrain_balkans }
+}
+GE1_ww1_may_choose_british_bloc = {
+ NOT = { has_country_flag = GE1_ww1_bloc_central }
+ NOT = { has_completed_focus = GE1_D_support_austria }
+ NOT = { has_country_flag = GE1_ww1_bloc_russian }
+ NOT = { has_completed_focus = GE1_R_eastern_neutrality }
+ NOT = { has_global_flag = GE1_ww1_russian_bloc_active }
+ NOT = { has_global_flag = GE1_RP_russian_neutrality_accepted }
+}
+GE1_ww1_may_choose_russian_bloc = {
+ NOT = { has_country_flag = GE1_ww1_bloc_central }
+ NOT = { has_completed_focus = GE1_D_support_austria }
+ NOT = { has_country_flag = GE1_ww1_bloc_british }
+ NOT = { has_completed_focus = GE1_D_limit_naval_rivalry }
+ NOT = { has_global_flag = GE1_anglo_german_alliance }
+ NOT = { has_country_flag = GE1_D_british_route_active }
+}
+
+FR3_R_may_choose_continental_alignment = {
+ NOT = { has_country_flag = FR3_R_neutral_policy }
+ NOT = { has_country_flag = FR3_R_diplomatic_accommodation }
+ NOT = { has_country_flag = FR3_R_entente_policy }
+ NOT = { has_completed_focus = FR3_R_neutrality }
+ NOT = { has_completed_focus = FR3_R_ratify_accommodation }
+ NOT = { has_completed_focus = FR3_entente_diplomacy }
+}
+FR3_R_may_lead_actual_alliance = {
+ NOT = { has_country_flag = FR3_R_neutral_policy }
+ NOT = { has_country_flag = FR3_R_diplomatic_accommodation }
+ NOT = { has_completed_focus = FR3_R_neutrality }
+ NOT = { has_completed_focus = FR3_R_ratify_accommodation }
+}
+WW1_is_balkan_league_member = {
+ country_exists = SER
+ SER = { has_country_flag = WW1_balkan_league is_faction_leader = yes }
+ OR = { tag = SER is_in_faction_with = SER }
+ NOT = { is_in_faction_with = ENG }
+ NOT = { is_in_faction_with = FRA }
+ NOT = { is_in_faction_with = RIE }
+ NOT = { is_in_faction_with = GER }
+}
+WW1_may_join_balkan_league = {
+ OR = { tag = BUL tag = GRE tag = MNT tag = ROM }
+ is_subject = no
+ OR = { is_in_faction = no WW1_is_balkan_league_member = yes }
+ NOT = { has_war_with = SER }
+ SER = { WW1_is_balkan_league_member = yes }
+}
+# ROOT is the diplomatic initiator; FROM is the recipient for both actions.
+WW1_faction_diplomacy_allowed = {
+ if = {
+  limit = { has_start_date < 1936.1.1 date < 1936.1.1 }
+  NOT = { AND = { OR = { tag = ITA is_in_faction_with = ITA } FROM = { WW1_is_balkan_league_member = yes } } }
+  NOT = { AND = { WW1_is_balkan_league_member = yes FROM = { OR = { tag = ITA is_in_faction_with = ITA } } } }
+  if = {
+   limit = { country_exists = GER GER = { OR = { has_country_flag = GE1_ww1_bloc_central has_completed_focus = GE1_D_support_austria } } OR = { tag = GER is_in_faction_with = GER FROM = { OR = { tag = GER is_in_faction_with = GER } } } }
+   NOT = { OR = { tag = ENG is_in_faction_with = ENG tag = RIE is_in_faction_with = RIE FROM = { OR = { tag = ENG is_in_faction_with = ENG tag = RIE is_in_faction_with = RIE } } } }
+  }
+  if = {
+   limit = { country_exists = GER GER = { OR = { has_country_flag = GE1_ww1_bloc_british has_completed_focus = GE1_D_limit_naval_rivalry has_global_flag = GE1_anglo_german_alliance } } OR = { tag = GER is_in_faction_with = GER FROM = { OR = { tag = GER is_in_faction_with = GER } } } }
+   NOT = { OR = { tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR tag = RIE is_in_faction_with = RIE FROM = { OR = { tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR tag = RIE is_in_faction_with = RIE } } } }
+  }
+  if = {
+   limit = { country_exists = GER GER = { OR = { has_country_flag = GE1_ww1_bloc_russian has_completed_focus = GE1_R_eastern_neutrality has_global_flag = GE1_ww1_russian_bloc_active } } OR = { tag = GER is_in_faction_with = GER FROM = { OR = { tag = GER is_in_faction_with = GER } } } }
+   NOT = { OR = { tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR tag = ENG is_in_faction_with = ENG FROM = { OR = { tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR tag = ENG is_in_faction_with = ENG } } } }
+  }
+
+  FROM = { ROOT = { WW1_country_faction_path_allows_previous = yes } }
+  ROOT = { FROM = { WW1_country_faction_path_allows_previous = yes } }
+  # Formal British/Russian offers cannot be skipped through native diplomacy.
+  if = {
+   limit = { OR = { tag = GER is_in_faction_with = GER FROM = { OR = { tag = GER is_in_faction_with = GER } } } }
+   if = { limit = { OR = { tag = ENG is_in_faction_with = ENG FROM = { OR = { tag = ENG is_in_faction_with = ENG } } } } has_global_flag = GE1_anglo_german_alliance }
+   if = { limit = { OR = { tag = RIE is_in_faction_with = RIE FROM = { OR = { tag = RIE is_in_faction_with = RIE } } } } has_global_flag = GE1_ww1_russian_bloc_active }
+  }
+
+  # Britain may support France diplomatically before entering its alliance.
+  if = {
+   limit = {
+    OR = { AND = { tag = ENG FROM = { OR = { tag = FRA tag = RIE is_in_faction_with = FRA is_in_faction_with = RIE } } } AND = { FROM = { tag = ENG } OR = { tag = FRA tag = RIE is_in_faction_with = FRA is_in_faction_with = RIE } } }
+    NOT = { has_global_flag = GE1_anglo_german_alliance }
+   }
+   ENG = { WW1_british_entente_entry_allowed = yes }
+  }
+}
+}
+
+WW1_country_faction_path_allows_previous = {
+ if = { limit = { tag = ITA OR = { has_completed_focus = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_armed_neutrality } }
+  always = no
+ }
+ if = { limit = { tag = ENG OR = { has_completed_focus = EN1_stay_neutral has_country_flag = EN1_R_neutral_policy } }
+  always = no
+ }
+ if = { limit = { tag = USA OR = { has_completed_focus = US2_neutrality has_country_flag = US2_R_enduring_neutrality } }
+  always = no
+ }
+ if = { limit = { tag = TUR OR = { has_completed_focus = OT1_R_neutral_alignment has_country_flag = OT1_R_neutral_policy } }
+  always = no
+ }
+ if = { limit = { tag = JAP OR = { has_completed_focus = JP1_R_commit_neutrality has_country_flag = JP1_R_neutrality } }
+  always = no
+ }
+ if = { limit = { tag = FRA OR = { has_country_flag = FR3_R_neutral_policy has_country_flag = FR3_R_diplomatic_accommodation has_completed_focus = FR3_R_neutrality has_completed_focus = FR3_R_ratify_accommodation } }
+  always = no
+ }
+ if = { limit = { tag = RIE OR = { has_completed_focus = RUS_ww1_armed_neutrality has_country_flag = RUS_ww1_armed_neutrality } }
+  has_country_flag = RUS_ww1_german_agreement
+  has_global_flag = GE1_ww1_russian_bloc_active
+  PREV = { OR = { tag = GER is_in_faction_with = GER } }
+ }
+ if = { limit = { tag = ITA has_country_flag = IT1_ww1_entente_alignment }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH } } }
+ }
+ if = { limit = { tag = ITA OR = { has_country_flag = IT1_ww1_central_alignment has_country_flag = IT1_ww1_central_offer_accepted } }
+  PREV = { NOT = { OR = { tag = ENG is_in_faction_with = ENG tag = FRA is_in_faction_with = FRA tag = RIE is_in_faction_with = RIE } } }
+ }
+ if = { limit = { tag = ITA OR = { has_country_flag = IT1_ww1_continental_bloc has_completed_focus = IT1_ww1_continental_concert } }
+  PREV = { NOT = { OR = { tag = ENG is_in_faction_with = ENG tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR } } }
+ }
+ if = { limit = { tag = ENG OR = { has_completed_focus = EN1_back_france has_country_flag = EN1_R_entente_policy } }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH } } }
+  PREV = { NOT = { AND = { OR = { tag = TUR is_in_faction_with = TUR } TUR = { OR = { has_completed_focus = OT1_R_german_alignment has_completed_focus = OT1_R_neutral_alignment has_completed_focus = OT1_R_regional_alignment has_country_flag = OT1_R_german_agreement has_country_flag = OT1_R_neutral_policy has_country_flag = OT1_R_regional_agreement } } } } }
+ }
+ if = { limit = { tag = FRA OR = { has_completed_focus = FR3_entente_diplomacy has_country_flag = FR3_R_entente_policy } }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH } } }
+  PREV = { NOT = { AND = { OR = { tag = TUR is_in_faction_with = TUR } TUR = { OR = { has_completed_focus = OT1_R_german_alignment has_completed_focus = OT1_R_neutral_alignment has_completed_focus = OT1_R_regional_alignment has_country_flag = OT1_R_german_agreement has_country_flag = OT1_R_neutral_policy has_country_flag = OT1_R_regional_agreement } } } } }
+ }
+ if = { limit = { tag = FRA OR = { has_completed_focus = FR3_R_continental_staff has_country_flag = FR3_R_continental_policy has_global_flag = GE1_continental_alliance_active } }
+  PREV = { NOT = { OR = { tag = ENG is_in_faction_with = ENG tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR } } }
+ }
+ if = { limit = { tag = RIE has_completed_focus = RUS_entente_diplomacy }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH } } }
+  PREV = { NOT = { AND = { OR = { tag = TUR is_in_faction_with = TUR } TUR = { OR = { has_completed_focus = OT1_R_german_alignment has_completed_focus = OT1_R_neutral_alignment has_completed_focus = OT1_R_regional_alignment has_country_flag = OT1_R_german_agreement has_country_flag = OT1_R_neutral_policy has_country_flag = OT1_R_regional_agreement } } } } }
+ }
+ if = { limit = { tag = RIE OR = { has_country_flag = RUS_ww1_german_agreement has_country_flag = RUS_ww1_german_bloc } }
+  PREV = { NOT = { OR = { tag = ENG is_in_faction_with = ENG tag = FRA is_in_faction_with = FRA tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR } } }
+ }
+ if = { limit = { tag = USA OR = { has_completed_focus = US2_support_entente has_country_flag = US2_R_entente_policy } }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH } } }
+  PREV = { NOT = { AND = { OR = { tag = TUR is_in_faction_with = TUR } TUR = { OR = { has_completed_focus = OT1_R_german_alignment has_completed_focus = OT1_R_neutral_alignment has_completed_focus = OT1_R_regional_alignment has_country_flag = OT1_R_german_agreement has_country_flag = OT1_R_neutral_policy has_country_flag = OT1_R_regional_agreement } } } } }
+ }
+ if = { limit = { tag = USA OR = { has_completed_focus = US2_R_german_alignment has_country_flag = US2_R_german_agreement } }
+  PREV = { OR = { tag = GER is_in_faction_with = GER } }
+ }
+ if = { limit = { tag = USA OR = { has_completed_focus = US2_R_continental_alignment has_country_flag = US2_R_continental_agreement } }
+  PREV = { NOT = { OR = { tag = ENG is_in_faction_with = ENG tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR } } }
+ }
+ if = { limit = { tag = TUR OR = { has_completed_focus = OT1_R_entente_alignment has_country_flag = OT1_R_entente_agreement } }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH } } }
+ }
+ if = { limit = { tag = TUR OR = { has_completed_focus = OT1_R_german_alignment has_country_flag = OT1_R_german_agreement } }
+  PREV = { NOT = { OR = { tag = ENG is_in_faction_with = ENG tag = FRA is_in_faction_with = FRA tag = RIE is_in_faction_with = RIE } } }
+ }
+ if = { limit = { tag = TUR OR = { has_completed_focus = OT1_R_regional_alignment has_country_flag = OT1_R_regional_agreement } }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = ENG is_in_faction_with = ENG tag = FRA is_in_faction_with = FRA tag = RIE is_in_faction_with = RIE tag = AUH is_in_faction_with = AUH } } }
+ }
+ if = { limit = { tag = JAP OR = { has_completed_focus = JP1_R_commit_british_alignment has_country_flag = JP1_R_entente_alignment } }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = AUH is_in_faction_with = AUH } } }
+  PREV = { NOT = { AND = { OR = { tag = TUR is_in_faction_with = TUR } TUR = { OR = { has_completed_focus = OT1_R_german_alignment has_completed_focus = OT1_R_neutral_alignment has_completed_focus = OT1_R_regional_alignment has_country_flag = OT1_R_german_agreement has_country_flag = OT1_R_neutral_policy has_country_flag = OT1_R_regional_agreement } } } } }
+ }
+ if = { limit = { tag = JAP OR = { has_completed_focus = JP1_R_commit_german_alignment has_country_flag = JP1_R_german_alignment } }
+  PREV = { OR = { tag = GER is_in_faction_with = GER } }
+ }
+ if = { limit = { tag = JAP OR = { has_completed_focus = JP1_R_commit_asian_faction has_country_flag = JP1_R_asian_alignment } }
+  PREV = { NOT = { OR = { tag = GER is_in_faction_with = GER tag = ENG is_in_faction_with = ENG tag = FRA is_in_faction_with = FRA tag = RIE is_in_faction_with = RIE tag = AUH is_in_faction_with = AUH tag = TUR is_in_faction_with = TUR } } }
+ }
+}
+
+# Preliminary naval talks, route choices and the Russian non-aggression pact
+# never amount to an accepted faction treaty.
+GE1_ww1_alternative_alliance_formed = {
+ tag = GER
+ OR = {
+  AND = {
+   has_global_flag = GE1_anglo_german_alliance
+   ENG = { is_in_faction_with = GER }
+  }
+  AND = {
+   has_global_flag = GE1_ww1_russian_bloc_active
+   RIE = { has_country_flag = RUS_ww1_bloc_consent is_in_faction_with = GER }
+  }
+ }
+}

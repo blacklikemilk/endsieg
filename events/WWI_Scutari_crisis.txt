@@ -1,0 +1,141 @@
+add_namespace = ww1_scutari
+
+country_event = {
+ id = ww1_scutari.1
+ title = ww1_scutari.1.t
+ desc = ww1_scutari.1.d
+ picture = GFX_report_event_first_balkan_war
+ is_triggered_only = yes
+ trigger = { tag = MNT WW1_SCUTARI_montenegrin_position = yes has_country_flag = WW1_SCUTARI_open NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+ option = {
+  name = ww1_scutari.1.a
+  ai_chance = { factor = 60 modifier = { factor = 0 is_historical_focus_on = yes OR = { NOT = { date < 1913.5.5 } has_global_flag = treaty_of_london_1913 } } }
+  WW1_SCUTARI_defy_the_powers = yes
+ }
+ option = {
+  name = ww1_scutari.1.b
+  ai_chance = { factor = 40 modifier = { factor = 0 is_historical_focus_on = yes date < 1913.5.5 NOT = { has_global_flag = treaty_of_london_1913 } } }
+  WW1_SCUTARI_start_handover = yes
+ }
+}
+
+country_event = {
+ id = ww1_scutari.2
+ title = ww1_scutari.2.t
+ desc = ww1_scutari.2.d
+ picture = GFX_report_event_balkans_map
+ is_triggered_only = yes
+ trigger = { WW1_SCUTARI_coordinator_available = yes MNT = { NOT = { has_country_flag = WW1_SCUTARI_withdrawing } } }
+ option = {
+  name = ww1_scutari.2.a
+  ai_chance = { factor = 80 }
+  WW1_SCUTARI_impose_blockade = yes
+ }
+ option = {
+  name = ww1_scutari.2.b
+  ai_chance = { factor = 20 modifier = { factor = 0 is_historical_focus_on = yes } }
+  add_war_support = -0.02
+  MNT = { WW1_SCUTARI_accept_fait_accompli = yes }
+ }
+}
+
+country_event = {
+ id = ww1_scutari.3
+ title = ww1_scutari.3.t
+ desc = ww1_scutari.3.d
+ picture = GFX_report_event_albania_negotiations
+ is_triggered_only = yes
+ trigger = { tag = MNT WW1_SCUTARI_can_handover = yes has_country_flag = WW1_SCUTARI_open NOT = { has_country_flag = WW1_SCUTARI_withdrawing } }
+ option = {
+  name = ww1_scutari.3.a
+  ai_chance = { factor = 65 modifier = { factor = 2 has_country_flag = WW1_SCUTARI_british_support } modifier = { factor = 2 has_country_flag = WW1_SCUTARI_italian_support } modifier = { factor = 0.75 has_country_flag = WW1_SCUTARI_british_reservation } modifier = { factor = 0.75 has_country_flag = WW1_SCUTARI_italian_reservation } }
+  WW1_SCUTARI_start_handover = yes
+ }
+ option = {
+  name = ww1_scutari.3.b
+  ai_chance = { factor = 35 modifier = { factor = 0 is_historical_focus_on = yes } }
+  custom_effect_tooltip = WW1_SCUTARI_refusal_tt
+  WW1_SCUTARI_refuse_withdrawal = yes
+ }
+}
+
+country_event = {
+ id = ww1_scutari.4
+ title = ww1_scutari.4.t
+ desc = ww1_scutari.4.d
+ picture = GFX_report_event_treaty_of_london_1913
+ is_triggered_only = yes
+ trigger = { WW1_SCUTARI_supporter_available = yes }
+ option = {
+  name = ww1_scutari.4.a
+  ai_chance = { factor = 80 }
+  custom_effect_tooltip = WW1_SCUTARI_support_tt
+  if = { limit = { tag = ENG } MNT = { set_country_flag = WW1_SCUTARI_british_support } }
+  else = { MNT = { set_country_flag = WW1_SCUTARI_italian_support } }
+ }
+ option = {
+  name = ww1_scutari.4.b
+  ai_chance = { factor = 20 modifier = { factor = 0 is_historical_focus_on = yes } }
+  custom_effect_tooltip = WW1_SCUTARI_reservation_tt
+  if = { limit = { tag = ENG } MNT = { set_country_flag = WW1_SCUTARI_british_reservation } }
+  else = { MNT = { set_country_flag = WW1_SCUTARI_italian_reservation } }
+ }
+}
+
+country_event = {
+ id = ww1_scutari.5
+ title = ww1_scutari.5.t
+ desc = { text = ww1_scutari.5.d trigger = { MNT = { owns_state = 934 } } }
+ desc = { text = ww1_scutari.5.d2 trigger = { MNT = { NOT = { owns_state = 934 } } } }
+ picture = GFX_report_event_balkans_map
+ is_triggered_only = yes
+ trigger = { WW1_SCUTARI_coordinator_available = yes MNT = { NOT = { has_country_flag = WW1_SCUTARI_withdrawing } } }
+ immediate = { WW1_SCUTARI_prepare_intervention_goal = yes }
+ option = {
+  name = ww1_scutari.5.a
+  trigger = { WW1_SCUTARI_can_prepare_intervention = yes can_declare_war_on = MNT }
+  ai_chance = { factor = 35 modifier = { factor = 0.5 MNT = { has_country_flag = WW1_SCUTARI_british_reservation } } modifier = { factor = 0.5 MNT = { has_country_flag = WW1_SCUTARI_italian_reservation } } }
+  if = {
+   limit = { WW1_SCUTARI_can_prepare_intervention = yes can_declare_war_on = MNT }
+   set_country_flag = WW1_SCUTARI_intervention
+   declare_war_on = { target = MNT type = ww1_scutari_intervention_wargoal }
+  }
+  else = { remove_wargoal = { type = ww1_scutari_intervention_wargoal target = MNT } }
+ }
+ option = {
+  name = ww1_scutari.5.b
+  trigger = { MNT = { NOT = { owns_state = 934 } } NOT = { has_country_flag = AUH_ww1_july_mediation } NOT = { has_idea = neutrality_idea } NOT = { has_completed_focus = shared_GEN_neutrality_focus } NOT = { has_non_aggression_pact_with = MNT } NOT = { has_guaranteed = MNT } }
+  ai_chance = { factor = 65 }
+  custom_effect_tooltip = WW1_SCUTARI_wait_for_london_tt
+  if = {
+   limit = { WW1_SCUTARI_coordinator_available = yes MNT = { NOT = { has_country_flag = WW1_SCUTARI_withdrawing } NOT = { owns_state = 934 } } }
+   MNT = { set_country_flag = WW1_SCUTARI_pending_enforcement clr_country_flag = WW1_SCUTARI_final_note_sent WW1_SCUTARI_lift_blockade = yes }
+  }
+ }
+ option = {
+  name = ww1_scutari.5.c
+  ai_chance = { factor = 35 }
+  add_war_support = -0.02
+  MNT = { WW1_SCUTARI_accept_fait_accompli = yes }
+ }
+}
+
+news_event = {
+ id = ww1_scutari.10
+ title = ww1_scutari.10.t
+ desc = ww1_scutari.10.d
+ picture = GFX_report_event_treaty_of_london_1913
+ major = yes
+ is_triggered_only = yes
+ option = { name = ww1_scutari.10.a }
+}
+
+news_event = {
+ id = ww1_scutari.11
+ title = ww1_scutari.11.t
+ desc = ww1_scutari.11.d
+ picture = GFX_report_event_balkans_map
+ major = yes
+ is_triggered_only = yes
+ option = { name = ww1_scutari.11.a }
+}

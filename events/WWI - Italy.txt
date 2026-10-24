@@ -42,9 +42,8 @@ country_event = {
 		set_global_flag = italo_turkish_war
 		set_country_flag = IT1_ww1_libyan_campaign_started
 
-		TUR = {
-			if = { limit = { NOT = { has_country_flag = IT1_ww1_ottoman_libya_oob_loaded } } load_oob = TUR_Libya set_country_flag = IT1_ww1_ottoman_libya_oob_loaded }
-		}
+		IT1_ww1_deploy_libyan_expedition = yes
+		custom_effect_tooltip = IT1_ww1_libyan_expedition_tt
 		news_event = { id = ww1_italy.400 hours = 6 }
 
 	}
@@ -170,26 +169,8 @@ country_event = {
 		custom_effect_tooltip = ouchy_tt
 		effect_tooltip = {
 			TUR = {	white_peace = ITA }
-			if = {
-				limit = {
-					AND = {
-						NOT = { is_in_faction_with = FRA}
-						is_in_faction_with = SER #Serbia is not in the Entente, but joined the Balkan league for technical reasons
-					}
-				}
-				leave_faction = yes
-			}
 		}
 		hidden_effect = {
-			if = {
-				limit = {
-					AND = {
-						NOT = { is_in_faction_with = FRA }
-						is_in_faction_with = SER #Serbia is not in the Entente, but joined the Balkan league for technical reasons
-					}
-				}
-				SER = { remove_from_faction = TUR }
-			}
 			TUR = {
 				white_peace = ITA
 			}
@@ -419,7 +400,7 @@ country_event = {
 
 	option = {
 		name = ww1_italy.8.a
-		if = { limit = { country_exists = FRA is_in_faction = no NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality } } NOT = { has_war_with = FRA } }
+		if = { limit = { country_exists = FRA is_in_faction = no NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment } } NOT = { has_war_with = FRA } }
 			add_political_power = -15
 			FRA = { country_event = { id = ww1_italy.300 days = 3 } }
 		}
@@ -443,22 +424,33 @@ country_event = {
 		is_in_faction = no
 		FRA = { is_faction_leader = yes }
 		NOT = { has_country_flag = IT1_ww1_central_offer_accepted }
+		NOT = { has_country_flag = IT1_ww1_central_alignment }
 		NOT = { has_war_with = AUH }
 		NOT = { has_war_with = FRA }
 		NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality } }
-	}
+
+ has_completed_focus = IT1_join_war
+
+ has_completed_focus = IT1_join_war OR = { NOT = { WW1_historical_ai_preparation = yes } NOT = { date < 1915.5.23 } }
+
+ NOT = { has_country_flag = WW1_focus_action_ww1_italy_9_seen }
+}
 
 	option = {
 		name = ww1_italy.9.a
 		ai_chance = {
 			factor = 100
 		}
-		FRA = { add_to_faction = ITA }
+		FRA = { if = { limit = { ITA = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ITA } }
 		declare_war_on = { target = AUH type = take_state_focus generator = { 39 850 736 852 1013 } }
 		set_global_flag = italy_joins_entente
 		set_country_flag = IT1_ww1_entente_alignment
 		news_event = { id = ww1_italy.401 hours = 6 }
-	}
+
+ trigger = { has_completed_focus = IT1_join_war IT1_ww1_may_join_entente = yes FRA = { is_faction_leader = yes NOT = { has_war_with = ITA } } }
+
+ set_country_flag = WW1_focus_action_ww1_italy_9_seen clr_country_flag = WW1_focus_action_ww1_italy_9_queued
+}
 
 	option = {
 		name = ww1_italy.9.b
@@ -470,7 +462,9 @@ country_event = {
 		clr_country_flag = IT1_ww1_entente_offer_accepted
 		set_country_flag = IT1_ww1_armed_neutrality
 
-	}
+
+ set_country_flag = WW1_focus_action_ww1_italy_9_seen clr_country_flag = WW1_focus_action_ww1_italy_9_queued
+}
 }
 
 # Italy Requests Allied Support
@@ -518,7 +512,7 @@ country_event = {
 
 	option = {
 		name = ww1_italy.12.a
-		if = { limit = { country_exists = GER is_in_faction = no NOT = { has_war_with = GER } NOT = { has_war_with = AUH } NOT = { has_country_flag = IT1_ww1_entente_offer_accepted } NOT = { has_country_flag = IT1_ww1_armed_neutrality } } GER = { country_event = { id = ww1_italy.310 days = 3 } } }
+		if = { limit = { country_exists = GER is_in_faction = no NOT = { has_war_with = GER } NOT = { has_war_with = AUH } NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment } } } GER = { country_event = { id = ww1_italy.310 days = 3 } } }
 	}
 }
 
@@ -601,6 +595,7 @@ country_event = {
 		trigger = {
 			is_in_faction = no
 			AUH = { has_country_flag = IT1_ww1_tyrol_offer OR = { owns_state = 39 owns_state = 850 } }
+			NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment } }
 		}
 		ai_chance = {
 			factor = 20
@@ -652,8 +647,8 @@ country_event = {
 	option = {
 		name = ww1_italy.14.a
 		add_political_power = -25
-		if = { limit = { country_exists = FRA GER = { has_war_with = FRA } NOT = { has_war_with = FRA } } declare_war_on = { target = FRA type = take_state_focus generator = { 1 21 735 } } }
-		if = { limit = { country_exists = RIE GER = { has_war_with = RIE } NOT = { has_war_with = RIE } } declare_war_on = { target = RIE type = annex_everything } }
+		if = { limit = { country_exists = FRA GER = { has_war_with = FRA NOT = { has_non_aggression_pact_with = FRA } NOT = { is_in_faction_with = FRA } } NOT = { has_war_with = FRA } } declare_war_on = { target = FRA type = take_state_focus generator = { 1 21 735 } } }
+		if = { limit = { country_exists = RIE GER = { has_war_with = RIE } NOT = { has_war_with = RIE } } if = { limit = { country_exists = RIE RIE = { RUS_ww1_may_be_historical_war_target = yes } } declare_war_on = { target = RIE type = annex_everything } } }
 		set_country_flag = IT1_ww1_central_war_pledge_honoured
 		news_event = { id = ww1_italy.417 hours = 6 }
 	}
@@ -984,8 +979,8 @@ country_event = {
 		promote_character = ITA_ivanoe_bonomi
 		add_stability = -0.03
 		news_event = { id = ww1_italy.408 hours = 6 }
-
-	}
+ WW1_consolidate_chosen_government = yes
+ }
 
 	option = {
 		name = ww1_italy.201.b
@@ -1006,7 +1001,7 @@ country_event = {
 	picture = GFX_report_event_social_class
 
 	is_triggered_only = yes
-	trigger = { tag = ITA date > 1916.12.31 date < 1936.1.1 }
+	trigger = { tag = ITA date > 1920.12.31 date < 1936.1.1 }
 
 	option = {
 		name = ww1_italy.202.a
@@ -1025,8 +1020,8 @@ country_event = {
 		ITA_add_country_leader_role_to_gramsci = yes
 		add_stability = -0.05
 		news_event = { id = ww1_italy.409 hours = 6 }
-
-	}
+ WW1_consolidate_chosen_government = yes
+ }
 
 	option = {
 		name = ww1_italy.202.b
@@ -1061,6 +1056,14 @@ country_event = {
 		set_country_flag = IT1_ww1_armed_neutrality
 		clr_country_flag = IT1_ww1_entente_offer_accepted
 		clr_country_flag = IT1_ww1_central_offer_accepted
+		if = {
+			limit = { country_exists = GER }
+			GER = {
+				clr_global_flag = GE1_D_italian_accession_pending
+				clr_global_flag = GE1_D_italian_accession_accepted
+				clr_global_flag = GE1_D_italian_accession_refused
+			}
+		}
 		add_timed_idea = { idea = IT1_ww1_mediation_mission days = 180 }
 		if = { limit = { country_exists = FRA } FRA = { country_event = { id = ww1_italy.370 days = 7 } } }
 		if = { limit = { country_exists = GER } GER = { country_event = { id = ww1_italy.371 days = 7 } } }
@@ -1167,6 +1170,7 @@ country_event = {
 			country_exists = FRA
 			is_in_faction = no
 			NOT = { has_war_with = FRA }
+			NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment } }
 		}
 		ai_chance = {
 			factor = 65
@@ -1180,12 +1184,14 @@ country_event = {
 		trigger = {
 			is_in_faction = no
 			has_war = no
+			NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment } }
 		}
 		ai_chance = {
 			factor = 35
 		}
 		add_political_power = -50
-		create_faction = IT1_ww1_mediterranean_compact_name
+		if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 } create_faction_from_template = { template = faction_template_ww1_italian_mediterranean name = IT1_ww1_mediterranean_compact_name } }
+else = { create_faction = IT1_ww1_mediterranean_compact_name }
 		set_country_flag = IT1_ww1_continental_bloc
 		if = { limit = { country_exists = GRE GRE = { is_in_faction = no has_war = no } } GRE = { country_event = { id = ww1_italy.363 days = 7 } } }
 		if = { limit = { country_exists = ALB ALB = { is_in_faction = no has_war = no } } ALB = { country_event = { id = ww1_italy.363 days = 7 } } }
@@ -1221,7 +1227,9 @@ country_event = {
 
 		news_event = { id = ww1_italy.413 hours = 6 }
 
-	}
+
+			add_timed_idea = { idea = IT1_ww1_mediation_mission days = 180 }
+		}
 
 	option = {
 		name = ww1_italy.208.b
@@ -1281,7 +1289,7 @@ country_event = {
 	id = ww1_italy.210
 	title = ww1_italy.210.t
 	desc = ww1_italy.210.d
-	picture = GFX_report_event_diaz
+	picture = GFX_report_event_ww1_armando_diaz
 
 	fire_only_once = yes
 	trigger = {
@@ -1364,26 +1372,31 @@ country_event = {
 
 	fire_only_once = yes
 	trigger = {
-        tag = ITA has_global_flag = welcome_event_WW1_active
-        has_country_flag = IT1_ww1_libyan_campaign_started has_war_with = TUR
-        NOT = { has_global_flag = treaty_of_ouchy }
-        controls_state = 158 controls_state = 162
-        has_manpower > 19999 has_equipment = { early_infantry_equipment_0 > 2159 }
-        NOT = { has_country_flag = IT1_ww1_italian_libya_oob_loaded }
-        date < 1936.1.1
-    }
+		tag = ITA
+		has_global_flag = welcome_event_WW1_active
+		OR = {
+			has_country_flag = IT1_ww1_libyan_campaign_started
+			has_completed_focus = IT1_claims_libya
+		}
+		has_war_with = TUR
+		NOT = { has_global_flag = treaty_of_ouchy }
+		NOT = { has_country_flag = IT1_ww1_ottoman_accommodation }
+		NOT = { has_country_flag = IT1_ww1_italian_libya_oob_loaded }
+		448 = { OR = { is_owned_by = TUR is_owned_by = ITA } }
+		450 = { OR = { is_owned_by = TUR is_owned_by = ITA } }
+		OR = { controls_province = 1149 TUR = { controls_province = 1149 } }
+		OR = { controls_province = 11954 TUR = { controls_province = 11954 } }
+		date < 1936.1.1
+	}
 	mean_time_to_happen = { days = 1 }
 
 	option = {
-        name = ww1_italy.220.a
-        add_political_power = -25
-        add_manpower = -20000
-        add_equipment_to_stockpile = { type = early_infantry_equipment_0 amount = -2160 }
-        load_oob = ITA_Libya
-        set_country_flag = IT1_ww1_italian_libya_oob_loaded
-
-
-    }
+		name = ww1_italy.220.a
+		set_global_flag = italo_turkish_war
+		set_country_flag = IT1_ww1_libyan_campaign_started
+		IT1_ww1_deploy_libyan_expedition = yes
+		custom_effect_tooltip = IT1_ww1_libyan_expedition_tt
+	}
 }
 
 country_event = {
@@ -1399,7 +1412,7 @@ country_event = {
 		name = ww1_italy.300.a
 		trigger = {
 			is_faction_leader = yes
-			ITA = { is_in_faction = no NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality } } }
+			ITA = { is_in_faction = no NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment } } }
 		}
 		ai_chance = {
 			factor = 100
@@ -1459,7 +1472,7 @@ country_event = {
 		name = ww1_italy.310.a
 		trigger = {
 			is_faction_leader = yes
-			ITA = { is_in_faction = no NOT = { has_war_with = GER } NOT = { has_war_with = AUH } NOT = { has_country_flag = IT1_ww1_armed_neutrality } }
+			ITA = { is_in_faction = no NOT = { has_war_with = GER } NOT = { has_war_with = AUH } NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment } } }
 		}
 		ai_chance = {
 			factor = 75
@@ -1494,12 +1507,14 @@ country_event = {
 			NOT = { has_war_with = GER }
 			NOT = { has_country_flag = IT1_ww1_armed_neutrality }
 			NOT = { has_country_flag = AUH_ww1_italian_neutrality_agreement }
+			NOT = { has_country_flag = IT1_ww1_entente_offer_accepted }
+			NOT = { has_country_flag = IT1_ww1_entente_alignment }
 		}
 		ai_chance = {
 			factor = 20
 			modifier = { factor = 0 is_historical_focus_on = yes }
 		}
-		GER = { add_to_faction = ITA }
+		GER = { if = { limit = { ITA = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ITA } }
 		set_country_flag = IT1_ww1_central_alignment
 		set_global_flag = ITA_support_GE1
 		news_event = { id = ww1_italy.402 hours = 6 }
@@ -1513,6 +1528,8 @@ country_event = {
 		clr_country_flag = IT1_ww1_central_offer_accepted
 		add_political_power = -20
 	}
+
+ trigger = { tag = ITA has_completed_focus = IT1_honor_alliance }
 }
 
 country_event = {
@@ -1787,13 +1804,15 @@ country_event = {
 		name = ww1_italy.360.a
 		trigger = {
 			OR = { is_in_faction = no AND = { is_faction_leader = yes NOT = { is_in_faction_with = ENG } } }
-			ITA = { is_in_faction = no }
+			ITA = { is_in_faction = no NOT = { OR = { has_global_flag = ITA_neutrality_guaranteed has_country_flag = AUH_ww1_italian_neutrality_agreement has_country_flag = IT1_ww1_armed_neutrality has_country_flag = IT1_ww1_central_offer_accepted has_country_flag = IT1_ww1_central_alignment has_country_flag = IT1_ww1_entente_offer_accepted has_country_flag = IT1_ww1_entente_alignment } } }
 		}
 		ai_chance = {
 			factor = 60
 		}
-		if = { limit = { is_in_faction = no } create_faction = IT1_ww1_continental_compact_name }
+		if = { limit = { is_in_faction = no } if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 } create_faction_from_template = { template = faction_template_ww1_continental_compact name = IT1_ww1_continental_compact_name } }
+else = { create_faction = IT1_ww1_continental_compact_name } }
 		else = { set_faction_name = IT1_ww1_continental_compact_name }
+if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 } WW1_configure_continental_compact_faction = yes }
 		ITA = { country_event = { id = ww1_italy.361 days = 2 } }
 		if = { limit = { country_exists = RIE RIE = { is_in_faction = no NOT = { has_war_with = FRA } } } RIE = { country_event = { id = ww1_italy.364 days = 7 } } }
 	}
@@ -1821,11 +1840,18 @@ country_event = {
 			is_in_faction = no
 			FRA = { is_faction_leader = yes }
 			NOT = { has_war_with = FRA }
+			NOT = { has_global_flag = ITA_neutrality_guaranteed }
+			NOT = { has_country_flag = AUH_ww1_italian_neutrality_agreement }
+			NOT = { has_country_flag = IT1_ww1_armed_neutrality }
+			NOT = { has_country_flag = IT1_ww1_central_offer_accepted }
+			NOT = { has_country_flag = IT1_ww1_central_alignment }
+			NOT = { has_country_flag = IT1_ww1_entente_offer_accepted }
+			NOT = { has_country_flag = IT1_ww1_entente_alignment }
 		}
 		ai_chance = {
 			factor = 75
 		}
-		FRA = { add_to_faction = ITA }
+		FRA = { if = { limit = { ITA = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ITA } }
 		set_country_flag = IT1_ww1_continental_bloc
 		news_event = { id = ww1_italy.412 hours = 6 }
 	}
@@ -1873,7 +1899,7 @@ country_event = {
 		ai_chance = {
 			factor = 50
 		}
-		ITA = { add_to_faction = ROOT }
+		ITA = { if = { limit = { ROOT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ROOT } }
 	}
 
 	option = {
@@ -1900,11 +1926,13 @@ country_event = {
 			is_in_faction = no
 			FRA = { is_faction_leader = yes }
 			NOT = { has_war_with = FRA }
+			NOT = { has_country_flag = RUS_ww1_armed_neutrality }
+			NOT = { has_country_flag = RUS_ww1_german_agreement }
 		}
 		ai_chance = {
 			factor = 55
 		}
-		FRA = { add_to_faction = ROOT }
+		FRA = { if = { limit = { ROOT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ROOT } }
 	}
 
 	option = {
@@ -1989,7 +2017,7 @@ news_event = {
 	id = ww1_italy.400
 	title = ww1_italy.400.t
 	desc = ww1_italy.400.d
-	picture = GFX_report_event_italo_turkish_war
+	picture = GFX_news_event_italo_turk
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.400.a }
@@ -1999,7 +2027,7 @@ news_event = {
 	id = ww1_italy.401
 	title = ww1_italy.401.t
 	desc = ww1_italy.401.d
-	picture = GFX_report_event_italy_joins_entente
+	picture = GFX_news_event_italy_WWI
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.401.a }
@@ -2009,7 +2037,7 @@ news_event = {
 	id = ww1_italy.402
 	title = ww1_italy.402.t
 	desc = ww1_italy.402.d
-	picture = GFX_report_event_triple_alliance
+	picture = GFX_news_event_generic_sign_treaty2
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.402.a }
@@ -2019,7 +2047,7 @@ news_event = {
 	id = ww1_italy.403
 	title = ww1_italy.403.t
 	desc = ww1_italy.403.d
-	picture = GFX_report_event_south_tyrol_claim
+	picture = GFX_news_event_generic_sign_treaty2
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.403.a }
@@ -2029,7 +2057,7 @@ news_event = {
 	id = ww1_italy.404
 	title = ww1_italy.404.t
 	desc = ww1_italy.404.d
-	picture = GFX_report_event_senussi_order
+	picture = GFX_news_event_italo_turk
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.404.a }
@@ -2039,7 +2067,7 @@ news_event = {
 	id = ww1_italy.405
 	title = ww1_italy.405.t
 	desc = ww1_italy.405.d
-	picture = GFX_report_event_ottomanism
+	picture = GFX_news_event_ww1_ottoman_parliament
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.405.a }
@@ -2049,7 +2077,7 @@ news_event = {
 	id = ww1_italy.406
 	title = ww1_italy.406.t
 	desc = ww1_italy.406.d
-	picture = GFX_report_event_social_class
+	picture = GFX_news_event_ww1_italy_chamber
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.406.a }
@@ -2059,7 +2087,7 @@ news_event = {
 	id = ww1_italy.407
 	title = ww1_italy.407.t
 	desc = ww1_italy.407.d
-	picture = GFX_report_event_social_class
+	picture = GFX_news_event_ww1_italy_chamber
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.407.a }
@@ -2069,7 +2097,7 @@ news_event = {
 	id = ww1_italy.408
 	title = ww1_italy.408.t
 	desc = ww1_italy.408.d
-	picture = GFX_report_event_social_class
+	picture = GFX_news_event_ww1_italy_chamber
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.408.a }
@@ -2079,7 +2107,7 @@ news_event = {
 	id = ww1_italy.409
 	title = ww1_italy.409.t
 	desc = ww1_italy.409.d
-	picture = GFX_report_event_social_class
+	picture = GFX_news_event_ww1_italy_chamber
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.409.a }
@@ -2089,7 +2117,7 @@ news_event = {
 	id = ww1_italy.410
 	title = ww1_italy.410.t
 	desc = ww1_italy.410.d
-	picture = GFX_report_event_ceasefire
+	picture = GFX_news_event_generic_sign_treaty2
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.410.a }
@@ -2099,7 +2127,7 @@ news_event = {
 	id = ww1_italy.411
 	title = ww1_italy.411.t
 	desc = ww1_italy.411.d
-	picture = GFX_report_event_senussi_order
+	picture = GFX_news_event_italo_turk
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.411.a }
@@ -2108,8 +2136,12 @@ news_event = {
 news_event = {
 	id = ww1_italy.412
 	title = ww1_italy.412.t
+	title = { text = ww1_italy.412.mediterranean.t trigger = { ITA = { has_country_flag = IT1_ww1_continental_bloc is_faction_leader = yes } } }
+	title = { text = ww1_italy.412.continental.t trigger = { FRA = { is_faction_leader = yes } ITA = { has_country_flag = IT1_ww1_continental_bloc is_in_faction_with = FRA } } }
 	desc = ww1_italy.412.d
-	picture = GFX_report_event_triple_alliance
+	desc = { text = ww1_italy.412.mediterranean.d trigger = { ITA = { has_country_flag = IT1_ww1_continental_bloc is_faction_leader = yes } } }
+	desc = { text = ww1_italy.412.continental.d trigger = { FRA = { is_faction_leader = yes } ITA = { has_country_flag = IT1_ww1_continental_bloc is_in_faction_with = FRA } } }
+	picture = GFX_news_event_generic_sign_treaty2
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.412.a }
@@ -2119,7 +2151,7 @@ news_event = {
 	id = ww1_italy.413
 	title = ww1_italy.413.t
 	desc = ww1_italy.413.d
-	picture = GFX_report_event_home_front
+	picture = GFX_news_event_ww1_italy_chamber
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.413.a }
@@ -2129,7 +2161,7 @@ news_event = {
 	id = ww1_italy.414
 	title = ww1_italy.414.t
 	desc = ww1_italy.414.d
-	picture = GFX_report_event_social_class
+	picture = GFX_news_event_ww1_red_week_press
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.414.a }
@@ -2139,7 +2171,7 @@ news_event = {
 	id = ww1_italy.415
 	title = ww1_italy.415.t
 	desc = ww1_italy.415.d
-	picture = GFX_report_event_diaz
+	picture = GFX_news_event_ww1_diaz_review
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.415.a }
@@ -2149,7 +2181,7 @@ news_event = {
 	id = ww1_italy.416
 	title = ww1_italy.416.t
 	desc = ww1_italy.416.d
-	picture = GFX_report_event_triple_alliance
+	picture = GFX_news_event_generic_sign_treaty2
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.416.a }
@@ -2159,7 +2191,7 @@ news_event = {
 	id = ww1_italy.417
 	title = ww1_italy.417.t
 	desc = ww1_italy.417.d
-	picture = GFX_report_event_triple_alliance
+	picture = GFX_news_event_italy_WWI
 	major = yes
 	is_triggered_only = yes
 	option = { name = ww1_italy.417.a }
