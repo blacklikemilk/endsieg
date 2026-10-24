@@ -1,0 +1,83 @@
+# Settings affect eligibility, the counter, the interface and counter-derived penalties.
+# Country scope. Preserve accumulated strain when enabling an already active country.
+endsieg_war_exhaustion_initialize = {
+	if = {
+		limit = { NOT = { has_country_flag = endsieg_war_exhaustion_initialized } }
+		if = {
+			limit = { NOT = { has_variable = war_exhaustion_variable } }
+			set_variable = { war_exhaustion_variable = 0 }
+		}
+		set_variable = { war_exhaustion_daily = 1 }
+		set_variable = { peace_exhaustion_daily = -2 }
+		set_variable = { war_exhaustion_max = 1825 }
+		clamp_variable = { var = war_exhaustion_variable min = 0 max = war_exhaustion_max }
+		set_country_flag = endsieg_war_exhaustion_initialized
+	}
+}
+
+# Country scope. Occupation/resistance ideas have separate effects and remain intact.
+endsieg_war_exhaustion_clear_country = {
+	clr_country_flag = player_wants_war_exhaustion
+	clr_country_flag = endsieg_war_exhaustion_initialized
+	clr_country_flag = soviet_occupation_debuff_set
+	clr_country_flag = soviet_occupation_debuff_removed
+	set_variable = { war_exhaustion_variable = 0 }
+	set_variable = { war_exhaustion_daily = 0 }
+	set_variable = { peace_exhaustion_daily = 0 }
+	set_variable = { show_exhaustion_options = 0 }
+	remove_ideas = slight_war_exhaustion_gui
+	remove_ideas = generic_war_exhaustion_gui
+	remove_ideas = heavy_war_exhaustion_gui
+}
+
+# A selection replaces the previous profile. The configured flag makes it authoritative
+# over old per-country opt-in flags and prevents queued bookmark events from reseeding.
+endsieg_war_exhaustion_reset_profile = {
+	set_global_flag = endsieg_war_exhaustion_settings_configured
+	clr_global_flag = endsieg_war_exhaustion_disabled
+	clr_global_flag = every_country_war_exhaustion
+	clr_global_flag = player_wants_german_faction_war_exhaustion
+	clr_global_flag = player_wants_allied_war_exhaustion
+	clr_global_flag = player_wants_comintern_war_exhaustion
+}
+
+endsieg_war_exhaustion_sync_profile = {
+	# Include absent tags so a released nation cannot inherit disabled penalties.
+	every_possible_country = {
+		if = {
+			limit = { country_has_war_exhaustion = yes }
+			endsieg_war_exhaustion_initialize = yes
+		}
+		else = { endsieg_war_exhaustion_clear_country = yes }
+	}
+}
+
+endsieg_war_exhaustion_select_all = {
+	endsieg_war_exhaustion_reset_profile = yes
+	set_global_flag = every_country_war_exhaustion
+	endsieg_war_exhaustion_sync_profile = yes
+}
+
+endsieg_war_exhaustion_select_german_faction = {
+	endsieg_war_exhaustion_reset_profile = yes
+	set_global_flag = player_wants_german_faction_war_exhaustion
+	endsieg_war_exhaustion_sync_profile = yes
+}
+
+endsieg_war_exhaustion_select_allied_faction = {
+	endsieg_war_exhaustion_reset_profile = yes
+	set_global_flag = player_wants_allied_war_exhaustion
+	endsieg_war_exhaustion_sync_profile = yes
+}
+
+endsieg_war_exhaustion_select_soviet_faction = {
+	endsieg_war_exhaustion_reset_profile = yes
+	set_global_flag = player_wants_comintern_war_exhaustion
+	endsieg_war_exhaustion_sync_profile = yes
+}
+
+endsieg_war_exhaustion_select_none = {
+	endsieg_war_exhaustion_reset_profile = yes
+	set_global_flag = endsieg_war_exhaustion_disabled
+	endsieg_war_exhaustion_sync_profile = yes
+}

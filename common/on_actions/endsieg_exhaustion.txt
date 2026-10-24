@@ -2,15 +2,8 @@ on_actions = {
 	on_startup = {
 		effect = {
 			every_country = {
-				limit = {
-					country_has_war_exhaustion = yes
-					NOT = { has_country_flag = endsieg_war_exhaustion_initialized }
-				}
-				set_variable = { war_exhaustion_variable = 0 }
-				set_variable = { war_exhaustion_daily = 1 }
-				set_variable = { peace_exhaustion_daily = -2 }
-				set_variable = { war_exhaustion_max = 1825 }
-				set_country_flag = endsieg_war_exhaustion_initialized
+				limit = { country_has_war_exhaustion = yes }
+				endsieg_war_exhaustion_initialize = yes
 			}
 		}
 	}
@@ -19,6 +12,7 @@ on_actions = {
 		effect = {
             if = {
 				limit = { country_has_war_exhaustion = yes }
+				endsieg_war_exhaustion_initialize = yes
 
 				if = {
 					limit = {
@@ -112,6 +106,20 @@ on_actions = {
 					}
 				}
                 clamp_variable = { var = war_exhaustion_variable min = 0 max = war_exhaustion_max }
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_country_flag = endsieg_war_exhaustion_initialized
+						has_country_flag = player_wants_war_exhaustion
+						check_variable = { war_exhaustion_variable > 0 }
+						check_variable = { show_exhaustion_options > 0 }
+						has_idea = slight_war_exhaustion_gui
+						has_idea = generic_war_exhaustion_gui
+						has_idea = heavy_war_exhaustion_gui
+					}
+				}
+				endsieg_war_exhaustion_clear_country = yes
 			}
 		}
 	}
