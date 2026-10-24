@@ -14,10 +14,40 @@
 #
 
 country_has_war_exhaustion = {
+	NOT = { has_global_flag = endsieg_war_exhaustion_disabled }
 	OR = {
-		tag = GER
-		tag = AUH
-		has_country_flag = player_wants_war_exhaustion
+		has_global_flag = every_country_war_exhaustion
+		AND = {
+			has_global_flag = player_wants_german_faction_war_exhaustion
+			OR = { tag = GER is_in_faction_with = GER }
+		}
+		AND = {
+			has_global_flag = player_wants_allied_war_exhaustion
+			OR = { tag = FRA tag = USA is_in_faction_with = FRA }
+		}
+		AND = {
+			has_global_flag = player_wants_comintern_war_exhaustion
+			OR = { tag = SOV is_in_faction_with = SOV }
+		}
+		# Preserve pre-settings saves and the original GER/AUH default.
+		AND = {
+			NOT = { has_global_flag = endsieg_war_exhaustion_settings_configured }
+			OR = { tag = GER tag = AUH has_country_flag = player_wants_war_exhaustion }
+		}
+	}
+}
+
+# Global selection state, checked before either legacy seeds or welcome.35 run.
+endsieg_war_exhaustion_needs_bookmark_seed = {
+	NOT = {
+		OR = {
+			has_global_flag = endsieg_war_exhaustion_settings_configured
+			has_global_flag = endsieg_war_exhaustion_disabled
+			has_global_flag = every_country_war_exhaustion
+			has_global_flag = player_wants_german_faction_war_exhaustion
+			has_global_flag = player_wants_allied_war_exhaustion
+			has_global_flag = player_wants_comintern_war_exhaustion
+		}
 	}
 }
 
