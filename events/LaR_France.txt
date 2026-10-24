@@ -272,7 +272,7 @@ country_event = {
 		name = lar_france_political_violence.1.a #ignore
 		add_stability = -0.05
 		add_popularity = { ideology = fascism popularity = 0.025 }
-		add_popularity = { ideology = paternal_autocrat popularity = 0.025 }
+		add_popularity = { ideology = neutrality popularity = 0.025 }
 	}
 
 	option = {
@@ -292,7 +292,7 @@ country_event = {
 	option = {
 		name = lar_france_political_violence.1.a #ignore
 		add_stability = -0.05
-		add_popularity = { ideology = stalinist popularity = 0.025 }
+		add_popularity = { ideology = communism popularity = 0.025 }
 	}
 
 	option = {
@@ -313,7 +313,7 @@ country_event = {
 		name = lar_france_political_violence.3.a #ignore
 		add_stability = -0.1
 		add_popularity = { ideology = fascism popularity = 0.05 }
-		add_popularity = { ideology = paternal_autocrat popularity = 0.05 }
+		add_popularity = { ideology = neutrality popularity = 0.05 }
 	}
 
 	option = {
@@ -1396,9 +1396,9 @@ country_event = {
 	option = {
 		name = FRA_indochina_intervention.1.a
 		event_target:free_france = {
-			transfer_state = 670
+			transfer_state = 1068
 			transfer_state = 671
-			transfer_state = 741
+			transfer_state = 1067
 		}
 	}
 }
@@ -1415,7 +1415,7 @@ country_event = {
 		name = FRA_indochina_intervention.1.a
 		effect_tooltip = {
 			event_target:free_france = {
-				transfer_state = 670
+				transfer_state = 1068
 				transfer_state = 671
 				transfer_state = 74
 			}
@@ -1708,6 +1708,8 @@ country_event = {
 					state = 557
 					state = 272
 					state = 556
+					state = 898
+					state = 899
 					state = 780
 					state = 779
 					state = 778
@@ -1739,6 +1741,8 @@ country_event = {
 						state = 557
 						state = 272
 						state = 556
+						state = 898
+						state = 899
 						state = 780
 						state = 779
 						state = 778
@@ -1860,7 +1864,14 @@ country_event = {
 	option = {
 		name = lar_compensate_italy.1.a #agree
 		ai_chance = {
-			factor = 100
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					ITA_is_monarchist_ai = yes
+					ITA_is_alt_fascist_grandi_ai = yes
+				}
+			}
 		}
 		FRA = {
 			country_event = lar_compensate_italy.2
@@ -1874,7 +1885,7 @@ country_event = {
 	option = {
 		name = lar_compensate_italy.1.b #refuse
 		ai_chance = {
-			factor = 0
+			base = 1
 		}
 		FRA = {
 			country_event = lar_compensate_italy.3
@@ -2472,7 +2483,19 @@ country_event = {
 	option = {
 		name = lar_concessions_to_italy.4.a #agree
 		ai_chance = {
-			factor = 80
+			base = 5
+			modifier = {
+				add = 75
+				OR = {
+					ITA_is_alt_fascist_grandi_ai = yes
+					ITA_is_christian_democracy_ai = yes
+					ITA_is_socialist_ai = yes
+				}
+			}
+			modifier = {
+				factor = 0
+				is_in_faction = yes
+			}
 		}
 		set_global_flag = ITA_agrees_ENG_FRA_concessions
 		effect_tooltip = {
@@ -2492,7 +2515,13 @@ country_event = {
 	option = {
 		name = lar_concessions_to_italy.4.b #no deal
 		ai_chance = {
-			factor = 20
+			base = 20
+			modifier = {
+				factor = 0
+				ITA_is_alt_fascist_grandi_ai = no
+				ITA_is_christian_democracy_ai = no
+				ITA_is_socialist_ai = no
+			}
 		}
 		FROM = {
 			country_event = lar_concessions_to_italy.7
@@ -2991,7 +3020,7 @@ country_event = {
 			}
 			FROM = { add_to_faction = ROOT }
 		}
-		load_focus_tree = french_republic_focus
+		load_focus_tree = french_focus
 		unlock_national_focus = FRA_revive_the_national_bloc
 		unlock_national_focus = FRA_utilize_the_leagues
 		unlock_national_focus = FRA_national_regeneration
@@ -3017,7 +3046,7 @@ country_event = {
 		random_other_country = {
 			limit = { 
 				original_tag = FRA 
-				has_government = social_democrat
+				has_government = democratic
 			}
 			country_event = lar_end_the_occupation.4
 			effect_tooltip = { annex_country = { target = VIC transfer_troops = yes } }
@@ -3028,7 +3057,7 @@ country_event = {
 		ai_chance = {
 			factor = 50
 		}
-		load_focus_tree = french_republic_focus
+		load_focus_tree = french_focus
 		unlock_national_focus = FRA_revive_the_national_bloc
 		unlock_national_focus = FRA_utilize_the_leagues
 		unlock_national_focus = FRA_national_regeneration
@@ -3099,7 +3128,7 @@ country_event = {
 		}
 		FRA = {
 			annex_country = { target = VIC transfer_troops = yes }
-			load_focus_tree = french_republic_focus
+			load_focus_tree = french_focus
 			unlock_national_focus = FRA_revive_the_national_bloc
 			unlock_national_focus = FRA_laissez_faire
 			unlock_national_focus = FRA_protect_the_rights_of_man
@@ -3122,7 +3151,7 @@ country_event = {
 		ai_chance = {
 			factor = 80
 		}
-		load_focus_tree = french_republic_focus
+		load_focus_tree = french_focus
 		unlock_national_focus = FRA_revive_the_national_bloc
 		unlock_national_focus = FRA_utilize_the_leagues
 		unlock_national_focus = FRA_national_regeneration
@@ -3145,30 +3174,16 @@ country_event = {
 	title = lar_low_stability_civil_war.1.t
 	desc = lar_low_stability_civil_war.1.desc
 	picture = GFX_report_event_spain_civil_war_volunteers_02
+	
+	is_triggered_only = yes
 
-	trigger = {
-		tag = FRA
-		OR = {
-			has_war = no
-			AND = {
-				SPR_scw_in_progress = yes
-				any_enemy_country = {
-					original_tag = SPR #civil war still fires if in intervention in Spain
-				}
-			}
-		}
-		has_stability < 0.25
-		not = { has_completed_focus = FRA_form_the_popular_front }
-	}
-	mean_time_to_happen = { days = 180 }
-	fire_only_once = yes
 	option = {
 		name = lar_low_stability_civil_war.1.a #agree
 		ai_chance = {
 			factor = 80
 		}
 		start_civil_war = {
-			ideology = stalinist
+			ideology = communism
 			size = 0.5
 		}
 	}
@@ -3181,25 +3196,9 @@ country_event = {
 	desc = lar_low_stability_civil_war.2.desc
 	picture = GFX_report_event_spain_civil_war_soldiers
 
-	trigger = {
-		tag = FRA
-		OR = {
-			has_war = no
-			AND = {
-				SPR_scw_in_progress = yes
-				any_enemy_country = {
-					original_tag = SPR #civil war still fires if in intervention in Spain
-				}
-			}
-		}
-		has_stability < 0.25
-		has_completed_focus = FRA_form_the_popular_front
-		NOT = {
-			has_completed_focus = FRA_destroy_the_counter_revolution
-		}
-	}
-	mean_time_to_happen = { days = 180 }
+	is_triggered_only = yes
 	fire_only_once = yes
+	
 	option = {
 		name = lar_low_stability_civil_war.2.a #agree
 		ai_chance = {
@@ -3389,16 +3388,16 @@ country_event = {
 			set_variable = { volunteer_strength = FRA.party_popularity@fascism }
 		}
 		else_if = {
-			limit = { has_government = stalinist }
-			set_variable = { volunteer_strength = FRA.party_popularity@stalinist }
+			limit = { has_government = communism }
+			set_variable = { volunteer_strength = FRA.party_popularity@communism }
 		}
 		else_if = {
-			limit = { has_government = social_democrat }
+			limit = { has_government = democratic }
 			set_variable = { volunteer_strength = FRA.party_popularity@democratic }
-			multiply_variable = { volunteer_strength = FRA.war_support } #special modifier to reduce impact of democratic support
+			multiply_variable = { volunteer_strength = 0.5 } #special modifier to reduce impact of democratic support [no longer war support, or we reach 0 often, also it is HIDDEN]
 		}
 		else_if = {
-			limit = { has_government = paternal_autocrat }
+			limit = { has_government = neutrality }
 			set_variable = { volunteer_strength = FRA.party_popularity@neutrality }
 		}
 		multiply_variable = { volunteer_strength = 1000 }
@@ -3457,28 +3456,28 @@ country_event = {
 		else_if = {
 			limit = {
 				FROM = {
-					has_government = stalinist
+					has_government = communism
 				}
 			}
-			add_popularity = { ideology = stalinist popularity = 0.05 }
+			add_popularity = { ideology = communism popularity = 0.05 }
 			army_experience = 10
 		}
 		else_if = {
 			limit = {
 				FROM = {
-					has_government = social_democrat
+					has_government = democratic
 				}
 			}
-			add_popularity = { ideology = social_democrat popularity = 0.05 }
+			add_popularity = { ideology = democratic popularity = 0.05 }
 			army_experience = 10
 		}
 		else_if = {
 			limit = {
 				FROM = {
-					has_government = paternal_autocrat
+					has_government = neutrality
 				}
 			}
-			add_popularity = { ideology = paternal_autocrat popularity = 0.05 }
+			add_popularity = { ideology = neutrality popularity = 0.05 }
 			army_experience = 10
 		}
 	}
@@ -3501,17 +3500,17 @@ country_event = {
 		else_if = {
 			limit = {
 				FROM = {
-					has_government = stalinist
+					has_government = communism
 				}
 			}
-			set_temp_variable = { stability_impact = party_popularity@stalinist }
+			set_temp_variable = { stability_impact = party_popularity@communism }
 			multiply_temp_variable = { stability_impact = 0.1 }
 			add_stability = stability_impact
 		}
 		else_if = {
 			limit = {
 				FROM = {
-					has_government = social_democrat
+					has_government = democratic
 				}
 			}
 			set_temp_variable = { stability_impact = party_popularity@democratic }
@@ -3521,7 +3520,7 @@ country_event = {
 		else_if = {
 			limit = {
 				FROM = {
-					has_government = paternal_autocrat
+					has_government = neutrality
 				}
 			}
 			set_temp_variable = { stability_impact = party_popularity@neutrality }
@@ -3613,7 +3612,7 @@ country_event = {
 	hidden = yes
 	trigger = {
 		has_idea = FRA_communist_cooperation
-		stalinist > 0.15
+		communism > 0.15
 	}
 	fire_only_once = yes
 	immediate = {

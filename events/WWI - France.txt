@@ -1,4 +1,4 @@
-﻿###########################
+###########################
 # French Republic Events
 ###########################
 
@@ -96,11 +96,18 @@ country_event = {
 	picture = GFX_report_event_italy_joins_entente
 
 	is_triggered_only = yes
+	trigger = {
+		tag = FRA date > 1915.5.22 date < 1936.1.1
+		country_exists = ITA is_faction_leader = yes
+		ITA = { IT1_ww1_may_join_entente = yes }
+	}
+
 
 	option = {
 		name = ww1_france.3.a
 		news_event = { hours = 6 id = endsieg_news.187 }
 		set_global_flag = italy_joins_entente
+		ITA = { set_country_flag = IT1_ww1_entente_offer_accepted set_country_flag = IT1_ww1_entente_alignment }
 		FRA = {
 			add_to_faction = ITA
 		}
@@ -151,8 +158,22 @@ country_event = {
 
 	option = {
 		name = ww1_france.6.a
+		set_global_flag = greece_joins_entente
 		FRA = {
-			add_to_faction = GRE
+			if = {
+				limit = { NOT = { GRE = { is_in_faction_with = FRA } } }
+				add_to_faction = GRE
+			}
+		}
+		GRE = {
+			if = {
+				limit = { FRA = { has_war_with = GER } NOT = { has_war_with = GER } }
+				add_to_war = { targeted_alliance = FRA enemy = GER }
+			}
+			if = {
+				limit = { country_exists = BUL FRA = { has_war_with = BUL } NOT = { has_war_with = BUL } }
+				add_to_war = { targeted_alliance = FRA enemy = BUL }
+			}
 		}
 	}
 }
@@ -369,36 +390,40 @@ country_event = {
 	option = {
 		name = ww1_france.16.a
 		FRA = {
-			add_opinion_modifier = { target = RUS modifier = russia_friend }
+			add_opinion_modifier = { target = RIE modifier = russia_friend }
 		}
 		add_political_power = 50
 	}
 }
 
-# Agadir Crisis
+# Agadir Crisis: France refers the colonial dispute to Berlin.
 country_event = {
 	id = ww1_france.17
 	title = ww1_france.17.t
 	desc = ww1_france.17.d
 	picture = GFX_report_event_agadir_crisis
 
+	fire_only_once = yes
 	is_triggered_only = yes
+	trigger = {
+		tag = FRA
+		has_global_flag = welcome_event_WW1_active
+		date > 1911.6.30
+		NOT = { date > 1914.7.1 }
+		NOT = { has_global_flag = GE1_agadir_settlement_resolved }
+		NOT = { has_global_flag = GE1_agadir_crisis_pending }
+		country_exists = GER
+	}
 
 	immediate = {
 		set_global_flag = agadir_crisis
+		set_global_flag = GE1_agadir_crisis_pending
 	}
 
 	option = {
 		name = ww1_france.17.a
-		news_event = { hours = 6 id = endsieg_news.129 }
 		GER = {
-			transfer_state = 763
-		}
-		SPR = {
-			transfer_state = 786
-		}
-		FRA = {
-			annex_country = { target = MOR transfer_troops = no }
+			country_event = { id = ww1_germany.19 days = 1 }
 		}
 	}
 }
@@ -442,7 +467,7 @@ country_event = {
 				}
 			}
 		}
-		754 = {
+		1010 = {
 			if = {
 				limit = { is_controlled_by = FRA }
 				add_building_construction = {
@@ -459,19 +484,13 @@ country_event = {
 				}
 			}
 		}
-		755 = {
+		1011 = {
 			if = {
 				limit = { is_controlled_by = FRA }
 				add_building_construction = {
 					type = bunker
 					level = 3
 					province = 5291
-					instant_build = yes
-				}
-				add_building_construction = {
-					type = bunker
-					level = 3
-					province = 1664
 					instant_build = yes
 				}
 				add_building_construction = {
@@ -516,13 +535,30 @@ country_event = {
 			if = {
 				limit = { is_controlled_by = FRA }
 				add_building_construction = {
-					type = trench
+					type = bunker
 					level = 3
 					province = 5139
 					instant_build = yes
 				}
 				add_building_construction = {
-					type = trench
+					type = bunker
+					level = 3
+					province = 8193
+					instant_build = yes
+				}
+			}
+		}
+		1084 = {
+			if = {
+				limit = { is_controlled_by = FRA }
+				add_building_construction = {
+					type = bunker
+					level = 3
+					province = 5139
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = bunker
 					level = 3
 					province = 8193
 					instant_build = yes
@@ -533,7 +569,7 @@ country_event = {
 			if = {
 				limit = { is_controlled_by = FRA }
 				add_building_construction = {
-					type = trench
+					type = bunker
 					level = 3
 					province = 8124
 					instant_build = yes
@@ -544,7 +580,7 @@ country_event = {
 			if = {
 				limit = { is_controlled_by = FRA }
 				add_building_construction = {
-					type = trench
+					type = bunker
 					level = 3
 					province = 4948
 					instant_build = yes
@@ -555,7 +591,7 @@ country_event = {
 			if = {
 				limit = { is_controlled_by = FRA }
 				add_building_construction = {
-					type = trench
+					type = bunker
 					level = 3
 					province = 5222
 					instant_build = yes
@@ -621,6 +657,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1914.8.1
 		tag = FRA
 		date > 1914.7.30
 		NOT = { date > 1915.1.1 }
@@ -791,7 +829,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Ernest_Monis.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -816,7 +854,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Joseph_Caillaux.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -841,7 +879,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Raymond_Poincare.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -866,7 +904,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Aristide_Briand.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -891,7 +929,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Louis_Barthou.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -916,7 +954,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Gaston_Doumergu.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -934,6 +972,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1914.6.10
 		tag = FRA
 		date > 1914.6.8
 		NOT = {	date > 1915.1.1 }
@@ -949,7 +989,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Alexandre_Ribot.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -967,6 +1007,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1914.6.15
 		tag = FRA
 		date > 1914.6.13
 		NOT = {	date > 1915.1.1 }
@@ -981,7 +1023,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Rene_Viviani.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -999,6 +1041,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1915.10.30
 		tag = FRA
 		date > 1915.10.28
 		NOT = {	date > 1916.1.1 }
@@ -1014,7 +1058,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Aristide_Briand.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -1032,6 +1076,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1917.3.21
 		tag = FRA
 		date > 1917.3.19
 		NOT = {	date > 1918.1.1 }
@@ -1047,7 +1093,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Alexandre_Ribot.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -1065,6 +1111,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1917.9.14
 		tag = FRA
 		date > 1917.9.12
 		NOT = {	date > 1918.1.1 }
@@ -1080,7 +1128,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Paul_Painleve.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -1098,6 +1146,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1917.11.16
 		tag = FRA
 		date > 1917.11.14
 		NOT = {	date > 1918.1.1 }
@@ -1113,7 +1163,7 @@ country_event = {
 			desc = "POLITICS_GENERIC_FRENCH_GUY_DESC"
 			picture = "Portrait_France_Georges_Clemenceau.dds"
 			expire = "1965.1.1"
-			ideology = social_democrat
+			ideology = conservatism
 			traits = {
 				#
 			}
@@ -1132,6 +1182,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1914.8.5
 		tag = FRA
 		date > 1914.8.3
 		NOT = { date > 1915.1.1 }
@@ -1187,6 +1239,7 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		NOT = { date > 1932.12.1 }
 		tag = FRA
 		has_global_flag = USA_joins_entente
@@ -1283,5 +1336,42 @@ country_event = {
 		load_oob = "AEF_Wave_5"
 		add_manpower = 200000
 		add_equipment_to_stockpile = { type = infantry_equipment amount = 100000 producer = USA }
+	}
+}
+
+# Historical Romanian entry into the Great War
+country_event = {
+	id = ww1_france.56
+
+	hidden = yes
+	fire_only_once = yes
+
+	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1916.8.28
+		NOT = { has_global_flag = welcome_event_1918 }
+		NOT = { has_global_flag = player_wants_custom_peacedeals }
+		tag = FRA
+		date > 1916.8.26
+		country_exists = ROM
+		ROM = { NOT = { is_in_faction_with = FRA } }
+	}
+
+	mean_time_to_happen = { days = 1 }
+
+	option = {
+		# Romania entered the war against Austria-Hungary on 27 August 1916.
+		if = {
+			limit = { ROM = { is_in_faction = yes } }
+			ROM = { leave_faction = yes }
+		}
+		add_to_faction = ROM
+		ROM = {
+			if = {
+				limit = { NOT = { has_war_with = AUH } }
+				declare_war_on = { target = AUH type = annex_everything }
+			}
+		}
+		news_event = { hours = 6 id = endsieg_news.191 }
 	}
 }

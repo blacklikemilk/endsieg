@@ -2,11 +2,38 @@ on_actions = {
     on_startup = {
         effect = {
 
+            # Use the historical names in the pre-Soviet and WWI starts.
+            if = {
+                limit = { date < 1914.8.31 }
+                195 = { set_state_name = SOV_StPetersburg }
+                set_province_name = { id = 3151 name = SOV_StPetersburg }
+            }
+            else_if = {
+                limit = { date < 1924.1.26 }
+                195 = { set_state_name = SOV_petrograd }
+                set_province_name = { id = 3151 name = SOV_petrograd }
+            }
+            if = {
+                limit = { date < 1925.4.10 }
+                217 = { set_state_name = SOV_Tsaritsyn }
+                1064 = { set_state_name = "East Tsaritsyn" }
+                set_province_name = { id = 3529 name = SOV_Tsaritsyn }
+            }
+
             every_country = {
                 country_event = { id = welcome.131 }
             }
 
             GER = {
+				GE1_initialize_ww1_rework = yes
+				GE1_v2_migrate_ww1_rework = yes
+
+                # WWI event systems are enabled only for starts before the interwar content ends.
+                if = {
+                    limit = { date < 1933.1.1 }
+                    set_global_flag = welcome_event_WW1_active
+                }
+
                 #WW1 events
                 if = {
                     limit = {
@@ -16,10 +43,13 @@ on_actions = {
                     set_global_flag = welcome_event_WW1
                     country_event = { id = welcome.25 }
                     DER = {
-                    	declare_war_on = {
+                    if = {
+						limit = { NOT = { AND = { has_global_flag = GE1_anglo_german_alliance is_in_faction_with = GER ENG = { is_in_faction_with = GER } } } }
+						declare_war_on = {
                     		target = ENG
                     		type = annex_everything
                     	}
+					}
                     }
                 }
 
@@ -32,20 +62,14 @@ on_actions = {
 
                     UKR = {
                         set_popularities = {
-                            populist = 0
                             fascism = 0
-                            paternal_autocrat = 5
-                            social_conservative = 5
-                            market_liberal = 5
-                            social_liberal = 5
-                            social_democrat = 15
-                            leninist = 55
-                            stalinist = 0
-                            anarchist = 10
+                            neutrality = 5
+                            democratic = 30
+                            communism = 65
                         }
                 		set_politics = {
 
-                			ruling_party = leninist
+                			ruling_party = communism
                 			last_election = "1918.1.1"
                 			election_frequency = 60
                 			elections_allowed = no
@@ -56,20 +80,14 @@ on_actions = {
                 	}
                 	BLR = {
                         set_popularities = {
-                            populist = 0
-                            fascism = 10
-                            paternal_autocrat = 5
-                            social_conservative = 25
-                            market_liberal = 0
-                            social_liberal = 5
-                            social_democrat = 45
-                            leninist = 0
-                            stalinist = 0
-                            anarchist = 0
+                            fascism = 20
+                            neutrality = 5
+                            democratic = 75
+                            communism = 0
                         }
                 		set_politics = {
 
-                			ruling_party = social_democrat
+                			ruling_party = democratic
                 			last_election = "1918.1.1"
                 			election_frequency = 60
                 			elections_allowed = no
@@ -77,20 +95,14 @@ on_actions = {
                 	}
                 	LIT = {
                         set_popularities = {
-                            populist = 0
                             fascism = 5
-                            paternal_autocrat = 15
-                            social_conservative = 35
-                            market_liberal = 5
-                            social_liberal = 15
-                            social_democrat = 5
-                            leninist = 15
-                            stalinist = 0
-                            anarchist = 5
+                            neutrality = 15
+                            democratic = 60
+                            communism = 20
                         }
                 		set_politics = {
 
-                			ruling_party = social_conservative
+                			ruling_party = democratic
                 			last_election = "1907.1.12"
                 			election_frequency = 60
                 			elections_allowed = no
@@ -100,19 +112,13 @@ on_actions = {
                 	# ROM = {
                 	# 	set_politics = {
                 	# 		parties = {
-                	# 			populist = { popularity = 0 }
                 	# 			fascism = { popularity = 0 }
-                	# 			paternal_autocrat = { popularity = 15 }
-                	# 			social_conservative = { popularity = 15 }
-                	# 			market_liberal = { popularity = 10 }
-                	# 			social_liberal = { popularity = 20 }
-                	# 			social_democrat = { popularity = 35 }
-                	# 			leninist = { popularity = 5 }
-                	# 			stalinist = { popularity = 0 }
-                	# 			anarchist = { popularity = 0 }
+                	# 			neutrality = { popularity = 15 }
+                	# 			democratic = { popularity = 80 }
+                	# 			communism = { popularity = 5 }
                 	# 		}
                     #
-                	# 		ruling_party = social_liberal
+                	# 		ruling_party = democratic
                 	# 		last_election = "1907.1.12"
                 	# 		election_frequency = 60
                 	# 		elections_allowed = no
@@ -137,17 +143,13 @@ on_actions = {
                         country_event = { id = welcome.32 }
                     }
                 	set_global_flag = welcome_event_WW2
+                    # 1936 and interwar starts use this marker for early-WWII event windows.
+                    if = {
+                        limit = { date < 1941.1.1 }
+                        set_global_flag = welcome_event_1936
+                    }
                 	UKR = { dismantle_faction = yes }
 
-                    SOV = {
-                		white_peace = WHR
-                		white_peace = UKR
-                	}
-                	DER = {
-                		white_peace = ENG
-                		white_peace = EGY
-                		white_peace = EN3
-                	}
                     POL = { white_peace = UKR }
                 }
 
@@ -214,12 +216,12 @@ on_actions = {
                         country_event = { id = ww1_turkey.52 days = 928 }
                         country_event = { id = ww1_turkey.54 days = 124 } #Albanian revolts
                         country_event = { id = ww1_turkey.55 days = 378 }
-                        country_event = { id = ww1_turkey.53 days = 446 } #
+                        country_event = { id = ww1_turkey.53 days = 730 } # Albanian Revolt of 1912
                         country_event = { id = ww1_turkey.56 days = 336 }
                         country_event = { id = ww1_turkey.57 days = 238 }
                     }
 
-                    RUS = {
+                    RIE = {
                         country_event = { id = ww1_russia.40 days = 1129 }
                         country_event = { id = ww1_russia.40 days = 1129 }
                     }
@@ -278,7 +280,7 @@ on_actions = {
                         country_event = { id = welcome.3 }
                         country_event = { id = welcome.19 }
                         country_event = { id = ww1_germany.69 days = 2 }
-                        country_event = { id = ww1_germany.60 days = 30 }
+                        if = { limit = { has_start_date < 1918.4.21 } country_event = { id = ww1_germany.60 days = 31 } }
                         GER = { add_ideas = blockade }
                     }
 
@@ -291,9 +293,15 @@ on_actions = {
                     EGY = { country_event = { id = aidumb.1 } }
                     EN3 = { country_event = { id = aidumb.2 } }
                     FRA = { country_event = { id = ww1_france.50 days = 103 } }
-                    GRE = { country_event = { id = interwar_greece.12 } }
 
-                    FNN = { declare_war_on = { target = FNR type = annex_everything } }
+					if = {
+						limit = {
+							country_exists = FNN
+							country_exists = FNR
+							NOT = { FNN = { has_war_with = FNR } }
+						}
+						FNN = { declare_war_on = { target = FNR type = annex_everything } }
+					}
                     GER = {
                     	declare_war_on = { target = FRA type = annex_everything }
                     	declare_war_on = { target = ENG type = annex_everything }
@@ -324,19 +332,29 @@ on_actions = {
                         date < 1919.2.1
                     }
                     set_global_flag = armistice_of_mudros
+                    set_global_flag = compiegne
+
+                    # The 1919 bookmark begins after the German withdrawal.
+                    # Dissolve only the duchy's remaining holdings; Soviet-held
+                    # Baltic territory stays contested until the 1920 treaties.
+                    if = {
+                        limit = { country_exists = UBD NOT = { has_global_flag = ubd_dead } }
+                        UBD = { INT_eastern_dissolve_ubd = yes }
+                    }
+                    GER = { country_event = { id = INT_eastern.3 days = 1 } }
+                    SOV = { news_event = { id = endsieg_news.36 days = 1 } }
 
                     every_country = {
                         country_event = { id = welcome.1919 }
                     }
 
                     GER = {
-                        white_peace = FRA
-                        country_event = { id = ww2_germany.13 days = 179 }
+                        if = {
+                            limit = { has_war_with = FRA }
+                            white_peace = FRA
+                        }
                     }
 
-                    HUN = {
-            			country_event = { id = INT_hungary.7 days = 1 }
-                    }
 
                     WHR = {
                 		add_to_faction = BLR
@@ -347,12 +365,11 @@ on_actions = {
                     }
                 }
 
-
-                #1919-1946 events
+                # Interwar cleanup only; WW2 starts use their own historical relations.
                 if = {
                     limit = {
                         date > 1918.12.30
-                        date < 1946.1.1
+                        date < 1936.1.1
                     }
                     ITA = { white_peace = AUH }
                     TUR = {
@@ -361,6 +378,46 @@ on_actions = {
                         white_peace = EN3
                     	diplomatic_relation = { country = ENG relation = non_aggression_pact }
                     }
+                    CAN = {
+						diplomatic_relation = { country = ROM relation = war_relation active = no }
+						diplomatic_relation = { country = LIT relation = war_relation active = no }
+						diplomatic_relation = { country = POL relation = war_relation active = no }
+                    }
+					POL = { 
+						diplomatic_relation = { country = WUR relation = war_relation active = no }
+						diplomatic_relation = { country = GRE relation = war_relation active = no }
+						diplomatic_relation = { country = AST relation = war_relation active = no }
+						diplomatic_relation = { country = NZL relation = war_relation active = no }
+						diplomatic_relation = { country = SAF relation = war_relation active = no }
+						diplomatic_relation = { country = RAJ relation = war_relation active = no }
+						diplomatic_relation = { country = MAL relation = war_relation active = no }
+						}
+                    GER = { diplomatic_relation = { country = FRA relation = war_relation active = no } }
+					ROM = { 
+						diplomatic_relation = { country = GRE relation = war_relation active = no }
+						diplomatic_relation = { country = AST relation = war_relation active = no }
+						diplomatic_relation = { country = NZL relation = war_relation active = no }
+						diplomatic_relation = { country = SAF relation = war_relation active = no }
+						diplomatic_relation = { country = RAJ relation = war_relation active = no }
+						diplomatic_relation = { country = MAL relation = war_relation active = no }
+						}
+					
+					LIT = {
+						diplomatic_relation = { country = GRE relation = war_relation active = no }
+						diplomatic_relation = { country = AST relation = war_relation active = no }
+						diplomatic_relation = { country = NZL relation = war_relation active = no }
+						diplomatic_relation = { country = SAF relation = war_relation active = no }
+						diplomatic_relation = { country = RAJ relation = war_relation active = no }
+						diplomatic_relation = { country = MAL relation = war_relation active = no }
+					}
+                    SOV = {
+                        diplomatic_relation = { country = WUR relation = war_relation active = no }
+						diplomatic_relation = { country = BLR relation = war_relation active = no }
+						diplomatic_relation = { country = LAT relation = war_relation active = no }
+						diplomatic_relation = { country = LIT relation = war_relation active = no }
+						diplomatic_relation = { country = EST relation = war_relation active = no }
+                    }
+            
                 }
 
                 #1936 events
@@ -369,15 +426,7 @@ on_actions = {
                         date > 1935.12.30
                         date < 1936.12.30
                     }
-                    POL = { white_peace = WUR }
-                    GER = { white_peace = FRA }
-                    SOV = {
-                        white_peace = WUR
-                        white_peace = BLR
-                        white_peace = LAT
-                        white_peace = LIT
-                        white_peace = EST
-                    }
+                    
                 }
 
                 if = {
@@ -387,17 +436,19 @@ on_actions = {
                     }
                 42 = {set_demilitarized_zone = yes}
                 51 = {set_demilitarized_zone = yes}
-                53 = {set_demilitarized_zone = yes}
-                55 = {set_demilitarized_zone = yes}
+                53 = {set_demilitarized_zone = yes}       
+				55 = {set_demilitarized_zone = yes}
+				984 = {set_demilitarized_zone = yes}
+				1027 = {set_demilitarized_zone = yes}
                 340 = {set_demilitarized_zone = yes}
                 341 = {set_demilitarized_zone = yes}
-                764 = {set_demilitarized_zone = yes}
-                774 = {set_demilitarized_zone = yes}
-                788 = {set_demilitarized_zone = yes}
-                801 = {set_demilitarized_zone = yes}
-                804 = {set_demilitarized_zone = yes}
-                805 = {set_demilitarized_zone = yes}
-                857 = {set_demilitarized_zone = yes}
+                981 = {set_demilitarized_zone = yes}
+                797 = {set_demilitarized_zone = yes}				
+                85 = {set_demilitarized_zone = yes}
+				1019 = {set_demilitarized_zone = yes}
+				1036 = {set_demilitarized_zone = yes}
+				1044 = {set_demilitarized_zone = yes}
+				1046 = {set_demilitarized_zone = yes}
                 }
 
                 #1939-1945 events
@@ -408,6 +459,34 @@ on_actions = {
                     }
                 	SPR = { add_timed_idea = { idea = SPA_recovering_from_civil_war days = 1795 } }
                 	POR = { add_timed_idea = { idea = SPA_recovering_from_civil_war days = 1795 } }
+					
+				42 = {set_demilitarized_zone = no}
+                51 = {set_demilitarized_zone = no}
+                53 = {set_demilitarized_zone = no}       
+				55 = {set_demilitarized_zone = no}
+				984 = {set_demilitarized_zone = no}
+				1027 = {set_demilitarized_zone = no}
+                340 = {set_demilitarized_zone = no}
+                341 = {set_demilitarized_zone = no}
+                981 = {set_demilitarized_zone = no}
+                797 = {set_demilitarized_zone = no}				
+                85 = {set_demilitarized_zone = no}
+				1019 = {set_demilitarized_zone = no}
+				1036 = {set_demilitarized_zone = no}
+				1044 = {set_demilitarized_zone = no}
+				1046 = {set_demilitarized_zone = no}
+                }
+
+                #1941-1945 events
+                if = {
+                    limit = {
+                        date > 1941.1.1
+                        date < 1945.12.30
+                    }
+                    "GER" = {
+                    declare_war_on = { target = ENG type = annex_everything }
+                    declare_war_on = { target = FRA type = annex_everything }
+                    }
                 }
 
                 #1941 events
@@ -420,6 +499,7 @@ on_actions = {
                         country_event = { id = welcome.41 }
                         country_event = { id = welcome.20 }
                     }
+                    GER = { add_to_faction = ITA }
 
                     if = {
                         limit = {
@@ -440,10 +520,14 @@ on_actions = {
                         date > 1942.1.1
                         date < 1943.1.1
                     }
+                    "GER" = {
+                    declare_war_on = { target = USA type = annex_everything }
+                    }
                     GER = {
                         country_event = { id = welcome.42 }
                         country_event = { id = welcome.33 }
                     }
+                    GER = { add_to_faction = ITA }
 
                     if = {
                         limit = {
@@ -465,13 +549,18 @@ on_actions = {
                     }
                     GER = {
                         country_event = { id = welcome.4 }
-                        country_event = { id = welcome.21 }
                     }
+                    GER = { add_to_faction = ITA }
                     FRA = {
                         every_owned_state = {
                             limit = {
                                 is_on_continent = africa
-                                NOT = { state = 539 }
+								NOT = {
+									OR = {
+										state = 539
+										state = 1084
+									}
+								}
                             }
                             remove_core_of = FRA
                         }
@@ -485,11 +574,30 @@ on_actions = {
                         date > 1944.1.1
                         date < 1944.7.1
                     }
+                    GER = { add_to_faction = ITA }
                     GER = {
                         country_event = { id = welcome.5 }
                         country_event = { id = welcome.22 }
                     }
                 	set_global_flag = welcome_event_1944
+                }
+
+                if = {
+                    limit = {
+                        date > 1944.1.1
+                        date < 1944.7.1
+                        has_dlc = "No Step Back"
+                    }
+                    FRA = {load_oob = "FRF_1944_nsb"}
+                }
+
+                if = {
+                    limit = {
+                        date > 1944.1.1
+                        date < 1944.7.1
+                        NOT = { has_dlc = "No Step Back" }
+                    }
+                    FRA = {load_oob = "FRF_1944"}
                 }
 
                 #1944 d events
@@ -502,8 +610,9 @@ on_actions = {
                         country_event = { id = welcome.6 }
                         country_event = { id = welcome.23 }
                     }
+                    GER = { add_to_faction = ITA }
                 	set_global_flag = welcome_event_1944_D
-                    "CMR" = {
+                    "CMN" = {
                         declare_war_on = { target = GER type = annex_everything }
                     	declare_war_on = { target = HUN type = annex_everything }
                     	declare_war_on = { target = SLO type = annex_everything }
@@ -523,8 +632,9 @@ on_actions = {
                         country_event = { id = welcome.7 }
                         country_event = { id = welcome.24 }
                     }
+                    GER = { add_to_faction = ITA }
                     FRA = { country_event = { id = welcome.30 } }
-                    FIN = { declare_war_on = { target = GER type = annex_everything } }
+  #                  FIN = { declare_war_on = { target = GER type = annex_everything } }
                 	set_global_flag = welcome_event_1945
                 }
 
@@ -535,15 +645,6 @@ on_actions = {
                         date < 1947.1.1
                     }
                     CHI = { declare_war_on = { target = PRC type = annex_everything } }
-                }
-
-                #1944.12-1945
-                if = {
-                    limit = {
-                        date > 1944.10.1
-                        date < 1946.1.1
-                    }
-                	SOV = { white_peace = FIN }
                 }
 
                 #WW2 German add to war countries
@@ -584,7 +685,64 @@ on_actions = {
                 			enemy = SOV
                 		}
                 	}
+
                 }
+
+                # Clear inherited Finnish wars after the scenario war setup.
+                if = {
+                    limit = {
+                        NOT = { date < 1944.9.19 }
+                        date < 1946.1.1
+                        country_exists = FIN
+                    }
+                    FIN = {
+                        if = {
+                            limit = { is_in_faction_with = GER }
+                            leave_faction = yes
+                        }
+                        every_country = {
+                            limit = {
+                                has_war_with = FIN
+                                NOT = { tag = GER }
+                                OR = {
+                                    tag = ENG
+                                    tag = SOV
+                                    is_in_faction_with = ENG
+                                    is_in_faction_with = SOV
+                                }
+                            }
+                            white_peace = FIN
+                        }
+                        if = {
+                            limit = {
+                                country_exists = GER
+                                GER = { has_capitulated = no }
+                                NOT = { has_war_with = GER }
+                            }
+                            declare_war_on = { target = GER type = annex_everything }
+                        }
+                    }
+                }
+
+                # Seed temporary WWI factories after war relations are initialized.
+                every_country = {
+                    endsieg_ww1_update_war_industry = yes
+                }
+
+                # Seed the Dual Monarchy administration after all countries and wars exist.
+                if = {
+                    limit = { date < 1936.1.1 country_exists = AUH }
+                    AUH = { AUH_ww1_initialize_administration = yes }
+                }
+
+                # Clear retired Italian WWI administration data after scenario setup.
+                if = {
+                    limit = { date < 1936.1.1 country_exists = ITA }
+                    ITA = { IT1_ww1_initialize_administration = yes }
+                }
+
+                # Run after all scenario-specific wars and factions have been established.
+                GER = { country_event = { id = welcome.35 } }
             }
         }
     }

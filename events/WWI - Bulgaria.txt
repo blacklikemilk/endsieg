@@ -1,4 +1,4 @@
-﻿###########################
+###########################
 # Bulgarian Events
 ###########################
 
@@ -14,6 +14,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1913.6.17
 		tag = BUL
 		date > 1913.6.15
 		has_global_flag = welcome_event_1910
@@ -28,6 +30,8 @@ country_event = {
 		add_war_support = 0.20
 		news_event = { hours = 6 id = endsieg_news.188 }
 		set_global_flag = second_balkan_war
+		clr_global_flag = second_balkan_war_romania_joined
+		clr_global_flag = second_balkan_war_ottomans_joined
 		SER = {
 			create_faction = BALKAN_LEAGUE
 			add_to_faction = GRE
@@ -72,6 +76,7 @@ country_event = {
 		ROM = {
 			declare_war_on = { target = BUL type = annex_everything }
 		}
+		set_global_flag = second_balkan_war_romania_joined
 		SER = { add_to_faction = ROM }
 	}
 	option = {
@@ -99,6 +104,7 @@ country_event = {
 		TUR = {
 			declare_war_on = { target = BUL type = annex_everything }
 		}
+		set_global_flag = second_balkan_war_ottomans_joined
 		SER = { add_to_faction = TUR }
 	}
 	option = {
@@ -133,20 +139,25 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		NOT = { date > 1914.1.1 }
 		tag = BUL
 		has_global_flag = second_balkan_war
+		# Romania and the Ottoman Empire join through delayed events.  Do not
+		# resolve the war before those declarations have taken effect.
+		has_global_flag = second_balkan_war_romania_joined
+		has_global_flag = second_balkan_war_ottomans_joined
 		OR = {
 			AND = {
-			is_ai = yes
+				is_ai = yes
 				OR = {
 					surrender_progress > 0.10
-					NOT = { 795 = { is_owned_and_controlled_by = BUL } }
+					NOT = { 1021 = { is_owned_and_controlled_by = BUL } }
 					NOT = { 184 = { is_owned_and_controlled_by = BUL } }
 				}
 			}
 			AND = {
-			is_ai = no
+				is_ai = no
 				OR = {
 					surrender_progress > 0.25 #should trigger if Varna falls
 				}
@@ -160,35 +171,35 @@ country_event = {
 		name = ww1_serbia.3.a
 		set_global_flag = treaty_of_bucharest_1913
 		clr_global_flag = second_balkan_war
+		clr_global_flag = second_balkan_war_romania_joined
+		clr_global_flag = second_balkan_war_ottomans_joined
 
 		SER = {
 			white_peace = BUL
-			transfer_state = 789
-			transfer_state = 766
+			transfer_state = 1021
 		}
 		ROM = {
 			white_peace = BUL
 			transfer_state = 77
-			transfer_state = 778
-			transfer_state = 759
 		}
 		TUR = {
 			white_peace = BUL
-			transfer_state = 788
+			transfer_state = 1036
 		}
 		GRE = {
 			white_peace = BUL
 			transfer_state = 184
 		}
+		ALB = { transfer_state = 934 }
 		BUL = {
 			white_peace = SER
 			white_peace = GRE
 			white_peace = ROM
 			white_peace = TUR
 #			set_politics = {
-#				ruling_party = social_liberal #Ferdinand did not fall from power until after ww1 ended.
+#				ruling_party = democratic #Ferdinand did not fall from power until after ww1 ended.
 #			}
-#			add_popularity = { ideology = social_liberal popularity = 0.30 }
+#			add_popularity = { ideology = democratic popularity = 0.30 }
 		}
 		hidden_effect = {
 			SER ={dismantle_faction = yes}
@@ -207,8 +218,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		tag = BUL
-		has_global_flag = welcome_event_1918
 		NOT = { date > 1932.12.1 }
 		AND = {
 			OR = {
@@ -228,29 +239,29 @@ country_event = {
 		set_global_flag = armistice_of_salonica
 		ROM = {
 			transfer_state = 77
-			transfer_state = 759
-			transfer_state = 778
+			transfer_state = 1015
+			transfer_state = 1030
 		}
 		if = {
 			limit = { country_exists = AUH }
 			AUH = {
 				transfer_state = 106
-				transfer_state = 789
-				transfer_state = 766
-				transfer_state = 794
+				transfer_state = 1038
+				transfer_state = 1021
+				transfer_state = 803
 			}
 		}
 		else = {
 			YUG = {
 				transfer_state = 106
-				transfer_state = 789
-				transfer_state = 766
-				transfer_state = 794
+				transfer_state = 1038
+				transfer_state = 1021
+				transfer_state = 803
 			}
 		}
 		GRE = {
 			transfer_state = 184
-			transfer_state = 743
+			transfer_state = 997
 		}
 
 		every_country = {
@@ -271,7 +282,6 @@ country_event = {
 			give_military_access = ENG
 			give_military_access = FRA
 			give_military_access = GRE
-			country_event = { id = bulgaria.2 days = 4 }
 		}
 	}
 }
@@ -287,6 +297,7 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		tag = BUL
 		has_global_flag = welcome_event_1910
 		has_global_flag = welcome_event_1914
@@ -296,7 +307,7 @@ country_event = {
 				has_global_flag = armistice_of_mudros
 				has_global_flag = compiegne
 			}
-			GRE = { controls_state = 184 }
+			GRE = { controls_state = 997 }
 		}
 	}
 
@@ -316,35 +327,34 @@ country_event = {
 			give_military_access = ENG
 			give_military_access = FRA
 			give_military_access = GRE
-			country_event = { id = bulgaria.2 days = 4 }
 			country_event = { id = bulgaria.41 hours = 1 }
 		}
 		ROM = {
 			transfer_state = 77
-			transfer_state = 759
-			transfer_state = 778
+			transfer_state = 1015
+			transfer_state = 1030
 		}
 		if = {
 			limit = { country_exists = AUH }
 			AUH = {
 				transfer_state = 106
-				transfer_state = 789
-				transfer_state = 766
-				transfer_state = 794
+				transfer_state = 1038
+				transfer_state = 1021
+				transfer_state = 803
 			}
 		}
 		else = {
 			YUG = {
 				transfer_state = 106
-				transfer_state = 789
-				transfer_state = 766
-				transfer_state = 794
+				transfer_state = 1038
+				transfer_state = 1021
+				transfer_state = 803
 			}
 		}
 
 		GRE = {
 			transfer_state = 184
-			transfer_state = 743
+			transfer_state = 997
 		}
 	}
 }
@@ -371,13 +381,14 @@ country_event = {
 	#picture = GFX_report_event_
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		tag = BUL
 		if = {
 			limit = {
 				ROM = { has_war_with = BUL }
 				BUL = {
-					controls_state = 759
-					controls_state = 778
+					controls_state = 1015
+					controls_state = 1030
 				}
 			}
 		}
@@ -385,18 +396,18 @@ country_event = {
 			limit = {
 				TUR = {has_war_with = BUL}
 			}
-			341 = {
+			797 = {
 				is_controlled_by = BUL
 			}
 		}
 		has_global_flag = second_balkan_war
 		has_global_flag = welcome_event_WW1
-		controls_state = 794 #Pirot
+		controls_state = 803 #Pirot
 		controls_state = 106 # North macedonia
-		controls_state = 789 # South Macedonia
-		controls_state = 766 # East Macedonia
+		controls_state = 1038 # South Macedonia
+		controls_state = 1021 # East Macedonia
 		controls_state = 184 #Kavala
-		controls_state = 743 #Alexandroupoli
+		controls_state = 997 #Alexandroupoli
 		controls_state = 731 #Salonika
 
 	}
@@ -413,22 +424,22 @@ country_event = {
 					ROM = { has_war_with = BUL }
 				}
 				BUL = {
-					transfer_state = 778
-					transfer_state = 759
+					transfer_state = 1030
+					transfer_state = 1015
 				}
 				ROM = {
 					remove_state_core = 77
-					remove_state_core = 759
-					remove_state_core = 778
-					add_state_claim = 778
+					remove_state_core = 1015
+					remove_state_core = 1030
+					add_state_claim = 1030
 				}
 			}
 		if = {
 			limit = {
 				TUR = {has_war_with = BUL}
 			}
+			BUL = {transfer_state = 797}
 			BUL = {transfer_state = 341}
-			BUL = {transfer_state = 805}
 		}
 		BUL = {
 			white_peace = SER
@@ -436,12 +447,12 @@ country_event = {
 			white_peace = ROM
 			white_peace = TUR
 			white_peace = MNT
-			transfer_state = 743
+			transfer_state = 997
 			transfer_state = 184
-			transfer_state = 766
-			transfer_state = 794
+			transfer_state = 1021
+			transfer_state = 803
 			transfer_state = 106
-			transfer_state = 789
+			transfer_state = 1038
 		}
 		every_state = {
 			limit = {

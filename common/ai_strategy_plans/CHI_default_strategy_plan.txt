@@ -2,8 +2,11 @@ CHI_default_plan = {
 	name = "Nationalist China default plan"
 	desc = "Default behavior for Nationalist China"
 
-	enable = {
+	allowed = {
 		original_tag = CHI
+	}
+	enable = {
+
 	}
 	abort = {
 		always = no
@@ -34,6 +37,9 @@ CHI_industrial_buildup = {
 	name = "Nationalist China industrial buildup plan"
 	desc = "Makes Nationalist China more likely to expand industry if not at war"
 
+	allowed = {
+		is_literally_china = yes
+	}
 	enable = {
 		OR = {
 			original_tag = CHI
@@ -63,7 +69,7 @@ CHI_industrial_buildup = {
 	}
 
 	ideas = {
-		CHI_t_v_soong = 5
+		#CHI_t_v_soong = 5
 		CHI_h_h_kung = 5
 	}
 
@@ -81,6 +87,9 @@ CHI_inflation_handling = {
 	name = "Nationalist China Secret Plan to Fight Inflation"
 	desc = "Teaches the AI to handle the inflation mechanic for China"
 
+	allowed = {
+		is_literally_china = yes
+	}
 	enable = {
 		OR = {
 			original_tag = CHI
@@ -108,6 +117,7 @@ CHI_inflation_handling = {
 		CHI_forced_loans = 50
 		CHI_land_tax_reform = 50
 		CHI_develop_the_hanyan_arsenal = 0.0
+		CHI_unemployment_assistance = 0.0
 		CHI_taiyuan_arsenal = 0.0
 		CHI_mining_commission = 0.0
 		CHI_welfare = 0.0
@@ -120,7 +130,7 @@ CHI_inflation_handling = {
 	}
 
 	ideas = {
-		CHI_t_v_soong = 10
+		#CHI_t_v_soong = 10
 	}
 
 	# Keep small, as it is used as a factor for some things (such as research needs)
@@ -137,8 +147,10 @@ CHI_army_reform = {
 	name = "Nationalist China Army Reform"
 	desc = "Teaches the AI to reform the Army if at war"
 
-	enable = {
+	allowed = {
 		original_tag = CHI
+	}
+	enable = {
 		has_war = yes
 		OR = {
 			has_idea = CHI_army_corruption_1
@@ -179,6 +191,9 @@ CHI_war_measures = {
 	name = "Nationalist China War measures"
 	desc = "Teaches the AI to fix issues if at war"
 
+	allowed = {
+		is_literally_china = yes
+	}
 	enable = {
 		OR = {
 			original_tag = CHI
@@ -198,6 +213,7 @@ CHI_war_measures = {
 		}
 	}
 	focus_factors = {
+		CHI_war_of_resistance = 20
 		CHI_military_affairs_commission = 20
 		CHI_industrial_evacuations = 30
 		CHI_scorched_earth_tactics = 30
@@ -224,14 +240,51 @@ CHI_war_measures = {
 	}
 }
 CHI_befriend_britain = {
-	name = "Befirend Britain"
+	name = "Befriend Britain"
 	desc = "Teaches the AI to make friends with britain to progress further down the tree"
 
+	allowed = {
+		is_literally_china = yes
+	}
 	enable = {
 		has_completed_focus = CHI_british_cooperation
+		ENG = {
+			has_opinion	= {
+				target = ROOT
+				value < 90
+			}
+		}
+		OR = {
+			has_war = no			
+			AND = {
+				NOT = { has_idea = civilian_economy }
+				OR = {
+					NOT = { has_idea = volunteer_only }
+					has_manpower > 200000
+				}
+			}
+		}
 	}
 	abort = {
-		has_completed_focus = CHI_ledo_road #they have served their purpose
+		OR = {
+			has_completed_focus = CHI_ledo_road #they have served their purpose
+			ENG = {
+				has_opinion	= {
+					target = ROOT
+					value > 90
+				}
+			}
+			AND = {
+				has_war = yes
+				OR = {
+					has_idea = civilian_economy
+					AND = {
+						has_idea = volunteer_only
+						has_manpower < 200000
+					}
+				}
+			}
+		}
 	}
 	focus_factors = {
 		CHI_burma_road = 20
@@ -260,14 +313,51 @@ CHI_befriend_britain = {
 	}
 }
 CHI_befriend_america = {
-	name = "Befirend America"
+	name = "Befriend America"
 	desc = "Teaches the AI to make friends with britain to progress further down the tree"
 
+	allowed = {
+		is_literally_china = yes
+	}
 	enable = {
 		has_completed_focus = CHI_mission_to_the_us
+		USA = {
+			has_opinion	= {
+				target = ROOT
+				value < 90
+			}
+		}
+		OR = {
+			has_war = no			
+			AND = {
+				NOT = { has_idea = civilian_economy }
+				OR = {
+					NOT = { has_idea = volunteer_only }
+					has_manpower > 200000
+				}
+			}
+		}
 	}
 	abort = {
-		has_completed_focus = CHI_the_hump #they have served their purpose
+		OR = {
+			has_completed_focus = CHI_the_hump #they have served their purpose
+			USA = {
+				has_opinion	= {
+					target = ROOT
+					value > 90
+				}
+			}
+			AND = {
+				has_war = yes
+				OR = {
+					has_idea = civilian_economy
+					AND = {
+						has_idea = volunteer_only
+						has_manpower < 200000
+					}
+				}
+			}
+		}
 	}
 	focus_factors = {
 		CHI_the_hump = 20
@@ -297,14 +387,51 @@ CHI_befriend_america = {
 	}
 }
 CHI_befriend_France = {
-	name = "Befirend France"
+	name = "Befriend France"
 	desc = "Teaches the AI to make friends with britain to progress further down the tree"
 
+	allowed = {
+		is_literally_china = yes
+	}
 	enable = {
 		has_completed_focus = CHI_reach_out_to_france
+		FRA = {
+			has_opinion	= {
+				target = ROOT
+				value < 90
+			}
+		}
+		OR = {
+			has_war = no
+			AND = {
+				NOT = { has_idea = civilian_economy }
+				OR = {
+					NOT = { has_idea = volunteer_only }
+					has_manpower > 200000
+				}
+			}
+		}
 	}
 	abort = {
-		has_completed_focus = CHI_french_drill #they have served their purpose
+		OR = {
+			has_completed_focus = CHI_french_drill #they have served their purpose
+			FRA = {
+				has_opinion	= {
+					target = ROOT
+					value > 90
+				}
+			}
+			AND = {
+				has_war = yes
+				OR = {
+					has_idea = civilian_economy
+					AND = {
+						has_idea = volunteer_only
+						has_manpower < 200000
+					}
+				}
+			}
+		}
 	}
 	focus_factors = {
 		CHI_guarantee_the_hanoi_route = 30
@@ -334,14 +461,53 @@ CHI_befriend_France = {
 	}
 }
 CHI_befriend_Soviet = {
-	name = "Befirend Soviet"
+	name = "Befriend Soviet"
 	desc = "Teaches the AI to make friends with Soviet to progress further down the tree"
 
+	allowed = {
+		is_literally_china = yes
+	}
 	enable = {
 		has_completed_focus = CHI_mission_to_the_soviet_union
+		SOV = {
+			has_opinion	= {
+				target = ROOT
+				value < 90
+			}
+		}
+		OR = {
+			has_war = no
+			AND = {
+				NOT = { has_idea = civilian_economy }
+				OR = {
+					NOT = { has_idea = volunteer_only }
+					has_manpower > 200000
+				}
+			}
+		}
 	}
 	abort = {
-		has_completed_focus = CHI_combined_arms_warfare #they have served their purpose
+		OR = {
+			has_completed_focus = CHI_combined_arms_warfare #they have served their purpose
+			
+			SOV = {
+				has_opinion	= {
+					target = ROOT
+					value > 90
+				}
+			}
+
+			AND = {
+				has_war = yes
+				OR = {
+					has_idea = civilian_economy
+					AND = {
+						has_idea = volunteer_only
+						has_manpower < 200000
+					}
+				}
+			}
+		}
 	}
 	focus_factors = {
 		CHI_the_soviet_volunteer_group = 20
@@ -377,6 +543,31 @@ CHI_befriend_Soviet = {
 CHI_european_allies = { #used to make minor European nations like Axis more
 	name = "Minor European Countries"
 
+	allowed = {
+		OR = {
+			original_tag = ROM
+			original_tag = HUN
+			original_tag = BUL
+			original_tag = YUG
+			original_tag = ITA
+			original_tag = CZE
+			original_tag = DEN
+			original_tag = NOR
+			original_tag = SWE
+			original_tag = FIN
+			original_tag = SPR
+			original_tag = POR
+			original_tag = HOL
+			original_tag = BEL
+			original_tag = LUX
+			original_tag = POL
+			original_tag = LAT
+			original_tag = LIT
+			original_tag = EST
+			original_tag = CRO
+			original_tag = SLO
+		}
+	}
 	enable = {
 		has_war = yes
 		OR = {

@@ -1,0 +1,359 @@
+political_actions = {
+	SLO_revenge_of_the_radical_wing = {
+		priority = 11
+
+		icon = GFX_decision_generic_political_address
+		allowed = {
+			original_tag = SLO
+			has_dlc = "Peace For Our Time"
+		}
+
+		fire_only_once = yes
+
+		cost = 25
+
+		ai_will_do = {
+			base = 0.1
+			modifier = {
+				factor = 10
+				is_historical_focus_on = no
+				date > 1941.1.1
+			}
+			modifier = {
+				factor = 10
+				is_historical_focus_on = no
+				date > 1944.1.1
+			}
+			modifier = {
+				factor = 10
+				casualties_k > 75
+				date > 1942.1.1
+			}
+			modifier = {
+				factor = 25
+				casualties_k > 99
+				date > 1944.1.1
+			}
+		}
+
+		visible = {
+			has_government = fascism
+			NOT = {
+				has_country_leader = {
+					character = SLO_vojtech_tuka
+					ruling_only = yes
+				}
+			}
+		}
+
+		available = {
+			fascism > 0.9
+			has_character = SLO_vojtech_tuka
+			SLO_vojtech_tuka = {
+				is_hired_as_advisor = yes
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = SLO_revenge_of_the_radical_wing_flag
+			SLO_vojtech_tuka = {
+				promote_character = yes
+			}
+			show_unit_leaders_tooltip = SLO_vojtech_tuka
+		}
+	}
+}
+
+operations = {
+	SLO_HUN_test_SLO_in_71_decision = { #Little War - This odd naming scheme is to clue in on the fact that this local is near the other Slovakia ones
+		priority = 11
+
+		icon = GFX_decision_infiltrate_state
+
+		allowed = {
+			original_tag = HUN
+			has_dlc = "Peace For Our Time"
+		}
+
+		visible = {
+			has_war = no
+			controls_state = 73
+			controls_state = 664
+			SLO = {
+				exists = yes
+				is_subject_of = GER
+				num_of_controlled_states < 3
+			}
+			NOT = {
+				OR = {
+					has_war_with = SLO
+					has_war_with = GER
+					is_in_faction_with = sLO
+				}
+			}
+			GER = {
+				has_completed_focus = GER_first_vienna_award
+				is_ai = yes #Has some issues in that Germany is a player atm
+			}
+			SLO = {
+				is_ai = yes #Has some issues in when Slovakia is a player atm
+			}
+		}
+
+		available = {
+			GER = {
+				has_war = no
+			}
+			SLO = {
+				controls_state = 71
+				is_subject_of = GER
+				exists = yes
+				has_war = no
+				NOT = {
+					is_in_faction_with = ROOT
+				}
+			}
+			controls_state = 73
+			HUN = { #scope for tooltip
+				has_war = no
+				custom_trigger_tooltip = {
+					tooltip = TRIGGER_HAS_NOT_ANY_BORDER_WAR
+					has_border_war = no
+					NOT = { has_country_flag = HUN_started_border_war }
+				}
+			}
+		}
+
+		cancel_trigger = {
+			OR = {
+				ROOT = {
+					has_war = yes
+				}
+				SLO = {
+					has_war = yes
+				}
+			}
+		}
+
+		highlight_states = {
+			highlight_provinces = { 
+				6586 6604 11536 11691
+			}
+		}
+
+		war_with_on_remove = SLO
+
+		cost = 0
+		fire_only_once = yes
+		days_remove = 15
+
+		ai_will_do = {
+			base = 0.1
+			modifier = {
+				add = 2
+				is_historical_focus_on = yes
+				GER = {
+					has_completed_focus = GER_fate_of_czechoslovakia
+					has_war_with_major = no
+				}
+				date > 1939.3.3
+				date < 1939.9.9
+			}
+			modifier = {
+				factor = 4
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+			}
+		}
+
+		complete_effect = {
+			SLO = {
+				country_event = { id = MUN_slovakia_little_war.3 hours = 2 } #Warning
+			}
+			hidden_effect = { set_country_flag = HUN_started_border_war }
+		}
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = HUN_started_border_war
+				SLO = {
+					give_military_access = GER
+				}
+				GER = {
+					set_autonomy = {
+    					target = SLO
+    					autonomous_state = autonomy_free
+						end_wars = no
+    					end_civil_wars = no
+    				}
+					add_to_faction = SLO
+				}
+            }
+            start_border_war = {
+                change_state_after_war = no
+                combat_width = 180
+                minimum_duration_in_days = 40
+				dig_in_factor = -0.50
+                attacker = {
+					state = 73
+                    num_provinces = 2
+                	on_win = MUN_slovakia_little_war.1
+                	on_lose = MUN_slovakia_little_war.2
+					on_cancel = MUN_slovakia_little_war.4
+                    leader_score = {
+                        base = 1
+                        modifier = {
+                            skill > 1
+                            factor = 5
+                        }
+                        modifier = {
+                            skill > 2
+                            factor = 10
+                        }
+                    }
+					modifier = 0.15
+                }
+                defender = {
+                	state = 71
+                    num_provinces = 2
+					on_win = MUN_slovakia_little_war.1
+                   	on_lose = MUN_slovakia_little_war.2
+					on_cancel = MUN_slovakia_little_war.4
+					leader_score = {
+                    	base = 1
+                        modifier = {
+							has_character_flag = SLO_pull_for_little_war
+							factor = 100
+                    	}
+					}
+					modifier = -0.15
+                }
+            }
+			hidden_effect = {
+				GER = {
+					puppet = SLO
+				}
+				every_country = {
+					limit = {
+						exists = yes
+						OR = {
+							is_neighbor_of = HUN
+							is_neighbor_of = SLO
+							original_tag = HUN
+							original_tag = SLO
+						}
+						if = {
+							limit = {
+								original_tag = GER
+								SLO = {
+									is_subject_of = GER
+								}
+								GER = {
+									has_war_with_major = no
+								}
+							}
+							original_tag = GER
+						}
+						if = {
+							limit = {
+								OR = {
+									original_tag = ROM
+									original_tag = YUG
+									original_tag = POL
+								}
+							}
+							has_war = no #bigger things to worry about
+						}
+						if = {
+							limit = {
+								original_tag = SOV
+								SOV = {
+									has_war_with_major = no #bigger things to worry about
+								}
+							}
+							original_tag = SOV
+						}
+					}
+					news_event = {
+						id = MUN_slovakia.news.1
+						hours = 2
+					}
+				}
+			}
+		}
+	}
+
+	SLO_little_war_warning_mission = { #Shows SLO where and when the Border War will be
+		priority = 11
+
+		icon = GFX_decision_infiltrate_state
+
+		allowed = {
+			original_tag = SLO
+			has_dlc = "Peace For Our Time"
+		}
+
+		visible = {
+			has_country_flag = SLO_little_war_warning_mission_visible
+		}
+
+		is_good = no
+
+		available = {
+			SLO = {
+				controls_state = 71
+				exists = yes
+				has_war = no
+				NOT = {
+					is_in_faction_with = ROOT
+				}
+			}
+			controls_state = 73
+			HUN = { #scope for tooltip
+				has_war = no
+				custom_trigger_tooltip = {
+					tooltip = TRIGGER_HAS_NOT_ANY_BORDER_WAR
+					has_border_war = no
+					NOT = { has_country_flag = HUN_started_border_war }
+				}
+			}
+			hidden_trigger = {
+				always = no
+			}
+		}
+
+		cancel_trigger = {
+			OR = {
+				ROOT = {
+					has_war = yes
+				}
+				HUN = {
+					has_war = yes
+				}
+			}
+		}
+
+		highlight_states = {
+			highlight_provinces = { 
+				6586 6604 11536 11691
+			}
+		}
+
+		fire_only_once = yes
+		days_remove = 15
+
+		ai_will_do = {
+			base = 0
+		}
+
+		complete_effect = {
+			
+		}
+
+		remove_effect = {
+			
+		}
+	}
+}

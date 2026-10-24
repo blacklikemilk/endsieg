@@ -21,6 +21,9 @@ governments_in_exile = {
 			}
 		}
 
+
+		targets = { host }
+
 		target_trigger = { FROM = { is_hosting_exile = ROOT } }
 
 		complete_effect = {
@@ -55,6 +58,9 @@ governments_in_exile = {
 		    }
 		}
 
+
+		target_array = exiles
+
 		target_trigger = { FROM = { is_exiled_in = ROOT } }
 
 		modifier = {
@@ -81,6 +87,13 @@ governments_in_exile = {
 					has_legitimacy > 60
 				}
 			}
+			modifier = {
+				factor = 0
+				has_opinion = {
+					target = FROM
+					value < 60
+				}
+			}
 		}
 	}
 
@@ -97,10 +110,11 @@ governments_in_exile = {
 
 		visible = {
 			FROM = { is_hosting_exile = ROOT }
-		    FROM = {
-		    	has_legitimacy < 100
-		    }
+		    has_legitimacy < 100
 		}
+
+
+		targets = { host }
 
 		target_trigger = { FROM = { is_hosting_exile = ROOT } }
 
@@ -110,9 +124,18 @@ governments_in_exile = {
 		}
 
 		days_remove = 120
-
+		remove_effect = {
+			country_event = {
+				id = BBA_ethiopia_exile_events.53
+				hours = 1
+			}
+		}
 		ai_will_do = {
 			factor = 0.1
+			modifier = {
+				factor = 0
+				has_war = no
+			}
 		}
 	}
 
@@ -135,15 +158,19 @@ governments_in_exile = {
 		    }
 		}
 
-		target_trigger = {
-			has_capitulated = no
-			is_major = yes
-			FROM = { is_in_faction_with = ROOT }
 
-			any_other_country = {
+		target_root_trigger = {
+			is_major = yes
+			has_capitulated = no
+		}
+		target_array = allies
+		target_trigger = {
+			FROM = {
 				is_in_faction_with = ROOT
-				is_faction_leader = yes
-				is_hosting_exile = FROM
+				is_government_in_exile = yes
+				var:host = {
+					is_faction_leader = yes
+				}
 			}
 		}
 
@@ -157,7 +184,7 @@ governments_in_exile = {
 		}
 
 		days_remove = 120
-
+	
 		ai_will_do = {
 			factor = 0
 		}
@@ -180,13 +207,20 @@ governments_in_exile = {
 		}
 
 		visible = {
+			has_war = yes
 			FROM = { is_hosting_exile = ROOT }
 		    FROM = {
 		    	has_legitimacy > 10
 		    }
 		}
 
-		target_trigger = { FROM = { is_hosting_exile = ROOT } }
+
+		targets = { host }
+
+		target_trigger = {
+			FROM = { is_hosting_exile = ROOT }
+			FROM = { NOT = { original_tag = POL } }
+		}
 
 		modifier = {
 			political_power_cost = 1.0
@@ -227,6 +261,7 @@ governments_in_exile = {
 		}
 
 		visible = {
+			has_war = yes
 			FROM = { is_exiled_in = ROOT }
 		    FROM = {
 		    	has_legitimacy > 30
@@ -234,7 +269,13 @@ governments_in_exile = {
 		    }
 		}
 
-		target_trigger = { FROM = { is_exiled_in = ROOT } }
+
+		target_array = exiles
+
+		target_trigger = {
+			FROM = { is_exiled_in = ROOT }
+			FROM = { NOT = { original_tag = POL } }
+		}
 
 		targeted_modifier = {
 			tag = FROM
@@ -268,53 +309,54 @@ governments_in_exile = {
 		available = {
 		    FROM = {
 		    	has_legitimacy > 50
-		    }
-		    FROM = {
 		    	OR = {
-		    		has_support_nationalist_10 = yes
-		    		has_support_communist_10 = yes
+		    		fascism > 0.1
+		    		communism > 0.1
 		    	}
 		    }
 		}
 
 		visible = {
-			FROM = { is_exiled_in = ROOT }
-		    FROM = {
+			FROM = {
+				is_exiled_in = ROOT
 		    	has_legitimacy > 40
-		    }
-		    FROM = {
 		    	OR = {
-		    		has_support_nationalist_5 = yes
-		    		has_support_communist_5 = yes
+		    		fascism > 0.05
+		    		communism > 0.05
 		    	}
 		    }
 		}
+
+		target_array = exiles
 
 		target_trigger = {
-			FROM = { is_exiled_in = ROOT }
 			FROM = {
+				is_exiled_in = ROOT
 		    	has_legitimacy > 40
-		    }
-		    FROM = {
 		    	OR = {
-		    		has_support_nationalist_5 = yes
-		    		has_support_communist_5 = yes
+		    		fascism > 0.05
+		    		communism > 0.05
 		    	}
 		    }
 		}
 
-		targeted_modifier = {
-			tag = FROM
-			targeted_legitimacy_daily = -1
-			market_liberal_drift = 0.01
-			social_liberal_drift = 0.01
-			social_conservative_drift = 0.01
-			social_democrat_drift = 0.01
+		#targeted_modifier = {
+		#	tag = ETH
+		#	targeted_legitimacy_daily = -1
+		#	democratic_drift = 0.05
+		#}
+		complete_effect = {
+			FROM = {
+				add_timed_idea = {
+					idea = ETH_purge_ideology_boost_idea
+					days = 30
+				}
+			}			
 		}
 
 		remove_effect = {
 			add_political_power = 50
-		}
+		}  
 
 		days_remove = 30
 
@@ -334,33 +376,34 @@ governments_in_exile = {
 		available = {
 		    FROM = {
 		    	has_legitimacy > 60
-		    }
-		    FROM = {
 		    	any_war_score > 9
 		    }
 		}
 
 		visible = {
-			FROM = { is_exiled_in = ROOT }
-		    FROM = {
+			FROM = {
+				is_exiled_in = ROOT
 		    	has_legitimacy > 50
 		    	any_war_score > 5
 		    }
 		}
 
+
+		target_array = exiles
+
 		target_trigger = { FROM = { is_exiled_in = ROOT } }
 
 		modifier = {
 			industrial_factory_donations = 1
-		}
-
-		targeted_modifier = {
-			tag = FROM
 			military_factory_donations = 1
 		}
 
 		ai_will_do = {
 			factor = 0.05
+			modifier = {
+				factor = 0
+				has_war = no
+			}
 		}
 	}
 
@@ -376,9 +419,13 @@ governments_in_exile = {
 		    	has_legitimacy < 80
 		    }
 		}
+
 		visible = {
 			FROM = { is_exiled_in = ROOT }
 		}
+
+
+		target_array = exiles
 
 		target_trigger = {
 			FROM = {
@@ -406,7 +453,7 @@ governments_in_exile = {
 		}
 
 		ai_will_do = {
-			factor = 10
+			factor = 5
 		}
 	}
 }
@@ -436,17 +483,19 @@ category_exile_forces = {
 		visible = {
 		    FROM = {
 		    	has_legitimacy > 15
-		    }
-			FROM = {
 				is_exiled_in = ROOT
 			}
 			any_enemy_country = {
-				any_state = {
-					is_owned_by = FROM
-					is_controlled_by = PREV
+				FROM = {
+					any_owned_state = {
+						is_controlled_by = PREV.PREV
+					}
 				}
 			}
 		}
+
+
+		target_array = exiles
 
 		target_trigger = {
 			FROM = { is_exiled_in = ROOT }
@@ -488,19 +537,21 @@ category_exile_forces = {
 		available = {
 		    FROM = {
 		    	has_legitimacy > 50
-		    }
-		    FROM = {
 		    	any_war_score > 2
 		    }
 		    has_war_support < 0.8
 		}
 
 		visible = {
-			FROM = { is_exiled_in = ROOT }
-		    FROM = {
+			has_war = yes
+			FROM = {
+				is_exiled_in = ROOT
 		    	has_legitimacy > 40
 		    }
 		}
+
+		fire_only_once = yes
+		target_array = exiles
 
 		target_trigger = { FROM = { is_exiled_in = ROOT } }
 
@@ -555,18 +606,20 @@ category_exile_forces = {
 		available = {
 		    FROM = {
 		    	has_legitimacy > 35
-		    }
-		    FROM = {
 		    	any_war_score > 9
 		    }
 		}
 
 		visible = {
-			FROM = { is_exiled_in = ROOT }
-		    FROM = {
+			has_war = yes
+			FROM = {
+				is_exiled_in = ROOT
 		    	has_legitimacy > 25
 		    }
 		}
+
+
+		target_array = exiles
 
 		target_trigger = { FROM = { is_exiled_in = ROOT } }
 
@@ -623,3 +676,4 @@ category_exile_forces = {
 		}
 	}
 }
+

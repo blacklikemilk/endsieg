@@ -1,0 +1,733 @@
+# AUH uses HOI4's native stability and a single 0..100 food-security index.
+# The stability variable below is a monthly delta, never a second stability score.
+AUH_ww1_clamp_administration = {
+	clamp_variable = { var = AUH_ww1_food_security min = 0 max = 100 }
+}
+
+AUH_ww1_initialize_administration = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 }
+		# Remove obsolete save variables without reading or converting their values.
+		clear_variable = AUH_ww1_debt
+		clear_variable = AUH_ww1_cohesion
+		clear_variable = AUH_ww1_debt_monthly_change
+		clear_variable = AUH_ww1_cohesion_monthly_change
+		clr_country_flag = AUH_ww1_treasury_programme_active
+		# History completes focuses without executing their rewards. Seed the convention
+		# mandate for late bookmarks so their regional-negotiation focuses can fire.
+		if = {
+			limit = { has_completed_focus = AUH_ww1_constitutional_commission }
+			set_country_flag = AUH_ww1_constitutional_process
+		}
+		if = {
+			limit = { NOT = { has_country_flag = AUH_ww1_administration_initialized } }
+			if = {
+				limit = { NOT = { has_variable = AUH_ww1_food_security } }
+				if = {
+					limit = { date > 1917.12.31 }
+					set_variable = { AUH_ww1_food_security = 20 }
+				}
+				else_if = {
+					limit = { date > 1915.12.31 }
+					set_variable = { AUH_ww1_food_security = 35 }
+				}
+				else_if = {
+					limit = { date > 1913.12.31 }
+					set_variable = { AUH_ww1_food_security = 60 }
+				}
+				else = { set_variable = { AUH_ww1_food_security = 75 } }
+			}
+			set_country_flag = AUH_ww1_administration_initialized
+		}
+	}
+	AUH_ww1_refresh_administration = yes
+}
+
+AUH_ww1_refresh_administration = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_administration_initialized }
+		AUH_ww1_clamp_administration = yes
+		# Native stability includes the game's existing modifiers and wartime penalty.
+		# These tiers must not themselves modify stability_factor.
+		if = {
+			limit = { NOT = { has_stability < 0.60 } }
+			remove_ideas = AUH_ww1_strained_institutions
+			remove_ideas = AUH_ww1_fragile_institutions
+			remove_ideas = AUH_ww1_fragmented_institutions
+			if = {
+				limit = { NOT = { has_idea = AUH_ww1_stable_institutions } }
+				add_ideas = AUH_ww1_stable_institutions
+			}
+		}
+		else_if = {
+			limit = { NOT = { has_stability < 0.40 } }
+			remove_ideas = AUH_ww1_stable_institutions
+			remove_ideas = AUH_ww1_fragile_institutions
+			remove_ideas = AUH_ww1_fragmented_institutions
+			if = {
+				limit = { NOT = { has_idea = AUH_ww1_strained_institutions } }
+				add_ideas = AUH_ww1_strained_institutions
+			}
+		}
+		else_if = {
+			limit = { NOT = { has_stability < 0.25 } }
+			remove_ideas = AUH_ww1_stable_institutions
+			remove_ideas = AUH_ww1_strained_institutions
+			remove_ideas = AUH_ww1_fragmented_institutions
+			if = {
+				limit = { NOT = { has_idea = AUH_ww1_fragile_institutions } }
+				add_ideas = AUH_ww1_fragile_institutions
+			}
+		}
+		else = {
+			remove_ideas = AUH_ww1_stable_institutions
+			remove_ideas = AUH_ww1_strained_institutions
+			remove_ideas = AUH_ww1_fragile_institutions
+			if = {
+				limit = { NOT = { has_idea = AUH_ww1_fragmented_institutions } }
+				add_ideas = AUH_ww1_fragmented_institutions
+			}
+		}
+		if = {
+			limit = { check_variable = { AUH_ww1_food_security = 20 compare = less_than } }
+			remove_ideas = AUH_ww1_food_strained
+			if = {
+				limit = { NOT = { has_idea = AUH_ww1_food_crisis } }
+				add_ideas = AUH_ww1_food_crisis
+			}
+		}
+		else_if = {
+			limit = { check_variable = { AUH_ww1_food_security = 40 compare = less_than } }
+			remove_ideas = AUH_ww1_food_crisis
+			if = {
+				limit = { NOT = { has_idea = AUH_ww1_food_strained } }
+				add_ideas = AUH_ww1_food_strained
+			}
+		}
+		else = {
+			remove_ideas = AUH_ww1_food_strained
+			remove_ideas = AUH_ww1_food_crisis
+		}
+		set_variable = { AUH_ww1_food_monthly_change = 1 }
+		set_variable = { AUH_ww1_stability_monthly_change = 0 }
+		if = {
+			limit = { has_war = yes }
+			set_variable = { AUH_ww1_food_monthly_change = -2 }
+			set_variable = { AUH_ww1_stability_monthly_change = -0.002 }
+			if = {
+				limit = { has_completed_focus = AUH_ww1_hungarian_grain_agreement }
+				set_variable = { AUH_ww1_food_monthly_change = -1 }
+			}
+		}
+		else_if = {
+			limit = { has_stability < 0.50 }
+			set_variable = { AUH_ww1_stability_monthly_change = 0.002 }
+		}
+		if = {
+			limit = { check_variable = { AUH_ww1_food_security = 20 compare = less_than } }
+			add_to_variable = { AUH_ww1_stability_monthly_change = -0.003 }
+		}
+		if = {
+			limit = { has_country_flag = AUH_ww1_january_strikes }
+			add_to_variable = { AUH_ww1_stability_monthly_change = -0.002 }
+		}
+		if = {
+			limit = { has_country_flag = AUH_ww1_cattaro_unrest }
+			add_to_variable = { AUH_ww1_stability_monthly_change = -0.002 }
+		}
+	}
+	else = { AUH_ww1_end_administration = yes }
+}
+
+AUH_ww1_monthly_administration = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 }
+		AUH_ww1_initialize_administration = yes
+		add_to_variable = { AUH_ww1_food_security = AUH_ww1_food_monthly_change }
+		add_stability = var:AUH_ww1_stability_monthly_change
+		AUH_ww1_refresh_administration = yes
+	}
+	else = { AUH_ww1_end_administration = yes }
+}
+
+# Clear only defined administration ideas; debt ideas are removed from the mod.
+AUH_ww1_end_administration = {
+	remove_ideas = AUH_ww1_stable_institutions
+	remove_ideas = AUH_ww1_strained_institutions
+	remove_ideas = AUH_ww1_fragile_institutions
+	remove_ideas = AUH_ww1_fragmented_institutions
+	remove_ideas = AUH_ww1_food_strained
+	remove_ideas = AUH_ww1_food_crisis
+	remove_ideas = AUH_ww1_food_distribution
+	remove_ideas = AUH_ww1_strike_concessions
+	remove_ideas = AUH_ww1_imperial_censorship
+	remove_ideas = AUH_ww1_civilian_kitchens
+	remove_ideas = AUH_ww1_provincial_consultation
+	remove_ideas = AUH_ww1_local_police_reform
+	remove_ideas = AUH_ww1_parliamentary_scrutiny
+	remove_ideas = AUH_ww1_civil_administration
+	remove_ideas = AUH_ww1_public_works
+	clear_variable = AUH_ww1_debt
+	clear_variable = AUH_ww1_cohesion
+	clear_variable = AUH_ww1_debt_monthly_change
+	clear_variable = AUH_ww1_cohesion_monthly_change
+	clr_country_flag = AUH_ww1_administration_initialized
+	clr_country_flag = AUH_ww1_january_strikes
+	clr_country_flag = AUH_ww1_cattaro_unrest
+	clr_country_flag = AUH_ww1_council_programme_active
+	clr_country_flag = AUH_ww1_home_front_programme_active
+	clr_country_flag = AUH_ww1_stability_programme_active
+	clr_country_flag = AUH_ww1_treasury_programme_active
+}
+
+# Negotiated constitutional settlements; no military-defeat treaty shortcuts.
+AUH_ww1_ratify_dualism = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_constitutional_process NOT = { has_capitulated = yes } surrender_progress < 0.20 NOT = { OR = { has_country_flag = AUH_ww1_dualism_renewed has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_orderly_partition } } has_stability > 0.399 has_country_flag = AUH_ww1_hungarian_consent owns_state = 43 controls_state = 43 owns_state = 1051 controls_state = 1051 }
+		add_political_power = -50
+		set_country_flag = AUH_ww1_dualism_renewed
+		set_cosmetic_tag = AUH_ww1_dual_monarchy
+		remove_ideas = AUH_ww1_dualist_compromise
+		remove_ideas = AUH_ww1_trialist_administration
+		remove_ideas = AUH_ww1_federal_administration
+		remove_ideas = AUH_ww1_constitutional_dispute
+		add_ideas = AUH_ww1_dualist_cabinet
+		news_event = { id = ww1_kuk.257 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+AUH_ww1_ratify_centralism = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_constitutional_process NOT = { has_capitulated = yes } surrender_progress < 0.20 NOT = { OR = { has_country_flag = AUH_ww1_dualism_renewed has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_orderly_partition } } has_stability > 0.399 owns_state = 1051 controls_state = 1051 }
+		add_political_power = -50
+		set_country_flag = AUH_ww1_centralist_settlement
+		set_cosmetic_tag = AUH_ww1_centralist_empire
+		remove_ideas = AUH_ww1_dualist_compromise
+		remove_ideas = AUH_ww1_trialist_administration
+		remove_ideas = AUH_ww1_federal_administration
+		remove_ideas = AUH_ww1_constitutional_dispute
+		add_ideas = AUH_ww1_centralist_cabinet
+		news_event = { id = ww1_kuk.256 hours = 6 }
+		add_stability = -0.03
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+AUH_ww1_ratify_trialism = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_constitutional_process NOT = { has_capitulated = yes } surrender_progress < 0.20 NOT = { OR = { has_country_flag = AUH_ww1_dualism_renewed has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_orderly_partition } } has_stability > 0.499 has_country_flag = AUH_ww1_hungarian_consent has_country_flag = AUH_ww1_croatian_consent has_country_flag = AUH_ww1_bosnian_consent owns_state = 43 controls_state = 43 owns_state = 109 controls_state = 109 owns_state = 104 controls_state = 104 }
+		add_political_power = -50
+		set_country_flag = AUH_ww1_trialism_ratified
+		set_cosmetic_tag = AUH_ww1_trialist_monarchy
+		remove_ideas = AUH_ww1_dualist_compromise
+		remove_ideas = AUH_ww1_trialist_administration
+		remove_ideas = AUH_ww1_federal_administration
+		remove_ideas = AUH_ww1_constitutional_dispute
+		add_ideas = AUH_ww1_trialist_crown
+		remove_ideas = multi_ethnic
+		add_ideas = AUH_ww1_regimental_language_service
+		news_event = { id = ww1_kuk.251 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+AUH_ww1_ratify_integrated_federation = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_constitutional_process NOT = { has_capitulated = yes } surrender_progress < 0.20 NOT = { OR = { has_country_flag = AUH_ww1_dualism_renewed has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_orderly_partition } } has_stability > 0.549
+has_country_flag = AUH_ww1_bohemian_consent
+has_country_flag = AUH_ww1_hungarian_consent
+has_country_flag = AUH_ww1_croatian_consent
+has_country_flag = AUH_ww1_galician_consent
+has_country_flag = AUH_ww1_bosnian_consent
+has_country_flag = AUH_ww1_slovenian_consent
+owns_state = 9 controls_state = 9
+owns_state = 43 controls_state = 43
+owns_state = 70 controls_state = 70
+owns_state = 109 controls_state = 109
+owns_state = 104 controls_state = 104
+owns_state = 853 controls_state = 853
+owns_state = 89 controls_state = 89 }
+		add_political_power = -50
+		set_country_flag = AUH_ww1_federation_ratified
+		set_cosmetic_tag = AUH_ww1_danubian_federation
+		remove_ideas = AUH_ww1_dualist_compromise
+		remove_ideas = AUH_ww1_trialist_administration
+		remove_ideas = AUH_ww1_federal_administration
+		remove_ideas = AUH_ww1_constitutional_dispute
+		add_ideas = AUH_ww1_federal_chamber
+		remove_ideas = multi_ethnic
+		add_ideas = AUH_ww1_regimental_language_service
+		news_event = { id = ww1_kuk.252 hours = 6 }
+		add_ideas = AUH_ww1_federal_army
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+AUH_ww1_ratify_danubian_republic = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_constitutional_process NOT = { has_capitulated = yes } surrender_progress < 0.20 NOT = { OR = { has_country_flag = AUH_ww1_dualism_renewed has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_orderly_partition } } date > 1916.12.31 has_stability > 0.499
+has_country_flag = AUH_ww1_bohemian_consent
+has_country_flag = AUH_ww1_hungarian_consent
+has_country_flag = AUH_ww1_croatian_consent
+has_country_flag = AUH_ww1_galician_consent
+has_country_flag = AUH_ww1_bosnian_consent
+has_country_flag = AUH_ww1_slovenian_consent
+owns_state = 9 controls_state = 9
+owns_state = 43 controls_state = 43
+owns_state = 70 controls_state = 70
+owns_state = 109 controls_state = 109
+owns_state = 104 controls_state = 104
+owns_state = 853 controls_state = 853
+owns_state = 89 controls_state = 89 }
+		add_political_power = -50
+		set_country_flag = AUH_ww1_danubian_republic
+		set_cosmetic_tag = AUH_ww1_danubian_republic
+		remove_ideas = AUH_ww1_dualist_compromise
+		remove_ideas = AUH_ww1_trialist_administration
+		remove_ideas = AUH_ww1_federal_administration
+		remove_ideas = AUH_ww1_constitutional_dispute
+		add_ideas = AUH_ww1_republican_assembly
+		remove_ideas = multi_ethnic
+		add_ideas = AUH_ww1_regimental_language_service
+		news_event = { id = ww1_kuk.255 hours = 6 }
+		if = { limit = { has_character = AUH_franz_joseph } retire_character = AUH_franz_joseph }
+		if = { limit = { has_character = AUH_karl_i } retire_character = AUH_karl_i }
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 48 }
+		set_popularities = { democratic = 65 neutrality = 25 communism = 10 fascism = 0 }
+		promote_character = AUH_karl_renner
+		add_ideas = AUH_ww1_federal_army
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+AUH_ww1_ratify_crownland_confederation = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_constitutional_process NOT = { has_capitulated = yes } surrender_progress < 0.20 NOT = { OR = { has_country_flag = AUH_ww1_dualism_renewed has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_orderly_partition } } has_stability > 0.499
+has_country_flag = AUH_ww1_bohemian_consent
+has_country_flag = AUH_ww1_hungarian_consent
+has_country_flag = AUH_ww1_croatian_consent
+has_country_flag = AUH_ww1_galician_consent
+has_country_flag = AUH_ww1_bosnian_consent
+has_country_flag = AUH_ww1_slovenian_consent
+owns_state = 9 controls_state = 9
+owns_state = 43 controls_state = 43
+owns_state = 70 controls_state = 70
+owns_state = 109 controls_state = 109
+owns_state = 104 controls_state = 104
+owns_state = 853 controls_state = 853
+owns_state = 89 controls_state = 89
+OR = { NOT = { country_exists = CZE } CZE = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = HUN } HUN = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = SLO } SLO = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = CRO } CRO = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = BOS } BOS = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = SLV } SLV = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = GLO } GLO = { is_puppet_of = AUH } } }
+		9 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE transfer_state_to = CZE } }
+		69 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE transfer_state_to = CZE } }
+		74 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE transfer_state_to = CZE } }
+		75 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE transfer_state_to = CZE } }
+		72 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE transfer_state_to = CZE } }
+		if = { limit = { country_exists = CZE }
+		if = { limit = { has_dlc = "Together for Victory" } set_autonomy = { target = CZE autonomy_state = autonomy_dominion end_wars = no end_civil_wars = no } } else = { set_autonomy = { target = CZE autonomy_state = autonomy_puppet end_wars = no end_civil_wars = no } }
+		CZE = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 9 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		set_cosmetic_tag = CZE_ww1_bohemian_crown
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 48 }
+		set_popularities = { democratic = 60 neutrality = 30 communism = 10 fascism = 0 }
+		promote_character = CZE_tomas_masaryk
+		give_military_access = AUH
+		add_ideas = AUH_ww1_danubian_customs_union
+		}
+		}
+		give_military_access = CZE
+		if = { limit = { is_in_faction = yes } faction_leader = { add_to_faction = CZE } }
+		43 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		154 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		155 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		1022 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		45 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		76 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		83 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		84 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		1004 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		1053 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		82 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		764 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN transfer_state_to = HUN } }
+		if = { limit = { country_exists = HUN }
+		if = { limit = { has_dlc = "Together for Victory" } set_autonomy = { target = HUN autonomy_state = autonomy_dominion end_wars = no end_civil_wars = no } } else = { set_autonomy = { target = HUN autonomy_state = autonomy_puppet end_wars = no end_civil_wars = no } }
+		HUN = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 43 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		set_cosmetic_tag = HUN_ww1_hungarian_crown
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 48 }
+		set_popularities = { democratic = 60 neutrality = 30 communism = 10 fascism = 0 }
+		promote_character = HUN_mihaly_karolyi
+		give_military_access = AUH
+		add_ideas = AUH_ww1_danubian_customs_union
+		}
+		}
+		give_military_access = HUN
+		if = { limit = { is_in_faction = yes } faction_leader = { add_to_faction = HUN } }
+		70 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO transfer_state_to = SLO } }
+		71 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO transfer_state_to = SLO } }
+		664 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO transfer_state_to = SLO } }
+		73 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO transfer_state_to = SLO } }
+		if = { limit = { country_exists = SLO }
+		if = { limit = { has_dlc = "Together for Victory" } set_autonomy = { target = SLO autonomy_state = autonomy_dominion end_wars = no end_civil_wars = no } } else = { set_autonomy = { target = SLO autonomy_state = autonomy_puppet end_wars = no end_civil_wars = no } }
+		SLO = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 70 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		set_cosmetic_tag = SLO_ww1_slovak_crown
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Slovak Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		give_military_access = AUH
+		add_ideas = AUH_ww1_danubian_customs_union
+		}
+		}
+		give_military_access = SLO
+		if = { limit = { is_in_faction = yes } faction_leader = { add_to_faction = SLO } }
+		103 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO transfer_state_to = CRO } }
+		109 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO transfer_state_to = CRO } }
+		163 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO transfer_state_to = CRO } }
+		1054 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO transfer_state_to = CRO } }
+		1008 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO transfer_state_to = CRO } }
+		1039 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO transfer_state_to = CRO } }
+		if = { limit = { country_exists = CRO }
+		if = { limit = { has_dlc = "Together for Victory" } set_autonomy = { target = CRO autonomy_state = autonomy_dominion end_wars = no end_civil_wars = no } } else = { set_autonomy = { target = CRO autonomy_state = autonomy_puppet end_wars = no end_civil_wars = no } }
+		CRO = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 109 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		set_cosmetic_tag = CRO_ww1_croatian_crown
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Croatian Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		give_military_access = AUH
+		add_ideas = AUH_ww1_danubian_customs_union
+		}
+		}
+		give_military_access = CRO
+		if = { limit = { is_in_faction = yes } faction_leader = { add_to_faction = CRO } }
+		104 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = BOS transfer_state_to = BOS } }
+		804 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = BOS transfer_state_to = BOS } }
+		if = { limit = { country_exists = BOS }
+		if = { limit = { has_dlc = "Together for Victory" } set_autonomy = { target = BOS autonomy_state = autonomy_dominion end_wars = no end_civil_wars = no } } else = { set_autonomy = { target = BOS autonomy_state = autonomy_puppet end_wars = no end_civil_wars = no } }
+		BOS = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 104 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		set_cosmetic_tag = BOS_ww1_bosnian_crown
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Bosnian Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		give_military_access = AUH
+		add_ideas = AUH_ww1_danubian_customs_union
+		}
+		}
+		give_military_access = BOS
+		if = { limit = { is_in_faction = yes } faction_leader = { add_to_faction = BOS } }
+		853 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLV transfer_state_to = SLV } }
+		102 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLV transfer_state_to = SLV } }
+		1003 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLV transfer_state_to = SLV } }
+		if = { limit = { country_exists = SLV }
+		if = { limit = { has_dlc = "Together for Victory" } set_autonomy = { target = SLV autonomy_state = autonomy_dominion end_wars = no end_civil_wars = no } } else = { set_autonomy = { target = SLV autonomy_state = autonomy_puppet end_wars = no end_civil_wars = no } }
+		SLV = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 853 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		set_cosmetic_tag = SLV_ww1_slovenian_crown
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Slovenian Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		give_military_access = AUH
+		add_ideas = AUH_ww1_danubian_customs_union
+		}
+		}
+		give_military_access = SLV
+		if = { limit = { is_in_faction = yes } faction_leader = { add_to_faction = SLV } }
+		89 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO transfer_state_to = GLO } }
+		91 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO transfer_state_to = GLO } }
+		80 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO transfer_state_to = GLO } }
+		88 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO transfer_state_to = GLO } }
+		1025 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO transfer_state_to = GLO } }
+		if = { limit = { country_exists = GLO }
+		if = { limit = { has_dlc = "Together for Victory" } set_autonomy = { target = GLO autonomy_state = autonomy_dominion end_wars = no end_civil_wars = no } } else = { set_autonomy = { target = GLO autonomy_state = autonomy_puppet end_wars = no end_civil_wars = no } }
+		GLO = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 89 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		set_cosmetic_tag = GLO_ww1_galician_crown
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Galician Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		give_military_access = AUH
+		add_ideas = AUH_ww1_danubian_customs_union
+		}
+		}
+		give_military_access = GLO
+		if = { limit = { is_in_faction = yes } faction_leader = { add_to_faction = GLO } }
+		add_political_power = -50
+		set_country_flag = AUH_ww1_confederation_ratified
+		set_cosmetic_tag = AUH_ww1_crownland_confederation
+		remove_ideas = AUH_ww1_dualist_compromise
+		remove_ideas = AUH_ww1_trialist_administration
+		remove_ideas = AUH_ww1_federal_administration
+		remove_ideas = AUH_ww1_constitutional_dispute
+		add_ideas = AUH_ww1_confederal_council
+		remove_ideas = multi_ethnic
+		add_ideas = AUH_ww1_regimental_language_service
+		news_event = { id = ww1_kuk.253 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+	}
+}
+
+AUH_ww1_ratify_orderly_partition = {
+	if = {
+		limit = { tag = AUH date < 1936.1.1 has_country_flag = AUH_ww1_constitutional_process NOT = { has_capitulated = yes } surrender_progress < 0.20 NOT = { OR = { has_country_flag = AUH_ww1_dualism_renewed has_country_flag = AUH_ww1_centralist_settlement has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_confederation_ratified has_country_flag = AUH_ww1_danubian_republic has_country_flag = AUH_ww1_orderly_partition } } has_war = no has_stability > 0.399
+has_country_flag = AUH_ww1_bohemian_consent
+has_country_flag = AUH_ww1_hungarian_consent
+has_country_flag = AUH_ww1_croatian_consent
+has_country_flag = AUH_ww1_galician_consent
+has_country_flag = AUH_ww1_bosnian_consent
+has_country_flag = AUH_ww1_slovenian_consent
+owns_state = 9 controls_state = 9
+owns_state = 43 controls_state = 43
+owns_state = 70 controls_state = 70
+owns_state = 109 controls_state = 109
+owns_state = 104 controls_state = 104
+owns_state = 853 controls_state = 853
+owns_state = 89 controls_state = 89
+OR = { NOT = { country_exists = CZE } CZE = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = HUN } HUN = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = SLO } SLO = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = CRO } CRO = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = BOS } BOS = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = SLV } SLV = { is_puppet_of = AUH } }
+OR = { NOT = { country_exists = GLO } GLO = { is_puppet_of = AUH } } }
+		9 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE remove_core_of = AUH transfer_state_to = CZE } }
+		69 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE remove_core_of = AUH transfer_state_to = CZE } }
+		74 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE remove_core_of = AUH transfer_state_to = CZE } }
+		75 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE remove_core_of = AUH transfer_state_to = CZE } }
+		72 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CZE remove_core_of = AUH transfer_state_to = CZE } }
+		if = { limit = { country_exists = CZE }
+		if = { limit = { CZE = { is_puppet_of = AUH } } set_autonomy = { target = CZE autonomy_state = autonomy_free } }
+		CZE = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 9 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		drop_cosmetic_tag = yes
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 48 }
+		set_popularities = { democratic = 60 neutrality = 30 communism = 10 fascism = 0 }
+		promote_character = CZE_tomas_masaryk
+		}
+		}
+		43 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		154 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		155 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		1022 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		45 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		76 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		83 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		84 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		1004 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		1053 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		82 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		764 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = HUN remove_core_of = AUH transfer_state_to = HUN } }
+		if = { limit = { country_exists = HUN }
+		if = { limit = { HUN = { is_puppet_of = AUH } } set_autonomy = { target = HUN autonomy_state = autonomy_free } }
+		HUN = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 43 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		drop_cosmetic_tag = yes
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 48 }
+		set_popularities = { democratic = 60 neutrality = 30 communism = 10 fascism = 0 }
+		promote_character = HUN_mihaly_karolyi
+		}
+		}
+		70 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO remove_core_of = AUH transfer_state_to = SLO } }
+		71 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO remove_core_of = AUH transfer_state_to = SLO } }
+		664 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO remove_core_of = AUH transfer_state_to = SLO } }
+		73 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLO remove_core_of = AUH transfer_state_to = SLO } }
+		if = { limit = { country_exists = SLO }
+		if = { limit = { SLO = { is_puppet_of = AUH } } set_autonomy = { target = SLO autonomy_state = autonomy_free } }
+		SLO = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 70 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		drop_cosmetic_tag = yes
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Slovak Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		}
+		}
+		103 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO remove_core_of = AUH transfer_state_to = CRO } }
+		109 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO remove_core_of = AUH transfer_state_to = CRO } }
+		163 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO remove_core_of = AUH transfer_state_to = CRO } }
+		1054 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO remove_core_of = AUH transfer_state_to = CRO } }
+		1008 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO remove_core_of = AUH transfer_state_to = CRO } }
+		1039 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = CRO remove_core_of = AUH transfer_state_to = CRO } }
+		if = { limit = { country_exists = CRO }
+		if = { limit = { CRO = { is_puppet_of = AUH } } set_autonomy = { target = CRO autonomy_state = autonomy_free } }
+		CRO = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 109 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		drop_cosmetic_tag = yes
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Croatian Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		}
+		}
+		104 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = BOS remove_core_of = AUH transfer_state_to = BOS } }
+		804 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = BOS remove_core_of = AUH transfer_state_to = BOS } }
+		if = { limit = { country_exists = BOS }
+		if = { limit = { BOS = { is_puppet_of = AUH } } set_autonomy = { target = BOS autonomy_state = autonomy_free } }
+		BOS = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 104 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		drop_cosmetic_tag = yes
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Bosnian Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		}
+		}
+		853 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLV remove_core_of = AUH transfer_state_to = SLV } }
+		102 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLV remove_core_of = AUH transfer_state_to = SLV } }
+		1003 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = SLV remove_core_of = AUH transfer_state_to = SLV } }
+		if = { limit = { country_exists = SLV }
+		if = { limit = { SLV = { is_puppet_of = AUH } } set_autonomy = { target = SLV autonomy_state = autonomy_free } }
+		SLV = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 853 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		drop_cosmetic_tag = yes
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Slovenian Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		}
+		}
+		89 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO remove_core_of = AUH transfer_state_to = GLO } }
+		91 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO remove_core_of = AUH transfer_state_to = GLO } }
+		80 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO remove_core_of = AUH transfer_state_to = GLO } }
+		88 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO remove_core_of = AUH transfer_state_to = GLO } }
+		1025 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_core_of = GLO remove_core_of = AUH transfer_state_to = GLO } }
+		if = { limit = { country_exists = GLO }
+		if = { limit = { GLO = { is_puppet_of = AUH } } set_autonomy = { target = GLO autonomy_state = autonomy_free } }
+		GLO = {
+		inherit_technology = AUH
+		set_country_flag = AUH_ww1_crownland_member
+		set_capital = { state = 89 }
+		load_focus_tree = { tree = generic_focus_ww1 keep_completed = no }
+		set_stability = 0.50
+		set_war_support = 0.30
+		drop_cosmetic_tag = yes
+		set_country_flag = AUH_ww1_constitutional_successor
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { neutrality = 70 democratic = 20 communism = 10 fascism = 0 }
+		create_country_leader = { name = "Galician Crownland Council" picture = "gfx/leaders/Europe/Portrait_Europe_Generic_2.dds" ideology = despotism traits = { } expire = "1965.1.1" }
+		}
+		}
+		add_political_power = -50
+		set_country_flag = AUH_ww1_orderly_partition
+		set_cosmetic_tag = AUH_ww1_austrian_remnant
+		remove_ideas = AUH_ww1_dualist_compromise
+		remove_ideas = AUH_ww1_trialist_administration
+		remove_ideas = AUH_ww1_federal_administration
+		remove_ideas = AUH_ww1_constitutional_dispute
+		add_ideas = AUH_ww1_austrian_reconstruction
+		remove_ideas = multi_ethnic
+		add_ideas = AUH_ww1_regimental_language_service
+		news_event = { id = ww1_kuk.254 hours = 6 }
+		AUH_ww1_refresh_administration = yes
+
+		if = { limit = { has_character = AUH_franz_joseph } retire_character = AUH_franz_joseph }
+		if = { limit = { has_character = AUH_karl_i } retire_character = AUH_karl_i }
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 48 }
+		set_popularities = { democratic = 65 neutrality = 25 communism = 10 fascism = 0 }
+		promote_character = AUH_karl_renner
+	}
+}
+
+AUH_ww1_develop_crownlands = {
+	if = { limit = { tag = AUH has_country_flag = AUH_ww1_confederation_ratified }
+		add_political_power = -50
+		every_subject_country = { limit = { has_country_flag = AUH_ww1_crownland_member }
+			random_owned_state = { limit = { is_owned_and_controlled_by = PREV } add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } }
+		}
+	}
+}
+
+AUH_ww1_share_crownland_technology = {
+	if = { limit = { tag = AUH has_country_flag = AUH_ww1_confederation_ratified }
+		add_political_power = -35
+		every_subject_country = { limit = { has_country_flag = AUH_ww1_crownland_member } inherit_technology = AUH }
+	}
+}
+
+AUH_ww1_crownland_customs = {
+	if = { limit = { tag = AUH has_country_flag = AUH_ww1_confederation_ratified }
+		add_ideas = AUH_ww1_danubian_customs_union
+		every_subject_country = { limit = { has_country_flag = AUH_ww1_crownland_member } add_ideas = AUH_ww1_danubian_customs_union }
+	}
+}

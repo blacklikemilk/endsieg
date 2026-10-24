@@ -1,0 +1,296 @@
+# Share the settlement between a military victory and the historical fallback.
+# Country annexation includes every custom state without resetting research.
+INT_SOV_finish_russian_civil_war = {
+	if = {
+		limit = {
+			tag = SOV
+			date < 1936.1.1
+			has_global_flag = russian_civil_war
+			NOT = { has_global_flag = RUS_CW_Over }
+			has_capitulated = no
+			is_subject = no
+		}
+		set_global_flag = RUS_CW_Over
+		remove_ideas = INT_SOV_red_army_mobilization
+		# Integrate domestic White allies before annexing their overlord.
+		every_country = {
+			limit = {
+				exists = yes
+				OR = { original_tag = KUB original_tag = TSS original_tag = DON }
+				OR = { has_war_with = SOV is_subject_of = WHR is_subject_of = SOV }
+			}
+			SOV = { annex_country = { target = PREV transfer_troops = no } }
+		}
+		if = {
+			limit = {
+				country_exists = WHR
+				OR = {
+					has_war_with = WHR
+					has_country_flag = INT_SOV_white_government_defeated
+					WHR = { is_subject_of = SOV }
+				}
+			}
+			annex_country = { target = WHR transfer_troops = no }
+		}
+		clr_country_flag = INT_SOV_rcw_fallback_queued
+		clr_country_flag = INT_SOV_white_government_defeated
+		news_event = { id = INT_russian_news.14 hours = 6 }
+	}
+}
+
+# The fall of Vladivostok on 25 October 1922 provides a deterministic end date.
+# The open lower bound also repairs older campaigns whose war is still running.
+INT_SOV_schedule_civil_war_fallback = {
+	if = {
+		limit = {
+			tag = SOV
+			date > 1922.10.24
+			date < 1936.1.1
+			has_global_flag = russian_civil_war
+			NOT = { has_global_flag = RUS_CW_Over }
+			NOT = { has_country_flag = INT_SOV_rcw_fallback_queued }
+			NOT = { has_country_flag = INT_SOV_white_government_defeated }
+			has_government = communism
+			has_capitulated = no
+			is_subject = no
+			has_war_with = WHR
+		}
+		set_country_flag = INT_SOV_rcw_fallback_queued
+		country_event = { id = interwar_soviet.62 days = 0 }
+	}
+}
+
+# The Red Army mobilizes once against the White government. This also covers
+# existing saves and scenario starts that bypass the civil-war setup event.
+INT_SOV_civil_war_support = {
+	if = {
+		limit = {
+			tag = SOV
+			date < 1936.1.1
+			has_war_with = WHR
+			NOT = { has_global_flag = RUS_CW_Over }
+		}
+		# The October transition can carry the obsolete Imperial army penalties.
+		remove_ideas = { russia_sucks russia_sucks_less russia_meh }
+		if = {
+			limit = { NOT = { has_idea = INT_SOV_red_army_mobilization } }
+			add_ideas = INT_SOV_red_army_mobilization
+		}
+		if = {
+			limit = { NOT = { has_country_flag = INT_SOV_civil_war_support_received } }
+			set_country_flag = INT_SOV_civil_war_support_received
+			add_manpower = 100000
+			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 15000 }
+			add_equipment_to_stockpile = { type = support_equipment_1 amount = 750 }
+			add_equipment_to_stockpile = { type = ww1_artillery_3 amount = 500 }
+		}
+	}
+	else_if = {
+		limit = { has_idea = INT_SOV_red_army_mobilization }
+		remove_ideas = INT_SOV_red_army_mobilization
+	}
+}
+
+# Applied by the interwar focus when a running campaign adopts the 1936 tree.
+# Country-history date blocks only populate the roster for new scenario starts.
+INT_SOV_1936_roster_handoff = {
+	if = { limit = { endsieg_character_active_so2_lev_trotsky_660a5a92 = yes } endsieg_character_retire_so2_lev_trotsky_660a5a92 = yes }
+	if = { limit = { endsieg_character_active_sov_vladimir_lenin_c95c867e = yes } endsieg_character_retire_sov_vladimir_lenin_c95c867e = yes }
+	if = { limit = { endsieg_character_active_so2_lev_kamenev_33dd563c = yes } endsieg_character_retire_so2_lev_kamenev_33dd563c = yes }
+	if = { limit = { endsieg_character_active_sov_sergey_kamenev_28c7c402 = yes } endsieg_character_retire_sov_sergey_kamenev_28c7c402 = yes }
+	if = { limit = { endsieg_character_active_sov_joseph_stalin_b6507383 = yes } endsieg_character_retire_sov_joseph_stalin_b6507383 = yes }
+	if = { limit = { endsieg_character_active_sov_mikhail_frunze_3f9354db = yes } endsieg_character_retire_sov_mikhail_frunze_3f9354db = yes }
+	if = { limit = { endsieg_character_active_so2_kliment_voroshilov_d64acf65 = yes } endsieg_character_retire_so2_kliment_voroshilov_d64acf65 = yes }
+	if = { limit = { endsieg_character_active_sov_grigori_zinoviev_a0c19e50 = yes } endsieg_character_retire_sov_grigori_zinoviev_a0c19e50 = yes }
+	if = { limit = { endsieg_character_active_so2_nikolay_yezhov_2aab4c48 = yes } endsieg_character_retire_so2_nikolay_yezhov_2aab4c48 = yes }
+	if = { limit = { endsieg_character_active_sov_felix_dzerzhinsky_7a5d7b70 = yes } endsieg_character_retire_sov_felix_dzerzhinsky_7a5d7b70 = yes }
+	if = { limit = { endsieg_character_active_sov_pyotr_voykov_9fa5a003 = yes } endsieg_character_retire_sov_pyotr_voykov_9fa5a003 = yes }
+	if = { limit = { endsieg_character_active_sov_maxim_litvinov_ea3e36ea = yes } endsieg_character_retire_sov_maxim_litvinov_ea3e36ea = yes }
+	if = { limit = { endsieg_character_active_so2_ivan_smirnov_e1a9a079 = yes } endsieg_character_retire_so2_ivan_smirnov_e1a9a079 = yes }
+	if = { limit = { endsieg_character_active_sov_georgi_chicherin_74d99e2f = yes } endsieg_character_retire_sov_georgi_chicherin_74d99e2f = yes }
+	if = { limit = { endsieg_character_active_sov_nikolai_bukharin_8cf61385 = yes } endsieg_character_retire_sov_nikolai_bukharin_8cf61385 = yes }
+	if = { limit = { endsieg_character_active_sov_martin_latsis_e8901b0a = yes } endsieg_character_retire_sov_martin_latsis_e8901b0a = yes }
+	if = { limit = { endsieg_character_active_sov_grigori_sokolnikov_99832ae2 = yes } endsieg_character_retire_sov_grigori_sokolnikov_99832ae2 = yes }
+	if = { limit = { endsieg_character_active_sov_andrei_bubnov_6176430f = yes } endsieg_character_retire_sov_andrei_bubnov_6176430f = yes }
+	if = { limit = { endsieg_character_active_sov_yan_berzin_4dd21eb2 = yes } endsieg_character_retire_sov_yan_berzin_4dd21eb2 = yes }
+	if = { limit = { endsieg_character_active_sov_leonid_krasin_17cfb149 = yes } endsieg_character_retire_sov_leonid_krasin_17cfb149 = yes }
+	if = { limit = { endsieg_character_active_sov_andrey_vyshinsky_d65e202a = yes } endsieg_character_retire_sov_andrey_vyshinsky_d65e202a = yes }
+	if = { limit = { endsieg_character_active_sov_alexei_rykov_5643ae8f = yes } endsieg_character_retire_sov_alexei_rykov_5643ae8f = yes }
+	if = { limit = { endsieg_character_active_sov_ivan_isakov_d692685c = yes } endsieg_character_retire_sov_ivan_isakov_d692685c = yes }
+	if = { limit = { endsieg_character_active_so2_nikolay_kuznetsov_9e9a290c = yes } endsieg_character_retire_so2_nikolay_kuznetsov_9e9a290c = yes }
+	if = { limit = { endsieg_character_active_sov_mikhail_tukachevsky_33d507c6 = yes } endsieg_character_retire_sov_mikhail_tukachevsky_33d507c6 = yes }
+	if = { limit = { endsieg_character_active_sov_jukums_vacietis_88cc3664 = yes } endsieg_character_retire_sov_jukums_vacietis_88cc3664 = yes }
+	if = { limit = { endsieg_character_active_so2_vitaly_primakov_4ef17b87 = yes } endsieg_character_retire_so2_vitaly_primakov_4ef17b87 = yes }
+	if = { limit = { endsieg_character_active_sov_ieronim_uborevich_b0f5f29a = yes } endsieg_character_retire_sov_ieronim_uborevich_b0f5f29a = yes }
+	if = { limit = { endsieg_character_active_sov_ioana_yakir_581b5aeb = yes } endsieg_character_retire_sov_ioana_yakir_581b5aeb = yes }
+	if = { limit = { endsieg_character_active_so2_semyon_budyonny_b2e8e7bc = yes } endsieg_character_retire_so2_semyon_budyonny_b2e8e7bc = yes }
+	if = { limit = { endsieg_character_active_sov_yakov_alksnis_975bad1f = yes } endsieg_character_retire_sov_yakov_alksnis_975bad1f = yes }
+	if = { limit = { endsieg_character_active_sov_konstantin_akashev_cd78c285 = yes } endsieg_character_retire_sov_konstantin_akashev_cd78c285 = yes }
+	if = { limit = { endsieg_character_active_sov_konstantin_artseuolov_b9c24037 = yes } endsieg_character_retire_sov_konstantin_artseuolov_b9c24037 = yes }
+
+	if = { limit = { NOT = { endsieg_character_active_sov_iosif_stalin_70a379b8 = yes } } endsieg_character_activate_sov_iosif_stalin_70a379b8 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_supreme_soviet_f32ed217 = yes } } endsieg_character_activate_sov_supreme_soviet_f32ed217 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_mikhail_kalinin_3622469b = yes } } endsieg_character_activate_sov_mikhail_kalinin_3622469b = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikita_khrushchyov_e8d3a1e3 = yes } } endsieg_character_activate_sov_nikita_khrushchyov_e8d3a1e3 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikolay_voznesensky_8d9cf6e9 = yes } } endsieg_character_activate_sov_nikolay_voznesensky_8d9cf6e9 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_lazar_kaganovich_8da451cf = yes } } endsieg_character_activate_sov_lazar_kaganovich_8da451cf = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_genrikh_yagoda_32d508d1 = yes } } endsieg_character_activate_sov_genrikh_yagoda_32d508d1 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikolay_yezhov_d84fd26a = yes } } endsieg_character_activate_sov_nikolay_yezhov_d84fd26a = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_lavrenty_beriya_e3a7ce6c = yes } } endsieg_character_activate_sov_lavrenty_beriya_e3a7ce6c = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vsevolod_merkulov_18d6177a = yes } } endsieg_character_activate_sov_vsevolod_merkulov_18d6177a = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vyacheslav_molotov_16da62db = yes } } endsieg_character_activate_sov_vyacheslav_molotov_16da62db = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_maksim_litvinov_7b6407e2 = yes } } endsieg_character_activate_sov_maksim_litvinov_7b6407e2 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_lev_trotsky_f0fa5e52 = yes } } endsieg_character_activate_sov_lev_trotsky_f0fa5e52 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_ivan_smirnov_8edba1dc = yes } } endsieg_character_activate_sov_ivan_smirnov_8edba1dc = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_ivar_smilga_b985b442 = yes } } endsieg_character_activate_sov_ivar_smilga_b985b442 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_karl_radek_b1f5b6a4 = yes } } endsieg_character_activate_sov_karl_radek_b1f5b6a4 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_yevgeny_preobrazhensky_9eab8c05 = yes } } endsieg_character_activate_sov_yevgeny_preobrazhensky_9eab8c05 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_shlyapnikov_fa5db74c = yes } } endsieg_character_activate_sov_aleksandr_shlyapnikov_fa5db74c = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikolay_bukharin_7bc1300e = yes } } endsieg_character_activate_sov_nikolay_bukharin_7bc1300e = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksey_rykov_95fd7268 = yes } } endsieg_character_activate_sov_aleksey_rykov_95fd7268 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_mikhail_tomsky_fd095da8 = yes } } endsieg_character_activate_sov_mikhail_tomsky_fd095da8 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_grigory_sokolnikov_9360731d = yes } } endsieg_character_activate_sov_grigory_sokolnikov_9360731d = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_grigory_zinovyev_8768663b = yes } } endsieg_character_activate_sov_grigory_zinovyev_8768663b = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_lev_kamenev_47d8dd8b = yes } } endsieg_character_activate_sov_lev_kamenev_47d8dd8b = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_martemyan_ryutin_961ad9de = yes } } endsieg_character_activate_sov_martemyan_ryutin_961ad9de = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_patriarch_sergy_5090ee3a = yes } } endsieg_character_activate_sov_patriarch_sergy_5090ee3a = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_kerensky_30a0f952 = yes } } endsieg_character_activate_sov_aleksandr_kerensky_30a0f952 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_konstantin_rodzayevsky_0853f115 = yes } } endsieg_character_activate_sov_konstantin_rodzayevsky_0853f115 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_vasilevsky_f9cc2873 = yes } } endsieg_character_activate_sov_aleksandr_vasilevsky_f9cc2873 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_golovanov_b328b9c9 = yes } } endsieg_character_activate_sov_aleksandr_golovanov_b328b9c9 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_gorbatov_e9e63be8 = yes } } endsieg_character_activate_sov_aleksandr_gorbatov_e9e63be8 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_novikov_9ebbaa52 = yes } } endsieg_character_activate_sov_aleksandr_novikov_9ebbaa52 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_yegorov_5f963137 = yes } } endsieg_character_activate_sov_aleksandr_yegorov_5f963137 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_andrey_grechko_5256e899 = yes } } endsieg_character_activate_sov_andrey_grechko_5256e899 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_andrey_vlasov_e162fd0b = yes } } endsieg_character_activate_sov_andrey_vlasov_e162fd0b = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_andrey_yeryomenko_696e9885 = yes } } endsieg_character_activate_sov_andrey_yeryomenko_696e9885 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_arseny_golovko_5d56e51e = yes } } endsieg_character_activate_sov_arseny_golovko_5d56e51e = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_boris_shaposhnikov_0ecfb297 = yes } } endsieg_character_activate_sov_boris_shaposhnikov_0ecfb297 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_dmitry_lelyushenko_5365feb6 = yes } } endsieg_character_activate_sov_dmitry_lelyushenko_5365feb6 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_filipp_golikov_ab2a5754 = yes } } endsieg_character_activate_sov_filipp_golikov_ab2a5754 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_filipp_oktyabrsky_7a973b0e = yes } } endsieg_character_activate_sov_filipp_oktyabrsky_7a973b0e = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_georgy_zakharov_feed5501 = yes } } endsieg_character_activate_sov_georgy_zakharov_feed5501 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_georgy_zhukov_e3898354 = yes } } endsieg_character_activate_sov_georgy_zhukov_e3898354 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_gordey_levchenko_26a09c47 = yes } } endsieg_character_activate_sov_gordey_levchenko_26a09c47 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_grigory_kulik_9c0c854e = yes } } endsieg_character_activate_sov_grigory_kulik_9c0c854e = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_igor_kurchatov_079d928d = yes } } endsieg_character_activate_sov_igor_kurchatov_079d928d = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_issa_pliyev_52da8e38 = yes } } endsieg_character_activate_sov_issa_pliyev_52da8e38 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_ivan_chernyakhovsky_2642240c = yes } } endsieg_character_activate_sov_ivan_chernyakhovsky_2642240c = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_ivan_fedyuninsky_e701f45a = yes } } endsieg_character_activate_sov_ivan_fedyuninsky_e701f45a = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_ivan_konev_78a05444 = yes } } endsieg_character_activate_sov_ivan_konev_78a05444 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_ivan_yumashev_11df355a = yes } } endsieg_character_activate_sov_ivan_yumashev_11df355a = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_kirill_meretskov_fc3b441f = yes } } endsieg_character_activate_sov_kirill_meretskov_fc3b441f = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_kirill_moskalenko_c816bebf = yes } } endsieg_character_activate_sov_kirill_moskalenko_c816bebf = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_kliment_voroshilov_fdc13bfc = yes } } endsieg_character_activate_sov_kliment_voroshilov_fdc13bfc = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_konstantin_rokossovsky_9a2a69b5 = yes } } endsieg_character_activate_sov_konstantin_rokossovsky_9a2a69b5 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_konstantin_vershinin_7e5490bf = yes } } endsieg_character_activate_sov_konstantin_vershinin_7e5490bf = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_kuzma_galitsky_7c2119e4 = yes } } endsieg_character_activate_sov_kuzma_galitsky_7c2119e4 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_leonid_govorov_40e80433 = yes } } endsieg_character_activate_sov_leonid_govorov_40e80433 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_maksim_purkayev_e328e6eb = yes } } endsieg_character_activate_sov_maksim_purkayev_e328e6eb = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_markian_popov_733aae5a = yes } } endsieg_character_activate_sov_markian_popov_733aae5a = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_maks_reyter_e5c9635e = yes } } endsieg_character_activate_sov_maks_reyter_e5c9635e = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_mikhail_frinovsky_2a020e11 = yes } } endsieg_character_activate_sov_mikhail_frinovsky_2a020e11 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_mikhail_tukhachevsky_dc1f2784 = yes } } endsieg_character_activate_sov_mikhail_tukhachevsky_dc1f2784 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikandr_chibisov_26385c85 = yes } } endsieg_character_activate_sov_nikandr_chibisov_26385c85 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikolay_berzarin_527f7fe6 = yes } } endsieg_character_activate_sov_nikolay_berzarin_527f7fe6 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikolay_vatutin_ae4d3369 = yes } } endsieg_character_activate_sov_nikolay_vatutin_ae4d3369 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_nikolay_kuznetsov_9e23d22f = yes } } endsieg_character_activate_sov_nikolay_kuznetsov_9e23d22f = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_pavel_rychagov_4d35c974 = yes } } endsieg_character_activate_sov_pavel_rychagov_4d35c974 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_pavel_zhigarev_137f9a35 = yes } } endsieg_character_activate_sov_pavel_zhigarev_137f9a35 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_pyotr_smirnov_437c13e0 = yes } } endsieg_character_activate_sov_pyotr_smirnov_437c13e0 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_rodion_malinovsky_f82ecd7a = yes } } endsieg_character_activate_sov_rodion_malinovsky_f82ecd7a = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_semyon_budyonny_573c81e3 = yes } } endsieg_character_activate_sov_semyon_budyonny_573c81e3 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_semyon_timoshenko_b88735aa = yes } } endsieg_character_activate_sov_semyon_timoshenko_b88735aa = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_sergey_khudyakov_de66d761 = yes } } endsieg_character_activate_sov_sergey_khudyakov_de66d761 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_sergey_korolyov_6b1b1230 = yes } } endsieg_character_activate_sov_sergey_korolyov_6b1b1230 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_sergey_rudenko_cbad32b9 = yes } } endsieg_character_activate_sov_sergey_rudenko_cbad32b9 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_sergey_gorshkov_85ac3661 = yes } } endsieg_character_activate_sov_sergey_gorshkov_85ac3661 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_stepan_krasovsky_01e77240 = yes } } endsieg_character_activate_sov_stepan_krasovsky_01e77240 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vasily_blyukher_b9aee165 = yes } } endsieg_character_activate_sov_vasily_blyukher_b9aee165 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vasily_chuykov_d24fb562 = yes } } endsieg_character_activate_sov_vasily_chuykov_d24fb562 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vasily_kuznetsov_f3a73bc1 = yes } } endsieg_character_activate_sov_vasily_kuznetsov_f3a73bc1 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vladimir_kasatonov_897463e6 = yes } } endsieg_character_activate_sov_vladimir_kasatonov_897463e6 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vladimir_tributs_59c031c1 = yes } } endsieg_character_activate_sov_vladimir_tributs_59c031c1 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_yakov_cherevichenko_b4d0a444 = yes } } endsieg_character_activate_sov_yakov_cherevichenko_b4d0a444 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_yakov_smushkevich_695742df = yes } } endsieg_character_activate_sov_yakov_smushkevich_695742df = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vitaly_primakov_d51f1625 = yes } } endsieg_character_activate_sov_vitaly_primakov_d51f1625 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_vasily_korzh_ec4d4c32 = yes } } endsieg_character_activate_sov_vasily_korzh_ec4d4c32 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_sidor_kovpak_9441dee4 = yes } } endsieg_character_activate_sov_sidor_kovpak_9441dee4 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_lev_dovator_2aeb3388 = yes } } endsieg_character_activate_sov_lev_dovator_2aeb3388 = yes }
+	if = { limit = { NOT = { endsieg_character_active_sov_pavel_rybalko_9740edf3 = yes } } endsieg_character_activate_sov_pavel_rybalko_9740edf3 = yes }
+
+	# Vanilla's 1936 characters require their political alignments for purge and exile content.
+	SOV_mikhail_kalinin = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_nikita_khrushchyov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_lazar_kaganovich = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_genrikh_yagoda = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_nikolay_yezhov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_lavrenty_beriya = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_vsevolod_merkulov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_vyacheslav_molotov = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_patriarch_sergy = { set_character_flag = SOV_safe_from_purge_flag }
+	SOV_konstantin_rodzayevsky = { set_character_flag = SOV_exiled_flag }
+	SOV_aleksandr_kerensky = { set_character_flag = SOV_exiled_flag }
+	SOV_lev_trotsky = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_ivan_smirnov = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_ivar_smilga = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_karl_radek = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_yevgeny_preobrazhensky = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_aleksandr_shlyapnikov = { set_character_flag = SOV_aligned_left_opposition_flag }
+	SOV_nikolay_bukharin = { set_character_flag = SOV_aligned_right_opposition_flag }
+	SOV_aleksey_rykov = { set_character_flag = SOV_aligned_right_opposition_flag }
+	SOV_mikhail_tomsky = { set_character_flag = SOV_aligned_right_opposition_flag }
+	SOV_grigory_sokolnikov = { set_character_flag = SOV_aligned_right_opposition_flag }
+	if = {
+		limit = { NOT = { has_completed_focus = SO2_INT_left_opposition } }
+		SOV_lev_trotsky = { set_character_flag = SOV_exiled_flag }
+	}
+	if = {
+		limit = { has_completed_focus = SO2_INT_general_secretary }
+		SOV_ivan_smirnov = { set_character_flag = SOV_imprisoned_flag }
+		SOV_ivar_smilga = { set_character_flag = SOV_imprisoned_flag }
+		SOV_aleksandr_shlyapnikov = { set_character_flag = SOV_imprisoned_flag }
+		SOV_grigory_zinovyev = { set_character_flag = SOV_imprisoned_flag }
+		SOV_lev_kamenev = { set_character_flag = SOV_imprisoned_flag }
+		SOV_martemyan_ryutin = { set_character_flag = SOV_imprisoned_flag }
+	}
+	if = {
+		limit = { has_dlc = "No Step Back" }
+		if = { limit = { NOT = { endsieg_character_active_sov_provisional_government_bd9dd171 = yes } } endsieg_character_activate_sov_provisional_government_bd9dd171 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_anastasy_vonsyatsky_23883292 = yes } } endsieg_character_activate_sov_anastasy_vonsyatsky_23883292 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_metropolitan_anastasy_6ae7a119 = yes } } endsieg_character_activate_sov_metropolitan_anastasy_6ae7a119 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_metropolitan_nikolay_f84897fa = yes } } endsieg_character_activate_sov_metropolitan_nikolay_f84897fa = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_nikolay_ustryalov_b2f53d18 = yes } } endsieg_character_activate_sov_nikolay_ustryalov_b2f53d18 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_kazembek_0520d5ce = yes } } endsieg_character_activate_sov_aleksandr_kazembek_0520d5ce = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_metropolitan_aleksy_0acf36dc = yes } } endsieg_character_activate_sov_metropolitan_aleksy_0acf36dc = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_metropolitan_meletius_1934746f = yes } } endsieg_character_activate_sov_metropolitan_meletius_1934746f = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_prokofyev_seversky_0eb096cf = yes } } endsieg_character_activate_sov_aleksandr_prokofyev_seversky_0eb096cf = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_vyacheslav_tkachyov_c67f46b2 = yes } } endsieg_character_activate_sov_vyacheslav_tkachyov_c67f46b2 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_yan_nagursky_b28315bd = yes } } endsieg_character_activate_sov_yan_nagursky_b28315bd = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_vasily_yanchenko_14014312 = yes } } endsieg_character_activate_sov_vasily_yanchenko_14014312 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_tsar_vladimir_kirillovich_8c035a37 = yes } } endsieg_character_activate_sov_tsar_vladimir_kirillovich_8c035a37 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_pyotr_krasnov_f878facd = yes } } endsieg_character_activate_sov_pyotr_krasnov_f878facd = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_konstantin_nechayev_3e31e69c = yes } } endsieg_character_activate_sov_konstantin_nechayev_3e31e69c = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_aleksandr_rodzyanko_35beb996 = yes } } endsieg_character_activate_sov_aleksandr_rodzyanko_35beb996 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_vladimir_kosmin_8783a84f = yes } } endsieg_character_activate_sov_vladimir_kosmin_8783a84f = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_andrey_shkuro_b35e70c1 = yes } } endsieg_character_activate_sov_andrey_shkuro_b35e70c1 = yes }
+		if = { limit = { NOT = { endsieg_character_active_sov_anton_denikin_e27933a3 = yes } } endsieg_character_activate_sov_anton_denikin_e27933a3 = yes }
+		set_country_flag = vlasov_owner_flag
+		SOV_metropolitan_anastasy = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_metropolitan_nikolay = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_metropolitan_aleksy = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_metropolitan_meletius = { set_character_flag = SOV_safe_from_purge_flag }
+		SOV_anastasy_vonsyatsky = { set_character_flag = SOV_exiled_flag }
+		SOV_aleksandr_kazembek = { set_character_flag = SOV_exiled_flag }
+		SOV_aleksandr_prokofyev_seversky = { set_character_flag = SOV_exiled_flag }
+		SOV_vyacheslav_tkachyov = { set_character_flag = SOV_exiled_flag }
+		SOV_yan_nagursky = { set_character_flag = SOV_exiled_flag }
+		SOV_vasily_yanchenko = { set_character_flag = SOV_exiled_flag }
+		SOV_anton_denikin = { set_character_flag = SOV_exiled_flag }
+		SOV_pyotr_krasnov = { set_character_flag = SOV_exiled_flag }
+		SOV_konstantin_nechayev = { set_character_flag = SOV_exiled_flag }
+		SOV_vladimir_kosmin = { set_character_flag = SOV_exiled_flag }
+		SOV_aleksandr_rodzyanko = { set_character_flag = SOV_exiled_flag }
+		SOV_andrey_shkuro = { set_character_flag = SOV_exiled_flag }
+	}
+}

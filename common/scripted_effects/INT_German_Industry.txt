@@ -1,0 +1,105 @@
+INT_GER_industry_crash_effect = {
+	if = {
+		limit = {
+			NOT = { has_country_flag = INT_GER_industry_crash_processed }
+			has_focus_tree = INT_germany
+			OR = {
+				has_completed_focus = INT_GER_reconstruction_commission
+				has_completed_focus = INT_GER_roaring_twenties
+			}
+		}
+		set_country_flag = INT_GER_industry_crash_processed
+		remove_ideas = {
+			INT_GER_industry_credit_boom
+			INT_GER_industry_export_support
+			INT_GER_industry_reserve_fund
+			INT_GER_industry_reconstruction
+			INT_GER_industry_reconstruction_cautious
+			INT_GER_industry_savings_path
+		}
+		clr_country_flag = INT_GER_industry_phase_reconstruction
+		clr_country_flag = INT_GER_industry_phase_stabilization
+		clr_country_flag = INT_GER_industry_phase_roaring
+		set_country_flag = INT_GER_industry_phase_depression
+		if = {
+			limit = { has_country_flag = INT_GER_industry_credit_exposure }
+			remove_ideas = {
+				INT_GER_industry_credit_crash
+				INT_GER_industry_credit_crash_buffered
+			}
+			if = {
+				limit = { has_country_flag = INT_GER_industry_reserves }
+				add_ideas = INT_GER_industry_credit_crash_buffered
+			}
+			else = {
+				add_ideas = INT_GER_industry_credit_crash
+			}
+		}
+		if = {
+			limit = {
+				has_focus_tree = INT_germany
+				has_completed_focus = INT_GER_roaring_twenties
+			}
+			country_event = { id = INT_ger_industry.3 days = 7 }
+		}
+	}
+}
+
+INT_GER_industry_recovery_effect = {
+	if = {
+		limit = {
+			NOT = { has_country_flag = INT_GER_industry_phase_recovery }
+			has_focus_tree = INT_germany
+			OR = {
+				has_completed_focus = INT_GER_industrial_recovery
+				has_completed_focus = INT_GER_recover_from_depression
+			}
+		}
+		remove_ideas = {
+			INT_GER_industry_credit_boom
+			INT_GER_industry_export_support
+			INT_GER_industry_reserve_fund
+			INT_GER_industry_credit_crash
+			INT_GER_industry_credit_crash_buffered
+			INT_GER_industry_reconstruction
+			INT_GER_industry_reconstruction_cautious
+			INT_GER_industry_savings_path
+			INT_GER_industry_public_works_burden
+			INT_GER_industry_austerity_burden
+		}
+		clr_country_flag = INT_GER_industry_phase_reconstruction
+		clr_country_flag = INT_GER_industry_phase_stabilization
+		clr_country_flag = INT_GER_industry_phase_roaring
+		clr_country_flag = INT_GER_industry_phase_depression
+		clr_country_flag = INT_GER_industry_credit_exposure
+		set_country_flag = INT_GER_industry_phase_recovery
+		add_ideas = INT_GER_industry_recovery
+		country_event = { id = INT_ger_industry.4 days = 7 }
+	}
+}
+
+INT_GER_industry_banking_effect = {
+	if = {
+		limit = {
+			has_focus_tree = INT_germany
+			has_completed_focus = INT_GER_bank_restructuring
+		}
+		remove_ideas = INT_GER_banking_crisis
+		remove_ideas = INT_GER_industry_bank_reform
+		add_ideas = INT_GER_industry_bank_reform
+	}
+}
+
+INT_GER_industry_reserves_effect = {
+	if = {
+		limit = {
+			has_focus_tree = INT_germany
+			date < 1929.10.24
+			NOT = { has_country_flag = INT_depression_hit }
+			NOT = { has_country_flag = INT_GER_industry_phase_depression }
+		}
+		set_country_flag = INT_GER_industry_reserves
+		remove_ideas = INT_GER_industry_reserve_fund
+		add_ideas = INT_GER_industry_reserve_fund
+	}
+}

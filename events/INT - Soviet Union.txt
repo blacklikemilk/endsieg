@@ -1,103 +1,5 @@
-﻿###########################
-# Soviet Russian Events
-###########################
-
-add_namespace = soviet
-
-# Lenin Dies
-country_event = {
-	id = soviet.17
-	title = soviet.17.t
-	desc = soviet.17.d
-	picture = GFX_report_event_lenin_dead
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1925.1.1 }
-		tag = SOV
-		date > 1924.1.21
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		set_global_flag = lenin_dead
-	}
-	option = {
-		name = soviet.17.a
-		add_stability = -0.05
-		# Lenin Dies
-		kill_country_leader = yes
-		create_country_leader = {
-			name = "Joseph Stalin"
-			desc = "POLITICS_JOSEPH_STALIN_DESC"
-			picture = "Portrait_Soviet_Joseph_Stalin.dds"
-			expire = "1953.5.16"
-			ideology = leninist
-			traits = {
-				dictator
-			}
-		}
-	}
-}
-
-# Lenin's Mausoleum
-country_event = {
-	id = soviet.18
-	title = soviet.18.t
-	desc = soviet.18.d
-	picture = GFX_report_event_mausoleum
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1925.1.1 }
-		tag = SOV
-		date > 1924.2.1
-		has_global_flag = lenin_dead
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		set_global_flag = lenin_mausoleum
-	}
-
-	option = {
-		name = soviet.18.a
-	}
-}
-
-# Pyotr Voykov Murdered
-country_event = {
-	id = soviet.19
-	title = soviet.19.t
-	desc = soviet.19.d
-	picture = GFX_report_event_voykov
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1928.12.1 }
-		tag = SOV
-		date > 1927.6.6
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		set_global_flag = voykov_dead
-	}
-
-	option = {
-		name = soviet.19.a
-	}
-}
-
 add_namespace = interwar_soviet
 
-# Found the Comintern
 country_event = {
 	id = interwar_soviet.1
 	title = interwar_soviet.1.t
@@ -113,15 +15,15 @@ country_event = {
 		SOV = {
 			create_faction = comintern
 		}
+		news_event = { id = INT_russian_news.1 days = 1 }
 	}
 }
 
-# Supply PSSR
 country_event = {
 	id = interwar_soviet.2
 	title = interwar_soviet.2.t
 	desc = interwar_soviet.2.d
-	picture = GFX_report_event_PSSR
+	picture = GFX_INT_photo_interwar_soviet_2
 
 	is_triggered_only = yes
 
@@ -131,39 +33,11 @@ country_event = {
 		name = interwar_soviet.2.a
 		SPE = {
 			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 5000 producer = SOV }
-			add_equipment_to_stockpile = { type = rations amount = 10000 producer = SOV }
+			add_equipment_to_stockpile = { type = rations_1 amount = 10000 producer = SOV }
 		}
 	}
 }
 
-# Westward Offensive
-country_event = {
-	id = interwar_soviet.3
-	title = interwar_soviet.3.t
-	desc = interwar_soviet.3.d
-	picture = GFX_report_event_westward_offensive
-
-	is_triggered_only = yes
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = interwar_soviet.3.a
-		SOV = {
-			load_oob = westward_offensive
-			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 15000 producer = SOV }
-			add_equipment_to_stockpile = { type = rations amount = 25000 producer = SOV }
-			declare_war_on = { target = EST type = annex_everything }
-			declare_war_on = { target = LAT type = annex_everything }
-			declare_war_on = { target = LIT type = annex_everything }
-			declare_war_on = { target = UKR type = annex_everything }
-			declare_war_on = { target = POL type = annex_everything }
-			declare_war_on = { target = BLR type = annex_everything }
-		}
-	}
-}
-
-# Intervene on side of Hungarian SSR
 country_event = {
 	id = interwar_soviet.4
 	title = interwar_soviet.4.t
@@ -176,17 +50,23 @@ country_event = {
 
 	option = {
 		name = interwar_soviet.4.a
-		declare_war_on = { target = ROM type = annex_everything }
-		add_to_faction = HUN
+		if = {
+			limit = { country_exists = ROM NOT = { has_war_with = ROM } }
+			declare_war_on = { target = ROM type = annex_everything }
+			news_event = { id = INT_russian_news.2 days = 1 }
+		}
+		if = {
+			limit = { country_exists = HUN is_in_faction = yes }
+			add_to_faction = HUN
+		}
 	}
 }
 
-# Intervene FNR
 country_event = {
 	id = interwar_soviet.5
 	title = interwar_soviet.5.t
 	desc = interwar_soviet.5.d
-	picture = GFX_report_event_fnr
+	picture = GFX_INT_photo_interwar_soviet_5
 
 	is_triggered_only = yes
 
@@ -194,74 +74,23 @@ country_event = {
 
 	option = {
 		name = interwar_soviet.5.a
-		declare_war_on = { target = FNN type = annex_everything }
-		add_to_faction = FNR
-	}
-}
-
-# Invade Azerbaijan
-country_event = {
-	id = interwar_soviet.6
-	title = interwar_soviet.6.t
-	desc = interwar_soviet.6.d
-	picture = GFX_report_event_azerbaijan_invade
-
-	is_triggered_only = yes
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = interwar_soviet.6.a
-		declare_war_on = { target = AZR type = annex_everything }
-	}
-}
-
-# Invade Georgia
-country_event = {
-	id = interwar_soviet.7
-	title = interwar_soviet.7.t
-	desc = interwar_soviet.7.d
-	picture = GFX_report_event_georgia_invade
-
-	is_triggered_only = yes
-
-	option = {
-		name = interwar_soviet.7.a
-		SOV = {
-			declare_war_on = { target = GEO type = annex_everything }
+		if = {
+			limit = { country_exists = FNN NOT = { has_war_with = FNN } }
+			declare_war_on = { target = FNN type = annex_everything }
+			news_event = { id = INT_russian_news.3 days = 1 }
 		}
 		if = {
-			limit = { country_exists = TUR }
-			TUR = {
-				declare_war_on = { target = GEO type = annex_everything }
-			}
+			limit = { country_exists = FNR is_in_faction = yes }
+			add_to_faction = FNR
 		}
 	}
 }
 
-# Invade Armenia
-country_event = {
-	id = interwar_soviet.8
-	title = interwar_soviet.8.t
-	desc = interwar_soviet.8.d
-	picture = GFX_report_event_armenia_invade
-
-	is_triggered_only = yes
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = interwar_soviet.8.a
-		declare_war_on = { target = ARM type = annex_everything }
-	}
-}
-
-# Treaty of Kars
 country_event = {
 	id = interwar_soviet.9
 	title = interwar_soviet.9.t
 	desc = interwar_soviet.9.d
-	picture = GFX_report_event_treaty_of_kars
+	picture = GFX_INT_photo_interwar_soviet_9
 
 	is_triggered_only = yes
 
@@ -270,33 +99,32 @@ country_event = {
 	option = {
 		name = interwar_soviet.9.a
 		add_political_power = 100
-		TUR = {
-			transfer_state = 784
+		if = {
+			limit = { country_exists = TUR }
+			TUR = { transfer_state = 1033 }
 		}
 	}
 }
 
-# Send Supply FNR
 country_event = {
 	id = interwar_soviet.10
 	title = interwar_soviet.10.t
 	desc = interwar_soviet.10.d
-	picture = GFX_report_event_fnr
+	picture = GFX_INT_photo_interwar_soviet_10
 
 	is_triggered_only = yes
 
 	mean_time_to_happen = { days = 1 }
 
 	option = {
-		name = interwar_soviet.1.a
+		name = interwar_soviet.10.a
 		FNR = {
 			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 5000 producer = SOV }
-			add_equipment_to_stockpile = { type = rations amount = 7500 producer = SOV }
+			add_equipment_to_stockpile = { type = rations_1 amount = 7500 producer = SOV }
 		}
 	}
 }
 
-# Send Supply HSR
 country_event = {
 	id = interwar_soviet.11
 	title = interwar_soviet.11.t
@@ -311,12 +139,11 @@ country_event = {
 		name = interwar_soviet.11.a
 		HUN = {
 			add_equipment_to_stockpile = { type = early_infantry_equipment_3 amount = 5000 producer = SOV }
-			add_equipment_to_stockpile = { type = rations amount = 10000 producer = SOV }
+			add_equipment_to_stockpile = { type = rations_1 amount = 10000 producer = SOV }
 		}
 	}
 }
 
-# Establish Rumanian SR
 country_event = {
 	id = interwar_soviet.12
 	title = interwar_soviet.12.t
@@ -330,45 +157,35 @@ country_event = {
 	option = {
 		name = interwar_soviet.12.a
 		if = {
-			limit = { has_war_with = ROM }
-			white_peace = ROM
+			limit = { country_exists = ROM }
+			if = {
+				limit = { has_war_with = ROM }
+				white_peace = ROM
+			}
+			ROM = {
+				transfer_state = 46
+				transfer_state = 79
+				transfer_state = 81
+				set_politics = {
+					ruling_party = communism
+					elections_allowed = no
+				}
+				set_popularities = { communism = 100 }
+			}
+			if = {
+				limit = { SOV = { controls_state = 77 } }
+				ROM = { transfer_state = 77 }
+			}
+			SOV = { puppet = ROM }
 		}
-		ROM = {
-			transfer_state = 77
-			transfer_state = 79
-			transfer_state = 81
-			transfer_state = 762
-			transfer_state = 779
-			transfer_state = 829
-		}
-		SOV = {
-			puppet = ROM
-		}
-		set_politics = {
-			ruling_party = leninist
-			elections_allowed = no    }
-
-        set_popularities = {
-            populist = 0
-            fascism = 0
-            paternal_autocrat = 0
-            social_conservative = 0
-            market_liberal = 0
-            social_liberal = 0
-            social_democrat = 0
-            leninist = 100
-            stalinist = 0
-            anarchist = 0
-        }
 	}
 }
 
-# Puppet Hungarian SR
 country_event = {
 	id = interwar_soviet.13
 	title = interwar_soviet.13.t
 	desc = interwar_soviet.13.d
-	picture = GFX_report_event_hungarian_sr
+	picture = GFX_INT_photo_interwar_soviet_13
 
 	is_triggered_only = yes
 
@@ -382,12 +199,11 @@ country_event = {
 	}
 }
 
-# Treaty of Tartu
 country_event = {
 	id = interwar_soviet.14
 	title = interwar_soviet.14.t
 	desc = interwar_soviet.14.d
-	picture = GFX_report_event_tartu_treaty_finland
+	picture = GFX_INT_photo_interwar_soviet_14
 
 	is_triggered_only = yes
 
@@ -401,7 +217,6 @@ country_event = {
 	}
 }
 
-# Puppet FNR
 country_event = {
 	id = interwar_soviet.15
 	title = interwar_soviet.15.t
@@ -420,7 +235,6 @@ country_event = {
 	}
 }
 
-# Demand Japanese Evacuation
 country_event = {
 	id = interwar_soviet.16
 	title = interwar_soviet.16.t
@@ -439,7 +253,6 @@ country_event = {
 	}
 }
 
-# Reintigrate FAR
 country_event = {
 	id = interwar_soviet.17
 	title = interwar_soviet.17.t
@@ -452,13 +265,16 @@ country_event = {
 
 	option = {
 		name = interwar_soviet.17.a
+		if = {
+			limit = { country_exists = FAR }
+			news_event = { id = INT_russian_news.4 days = 1 }
+		}
 		SOV = {
 			annex_country = { target = FAR transfer_troops = no }
 		}
 	}
 }
 
-# Soviet-Japanese Convention
 country_event = {
 	id = interwar_soviet.18
 	title = interwar_soviet.18.t
@@ -474,10 +290,13 @@ country_event = {
 		SOV = {
 			add_opinion_modifier = { target = JAP modifier = soviet_japanese_convention }
 		}
+		if = {
+			limit = { country_exists = JAP }
+			news_event = { id = INT_russian_news.5 days = 1 }
+		}
 	}
 }
 
-# Invade Mongolia
 country_event = {
 	id = interwar_soviet.19
 	title = interwar_soviet.19.t
@@ -490,33 +309,14 @@ country_event = {
 
 	option = {
 		name = interwar_soviet.19.a
+		if = {
+			limit = { country_exists = MON NOT = { has_war_with = MON } }
+			news_event = { id = INT_russian_news.6 days = 1 }
+		}
 		declare_war_on = { target = MON type = puppet_wargoal_focus }
 	}
 }
 
-# Create Tannu Tuva
-country_event = {
-	id = interwar_soviet.20
-	title = interwar_soviet.20.t
-	desc = interwar_soviet.20.d
-	picture = GFX_report_event_tuva
-
-	is_triggered_only = yes
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = interwar_soviet.20.a
-		TAN = {
-			transfer_state = 329
-		}
-		SOV = {
-			puppet = TAN
-		}
-	}
-}
-
-# War Communism
 country_event = {
 	id = interwar_soviet.21
 	title = interwar_soviet.21.t
@@ -534,7 +334,6 @@ country_event = {
 	}
 }
 
-# CHEKA
 country_event = {
 	id = interwar_soviet.22
 	title = interwar_soviet.22.t
@@ -551,12 +350,11 @@ country_event = {
 	}
 }
 
-# decossackation
 country_event = {
 	id = interwar_soviet.23
 	title = interwar_soviet.23.t
 	desc = interwar_soviet.23.d
-	picture = GFX_report_event_cossacks
+	picture = GFX_INT_photo_interwar_soviet_23
 
 	is_triggered_only = yes
 
@@ -565,12 +363,10 @@ country_event = {
 	option = {
 		name = interwar_soviet.23.a
 		add_political_power = 75
-		add_stability = 0.10
 		add_war_support = 0.05
 	}
 }
 
-# Red Teror
 country_event = {
 	id = interwar_soviet.24
 	title = interwar_soviet.24.t
@@ -585,16 +381,14 @@ country_event = {
 		name = interwar_soviet.24.a
 		add_ideas = red_terror
 		add_war_support = 0.10
-		add_stability = 0.25
 	}
 }
 
-# NEP
 country_event = {
 	id = interwar_soviet.25
 	title = interwar_soviet.25.t
 	desc = interwar_soviet.25.d
-	picture = GFX_report_event_
+	picture = GFX_report_event_basic_industry
 
 	is_triggered_only = yes
 
@@ -603,28 +397,10 @@ country_event = {
 	option = {
 		name = interwar_soviet.25.a
 		add_ideas = NEP
+		news_event = { id = INT_russian_news.7 days = 1 }
 	}
 }
 
-# Eradicate Mensheviks
-country_event = {
-	id = interwar_soviet.26
-	title = interwar_soviet.26.t
-	desc = interwar_soviet.26.d
-	picture = GFX_report_event_mensheviks
-
-	is_triggered_only = yes
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = interwar_soviet.26.a
-		add_stability = 0.10
-		add_political_power = 100
-	}
-}
-
-# Confiscate Grain
 country_event = {
 	id = interwar_soviet.27
 	title = interwar_soviet.27.t
@@ -637,19 +413,18 @@ country_event = {
 
 	option = {
 		name = interwar_soviet.27.a
-		SOV = {
-			add_equipment_to_stockpile = { type = rations amount = 25000 producer = SOV }
+			SOV = {
+			add_equipment_to_stockpile = { type = rations_1 amount = 25000 producer = SOV }
 		}
 		add_stability = -0.10
 	}
 }
 
-# Treaty of Creation USSR
 country_event = {
 	id = interwar_soviet.28
 	title = interwar_soviet.28.t
 	desc = interwar_soviet.28.d
-	picture = GFX_report_event_treaty_creation_ussr
+	picture = GFX_INT_photo_interwar_soviet_28
 
 	is_triggered_only = yes
 
@@ -658,11 +433,9 @@ country_event = {
 	option = {
 		name = interwar_soviet.28.a
 		add_political_power = 100
-		add_stability = 0.1
 	}
 }
 
-# Gulags
 country_event = {
 	id = interwar_soviet.29
 	title = interwar_soviet.29.t
@@ -676,17 +449,15 @@ country_event = {
 	option = {
 		name = interwar_soviet.29.a
 		add_ideas = gulags
-		add_stability = 0.30
 		add_political_power = 100
 	}
 }
 
-# GOELRO Plan
 country_event = {
 	id = interwar_soviet.30
 	title = interwar_soviet.30.t
 	desc = interwar_soviet.30.d
-	picture = GFX_report_event_GOELRO
+	picture = GFX_INT_photo_interwar_soviet_30
 
 	is_triggered_only = yes
 
@@ -698,42 +469,11 @@ country_event = {
 	}
 }
 
-# Re
-country_event = {
-	id = interwar_soviet.31
-	title = interwar_soviet.31.t
-	desc = interwar_soviet.31.d
-	picture = GFX_report_event_
-
-	is_triggered_only = yes
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = interwar_soviet.31.a
-	}
-}
-
-#
-country_event = {
-	id = interwar_soviet.32
-	title = interwar_soviet.32.t
-	desc = interwar_soviet.32.d
-	picture = GFX_report_event_
-
-	is_triggered_only = yes
-
-	option = {
-		name = interwar_soviet.3.a
-	}
-}
-
-# Integrate FNR
 country_event = {
 	id = interwar_soviet.33
 	title = interwar_soviet.33.t
 	desc = interwar_soviet.33.d
-	picture = GFX_report_event_fnr2
+	picture = GFX_INT_photo_interwar_soviet_33
 
 	is_triggered_only = yes
 
@@ -745,12 +485,11 @@ country_event = {
 	}
 }
 
-# Intervene PSSR
 country_event = {
 	id = interwar_soviet.34
 	title = interwar_soviet.34.t
 	desc = interwar_soviet.34.d
-	picture = GFX_report_event_
+	picture = GFX_INT_photo_interwar_soviet_34
 
 	is_triggered_only = yes
 
@@ -758,12 +497,15 @@ country_event = {
 		name = interwar_soviet.34.a
 		SOV = {
 			add_to_faction = SPE
+			if = {
+				limit = { country_exists = PER NOT = { has_war_with = PER } }
+				news_event = { id = INT_russian_news.8 days = 1 }
+			}
 			declare_war_on = { target = PER type = annex_everything }
 		}
 	}
 }
 
-# Employ Tsarist Officers
 country_event = {
 	id = interwar_soviet.35
 	title = interwar_soviet.35.t
@@ -780,32 +522,6 @@ country_event = {
 	}
 }
 
-# Lenin Attempted Assasination
-country_event = {
-	id = interwar_soviet.36
-	title = interwar_soviet.36.t
-	desc = interwar_soviet.36.d
-	picture = GFX_report_event_lenin_attempted
-
-	fire_only_once = yes
-
-	trigger = {
-		date > 1918.8.30
-		date < 1919.1.1
-		tag = SOV
-	}
-
-	mean_time_to_happen = { days = 1
-
-	}
-	option = {
-		name = interwar_soviet.36.a
-		news_event = { hours = 6 id = endsieg_news.9 }
-		set_global_flag = leninshot
-		add_stability = -0.05
-	}
-}
-
 # Royal Family Dead
 country_event = {
 	id = interwar_soviet.37
@@ -816,6 +532,7 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_start_date < 1918.9.1
 		NOT = { date > 1919.1.1 }
 		date > 1918.8.30
 		tag = SOV
@@ -826,12 +543,10 @@ country_event = {
 		}
 	}
 
-	mean_time_to_happen = { days = 1
+	mean_time_to_happen = { days = 1 }
 
-	}
 	option = {
 		name = interwar_soviet.37.a
-		news_event = { hours = 6 id = endsieg_news.16 }
 		set_global_flag = royal_family_dead
 	}
 	option = {
@@ -840,392 +555,82 @@ country_event = {
 	}
 }
 
-
-# Kronstadt Rebellion
+# Tsaritsyn was renamed on 10 April 1925, years after the October Revolution.
 country_event = {
-	id = interwar_soviet.38
-	title = interwar_soviet.38.t
-	desc = interwar_soviet.38.d
-	picture = GFX_report_event_kronstadt
-
+	id = interwar_soviet.60
+	hidden = yes
 	fire_only_once = yes
-
 	trigger = {
-		NOT = { date > 1922.1.1 }
-		date > 1921.3.7
+		has_start_date < 1925.4.11
 		tag = SOV
-		NOT = { has_global_flag = whites_win }
+		date > 1925.4.9
+		owns_state = 217
 	}
-
-	mean_time_to_happen = { days = 1
-
-	}
+	mean_time_to_happen = { days = 1 }
 	option = {
-		name = interwar_soviet.38.a
-		news_event = { hours = 6 id = endsieg_news.43 }
-		SOV = {
-			add_stability = -0.01
-			add_political_power = -100
-		}
+		name = interwar_soviet.60.a
+		217 = { set_state_name = "Stalingrad" }
+		1064 = { set_state_name = "East Stalingrad" }
+		set_province_name = { id = 3529 name = "Stalingrad" }
 	}
 }
 
-# WHITE FACTIONS WINS CIVIL WAR
+# Petrograd was renamed on 26 January 1924 after Lenin's death.
 country_event = {
-	id = interwar_soviet.39
-	title = interwar_soviet.39.t
-	desc = interwar_soviet.39.d
-	picture = GFX_report_event_white_victory
-
+	id = interwar_soviet.61
+	hidden = yes
 	fire_only_once = yes
-
 	trigger = {
-		NOT = { date > 1932.12.1 }
-		tag = WHR
-		AND = {
-			WHR = {
-				controls_state = 219
-				controls_state = 195
-				controls_state = 217
-			}
-		}
+		has_start_date < 1924.1.27
+		tag = SOV
+		date > 1924.1.25
+		owns_state = 195
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		name = interwar_soviet.61.a
+		195 = { set_state_name = "Leningrad" }
+		set_province_name = { id = 3151 name = "Leningrad" }
+	}
+}
+
+# Historical fallback for an unresolved Red-White war. The daily scheduler
+# fires this on 25 October 1922, or at the next tick in an older ongoing save.
+country_event = {
+	id = interwar_soviet.62
+	title = interwar_soviet.62.t
+	desc = interwar_soviet.62.d
+	picture = GFX_report_event_russian_civil_war
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		tag = SOV
+		date > 1922.10.24
+		date < 1936.1.1
 		has_global_flag = russian_civil_war
+		NOT = { has_global_flag = RUS_CW_Over }
+		has_government = communism
+		has_capitulated = no
+		is_subject = no
+		has_war_with = WHR
 	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = interwar_soviet.39.a
-		news_event = { hours = 6 id = endsieg_news.44 }
-		set_global_flag = whites_win
-		set_global_flag = RUS_CW_Over
-		WHR = {
-			annex_country = { target = SOV transfer_troops = no }
-			change_tag_from = SOV
-		}
-	}
+	immediate = { INT_SOV_finish_russian_civil_war = yes }
+	option = { name = interwar_soviet.62.a }
 }
 
-# RED FACTIONS WINS CIVIL WAR
+# A victory earned earlier uses the same settlement after engine callbacks end.
 country_event = {
-	id = interwar_soviet.40
-	title = interwar_soviet.40.t
-	desc = interwar_soviet.40.d
-	picture = GFX_report_event_red_victory
-
-	fire_only_once = yes
-
+	id = interwar_soviet.63
+	hidden = yes
+	is_triggered_only = yes
 	trigger = {
-		NOT = { date > 1932.12.1 }
 		tag = SOV
-		AND = {
-			218 = {
-				CONTROLLER = {
-					OR = {
-						tag = SOV
-						AND = {
-							tag = KUB
-							has_cosmetic_tag = SOV_KUB
-						}
-					}
-				}
-			}
-			SOV = {
-				controls_state = 566
-				controls_state = 408
-			}
-		}
+		date < 1936.1.1
 		has_global_flag = russian_civil_war
+		NOT = { has_global_flag = RUS_CW_Over }
+		has_country_flag = INT_SOV_white_government_defeated
+		has_capitulated = no
+		is_subject = no
 	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = interwar_soviet.40.a
-		news_event = { hours = 6 id = endsieg_news.46 }
-		set_global_flag = reds_win
-		set_global_flag = RUS_CW_Over
-		SOV = {
-			annex_country = { target = WHR transfer_troops = no }
-			change_tag_from = WHR
-		}
-	}
-}
-
-# FAR Established
-country_event = {
-	id = interwar_soviet.41
-	title = interwar_soviet.41.t
-	desc = interwar_soviet.41.d
-	picture = GFX_report_event_FAR
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1932.12.1 }
-		tag = SOV
-		has_global_flag = reds_win
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		name = interwar_soviet.41.a
-		news_event = { hours = 6 id = endsieg_news.45 }
-		set_global_flag = FAR_established
-		"FAR" = {
-			transfer_state = 408
-			transfer_state = 409
-			transfer_state = 560
-			transfer_state = 561
-			transfer_state = 563
-			transfer_state = 657
-		}
-		SOV = {
-			puppet = FAR
-		}
-	}
-}
-
-# Kazan Gold Tain Breaks Down
-country_event = {
-	id = interwar_soviet.42
-	title = interwar_soviet.42.t
-	desc = interwar_soviet.42.d
-	picture = GFX_report_event_kazan_gold
-
-	fire_only_once = yes
-
-	trigger = {
-		tag = SOV
-		date > 1918.6.1
-		date < 1919.1.1
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = interwar_soviet.42.a
-	}
-}
-
-# Establish Don Soviet republic
-country_event = {
-	id = interwar_soviet.43
-	title = interwar_soviet.43.t
-	desc = interwar_soviet.43.d
-	picture = GFX_report_event_red_victory
-
-	fire_only_once = yes
-
-	trigger = {
-		tag = SOV
-		date > 1918.6.1
-		date < 1919.1.1
-		controls_state = 245
-		controls_state = 218
-		KUB = { has_capitulated = yes }
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		hidden_effect = { annex_country = { target = KUB } }
-	}
-
-	option = {
-		KUB = {
-			transfer_state = 218
-			transfer_state = 245
-		}
-		puppet = KUB
-		add_ideas = don_kuban_stability
-		KUB = { set_cosmetic_tag = SOV_KUB }
-		name = interwar_soviet.43.a
-		ai_chance = { factor = 100 }
-	}
-	option = {
-		name = interwar_soviet.43.b
-		ai_chance = { factor = 0 }
-	}
-}
-
-# Don Soviet republic after war
-country_event = {
-	id = interwar_soviet.44
-	title = interwar_soviet.44.t
-	desc = interwar_soviet.44.d
-	picture = GFX_report_event_red_victory
-
-	fire_only_once = yes
-
-	trigger = {
-		tag = SOV
-		has_global_flag = reds_win
-		country_exists = KUB
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		KUB = {
-			transfer_state = 217
-			transfer_state = 232
-			transfer_state = 233
-			transfer_state = 234
-			transfer_state = 235
-			transfer_state = 237
-			transfer_state = 238
-			transfer_state = 757
-			transfer_state = 756
-			transfer_state = 769
-			transfer_state = 806
-		}
-		swap_ideas = {
-			remove_idea = don_kuban_stability
-			add_idea = don_kuban_stability_2
-		}
-		name = interwar_soviet.44.a
-		ai_chance = { factor = 0 }
-	}
-	option = {
-		name = interwar_soviet.44.b
-		ai_chance = { factor = 0 }
-	}
-	option = {
-		name = interwar_soviet.44.c
-		annex_country = { target = KUB }
-		remove_ideas = don_kuban_stability
-		ai_chance = { factor = 100 }
-	}
-}
-
-# Soviet event for peace with estonia
-country_event = {
-	id = interwar_soviet.46
-	title = interwar_soviet.46.t
-	desc = interwar_soviet.46.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1932.12.1 }
-		tag = SOV
-		has_war_with = EST
-		EST = {
-			OR = {
-				AND = {
-					date > 1919.8.20
-					has_capitulated = no
-				}
-				AND = {
-					191 = { is_fully_controlled_by = EST }
-					has_capitulated = no
-				}
-			}
-		}
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {#yes we want peace
-		name = interwar_soviet.46.a
-		ai_chance = { factor = 100 }
-		EST = { country_event = { id = INT_baltics.1 days = 1 } }
-	}
-
-	option = {#no, we will annex all
-		name = interwar_soviet.46.a
-		ai_chance = { factor = 0 }
-	}
-}
-
-# Soviet event for peace with Lithuania
-country_event = {
-	id = interwar_soviet.47
-	title = interwar_soviet.47.t
-	desc = interwar_soviet.47.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1932.12.1 }
-		tag = SOV
-		has_war_with = LIT
-		LIT = {
-			OR = {
-				AND = {
-					date > 1920.2.2
-					has_capitulated = no
-				}
-				AND = {
-					controls_state = 776
-					11 = { is_fully_controlled_by = LIT }
-					has_capitulated = no
-				}
-			}
-		}
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {#yes we want peace
-		name = interwar_soviet.47.a
-		ai_chance = { factor = 100 }
-		LIT = { country_event = { id = INT_baltics.1 days = 1 } }
-	}
-
-	option = {#no, we will annex all
-		name = interwar_soviet.47.a
-		ai_chance = { factor = 0 }
-	}
-}
-
-# Soviet event for peace with Latvia
-country_event = {
-	id = interwar_soviet.48
-	title = interwar_soviet.48.t
-	desc = interwar_soviet.48.d
-	picture = GFX_report_event_ceasefire
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { date > 1932.12.1 }
-		tag = SOV
-		has_war_with = LAT
-		LAT = {
-			OR = {
-				AND = {
-					date > 1920.8.11
-					has_capitulated = no
-				}
-				AND = {
-					12 = { is_fully_controlled_by = LAT }
-					has_capitulated = no
-				}
-			}
-		}
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {#yes we want peace
-		name = interwar_soviet.48.a
-		ai_chance = { factor = 100 }
-		LAT = { country_event = { id = INT_baltics.1 days = 1 } }
-	}
-
-	option = {#no, we will annex all
-		name = interwar_soviet.48.a
-		ai_chance = { factor = 0 }
-	}
+	immediate = { INT_SOV_finish_russian_civil_war = yes }
 }

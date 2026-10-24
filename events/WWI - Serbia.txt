@@ -1,4 +1,4 @@
-﻿###########################
+###########################
 # Serbian Events
 ###########################
 
@@ -101,6 +101,8 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1912.10.9
 		NOT = { date > 1913.12.1 }
 		NOT = { has_global_flag = let_go_balkans }
 		tag = SER
@@ -114,13 +116,36 @@ country_event = {
 		name = ww1_serbia.2.a
 		add_threat = 5
 
-		every_country = {
-			limit = { is_in_faction_with = SER }
+		# Serbia must enter the war itself: the following scope is deliberately
+		# restricted to its allies.
+		declare_war_on = { target = TUR type = annex_everything }
+		every_other_country = {
+			limit = {
+				is_in_faction_with = SER
+				NOT = { has_war_with = TUR }
+			}
 			declare_war_on = { target = TUR type = annex_everything }
 		}
 		TUR = {
-			add_timed_idea = { idea = surprise_attack days = 45 }
+			# Retain the existing early-scenario penalty even if another effect
+			# removed it before the Balkan War begins.
+			if = {
+				limit = { NOT = { has_idea = sick_man_europe } }
+				add_ideas = sick_man_europe
+			}
+			# The Ottoman response was hampered through the First Balkan War,
+			# which concluded with the Treaty of London in May 1913.
+			add_timed_idea = { idea = surprise_attack days = 240 }
 		}
+		# Give the three principal Balkan League armies a short-lived mobilization
+		# boost for the campaign without carrying it into the Second Balkan War.
+		BUL = {
+			add_timed_idea = { idea = patriotic_fervor days = 240 }
+		}
+		GRE = {
+			add_timed_idea = { idea = patriotic_fervor days = 240 }
+		}
+		add_timed_idea = { idea = patriotic_fervor days = 240 }
 		if = {
 			limit = {
 				ITA = { has_war_with = TUR }
@@ -141,37 +166,45 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		NOT = { has_global_flag = franz_dead }  #WW1 hasn't started.
 		has_global_flag = welcome_event_1910
 		has_global_flag = first_balkan_war
 		has_war_with = TUR
 		tag = SER
 
-		TUR = {
-			OR = {
-				AND = {
-					surrender_progress > 0.20
-					is_ai = yes
-					SER = { is_ai = yes }
-				}
-				AND = {
-					NOT = {
-						controls_state = 731 	#Salonika
-						controls_state = 793 	#Central Epirus
-						controls_state = 790 	#Northern Epirus
-						controls_state = 44 	#Albania
-						controls_state = 791 	#Outer Montenegro
-						controls_state = 795 	#Eastern Rumelia no ban plz
-						controls_state = 766 	#East Macedonia
-						controls_state = 789 	#South Macedonia
-						controls_state = 106 	#North Macedonia
-						controls_state = 744 	#Kosovo
-						controls_state = 788 	#Edirne
+		OR = {
+			# The Treaty of London ended the First Balkan War on 30 May 1913.
+			# Do not let an AI front-line stalemate suppress the settlement.
+			date > 1913.5.29
+			TUR = {
+				OR = {
+					AND = {
+						surrender_progress > 0.20
+						is_ai = yes
+						SER = { is_ai = yes }
+					}
+					AND = {
+						NOT = {
+							controls_state = 731 	#Salonika
+							controls_state = 1062 	#Central Epirus
+							controls_state = 805 	#Northern Epirus
+							controls_state = 44 	#Albania
+							controls_state = 1037 	#Outer Montenegro
+							controls_state = 1063 	#Eastern Rumelia no ban plz
+							controls_state = 1021 	#East Macedonia
+							controls_state = 1038 	#South Macedonia
+							controls_state = 106 	#North Macedonia
+							controls_state = 802 	#Kosovo
+							controls_state = 1036 	#Edirne
+						}
 					}
 				}
 			}
 		}
 	}
+
+	mean_time_to_happen = { days = 1 }
 
 	#Option only gets taken by ai if serbia is ai and a different country isnt
 	option = {
@@ -270,11 +303,10 @@ country_event = {
 				active = yes
 			}
 			white_peace = TUR
-			transfer_state = 744
-			transfer_state = 106
-			transfer_state = 107
-			transfer_state = 789
-			#transfer_state = 766 #Turns out this area was actually ceded to Bulgaria.
+			transfer_state = 802 #Kosovo
+			transfer_state = 106 #Macedonia
+			transfer_state = 1038 #Debar
+			transfer_state = 934 #Shkoder
 		}
 		ALB = { #TO REMOVE ONCE ALBANIA EVENT CHAIN IS DONE
 			diplomatic_relation = {
@@ -283,7 +315,6 @@ country_event = {
 				active = yes
 			}
 			transfer_state = 44
-			transfer_state = 790
 		}
 		MNT = {
 			diplomatic_relation = {
@@ -292,7 +323,7 @@ country_event = {
 				active = yes
 			}
 			white_peace = TUR
-			transfer_state = 791
+			transfer_state = 1037
 		}
 		BUL = {
 			diplomatic_relation = {
@@ -301,11 +332,11 @@ country_event = {
 				active = yes
 			}
 			white_peace = TUR
-			transfer_state = 795
-			transfer_state = 788
-			transfer_state = 743
+			transfer_state = 1063
+			transfer_state = 1036
+			transfer_state = 997
 			transfer_state = 184
-			transfer_state = 766
+			transfer_state = 1021
 		}
 		GRE = {
 			diplomatic_relation = {
@@ -314,10 +345,12 @@ country_event = {
 				active = yes
 			}
 			white_peace = TUR
-			transfer_state = 793
+			transfer_state = 1062
 			transfer_state = 731
-			transfer_state = 798
-			transfer_state = 842
+			transfer_state = 1042
+			transfer_state = 973
+			transfer_state = 805
+			transfer_state = 1024
 		}
 		TUR = {
 			white_peace = BUL
@@ -337,7 +370,7 @@ country_event = {
 				}
 			}
 			remove_core_of = TUR #removing balkan cores
-			788 = {add_core_of = TUR} #Except Adrianople
+			1036 = {add_core_of = TUR} #Except Adrianople
 		}
 		SER = {dismantle_faction = yes}
 		hidden_effect = { SER = { country_event = { id = ww1_serbia.4 days = 30 } } }

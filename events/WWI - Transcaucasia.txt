@@ -1,4 +1,4 @@
-﻿###########################
+###########################
 # Transcaucasia Events
 ###########################
 
@@ -14,10 +14,12 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.5.27
 		NOT = { date > 1932.12.1 }
-		tag = TRA
+		tag = TRC
 		date > 1918.5.25
-		NOT = { TRA = { owns_state = 760 } }  #Doesn't control Baku
+		NOT = { TRC = { owns_state = 1016 } }  #Doesn't control Baku
 	}
 
 	mean_time_to_happen = {
@@ -37,12 +39,12 @@ country_event = {
 		GEO = {
 			transfer_state = 231 #Georgia
 		}
-		TRA = { declare_war_on = { target = GEO type = annex_everything } }
+		TRC = { declare_war_on = { target = GEO type = annex_everything } }
 	}
 	option = {
 		name = transcauc.1.c
 		ai_chance = { factor = 0}
-		GEO = { change_tag_from = TRA}
+		GEO = { change_tag_from = TRC}
 	}
 }
 
@@ -56,11 +58,13 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.5.29
 		NOT = { date > 1932.12.1 }
-		tag = TRA
+		tag = TRC
 		date > 1918.5.27
 		is_ai = no
-		NOT = { TRA = { controls_state = 760} } #Baku is controlled by a player, temporary.
+		NOT = { TRC = { controls_state = 1016} } #Baku is controlled by a player, temporary.
 		OR = {
 			NOT = { has_war_with = GEO } #Fighting the Georgians
 			NOT = { owns_state = 231 } #Owns Georgia
@@ -74,30 +78,24 @@ country_event = {
 	option = {
 		name = transcauc.2.a # For Armenia!
 		ai_chance = {factor = 50}
+		GEO = { transfer_state = 231 }
+		BAK = { transfer_state = 1016 }
 		AZR = {
 			transfer_state = 229
 			load_oob = BAK_1918
 			if = {
 				limit = {
-					TRA = { controls_state = 760}
+					TRC = { controls_state = 1016}
 				}
-				transfer_state = 760 #Controls Baku yet this event still pops up somehow? Meant for TRA rework
+				transfer_state = 1016 #Controls Baku yet this event still pops up somehow? Meant for TRC rework
 			}
 		}
 		ARM = {
-			if = {
-				limit = {
-					ROOT = {is_ai = no}
-				}
-				hidden_effect = {
-					annex_country = { target = TRA transfer_troops = yes }
-					load_oob = "BAK_1918"
-					add_stability = 0.25
-					add_war_support = 0.25
-				}
-			}
+			# Continue as Armenia instead of annexing the Transcaucasian
+			# Republic. The remaining states are transferred below.
+			change_tag_from = TRC
 			transfer_state = 230
-			transfer_state = 866
+			transfer_state = 990
 			load_oob = "ARM_1918"
 			if = {
 				limit = {
@@ -113,7 +111,7 @@ country_event = {
 			declare_war_on = {
 				target = ARM
 				type = take_state
-				generator = { 230 }
+				generator = { 230 990 }
 			}
 			if = {
 				limit = {
@@ -129,9 +127,11 @@ country_event = {
 	option = {
 		ai_chance = { factor = 50 }
 		name = transcauc.2.b # For Azerbaijan!
+		GEO = { transfer_state = 231 }
+		BAK = { transfer_state = 1016 }
 		ARM = {
 			transfer_state = 230
-			transfer_state = 866
+			transfer_state = 990
 			load_oob = "ARM_1918"
 		}
 		AZR = {
@@ -140,20 +140,14 @@ country_event = {
 				limit = {
 					ROOT = {is_ai = no}
 				}
-				change_tag_from = TRA
-				hidden_effect = {
-					annex_country = { target = TRA transfer_troops = yes }
-					load_oob = "BAK_1918"
-					add_stability = 0.25
-					add_war_support = 0.25
-				}
+				change_tag_from = TRC
 			}
 		}
 		AZR = {
 			declare_war_on = {
 				target = ARM
 				type = take_state
-				generator = { 230 }
+				generator = { 230 990 }
 			}
 			if = {
 				limit = {
@@ -178,9 +172,10 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		NOT = { date > 1932.12.1 }
 		tag = GEO
-		NOT = { has_war_with = TRA } #Transcaucasian player refuses to allow independence. AI will always do so.
+		NOT = { has_war_with = TRC } #Transcaucasian player refuses to allow independence. AI will always do so.
 		date > 1918.5.27
 		AND = {
 			tag = GER
@@ -213,8 +208,10 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.4.15
 		NOT = { date > 1932.12.1 }
-		tag = TRA
+		tag = TRC
 		date > 1918.4.13
 		NOT = { country_exists = BAK }
 	}
@@ -227,7 +224,7 @@ country_event = {
 		name = transcauc.4.a
 		ai_chance = {factor = 100}
 		BAK = {
-			transfer_state = 760
+			transfer_state = 1016
 			load_oob = BAK_1918
 
 		}
@@ -236,12 +233,12 @@ country_event = {
 		name = transcauc.4.b
 		ai_chance = {factor = 0}
 		BAK = {
-			transfer_state = 760
+			transfer_state = 1016
 			load_oob = BAK_1918
 			declare_war_on = {
-				target = TRA
+				target = TRC
 				type = take_state
-				generator = { 230 }
+				generator = { 230 990 }
 			}
 		}
 	}
@@ -257,12 +254,14 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.7.28
 		NOT = { date > 1932.12.1 }
 		tag = BAK
 		date > 1918.7.26
 		OR = {
 			BAK = {
-				controls_state = 760
+				controls_state = 1016
 			}
 		has_capitulated = yes
 		}
@@ -275,28 +274,22 @@ country_event = {
 	option = {
 		name = transcauc.5.a
 		set_politics = {
-			ruling_party = paternal_autocrat
+			ruling_party = neutrality
 			elections_allowed = no    }
 
         set_popularities = {
-            populist = 0
             fascism = 0
-            paternal_autocrat = 40
-            social_conservative = 35
-            market_liberal = 5
-            social_liberal = 5
-            social_democrat = 0
-            leninist = 15
-            stalinist = 0
-            anarchist = 0
+            neutrality = 40
+            democratic = 45
+            communism = 15
         }
 		retire_country_leader = yes
 		create_country_leader = {
 			name = "No De Facto Leader"
 			desc = "POLITICS_NOLEADER_DESC"
-			picture = "No Portrait"
+			picture = "gfx/leaders/leader_unknown.dds"
 			expire = "1965.1.1"
-			ideology = paternal_autocrat
+			ideology = despotism
 			traits = {
 				dictator
 			}
@@ -317,9 +310,11 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.4.1
 		NOT = { date > 1932.12.1 }
 		date > 1918.3.30
-		tag = TRA
+		tag = TRC
 	}
 
 	mean_time_to_happen = { days = 1 }
@@ -327,7 +322,7 @@ country_event = {
 
 	option = {
 		name = transcauc.6.a
-		TRA = {
+		TRC = {
 			add_stability = -0.05
 		}
 	}
@@ -343,6 +338,7 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
 		NOT = { date > 1932.12.1 }
 		date > 1920.2.9
 		tag = ROOT
@@ -367,6 +363,9 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		NOT = { has_global_flag = kaiserschlachtvictory }
+		NOT = { has_global_flag = central_powers_victory }
 		NOT = { date > 1932.12.1 }
 		date > 1921.5.23
 		tag = ROOT
@@ -381,7 +380,7 @@ country_event = {
 }
 
 
-# Svalbard Treaty
+# Allied demand for Wilhelm II's extradition
 country_event = {
 	id = transcauc.9
 	title = transcauc.9.t
@@ -391,6 +390,9 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		NOT = { has_global_flag = kaiserschlachtvictory }
+		NOT = { has_global_flag = central_powers_victory }
 		NOT = { date > 1932.12.1 }
 		date > 1920.1.23
 		tag = ROOT
@@ -414,8 +416,10 @@ country_event = {
 	fire_only_once = yes
 
 	trigger = {
+		has_global_flag = welcome_event_WW1_active
+		has_start_date < 1918.5.30
 		NOT = { date > 1932.12.1 }
-		tag = TRA
+		tag = TRC
 		date > 1918.5.28
 		is_ai = yes
 	}
@@ -429,8 +433,8 @@ country_event = {
 		release = AZR
 		release = ARM
 		every_state = {
-			limit = { is_core_of = TRA }
-			remove_core_of = TRA
+			limit = { is_core_of = TRC }
+			remove_core_of = TRC
 		}
 	}
 }
