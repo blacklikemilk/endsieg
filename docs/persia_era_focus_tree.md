@@ -119,8 +119,9 @@ All authored values are multiples of five (percent or points).
 ## Scripted helpers
 
 - `PER_not_history_start` (`common/scripted_triggers/PER_focus_triggers.txt`): true outside the start-of-game history script. Scope: country.
-- `PER_shift_opinion` (`common/scripted_effects/PER_focus_effects.txt`): applies an opinion modifier toward Persia from a named country when it exists. Inputs: `TAG`, `MODIFIER`. The scope tag is built with `meta_effect`, because a scripted effect parameter cannot be used as a scope key. Example: `PER_shift_opinion = { TAG = GER MODIFIER = medium_increase }`.
-- `PER_give_guarantee_if_exists`: the named country guarantees Persia when it exists. Input: `TAG`.
+Opinion shifts and guarantees are written inline in the focus rewards, each wrapped in `if = { limit = { country_exists = TAG } ... }`.
+They are not a scripted effect with parameters: the focus files are read before scripted effects are known, so a call such as `PER_shift_opinion = { TAG = GER ... }` is parsed as a block of unknown effects and the rest of the file is lost.
+A scripted effect called without parameters (`= yes`) or a scripted trigger is resolved later and is safe in a focus file.
 
 ## AI weights
 
