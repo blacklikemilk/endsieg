@@ -62,9 +62,13 @@ focus_tree = {
 
 	initial_show_position = {
 		x = 25
-		y = 0
+		y = -16
 	}
 
+	shortcut = {
+		name = PER_era_shortcut
+		target = PER_the_persian_question
+	}
 	shortcut = {
 		name = PER_navy_shortcut
 		target = PER_establish_the_navy
@@ -116,6 +120,1007 @@ focus_tree = {
 	}
 
 	#################################
+	######### ERA TRUNK #############
+	#################################
+	# Qajar Twilight (1910-1921), Reza Khan's Persia (1921-1941) and Occupied Iran (1941-1946).
+	# A later start date completes the focuses that already happened from history/countries/PER - Persia.txt.
+	# Documented in docs/persia_era_focus_tree.md.
+
+	### ERA I: QAJAR TWILIGHT ###
+
+	focus = { #ERA
+		id = PER_the_persian_question
+		icon = GFX_goal_generic_political_pressure
+		x = 25
+		y = -16
+		cost = 5
+
+		ai_will_do = {
+			factor = 100
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			add_ideas = {
+				PER_spheres_of_influence
+				PER_weak_central_authority
+			}
+			set_country_flag = PER_qajar_era
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_small
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_shuster_mission
+		icon = GFX_goal_generic_trade
+		prerequisite = { focus = PER_the_persian_question }
+		x = 19
+		y = -15
+		cost = 5
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_treasury_reformed
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_medium
+				266 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_third_power_diplomacy
+		icon = GFX_goal_generic_improve_relations
+		prerequisite = { focus = PER_shuster_mission }
+		mutually_exclusive = { focus = PER_accept_the_spheres }
+		x = 17
+		y = -14
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+			modifier = {
+				factor = 0
+				NOT = { country_exists = GER }
+			}
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_third_power
+			if = {
+				limit = { PER_not_history_start = yes }
+				PER_shift_opinion = { TAG = GER MODIFIER = medium_increase }
+				PER_shift_opinion = { TAG = USA MODIFIER = medium_increase }
+				PER_shift_opinion = { TAG = ENG MODIFIER = medium_decrease }
+				PER_shift_opinion = { TAG = RUS MODIFIER = medium_decrease }
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_accept_the_spheres
+		icon = GFX_focus_generic_treaty
+		prerequisite = { focus = PER_shuster_mission }
+		mutually_exclusive = { focus = PER_third_power_diplomacy }
+		x = 21
+		y = -14
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+			modifier = {
+				factor = 3
+				is_historical_focus_on = yes
+			}
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_HISTORICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_accepted_spheres
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_small
+				PER_shift_opinion = { TAG = ENG MODIFIER = small_increase }
+				PER_shift_opinion = { TAG = RUS MODIFIER = small_increase }
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_the_army_question
+		icon = GFX_goal_generic_army_doctrines
+		prerequisite = { focus = PER_the_persian_question }
+		x = 25
+		y = -15
+		cost = 5
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+		}
+
+		completion_reward = {
+			set_country_flag = PER_army_question
+			if = {
+				limit = { PER_not_history_start = yes }
+				army_experience = constant:per_focus_tree.army_xp_small
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_swedish_gendarmerie
+		icon = GFX_focus_generic_soldier_salute
+		prerequisite = { focus = PER_the_army_question }
+		mutually_exclusive = { focus = PER_cossack_brigade }
+		x = 23
+		y = -14
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+		}
+
+		completion_reward = {
+			set_country_flag = PER_swedish_gendarmerie
+			if = {
+				limit = { PER_not_history_start = yes }
+				army_experience = constant:per_focus_tree.army_xp_medium
+				PER_shift_opinion = { TAG = SWE MODIFIER = medium_increase }
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_cossack_brigade
+		icon = GFX_goal_generic_allies_build_infantry
+		prerequisite = { focus = PER_the_army_question }
+		mutually_exclusive = { focus = PER_swedish_gendarmerie }
+		x = 27
+		y = -14
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+			modifier = {
+				factor = 3
+				is_historical_focus_on = yes
+			}
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+			FOCUS_FILTER_HISTORICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_cossack_brigade
+			if = {
+				limit = { PER_not_history_start = yes }
+				army_experience = constant:per_focus_tree.army_xp_medium
+				PER_shift_opinion = { TAG = RUS MODIFIER = small_increase }
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_the_tribal_question
+		icon = GFX_focus_generic_manpower
+		prerequisite = { focus = PER_the_persian_question }
+		x = 31
+		y = -15
+		cost = 5
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_tribal_question
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_small
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_bakhtiari_alliance
+		icon = GFX_goal_generic_national_unity
+		prerequisite = { focus = PER_the_tribal_question }
+		mutually_exclusive = { focus = PER_provincial_governors }
+		x = 29
+		y = -14
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+		}
+
+		search_filters = {
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_tribal_alliance
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_stability = constant:per_focus_tree.stability_small
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_provincial_governors
+		icon = GFX_goal_generic_demand_territory
+		prerequisite = { focus = PER_the_tribal_question }
+		mutually_exclusive = { focus = PER_bakhtiari_alliance }
+		x = 33
+		y = -14
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+			modifier = {
+				factor = 3
+				is_historical_focus_on = yes
+			}
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_HISTORICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_centralizing
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_medium
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_wartime_neutrality
+		icon = GFX_goal_generic_neutrality_focus
+		prerequisite = { focus = PER_third_power_diplomacy focus = PER_accept_the_spheres }
+		prerequisite = { focus = PER_swedish_gendarmerie focus = PER_cossack_brigade }
+		prerequisite = { focus = PER_bakhtiari_alliance focus = PER_provincial_governors }
+		x = 25
+		y = -13
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_great_war_begun_tt
+				date > 1914.7.27
+			}
+		}
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_STABILITY
+			FOCUS_FILTER_WAR_SUPPORT
+		}
+
+		completion_reward = {
+			set_country_flag = PER_neutral_1914
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_stability = constant:per_focus_tree.stability_small
+				if = {
+					limit = { has_country_flag = PER_third_power }
+					add_war_support = constant:per_focus_tree.war_support_small
+				}
+				if = {
+					limit = { has_country_flag = PER_accepted_spheres }
+					add_political_power = constant:per_focus_tree.pp_small
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_ratify_the_agreement
+		icon = GFX_focus_generic_british_trade
+		prerequisite = { focus = PER_wartime_neutrality }
+		mutually_exclusive = { focus = PER_reject_the_agreement }
+		x = 21
+		y = -12
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_agreement_proposed_tt
+				date > 1919.7.31
+			}
+		}
+
+		ai_will_do = {
+			factor = 5
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_british_tutelage
+			swap_ideas = {
+				remove_idea = PER_spheres_of_influence
+				add_idea = PER_anglo_persian_tutelage
+			}
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_medium
+				PER_shift_opinion = { TAG = ENG MODIFIER = large_increase }
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_reject_the_agreement
+		icon = GFX_goal_generic_defence
+		prerequisite = { focus = PER_wartime_neutrality }
+		mutually_exclusive = { focus = PER_ratify_the_agreement }
+		x = 29
+		y = -12
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_agreement_proposed_tt
+				date > 1919.7.31
+			}
+		}
+
+		ai_will_do = {
+			factor = 20
+			modifier = {
+				factor = 3
+				is_historical_focus_on = yes
+			}
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_HISTORICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_rejected_agreement
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_war_support = constant:per_focus_tree.war_support_small
+				PER_shift_opinion = { TAG = ENG MODIFIER = medium_decrease }
+			}
+		}
+	}
+
+	### ERA II: REZA KHAN'S PERSIA ###
+
+	focus = { #ERA
+		id = PER_the_1921_coup
+		icon = GFX_goal_generic_military_sphere
+		prerequisite = { focus = PER_ratify_the_agreement focus = PER_reject_the_agreement }
+		x = 25
+		y = -11
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_coup_season_tt
+				date > 1921.1.31
+			}
+		}
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_ARMY_XP
+		}
+
+		completion_reward = {
+			set_country_flag = PER_coup_1921
+			if = {
+				limit = { has_country_flag = PER_rejected_agreement }
+				remove_ideas = PER_spheres_of_influence
+			}
+			if = {
+				limit = { PER_not_history_start = yes }
+				if = {
+					limit = { has_country_flag = PER_cossack_brigade }
+					army_experience = constant:per_focus_tree.army_xp_large
+				}
+				if = {
+					limit = { has_country_flag = PER_swedish_gendarmerie }
+					add_stability = constant:per_focus_tree.stability_medium
+				}
+				if = {
+					limit = { has_country_flag = PER_rejected_agreement }
+					PER_shift_opinion = { TAG = SOV MODIFIER = medium_increase }
+				}
+				if = {
+					limit = { has_country_flag = PER_british_tutelage }
+					PER_shift_opinion = { TAG = ENG MODIFIER = medium_increase }
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_pahlavi_dynasty
+		icon = GFX_focus_generic_monarchy_1
+		prerequisite = { focus = PER_the_1921_coup }
+		mutually_exclusive = { focus = PER_republic_movement }
+		x = 21
+		y = -10
+		cost = 5
+
+		ai_will_do = {
+			factor = 80
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_POLITICAL_CHARACTER
+			FOCUS_FILTER_HISTORICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_pahlavi_dynasty
+			retire_character = PER_ahmad_shah_qajar
+			if = {
+				limit = { NOT = { has_character = PER_reza_shah_pahlavi } }
+				recruit_character = PER_reza_shah_pahlavi
+			}
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_large
+				add_stability = constant:per_focus_tree.stability_small
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_republic_movement
+		icon = GFX_goal_generic_propaganda
+		prerequisite = { focus = PER_the_1921_coup }
+		mutually_exclusive = { focus = PER_pahlavi_dynasty }
+		x = 29
+		y = -10
+		cost = 5
+
+		ai_will_do = {
+			factor = 10
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+
+		completion_reward = {
+			set_country_flag = PER_republic
+			retire_character = PER_ahmad_shah_qajar
+			set_politics = {
+				ruling_party = democratic
+			}
+			add_popularity = {
+				ideology = democratic
+				popularity = 0.25
+			}
+			if = {
+				limit = { NOT = { has_character = PER_mohammad_ali_foroughi } }
+				recruit_character = PER_mohammad_ali_foroughi
+			}
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_medium
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_constituent_assembly
+		icon = GFX_focus_generic_monarchy_2
+		prerequisite = { focus = PER_pahlavi_dynasty focus = PER_republic_movement }
+		x = 25
+		y = -9
+		cost = 5
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			if = {
+				limit = { has_country_flag = PER_pahlavi_dynasty }
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no
+				}
+			}
+			if = {
+				limit = { has_country_flag = PER_republic }
+				set_politics = {
+					ruling_party = democratic
+					elections_allowed = yes
+				}
+			}
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_stability = constant:per_focus_tree.stability_medium
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_pacify_the_provinces
+		icon = GFX_goal_generic_fortify_city
+		prerequisite = { focus = PER_constituent_assembly }
+		x = 19
+		y = -8
+		cost = 10
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_STABILITY
+			FOCUS_FILTER_ARMY_XP
+		}
+
+		completion_reward = {
+			remove_ideas = PER_weak_central_authority
+			if = {
+				limit = { PER_not_history_start = yes }
+				army_experience = constant:per_focus_tree.army_xp_medium
+				if = {
+					limit = { has_country_flag = PER_tribal_alliance }
+					add_stability = constant:per_focus_tree.stability_small
+				}
+				if = {
+					limit = { has_country_flag = PER_centralizing }
+					add_political_power = constant:per_focus_tree.pp_medium
+					add_war_support = constant:per_focus_tree.war_support_small
+				}
+				419 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+				420 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_codify_the_state
+		icon = GFX_focus_generic_university_1
+		prerequisite = { focus = PER_constituent_assembly }
+		x = 25
+		y = -8
+		cost = 10
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_POLITICAL_CHARACTER
+		}
+
+		completion_reward = {
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_medium
+				add_stability = constant:per_focus_tree.stability_small
+				recruit_character = PER_ali_akbar_davar
+				if = {
+					limit = { has_country_flag = PER_treasury_reformed }
+					recruit_character = PER_arthur_millspaugh
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_universal_conscription
+		icon = GFX_focus_generic_army_doctrines_2
+		prerequisite = { focus = PER_constituent_assembly }
+		x = 31
+		y = -8
+		cost = 5
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_MANPOWER
+			FOCUS_FILTER_ARMY_XP
+		}
+
+		completion_reward = {
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_manpower = constant:per_focus_tree.manpower_medium
+				army_experience = constant:per_focus_tree.army_xp_small
+				if = {
+					limit = { has_country_flag = PER_cossack_brigade }
+					add_war_support = constant:per_focus_tree.war_support_small
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_the_name_of_iran
+		icon = GFX_focus_PER_legacy_of_greatness
+		prerequisite = { focus = PER_pacify_the_provinces }
+		prerequisite = { focus = PER_codify_the_state }
+		prerequisite = { focus = PER_universal_conscription }
+		x = 25
+		y = -7
+		cost = 10
+
+		ai_will_do = {
+			factor = 100
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			if = {
+				limit = { has_idea = PER_anglo_persian_tutelage }
+				remove_ideas = PER_anglo_persian_tutelage
+			}
+			if = {
+				limit = { has_idea = PER_spheres_of_influence }
+				remove_ideas = PER_spheres_of_influence
+			}
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_large
+				add_stability = constant:per_focus_tree.stability_small
+				add_war_support = constant:per_focus_tree.war_support_small
+			}
+		}
+	}
+
+	### ERA III: OCCUPIED IRAN ###
+
+	focus = { #ERA
+		id = PER_the_august_ultimatum
+		icon = GFX_goal_generic_demand_territory
+		prerequisite = { focus = PER_the_name_of_iran }
+		x = 25
+		y = -6
+		cost = 1
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_allied_demands_tt
+				OR = {
+					date > 1941.8.24
+					has_war_with = ENG
+					has_war_with = SOV
+				}
+			}
+		}
+
+		ai_will_do = {
+			factor = 100
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_ultimatum_1941
+		}
+	}
+
+	focus = { #ERA
+		id = PER_defend_the_homeland
+		icon = GFX_focus_PER_fight_for_iran
+		prerequisite = { focus = PER_the_august_ultimatum }
+		mutually_exclusive = { focus = PER_the_tripartite_treaty focus = PER_look_to_berlin }
+		x = 19
+		y = -5
+		cost = 5
+
+		ai_will_do = {
+			factor = 10
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+			FOCUS_FILTER_WAR_SUPPORT
+		}
+
+		completion_reward = {
+			set_country_flag = PER_resist_1941
+			add_war_support = constant:per_focus_tree.war_support_medium
+			army_experience = constant:per_focus_tree.army_xp_large
+			add_manpower = constant:per_focus_tree.manpower_medium
+		}
+	}
+
+	focus = { #ERA
+		id = PER_the_tripartite_treaty
+		icon = GFX_focus_generic_diplomatic_treaty
+		prerequisite = { focus = PER_the_august_ultimatum }
+		mutually_exclusive = { focus = PER_defend_the_homeland focus = PER_look_to_berlin }
+		x = 25
+		y = -5
+		cost = 5
+
+		ai_will_do = {
+			factor = 40
+			modifier = {
+				factor = 3
+				is_historical_focus_on = yes
+			}
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_HISTORICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_tripartite
+			add_ideas = PER_allied_occupation
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_medium
+				PER_shift_opinion = { TAG = ENG MODIFIER = large_increase }
+				PER_shift_opinion = { TAG = SOV MODIFIER = large_increase }
+				PER_shift_opinion = { TAG = USA MODIFIER = medium_increase }
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_look_to_berlin
+		icon = GFX_focus_generic_german_trade
+		prerequisite = { focus = PER_the_august_ultimatum }
+		mutually_exclusive = { focus = PER_defend_the_homeland focus = PER_the_tripartite_treaty }
+		x = 31
+		y = -5
+		cost = 5
+
+		available = {
+			country_exists = GER
+		}
+
+		ai_will_do = {
+			factor = 5
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_axis_hopes
+			add_war_support = constant:per_focus_tree.war_support_medium
+			PER_shift_opinion = { TAG = GER MODIFIER = large_increase }
+			PER_shift_opinion = { TAG = ENG MODIFIER = large_decrease }
+			PER_shift_opinion = { TAG = SOV MODIFIER = large_decrease }
+		}
+	}
+
+	focus = { #ERA
+		id = PER_german_agents
+		icon = GFX_goal_generic_intelligence_exchange
+		prerequisite = { focus = PER_look_to_berlin }
+		x = 31
+		y = -4
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+		}
+
+		completion_reward = {
+			set_country_flag = PER_german_agents
+			army_experience = constant:per_focus_tree.army_xp_medium
+			add_political_power = constant:per_focus_tree.pp_medium
+			PER_shift_opinion = { TAG = GER MODIFIER = medium_increase }
+		}
+	}
+
+	focus = { #ERA
+		id = PER_persian_corridor
+		icon = GFX_focus_generic_railroad
+		prerequisite = { focus = PER_the_tripartite_treaty }
+		x = 25
+		y = -4
+		cost = 10
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_persian_corridor
+			413 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+			266 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+			419 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_tehran_declaration
+		icon = GFX_goal_generic_national_unity
+		prerequisite = { focus = PER_persian_corridor }
+		x = 25
+		y = -3
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_tehran_conference_held_tt
+				date > 1943.11.27
+			}
+		}
+
+		ai_will_do = {
+			factor = 80
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_tehran_declaration
+			remove_ideas = PER_allied_occupation
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_stability = constant:per_focus_tree.stability_medium
+			}
+			PER_give_guarantee_if_exists = { TAG = ENG }
+			PER_give_guarantee_if_exists = { TAG = SOV }
+			PER_give_guarantee_if_exists = { TAG = USA }
+		}
+	}
+
+	focus = { #ERA
+		id = PER_the_azerbaijan_question
+		icon = GFX_goal_generic_small_arms
+		prerequisite = { focus = PER_tehran_declaration }
+		x = 25
+		y = -2
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_northwest_crisis_tt
+				date > 1945.7.31
+			}
+		}
+
+		ai_will_do = {
+			factor = 80
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_azerbaijan_secured
+			army_experience = constant:per_focus_tree.army_xp_large
+			add_political_power = constant:per_focus_tree.pp_large
+			PER_shift_opinion = { TAG = SOV MODIFIER = medium_decrease }
+			419 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+	}
+
+	#################################
 	###### INDUSTRIAL BRANCH ########
 	#################################
 
@@ -125,6 +1130,10 @@ focus_tree = {
 		x = 50
 		y = 0
 		cost = 5
+
+		available = {
+			has_completed_focus = PER_the_name_of_iran
+		}
 
 		ai_will_do = {
 			factor = 15
@@ -1150,6 +2159,10 @@ focus_tree = {
 		y = 0
 		relative_position_id = PER_modernizing_iran
 		cost = 5
+
+		available = {
+			has_completed_focus = PER_universal_conscription
+		}
 
 		ai_will_do = {
 			factor = 15
@@ -2544,6 +3557,10 @@ focus_tree = {
 		relative_position_id = PER_modernizing_iran
 		cost = 5
 
+		available = {
+			has_completed_focus = PER_the_name_of_iran
+		}
+
 		ai_will_do = {
 			factor = 15
 		}
@@ -3108,6 +4125,7 @@ focus_tree = {
 		}
 
 		available = {
+			has_completed_focus = PER_the_name_of_iran
 			any_owned_state = {
 				is_controlled_by = ROOT
 				is_coastal = yes
@@ -3568,6 +4586,7 @@ focus_tree = {
 		cost = 5
 		
 		available = {
+			has_completed_focus = PER_the_name_of_iran
 			has_government = neutrality
 		}
 
@@ -9026,7 +10045,7 @@ focus_tree = {
 		cost = 5
 		
 		available = {
-
+			has_completed_focus = PER_the_name_of_iran
 		}
 
 		bypass = {
