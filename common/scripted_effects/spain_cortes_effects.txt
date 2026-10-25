@@ -1,9 +1,8 @@
-# Overview: the Spanish Cortes as a chamber of seat blocs, and the polarization meter.
+# Overview: the Spanish Cortes as a chamber of seat blocs.
 # Raw support is written to spain_cortes_raw_* and normalised to exactly 400 seats in
 # spain_cortes_seats_*, so a majority is always 201 however support drifts.
 # A decision category (SPR_cortes) mounts the chamber panel; its bills are ordinary decisions
 # gated on the bloc that has to carry them.
-# The polarization meter is a topbar gauge driven by spain_polarization, 0 to 100.
 
 # =====================================================================================
 # Initialisation
@@ -11,11 +10,7 @@
 
 spain_cortes_initialize = {
 	if = {
-		limit = { NOT = { has_variable = spain_polarization } }
-		set_variable = { var = spain_polarization value = 20 }
-		set_variable = { var = spain_left_violence value = 0 }
-		set_variable = { var = spain_right_violence value = 0 }
-		set_variable = { var = spain_polarization_bar_frame value = 5 }
+		limit = { NOT = { has_variable = spain_cortes_total } }
 	}
 	spain_cortes_recount = yes
 }
@@ -146,38 +141,4 @@ spain_hold_election = {
 	add_political_power = constant:spain_campaign.pp_medium
 	add_stability = constant:spain_campaign.stability_small
 	spain_cortes_recount = yes
-}
-
-# =====================================================================================
-# Polarization
-# =====================================================================================
-
-spain_polarization_weekly = {
-	if = { limit = { has_country_flag = spain_labour_repression } add_to_variable = { var = spain_polarization value = 1 } }
-	if = { limit = { has_country_flag = spain_labour_conciliation } subtract_from_variable = { var = spain_polarization value = 1 } }
-	if = { limit = { has_country_flag = spain_mancomunitat_suppressed } add_to_variable = { var = spain_polarization value = 1 } }
-	if = { limit = { has_country_flag = spain_barcelona_lockout } add_to_variable = { var = spain_polarization value = 1 } }
-	if = { limit = { has_country_flag = spain_press_freedom } subtract_from_variable = { var = spain_polarization value = 1 } }
-	if = { limit = { has_country_flag = spain_falange_street } add_to_variable = { var = spain_polarization value = 1 } }
-	if = { limit = { has_country_flag = spain_falange_unification } add_to_variable = { var = spain_polarization value = 1 } }
-	if = { limit = { has_country_flag = spain_calvo_sotelo_dead } add_to_variable = { var = spain_polarization value = 2 } }
-	if = { limit = { has_country_flag = spain_amnesty_1931 } subtract_from_variable = { var = spain_polarization value = 2 } }
-	if = { limit = { is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_crown_cortes_deadlock } } add_to_variable = { var = spain_polarization value = 1 } }
-
-	clamp_variable = { var = spain_polarization min = 0 max = 100 }
-
-	# The meter is split by which side is doing the shooting, so the panel can show the street.
-	set_variable = { var = spain_right_violence value = spain_polarization }
-	if = { limit = { NOT = { has_country_flag = spain_labour_repression } } divide_variable = { var = spain_right_violence value = 2 } }
-	set_variable = { var = spain_left_violence value = spain_polarization }
-	subtract_from_variable = { var = spain_left_violence value = spain_right_violence }
-
-	# A polarized country is one officers believe they can save.
-	if = { limit = { check_variable = { var = spain_polarization > 59 } } add_to_variable = { var = spain_coup_pressure value = 1 } }
-	if = { limit = { check_variable = { var = spain_polarization > 89 } } add_to_variable = { var = spain_coup_pressure value = 2 } }
-
-	set_variable = { var = spain_polarization_bar_frame = spain_polarization }
-	divide_variable = { var = spain_polarization_bar_frame value = 4 }
-	round_variable = spain_polarization_bar_frame
-	clamp_variable = { var = spain_polarization_bar_frame min = 0 max = 25 }
 }

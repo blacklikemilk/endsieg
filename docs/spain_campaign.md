@@ -72,13 +72,6 @@ Bills are ordinary decisions in the same category, each gated on the bloc that w
 
 So the chamber you build decides what the government can legislate, and a government without a majority can only dissolve parliament.
 
-## Polarization
-
-`spain_polarization`, 0-100, shown as a topbar gauge beside the existing Endsieg gauges (`spain_polarization_topbar`, mounted with `parent_window_token = top_bar`).
-`spain_polarization_weekly` drifts it: repression, suppression, the Barcelona lockout and Falange street violence raise it; conciliation, a free press and amnesty lower it; a deadlocked balance of power raises it.
-Above 60 every point adds coup pressure, above 90 it adds more, so the street and the barracks feed the same arithmetic.
-The panel also shows the split between left and right violence, derived from which side the state is currently suppressing.
-
 ## Systems
 
 ### The Crown and the Cortes
