@@ -4,15 +4,22 @@
 # PER_shift_opinion: applies an opinion modifier toward the Persian country scope when the named country exists.
 # Scope: country (Persia). Inputs: TAG (country tag), MODIFIER (an opinion modifier id such as small_increase, medium_decrease, large_increase).
 # Side effects: none when the country does not exist.
+# The scope tag is built with meta_effect, because a scripted effect parameter cannot be used as a scope key.
 # Example: PER_shift_opinion = { TAG = GER MODIFIER = medium_increase }
 PER_shift_opinion = {
 	if = {
 		limit = { country_exists = $TAG$ }
-		$TAG$ = {
-			add_opinion_modifier = {
-				target = PER
-				modifier = $MODIFIER$
+		meta_effect = {
+			text = {
+				[SCOPE_TAG] = {
+					add_opinion_modifier = {
+						target = PER
+						modifier = [OPINION]
+					}
+				}
 			}
+			SCOPE_TAG = "$TAG$"
+			OPINION = "$MODIFIER$"
 		}
 	}
 }
@@ -23,6 +30,13 @@ PER_shift_opinion = {
 PER_give_guarantee_if_exists = {
 	if = {
 		limit = { country_exists = $TAG$ }
-		$TAG$ = { give_guarantee = PER }
+		meta_effect = {
+			text = {
+				[SCOPE_TAG] = {
+					give_guarantee = PER
+				}
+			}
+			SCOPE_TAG = "$TAG$"
+		}
 	}
 }

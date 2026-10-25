@@ -117,7 +117,7 @@ All authored values are multiples of five (percent or points).
 ## Scripted helpers
 
 - `PER_not_history_start` (`common/scripted_triggers/PER_focus_triggers.txt`): true outside the start-of-game history script. Scope: country.
-- `PER_shift_opinion` (`common/scripted_effects/PER_focus_effects.txt`): applies an opinion modifier toward Persia from a named country when it exists. Inputs: `TAG`, `MODIFIER`. Example: `PER_shift_opinion = { TAG = GER MODIFIER = medium_increase }`.
+- `PER_shift_opinion` (`common/scripted_effects/PER_focus_effects.txt`): applies an opinion modifier toward Persia from a named country when it exists. Inputs: `TAG`, `MODIFIER`. The scope tag is built with `meta_effect`, because a scripted effect parameter cannot be used as a scope key. Example: `PER_shift_opinion = { TAG = GER MODIFIER = medium_increase }`.
 - `PER_give_guarantee_if_exists`: the named country guarantees Persia when it exists. Input: `TAG`.
 
 ## AI weights
@@ -143,7 +143,7 @@ Bespoke icons for the trunk and its spirits are an optional later improvement.
 
 ## Characters
 
-`common/characters/PER_restored.txt` restores 41 vanilla Persian characters that the mod's trimmed `common/characters/PER.txt` omitted.
+`common/characters/PER_restored.txt` restores 37 vanilla Persian characters that the mod's trimmed `common/characters/PER.txt` omitted.
 The original tree references several of them (`PER_andre_godard`, `PER_fakhrafagh_parsa`, `PER_abdolsamad_kambakhsh`, `PER_bahram_aryana`, `PER_gholam_ali_oveissi`), and the trunk uses `PER_ali_akbar_davar`, `PER_arthur_millspaugh` and `PER_mohammad_ali_foroughi`.
 The blocks are unchanged copies of the installed game's `PER.txt`.
 
