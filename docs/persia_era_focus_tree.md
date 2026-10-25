@@ -2,17 +2,23 @@
 
 ## Overview
 
-Persia uses two focus trees, chosen by the engine from each tree's `country` score.
-The mod's other early-scenario countries already work this way (`WWI - Italy.txt`, `WWI - Germany.txt` and others).
+Persia has no bespoke WWI tree.
+The startup on-action (`common/on_actions/endsieg_on_actions.txt`) gives every pre-1936 country without its own tree `generic_focus_ww1`, and from 1936 it gives Persia `persian_focus_tree` (the Graveyard of Empires tree in `persia.txt`).
+The shared WWI focuses check `has_focus_tree = generic_focus_ww1` in almost 200 places (layout offsets, availability, war aims), so Persia has to stay on that tree.
 
-| Tree | File | Used when | Content |
+The era trunk is therefore added to the trees Persia already uses.
+
+| Part | File | Tree | Content |
 | --- | --- | --- | --- |
-| `persian_focus_ww1` | `common/national_focus/WWI - Persia.txt` | `tag = PER`, `date < 1936.1.1` and `has_start_date < 1936.1.1` (score 20000) | Era I and Era II (21 focuses) above the generic WWI shared focuses |
-| `persian_focus_tree` | `common/national_focus/persia.txt` | Otherwise, with the Graveyard of Empires DLC | The original 1936 tree plus Era III (8 focuses) above its roots |
+| Era I and Era II (21 focuses) | `common/national_focus/_shared_WW1_persia.txt` | `generic_focus_ww1`, added by `WWI - Generic.txt` | Shared focuses visible to Persia only |
+| Era III (8 focuses) | `common/national_focus/persia.txt` | `persian_focus_tree` | Added above the original 1936 roots |
 
-Before this change Persia had no WWI tree, so every pre-1936 start fell back to `generic_focus_ww1` (score 10000).
-The new tree outscores it for Persia and keeps the same shared focuses (`shared_industrialisation`, `shared_GEN_powered_flight`, `shared_GEN_political_effort`, `shared_GEN_20_cent_military`, `shared_GEN_naval_effort`, `shared_GEN_industrial_effort` and `WW1_WO_GEN_war_council`).
-The shared focuses all start at y = 0, so the trunk sits above them at y = -11 to -2.
+The trunk root, `PER_the_persian_question`, carries `allow_branch = { original_tag = PER }`.
+Every other trunk focus inherits that through its prerequisites, so no other country using the generic tree sees it.
+`WWI - Generic.txt` adds the root with `shared_focus = PER_the_persian_question` and a shortcut button (`PER_qajar_shortcut`) that only Persia sees (`trigger = { original_tag = PER }`).
+
+The generic tree opens on the industrial effort focus, so a Persian player uses the shortcut button or scrolls up to reach the trunk.
+The shared focuses all start at y = 0, and the trunk sits above them at y = -11 to -2.
 
 The trunk has three eras.
 Era I, Qajar Twilight (1910 to 1921), covers the spheres of influence, the army question, the tribal question, the First World War and the Anglo-Persian Agreement.
@@ -20,13 +26,10 @@ Era II, Reza Khan's Persia (1921 to 1941), covers the coup, the dynasty or repub
 Era III, Occupied Iran (1941 to 1946), covers the 1941 ultimatum, the occupation, the Persian Corridor, the Tehran Declaration and the Azerbaijan crisis.
 
 The original 1936 tree keeps its own roots, unchanged.
-A game that starts before 1936 moves to `persian_focus_tree` when the date reaches 1936, as for the other WWI trees, and Era III is available there from 1941.
 
 ## Structure
 
-### WWI tree (`persian_focus_ww1`), Eras I and II
-
-The camera opens on the root (`initial_show_position` x = 25, y = -11) and a shortcut (`PER_qajar_shortcut`) jumps to it.
+### Eras I and II (generic WWI tree)
 
 | Row (y) | Focus | Notes |
 | --- | --- | --- |
@@ -41,7 +44,7 @@ The camera opens on the root (`initial_show_position` x = 25, y = -11) and a sho
 | -3 | `PER_pacify_the_provinces`, `PER_codify_the_state`, `PER_universal_conscription` | All three are needed for the capstone. |
 | -2 | `PER_the_name_of_iran` | Capstone of Era II. Removes the foreign tutelage spirits. |
 
-### 1936 tree (`persian_focus_tree`), Era III
+### Era III (1936 tree)
 
 A shortcut (`PER_occupation_shortcut`) jumps to the first focus.
 The camera still opens on the original roots.
@@ -58,8 +61,8 @@ The camera still opens on the original roots.
 
 The history blocks run cumulatively, so each start date inherits the earlier ones.
 Each block sets `PER_history_start`, completes the listed focuses and clears the flag.
-The three early blocks are wrapped in `limit = { has_start_date < 1936.1.1 }`, because those focuses exist only in the WWI tree.
-Focus rewards wrap one-off boosts in `PER_not_history_start`, so a later start does not pay political power, experience, opinion shifts, construction or advisors a second time.
+The three early blocks are wrapped in `limit = { has_start_date < 1936.1.1 }`, because those focuses exist only in the generic WWI tree.
+Focus rewards wrap one-off boosts in `PER_not_history_start`, so a later start does not pay political power, experience, opinion shifts or construction a second time.
 Persistent effects (ideas, flags, leader changes, government) are not wrapped.
 
 | Start block | Focuses completed |
@@ -94,7 +97,7 @@ The flags they set are read by the coup, the pacification and the conscription f
 | --- | --- | --- |
 | `PER_third_power` | `PER_third_power_diplomacy` | `PER_wartime_neutrality` (war support) |
 | `PER_accepted_spheres` | `PER_accept_the_spheres` | `PER_wartime_neutrality` (political power) |
-| `PER_treasury_reformed` | `PER_shuster_mission` | `PER_codify_the_state` (hires Arthur Millspaugh) |
+| `PER_treasury_reformed` | `PER_shuster_mission` | `PER_codify_the_state` (reveals Arthur Millspaugh) |
 | `PER_cossack_brigade` | `PER_cossack_brigade` | `PER_the_1921_coup` (army experience), `PER_universal_conscription` (war support) |
 | `PER_swedish_gendarmerie` | `PER_swedish_gendarmerie` | `PER_the_1921_coup` (stability) |
 | `PER_tribal_alliance` | `PER_bakhtiari_alliance` | `PER_pacify_the_provinces` (stability) |
@@ -103,8 +106,8 @@ The flags they set are read by the coup, the pacification and the conscription f
 | `PER_british_tutelage` | `PER_ratify_the_agreement` | `PER_the_1921_coup` (British opinion) |
 | `PER_pahlavi_dynasty` / `PER_republic` | the fork | `PER_constituent_assembly` (ruling party and elections) |
 
-The dynasty keeps the neutrality government, recruits Reza Shah Pahlavi and retires Ahmad Shah.
-The republic sets the democratic government, retires Ahmad Shah and recruits Mohammad Ali Foroughi.
+The dynasty keeps the neutrality government, retires Ahmad Shah and promotes Reza Shah Pahlavi.
+The republic sets the democratic government, retires Ahmad Shah and promotes Mohammad Ali Foroughi.
 Era III is a three-way exclusive choice.
 Defending the homeland gives experience, war support and manpower and leaves the existing `PER_fight_for_iran` tree to carry the war.
 The treaty route adds the occupation spirit, opens the Persian Corridor and ends in the Tehran Declaration with guarantees from Britain, the Soviet Union and the United States.
@@ -119,9 +122,21 @@ All authored values are multiples of five (percent or points).
 ## Scripted helpers
 
 - `PER_not_history_start` (`common/scripted_triggers/PER_focus_triggers.txt`): true outside the start-of-game history script. Scope: country.
+
 Opinion shifts and guarantees are written inline in the focus rewards, each wrapped in `if = { limit = { country_exists = TAG } ... }`.
-They are not a scripted effect with parameters: the focus files are read before scripted effects are known, so a call such as `PER_shift_opinion = { TAG = GER ... }` is parsed as a block of unknown effects and the rest of the file is lost.
+They are not a scripted effect with parameters: focus files are read before scripted effects are known, so a call such as `PER_shift_opinion = { TAG = GER ... }` is parsed as a block of unknown effects and the rest of the file is lost.
 A scripted effect called without parameters (`= yes`) or a scripted trigger is resolved later and is safe in a focus file.
+
+## Characters
+
+A focus cannot use `recruit_character` (the engine accepts it only in game and history files), so the characters the trunk needs join in the 1910 history block.
+`PER_reza_shah_pahlavi` and `PER_mohammad_ali_foroughi` are recruited there as non-leaders, and `PER_pahlavi_dynasty` or `PER_republic_movement` promotes one of them with `promote_character`.
+The 1936 history recruits Reza Shah only if he has not already joined.
+`PER_ali_akbar_davar` and `PER_arthur_millspaugh` are recruited there too, and their `visible` trigger waits for `PER_codify_the_state` (and `PER_treasury_reformed` for Millspaugh), so they only appear as advisors after that focus.
+
+`common/characters/PER_restored.txt` restores 37 vanilla Persian characters that the mod's trimmed `common/characters/PER.txt` omitted.
+The original tree references several of them (`PER_andre_godard`, `PER_fakhrafagh_parsa`, `PER_abdolsamad_kambakhsh`, `PER_bahram_aryana`, `PER_gholam_ali_oveissi`).
+The blocks are copies of the installed game's `PER.txt`, with the two advisor visibility changes above.
 
 ## AI weights
 
@@ -143,17 +158,11 @@ All icons are existing vanilla `GFX_goal_generic_*`, `GFX_focus_generic_*` and `
 No new art or `.gfx` entries are needed.
 Bespoke icons for the trunk and its spirits are an optional later improvement.
 
-## Characters
-
-`common/characters/PER_restored.txt` restores 37 vanilla Persian characters that the mod's trimmed `common/characters/PER.txt` omitted.
-The original tree references several of them (`PER_andre_godard`, `PER_fakhrafagh_parsa`, `PER_abdolsamad_kambakhsh`, `PER_bahram_aryana`, `PER_gholam_ali_oveissi`), and the trunk uses `PER_ali_akbar_davar`, `PER_arthur_millspaugh` and `PER_mohammad_ali_foroughi`.
-The blocks are unchanged copies of the installed game's `PER.txt`.
-
 ## Route coverage
 
 | Required route | Implemented | Status | Notes |
 | --- | --- | --- | --- |
-| Era-appropriate opening for 1910 | Era I columns in `persian_focus_ww1` | Done | Three forks and the 1914 neutrality focus. |
+| Era-appropriate opening for 1910 | Era I shared focuses on the generic WWI tree | Done | Three forks and the 1914 neutrality focus. |
 | Late-start history | History completions at 1914, 1916, 1918, 1942, 1943 and 1944 | Done | 1936 and later starts begin at the original roots. |
 | Political change | Dynasty or republic, constituent assembly | Done | Leader, government and elections change. |
 | Occupation and Allied war | Era III in `persian_focus_tree` | Done | Defend, treaty or Berlin. |
@@ -171,6 +180,7 @@ The blocks are unchanged copies of the installed game's `PER.txt`.
 - Era I and Era II are not available to a game that starts in 1936 or later, because those starts use the 1936 tree.
 - Localisation is English only, matching the localisation present in the repository.
 - The AI weights were calculated by hand because the probability analyzer does not support this game version.
+- The focus inspector does not expand shared focuses, so the trunk's layout on the generic tree was checked by coordinates only.
 - No achievement hooks were added.
 
 ## Future plans and suggestions
