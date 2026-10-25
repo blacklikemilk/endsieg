@@ -20,7 +20,31 @@ Six scripted systems run underneath all of them, so a decision taken in 1912 sti
 Reused unchanged: `common/national_focus/spain.txt` (281 focuses), `common/decisions/SPR.txt` (178 decisions in 11 categories), `events/LAR_Spain.txt`, `events/LAR_NewsEvents.txt`, `common/ideas/spain_nationalist.txt`, `common/ideas/spain_republic.txt`, `common/scripted_effects/SPR_scripted_effects.txt`, `common/scripted_triggers/SPR_scripted_triggers.txt`, `05_lar_on_actions.txt`, and every SPA/SPB/SPC/SPD civil-war tag.
 The Nationalist, Carlist, Falangist, anarchist and communist wartime paths therefore keep working exactly as before, including vanilla's `SPA_garrison_control` mechanic.
 
-New: four chapter trees (111 focuses), six system layers, 38 decisions, 18 events, 46 national spirits, one balance of power, and the campaign state that ties them together.
+New: four chapter trees (284 focuses), six system layers, 38 decisions, 21 events, 46 national spirits, one balance of power, and the campaign state that ties them together.
+
+| Tree | Focuses |
+| --- | --- |
+| `spain_restoration_focus` | 89 |
+| `spain_rivera_focus` | 64 |
+| `spain_republic_focus` | 74 |
+| `spain_republic_postwar_focus` | 57 |
+
+### Layout
+Branches are positioned with `relative_position_id` from their parent, the way the Iran chapter trees do it, so a branch hugs the focus that opens it instead of spreading across a fixed grid.
+81 of the 284 focuses are placed that way.
+A focus whose reward changes the political state calls `mark_focus_tree_layout_dirty = yes` so newly revealed conditional branches are drawn immediately.
+Each tree also carries five navigation shortcuts (politics, crown, economy, army, diplomacy).
+
+### Late starts
+A player who begins in 1914, 1916, 1918 or 1936 does not start from an untouched tree.
+`spain_restore_past_focuses` completes the focuses the country would plausibly have finished by that date, 78 of them across the three pre-war chapters.
+Completion is gated by date, promoted so a focus is never completed before its prerequisites, and emitted in prerequisite order.
+A 1918 start therefore enters the war years with the Restoration's political and economic groundwork already done, rather than replaying 1910.
+
+### Startup order
+Chapter openers only load the tree, set flags and add the opening spirits.
+The balance of power, chapter history and the late-start completions run from `spain_campaign_bootstrap` on the first daily tick, not during `on_startup`.
+That keeps engine systems out of the frontend-to-game transition, and it is where the previous crash at scenario start came from.
 
 Touched existing files, narrowly:
 - `common/on_actions/endsieg_on_actions.txt`: two added calls, one in the pre-1936 tree-assignment branch, one in the 1936+ branch.
@@ -31,7 +55,7 @@ Touched existing files, narrowly:
 ### The Crown and the Cortes
 A native balance of power, `SPR_crown_and_cortes`, defined in `common/bop/SPR_crown_and_cortes.txt`.
 Two sides, five ranges, real modifiers in each range, and `on_activate` events at both extremes.
-Its decision category (`SPR_crown_and_cortes`) is attached to the balance, so it is played from the balance panel.
+Its decision category (`SPR_crown_and_cortes_category`) is attached to the balance, so it is played from the balance panel.
 Values: -1 is royal government, +1 is parliamentary sovereignty, and the deadlock band is -0.25 to +0.25.
 Restoration opens at -0.15; the Republic opens at +0.45; the post-war chapters remove the balance entirely.
 
