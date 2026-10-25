@@ -20,18 +20,18 @@ Six scripted systems run underneath all of them, so a decision taken in 1912 sti
 Reused unchanged: `common/national_focus/spain.txt` (281 focuses), `common/decisions/SPR.txt` (178 decisions in 11 categories), `events/LAR_Spain.txt`, `events/LAR_NewsEvents.txt`, `common/ideas/spain_nationalist.txt`, `common/ideas/spain_republic.txt`, `common/scripted_effects/SPR_scripted_effects.txt`, `common/scripted_triggers/SPR_scripted_triggers.txt`, `05_lar_on_actions.txt`, and every SPA/SPB/SPC/SPD civil-war tag.
 The Nationalist, Carlist, Falangist, anarchist and communist wartime paths therefore keep working exactly as before, including vanilla's `SPA_garrison_control` mechanic.
 
-New: four chapter trees (284 focuses), six system layers, 38 decisions, 21 events, 46 national spirits, one balance of power, and the campaign state that ties them together.
+New: four chapter trees (272 focuses), six system layers, 38 decisions, 21 events, 46 national spirits, one balance of power, and the campaign state that ties them together.
 
 | Tree | Focuses |
 | --- | --- |
-| `spain_restoration_focus` | 89 |
+| `spain_restoration_focus` | 77 |
 | `spain_rivera_focus` | 64 |
 | `spain_republic_focus` | 74 |
 | `spain_republic_postwar_focus` | 57 |
 
 ### Layout
 Branches are positioned with `relative_position_id` from their parent, the way the Iran chapter trees do it, so a branch hugs the focus that opens it instead of spreading across a fixed grid.
-81 of the 284 focuses are placed that way.
+56 of the 272 focuses are placed that way; the Restoration tree uses a fixed lane grid instead, with paired branches two columns apart.
 A focus whose reward changes the political state calls `mark_focus_tree_layout_dirty = yes` so newly revealed conditional branches are drawn immediately.
 Each tree also carries five navigation shortcuts (politics, crown, economy, army, diplomacy).
 
