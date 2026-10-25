@@ -1,4 +1,11 @@
 # Overview: the Spanish campaign of 1910-1945.
+# add_power_balance_value rejects script constants, so the balance nudges use file macros.
+@bop_crown_small = -0.05
+@bop_crown = -0.1
+@bop_crown_large = -0.2
+@bop_cortes_small = 0.05
+@bop_cortes = 0.1
+@bop_cortes_large = 0.2
 # Chapter initialisation and transitions, the officer corps, coups, regional control, the Nationalist faction struggle,
 # persistent development, wartime diplomacy and reconstruction all live here.
 # Every value comes from constant:spain_campaign. Event ids belong to namespace spain_campaign.
@@ -68,12 +75,9 @@ spain_open_restoration_chapter = {
 	set_country_flag = spain_chapter_restoration
 	load_focus_tree = { tree = spain_restoration_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
-	set_power_balance = {
-		id = SPR_crown_and_cortes
-		left_side = SPR_crown_side
-		right_side = SPR_cortes_side
-		set_default = yes
-	}
+	set_country_flag = spain_bop_pending
+	set_country_flag = spain_focus_restore_pending
+	
 	if = {
 		limit = { NOT = { has_country_flag = spain_restoration_settled } }
 		set_country_flag = spain_restoration_settled
@@ -87,11 +91,9 @@ spain_open_rivera_chapter = {
 	set_country_flag = spain_chapter_rivera
 	load_focus_tree = { tree = spain_rivera_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
-	set_power_balance = {
-		id = SPR_crown_and_cortes
-		left_side = SPR_crown_side
-		right_side = SPR_cortes_side
-	}
+	set_country_flag = spain_bop_pending
+	set_country_flag = spain_focus_restore_pending
+	
 	if = {
 		limit = { NOT = { has_country_flag = spain_rivera_settled } }
 		set_country_flag = spain_rivera_settled
@@ -107,12 +109,9 @@ spain_open_republic_chapter = {
 	set_country_flag = spain_chapter_republic
 	load_focus_tree = { tree = spain_republic_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
-	set_power_balance = {
-		id = SPR_crown_and_cortes
-		left_side = SPR_crown_side
-		right_side = SPR_cortes_side
-		set_value = constant:spain_campaign.bop_republic_start
-	}
+	set_country_flag = spain_bop_pending
+	set_country_flag = spain_focus_restore_pending
+	
 	if = {
 		limit = { NOT = { has_country_flag = spain_republic_settled } }
 		set_country_flag = spain_republic_settled
@@ -128,6 +127,7 @@ spain_open_civil_war_chapter = {
 	set_country_flag = spain_chapter_civil_war
 	load_focus_tree = { tree = spanish_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
+	set_country_flag = spain_bop_pending
 	if = {
 		limit = { NOT = { has_country_flag = spain_factions_opened } }
 		set_country_flag = spain_factions_opened
@@ -140,8 +140,9 @@ spain_open_civil_war_chapter = {
 }
 
 spain_open_postwar_chapter = {
+	set_country_flag = spain_bop_pending
 	set_country_flag = spain_chapter_postwar
-	if = { limit = { has_power_balance = SPR_crown_and_cortes } remove_power_balance = { id = SPR_crown_and_cortes } }
+	if = { limit = { has_power_balance = { id = SPR_crown_and_cortes } } remove_power_balance = { id = SPR_crown_and_cortes } }
 	if = {
 		limit = { NOT = { has_country_flag = spain_postwar_settled } }
 		set_country_flag = spain_postwar_settled
@@ -153,7 +154,7 @@ spain_open_postwar_chapter = {
 
 spain_open_republican_postwar_chapter = {
 	set_country_flag = spain_chapter_republican_postwar
-	if = { limit = { has_power_balance = SPR_crown_and_cortes } remove_power_balance = { id = SPR_crown_and_cortes } }
+	if = { limit = { has_power_balance = { id = SPR_crown_and_cortes } } remove_power_balance = { id = SPR_crown_and_cortes } }
 	load_focus_tree = { tree = spain_republic_postwar_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
 	if = {
@@ -215,6 +216,11 @@ spain_campaign_tick = {
 
 	if = {
 		limit = { has_country_flag = spain_campaign_initialized }
+		if = {
+			limit = { has_country_flag = spain_focus_restore_pending }
+			clr_country_flag = spain_focus_restore_pending
+			spain_campaign_bootstrap = yes
+		}
 		spain_campaign_transition_check = yes
 		add_to_variable = { var = spain_tick value = 1 }
 		if = {
@@ -582,27 +588,27 @@ spain_coup_outcome_conceded = {
 # =====================================================================================
 
 spain_push_crown_small = {
-	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_crown_nudge_small }
+	add_power_balance_value = { id = SPR_crown_and_cortes value = @bop_crown_small }
 }
 
 spain_push_crown = {
-	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_crown_nudge }
+	add_power_balance_value = { id = SPR_crown_and_cortes value = @bop_crown }
 }
 
 spain_push_crown_large = {
-	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_crown_nudge_large }
+	add_power_balance_value = { id = SPR_crown_and_cortes value = @bop_crown_large }
 }
 
 spain_push_cortes_small = {
-	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_cortes_nudge_small }
+	add_power_balance_value = { id = SPR_crown_and_cortes value = @bop_cortes_small }
 }
 
 spain_push_cortes = {
-	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_cortes_nudge }
+	add_power_balance_value = { id = SPR_crown_and_cortes value = @bop_cortes }
 }
 
 spain_push_cortes_large = {
-	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_cortes_nudge_large }
+	add_power_balance_value = { id = SPR_crown_and_cortes value = @bop_cortes_large }
 }
 
 # =====================================================================================
@@ -856,4 +862,207 @@ spain_reconstruction_weekly = {
 			add_ideas = spain_reconstruction_advanced
 		}
 	}
+}
+
+
+
+# Overview: brings a late start up to date. A player who begins in 1914, 1918 or 1936
+# inherits the focuses the country would plausibly have finished by then. Dates are promoted so a
+# focus is never completed before its prerequisites, and the emission order is topological.
+spain_restore_past_focuses = {
+	if = {
+		limit = { has_country_flag = spain_chapter_restoration }
+		if = {
+			limit = { date > 1911.6.1 }
+			complete_national_focus = SPR1_caciquismo
+			complete_national_focus = SPR1_labour_question
+			complete_national_focus = SPR1_state_budget
+		}
+		if = {
+			limit = { date > 1912.6.1 }
+			complete_national_focus = SPR1_the_army_question
+			complete_national_focus = SPR1_turno_politics
+			complete_national_focus = SPR1_royal_prerogative
+			complete_national_focus = SPR1_tax_reform
+		}
+		if = {
+			limit = { date > 1913.6.1 }
+			complete_national_focus = SPR1_church_and_state
+			complete_national_focus = SPR1_electoral_reform
+			complete_national_focus = SPR1_railway_gauge
+		}
+		if = {
+			limit = { date > 1914.8.1 }
+			complete_national_focus = SPR1_neutrality_in_europe
+			complete_national_focus = SPR1_juntas_de_defensa
+			complete_national_focus = SPR1_parliamentary_sovereignty
+		}
+		if = {
+			limit = { date > 1915.6.1 }
+			complete_national_focus = SPR1_conciliate_the_cnt
+			complete_national_focus = SPR1_telegraph_network
+			complete_national_focus = SPR1_mining_industry
+			complete_national_focus = SPR1_public_schools
+		}
+		if = {
+			limit = { date > 1916.6.1 }
+			complete_national_focus = SPR1_military_academy
+			complete_national_focus = SPR1_constitutional_crisis
+			complete_national_focus = SPR1_hydraulic_works
+		}
+		if = {
+			limit = { date > 1917.6.1 }
+			complete_national_focus = SPR1_africanist_command
+			complete_national_focus = SPR1_agrarian_credit
+			complete_national_focus = SPR1_press_freedom
+		}
+		if = {
+			limit = { date > 1918.6.1 }
+			complete_national_focus = SPR1_artillery_corps
+			complete_national_focus = SPR1_the_regional_question
+			complete_national_focus = SPR1_mancomunitat
+		}
+		if = {
+			limit = { date > 1919.6.1 }
+			complete_national_focus = SPR1_moroccan_railway
+			complete_national_focus = SPR1_basque_steel
+			complete_national_focus = SPR1_catalan_textiles
+			complete_national_focus = SPR1_the_assembly_movement
+		}
+		if = {
+			limit = { date > 1920.6.1 }
+			complete_national_focus = SPR1_public_health
+			complete_national_focus = SPR1_spanish_legion
+			complete_national_focus = SPR1_barcelona_lockout
+		}
+		if = {
+			limit = { date > 1921.6.1 }
+			complete_national_focus = SPR1_industrial_capital
+			complete_national_focus = SPR1_the_year_of_crisis
+		}
+		if = {
+			limit = { date > 1922.6.1 }
+			complete_national_focus = SPR1_annual_disaster
+		}
+	}
+
+	if = {
+		limit = { has_country_flag = spain_chapter_rivera }
+		if = {
+			limit = { date > 1925.1.1 }
+			complete_national_focus = SPR2_suspend_the_constitution
+			complete_national_focus = SPR2_civil_governors
+			complete_national_focus = SPR2_rule_by_decree
+		}
+		if = {
+			limit = { date > 1926.1.1 }
+			complete_national_focus = SPR2_unione_patriotica
+		}
+		if = {
+			limit = { date > 1927.1.1 }
+			complete_national_focus = SPR2_army_reorganisation
+			complete_national_focus = SPR2_hydraulic_confederation
+			complete_national_focus = SPR2_railway_monopoly
+		}
+		if = {
+			limit = { date > 1928.1.1 }
+			complete_national_focus = SPR2_labour_corporatism
+			complete_national_focus = SPR2_pacify_the_protectorate
+			complete_national_focus = SPR2_concordat
+			complete_national_focus = SPR2_tourism_boards
+		}
+		if = {
+			limit = { date > 1929.1.1 }
+			complete_national_focus = SPR2_education_programme
+			complete_national_focus = SPR2_the_assembly
+			complete_national_focus = SPR2_constitution_of_1929
+			complete_national_focus = SPR2_the_patronage_machine
+		}
+		if = {
+			limit = { date > 1930.1.1 }
+			complete_national_focus = SPR2_naval_reconstruction
+		}
+		if = {
+			limit = { date > 1931.1.1 }
+			complete_national_focus = SPR2_republican_pact
+			complete_national_focus = SPR2_the_spring_of_1930
+			complete_national_focus = SPR2_the_world_crash
+			complete_national_focus = SPR2_officer_discontent
+		}
+	}
+
+	if = {
+		limit = { has_country_flag = spain_chapter_republic }
+		if = {
+			limit = { date > 1932.1.1 }
+			complete_national_focus = SPR3_constituent_cortes
+			complete_national_focus = SPR3_public_order
+			complete_national_focus = SPR3_constitution_1931
+		}
+		if = {
+			limit = { date > 1932.9.1 }
+			complete_national_focus = SPR3_military_reform
+			complete_national_focus = SPR3_religious_settlement
+			complete_national_focus = SPR3_agrarian_reform
+		}
+		if = {
+			limit = { date > 1933.6.1 }
+			complete_national_focus = SPR3_catalan_statute
+			complete_national_focus = SPR3_education_mission
+			complete_national_focus = SPR3_labour_ministry
+		}
+		if = {
+			limit = { date > 1934.1.1 }
+			complete_national_focus = SPR3_public_works
+			complete_national_focus = SPR3_industrial_policy
+			complete_national_focus = SPR3_agrarian_credit
+			complete_national_focus = SPR3_women_suffrage
+		}
+		if = {
+			limit = { date > 1934.11.1 }
+			complete_national_focus = SPR3_cnt_insurrection
+			complete_national_focus = SPR3_elections_1933
+			complete_national_focus = SPR3_asturias_1934
+		}
+		if = {
+			limit = { date > 1935.6.1 }
+			complete_national_focus = SPR3_the_falange_street
+			complete_national_focus = SPR3_prison_reform
+			complete_national_focus = SPR3_school_building
+			complete_national_focus = SPR3_gil_robles
+		}
+		if = {
+			limit = { date > 1936.2.1 }
+			complete_national_focus = SPR3_casas_viejas
+			complete_national_focus = SPR3_the_popular_front
+		}
+	}
+}
+
+# Overview: engine systems that used to be created during on_startup. They now run on the first
+# daily tick, so the balance of power and the chapter history are built while the game is live.
+spain_campaign_bootstrap = {
+	if = {
+		limit = { has_country_flag = spain_bop_pending }
+		clr_country_flag = spain_bop_pending
+		if = {
+			limit = { has_country_flag = spain_chapter_republic }
+			set_power_balance = {
+				id = SPR_crown_and_cortes
+				left_side = SPR_crown_side
+				right_side = SPR_cortes_side
+				set_value = constant:spain_campaign.bop_republic_start
+			}
+		}
+		else = {
+			set_power_balance = {
+				id = SPR_crown_and_cortes
+				left_side = SPR_crown_side
+				right_side = SPR_cortes_side
+				set_default = yes
+			}
+		}
+	}
+	spain_refresh_campaign_ideas = yes
+	spain_restore_past_focuses = yes
 }
