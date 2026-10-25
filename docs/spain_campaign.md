@@ -50,6 +50,35 @@ Touched existing files, narrowly:
 - `common/on_actions/endsieg_on_actions.txt`: two added calls, one in the pre-1936 tree-assignment branch, one in the 1936+ branch.
 - `common/ai_strategy_plans/SPR_historical_strategy_plan.txt`: a `date > 1935.12.31` gate on all three plans, so the civil-war party line does not steer focus selection in 1910-1935.
 
+
+## The Cortes
+
+`SPR_cortes` is a decision category that mounts a chamber panel (`interface/endsieg_spain_cortes.gui`, wired in `common/scripted_guis/spain_cortes_scripted_gui.txt`).
+The chamber has 400 seats across seven blocs: monarchists, liberals, conservatives, republicans, socialists, Carlists and Falange.
+Raw support is written to `spain_cortes_raw_*` by `spain_cortes_recount` and normalised to exactly 400 seats, so a majority is always 201.
+Support moves with the campaign flags: electoral reform and a free press shift seats left, managed elections and suppression shift them right, and from 1931 the whole chamber is recalculated as a republican one.
+
+Bills are ordinary decisions in the same category, each gated on the bloc that would carry it:
+
+| Bill | Requires |
+| --- | --- |
+| Budget | right bloc above 200 |
+| Army budget | right bloc above 200 |
+| Agrarian bill | left bloc above 200 |
+| Labour charter | left bloc above 200 |
+| Regional statute | left bloc above 200, from 1931 |
+| Electoral law | left bloc above 200, holds an election |
+| Dissolve the Cortes | left bloc below 201, hands power to the Crown |
+
+So the chamber you build decides what the government can legislate, and a government without a majority can only dissolve parliament.
+
+## Polarization
+
+`spain_polarization`, 0-100, shown as a topbar gauge beside the existing Endsieg gauges (`spain_polarization_topbar`, mounted with `parent_window_token = top_bar`).
+`spain_polarization_weekly` drifts it: repression, suppression, the Barcelona lockout and Falange street violence raise it; conciliation, a free press and amnesty lower it; a deadlocked balance of power raises it.
+Above 60 every point adds coup pressure, above 90 it adds more, so the street and the barracks feed the same arithmetic.
+The panel also shows the split between left and right violence, derived from which side the state is currently suppressing.
+
 ## Systems
 
 ### The Crown and the Cortes

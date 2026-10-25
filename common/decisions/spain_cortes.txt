@@ -1,0 +1,150 @@
+# Overview: bills before the Spanish Cortes. Each one is a decision inside the SPR_cortes
+# category and is available only when the bloc that would carry it holds a majority of the 400
+# seats, so the chamber you built decides what the government can legislate.
+# Passing a bill moves the balance of power, the campaign flags or the development variables.
+
+SPR_cortes = {
+	SPR_bill_budget = {
+		icon = GFX_decision_category_generic_economy
+		cost = 50
+		days_re_enable = 120
+		fire_only_once = yes
+		available = {
+			check_variable = { var = spain_cortes_right_bloc > 200 }
+			has_country_flag = spain_campaign_initialized
+		}
+		visible = {
+			check_variable = { var = spain_cortes_total > 0 }
+		}
+		complete_effect = {
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_stability = constant:spain_campaign.stability_small
+			spain_push_crown_small = yes
+			set_country_flag = spain_bill_budget_passed
+			spain_cortes_recount = yes
+		}
+		ai_will_do = { factor = 60 }
+	}
+
+	SPR_bill_agrarian_reform = {
+		icon = GFX_decision_category_generic_economy
+		cost = 75
+		days_re_enable = 180
+		fire_only_once = yes
+		available = {
+			check_variable = { var = spain_cortes_left_bloc > 200 }
+			has_country_flag = spain_campaign_initialized
+		}
+		visible = { always = yes }
+		complete_effect = {
+			add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain_large }
+			add_stability = constant:spain_campaign.stability_cost
+			set_country_flag = spain_bill_agrarian_passed
+			spain_cortes_recount = yes
+		}
+		ai_will_do = { factor = 50 }
+	}
+
+	SPR_bill_labour_charter = {
+		icon = GFX_decision_category_eng_concessions_to_the_trade_unions
+		cost = 60
+		days_re_enable = 180
+		fire_only_once = yes
+		available = {
+			check_variable = { var = spain_cortes_left_bloc > 200 }
+			has_country_flag = spain_campaign_initialized
+		}
+		visible = { always = yes }
+		complete_effect = {
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_polarization value = -5 }
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_bill_labour_passed
+			spain_cortes_recount = yes
+		}
+		ai_will_do = { factor = 40 }
+	}
+
+	SPR_bill_army_budget = {
+		icon = GFX_decision_category_army_reform
+		cost = 60
+		days_re_enable = 180
+		fire_only_once = yes
+		available = {
+			check_variable = { var = spain_cortes_right_bloc > 200 }
+			has_country_flag = spain_campaign_initialized
+		}
+		visible = { always = yes }
+		complete_effect = {
+			spain_loyalty_gain = yes
+			add_war_support = constant:spain_campaign.war_support_small
+			add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief }
+			set_country_flag = spain_bill_army_passed
+			spain_cortes_recount = yes
+		}
+		ai_will_do = { factor = 55 }
+	}
+
+	SPR_bill_regional_statute = {
+		icon = GFX_decision_category_generic_democracy
+		cost = 70
+		days_re_enable = 240
+		fire_only_once = yes
+		available = {
+			check_variable = { var = spain_cortes_left_bloc > 200 }
+			has_country_flag = spain_campaign_initialized
+			NOT = { has_country_flag = spain_bill_statute_passed }
+		}
+		visible = {
+			NOT = { has_country_flag = spain_chapter_restoration }
+		}
+		complete_effect = {
+			add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_gain }
+			add_to_variable = { var = spain_basque_autonomy value = constant:spain_campaign.autonomy_gain }
+			add_stability = constant:spain_campaign.stability_cost
+			spain_refresh_campaign_ideas = yes
+			set_country_flag = spain_bill_statute_passed
+			spain_cortes_recount = yes
+		}
+		ai_will_do = { factor = 35 }
+	}
+
+	SPR_bill_electoral_law = {
+		icon = GFX_decision_category_generic_democracy
+		cost = 40
+		days_re_enable = 365
+		fire_only_once = yes
+		available = {
+			check_variable = { var = spain_cortes_left_bloc > 200 }
+			has_country_flag = spain_campaign_initialized
+		}
+		visible = { always = yes }
+		complete_effect = {
+			spain_push_cortes_large = yes
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_electoral_reform
+			spain_hold_election = yes
+		}
+		ai_will_do = { factor = 45 }
+	}
+
+	SPR_bill_dissolve_cortes = {
+		icon = GFX_decision_category_generic_crisis
+		cost = 40
+		days_re_enable = 365
+		fire_only_once = yes
+		available = {
+			check_variable = { var = spain_cortes_left_bloc < 201 }
+			has_country_flag = spain_campaign_initialized
+		}
+		visible = { always = yes }
+		complete_effect = {
+			spain_push_crown_large = yes
+			add_stability = constant:spain_campaign.stability_cost
+			add_to_variable = { var = spain_polarization value = 5 }
+			set_country_flag = spain_cortes_dissolved
+			spain_cortes_recount = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+}
