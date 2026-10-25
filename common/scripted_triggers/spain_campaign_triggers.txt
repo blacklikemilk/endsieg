@@ -1,0 +1,152 @@
+# Overview: predicates for the Spanish campaign of 1910-1945.
+# Chapters, decisions, events and focus branches read these instead of repeating flag and variable checks.
+# Variable thresholds come from constant:spain_campaign so tuning lives in one place.
+
+# ---------------------------------------------------------------- chapters
+
+spain_chapter_open = {
+	OR = {
+		has_country_flag = spain_chapter_restoration
+		has_country_flag = spain_chapter_rivera
+		has_country_flag = spain_chapter_republic
+	}
+}
+
+spain_in_restoration_chapter = { has_country_flag = spain_chapter_restoration }
+spain_in_rivera_chapter = { has_country_flag = spain_chapter_rivera }
+spain_in_republic_chapter = { has_country_flag = spain_chapter_republic }
+spain_in_civil_war_chapter = { has_country_flag = spain_chapter_civil_war }
+spain_in_postwar_chapter = { has_country_flag = spain_chapter_postwar }
+spain_in_republican_postwar_chapter = { has_country_flag = spain_chapter_republican_postwar }
+
+spain_pre_civil_war = {
+	NOT = { has_global_flag = spanish_civil_war }
+}
+
+spain_civil_war_active = {
+	has_global_flag = spanish_civil_war
+	NOT = { has_global_flag = scw_over }
+}
+
+spain_post_civil_war = {
+	OR = {
+		has_country_flag = spain_chapter_postwar
+		has_country_flag = spain_chapter_republican_postwar
+	}
+}
+
+# ---------------------------------------------------------------- officer corps
+
+spain_loyalty_low = {
+	check_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_wavering compare = less_than }
+}
+
+spain_loyalty_high = {
+	check_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loyal compare = greater_than_or_equals }
+}
+
+spain_coup_risk = {
+	spain_chapter_open = yes
+	spain_pre_civil_war = yes
+	spain_loyalty_low = yes
+	check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+}
+
+# ---------------------------------------------------------------- Crown against Cortes
+
+spain_crown_dominant = {
+	is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_crown_absolute }
+}
+
+spain_crown_ascendant = {
+	OR = {
+		is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_crown_absolute }
+		is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_crown_ascendant }
+	}
+}
+
+spain_cortes_dominant = {
+	is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_cortes_sovereign }
+}
+
+spain_cortes_ascendant = {
+	OR = {
+		is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_cortes_sovereign }
+		is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_cortes_ascendant }
+	}
+}
+
+spain_political_deadlock = {
+	is_power_balance_in_range = { id = SPR_crown_and_cortes range = SPR_crown_cortes_deadlock }
+}
+
+# ---------------------------------------------------------------- regions and autonomy
+
+spain_catalan_statute_granted = {
+	check_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_statute compare = greater_than_or_equals }
+}
+
+spain_basque_statute_granted = {
+	check_variable = { var = spain_basque_autonomy value = constant:spain_campaign.autonomy_statute compare = greater_than_or_equals }
+}
+
+spain_holds_catalonia = { has_country_flag = spain_controls_catalonia }
+spain_holds_north = { has_country_flag = spain_controls_north }
+spain_holds_aragon = { has_country_flag = spain_controls_aragon }
+spain_holds_levante = { has_country_flag = spain_controls_levante }
+spain_holds_andalusia = { has_country_flag = spain_controls_andalusia }
+spain_holds_meseta = { has_country_flag = spain_controls_meseta }
+spain_holds_africa = { has_country_flag = spain_controls_africa }
+
+# ---------------------------------------------------------------- factions
+
+spain_falange_leads = { has_country_flag = spain_faction_falange_leads }
+spain_carlists_lead = { has_country_flag = spain_faction_carlists_lead }
+spain_monarchists_lead = { has_country_flag = spain_faction_monarchists_lead }
+spain_army_leads = { has_country_flag = spain_faction_army_leads }
+
+spain_nationalist_tension_high = {
+	check_variable = { var = spain_nationalist_tension value = constant:spain_campaign.tension_open compare = greater_than_or_equals }
+}
+
+# ---------------------------------------------------------------- development
+
+spain_industry_developed = {
+	check_variable = { var = spain_industry value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+}
+
+spain_agriculture_developed = {
+	check_variable = { var = spain_agriculture value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+}
+
+spain_infrastructure_developed = {
+	check_variable = { var = spain_infrastructure value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+}
+
+spain_education_developed = {
+	check_variable = { var = spain_education value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+}
+
+# ---------------------------------------------------------------- Rif War
+
+spain_rif_war_active = {
+	has_country_flag = spain_rif_war_active
+}
+
+spain_rif_war_settled = {
+	has_country_flag = spain_rif_war_settled
+}
+
+# ---------------------------------------------------------------- wartime diplomacy
+
+spain_axis_leverage_high = {
+	check_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_pressure compare = greater_than_or_equals }
+}
+
+spain_allied_leverage_high = {
+	check_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_pressure compare = greater_than_or_equals }
+}
+
+spain_reconstruction_complete = {
+	check_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_complete compare = greater_than_or_equals }
+}

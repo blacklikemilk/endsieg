@@ -1,0 +1,376 @@
+# Overview: the Republican post-war chapter, 1939 onwards.
+# Tree id spain_republic_postwar_focus. Loaded by spain_enter_postwar_chapter when the Republic wins the civil war,
+# and it replaces nothing: completed focuses of spanish_focus stay marked because the tree is loaded with keep_completed.
+# This chapter exists because the alternative history of a surviving Republic had no post-war content at all.
+@short = 5
+@normal = 8
+@long = 10
+@low = 30
+@priority = 50
+@high = 70
+
+focus_tree = {
+	id = spain_republic_postwar_focus
+	country = {
+		factor = 0
+		modifier = {
+			add = 20000
+			original_tag = SPR
+			date > 1939.3.31
+			OR = {
+				has_government = democratic
+				has_government = communism
+			}
+		}
+	}
+	default = no
+	reset_on_civilwar = no
+	initial_show_position = { focus = SPR4_the_republic_endures }
+	continuous_focus_position = { x = 1500 y = 2400 }
+	shortcut = { name = spain_politics_navigation target = SPR4_the_republic_endures }
+	shortcut = { name = spain_crown_navigation target = SPR4_constitution_of_1939 }
+	shortcut = { name = spain_economy_navigation target = SPR4_rebuild_the_industry }
+	shortcut = { name = spain_army_navigation target = SPR4_army_of_the_republic }
+	shortcut = { name = spain_diplomacy_navigation target = SPR4_diplomacy_with_the_allies }
+
+	# ------------------------------------------------------------------ root
+	focus = {
+		id = SPR4_the_republic_endures
+		icon = GFX_goal_support_democracy
+		x = 14 y = 0 cost = @short
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @high }
+		completion_reward = {
+			add_political_power = constant:spain_campaign.pp_medium
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_republic_consolidated
+			custom_effect_tooltip = spain_republic_consolidated_tt
+		}
+	}
+
+	# ------------------------------------------------------------------ the state
+	focus = {
+		id = SPR4_constitution_of_1939
+		icon = GFX_goal_generic_political_pressure
+		prerequisite = { focus = SPR4_the_republic_endures }
+		x = 10 y = 1 cost = @long
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @high }
+		completion_reward = {
+			add_political_power = constant:spain_campaign.pp_large
+			add_stability = constant:spain_campaign.stability_medium
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			set_country_flag = spain_reconstruction_programme
+			custom_effect_tooltip = spain_constitution_1939_tt
+		}
+	}
+	focus = {
+		id = SPR4_secular_state
+		icon = GFX_goal_generic_political_pressure
+		prerequisite = { focus = SPR4_constitution_of_1939 }
+		x = 10 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			if = { limit = { has_idea = spain_religious_tension } remove_ideas = spain_religious_tension }
+			add_to_variable = { var = spain_education value = constant:spain_campaign.development_gain }
+			add_stability = constant:spain_campaign.stability_cost
+			custom_effect_tooltip = spain_secular_state_tt
+		}
+	}
+	focus = {
+		id = SPR4_catalan_settlement
+		icon = GFX_goal_generic_political_pressure
+		prerequisite = { focus = SPR4_constitution_of_1939 }
+		x = 6 y = 3 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_gain_large }
+			add_to_variable = { var = spain_basque_autonomy value = constant:spain_campaign.autonomy_gain_large }
+			add_stability = constant:spain_campaign.stability_small
+			spain_refresh_campaign_ideas = yes
+			custom_effect_tooltip = spain_autonomy_gain_tt
+		}
+	}
+
+	# ------------------------------------------------------------------ the coalition
+	focus = {
+		id = SPR4_the_communist_question
+		icon = GFX_goal_support_communism
+		prerequisite = { focus = SPR4_the_republic_endures }
+		x = 6 y = 1 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			set_country_flag = spain_communist_question_open
+			add_political_power = constant:spain_campaign.pp_small
+			custom_effect_tooltip = spain_communist_question_tt
+		}
+	}
+	focus = {
+		id = SPR4_the_pce_in_government
+		icon = GFX_goal_support_communism
+		prerequisite = { focus = SPR4_the_communist_question }
+		mutually_exclusive = { focus = SPR4_marginalise_the_pce }
+		x = 4 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_stability = constant:spain_campaign.stability_small
+			add_war_support = constant:spain_campaign.war_support_small
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+			set_country_flag = spain_pce_in_government
+			custom_effect_tooltip = spain_pce_in_government_tt
+		}
+	}
+	focus = {
+		id = SPR4_marginalise_the_pce
+		icon = GFX_focus_SOV_military_purge
+		prerequisite = { focus = SPR4_the_communist_question }
+		mutually_exclusive = { focus = SPR4_the_pce_in_government }
+		x = 8 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_stability = constant:spain_campaign.stability_cost
+			spain_loyalty_gain_small = yes
+			set_country_flag = spain_pce_marginalised
+			custom_effect_tooltip = spain_pce_marginalised_tt
+		}
+	}
+	focus = {
+		id = SPR4_the_anarchist_question
+		icon = GFX_focus_generic_workers_and_farmers_rise
+		prerequisite = { focus = SPR4_the_republic_endures }
+		x = 22 y = 1 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			set_country_flag = spain_anarchist_question_open
+			add_political_power = constant:spain_campaign.pp_small
+			custom_effect_tooltip = spain_anarchist_question_tt
+		}
+	}
+	focus = {
+		id = SPR4_collectivise_the_land
+		icon = GFX_focus_generic_farmland
+		prerequisite = { focus = SPR4_the_anarchist_question }
+		mutually_exclusive = { focus = SPR4_restore_smallholding }
+		x = 20 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @low }
+		completion_reward = {
+			add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain }
+			add_stability = constant:spain_campaign.stability_cost
+			add_war_support = constant:spain_campaign.war_support_small
+			set_country_flag = spain_collectivised_land
+			custom_effect_tooltip = spain_collectivised_land_tt
+		}
+	}
+	focus = {
+		id = SPR4_restore_smallholding
+		icon = GFX_focus_generic_farmland
+		prerequisite = { focus = SPR4_the_anarchist_question }
+		mutually_exclusive = { focus = SPR4_collectivise_the_land }
+		x = 24 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain }
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_smallholding_restored
+			custom_effect_tooltip = spain_smallholding_restored_tt
+		}
+	}
+
+	# ------------------------------------------------------------------ reconstruction
+	focus = {
+		id = SPR4_rebuild_the_industry
+		icon = GFX_goal_generic_construct_civ_factory
+		prerequisite = { focus = SPR4_the_republic_endures }
+		x = 14 y = 1 cost = @normal
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = @high }
+		completion_reward = {
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			set_country_flag = spain_reconstruction_programme
+			165 = { add_building_construction = { type = industrial_complex level = 1 instant_build = yes } }
+			custom_effect_tooltip = spain_industry_gain_tt
+		}
+	}
+	focus = {
+		id = SPR4_the_hydroelectric_grid
+		icon = GFX_goal_generic_construct_infrastructure
+		prerequisite = { focus = SPR4_rebuild_the_industry }
+		x = 14 y = 2 cost = @long
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_to_variable = { var = spain_infrastructure value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			171 = { add_building_construction = { type = industrial_complex level = 1 instant_build = yes } }
+			custom_effect_tooltip = spain_infrastructure_gain_tt
+		}
+	}
+	focus = {
+		id = SPR4_railway_restoration
+		icon = GFX_goal_generic_construct_infrastructure
+		prerequisite = { focus = SPR4_the_hydroelectric_grid }
+		x = 14 y = 3 cost = @long
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_to_variable = { var = spain_infrastructure value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			41 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			176 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			custom_effect_tooltip = spain_infrastructure_gain_tt
+		}
+	}
+
+	# ------------------------------------------------------------------ the army
+	focus = {
+		id = SPR4_army_of_the_republic
+		icon = GFX_goal_generic_army_doctrines
+		prerequisite = { focus = SPR4_the_republic_endures }
+		x = 18 y = 1 cost = @normal
+		search_filters = { FOCUS_FILTER_MANPOWER }
+		ai_will_do = { factor = @high }
+		completion_reward = {
+			army_experience = constant:spain_campaign.army_experience_large
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:spain_campaign.infantry_equipment producer = SPR }
+			spain_loyalty_gain = yes
+			custom_effect_tooltip = spain_army_reform_tt
+		}
+	}
+	focus = {
+		id = SPR4_the_people_in_arms
+		icon = GFX_goal_generic_army_motorized
+		prerequisite = { focus = SPR4_army_of_the_republic }
+		mutually_exclusive = { focus = SPR4_professionalise_the_army }
+		x = 16 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_MANPOWER FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_manpower = constant:spain_campaign.manpower
+			add_war_support = constant:spain_campaign.war_support_small
+			add_stability = constant:spain_campaign.stability_cost
+			set_country_flag = spain_militia_army
+			custom_effect_tooltip = spain_militia_army_tt
+		}
+	}
+	focus = {
+		id = SPR4_professionalise_the_army
+		icon = GFX_goal_generic_army_doctrines
+		prerequisite = { focus = SPR4_army_of_the_republic }
+		mutually_exclusive = { focus = SPR4_the_people_in_arms }
+		x = 20 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_MANPOWER }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			army_experience = constant:spain_campaign.army_experience_large
+			spain_loyalty_gain = yes
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_professional_army
+			custom_effect_tooltip = spain_professional_army_tt
+		}
+	}
+
+	# ------------------------------------------------------------------ the world
+	focus = {
+		id = SPR4_diplomacy_with_the_allies
+		icon = GFX_goal_generic_alliance
+		prerequisite = { focus = SPR4_the_republic_endures }
+		x = 26 y = 1 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @high }
+		completion_reward = {
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain_large }
+			if = { limit = { country_exists = ENG } ENG = { add_opinion_modifier = { target = SPR modifier = spain_british_trade } } }
+			if = { limit = { country_exists = USA } USA = { add_opinion_modifier = { target = SPR modifier = spain_american_trade } } }
+			set_country_flag = spain_western_diplomacy
+			custom_effect_tooltip = spain_western_diplomacy_tt
+		}
+	}
+	focus = {
+		id = SPR4_western_orientation
+		icon = GFX_goal_generic_alliance
+		prerequisite = { focus = SPR4_diplomacy_with_the_allies }
+		mutually_exclusive = { focus = SPR4_relations_with_moscow }
+		x = 26 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain_large }
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+			if = { limit = { NOT = { has_idea = spain_allied_alignment } } add_ideas = spain_allied_alignment }
+			set_country_flag = spain_western_alignment
+		}
+	}
+	focus = {
+		id = SPR4_relations_with_moscow
+		icon = GFX_goal_generic_alliance
+		prerequisite = { focus = SPR4_diplomacy_with_the_allies }
+		mutually_exclusive = { focus = SPR4_western_orientation }
+		x = 28 y = 2 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @low }
+		completion_reward = {
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			if = { limit = { country_exists = SOV } SOV = { add_opinion_modifier = { target = SPR modifier = spain_soviet_recognition } } }
+			set_country_flag = spain_moscow_alignment
+			custom_effect_tooltip = spain_moscow_alignment_tt
+		}
+	}
+	focus = {
+		id = SPR4_the_iberian_pact
+		icon = GFX_goal_generic_alliance
+		prerequisite = { focus = SPR4_western_orientation focus = SPR4_relations_with_moscow }
+		x = 26 y = 3 cost = @normal
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			if = { limit = { country_exists = POR } POR = { add_opinion_modifier = { target = SPR modifier = spain_iberian_accord } } }
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_iberian_pact
+			custom_effect_tooltip = spain_iberian_accord_tt
+		}
+	}
+
+	# ------------------------------------------------------------------ the European war
+	focus = {
+		id = SPR4_the_european_war
+		icon = GFX_goal_generic_war_with_comintern
+		prerequisite = { focus = SPR4_the_iberian_pact }
+		mutually_exclusive = { focus = SPR4_armed_neutrality }
+		x = 12 y = 5 cost = @long
+		available = { date > 1939.8.31 }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = @low }
+		completion_reward = {
+			add_war_support = constant:spain_campaign.war_support_medium
+			set_country_flag = spain_willing_to_fight
+			custom_effect_tooltip = spain_willing_to_fight_tt
+		}
+	}
+	focus = {
+		id = SPR4_armed_neutrality
+		icon = GFX_goal_generic_neutrality_focus
+		prerequisite = { focus = SPR4_the_iberian_pact }
+		mutually_exclusive = { focus = SPR4_the_european_war }
+		x = 16 y = 5 cost = @long
+		available = { date > 1939.8.31 }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @high }
+		completion_reward = {
+			if = { limit = { NOT = { has_idea = spain_armed_neutrality } } add_ideas = spain_armed_neutrality }
+			add_stability = constant:spain_campaign.stability_medium
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			set_country_flag = spain_armed_neutral
+		}
+	}
+}

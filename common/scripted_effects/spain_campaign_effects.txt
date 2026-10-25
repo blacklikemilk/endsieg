@@ -1,0 +1,859 @@
+# Overview: the Spanish campaign of 1910-1945.
+# Chapter initialisation and transitions, the officer corps, coups, regional control, the Nationalist faction struggle,
+# persistent development, wartime diplomacy and reconstruction all live here.
+# Every value comes from constant:spain_campaign. Event ids belong to namespace spain_campaign.
+
+# =====================================================================================
+# Initialisation
+# =====================================================================================
+
+spain_campaign_initialize = {
+	spain_ensure_campaign_state = yes
+	set_country_flag = spain_campaign_initialized
+
+	if = {
+		limit = { date < 1923.9.13 }
+		spain_open_restoration_chapter = yes
+	}
+	else_if = {
+		limit = { date < 1931.4.14 }
+		spain_open_rivera_chapter = yes
+	}
+	else_if = {
+		limit = { date < 1936.1.1 }
+		spain_open_republic_chapter = yes
+	}
+	else_if = {
+		limit = { date < 1939.4.1 }
+		spain_open_civil_war_chapter = yes
+	}
+	else = {
+		spain_open_postwar_chapter = yes
+	}
+}
+
+# Any Spanish country that gains the campaign - a civil-war revolter, or a country created
+# by a scripted tag change - gets the same variable set without repeating the chapter choice.
+spain_ensure_campaign_state = {
+	if = {
+		limit = { NOT = { has_variable = spain_military_loyalty } }
+		set_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_open }
+		set_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_open }
+		set_variable = { var = spain_industry value = constant:spain_campaign.industry_open }
+		set_variable = { var = spain_agriculture value = constant:spain_campaign.agriculture_open }
+		set_variable = { var = spain_infrastructure value = constant:spain_campaign.infrastructure_open }
+		set_variable = { var = spain_education value = constant:spain_campaign.education_open }
+		set_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.catalan_autonomy_open }
+		set_variable = { var = spain_basque_autonomy value = constant:spain_campaign.basque_autonomy_open }
+		set_variable = { var = spain_falange value = constant:spain_campaign.faction_open }
+		set_variable = { var = spain_carlists value = constant:spain_campaign.faction_open }
+		set_variable = { var = spain_monarchists value = constant:spain_campaign.faction_open }
+		set_variable = { var = spain_army_faction value = constant:spain_campaign.faction_open }
+		set_variable = { var = spain_nationalist_tension value = 0 }
+		set_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_open }
+		set_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_open }
+		set_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_open }
+		set_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_open }
+		set_variable = { var = spain_tick value = 0 }
+	}
+	set_country_flag = spain_campaign_initialized
+}
+
+# =====================================================================================
+# Chapter openers. These only establish state; the milestone events are fired by the
+# transitions below, so a bookmark start does not open on a popup.
+# =====================================================================================
+
+spain_open_restoration_chapter = {
+	set_country_flag = spain_chapter_restoration
+	load_focus_tree = { tree = spain_restoration_focus keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	set_power_balance = {
+		id = SPR_crown_and_cortes
+		left_side = SPR_crown_side
+		right_side = SPR_cortes_side
+		set_default = yes
+	}
+	if = {
+		limit = { NOT = { has_country_flag = spain_restoration_settled } }
+		set_country_flag = spain_restoration_settled
+		add_ideas = spain_caciquismo_system
+		add_ideas = spain_military_privileges
+	}
+	spain_refresh_campaign_ideas = yes
+}
+
+spain_open_rivera_chapter = {
+	set_country_flag = spain_chapter_rivera
+	load_focus_tree = { tree = spain_rivera_focus keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	set_power_balance = {
+		id = SPR_crown_and_cortes
+		left_side = SPR_crown_side
+		right_side = SPR_cortes_side
+	}
+	if = {
+		limit = { NOT = { has_country_flag = spain_rivera_settled } }
+		set_country_flag = spain_rivera_settled
+		if = { limit = { has_idea = spain_caciquismo_system } remove_ideas = spain_caciquismo_system }
+		if = { limit = { has_idea = spain_parliamentary_government } remove_ideas = spain_parliamentary_government }
+		add_ideas = spain_military_directorate
+		add_ideas = spain_military_privileges
+	}
+	spain_refresh_campaign_ideas = yes
+}
+
+spain_open_republic_chapter = {
+	set_country_flag = spain_chapter_republic
+	load_focus_tree = { tree = spain_republic_focus keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	set_power_balance = {
+		id = SPR_crown_and_cortes
+		left_side = SPR_crown_side
+		right_side = SPR_cortes_side
+		set_value = constant:spain_campaign.bop_republic_start
+	}
+	if = {
+		limit = { NOT = { has_country_flag = spain_republic_settled } }
+		set_country_flag = spain_republic_settled
+		if = { limit = { has_idea = spain_caciquismo_system } remove_ideas = spain_caciquismo_system }
+		if = { limit = { has_idea = spain_crown_government } remove_ideas = spain_crown_government }
+		if = { limit = { has_idea = spain_military_directorate } remove_ideas = spain_military_directorate }
+		add_ideas = spain_parliamentary_government
+	}
+	spain_refresh_campaign_ideas = yes
+}
+
+spain_open_civil_war_chapter = {
+	set_country_flag = spain_chapter_civil_war
+	load_focus_tree = { tree = spanish_focus keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	if = {
+		limit = { NOT = { has_country_flag = spain_factions_opened } }
+		set_country_flag = spain_factions_opened
+		set_variable = { var = spain_falange value = 30 }
+		set_variable = { var = spain_carlists value = 20 }
+		set_variable = { var = spain_monarchists value = 25 }
+		set_variable = { var = spain_army_faction value = 25 }
+	}
+	spain_refresh_campaign_ideas = yes
+}
+
+spain_open_postwar_chapter = {
+	set_country_flag = spain_chapter_postwar
+	if = { limit = { has_power_balance = SPR_crown_and_cortes } remove_power_balance = { id = SPR_crown_and_cortes } }
+	if = {
+		limit = { NOT = { has_country_flag = spain_postwar_settled } }
+		set_country_flag = spain_postwar_settled
+		if = { limit = { NOT = { has_idea = spain_civil_war_reconstruction } } add_ideas = spain_civil_war_reconstruction }
+		set_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_open }
+	}
+	spain_refresh_campaign_ideas = yes
+}
+
+spain_open_republican_postwar_chapter = {
+	set_country_flag = spain_chapter_republican_postwar
+	if = { limit = { has_power_balance = SPR_crown_and_cortes } remove_power_balance = { id = SPR_crown_and_cortes } }
+	load_focus_tree = { tree = spain_republic_postwar_focus keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	if = {
+		limit = { NOT = { has_country_flag = spain_republican_postwar_settled } }
+		set_country_flag = spain_republican_postwar_settled
+		if = { limit = { NOT = { has_idea = spain_civil_war_reconstruction } } add_ideas = spain_civil_war_reconstruction }
+		set_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_open }
+	}
+	spain_refresh_campaign_ideas = yes
+}
+
+# =====================================================================================
+# Transitions. These are only called from event options, so the milestone is always the
+# player's or the AI's decision and never a silent scripted swap.
+# =====================================================================================
+
+spain_enter_rivera_chapter = {
+	spain_open_rivera_chapter = yes
+	news_event = { id = spain_campaign.101 days = 1 }
+}
+
+spain_enter_republic_chapter = {
+	spain_open_republic_chapter = yes
+	news_event = { id = spain_campaign.102 days = 1 }
+}
+
+spain_enter_civil_war_chapter = {
+	spain_open_civil_war_chapter = yes
+	country_event = { id = spain_campaign.26 days = 1 }
+}
+
+spain_enter_postwar_chapter = {
+	if = {
+		limit = { OR = { has_government = democratic has_government = communism } }
+		spain_open_republican_postwar_chapter = yes
+	}
+	else = {
+		spain_open_postwar_chapter = yes
+	}
+	country_event = { id = spain_campaign.61 days = 1 }
+}
+
+# =====================================================================================
+# Daily clock
+# =====================================================================================
+
+spain_campaign_tick = {
+	# The civil-war revolter carries the same systems. It is driven from the original
+	# country because there is no daily on_action for a tag that does not exist at load.
+	if = {
+		limit = { country_exists = SPA }
+		SPA = {
+			if = {
+				limit = { NOT = { has_country_flag = spain_campaign_initialized } }
+				spain_ensure_campaign_state = yes
+			}
+		}
+	}
+
+	if = {
+		limit = { has_country_flag = spain_campaign_initialized }
+		spain_campaign_transition_check = yes
+		add_to_variable = { var = spain_tick value = 1 }
+		if = {
+			limit = { check_variable = { var = spain_tick value = 7 compare = greater_than_or_equals } }
+			set_variable = { var = spain_tick value = 0 }
+			spain_campaign_weekly = yes
+			if = {
+				limit = { country_exists = SPA }
+				SPA = { spain_campaign_weekly = yes }
+			}
+		}
+	}
+}
+
+spain_campaign_transition_check = {
+	# The pronunciamiento. The Restoration cannot survive the year of Annual and the
+	# collapse of the turno.
+	if = {
+		limit = {
+			spain_in_restoration_chapter = yes
+			date > 1923.9.12
+			NOT = { has_country_flag = spain_rivera_crisis_fired }
+		}
+		set_country_flag = spain_rivera_crisis_fired
+		country_event = { id = spain_campaign.10 days = 1 }
+	}
+
+	# The dictatorship exhausts itself in 1930.
+	if = {
+		limit = {
+			spain_in_rivera_chapter = yes
+			date > 1930.1.27
+			NOT = { has_country_flag = spain_rivera_fall_fired }
+		}
+		set_country_flag = spain_rivera_fall_fired
+		country_event = { id = spain_campaign.16 days = 1 }
+	}
+
+	# If the monarchy tries to outlast the dictatorship, the Republic arrives anyway.
+	if = {
+		limit = {
+			spain_in_rivera_chapter = yes
+			date > 1931.4.13
+			NOT = { has_country_flag = spain_republic_proclaimed_fired }
+		}
+		set_country_flag = spain_republic_proclaimed_fired
+		country_event = { id = spain_campaign.20 days = 1 }
+	}
+
+	# A campaign played from 1910 reaches the republican decade through its own tree,
+	# and switches to the civil-war chapter at the start of 1936.
+	if = {
+		limit = {
+			spain_in_republic_chapter = yes
+			date > 1936.1.1
+			NOT = { has_country_flag = spain_civil_war_chapter_fired }
+		}
+		set_country_flag = spain_civil_war_chapter_fired
+		country_event = { id = spain_campaign.25 days = 1 }
+	}
+
+	# A campaign that never had a civil war still has to enter the post-war decade.
+	if = {
+		limit = {
+			OR = {
+				has_country_flag = spain_chapter_civil_war
+				has_country_flag = spain_chapter_republic
+				has_country_flag = spain_chapter_rivera
+				has_country_flag = spain_chapter_restoration
+			}
+			OR = {
+				has_global_flag = scw_over
+				date > 1939.3.31
+			}
+			NOT = { has_country_flag = spain_postwar_chapter_fired }
+		}
+		set_country_flag = spain_postwar_chapter_fired
+		country_event = { id = spain_campaign.60 days = 1 }
+	}
+}
+
+spain_campaign_weekly = {
+	spain_clamp_campaign_variables = yes
+	spain_refresh_campaign_ideas = yes
+	spain_refresh_faction_leadership = yes
+	if = { limit = { has_global_flag = spanish_civil_war } spain_refresh_regional_control = yes }
+	spain_diplomacy_weekly = yes
+	spain_reconstruction_weekly = yes
+	spain_coup_check = yes
+}
+
+# =====================================================================================
+# Variable upkeep
+# =====================================================================================
+
+spain_clamp_campaign_variables = {
+	clamp_variable = { var = spain_military_loyalty min = constant:spain_campaign.loyalty_floor max = constant:spain_campaign.loyalty_cap }
+	clamp_variable = { var = spain_coup_pressure min = constant:spain_campaign.loyalty_floor max = constant:spain_campaign.coup_cap }
+	clamp_variable = { var = spain_industry min = 0 max = constant:spain_campaign.development_cap }
+	clamp_variable = { var = spain_agriculture min = 0 max = constant:spain_campaign.development_cap }
+	clamp_variable = { var = spain_infrastructure min = 0 max = constant:spain_campaign.development_cap }
+	clamp_variable = { var = spain_education min = 0 max = constant:spain_campaign.development_cap }
+	clamp_variable = { var = spain_catalan_autonomy min = 0 max = constant:spain_campaign.autonomy_cap }
+	clamp_variable = { var = spain_basque_autonomy min = 0 max = constant:spain_campaign.autonomy_cap }
+	clamp_variable = { var = spain_falange min = 0 max = constant:spain_campaign.faction_cap }
+	clamp_variable = { var = spain_carlists min = 0 max = constant:spain_campaign.faction_cap }
+	clamp_variable = { var = spain_monarchists min = 0 max = constant:spain_campaign.faction_cap }
+	clamp_variable = { var = spain_army_faction min = 0 max = constant:spain_campaign.faction_cap }
+	clamp_variable = { var = spain_nationalist_tension min = 0 max = constant:spain_campaign.faction_cap }
+	clamp_variable = { var = spain_axis_leverage min = 0 max = constant:spain_campaign.leverage_cap }
+	clamp_variable = { var = spain_allied_leverage min = 0 max = constant:spain_campaign.leverage_cap }
+	clamp_variable = { var = spain_rif_commitment min = 0 max = constant:spain_campaign.rif_cap }
+	clamp_variable = { var = spain_reconstruction min = 0 max = constant:spain_campaign.reconstruction_complete }
+}
+
+spain_refresh_campaign_ideas = {
+	spain_sync_officer_ideas = yes
+	spain_sync_development_tiers = yes
+	spain_sync_autonomy_ideas = yes
+}
+
+spain_sync_officer_ideas = {
+	if = {
+		limit = { spain_loyalty_high = yes }
+		if = { limit = { has_idea = spain_officer_corps_restive } remove_ideas = spain_officer_corps_restive }
+		if = { limit = { has_idea = spain_officer_corps_estranged } remove_ideas = spain_officer_corps_estranged }
+		add_ideas = spain_officer_corps_loyal
+	}
+	else_if = {
+		limit = { spain_loyalty_low = yes }
+		if = { limit = { has_idea = spain_officer_corps_loyal } remove_ideas = spain_officer_corps_loyal }
+		if = { limit = { has_idea = spain_officer_corps_restive } remove_ideas = spain_officer_corps_restive }
+		add_ideas = spain_officer_corps_estranged
+	}
+	else = {
+		if = { limit = { has_idea = spain_officer_corps_loyal } remove_ideas = spain_officer_corps_loyal }
+		if = { limit = { has_idea = spain_officer_corps_estranged } remove_ideas = spain_officer_corps_estranged }
+		add_ideas = spain_officer_corps_restive
+	}
+}
+
+spain_sync_development_tiers = {
+	# Industry
+	if = {
+		limit = {
+			check_variable = { var = spain_industry value = constant:spain_campaign.tier_three compare = greater_than_or_equals }
+			NOT = { has_idea = spain_industry_tier_3 }
+		}
+		if = { limit = { has_idea = spain_industry_tier_1 } remove_ideas = spain_industry_tier_1 }
+		if = { limit = { has_idea = spain_industry_tier_2 } remove_ideas = spain_industry_tier_2 }
+		add_ideas = spain_industry_tier_3
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_industry value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+			NOT = { has_idea = spain_industry_tier_2 }
+		}
+		if = { limit = { has_idea = spain_industry_tier_1 } remove_ideas = spain_industry_tier_1 }
+		if = { limit = { has_idea = spain_industry_tier_3 } remove_ideas = spain_industry_tier_3 }
+		add_ideas = spain_industry_tier_2
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_industry value = constant:spain_campaign.tier_one compare = greater_than_or_equals }
+			NOT = { has_idea = spain_industry_tier_1 }
+		}
+		if = { limit = { has_idea = spain_industry_tier_2 } remove_ideas = spain_industry_tier_2 }
+		if = { limit = { has_idea = spain_industry_tier_3 } remove_ideas = spain_industry_tier_3 }
+		add_ideas = spain_industry_tier_1
+	}
+
+	# Agriculture
+	if = {
+		limit = {
+			check_variable = { var = spain_agriculture value = constant:spain_campaign.tier_three compare = greater_than_or_equals }
+			NOT = { has_idea = spain_agriculture_tier_3 }
+		}
+		if = { limit = { has_idea = spain_agriculture_tier_1 } remove_ideas = spain_agriculture_tier_1 }
+		if = { limit = { has_idea = spain_agriculture_tier_2 } remove_ideas = spain_agriculture_tier_2 }
+		add_ideas = spain_agriculture_tier_3
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_agriculture value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+			NOT = { has_idea = spain_agriculture_tier_2 }
+		}
+		if = { limit = { has_idea = spain_agriculture_tier_1 } remove_ideas = spain_agriculture_tier_1 }
+		if = { limit = { has_idea = spain_agriculture_tier_3 } remove_ideas = spain_agriculture_tier_3 }
+		add_ideas = spain_agriculture_tier_2
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_agriculture value = constant:spain_campaign.tier_one compare = greater_than_or_equals }
+			NOT = { has_idea = spain_agriculture_tier_1 }
+		}
+		if = { limit = { has_idea = spain_agriculture_tier_2 } remove_ideas = spain_agriculture_tier_2 }
+		if = { limit = { has_idea = spain_agriculture_tier_3 } remove_ideas = spain_agriculture_tier_3 }
+		add_ideas = spain_agriculture_tier_1
+	}
+
+	# Infrastructure
+	if = {
+		limit = {
+			check_variable = { var = spain_infrastructure value = constant:spain_campaign.tier_three compare = greater_than_or_equals }
+			NOT = { has_idea = spain_infrastructure_tier_3 }
+		}
+		if = { limit = { has_idea = spain_infrastructure_tier_1 } remove_ideas = spain_infrastructure_tier_1 }
+		if = { limit = { has_idea = spain_infrastructure_tier_2 } remove_ideas = spain_infrastructure_tier_2 }
+		add_ideas = spain_infrastructure_tier_3
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_infrastructure value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+			NOT = { has_idea = spain_infrastructure_tier_2 }
+		}
+		if = { limit = { has_idea = spain_infrastructure_tier_1 } remove_ideas = spain_infrastructure_tier_1 }
+		if = { limit = { has_idea = spain_infrastructure_tier_3 } remove_ideas = spain_infrastructure_tier_3 }
+		add_ideas = spain_infrastructure_tier_2
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_infrastructure value = constant:spain_campaign.tier_one compare = greater_than_or_equals }
+			NOT = { has_idea = spain_infrastructure_tier_1 }
+		}
+		if = { limit = { has_idea = spain_infrastructure_tier_2 } remove_ideas = spain_infrastructure_tier_2 }
+		if = { limit = { has_idea = spain_infrastructure_tier_3 } remove_ideas = spain_infrastructure_tier_3 }
+		add_ideas = spain_infrastructure_tier_1
+	}
+
+	# Education
+	if = {
+		limit = {
+			check_variable = { var = spain_education value = constant:spain_campaign.tier_three compare = greater_than_or_equals }
+			NOT = { has_idea = spain_education_tier_3 }
+		}
+		if = { limit = { has_idea = spain_education_tier_1 } remove_ideas = spain_education_tier_1 }
+		if = { limit = { has_idea = spain_education_tier_2 } remove_ideas = spain_education_tier_2 }
+		add_ideas = spain_education_tier_3
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_education value = constant:spain_campaign.tier_two compare = greater_than_or_equals }
+			NOT = { has_idea = spain_education_tier_2 }
+		}
+		if = { limit = { has_idea = spain_education_tier_1 } remove_ideas = spain_education_tier_1 }
+		if = { limit = { has_idea = spain_education_tier_3 } remove_ideas = spain_education_tier_3 }
+		add_ideas = spain_education_tier_2
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = spain_education value = constant:spain_campaign.tier_one compare = greater_than_or_equals }
+			NOT = { has_idea = spain_education_tier_1 }
+		}
+		if = { limit = { has_idea = spain_education_tier_2 } remove_ideas = spain_education_tier_2 }
+		if = { limit = { has_idea = spain_education_tier_3 } remove_ideas = spain_education_tier_3 }
+		add_ideas = spain_education_tier_1
+	}
+}
+
+spain_sync_autonomy_ideas = {
+	if = {
+		limit = { spain_catalan_statute_granted = yes }
+		add_ideas = spain_catalan_statute
+	}
+	else_if = {
+		limit = { has_idea = spain_catalan_statute }
+		remove_ideas = spain_catalan_statute
+	}
+
+	if = {
+		limit = { spain_basque_statute_granted = yes }
+		add_ideas = spain_basque_statute
+	}
+	else_if = {
+		limit = { has_idea = spain_basque_statute }
+		remove_ideas = spain_basque_statute
+	}
+}
+
+# =====================================================================================
+# Officer corps and coups
+# =====================================================================================
+
+spain_loyalty_gain_small = {
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain_small }
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief }
+}
+
+spain_loyalty_gain = {
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain }
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief_large }
+}
+
+spain_loyalty_gain_large = {
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain_large }
+	set_variable = { var = spain_coup_pressure value = 0 }
+}
+
+spain_loyalty_loss_small = {
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loss_small }
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_gain }
+}
+
+spain_loyalty_loss = {
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loss }
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_gain_fast }
+}
+
+spain_loyalty_loss_large = {
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loss_large }
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_gain_fast }
+}
+
+spain_coup_check = {
+	if = {
+		limit = {
+			spain_coup_risk = yes
+			NOT = { has_country_flag = spain_coup_in_progress }
+		}
+		set_country_flag = spain_coup_in_progress
+		random_list = {
+			60 = {
+				modifier = {
+					factor = 1.50
+					check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_collapse compare = greater_than_or_equals }
+				}
+				modifier = {
+					factor = 0.60
+					spain_loyalty_high = yes
+				}
+				country_event = { id = spain_campaign.40 days = 2 }
+			}
+			40 = {
+				modifier = {
+					factor = 1.50
+					check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = less_than }
+				}
+				clr_country_flag = spain_coup_in_progress
+				add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief }
+			}
+		}
+	}
+}
+
+spain_coup_outcome_dictatorship = {
+	clr_country_flag = spain_coup_in_progress
+	set_variable = { var = spain_coup_pressure value = 0 }
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain_large }
+}
+
+spain_coup_outcome_failed = {
+	clr_country_flag = spain_coup_in_progress
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief_large }
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loss }
+}
+
+spain_coup_outcome_conceded = {
+	clr_country_flag = spain_coup_in_progress
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain }
+	set_variable = { var = spain_coup_pressure value = 0 }
+}
+
+# =====================================================================================
+# Crown against Cortes
+# =====================================================================================
+
+spain_push_crown_small = {
+	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_crown_nudge_small }
+}
+
+spain_push_crown = {
+	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_crown_nudge }
+}
+
+spain_push_crown_large = {
+	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_crown_nudge_large }
+}
+
+spain_push_cortes_small = {
+	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_cortes_nudge_small }
+}
+
+spain_push_cortes = {
+	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_cortes_nudge }
+}
+
+spain_push_cortes_large = {
+	add_power_balance_value = { id = SPR_crown_and_cortes value = constant:spain_campaign.bop_cortes_nudge_large }
+}
+
+# =====================================================================================
+# Regional control during the civil war
+# =====================================================================================
+
+spain_refresh_regional_control = {
+	# Catalonia
+	if = {
+		limit = { OR = { controls_state = 165 } }
+		if = { limit = { NOT = { has_country_flag = spain_controls_catalonia } } set_country_flag = spain_controls_catalonia add_ideas = spain_holds_catalan_industry }
+	}
+	else_if = {
+		limit = { has_country_flag = spain_controls_catalonia }
+		clr_country_flag = spain_controls_catalonia
+		if = { limit = { has_idea = spain_holds_catalan_industry } remove_ideas = spain_holds_catalan_industry }
+	}
+
+	# The Cantabrian north: Asturias, Leon, Galicia, Navarre, the Basque Country
+	if = {
+		limit = { OR = { controls_state = 173 controls_state = 790 controls_state = 171 controls_state = 792 } }
+		if = { limit = { NOT = { has_country_flag = spain_controls_north } } set_country_flag = spain_controls_north add_ideas = spain_holds_basque_steel }
+	}
+	else_if = {
+		limit = { has_country_flag = spain_controls_north }
+		clr_country_flag = spain_controls_north
+		if = { limit = { has_idea = spain_holds_basque_steel } remove_ideas = spain_holds_basque_steel }
+	}
+
+	# Aragon
+	if = {
+		limit = { OR = { controls_state = 166 controls_state = 794 } }
+		if = { limit = { NOT = { has_country_flag = spain_controls_aragon } } set_country_flag = spain_controls_aragon add_ideas = spain_holds_aragon }
+	}
+	else_if = {
+		limit = { has_country_flag = spain_controls_aragon }
+		clr_country_flag = spain_controls_aragon
+		if = { limit = { has_idea = spain_holds_aragon } remove_ideas = spain_holds_aragon }
+	}
+
+	# The Levante: Valencia, Murcia, the Balearics
+	if = {
+		limit = { OR = { controls_state = 167 controls_state = 168 controls_state = 177 } }
+		if = { limit = { NOT = { has_country_flag = spain_controls_levante } } set_country_flag = spain_controls_levante add_ideas = spain_holds_levantine_ports }
+	}
+	else_if = {
+		limit = { has_country_flag = spain_controls_levante }
+		clr_country_flag = spain_controls_levante
+		if = { limit = { has_idea = spain_holds_levantine_ports } remove_ideas = spain_holds_levantine_ports }
+	}
+
+	# Andalusia and Cordoba
+	if = {
+		limit = { OR = { controls_state = 169 controls_state = 789 } }
+		if = { limit = { NOT = { has_country_flag = spain_controls_andalusia } } set_country_flag = spain_controls_andalusia add_ideas = spain_holds_andalusian_manpower }
+	}
+	else_if = {
+		limit = { has_country_flag = spain_controls_andalusia }
+		clr_country_flag = spain_controls_andalusia
+		if = { limit = { has_idea = spain_holds_andalusian_manpower } remove_ideas = spain_holds_andalusian_manpower }
+	}
+
+	# The Meseta and the approaches to Madrid
+	if = {
+		limit = { OR = { controls_state = 41 controls_state = 176 controls_state = 791 controls_state = 788 } }
+		if = { limit = { NOT = { has_country_flag = spain_controls_meseta } } set_country_flag = spain_controls_meseta add_ideas = spain_holds_madrid_approaches }
+	}
+	else_if = {
+		limit = { has_country_flag = spain_controls_meseta }
+		clr_country_flag = spain_controls_meseta
+		if = { limit = { has_idea = spain_holds_madrid_approaches } remove_ideas = spain_holds_madrid_approaches }
+	}
+
+	# Spanish Morocco and the African garrisons
+	if = {
+		limit = { OR = { controls_state = 290 controls_state = 1000 } }
+		if = { limit = { NOT = { has_country_flag = spain_controls_africa } } set_country_flag = spain_controls_africa add_ideas = spain_holds_african_army }
+	}
+	else_if = {
+		limit = { has_country_flag = spain_controls_africa }
+		clr_country_flag = spain_controls_africa
+		if = { limit = { has_idea = spain_holds_african_army } remove_ideas = spain_holds_african_army }
+	}
+}
+
+# =====================================================================================
+# Nationalist faction struggle
+# =====================================================================================
+
+spain_refresh_faction_leadership = {
+	clr_country_flag = spain_faction_falange_leads
+	clr_country_flag = spain_faction_carlists_lead
+	clr_country_flag = spain_faction_monarchists_lead
+	clr_country_flag = spain_faction_army_leads
+
+	# The camp is contested when several factions can each claim a share of the movement,
+	# so tension rises with the number of factions strong enough to be heard.
+	set_variable = { var = spain_nationalist_tension value = 0 }
+	if = { limit = { has_country_flag = spain_factions_opened } add_to_variable = { var = spain_nationalist_tension value = 5 } }
+	if = { limit = { spain_civil_war_active = yes } add_to_variable = { var = spain_nationalist_tension value = 15 } }
+	if = { limit = { spain_post_civil_war = yes } add_to_variable = { var = spain_nationalist_tension value = 10 } }
+
+	if = {
+		limit = { check_variable = { var = spain_falange value = 50 compare = greater_than_or_equals } }
+		add_to_variable = { var = spain_nationalist_tension value = 10 }
+	}
+	if = {
+		limit = { check_variable = { var = spain_carlists value = 50 compare = greater_than_or_equals } }
+		add_to_variable = { var = spain_nationalist_tension value = 10 }
+	}
+	if = {
+		limit = { check_variable = { var = spain_monarchists value = 50 compare = greater_than_or_equals } }
+		add_to_variable = { var = spain_nationalist_tension value = 10 }
+	}
+	if = {
+		limit = { check_variable = { var = spain_army_faction value = 50 compare = greater_than_or_equals } }
+		add_to_variable = { var = spain_nationalist_tension value = 10 }
+	}
+
+	if = {
+		limit = { check_variable = { var = spain_falange value = 30 compare = greater_than_or_equals } }
+		set_country_flag = spain_faction_falange_leads
+	}
+	if = {
+		limit = { check_variable = { var = spain_carlists value = 30 compare = greater_than_or_equals } }
+		set_country_flag = spain_faction_carlists_lead
+	}
+	if = {
+		limit = { check_variable = { var = spain_monarchists value = 30 compare = greater_than_or_equals } }
+		set_country_flag = spain_faction_monarchists_lead
+	}
+	if = {
+		limit = { check_variable = { var = spain_army_faction value = 30 compare = greater_than_or_equals } }
+		set_country_flag = spain_faction_army_leads
+	}
+
+	if = {
+		limit = {
+			spain_nationalist_tension_high = yes
+			NOT = { has_country_flag = spain_faction_crisis_fired }
+			OR = { has_global_flag = spanish_civil_war has_global_flag = scw_over }
+		}
+		set_country_flag = spain_faction_crisis_fired
+		country_event = { id = spain_campaign.50 days = 3 }
+	}
+}
+
+# Called from the resolution event. The strongest influence takes the state, and the army
+# keeps it when no civilian faction can outbid the others.
+spain_faction_resolve_regime = {
+	if = { limit = { has_idea = spain_falangist_state } remove_ideas = spain_falangist_state }
+	if = { limit = { has_idea = spain_carlist_state } remove_ideas = spain_carlist_state }
+	if = { limit = { has_idea = spain_monarchist_state } remove_ideas = spain_monarchist_state }
+	if = { limit = { has_idea = spain_military_directorate } remove_ideas = spain_military_directorate }
+
+	set_variable = { var = spain_regime_leader value = 4 }
+
+	if = {
+		limit = {
+			check_variable = { spain_falange > spain_carlists }
+			check_variable = { spain_falange > spain_monarchists }
+			check_variable = { spain_falange > spain_army_faction }
+		}
+		set_variable = { var = spain_regime_leader value = 1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { spain_carlists > spain_falange }
+			check_variable = { spain_carlists > spain_monarchists }
+			check_variable = { spain_carlists > spain_army_faction }
+		}
+		set_variable = { var = spain_regime_leader value = 2 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { spain_monarchists > spain_falange }
+			check_variable = { spain_monarchists > spain_carlists }
+			check_variable = { spain_monarchists > spain_army_faction }
+		}
+		set_variable = { var = spain_regime_leader value = 3 }
+	}
+
+	if = { limit = { check_variable = { var = spain_regime_leader value = 1 compare = equals } } add_ideas = spain_falangist_state }
+	else_if = { limit = { check_variable = { var = spain_regime_leader value = 2 compare = equals } } add_ideas = spain_carlist_state }
+	else_if = { limit = { check_variable = { var = spain_regime_leader value = 3 compare = equals } } add_ideas = spain_monarchist_state }
+	else = { add_ideas = spain_military_directorate }
+}
+
+# =====================================================================================
+# Wartime diplomacy
+# =====================================================================================
+
+spain_diplomacy_weekly = {
+	if = {
+		limit = { spain_post_civil_war = yes }
+		# Trade and pressure decide which bloc can lean on Spain at all.
+		if = {
+			limit = { has_idea = spain_axis_alignment }
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_gain }
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+		}
+		if = {
+			limit = { has_idea = spain_allied_alignment }
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+		}
+		if = {
+			limit = { has_idea = spain_armed_neutrality }
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+		}
+		# A Spain that has aligned with nobody drifts towards whichever bloc is at war next door.
+		if = {
+			limit = {
+				NOT = { has_idea = spain_axis_alignment }
+				NOT = { has_idea = spain_allied_alignment }
+				NOT = { has_idea = spain_armed_neutrality }
+			}
+			if = {
+				limit = { country_exists = GER GER = { has_war = yes } }
+				add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_gain }
+			}
+			if = {
+				limit = { country_exists = ENG ENG = { has_war = yes } }
+				add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			}
+		}
+	}
+}
+
+# =====================================================================================
+# Reconstruction
+# =====================================================================================
+
+spain_reconstruction_weekly = {
+	if = {
+		limit = { spain_post_civil_war = yes }
+		if = {
+			limit = {
+				check_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_complete compare = less_than }
+				has_country_flag = spain_reconstruction_programme
+			}
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+		}
+		if = {
+			limit = {
+				spain_reconstruction_complete = yes
+				has_idea = spain_civil_war_reconstruction
+			}
+			remove_ideas = spain_civil_war_reconstruction
+			add_ideas = spain_reconstruction_advanced
+		}
+	}
+}
