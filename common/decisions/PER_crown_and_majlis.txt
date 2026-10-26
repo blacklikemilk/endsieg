@@ -1,5 +1,9 @@
 # The Crown and the Majlis - the decisions that move Persia's balance of power.
-# Each one answers the same question: does the country belong to the Shah or to the Majlis?
+# Four standing decisions answer the question: does the country belong to the Shah or to the Majlis?
+# The yearly budget vote is the mission that tests the answer. Foreign agreements, settlements, the coup
+# decisions and the political focuses move the balance too; see docs/systems/crown_and_majlis.md.
+
+@budget_cooldown_days = 365
 
 PER_crown_and_majlis_category = {
 
@@ -15,54 +19,16 @@ PER_crown_and_majlis_category = {
 			PER_bop_push_crown = yes
 			add_political_power = 10
 		}
-		ai_will_do = { factor = 3 }
+		ai_will_do = {
+			factor = 2
+			modifier = { factor = 3 date > 1921.2.20 NOT = { iran_path_majlis = yes } }
+			modifier = { factor = 0 has_country_flag = iran_qajar_restoration }
+			modifier = { factor = 0 has_country_flag = iran_constitutional_monarchy }
+		}
 	}
 
-	PER_bop_court_the_notables = {
-		priority = 90
-		icon = GFX_decision_generic_fundraising
-		allowed = { original_tag = PER }
-		visible = { always = yes }
-		available = { always = yes }
-		cost = 25
-		days_re_enable = 90
-		complete_effect = {
-			PER_bop_push_crown_small = yes
-			add_stability = 0.02
-		}
-		ai_will_do = { factor = 2 }
-	}
 
-	PER_bop_royal_tour_of_the_provinces = {
-		priority = 85
-		icon = GFX_decision_generic_civil_support
-		allowed = { original_tag = PER }
-		visible = { always = yes }
-		available = { always = yes }
-		cost = 40
-		days_re_enable = 150
-		complete_effect = {
-			PER_bop_push_crown_small = yes
-			add_war_support = 0.02
-		}
-		ai_will_do = { factor = 2 }
-	}
 
-	PER_bop_rule_by_decree = {
-		priority = 110
-		icon = GFX_decision_generic_arrest
-		allowed = { original_tag = PER }
-		visible = { power_balance_value = { id = PER_crown_and_majlis value < -0.30 } }
-		available = { NOT = { power_balance_value = { id = PER_crown_and_majlis value < -0.95 } } }
-		cost = 75
-		days_re_enable = 180
-		complete_effect = {
-			PER_bop_push_crown = yes
-			add_stability = -0.05
-			add_political_power = 25
-		}
-		ai_will_do = { factor = 4 }
-	}
 
 	PER_bop_convene_the_majlis = {
 		priority = 100
@@ -76,53 +42,16 @@ PER_crown_and_majlis_category = {
 			PER_bop_push_majlis = yes
 			add_political_power = 10
 		}
-		ai_will_do = { factor = 3 }
+		ai_will_do = {
+			factor = 2
+			modifier = { factor = 3 iran_path_majlis = yes }
+			modifier = { factor = 2 has_country_flag = PER_majlis_resurgence }
+			modifier = { factor = 0.3 date > 1921.2.20 has_country_flag = iran_cossack_ascendant }
+		}
 	}
 
-	PER_bop_pass_the_budget = {
-		priority = 95
-		icon = GFX_decision_generic_fundraising
-		allowed = { original_tag = PER }
-		visible = { always = yes }
-		available = { power_balance_value = { id = PER_crown_and_majlis value > -0.70 } }
-		cost = 60
-		days_re_enable = 150
-		complete_effect = {
-			PER_bop_push_majlis = yes
-			add_political_power = 25
-		}
-		ai_will_do = { factor = 3 }
-	}
 
-	PER_bop_empower_the_anjomans = {
-		priority = 90
-		icon = GFX_decision_generic_civil_support
-		allowed = { original_tag = PER }
-		visible = { always = yes }
-		available = { always = yes }
-		cost = 75
-		days_re_enable = 180
-		complete_effect = {
-			PER_bop_push_majlis_small = yes
-			add_stability = 0.03
-		}
-		ai_will_do = { factor = 2 }
-	}
 
-	PER_bop_press_freedom = {
-		priority = 80
-		icon = GFX_decision_generic_speech
-		allowed = { original_tag = PER }
-		visible = { always = yes }
-		available = { always = yes }
-		cost = 40
-		days_re_enable = 120
-		complete_effect = {
-			PER_bop_push_majlis_small = yes
-			add_stability = 0.02
-		}
-		ai_will_do = { factor = 2 }
-	}
 
 	PER_bop_negotiate_the_settlement = {
 		priority = 120
@@ -136,7 +65,11 @@ PER_crown_and_majlis_category = {
 			PER_bop_pull_to_centre = yes
 			add_political_power = 25
 		}
-		ai_will_do = { factor = 4 }
+		ai_will_do = {
+			factor = 3
+			modifier = { factor = 3 has_country_flag = iran_qajar_restoration }
+			modifier = { factor = 3 has_country_flag = iran_constitutional_monarchy }
+		}
 	}
 
 	PER_bop_ratify_the_fundamental_laws = {
@@ -153,5 +86,39 @@ PER_crown_and_majlis_category = {
 			add_political_power = 40
 		}
 		ai_will_do = { factor = 5 }
+	}
+
+	# The yearly test of the balance. The deputies pass the budget only if the state can collect what it
+	# votes and the Court is not governing alone; otherwise the vote collapses into a constitutional crisis.
+	PER_bop_budget_vote = {
+		priority = 140
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = PER }
+		visible = {
+			has_power_balance = { id = PER_crown_and_majlis }
+			NOT = { has_country_flag = PER_bop_budget_cooldown }
+		}
+		activation = {
+			has_power_balance = { id = PER_crown_and_majlis }
+			NOT = { has_country_flag = PER_bop_budget_cooldown }
+			date > 1910.1.1
+		}
+		available = {
+			check_variable = { var = iran_authority value = constant:iran_story.bop_budget_authority compare = greater_than_or_equals }
+			power_balance_value = { id = PER_crown_and_majlis value > -0.40 }
+		}
+		is_good = yes
+		days_mission_timeout = 150
+		complete_effect = {
+			set_country_flag = { flag = PER_bop_budget_cooldown days = @budget_cooldown_days }
+			PER_bop_push_majlis_small = yes
+			add_political_power = constant:iran_story.bop_budget_reward
+			add_stability = constant:iran_story.stability_gain
+		}
+		timeout_effect = {
+			set_country_flag = { flag = PER_bop_budget_cooldown days = @budget_cooldown_days }
+			country_event = { id = iran_campaign.78 }
+		}
+		ai_will_do = { factor = 10 }
 	}
 }

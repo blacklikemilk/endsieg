@@ -32,12 +32,28 @@ iran_coup_tick = {
 			NOT = { has_country_flag = iran_regime_settled }
 		}
 		if = {
-			limit = { has_country_flag = iran_cossack_ascendant }
+			limit = {
+				OR = {
+					has_country_flag = iran_cossack_ascendant
+					AND = {
+						has_power_balance = { id = PER_crown_and_majlis }
+						power_balance_value = { id = PER_crown_and_majlis value < -0.40 }
+					}
+				}
+			}
 			add_to_variable = { iran_reza_influence = constant:iran_story.reza_drift }
 		}
 		else_if = {
 			# a sitting Majlis keeps him in check, but only while it sits
-			limit = { iran_path_majlis = yes }
+			limit = {
+				OR = {
+					iran_path_majlis = yes
+					AND = {
+						has_power_balance = { id = PER_crown_and_majlis }
+						power_balance_value = { id = PER_crown_and_majlis value > 0.10 }
+					}
+				}
+			}
 			subtract_from_variable = { iran_reza_influence = constant:iran_story.reza_drift }
 		}
 		iran_coup_clamp = yes
