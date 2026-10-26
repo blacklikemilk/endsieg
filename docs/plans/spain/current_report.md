@@ -87,7 +87,35 @@ Not performed: any in-game test. Hearts of Iron IV was not launched. The transit
 ## Known gaps
 
 - Custom Spanish focus, spirit, decision and balance-of-power art is not produced; everything reuses existing sprites. The exact sprite names and consumers are listed in `docs/spain_campaign.md`.
-- No scripted GUI for the Crown and Cortes panel or the regional control map.
+- The Crown/Cortes panel and the seated hemicycle now exist (`interface/endsieg_spain_cortes.gui`, `common/scripted_guis/spain_cortes_scripted_gui.txt`); their live repaint, party colours and frame mapping remain unverified in game.
+- No regional control map.
 - No achievements.
 - Sanjurjo, Companys, Durruti, Gil Robles and Miguel Primo de Rivera appear in text but have no character definitions or portraits.
 - Britain's and Germany's AI do not yet react specifically to Spanish leverage; the pressure exists on the Spanish side only.
+
+## 2026-10-26 — Cortes bill repair and campaign restart
+
+The current campaign brief re-opened Spain with the Cortes as Priority 1.
+A source audit of the negotiated bills found that `spain_bill_count_budget` and `spain_bill_count_army` added the Liberal benches to the supporting bloc through `spain_bill_add_liberals`, then added the same Liberal seats to `spain_bill_swing_votes` again while the Liberals sat outside the government.
+The budget and army concession options are gated on `spain_bill_swing_votes >= spain_bill_needed`, so the doubled count could offer a concession and pass a bill the chamber never actually carried.
+
+The repair removes the two Liberal base calls: the base is now the government bloc plus the genuine supporters, and the Liberal benches enter the swing total exactly once, only while they are outside the government bloc.
+`docs/spain_cortes_bills.md` now states the rule and carries four worked examples.
+Only `common/scripted_effects/spain_cortes_bills.txt` and `docs/spain_cortes_bills.md` changed; commit `21161e9d6`.
+
+Independent QA re-derived the arithmetic from the real script rather than the Developer's simulator:
+
+| Case | Base | Swing | Concession option |
+| --- | --- | --- | --- |
+| Budget, Liberals 60, Conservatives 30, government 100 | 130 | 190 | not offered |
+| Budget, Liberals 80, Conservatives 30, government 100 | 130 | 210 | offered |
+| Army, Liberals 60, Monarchists 20, Conservatives 15, Falange 5, government 100 | 140 | 200 | not offered |
+| Army, Liberals 60, Monarchists 40, Conservatives 30, Falange 20, government 100 | 190 | 250 | offered |
+
+QA also confirmed that the other four bill counts and the two intentional `add_stability` calls in the agrarian concession are byte-identical to HEAD, and ran `hoi4.source_lookup`, `hoi4.event_inspect` (lint and trace) and `hoi4.script_validate` on the changed file.
+No bill was brought and no option was clicked; no HOI4 launch was performed.
+
+Residual items, queued to the Cortes audit S1: the decision gate compares the base against the 161-seat floor, so the Liberal concession is only reachable at base 161-200; `common/decisions/spain_cortes.txt:14` and `:170-171` still describe the Liberals as backing the budget and army bills; the pre-existing committed BOM in `common/national_focus/spain_restoration.txt` remains.
+
+Campaign wave after the repair: S8 is designing the electoral law as a contestable bill against the corrected baseline; I0 is auditing Iran's repaired rewards read-only; C0 is reconciling the China master plan read-only.
+No premium model was invoked.
