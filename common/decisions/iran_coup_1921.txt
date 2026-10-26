@@ -1,0 +1,123 @@
+# Iran 1919-1925 - the Cossack question.
+#
+# Reza Khan's rise is not decided by one focus. The coup and the war ministry
+# carry him past iran_story.reza_threshold on their own, which is the historical
+# line; these decisions are how a player who wants a Qajar restoration, a
+# constitutional crown or a republic keeps him underneath it - at a real cost in
+# political power, stability and equipment, and never without a backlash.
+
+iran_coup_1921 = {
+
+	iran_court_the_officers = {
+		icon = GFX_decision_generic_army_support
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1918.12.31
+			date < 1925.12.15
+			NOT = { has_country_flag = iran_regime_settled }
+		}
+		available = { political_power > 74 }
+		cost = 75
+		days_remove = 30
+		days_re_enable = 90
+		complete_effect = {
+			add_to_variable = { iran_reza_influence = constant:iran_story.reza_court_gain }
+			subtract_from_variable = { iran_officer_loyalty = constant:iran_story.officer_loss }
+			iran_coup_clamp = yes
+			add_command_power = constant:iran_story.command_power
+		}
+		ai_will_do = {
+			factor = 2
+			modifier = { factor = 4 iran_path_army = yes }
+			modifier = { factor = 0 iran_path_majlis = yes }
+		}
+	}
+
+	iran_buy_the_brigade = {
+		icon = GFX_decision_generic_confiscation
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1918.12.31
+			date < 1925.12.15
+			NOT = { has_country_flag = iran_regime_settled }
+		}
+		available = { political_power > 99 }
+		cost = 100
+		days_remove = 45
+		days_re_enable = 120
+		complete_effect = {
+			subtract_from_variable = { iran_reza_influence = constant:iran_story.reza_brigade_loss }
+			add_to_variable = { iran_officer_loyalty = constant:iran_story.officer_gain }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			iran_coup_clamp = yes
+		}
+		ai_will_do = { factor = 3 modifier = { factor = 3 NOT = { iran_path_army = yes } } }
+	}
+
+	iran_majlis_motion_reza = {
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1918.12.31
+			date < 1925.12.15
+			NOT = { has_country_flag = iran_regime_settled }
+			iran_path_majlis = yes
+		}
+		available = { political_power > 99 has_stability > 0.30 }
+		cost = 100
+		days_remove = 60
+		days_re_enable = 150
+		complete_effect = {
+			subtract_from_variable = { iran_reza_influence = constant:iran_story.reza_majlis_loss }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			add_stability = constant:iran_story.stability_cost
+			iran_coup_clamp = yes
+		}
+		ai_will_do = { factor = 4 modifier = { factor = 0 iran_path_army = yes } }
+	}
+
+	iran_promote_reza_minister = {
+		icon = GFX_decision_generic_army_support
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1918.12.31
+			date < 1925.12.15
+			NOT = { has_country_flag = iran_regime_settled }
+			NOT = { has_country_flag = iran_reza_khan_minister }
+		}
+		available = { political_power > 74 }
+		cost = 75
+		fire_only_once = yes
+		complete_effect = {
+			add_to_variable = { iran_reza_influence = constant:iran_story.reza_minister_gain }
+			iran_coup_clamp = yes
+			set_country_flag = iran_reza_khan_minister
+			add_war_support = constant:iran_story.war_support_gain
+		}
+		ai_will_do = { factor = 5 modifier = { factor = 3 is_historical_focus_on = yes } }
+	}
+
+	iran_purge_the_cossacks = {
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1918.12.31
+			date < 1925.12.15
+			NOT = { has_country_flag = iran_regime_settled }
+		}
+		available = {
+			political_power > 149
+			check_variable = { var = iran_authority value = constant:iran_story.authority_reform compare = greater_than_or_equals }
+		}
+		cost = 150
+		fire_only_once = yes
+		complete_effect = {
+			subtract_from_variable = { iran_reza_influence = constant:iran_story.reza_purge_loss }
+			subtract_from_variable = { iran_officer_loyalty = constant:iran_story.officer_loss }
+			add_stability = constant:iran_story.stability_cost
+			add_political_power = constant:iran_story.political_cost
+			iran_coup_clamp = yes
+		}
+		ai_will_do = { factor = 1 modifier = { factor = 0 iran_path_army = yes } }
+	}
+}

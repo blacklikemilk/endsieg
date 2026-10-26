@@ -1,0 +1,45 @@
+# Iran 1919-1925 - the 1921 coup, treated as a contest rather than a single focus.
+#
+# iran_reza_influence (0-100) is Reza Khan's hold over the army and the court.
+# iran_officer_loyalty (0-100) is how far the officer corps answers to the crown
+# instead of to him. The historical settlement needs iran_story.reza_threshold
+# influence, which the coup and ministry focuses supply by themselves; a player
+# steering towards a Qajar or constitutional outcome has to spend decisions
+# holding him under it. Standing also drifts up on its own while the army path is
+# open, because inaction is what produced the historical coup.
+
+iran_coup_init = {
+	if = {
+		limit = { NOT = { has_variable = iran_reza_influence } }
+		set_variable = { iran_reza_influence = constant:iran_story.reza_open }
+	}
+	if = {
+		limit = { NOT = { has_variable = iran_officer_loyalty } }
+		set_variable = { iran_officer_loyalty = constant:iran_story.officer_loyalty_open }
+	}
+}
+
+iran_coup_clamp = {
+	clamp_variable = { var = iran_reza_influence min = 0 max = 100 }
+	clamp_variable = { var = iran_officer_loyalty min = 0 max = 100 }
+}
+
+iran_coup_tick = {
+	if = {
+		limit = {
+			date > 1918.12.31
+			date < 1925.12.15
+			NOT = { has_country_flag = iran_regime_settled }
+		}
+		if = {
+			limit = { has_country_flag = iran_cossack_ascendant }
+			add_to_variable = { iran_reza_influence = constant:iran_story.reza_drift }
+		}
+		else_if = {
+			# a sitting Majlis keeps him in check, but only while it sits
+			limit = { iran_path_majlis = yes }
+			subtract_from_variable = { iran_reza_influence = constant:iran_story.reza_drift }
+		}
+		iran_coup_clamp = yes
+	}
+}

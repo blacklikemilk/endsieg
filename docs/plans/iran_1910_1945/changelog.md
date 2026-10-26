@@ -3,6 +3,33 @@
 Newest batch first. This file records what was measured, what was changed, and what was
 deliberately *not* changed because it turned out not to be a defect.
 
+## Batch 3 — the 1921 coup becomes a contest, and six corrupted focus lines
+
+### Parser corruption (real defects, found by hand)
+
+Six focus blocks carried a spliced fragment of their own id where a key belongs, e.g.
+`prerequisite = { focus = IR2_command_and_cabinet }d_and_cabinet cost = @short`. A stray
+token there fails the parse. Repaired one in `iran_ww1.txt`, three in `iran_interwar.txt` and
+two in `iran_ww2.txt`; `tools/iran_audit.py` now flags the pattern so it cannot return quietly.
+
+### The coup
+
+Previously two focuses: take the coup, take the ministry, take the Pahlavi settlement. Now a
+measured contest with two variables, a monthly drift, five decisions and a threshold gate. Full
+write-up in `docs/systems/iran_coup_1921.md`.
+
+- `iran_reza_influence` (opens 25) and `iran_officer_loyalty` (opens 50), initialised in
+  `iran_initialize_campaign`, clamped after every change.
+- `iran_coup_tick` runs from a new `on_monthly_PER` hook — not the daily tick, or a monthly drift
+  would fire every day. `on_monthly_TAG` is vanilla-supported (`on_monthly_GER` etc.).
+- The historical focuses still reach the threshold on their own (25 + 30 + 20 = 75 against a
+  threshold of 60), so historical AI is unaffected.
+- Qajar, constitutional and republican players now have five decisions to hold him down, at real
+  cost in political power, stability and equipment.
+
+Validation: audit clean at 307 focuses / 141 events / 70 decisions / 0 unresolved sprites.
+Not yet played — the drift rate and the decision costs are reasoned, not tested.
+
 ## Batch 2 — the 1936 handover no longer flattens three regimes
 
 `iran_route_chapter` handed Iran to the DLC's `persian_focus_tree` in 1936 whenever the DLC was

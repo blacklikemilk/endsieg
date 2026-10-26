@@ -258,6 +258,11 @@ def check_style(paths: list[str], mod: str, problems: list[str]) -> None:
             continue
         text = strip_comments(read(path))
         rel = os.path.relpath(path, mod)
+        # a closing brace followed straight by a word means a bulk edit spliced a
+        # focus id fragment where a key belongs: `prerequisite = { ... }d_and_cabinet cost =`
+        for m in re.finditer(r"\}([A-Za-z_][A-Za-z0-9_]*)", text):
+            line = text[: m.start()].count(chr(10)) + 1
+            problems.append(f"{rel}:{line}: stray token '{m.group(1)}' spliced after a closing brace")
         for pat, msg in (
             (r">=|<=|<=", "compound comparison (>= / <=) is illegal"),
             (r"(?<![a-z_])(stability|war_support)\s*[<>]", "bare stability/war_support trigger (needs has_)"),
