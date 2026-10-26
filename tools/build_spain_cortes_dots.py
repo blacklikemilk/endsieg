@@ -1,8 +1,12 @@
-"""Generate the Cortes hemicycle seat dots.
+"""Generate the Cortes seat dot textures.
 
-Each dot is a 16x16 antialiased disc in a party colour, written as an uncompressed
-32-bit DDS (the format the engine reads for interface sprites). One extra dark dot
-is used for seats that no bloc holds, so the ring always reads as a full chamber.
+The chamber is drawn from one sprite strip: eight frames of a 16x16 disc, frame 0 the
+neutral seat and frames 1..7 the parties in chamber order. A dot's frame is a country
+variable, so the strip has to keep exactly the same party order as
+tools/build_spain_cortes_hemicycle.py, which is checked here when that module is importable.
+The single dots are still written because the legend swatch of each row uses its own sprite.
+
+Each texture is an uncompressed 32-bit DDS, the format the engine reads for interface sprites.
 
 Run from the mod root:
     python tools/build_spain_cortes_dots.py
@@ -19,8 +23,9 @@ from PIL import Image, ImageDraw
 
 SIZE = 16
 OUT = os.path.join("gfx", "interface", "endsieg_spain_dots")
+STRIP = "spain_cortes_seats.dds"
 
-# political order, left to right around the hemicycle
+# political order, left to right around the hemicycle; frame 0 is written separately
 PARTIES = [
     ("socialists", (186, 46, 42)),
     ("republicans", (58, 122, 84)),
@@ -28,9 +33,10 @@ PARTIES = [
     ("conservatives", (108, 118, 132)),
     ("monarchists", (52, 78, 140)),
     ("carlists", (214, 206, 188)),
-    ("falange", (28, 38, 66)),
-    ("empty", (46, 44, 40)),
+    ("falange", (48, 58, 108)),   # lifted off the dark panel background so its dots read
 ]
+
+EMPTY = ("empty", (46, 44, 40))
 
 
 def write_dds(img: Image.Image, path: str) -> None:
@@ -74,9 +80,34 @@ def disc(colour: tuple[int, int, int]) -> Image.Image:
     return big.resize((SIZE, SIZE), Image.LANCZOS)
 
 
+def check_order() -> None:
+    """Fail loudly if the strip order drifts from the order the chamber draws in."""
+    try:
+        from build_spain_cortes_hemicycle import PARTIES as chamber
+    except ImportError:
+        print("note: hemicycle module not importable, party order not cross-checked")
+        return
+    expected = [(name, None) for name, _colour in PARTIES]
+    found = [(name, None) for name, _label, _govt in chamber]
+    if [n for n, _ in expected] != [n for n, _ in found]:
+        raise SystemExit("party order differs from tools/build_spain_cortes_hemicycle.py: %s vs %s"
+                         % ([n for n, _ in expected], [n for n, _ in found]))
+    print("party order matches the chamber generator: %d parties" % len(PARTIES))
+
+
 def main() -> int:
+    check_order()
     os.makedirs(OUT, exist_ok=True)
-    for name, colour in PARTIES:
+
+    frames = [EMPTY] + PARTIES
+    strip = Image.new("RGBA", (SIZE * len(frames), SIZE), (0, 0, 0, 0))
+    for index, (_name, colour) in enumerate(frames):
+        strip.paste(disc(colour), (index * SIZE, 0))
+    write_dds(strip, os.path.join(OUT, STRIP))
+    print("wrote", os.path.join(OUT, STRIP), "%dx%d, %d frames"
+          % (strip.size[0], strip.size[1], len(frames)))
+
+    for name, colour in frames:
         path = os.path.join(OUT, "spain_cortes_dot_%s.dds" % name)
         write_dds(disc(colour), path)
         print("wrote", path)

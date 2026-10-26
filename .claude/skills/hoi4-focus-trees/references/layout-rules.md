@@ -16,6 +16,10 @@ Do not build unnecessary ladders, staircase shapes, repeated zigzags, or decorat
 
 Focus boxes must never overlap. Connector lines must not overlap each other, intersect each other, pass through a focus box, or cross an unrelated branch. Hidden focuses and continuous focuses must also be included in the overlap review.
 
+A mutually exclusive pair owns the ground beside it. The engine draws the exclusivity marker in the cell next to each of the two focuses, so an unrelated focus within one empty cell of either endpoint has its frame drawn under that marker, and the marker then reads as belonging to the wrong focus. A third option may sit between two mutually exclusive focuses only when it is itself part of the same exclusivity set; otherwise move it off that row or column, or place the exclusive pair adjacent to each other. This is a placement rule, not an icon problem: a wider icon does not excuse the collision, and a standard icon does not prevent it.
+
+Check it mechanically after every layout pass with `python tools/check_mutex_overlap.py --tree <tree_id>`. A hit names the pair, both coordinates and the focus drawn between them; a clean run is the evidence that the row is placed correctly. Pass `--file <path>` when the tree id is not what the file declares. Vanilla content trips the same rule in places, so review the mod's own trees rather than treating a global hit count as a defect count.
+
 Use the MCP focus tools to find layout deformities before rewriting. `hoi4.focus_inspect` and `hoi4.focus_render` report overlapping focus boxes, excessive gaps, cramped spacing, connector crossings, path lines that run through focuses or stretch too far, dangling connectors, bad prerequisite presentation, unbalanced branches, off-center layouts, and related diagnostics. Review the artifacts, then call `hoi4.focus_rewrite` with `layoutMode: "compact"` for cleanup or a complete route plan for creation. Review the rewritten artifacts and source diff. MCP supplies shared parsing, layout, rendering, and writes. This skill owns design, prerequisites, localisation, AI, icons, balance, and completion.
 
 Reward-only changes that deliberately preserve layout use inspect, render, and comparison evidence; they do not need an automatic layout rewrite. An invalid or empty identity-preserving rewrite request is a precise schema failure, not authority to invoke compact or automatic layout outside the requested scope. Inspect the actual schema and correct the request only within accepted scope. If the required identity-preserving operation is unavailable, report that blocker and stop writes. Capture an immutable before snapshot, preserve accepted non-layout edits, and roll back only proven tool-generated drift through normal `apply_patch`, recording rejected and restored evidence. Compare focus IDs, count, coordinates, and prerequisites, and distinguish `HEAD` from the dirty index before accepting the result.
@@ -43,6 +47,7 @@ Required layout checks:
 - visible connectors agree with the scripted prerequisite structure
 - route families remain balanced, symmetrical, and centered
 - mutually exclusive branches are spaced comfortably and presented as a clear split
+- no unrelated focus sits within one cell of a mutually exclusive endpoint, where its frame would fall under the exclusivity marker
 - branches are visually distinct without relying on awkward geometry
 - continuous focuses are placed somewhere convenient without distorting the main tree
 - hidden branches do not clutter ordinary routes

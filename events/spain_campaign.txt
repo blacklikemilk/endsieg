@@ -64,6 +64,51 @@ country_event = {
 }
 
 # =====================================================================================
+# The Rif outgrows the state
+# =====================================================================================
+
+# Fired once by spain_rif_exhaustion_check when spain_rif_commitment reaches the exhaustion
+# band. The three options are the three ways a cabinet can answer a colonial war it has paid for
+# too long: send more, buy the tribes off, or dig in and admit the cost.
+country_event = {
+	id = spain_campaign.13
+	title = spain_campaign.13.t
+	desc = spain_campaign.13.d
+	picture = GFX_report_event_army_border
+	is_triggered_only = yes
+
+	option = {
+		name = spain_campaign.13.a
+		ai_chance = { base = 50 }
+		add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_gain }
+		add_war_support = constant:spain_campaign.war_support_small
+		add_manpower = constant:spain_campaign.manpower_cost
+		spain_loyalty_gain_small = yes
+		spain_refresh_campaign_ideas = yes
+	}
+
+	option = {
+		name = spain_campaign.13.b
+		ai_chance = { base = 25 }
+		add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_loss }
+		add_stability = constant:spain_campaign.stability_small
+		add_war_support = constant:spain_campaign.war_support_cost
+		add_political_power = constant:spain_campaign.pp_medium
+		spain_loyalty_loss_small = yes
+		set_country_flag = spain_rif_bought_off
+	}
+
+	option = {
+		name = spain_campaign.13.c
+		ai_chance = { base = 25 }
+		if = { limit = { NOT = { has_idea = spain_rif_quagmire } } add_ideas = spain_rif_quagmire }
+		spain_loyalty_gain = yes
+		add_stability = constant:spain_campaign.stability_cost
+		spain_refresh_campaign_ideas = yes
+	}
+}
+
+# =====================================================================================
 # 1925 - the landing at Alhucemas
 # =====================================================================================
 
@@ -127,6 +172,14 @@ country_event = {
 		ai_chance = { base = 80 }
 		spain_enter_republic_chapter = yes
 		add_stability = constant:spain_campaign.stability_small
+		# A dictatorship that ended in its own collapse hands the Republic a readier army and a
+		# more impatient officer corps than one that was voted out.
+		if = {
+			limit = { has_country_flag = spain_restoration_collapsing }
+			add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain_small }
+			add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_gain }
+			custom_effect_tooltip = spain_restoration_collapsing_tt
+		}
 	}
 
 	option = {
@@ -331,14 +384,14 @@ country_event = {
 		name = spain_campaign.50.a
 		ai_chance = { base = 60 }
 		spain_faction_resolve_regime = yes
-		set_variable = { var = spain_nationalist_tension value = 0 }
+		set_variable = { var = spain_nationalist_tension_carried value = 0 }
 		add_stability = constant:spain_campaign.stability_small
 	}
 
 	option = {
 		name = spain_campaign.50.b
 		ai_chance = { base = 25 }
-		subtract_from_variable = { var = spain_nationalist_tension value = 10 }
+		subtract_from_variable = { var = spain_nationalist_tension_carried value = 10 }
 		add_stability = constant:spain_campaign.stability_cost
 		add_political_power = constant:spain_campaign.pp_medium
 	}
@@ -511,7 +564,7 @@ country_event = {
 		name = spain_campaign.70.a
 		ai_chance = { base = 60 }
 		set_country_flag = spain_republican_pact
-		add_to_variable = { var = spain_nationalist_tension value = 5 }
+		add_to_variable = { var = spain_nationalist_tension_carried value = 5 }
 		add_political_power = constant:spain_campaign.pp_medium
 		custom_effect_tooltip = spain_campaign.70.a.tt
 	}

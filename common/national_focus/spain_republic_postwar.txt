@@ -43,6 +43,8 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = constant:spain_campaign.pp_medium
 			add_stability = constant:spain_campaign.stability_small
+			add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain }
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
 			set_country_flag = spain_republic_consolidated
 			custom_effect_tooltip = spain_republic_consolidated_tt
 		}
@@ -105,6 +107,8 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = spain_communist_question_open
 			add_political_power = constant:spain_campaign.pp_small
+			add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.swing_small }
+			spain_cortes_recount = yes
 			custom_effect_tooltip = spain_communist_question_tt
 		}
 	}
@@ -120,6 +124,8 @@ focus_tree = {
 			add_stability = constant:spain_campaign.stability_small
 			add_war_support = constant:spain_campaign.war_support_small
 			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+			add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.swing_medium }
+			spain_cortes_recount = yes
 			set_country_flag = spain_pce_in_government
 			custom_effect_tooltip = spain_pce_in_government_tt
 		}
@@ -135,6 +141,9 @@ focus_tree = {
 		completion_reward = {
 			add_stability = constant:spain_campaign.stability_cost
 			spain_loyalty_gain_small = yes
+			if = { limit = { check_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.swing_medium compare = greater_than_or_equals } } subtract_from_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.swing_medium } }
+			add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.swing_small }
+			spain_cortes_recount = yes
 			set_country_flag = spain_pce_marginalised
 			custom_effect_tooltip = spain_pce_marginalised_tt
 		}
@@ -149,6 +158,8 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = spain_anarchist_question_open
 			add_political_power = constant:spain_campaign.pp_small
+			add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.swing_small }
+			spain_cortes_recount = yes
 			custom_effect_tooltip = spain_anarchist_question_tt
 		}
 	}
@@ -259,6 +270,8 @@ focus_tree = {
 			add_manpower = constant:spain_campaign.manpower
 			add_war_support = constant:spain_campaign.war_support_small
 			add_stability = constant:spain_campaign.stability_cost
+			add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loss_small }
+			add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_gain }
 			set_country_flag = spain_militia_army
 			custom_effect_tooltip = spain_militia_army_tt
 		}
@@ -336,6 +349,13 @@ focus_tree = {
 		completion_reward = {
 			if = { limit = { country_exists = POR } POR = { add_opinion_modifier = { target = SPR modifier = spain_iberian_accord } } }
 			add_stability = constant:spain_campaign.stability_small
+			if = {
+				limit = { has_country_flag = spain_iberian_accord }
+				add_stability = constant:spain_campaign.stability_small
+				add_to_variable = { var = spain_infrastructure value = constant:spain_campaign.development_gain }
+				add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain_small }
+				custom_effect_tooltip = spain_iberian_accord_legacy_tt
+			}
 			set_country_flag = spain_iberian_pact
 			custom_effect_tooltip = spain_iberian_accord_tt
 		}
@@ -353,6 +373,8 @@ focus_tree = {
 		ai_will_do = { factor = @low }
 		completion_reward = {
 			add_war_support = constant:spain_campaign.war_support_medium
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			if = { limit = { spain_allied_leverage_high = yes } add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain } }
 			set_country_flag = spain_willing_to_fight
 			custom_effect_tooltip = spain_willing_to_fight_tt
 		}
@@ -367,10 +389,10 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
 		ai_will_do = { factor = @high }
 		completion_reward = {
-			if = { limit = { NOT = { has_idea = spain_armed_neutrality } } add_ideas = spain_armed_neutrality }
+			set_country_flag = spain_armed_neutral
 			add_stability = constant:spain_campaign.stability_medium
 			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
-			set_country_flag = spain_armed_neutral
+			custom_effect_tooltip = spain_armed_neutrality_policy_tt
 		}
 	}
 
@@ -383,7 +405,11 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @priority }
 		completion_reward = {
-			spain_push_cortes = yes
+			if = { limit = { check_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.swing_medium compare = greater_than_or_equals } } subtract_from_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.swing_medium } }
+			add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.swing_medium }
+			add_to_variable = { var = spain_monarchists value = constant:spain_campaign.faction_loss }
+			spain_cortes_recount = yes
+			spain_refresh_faction_leadership = yes
 			add_stability = constant:spain_campaign.stability_small
 			set_country_flag = spain_monarchy_exiled
 			custom_effect_tooltip = spain_monarchy_exiled_tt
@@ -399,6 +425,8 @@ focus_tree = {
 		completion_reward = {
 			add_stability = constant:spain_campaign.stability_cost
 			spain_loyalty_gain_small = yes
+			add_to_variable = { var = spain_falange value = constant:spain_campaign.faction_loss_large }
+			spain_refresh_faction_leadership = yes
 			set_country_flag = spain_falange_broken
 			custom_effect_tooltip = spain_falange_broken_tt
 		}
@@ -413,6 +441,7 @@ focus_tree = {
 		completion_reward = {
 			add_stability = constant:spain_campaign.stability_medium
 			add_political_power = constant:spain_campaign.pp_small
+			add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief_large }
 			set_country_flag = spain_political_police
 			custom_effect_tooltip = spain_political_police_tt
 		}
@@ -426,7 +455,9 @@ focus_tree = {
 		ai_will_do = { factor = @priority }
 		completion_reward = {
 			add_stability = constant:spain_campaign.stability_small
-			spain_push_cortes = yes
+			add_to_variable = { var = spain_party_shift_falange value = constant:spain_campaign.swing_small }
+			add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.swing_small }
+			spain_cortes_recount = yes
 			add_political_power = constant:spain_campaign.pp_medium
 			set_country_flag = spain_amnesty_debated
 		}
@@ -440,8 +471,11 @@ focus_tree = {
 		ai_will_do = { factor = @priority }
 		completion_reward = {
 			add_stability = constant:spain_campaign.stability_medium
-			add_to_variable = { var = spain_religious_tension value = constant:spain_campaign.development_gain }
-			spain_refresh_campaign_ideas = yes
+			if = { limit = { has_idea = spain_religious_tension } remove_ideas = spain_religious_tension }
+			if = { limit = { has_idea = spain_clerical_war } remove_ideas = spain_clerical_war }
+			add_political_power = constant:spain_campaign.pp_medium
+			add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.swing_small }
+			spain_cortes_recount = yes
 			set_country_flag = spain_church_settled
 		}
 	}
@@ -499,6 +533,7 @@ focus_tree = {
 		completion_reward = {
 			add_war_support = constant:spain_campaign.war_support_small
 			add_political_power = constant:spain_campaign.pp_medium
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_gain }
 			set_country_flag = spain_volunteer_debate
 			custom_effect_tooltip = spain_volunteer_debate_tt
 		}
@@ -527,6 +562,7 @@ focus_tree = {
 		completion_reward = {
 			add_war_support = constant:spain_campaign.war_support_small
 			add_political_power = constant:spain_campaign.pp_medium
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
 			set_country_flag = spain_gibraltar_claim
 			custom_effect_tooltip = spain_gibraltar_claim_tt
 		}
@@ -556,6 +592,7 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = constant:spain_campaign.pp_large
 			add_stability = constant:spain_campaign.stability_medium
+			if = { limit = { spain_allied_leverage_high = yes } add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain } add_political_power = constant:spain_campaign.pp_small }
 			set_country_flag = spain_un_founding
 			custom_effect_tooltip = spain_un_founding_tt
 		}
@@ -573,6 +610,7 @@ focus_tree = {
 			add_to_variable = { var = spain_education value = constant:spain_campaign.development_gain }
 			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
 			add_stability = constant:spain_campaign.stability_small
+			add_manpower = constant:spain_campaign.manpower_small
 			set_country_flag = spain_exiles_returned
 			custom_effect_tooltip = spain_exiles_returned_tt
 		}
@@ -603,6 +641,8 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = constant:spain_campaign.pp_large
 			add_stability = constant:spain_campaign.stability_medium
+			add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain }
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
 			set_country_flag = spain_postwar_settlement
 			custom_effect_tooltip = spain_postwar_settlement_tt
 		}
@@ -617,7 +657,10 @@ focus_tree = {
 		completion_reward = {
 			if = { limit = { has_idea = spain_civil_war_reconstruction } remove_ideas = spain_civil_war_reconstruction }
 			if = { limit = { NOT = { has_idea = spain_reconstruction_advanced } } add_ideas = spain_reconstruction_advanced }
-			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			# the programme is declared finished, which closes the reconstruction decision category
+			set_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_complete }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_infrastructure value = constant:spain_campaign.development_gain }
 			add_stability = constant:spain_campaign.stability_medium
 			custom_effect_tooltip = spain_reconstruction_complete_tt
 		}
@@ -632,6 +675,7 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = constant:spain_campaign.pp_large
 			add_stability = constant:spain_campaign.stability_medium
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain_large }
 			set_country_flag = spain_republic_consolidated
 			custom_effect_tooltip = spain_republic_consolidated_tt
 		}
@@ -829,6 +873,8 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = constant:spain_campaign.pp_medium
 			add_stability = constant:spain_campaign.stability_cost
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
 			set_country_flag = spain_blue_division_myth
 			mark_focus_tree_layout_dirty = yes
 		}
@@ -844,6 +890,8 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = constant:spain_campaign.pp_medium
 			add_stability = constant:spain_campaign.stability_small
+			if = { limit = { has_country_flag = spain_gibraltar_claim } add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain } add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain_small } }
+			if = { limit = { country_exists = ENG } ENG = { add_opinion_modifier = { target = SPR modifier = spain_british_trade } } }
 			set_country_flag = spain_gibraltar_negotiation
 			mark_focus_tree_layout_dirty = yes
 		}
@@ -889,6 +937,9 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = constant:spain_campaign.pp_large
 			add_stability = constant:spain_campaign.stability_medium
+			if = { limit = { has_idea = spain_civil_war_reconstruction } remove_ideas = spain_civil_war_reconstruction }
+			if = { limit = { NOT = { has_idea = spain_reconstruction_advanced } } add_ideas = spain_reconstruction_advanced }
+			set_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_complete }
 			set_country_flag = spain_pact_of_1945
 			mark_focus_tree_layout_dirty = yes
 		}

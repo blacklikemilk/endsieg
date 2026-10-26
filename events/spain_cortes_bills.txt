@@ -1,0 +1,481 @@
+# Overview: the negotiation that decides a Spanish Cortes bill.
+# A bill decision (common/decisions/spain_cortes.txt) pays its political-power cost and fires one of
+# these events. The event recounts the chamber live into spain_bill_votes, then offers four ways out:
+# pass the bill cleanly (only when the committed benches already hold 201 of the 400 seats), buy the
+# missing votes with a concession to a swing party (each concession costs a campaign variable or a
+# party's support), water the bill down to half its effect, or withdraw it and take the political
+# damage. The outcome effects live in common/scripted_effects/spain_cortes_bills.txt.
+# Namespace spain_bills. Documented in docs/spain_cortes_bills.md.
+
+add_namespace = spain_bills
+
+# The hidden clerk event re-counts the six bills on a fixed cycle.
+@bill_tick_days = 30
+
+# =====================================================================================
+# 1 - the budget
+# =====================================================================================
+
+country_event = {
+	id = spain_bills.1
+	title = spain_bills.1.t
+	desc = spain_bills.1.d
+	picture = GFX_report_event_kuncrowd
+	is_triggered_only = yes
+
+	immediate = {
+		set_variable = { var = spain_bill_current value = 1 }
+		spain_bill_count_votes = yes
+		spain_bills_start_ticker = yes
+	}
+
+	option = {
+		name = spain_bills.1.a
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 60
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_government_seats value = spain_bill_needed compare = greater_than_or_equals }
+			}
+		}
+		custom_effect_tooltip = spain_bills.1.a.tt
+		spain_bill_pass_budget = yes
+	}
+
+	option = {
+		name = spain_bills.1.b
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = less_than }
+			check_variable = { var = spain_bill_swing_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = less_than }
+			}
+			modifier = {
+				factor = 0.6
+				has_country_flag = spain_mancomunitat
+			}
+		}
+		custom_effect_tooltip = spain_bills.1.b.tt
+		spain_bill_concede_budget = yes
+	}
+
+	option = {
+		name = spain_bills.1.c
+		ai_chance = {
+			base = 12
+			modifier = {
+				factor = 2
+				has_stability < constant:spain_campaign.election_unrest_threshold
+			}
+		}
+		custom_effect_tooltip = spain_bills.1.c.tt
+		spain_bill_water_budget = yes
+	}
+
+	option = {
+		name = spain_bills.1.e
+		ai_chance = {
+			base = 2
+			modifier = {
+				factor = 6
+				check_variable = { var = spain_bill_votes value = spain_bill_floor compare = less_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.1.e.tt
+		spain_bill_fail_budget = yes
+	}
+}
+
+# =====================================================================================
+# 2 - agrarian reform
+# =====================================================================================
+
+country_event = {
+	id = spain_bills.2
+	title = spain_bills.2.t
+	desc = spain_bills.2.d
+	picture = GFX_report_event_workers_strike
+	is_triggered_only = yes
+
+	immediate = {
+		set_variable = { var = spain_bill_current value = 2 }
+		spain_bill_count_votes = yes
+		spain_bills_start_ticker = yes
+	}
+
+	option = {
+		name = spain_bills.2.a
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = { base = 60 }
+		custom_effect_tooltip = spain_bills.2.a.tt
+		spain_bill_pass_agrarian = yes
+	}
+
+	option = {
+		name = spain_bills.2.b
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = less_than }
+			check_variable = { var = spain_bill_swing_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 1.5
+				has_stability < constant:spain_campaign.election_unrest_threshold
+			}
+		}
+		custom_effect_tooltip = spain_bills.2.b.tt
+		spain_bill_concede_agrarian = yes
+	}
+
+	option = {
+		name = spain_bills.2.c
+		ai_chance = {
+			base = 12
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+		custom_effect_tooltip = spain_bills.2.c.tt
+		spain_bill_water_agrarian = yes
+	}
+
+	option = {
+		name = spain_bills.2.e
+		ai_chance = {
+			base = 2
+			modifier = {
+				factor = 6
+				check_variable = { var = spain_bill_votes value = spain_bill_floor compare = less_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.2.e.tt
+		spain_bill_fail_agrarian = yes
+	}
+}
+
+# =====================================================================================
+# 3 - labour charter
+# =====================================================================================
+
+country_event = {
+	id = spain_bills.3
+	title = spain_bills.3.t
+	desc = spain_bills.3.d
+	picture = GFX_report_event_general_strike
+	is_triggered_only = yes
+
+	immediate = {
+		set_variable = { var = spain_bill_current value = 3 }
+		spain_bill_count_votes = yes
+		spain_bills_start_ticker = yes
+	}
+
+	option = {
+		name = spain_bills.3.a
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = { base = 60 }
+		custom_effect_tooltip = spain_bills.3.a.tt
+		spain_bill_pass_labour = yes
+	}
+
+	option = {
+		name = spain_bills.3.b
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = less_than }
+			check_variable = { var = spain_bill_swing_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 0.5
+				check_variable = { var = spain_party_shift_socialists value = 0 compare = greater_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.3.b.tt
+		spain_bill_concede_labour = yes
+	}
+
+	option = {
+		name = spain_bills.3.c
+		ai_chance = {
+			base = 12
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+		custom_effect_tooltip = spain_bills.3.c.tt
+		spain_bill_water_labour = yes
+	}
+
+	option = {
+		name = spain_bills.3.e
+		ai_chance = {
+			base = 2
+			modifier = {
+				factor = 6
+				check_variable = { var = spain_bill_votes value = spain_bill_floor compare = less_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.3.e.tt
+		spain_bill_fail_labour = yes
+	}
+}
+
+# =====================================================================================
+# 4 - army budget
+# =====================================================================================
+
+country_event = {
+	id = spain_bills.4
+	title = spain_bills.4.t
+	desc = spain_bills.4.d
+	picture = GFX_report_event_army_border
+	is_triggered_only = yes
+
+	immediate = {
+		set_variable = { var = spain_bill_current value = 4 }
+		spain_bill_count_votes = yes
+		spain_bills_start_ticker = yes
+	}
+
+	option = {
+		name = spain_bills.4.a
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 60
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+		custom_effect_tooltip = spain_bills.4.a.tt
+		spain_bill_pass_army = yes
+	}
+
+	option = {
+		name = spain_bills.4.b
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = less_than }
+			check_variable = { var = spain_bill_swing_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loyal compare = greater_than }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_collapse compare = greater_than_or_equals }
+			}
+		}
+		custom_effect_tooltip = spain_bills.4.b.tt
+		spain_bill_concede_army = yes
+	}
+
+	option = {
+		name = spain_bills.4.c
+		ai_chance = {
+			base = 12
+			modifier = {
+				factor = 0.5
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+		custom_effect_tooltip = spain_bills.4.c.tt
+		spain_bill_water_army = yes
+	}
+
+	option = {
+		name = spain_bills.4.e
+		ai_chance = {
+			base = 2
+			modifier = {
+				factor = 6
+				check_variable = { var = spain_bill_votes value = spain_bill_floor compare = less_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.4.e.tt
+		spain_bill_fail_army = yes
+	}
+}
+
+# =====================================================================================
+# 5 - regional statute
+# =====================================================================================
+
+country_event = {
+	id = spain_bills.5
+	title = spain_bills.5.t
+	desc = spain_bills.5.d
+	picture = GFX_report_event_kuncrowd
+	is_triggered_only = yes
+
+	immediate = {
+		set_variable = { var = spain_bill_current value = 5 }
+		spain_bill_count_votes = yes
+		spain_bills_start_ticker = yes
+	}
+
+	option = {
+		name = spain_bills.5.a
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = { base = 60 }
+		custom_effect_tooltip = spain_bills.5.a.tt
+		spain_bill_pass_statute = yes
+	}
+
+	option = {
+		name = spain_bills.5.b
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = less_than }
+			check_variable = { var = spain_bill_swing_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 0.5
+				check_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_wavering compare = less_than }
+			}
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_statute compare = less_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.5.b.tt
+		spain_bill_concede_statute = yes
+	}
+
+	option = {
+		name = spain_bills.5.c
+		ai_chance = {
+			base = 12
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+		custom_effect_tooltip = spain_bills.5.c.tt
+		spain_bill_water_statute = yes
+	}
+
+	option = {
+		name = spain_bills.5.e
+		ai_chance = {
+			base = 2
+			modifier = {
+				factor = 6
+				check_variable = { var = spain_bill_votes value = spain_bill_floor compare = less_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.5.e.tt
+		spain_bill_fail_statute = yes
+	}
+}
+
+# =====================================================================================
+# 6 - electoral law
+# =====================================================================================
+
+country_event = {
+	id = spain_bills.6
+	title = spain_bills.6.t
+	desc = spain_bills.6.d
+	picture = GFX_report_event_kuncrowd
+	is_triggered_only = yes
+
+	immediate = {
+		set_variable = { var = spain_bill_current value = 6 }
+		spain_bill_count_votes = yes
+		spain_bills_start_ticker = yes
+	}
+
+	option = {
+		name = spain_bills.6.a
+		trigger = {
+			check_variable = { var = spain_bill_votes value = spain_bill_needed compare = greater_than_or_equals }
+		}
+		ai_chance = {
+			base = 60
+			modifier = {
+				factor = 1.5
+				check_variable = { var = spain_government_majority value = 0 }
+			}
+		}
+		custom_effect_tooltip = spain_bills.6.a.tt
+		spain_bill_pass_electoral = yes
+	}
+
+	option = {
+		name = spain_bills.6.b
+		ai_chance = {
+			base = 12
+			modifier = {
+				factor = 3
+				has_stability < constant:spain_campaign.election_unrest_threshold
+			}
+		}
+		custom_effect_tooltip = spain_bills.6.b.tt
+		spain_bill_water_electoral = yes
+	}
+
+	option = {
+		name = spain_bills.6.c
+		ai_chance = {
+			base = 2
+			modifier = {
+				factor = 6
+				check_variable = { var = spain_bill_votes value = spain_bill_floor compare = less_than }
+			}
+		}
+		custom_effect_tooltip = spain_bills.6.c.tt
+		spain_bill_fail_electoral = yes
+	}
+}
+
+# =====================================================================================
+# 90 - the clerk of the chamber
+# =====================================================================================
+
+# Hidden. It only re-counts the six bills so the decision buttons match the chamber, and it stops
+# itself once the Cortes is dissolved or the campaign state is gone.
+country_event = {
+	id = spain_bills.90
+	title = spain_bills.90.t
+	desc = spain_bills.90.d
+	is_triggered_only = yes
+	hidden = yes
+
+	option = {
+		name = spain_bills.90.a
+		spain_bills_count_all = yes
+		if = {
+			limit = {
+				has_country_flag = spain_campaign_initialized
+				NOT = { has_country_flag = spain_cortes_dissolved }
+			}
+			country_event = { id = spain_bills.90 days = @bill_tick_days }
+		}
+		else = {
+			clr_country_flag = spain_bills_ticker
+		}
+	}
+}

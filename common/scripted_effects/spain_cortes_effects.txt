@@ -157,7 +157,7 @@ spain_cortes_refresh_display = {
 	clamp_variable = { var = spain_cortes_bar_frame min = 0 max = 100 }
 
 	# cumulative totals across the chamber, left to right: the hemicycle reads these to decide
-	# which bloc owns each dot
+	# which bloc owns each seat
 	set_variable = { var = spain_cortes_cum_socialists value = spain_cortes_seats_socialists }
 	set_variable = { var = spain_cortes_cum_republicans value = spain_cortes_cum_socialists }
 	add_to_variable = { var = spain_cortes_cum_republicans value = spain_cortes_seats_republicans }
@@ -171,6 +171,56 @@ spain_cortes_refresh_display = {
 	add_to_variable = { var = spain_cortes_cum_carlists value = spain_cortes_seats_carlists }
 	set_variable = { var = spain_cortes_cum_falange value = spain_cortes_cum_carlists }
 	add_to_variable = { var = spain_cortes_cum_falange value = spain_cortes_seats_falange }
+
+	# --- what the legend reads: each bloc's share of the chamber, the majority it has to clear,
+	# and how far the government sits from it. The panel shows absolute distances, so a
+	# minority reads as "short of a majority: 81" and a majority as "above a majority: 39".
+	set_variable = { var = spain_cortes_majority_seats value = constant:spain_campaign.cortes_majority }
+
+	set_variable = { var = spain_cortes_govt_gap value = spain_government_seats }
+	if = {
+		limit = { check_variable = { var = spain_cortes_govt_gap value = constant:spain_campaign.cortes_majority compare = greater_than_or_equals } }
+		subtract_from_variable = { var = spain_cortes_govt_gap value = constant:spain_campaign.cortes_majority }
+	}
+	else = {
+		set_variable = { var = spain_cortes_govt_gap value = constant:spain_campaign.cortes_majority }
+		subtract_from_variable = { var = spain_cortes_govt_gap value = spain_government_seats }
+	}
+
+	set_variable = { var = spain_cortes_share_socialists value = spain_cortes_seats_socialists }
+	multiply_variable = { var = spain_cortes_share_socialists value = 100 }
+	divide_variable = { var = spain_cortes_share_socialists value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_socialists
+
+	set_variable = { var = spain_cortes_share_republicans value = spain_cortes_seats_republicans }
+	multiply_variable = { var = spain_cortes_share_republicans value = 100 }
+	divide_variable = { var = spain_cortes_share_republicans value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_republicans
+
+	set_variable = { var = spain_cortes_share_liberals value = spain_cortes_seats_liberals }
+	multiply_variable = { var = spain_cortes_share_liberals value = 100 }
+	divide_variable = { var = spain_cortes_share_liberals value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_liberals
+
+	set_variable = { var = spain_cortes_share_conservatives value = spain_cortes_seats_conservatives }
+	multiply_variable = { var = spain_cortes_share_conservatives value = 100 }
+	divide_variable = { var = spain_cortes_share_conservatives value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_conservatives
+
+	set_variable = { var = spain_cortes_share_monarchists value = spain_cortes_seats_monarchists }
+	multiply_variable = { var = spain_cortes_share_monarchists value = 100 }
+	divide_variable = { var = spain_cortes_share_monarchists value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_monarchists
+
+	set_variable = { var = spain_cortes_share_carlists value = spain_cortes_seats_carlists }
+	multiply_variable = { var = spain_cortes_share_carlists value = 100 }
+	divide_variable = { var = spain_cortes_share_carlists value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_carlists
+
+	set_variable = { var = spain_cortes_share_falange value = spain_cortes_seats_falange }
+	multiply_variable = { var = spain_cortes_share_falange value = 100 }
+	divide_variable = { var = spain_cortes_share_falange value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_falange
 
 	if = { limit = { has_variable = spain_cortes_total } spain_cortes_draw_hemicycle = yes }
 }

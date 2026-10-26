@@ -54,3 +54,10 @@ install step is reviewed rather than automatic.
 Next reviewed step:
 
     python .tools/portrait_pipeline/portrait_install.py --run .tmp/portrait_runs/leaders_overrides --apply
+
+## Resume watch
+
+The hourly resume job has nothing left to render.
+Each tick now prints `target list missing` for all three stages and exits 2 without
+starting a slice, because the lists are gone.
+The watch can be paused until a new pass plans fresh targets.

@@ -307,6 +307,37 @@ SPR_rif_war = {
 		}
 		ai_will_do = { base = 25 }
 	}
+
+	# The way out of a commitment that has outgrown the state. It only appears once the
+	# commitment has reached the exhaustion band, so a Rif campaign that was paid for cheaply
+	# never sees it; a campaign that was paid for in full ends with a cabinet that has to retreat
+	# from the Protectorate and say so out loud.
+	SPR_withdraw_from_the_column = {
+		icon = generic_break_treaty
+		cost = 75
+		fire_only_once = yes
+		available = {
+			spain_pre_civil_war = yes
+			spain_rif_commitment_exhausted = yes
+			OR = {
+				spain_rif_war_active = yes
+				has_country_flag = spain_rif_campaign_supported
+			}
+			date < 1928.1.1
+		}
+		complete_effect = {
+			add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_loss_large }
+			if = { limit = { has_idea = spain_rif_quagmire } remove_ideas = spain_rif_quagmire }
+			if = { limit = { has_idea = spain_rif_exhaustion } remove_ideas = spain_rif_exhaustion }
+			add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain }
+			add_war_support = constant:spain_campaign.war_support_cost
+			add_stability = constant:spain_campaign.stability_cost
+			add_political_power = constant:spain_campaign.pp_small
+			set_country_flag = spain_rif_withdrawn
+			spain_refresh_campaign_ideas = yes
+		}
+		ai_will_do = { base = 20 }
+	}
 }
 
 # =====================================================================================
@@ -389,7 +420,7 @@ SPR_nationalist_factions = {
 		}
 		complete_effect = {
 			spain_faction_resolve_regime = yes
-			set_variable = { var = spain_nationalist_tension value = 0 }
+			set_variable = { var = spain_nationalist_tension_carried value = 0 }
 			clr_country_flag = spain_faction_crisis_fired
 			add_stability = constant:spain_campaign.stability_small
 		}
@@ -476,7 +507,14 @@ SPR_wartime_diplomacy = {
 		cost = 50
 		fire_only_once = yes
 		available = {
-			date > 1940.6.1 spain_axis_leverage_high = yes }
+			date > 1940.6.1
+			# either the Axis has enough leverage to be worth defying, or the border is already
+			# fortified (SPR4_pyrenees_defences) and closing it is the obvious next step
+			OR = {
+				spain_axis_leverage_high = yes
+				has_country_flag = spain_pyrenees_fortified
+			}
+		}
 		complete_effect = {
 			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
 			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
@@ -497,9 +535,58 @@ SPR_wartime_diplomacy = {
 			if = { limit = { has_idea = spain_allied_alignment } remove_ideas = spain_allied_alignment }
 			add_ideas = spain_armed_neutrality
 			add_stability = constant:spain_campaign.stability_medium
-			set_country_flag = spain_armed_neutral
 		}
 		ai_will_do = { base = 35 }
+	}
+
+	# The Allied half of the wartime channel. Allied leverage used to be written by focuses,
+	# decisions, two events and the weekly tick and read by nothing; these two decisions are what
+	# it buys. Both are alternatives to the post-war focus that grants the same prize, so a Spain
+	# that never loads the republican post-war tree can still reach it.
+	SPR_accept_the_marshall_aid = {
+		icon = generic_industry
+		cost = 50
+		days_remove = 365
+		fire_only_once = yes
+		available = {
+			spain_allied_leverage_high = yes
+			date > 1944.6.1
+			NOT = { has_country_flag = spain_marshall_plan }
+		}
+		modifier = {
+			industrial_capacity_factory = 0.05
+		}
+		complete_effect = {
+			set_country_flag = spain_marshall_plan
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_political_power = constant:spain_campaign.pp_medium
+			add_stability = constant:spain_campaign.stability_small
+		}
+		ai_will_do = { base = 30 }
+	}
+
+	SPR_take_the_un_seat = {
+		icon = generic_foreign_policy
+		cost = 40
+		fire_only_once = yes
+		available = {
+			spain_allied_leverage_high = yes
+			date > 1945.1.1
+			NOT = { has_country_flag = spain_un_founding }
+		}
+		complete_effect = {
+			set_country_flag = spain_un_founding
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+			add_political_power = constant:spain_campaign.pp_medium
+			add_stability = constant:spain_campaign.stability_small
+			if = { limit = { NOT = { has_idea = spain_allied_alignment } } add_ideas = spain_allied_alignment }
+		}
+		ai_will_do = { base = 25 }
 	}
 }
 
