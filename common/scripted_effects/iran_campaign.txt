@@ -4,7 +4,7 @@ iran_refresh_mechanics = {
 	clamp_variable = { var = iran_authority min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 	clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 	clamp_variable = { var = iran_british_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
-	clamp_variable = { var = iran_soviet_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	clamp_variable = { var = iran_northern_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 	remove_ideas = { iran_fragmented_authority iran_constitutional_state iran_pahlavi_state iran_parliamentary_state iran_qajar_state iran_socialist_state iran_nationalist_state iran_constitutional_consolidated iran_pahlavi_consolidated iran_parliamentary_consolidated iran_socialist_consolidated iran_nationalist_consolidated iran_qajar_consolidated }
 	if = {
 		limit = { has_country_flag = iran_republic }
@@ -68,9 +68,9 @@ iran_refresh_mechanics = {
 		if = {
 			limit = {
 				check_variable = { var = iran_british_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
-				check_variable = { var = iran_soviet_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
+				check_variable = { var = iran_northern_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
 				check_variable = { var = iran_british_standing value = constant:iran_story.great_game_preference_threshold compare = less_than }
-				check_variable = { var = iran_soviet_standing value = constant:iran_story.great_game_preference_threshold compare = less_than }
+				check_variable = { var = iran_northern_standing value = constant:iran_story.great_game_preference_threshold compare = less_than }
 			}
 			add_ideas = iran_balancing_powers
 		}
@@ -79,7 +79,7 @@ iran_refresh_mechanics = {
 			add_ideas = iran_british_preference
 		}
 		else_if = {
-			limit = { check_variable = { var = iran_soviet_standing value = constant:iran_story.great_game_preference_threshold compare = greater_than_or_equals } }
+			limit = { check_variable = { var = iran_northern_standing value = constant:iran_story.great_game_preference_threshold compare = greater_than_or_equals } }
 			add_ideas = iran_soviet_preference
 		}
 	}
@@ -104,10 +104,14 @@ iran_initialize_campaign = {
 		set_variable = { iran_socialist_support = 0 }
 		iran_coup_init = yes
 		set_variable = { iran_british_standing = constant:iran_story.british_opening }
-		set_variable = { iran_soviet_standing = constant:iran_story.soviet_opening }
+		set_variable = { iran_northern_standing = constant:iran_story.soviet_opening }
+		set_variable = { iran_sovereignty = constant:iran_story.sovereignty_opening }
+		set_variable = { iran_british_influence = constant:iran_story.influence_opening_british }
+		set_variable = { iran_northern_influence = constant:iran_story.influence_opening_northern }
 		if = {
 			limit = { date > 1918.12.31 }
 			set_variable = { iran_authority = constant:iran_story.authority_interwar }
+			set_variable = { iran_sovereignty = constant:iran_story.sovereignty_interwar }
 			set_variable = { iran_foreign_leverage = constant:iran_story.leverage_interwar }
 			set_country_flag = iran_treasury_programme
 			set_country_flag = iran_security_programme
@@ -363,10 +367,68 @@ iran_great_game_tick = {
 			iran_campaign_country = yes
 			date < 1946.1.1
 			country_exists = SOV
-			check_variable = { var = iran_soviet_standing value = 70 compare = greater_than_or_equals }
+			check_variable = { var = iran_northern_standing value = 70 compare = greater_than_or_equals }
 			NOT = { has_country_flag = iran_soviet_demand_seen }
 		}
 		set_country_flag = iran_soviet_demand_seen
 		country_event = { id = iran_campaign.72 }
 	}
+}
+
+# Great Game 2.0 clock: influence erodes sovereignty, reform restores it, and
+# holding incompatible concessions raises a crisis. Monthly, Iran only.
+iran_influence_tick = {
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			check_variable = { var = iran_british_influence value = constant:iran_story.influence_pressure_threshold compare = greater_than_or_equals }
+		}
+		subtract_from_variable = { iran_sovereignty = 1 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			check_variable = { var = iran_northern_influence value = constant:iran_story.influence_pressure_threshold compare = greater_than_or_equals }
+		}
+		subtract_from_variable = { iran_sovereignty = 1 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			has_country_flag = iran_customs_reformed
+			check_variable = { var = iran_sovereignty value = 80 compare = less_than }
+		}
+		add_to_variable = { iran_sovereignty = 1 }
+	}
+	# Incompatible obligations: a British arrangement and a northern one that
+	# cannot both be honoured. Penalty applies while both are held.
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			has_country_flag = iran_agreement_british_loan
+			has_country_flag = iran_agreement_northern_railway
+			NOT = { has_idea = iran_competing_concessions }
+		}
+		add_ideas = iran_competing_concessions
+		country_event = { id = iran_campaign.73 }
+	}
+	else_if = {
+		limit = {
+			iran_campaign_country = yes
+			has_idea = iran_competing_concessions
+			NOT = { has_country_flag = iran_agreement_british_loan }
+		}
+		remove_ideas = iran_competing_concessions
+	}
+	else_if = {
+		limit = {
+			iran_campaign_country = yes
+			has_idea = iran_competing_concessions
+			NOT = { has_country_flag = iran_agreement_northern_railway }
+		}
+		remove_ideas = iran_competing_concessions
+	}
+	clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+	clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+	clamp_variable = { var = iran_northern_influence min = 0 max = 100 }
 }
