@@ -232,7 +232,7 @@ def emit_loc() -> str:
         out.append('  name = spain_cortes_dot_%d_img' % i)
         for n, (party, _label) in enumerate(PARTIES, start=1):
             out.append('  text = {')
-            out.append('   trigger = { check_variable = { var = spain_cortes_dot_%d value = %d } }' % (i, n))
+            out.append('   trigger = { ROOT = { check_variable = { var = spain_cortes_dot_%d value = %d } } }' % (i, n))
             out.append('   localization_key = "GFX_spain_cortes_dot_%s"' % party)
             out.append('  }')
         out.append('  text = { localization_key = "GFX_spain_cortes_dot_empty" }')

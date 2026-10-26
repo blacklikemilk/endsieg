@@ -6,6 +6,7 @@
 @short = 5
 @normal = 8
 @long = 10
+@decisive = 70
 @low = 30
 @priority = 50
 @high = 70
@@ -1137,15 +1138,25 @@ focus_tree = {
 	}
 	focus = {
 		id = SPR3_rule_without_the_cortes
-		icon = GFX_goal_generic_forceful_treaty
-		prerequisite = { focus = SPR3_the_choice_of_war }
-		mutually_exclusive = { focus = SPR3_uphold_the_cortes }
-		x = 10 y = 11 cost = @long
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		ai_will_do = { factor = @low }
-		completion_reward = {
-			spain_dissolve_the_cortes = yes
-			custom_effect_tooltip = SPR3_rule_without_the_cortes_tt
-		}
-	}
+				icon = GFX_goal_generic_forceful_treaty
+				prerequisite = { focus = SPR3_the_choice_of_war }
+				mutually_exclusive = { focus = SPR3_uphold_the_cortes }
+				available = {
+					# the constitutional order cannot be broken in its first years: the chamber has to
+					# have sat through two elections, and the government has to have lost it
+					date > 1933.1.1
+					check_variable = { var = spain_elections_fought value = 2 compare = greater_than_or_equals }
+					OR = {
+						check_variable = { var = spain_government_majority value = 0 }
+						check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_dissolution_threshold compare = greater_than_or_equals }
+					}
+				}
+				x = 10 y = 11 cost = @decisive
+				search_filters = { FOCUS_FILTER_POLITICAL }
+				ai_will_do = { factor = @low }
+				completion_reward = {
+					spain_dissolve_the_cortes = yes
+					custom_effect_tooltip = SPR3_rule_without_the_cortes_tt
+				}
+			}
 }
