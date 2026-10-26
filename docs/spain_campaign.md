@@ -272,3 +272,56 @@ Not checked: in-game behaviour. No launch was performed; the transition dates, A
 Re-audited with `.tmp/audit_spain2.py`, `.tmp/validate_layout.py`, `.tmp/analyse_focus.py`, `.tmp/flag_readers.py`, `.tmp/list_decisions.py` and `.tmp/check_decisions.py`:
 no duplicate focus ids, no overlapping slots, no icon one column from its neighbour, every icon resolves, every focus has `ai_will_do`, no focus whose only reward is experience, all four trees balanced, every decision gate flag has a setter, and every event and tooltip key localised.
 Not checked: in-game behaviour. The handover, the new event firing and the decision gates need one playtest per bookmark.
+
+## Focus tree layout
+
+The four chapter trees follow the shared Endsieg focus-tree layout contract: two X cells between same-row siblings, one Y cell between prerequisite tiers, balanced forks, short connectors, and no overlap between a tree and the continuous-focus panel.
+
+### How a tree is laid out
+
+`tools/layout_spain_trees.py` builds the layout, and nothing else may move a focus. It works in three stages.
+
+1. **Tiers from prerequisites.** A focus sits one row below the deepest focus it requires, counting every alternative in an OR group. Every connector therefore points down a row, and the row spacing is the prerequisite tier spacing.
+2. **Crossing reduction.** Barycentre sweeps down and up reorder each row to minimise crossings, at three different sweep depths. The best result for the tree is kept.
+3. **Horizontal placement.** Each row is placed from its parents, packed to a two-cell minimum gap, then shifted as a block onto the mean of its parents, and finally refined by alternating bottom-up and top-down passes so parents and children converge together. A block shift keeps every gap, so placement cannot create an overlap.
+
+Before writing, the tool scores the result against the authored layout on connector length first, then tree area, and refuses to write a tree it does not beat. A second guard rejects any candidate wider than 1.25 times the authored tree, so a pass can never turn a tree into a wide strip, and any candidate with a connector that is level with or above its parent is discarded outright.
+
+`tools/straighten_spain_chains.py` then removes mechanical detours: a focus whose single prerequisite sits one row above it is moved directly underneath, together with its subtree, when the destination and its neighbouring cells are free.
+
+### Measured result
+
+`tools/measure_spain_layout.py` reports geometry from the files themselves, using the same connector thresholds as the HOI4 Agent Tools diagnostics (horizontal 8, manhattan 10, vertical 4).
+
+| Tree | Size before | Size after | Fill before | Fill after | Long connectors |
+|---|---|---|---|---|---|
+| Restoration | 38 × 19 | 33 × 10 | 10.7% | 23.3% | 8 → 0 |
+| Rivera | 33 × 13 | 27 × 13 | 14.9% | 18.2% | 4 → 0 |
+| Republic | 33 × 17 | 39 × 12 | 13.5% | 16.2% | 12 → 2 |
+| Post-war | 33 × 10 | unchanged | 17.3% | 17.3% | 10 |
+
+The post-war tree keeps its authored layout: the engine's best candidate was wider and less dense, and its narrower candidate broke the downward-connector invariant, so neither was allowed to replace it.
+
+The HOI4 Agent Tools render of the Restoration tree confirms the direction of travel: connector crossings fell from 8 to 1, connector-through-node from 15 to 3, and long connectors from 7 to 0.
+
+### Gameplay preservation
+
+`tools/verify_spain_layout_preserved.py .tmp/spain_layout_before` is the acceptance gate for any layout change. It parses each focus body, strips only the `x`, `y` and `relative_position_id` lines, and requires every remaining byte to match the saved baseline. A pass that touches a prerequisite, reward, cost, bypass, availability condition, AI weight or search filter is rejected.
+
+### Known remaining defects
+
+- The Restoration tree still has thirteen mechanical detours where a single-prerequisite focus sits one to four columns off its parent. Each is blocked by a sibling two cells away in the target row, so clearing them needs a row reorder that reopens crossings. Recorded, not forced.
+- The post-war tree has two connectors that are not strictly downward in its authored rows: `SPR4_rebuild_the_industry` to `SPR4_the_merchant_fleet` is level, and `SPR4_volunteer_question` sits one row above its prerequisite `SPR4_the_air_force`. Fixing either moves the child's own children in turn, so the chain would have to be re-tiered as a block. Recorded, not forced.
+- The Republic tree keeps two long connectors from its root to `SPR3_carlist_requetes` and `SPR3_public_order`; the root's children span eighteen columns, and shortening those two would move their subtrees into the political branch.
+
+### Rebuilding the layout
+
+```
+python tools/layout_spain_trees.py --report     # measure, write nothing
+python tools/layout_spain_trees.py
+python tools/straighten_spain_chains.py
+python tools/measure_spain_layout.py --baseline .tmp/spain_layout_before
+python tools/verify_spain_layout_preserved.py .tmp/spain_layout_before
+```
+
+Take a snapshot into `.tmp/spain_layout_before/` before the first run and keep it as the comparison baseline.

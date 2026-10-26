@@ -113,7 +113,9 @@ def measure(nodes):
                 dy = pos[f][1] - pos[alt][1]
                 dx = abs(pos[f][0] - pos[alt][0])
                 spans.append(dy)
-                if dy > 1 or dx > 2:
+                # thresholds match the HOI4 Agent Tools diagnostics: horizontal 8,
+                # manhattan 10, vertical 4
+                if dx > 8 or dx + abs(dy) > 10 or abs(dy) > 4 or dy <= 0:
                     long_links.append((alt, f, dy, dx))
 
     # empty rows (rows with no focus at all inside the bounding box are impossible, but
