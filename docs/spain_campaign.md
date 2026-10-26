@@ -198,6 +198,23 @@ Every focus tree in the mod carries `continuous_focus_position = { x = 1500 y = 
 A tree without the key falls back to a default that draws the continuous panel over its last rows, which is why the Iran chapter trees overlapped until they were given the key.
 Tree ids using the key must be listed in that form; `INT - WHR Paths.txt` holds shared focuses only and correctly has none.
 
+## AI focus order
+
+`common/ai_strategy_plans/SPR_chapter_plans.txt` holds one plan per chapter: Restoration, dictatorship, Republic and Republican post-war.
+Each is enabled only while that chapter is current and only with historical AI on, so ahistorical games keep the per-focus `ai_will_do` weighting instead of being herded down the historical lane.
+Chapter flags accumulate, so each plan also checks that no later chapter has opened; without that, every earlier plan would stay enabled for the rest of the campaign.
+
+## Legacy flags and what reads them
+
+The handover writes `spain_legacy_*` flags, and each one has a consumer: a politicised army and a prepared plot add coup pressure on every coup check, armed militias put infantry equipment in the stockpile when the civil war opens, and a parliamentary or corporatist settlement carries stability or war support into it.
+A flag that nothing reads is dead state, which is why the flags are listed here rather than left to be discovered.
+
+## The Cortes panel
+
+`common/scripted_guis/spain_cortes_scripted_gui.txt` mounts `spain_cortes_window` from the `SPR_cortes` decision category.
+The seat figures are interface text bindings of the form `[?spain_cortes_seats_<bloc>]`; the engine fills them from the variables `spain_cortes_recount` writes, and the panel itself is gated on `spain_cortes_total`.
+The `|0` format suffix used in localisation is not valid here and was removed.
+
 ## Validation status
 
 Statically checked: brace balance on every new file, no duplicate focus ids, every `focus =` reference resolves inside its tree, every `spain_*` effect and trigger call is defined, every idea, event, category and tooltip key referenced by script exists in localisation, and every icon reference resolves to a real sprite in this mod or the installed vanilla files.
