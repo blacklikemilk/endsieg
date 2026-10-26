@@ -3,6 +3,41 @@
 Newest batch first. This file records what was measured, what was changed, and what was
 deliberately *not* changed because it turned out not to be a defect.
 
+## Batch 7 — the Great Game
+
+British and Soviet standing are now tracked separately (`iran_british_standing` opens 55,
+`iran_soviet_standing` 30) and played against each other through a six-decision category in the
+decisions tab. Courting one costs you the other; playing them off needs both at 45 or more and pays in
+authority and political power; expelling both buys authority and costs the leverage that came with
+them. Inviting Germany in is only possible while London has not been courted too hard, and fires a
+dedicated `iran_campaign.70` at Berlin.
+
+Three mutually exclusive spirits — `iran_balancing_powers`, `iran_british_preference`,
+`iran_soviet_preference` — reflect which patron has the upper hand. Balance is worth more than either
+patron's favour and is the hardest to hold. The switch runs inside `hidden_effect` so it never shows up
+as add/remove noise in focus tooltips.
+
+### UI
+
+The category holds six decisions, which is what vanilla categories use (its own run 4–6), so the panel
+does not scroll. Titles are kept under thirty characters. The Iran decision tab now shows eight
+categories in a 1941 game (state authority, national projects, sovereignty, political course, tribal
+settlement, oil, the Great Game, wartime emergency) plus the coup panel in 1919–25 and the
+regime-switch panel only on the fallback tree. If that reads as crowded in game, the merge candidate is
+`iran_sovereignty` — the same subject matter — at the cost of one category of thirteen decisions.
+
+### Caught by the tooling before commit
+
+- The third-power decision first fired `iran_campaign.64`, which is gated `tag = ENG`; Germany would
+  have received nothing. Replaced with `iran_campaign.70`, gated to `GER`.
+- The event picture was invented (`GFX_report_event_generic_sign_treaty` does not exist); the sprite
+  check caught it and it now uses `..._treaty1`.
+- The balance condition first compared each standing against 15 rather than their gap. There is no
+  `abs_temp_variable` in the engine, so the rule was redefined without arithmetic: both patrons at 45
+  or more, neither at 60.
+
+Audit clean at 307 focuses / 142 events / 86 decisions / 0 unresolved sprites; reference check clean.
+
 ## Batch 6 — oil becomes the interactive system the country is actually about
 
 The package had one oil project decision and nothing else, while the brief treats the concession as

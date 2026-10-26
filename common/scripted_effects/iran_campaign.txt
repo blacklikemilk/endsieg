@@ -3,6 +3,8 @@
 iran_refresh_mechanics = {
 	clamp_variable = { var = iran_authority min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 	clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	clamp_variable = { var = iran_british_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	clamp_variable = { var = iran_soviet_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 	remove_ideas = { iran_fragmented_authority iran_constitutional_state iran_pahlavi_state iran_parliamentary_state iran_qajar_state iran_socialist_state iran_nationalist_state }
 	if = {
 		limit = { has_country_flag = iran_republic }
@@ -34,6 +36,29 @@ iran_refresh_mechanics = {
 		add_ideas = iran_foreign_dependence
 	}
 	else = { remove_ideas = iran_foreign_dependence }
+	# The Great Game: exactly one of the three standings is ever in force, and the
+	# switch is hidden because it fires from dozens of focuses and decisions.
+	# "Balanced" needs no arithmetic: both patrons present, neither dominant.
+	hidden_effect = {
+		remove_ideas = { iran_british_preference iran_soviet_preference iran_balancing_powers }
+		if = {
+			limit = {
+				check_variable = { var = iran_british_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
+				check_variable = { var = iran_soviet_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
+				check_variable = { var = iran_british_standing value = constant:iran_story.great_game_preference_threshold compare = less_than }
+				check_variable = { var = iran_soviet_standing value = constant:iran_story.great_game_preference_threshold compare = less_than }
+			}
+			add_ideas = iran_balancing_powers
+		}
+		else_if = {
+			limit = { check_variable = { var = iran_british_standing value = constant:iran_story.great_game_preference_threshold compare = greater_than_or_equals } }
+			add_ideas = iran_british_preference
+		}
+		else_if = {
+			limit = { check_variable = { var = iran_soviet_standing value = constant:iran_story.great_game_preference_threshold compare = greater_than_or_equals } }
+			add_ideas = iran_soviet_preference
+		}
+	}
 	# The 1921 contest's long shadow: an officer corps that was bought, purged
 	# or left unpaid does not fight well for whoever is sitting in Tehran.
 	if = {
@@ -54,6 +79,8 @@ iran_initialize_campaign = {
 		set_variable = { iran_foreign_leverage = constant:iran_story.leverage_opening }
 		set_variable = { iran_socialist_support = 0 }
 		iran_coup_init = yes
+		set_variable = { iran_british_standing = constant:iran_story.british_opening }
+		set_variable = { iran_soviet_standing = constant:iran_story.soviet_opening }
 		if = {
 			limit = { date > 1918.12.31 }
 			set_variable = { iran_authority = constant:iran_story.authority_interwar }

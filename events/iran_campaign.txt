@@ -467,3 +467,55 @@ country_event = {
 		set_country_flag = iran_campaign_concluded
 	}
 }
+
+# Germany is offered a stake in Iran by a government looking for a patron with no
+# frontier. Nothing here fires for anyone but the invited power.
+country_event = {
+	id = iran_campaign.70
+	title = iran_campaign.70.t
+	desc = iran_campaign.70.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+
+	trigger = {
+		tag = GER
+		country_exists = PER
+		NOT = { has_war_with = PER }
+	}
+
+	option = {
+		name = iran_campaign.70.a
+		ai_chance = { factor = 45 modifier = { factor = 4 has_war = yes } }
+		# accept: a mission, credit and instructors in Tehran
+		add_opinion_modifier = { target = PER modifier = iran_treaty_relations }
+		PER = {
+			set_country_flag = iran_german_mission_accepted
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			add_to_variable = { iran_british_standing = constant:iran_story.great_game_rival_loss }
+			add_political_power = constant:iran_story.political_capital
+			iran_refresh_mechanics = yes
+		}
+	}
+
+	option = {
+		name = iran_campaign.70.b
+		ai_chance = { factor = 30 }
+		# decline: the mission is not worth the British complaint
+		PER = { set_country_flag = iran_german_mission_refused }
+	}
+
+	option = {
+		name = iran_campaign.70.c
+		trigger = { has_war = yes }
+		ai_chance = { factor = 25 }
+		# accept on terms: German equipment against a claim on the northern oil
+		add_opinion_modifier = { target = PER modifier = iran_treaty_relations }
+		PER = {
+			set_country_flag = iran_german_mission_accepted
+			add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
+			add_to_variable = { iran_soviet_standing = constant:iran_story.great_game_rival_loss }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.equipment_grant }
+			iran_refresh_mechanics = yes
+		}
+	}
+}

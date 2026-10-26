@@ -1,0 +1,152 @@
+# Iran 1910-1945 - the Great Game.
+#
+# British and Soviet standing rise and fall against each other. Courting one
+# costs you the other; playing them off requires that neither has the upper hand;
+# expelling both buys authority and loses the leverage that came with them. The
+# reward for a real balance is the iran_balancing_powers spirit, which is worth
+# more than either patron's favour - and is the hardest state to hold.
+
+iran_great_game = {
+
+	iran_court_the_legation = {
+		icon = generic_fundraising
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1946.1.1
+		}
+		available = { political_power > 74 }
+		cost = 75
+		days_re_enable = 180
+		complete_effect = {
+			add_to_variable = { iran_british_standing = constant:iran_story.great_game_court_gain }
+			add_to_variable = { iran_soviet_standing = constant:iran_story.great_game_rival_loss }
+			add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
+			iran_refresh_mechanics = yes
+		}
+		ai_will_do = { factor = 2 modifier = { factor = 3 is_historical_focus_on = yes } }
+	}
+
+	iran_cultivate_the_mission = {
+		icon = generic_intelligence_operation
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1946.1.1
+		}
+		available = { political_power > 74 }
+		cost = 75
+		days_re_enable = 180
+		complete_effect = {
+			add_to_variable = { iran_soviet_standing = constant:iran_story.great_game_court_gain }
+			add_to_variable = { iran_british_standing = constant:iran_story.great_game_rival_loss }
+			add_stability = constant:iran_story.stability_cost
+			iran_refresh_mechanics = yes
+		}
+		ai_will_do = { factor = 2 modifier = { factor = 3 has_country_flag = iran_resistance } }
+	}
+
+	iran_play_them_off = {
+		icon = generic_political_discourse
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1946.1.1
+		}
+		available = {
+			political_power > 99
+			check_variable = { var = iran_british_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
+			check_variable = { var = iran_soviet_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
+		}
+		cost = 100
+		days_re_enable = 240
+		complete_effect = {
+			add_to_variable = { iran_authority = constant:iran_story.great_game_balance_authority }
+			add_political_power = constant:iran_story.political_capital
+			add_to_variable = { iran_british_standing = constant:iran_story.great_game_rival_loss }
+			add_to_variable = { iran_soviet_standing = constant:iran_story.great_game_rival_loss }
+			iran_refresh_mechanics = yes
+		}
+		ai_will_do = { factor = 1 }
+	}
+
+	iran_expel_the_advisers = {
+		icon = generic_arrest
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1946.1.1
+		}
+		available = {
+			political_power > 124
+			check_variable = { var = iran_authority value = constant:iran_story.authority_reform compare = greater_than_or_equals }
+		}
+		cost = 150
+		fire_only_once = yes
+		complete_effect = {
+			add_to_variable = { iran_british_standing = constant:iran_story.great_game_expel_loss }
+			add_to_variable = { iran_soviet_standing = constant:iran_story.great_game_expel_loss }
+			add_to_variable = { iran_authority = constant:iran_story.great_game_expel_authority }
+			add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+			add_war_support = constant:iran_story.war_support_gain
+			add_stability = constant:iran_story.stability_cost
+			if = {
+				limit = { country_exists = ENG }
+				add_opinion_modifier = { target = ENG modifier = iran_oil_dispute }
+			}
+			iran_refresh_mechanics = yes
+		}
+		ai_will_do = { factor = 1 modifier = { factor = 3 iran_path_majlis = yes } }
+	}
+
+	iran_northern_concession = {
+		icon = generic_trucks
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1946.1.1
+			NOT = { has_country_flag = iran_northern_concession_granted }
+		}
+		available = { political_power > 49 is_subject = no }
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_northern_concession_granted
+			add_to_variable = { iran_soviet_standing = constant:iran_story.great_game_court_gain }
+			add_to_variable = { iran_foreign_leverage = constant:iran_story.great_game_concession_leverage }
+			add_political_power = constant:iran_story.political_capital
+			iran_refresh_mechanics = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	iran_invite_a_third_power = {
+		icon = generic_intelligence_operation
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date > 1932.12.31
+			date < 1946.1.1
+			NOT = { has_country_flag = iran_third_power_invitation }
+		}
+		available = {
+			political_power > 99
+			check_variable = { var = iran_british_standing value = constant:iran_story.great_game_parity_threshold compare = less_than }
+			NOT = { has_war_with = GER }
+		}
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_third_power_invitation
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			add_to_variable = { iran_british_standing = constant:iran_story.great_game_rival_loss }
+			add_war_support = constant:iran_story.war_support_gain
+			if = {
+				limit = { country_exists = GER }
+				GER = { country_event = { id = iran_campaign.70 } }
+			}
+			iran_refresh_mechanics = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+}
