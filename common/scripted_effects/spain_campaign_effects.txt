@@ -1257,3 +1257,32 @@ spain_carry_over_choices = {
 		}
 	}
 }
+
+# Overview: what happens when the Republic reaches the question of the Cortes itself.
+# Upholding it keeps the balance of power and the chamber; dissolving it is the only way to
+# remove the balance, and it costs the government the room it governs from.
+spain_uphold_the_cortes = {
+	set_country_flag = spain_cortes_defended
+	clr_country_flag = spain_cortes_dissolved
+	if = { limit = { has_idea = spain_cortes_suspended } remove_ideas = spain_cortes_suspended }
+	add_stability = constant:spain_campaign.stability_medium
+	add_political_power = constant:spain_campaign.pp_medium
+	subtract_from_variable = { var = spain_nationalist_tension value = 5 }
+	add_to_variable = { var = spain_military_loyalty value = 5 }
+}
+
+spain_dissolve_the_cortes = {
+	set_country_flag = spain_cortes_dissolved
+	clr_country_flag = spain_cortes_defended
+	if = {
+		limit = { has_power_balance = { id = SPR_crown_and_cortes } }
+		remove_power_balance = { id = SPR_crown_and_cortes }
+	}
+	add_political_power = constant:spain_campaign.pp_dissolution_cost
+	add_stability = constant:spain_campaign.stability_collapse
+	add_war_support = constant:spain_campaign.war_support_medium
+	add_to_variable = { var = spain_nationalist_tension value = 20 }
+	subtract_from_variable = { var = spain_military_loyalty value = 10 }
+	add_to_variable = { var = spain_coup_pressure value = 15 }
+	if = { limit = { NOT = { has_idea = spain_cortes_suspended } } add_ideas = spain_cortes_suspended }
+}
