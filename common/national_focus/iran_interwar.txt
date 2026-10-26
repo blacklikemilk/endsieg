@@ -75,8 +75,8 @@ focus_tree = {
 			set_country_flag = iran_agreement_anglo_persian
 			set_country_flag = iran_crisis_anglo_persian_done
 			remove_mission = iran_crisis_anglo_persian_begin
-			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_equipment producer = ENG }
 			iran_concede_british_large = yes
+			# the credit itself is settled in event iran_campaign.14, not here as well
 			country_event = { id = iran_campaign.14 }
 			hidden_effect = { iran_refresh_mechanics = yes }
 		}
@@ -109,12 +109,9 @@ focus_tree = {
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			iran_concede_british_small = yes
 			hidden_effect = { iran_refresh_mechanics = yes }
-		
-			if = {
-				limit = { iran_path_entente = yes }
-				army_experience = constant:iran_story.army_experience
-				add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.equipment_small }
-			}}
+			army_experience = constant:iran_story.army_experience
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.equipment_small }
+		}
 	}
 	focus = {
 		id = IR2_command_and_cabinet
@@ -217,9 +214,10 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_gilan_republic
 			add_to_variable = { iran_socialist_support = constant:iran_story.socialist_support_gain }
+			add_popularity = { ideology = communism popularity = 0.02 }
 			add_war_support = constant:iran_story.war_support_gain
-			country_event = { id = iran_campaign.51 }
 			add_command_power = constant:iran_story.command_power
+			country_event = { id = iran_campaign.51 }
 		}
 	}
 	focus = {
@@ -248,7 +246,7 @@ focus_tree = {
 		icon = GFX_focus_generic_land_reclamation
 		x = 23 y = 4
 		prerequisite = { focus = IR2_gilan_republic } cost = @medium
-		available = { date > 1920.5.31 }
+		available = { date > 1920.5.31 has_country_flag = iran_gilan_republic }
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
 		completion_reward = {
@@ -287,6 +285,7 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_socialist_congress
 			add_to_variable = { iran_socialist_support = constant:iran_story.socialist_support_gain }
+			add_manpower = constant:iran_story.tribal_manpower
 			add_political_power = constant:iran_story.political_capital
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -301,7 +300,8 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_landlord_settlement
 			add_stability = constant:iran_story.stability_gain
-			413 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			# the landed south, not the oil province: the bargain is with the estates of Fars
+			412 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
 		}
 	}
 	focus = {
@@ -313,6 +313,8 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_provincial_governors
+			set_country_flag = iran_centralizing_programme
+			419 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
 			add_to_variable = { iran_authority = constant:iran_story.authority_major_gain }
 			add_stability = constant:iran_story.stability_cost
 			hidden_effect = { iran_refresh_mechanics = yes }
@@ -343,6 +345,8 @@ focus_tree = {
 		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
 		completion_reward = {
 			set_country_flag = iran_nationalist_movement
+			add_popularity = { ideology = fascism popularity = 0.03 }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			add_war_support = constant:iran_story.war_support_gain
 		}
@@ -352,10 +356,14 @@ focus_tree = {
 		icon = GFX_focus_generic_workers
 		x = 0 y = 8
 		prerequisite = { focus = IR2_nationalist_movement } cost = @medium
+		available = {
+			has_country_flag = iran_nationalist_movement
+		}
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
 		completion_reward = {
-			set_country_flag = iran_nationalist_press
+			add_popularity = { ideology = fascism popularity = 0.02 }
+			iran_reclaim_leading_small = yes
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_stability = constant:iran_story.stability_gain
 			hidden_effect = { iran_refresh_mechanics = yes }
@@ -367,6 +375,9 @@ focus_tree = {
 		icon = GFX_focus_BRA_acquire_german_tanks
 		x = 2 y = 9
 		prerequisite = { focus = IR2_nationalist_movement } cost = @medium
+		available = {
+			has_country_flag = iran_nationalist_movement
+		}
 		search_filters = { FOCUS_FILTER_ARMY_XP }
 		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
 		completion_reward = {
@@ -386,6 +397,7 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @priority }
 		completion_reward = {
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			mark_focus_tree_layout_dirty = yes
 			custom_effect_tooltip = iran_settlement_choice_tt
@@ -400,7 +412,7 @@ focus_tree = {
 		mutually_exclusive = { focus = IR2_constitutional_crown focus = IR2_parliamentary_republic focus = IR2_pahlavi_settlement focus = IR2_nationalist_front focus = IR2_socialist_republic } cost = @programme
 		allow_branch = { NOT = { has_country_flag = iran_pahlavi } NOT = { has_country_flag = iran_constitutional_monarchy } NOT = { has_country_flag = iran_republic } NOT = { has_country_flag = iran_socialist } NOT = { has_country_flag = iran_nationalist_front } }
 		search_filters = { FOCUS_FILTER_POLITICAL_CHARACTER }
-		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } modifier = { factor = 5 has_country_flag = iran_royal_household } }
+		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes NOT = { has_country_flag = iran_royal_household } } modifier = { factor = 5 has_country_flag = iran_royal_household } }
 		completion_reward = {
 			iran_settle_qajar_restoration = yes
 			iran_reclaim_leading_large = yes
@@ -433,7 +445,7 @@ focus_tree = {
 		mutually_exclusive = { focus = IR2_qajar_restoration focus = IR2_parliamentary_republic focus = IR2_pahlavi_settlement focus = IR2_nationalist_front focus = IR2_socialist_republic } cost = @programme
 		allow_branch = { NOT = { has_country_flag = iran_pahlavi } NOT = { has_country_flag = iran_republic } NOT = { has_country_flag = iran_socialist } NOT = { has_country_flag = iran_nationalist_front } }
 		search_filters = { FOCUS_FILTER_POLITICAL }
-		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } modifier = { factor = 5 has_country_flag = iran_constitution_secured } }
+		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes NOT = { has_country_flag = iran_constitution_secured } } modifier = { factor = 5 has_country_flag = iran_constitution_secured } }
 		completion_reward = {
 			iran_settle_constitution = yes
 			add_political_power = constant:iran_story.political_capital
@@ -450,12 +462,11 @@ focus_tree = {
 		allow_branch = { NOT = { has_country_flag = iran_pahlavi } NOT = { has_country_flag = iran_constitutional_monarchy } NOT = { has_country_flag = iran_socialist } NOT = { has_country_flag = iran_nationalist_front } }
 		available = { iran_path_majlis = yes }
 		search_filters = { FOCUS_FILTER_POLITICAL_CHARACTER }
-		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
+		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes NOT = { iran_path_majlis = yes } } modifier = { factor = 5 iran_path_majlis = yes } }
 		completion_reward = {
 			iran_settle_republic = yes
 			add_political_power = constant:iran_story.political_capital
 			add_stability = constant:iran_story.stability_gain
-			PER_bop_push_majlis = yes
 		}
 	}
 	focus = {
@@ -493,7 +504,7 @@ focus_tree = {
 		allow_branch = { NOT = { has_country_flag = iran_pahlavi } NOT = { has_country_flag = iran_republic } NOT = { has_country_flag = iran_socialist } NOT = { has_country_flag = iran_constitutional_monarchy } }
 		available = { has_country_flag = iran_nationalist_officers OR = { iran_path_army = yes iran_path_tribal = yes } }
 		search_filters = { FOCUS_FILTER_POLITICAL_CHARACTER }
-		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
+		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes NOT = { has_country_flag = iran_nationalist_officers } } modifier = { factor = 5 has_country_flag = iran_nationalist_officers } }
 		completion_reward = {
 			iran_settle_nationalist = yes
 			add_war_support = constant:iran_story.war_support_gain
@@ -510,7 +521,7 @@ focus_tree = {
 		allow_branch = { NOT = { has_country_flag = iran_pahlavi } NOT = { has_country_flag = iran_republic } NOT = { has_country_flag = iran_constitutional_monarchy } NOT = { has_country_flag = iran_nationalist_front } }
 		available = { custom_trigger_tooltip = { tooltip = iran_socialist_support_tt check_variable = { var = iran_socialist_support value = constant:iran_story.socialist_support_needed compare = greater_than_or_equals } } has_country_flag = iran_jangali_congress OR = { iran_path_majlis = yes NOT = { iran_path_court = yes } } }
 		search_filters = { FOCUS_FILTER_POLITICAL_CHARACTER }
-		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
+		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes NOT = { has_country_flag = iran_jangali_congress } } modifier = { factor = 5 has_country_flag = iran_jangali_congress } }
 		completion_reward = {
 			iran_settle_socialist = yes
 			add_manpower = constant:iran_story.reserve_manpower
@@ -527,9 +538,10 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @priority }
 		completion_reward = {
+			PER_bop_push_crown = yes
+			set_country_flag = iran_royal_household
 			add_to_variable = { iran_authority = constant:iran_story.authority_major_gain }
 			add_political_power = constant:iran_story.political_capital
-			set_country_flag = iran_royal_authority
 			iran_refresh_mechanics = yes
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -545,6 +557,7 @@ focus_tree = {
 		completion_reward = {
 			PER_bop_push_crown = yes
 			set_country_flag = iran_court_ministries
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_stability = constant:iran_story.stability_gain
 			add_political_power = constant:iran_story.political_capital
 		}
@@ -560,6 +573,7 @@ focus_tree = {
 		completion_reward = {
 			PER_bop_push_crown_small = yes
 			set_country_flag = iran_governors_of_the_crown
+			set_country_flag = iran_centralizing_programme
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			iran_refresh_mechanics = yes
 		}
@@ -574,6 +588,7 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_household_brigade
+			add_manpower = constant:iran_story.gendarmerie_manpower
 			army_experience = constant:iran_story.army_experience
 			add_command_power = constant:iran_story.command_power
 			add_war_support = constant:iran_story.war_support_gain
@@ -588,10 +603,9 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
-			set_country_flag = iran_press_restraint
+			PER_bop_push_crown_small = yes
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_stability = constant:iran_story.stability_gain
-			iran_concede_leading_small = yes
-			iran_refresh_mechanics = yes
 			add_political_power = constant:iran_story.political_capital
 		}
 	}
@@ -658,6 +672,9 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_electoral_law
+			PER_bop_push_majlis_small = yes
+			add_popularity = { ideology = democratic popularity = 0.03 }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -819,7 +836,10 @@ focus_tree = {
 			set_country_flag = iran_land_reform_debate
 			add_stability = constant:iran_story.stability_cost
 			add_manpower = constant:iran_story.reserve_manpower
-			417 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			417 = {
+				add_extra_state_shared_building_slots = constant:iran_story.project_slots
+				add_building_construction = { type = infrastructure level = 1 instant_build = yes }
+			}
 		}
 	}
 	focus = {
@@ -832,6 +852,8 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_civilian_control
+			PER_bop_push_majlis_small = yes
+			add_to_variable = { iran_officer_loyalty = constant:iran_story.officer_gain }
 			army_experience = constant:iran_story.army_experience
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -913,12 +935,16 @@ focus_tree = {
 			add_manpower = constant:iran_story.tribal_manpower
 			country_event = { id = iran_campaign.54 }
 			iran_refresh_mechanics = yes
-		
-			if = {
-				limit = { iran_path_gendarmerie = yes }
-				add_political_power = constant:iran_story.political_capital
-				add_stability = constant:iran_story.stability_gain
-			}}
+
+			hidden_effect = {
+				if = {
+					limit = { iran_path_gendarmerie = yes }
+					add_political_power = constant:iran_story.political_capital
+					add_stability = constant:iran_story.stability_gain
+				}
+			}
+			custom_effect_tooltip = iran_gendarmerie_bonus_tt
+		}
 	}
 	focus = {
 		id = IR2_military_academy
@@ -930,6 +956,7 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_military_academy
+			add_to_variable = { iran_officer_loyalty = constant:iran_story.officer_gain }
 			army_experience = constant:iran_story.army_experience
 			add_command_power = constant:iran_story.command_power
 			add_war_support = constant:iran_story.war_support_gain
@@ -947,7 +974,7 @@ focus_tree = {
 			set_country_flag = iran_state_enterprises
 			266 = {
 				add_extra_state_shared_building_slots = constant:iran_story.project_slots
-				add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+				add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
 			}
 		}
 	}
@@ -983,6 +1010,8 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_national_union
 			PER_bop_push_crown_large = yes
+			add_popularity = { ideology = fascism popularity = 0.03 }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -1122,6 +1151,8 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_red_gendarmes
+			set_country_flag = iran_gendarmerie_ready
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_focus_interwar.garrison_equipment }
 			army_experience = constant:iran_story.army_experience
 			add_war_support = constant:iran_story.war_support_gain
 		}
@@ -1154,6 +1185,7 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_labour_law
 			PER_bop_push_majlis_small = yes
+			add_to_variable = { iran_socialist_support = constant:iran_story.socialist_support_gain }
 			add_stability = constant:iran_story.stability_gain
 			add_manpower = constant:iran_story.gendarmerie_manpower
 		}
@@ -1224,12 +1256,16 @@ focus_tree = {
 			add_political_power = constant:iran_story.political_capital
 			add_stability = constant:iran_story.stability_gain
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
-		
-			if = {
-				limit = { iran_path_treasury = yes }
-				add_political_power = constant:iran_story.political_capital
-				add_to_variable = { iran_authority = constant:iran_story.authority_gain }
-			}}
+
+			hidden_effect = {
+				if = {
+					limit = { iran_path_treasury = yes }
+					add_political_power = constant:iran_story.political_capital
+					add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+				}
+			}
+			custom_effect_tooltip = iran_treasury_path_bonus_tt
+		}
 	}
 	focus = {
 		id = IR2_domestic_capital
@@ -1257,15 +1293,15 @@ focus_tree = {
 		ai_will_do = { factor = @normal modifier = { factor = 0 has_country_flag = iran_republic } }
 		completion_reward = {
 			country_event = { id = iran_campaign.14 }
-			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_equipment producer = ENG }
 			iran_concede_british_small = yes
 			add_political_power = constant:iran_story.political_capital
-		
+
+			# the oil path pays for the concession once more in political power only
 			if = {
 				limit = { iran_path_oil_concession = yes }
-				iran_concede_british_small = yes
 				add_political_power = constant:iran_story.political_capital
-			}}
+			}
+		}
 	}
 	focus = {
 		id = IR2_khuzestan_oil
@@ -1280,18 +1316,23 @@ focus_tree = {
 			413 = { add_resource = { type = oil amount = constant:iran_story.oil_expansion } }
 			add_political_power = constant:iran_story.political_capital
 			iran_concede_british_small = yes
-		
-			if = {
-				limit = { iran_path_oil_national = yes }
-				add_political_power = constant:iran_story.political_capital
-				add_to_variable = { iran_authority = constant:iran_story.authority_gain }
-			}}
+
+			hidden_effect = {
+				if = {
+					limit = { iran_path_oil_national = yes }
+					add_political_power = constant:iran_story.political_capital
+					add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+				}
+			}
+			custom_effect_tooltip = iran_oil_national_bonus_tt
+		}
 	}
 	focus = {
 		id = IR2_trans_iranian_railway
 		icon = GFX_focus_generic_railroad
 		x = 29 y = 3
 		prerequisite = { focus = IR2_khuzestan_oil } cost = @programme
+		mutually_exclusive = { focus = IR2_state_railways }
 		available = {
 			custom_trigger_tooltip = {
 				tooltip = iran_pahlavi_programme_tt
@@ -1306,13 +1347,17 @@ focus_tree = {
 		ai_will_do = { factor = @priority }
 		completion_reward = {
 			set_country_flag = iran_railway_programme
-			410 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
-			413 = {
-				add_building_construction = { type = infrastructure level = 1 instant_build = yes }
-				add_extra_state_shared_building_slots = constant:iran_story.project_slots
+			hidden_effect = {
+				# Bandar Shahpur - Ahvaz - Tehran - Bandar Shah: Iranian states only
+				413 = {
+					add_building_construction = { type = infrastructure level = 1 instant_build = yes }
+					add_extra_state_shared_building_slots = constant:iran_story.project_slots
+				}
+				266 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+				418 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+				417 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
 			}
-			415 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
-			421 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			custom_effect_tooltip = iran_trans_iranian_railway_tt
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			hidden_effect = { iran_refresh_mechanics = yes }
 		}
@@ -1334,12 +1379,16 @@ focus_tree = {
 		icon = GFX_focus_generic_railroad
 		x = 33 y = 3
 		prerequisite = { focus = IR2_khuzestan_oil } cost = @programme
+		mutually_exclusive = { focus = IR2_trans_iranian_railway }
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_railway_programme
-			410 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
-			415 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			hidden_effect = {
+				413 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+				417 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			}
+			custom_effect_tooltip = iran_state_railways_tt
 			add_political_power = constant:iran_story.political_capital
 		}
 	}
@@ -1468,6 +1517,7 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_land_registry
+			iran_reclaim_leading_small = yes
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			hidden_effect = { iran_refresh_mechanics = yes }
@@ -1479,6 +1529,7 @@ focus_tree = {
 		icon = GFX_focus_research
 		x = 33 y = 9
 		prerequisite = { focus = IR2_agricultural_credit } cost = @programme
+		mutually_exclusive = { focus = IR2_state_university }
 		available = {
 			custom_trigger_tooltip = {
 				tooltip = iran_pahlavi_programme_tt
@@ -1514,6 +1565,7 @@ focus_tree = {
 		icon = GFX_focus_generic_university_1
 		x = 37 y = 9
 		prerequisite = { focus = IR2_agricultural_credit } cost = @programme
+		mutually_exclusive = { focus = IR2_tehran_university }
 		search_filters = { FOCUS_FILTER_RESEARCH }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
@@ -1531,15 +1583,20 @@ focus_tree = {
 		ai_will_do = { factor = @priority }
 		completion_reward = {
 			set_country_flag = iran_industrial_bank
+			set_country_flag = iran_budget_established
 			iran_reclaim_leading_small = yes
 			add_political_power = constant:iran_story.political_capital
 			hidden_effect = { iran_refresh_mechanics = yes }
 			add_stability = constant:iran_story.stability_gain
-		
-			if = {
-				limit = { iran_path_treasury = yes }
-				add_political_power = constant:iran_story.political_capital
-			}}
+
+			hidden_effect = {
+				if = {
+					limit = { iran_path_treasury = yes }
+					add_political_power = constant:iran_story.political_capital
+				}
+			}
+			custom_effect_tooltip = iran_treasury_path_bonus_tt
+		}
 	}
 	focus = {
 		id = IR2_mining_survey
@@ -1563,7 +1620,7 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_road_programme
 			421 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
-			415 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			416 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
 		}
 	}
 	focus = {
@@ -1571,6 +1628,7 @@ focus_tree = {
 		icon = GFX_focus_usa_reestablish_the_gold_standard
 		x = 31 y = 12
 		prerequisite = { focus = IR2_mining_survey focus = IR2_road_programme } cost = @medium
+		mutually_exclusive = { focus = IR2_national_tariff_office }
 		available = {
 			custom_trigger_tooltip = {
 				tooltip = iran_pahlavi_programme_tt
@@ -1584,7 +1642,8 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
-			set_country_flag = iran_customs_reform
+			set_country_flag = iran_customs_reformed
+			add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			hidden_effect = { iran_refresh_mechanics = yes }
@@ -1608,11 +1667,13 @@ focus_tree = {
 		icon = GFX_goal_generic_construct_civ_factory
 		x = 35 y = 12
 		prerequisite = { focus = IR2_mining_survey focus = IR2_road_programme } cost = @medium
+		mutually_exclusive = { focus = IR2_customs_reform }
 		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
-			set_country_flag = iran_customs_reform
+			set_country_flag = iran_customs_reformed
 			iran_reclaim_leading_small = yes
+			add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			hidden_effect = { iran_refresh_mechanics = yes }
 		}
@@ -1621,7 +1682,7 @@ focus_tree = {
 		id = IR2_telecommunications
 		icon = GFX_focus_PER_expand_tabriz_masshad
 		x = 29 y = 13
-		prerequisite = { focus = IR2_customs_reform } cost = @medium
+		prerequisite = { focus = IR2_customs_reform focus = IR2_national_tariff_office } cost = @medium
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
@@ -1634,13 +1695,13 @@ focus_tree = {
 		id = IR2_urban_works
 		icon = GFX_focus_AFG_parliamentary_democracy
 		x = 33 y = 13
-		prerequisite = { focus = IR2_customs_reform } cost = @medium
+		prerequisite = { focus = IR2_customs_reform focus = IR2_national_tariff_office } cost = @medium
 		search_filters = { FOCUS_FILTER_STABILITY }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_urban_works
 			add_stability = constant:iran_story.stability_gain
-			266 = { add_building_construction = { type = anti_air_building level = 1 instant_build = yes } }
+			266 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
 		}
 	}
 	focus = {
@@ -1653,6 +1714,7 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_economy_settled
 			iran_reclaim_leading_large = yes
+			add_to_variable = { iran_authority = constant:iran_story.authority_major_gain }
 			add_political_power = constant:iran_story.political_capital
 			hidden_effect = { iran_refresh_mechanics = yes }
 			add_stability = constant:iran_story.stability_gain
@@ -1660,6 +1722,7 @@ focus_tree = {
 	}
 	focus = {
 		id = IR2_unified_command
+		mutually_exclusive = { focus = IR2_general_staff }
 		icon = GFX_goal_generic_army_artillery cost = @short
 		available = {
 			custom_trigger_tooltip = {
@@ -1682,6 +1745,7 @@ focus_tree = {
 	}
 	focus = {
 		id = IR2_general_staff
+		mutually_exclusive = { focus = IR2_unified_command }
 		available = {
 			custom_trigger_tooltip = {
 				tooltip = iran_alternative_programme_tt
@@ -1747,6 +1811,7 @@ focus_tree = {
 		icon = GFX_focus_PER_special_forces_program
 		x = 41 y = 3
 		prerequisite = { focus = IR2_arsenal_network } cost = @programme
+		mutually_exclusive = { focus = IR2_volunteer_levy }
 		available = {
 			custom_trigger_tooltip = {
 				tooltip = iran_pahlavi_programme_tt
@@ -1782,6 +1847,7 @@ focus_tree = {
 		icon = GFX_goal_generic_allies_build_infantry
 		x = 43 y = 3
 		prerequisite = { focus = IR2_arsenal_network } cost = @programme
+		mutually_exclusive = { focus = IR2_conscription_law }
 		search_filters = { FOCUS_FILTER_MANPOWER FOCUS_FILTER_ARMY_XP }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
@@ -1828,7 +1894,7 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_armored_detachment
 			army_experience = constant:iran_story.army_experience
-			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.equipment_grant }
+			add_equipment_to_stockpile = { type = light_tank_equipment_1 amount = constant:iran_focus_interwar.armour_purchase }
 		}
 	}
 	focus = {
@@ -1836,9 +1902,20 @@ focus_tree = {
 		icon = GFX_focus_ARG_develop_the_electricity_sector
 		x = 40 y = 5
 		prerequisite = { focus = IR2_armored_detachment } cost = @programme
+		available = {
+			owns_state = 266
+			controls_state = 266
+		}
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		ai_will_do = { factor = @normal }
-		completion_reward = { iran_build_tehran_arsenal = yes }
+		completion_reward = {
+			# the arsenal itself was built by IR2_arsenal_network; this buys its second bay and its output
+			266 = {
+				add_extra_state_shared_building_slots = constant:iran_story.project_slots
+				add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+			}
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_focus_interwar.garrison_equipment }
+		}
 	}
 	focus = {
 		id = IR2_frontier_divisions
@@ -1888,6 +1965,7 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_supply_corps
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_focus_interwar.garrison_equipment }
 			army_experience = constant:iran_story.army_experience
 			add_war_support = constant:iran_story.war_support_gain
 		}
@@ -1914,6 +1992,7 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_foreign_programme
+			add_to_variable = { iran_sovereignty = constant:iran_focus_interwar.sovereignty_treaties }
 			country_event = { id = iran_campaign.25 }
 		}
 	}
@@ -1928,6 +2007,7 @@ focus_tree = {
 		ai_will_do = { factor = @priority }
 		completion_reward = {
 			set_country_flag = iran_northern_treaty
+			add_to_variable = { iran_northern_standing = constant:iran_focus_interwar.standing_grant }
 			country_event = { id = iran_campaign.26 }
 		}
 	}
@@ -2000,6 +2080,8 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_league_member
+			add_to_variable = { iran_sovereignty = constant:iran_focus_interwar.sovereignty_league }
+			if = { limit = { country_exists = ENG } add_opinion_modifier = { target = ENG modifier = iran_treaty_relations } }
 			add_political_power = constant:iran_story.political_capital
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -2015,6 +2097,8 @@ focus_tree = {
 		completion_reward = {
 			set_country_flag = iran_american_advisers
 			set_country_flag = PER_treasury_reformed
+			set_country_flag = iran_customs_reformed
+			add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			if = { limit = { country_exists = USA } add_opinion_modifier = { target = USA modifier = iran_treaty_relations } }
@@ -2057,7 +2141,7 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
-			set_country_flag = iran_turkish_frontier
+			419 = { add_building_construction = { type = bunker level = 1 instant_build = yes } }
 			if = { limit = { country_exists = TUR } add_opinion_modifier = { target = TUR modifier = iran_treaty_relations } }
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -2072,6 +2156,7 @@ focus_tree = {
 		ai_will_do = { factor = @normal }
 		completion_reward = {
 			set_country_flag = iran_afghan_relations
+			set_country_flag = iran_regional_programme
 			if = { limit = { country_exists = AFG } add_opinion_modifier = { target = AFG modifier = iran_treaty_relations } }
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			hidden_effect = { iran_refresh_mechanics = yes }
@@ -2095,12 +2180,16 @@ focus_tree = {
 			}
 			if = { limit = { country_exists = GER } add_opinion_modifier = { target = GER modifier = iran_treaty_relations } }
 			hidden_effect = { iran_refresh_mechanics = yes }
-		
-			if = {
-				limit = { iran_path_germany = yes }
-				add_political_power = constant:iran_story.political_capital
-				army_experience = constant:iran_story.army_experience
-			}}
+
+			hidden_effect = {
+				if = {
+					limit = { iran_path_germany = yes }
+					add_political_power = constant:iran_story.political_capital
+					army_experience = constant:iran_story.army_experience
+				}
+			}
+			custom_effect_tooltip = iran_germany_path_bonus_tt
+		}
 	}
 	focus = {
 		id = IR2_saadabad_prelude
@@ -2110,7 +2199,13 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @priority }
 		completion_reward = {
-			set_country_flag = iran_saadabad_prelude
+			# the pact of 1937 in outline: guarantees and goodwill among the neighbours
+			if = { limit = { country_exists = TUR NOT = { has_war_with = TUR } } give_guarantee = TUR }
+			if = { limit = { country_exists = IRQ NOT = { has_war_with = IRQ } } give_guarantee = IRQ }
+			if = { limit = { country_exists = AFG NOT = { has_war_with = AFG } } give_guarantee = AFG }
+			if = { limit = { country_exists = TUR } add_opinion_modifier = { target = TUR modifier = iran_treaty_relations } }
+			if = { limit = { country_exists = IRQ } add_opinion_modifier = { target = IRQ modifier = iran_treaty_relations } }
+			if = { limit = { country_exists = AFG } add_opinion_modifier = { target = AFG modifier = iran_treaty_relations } }
 			add_stability = constant:iran_story.stability_gain
 			add_political_power = constant:iran_story.political_capital
 		}
@@ -2137,6 +2232,12 @@ focus_tree = {
 		ai_will_do = { factor = @priority }
 		completion_reward = {
 			set_country_flag = iran_diplomacy_settled
+			set_country_flag = iran_regional_programme
+			add_to_variable = { iran_sovereignty = constant:iran_focus_interwar.sovereignty_league }
+			if = { limit = { country_exists = TUR } add_opinion_modifier = { target = TUR modifier = iran_treaty_relations } }
+			if = { limit = { country_exists = IRQ } add_opinion_modifier = { target = IRQ modifier = iran_treaty_relations } }
+			if = { limit = { country_exists = AFG } add_opinion_modifier = { target = AFG modifier = iran_treaty_relations } }
+			if = { limit = { country_exists = SOV } add_opinion_modifier = { target = SOV modifier = iran_treaty_relations } }
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			hidden_effect = { iran_refresh_mechanics = yes }
@@ -2150,9 +2251,10 @@ focus_tree = {
 		x = 67 y = 1
 		available = { is_subject = no }
 		search_filters = { FOCUS_FILTER_POLITICAL }
-		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
+		ai_will_do = { factor = @normal }
 		completion_reward = {
-			set_country_flag = iran_regional_ambitions
+			add_war_support = constant:iran_story.war_support_gain
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 			add_stability = constant:iran_story.stability_gain
 		}
@@ -2165,10 +2267,11 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal modifier = { factor = 0 has_war = yes } }
 		completion_reward = {
-			set_country_flag = iran_caucasus_interest
+			add_to_variable = { iran_northern_standing = constant:iran_focus_interwar.standing_loss }
+			iran_concede_northern_small = yes
+			set_country_flag = iran_regional_programme
+			add_war_support = constant:iran_story.war_support_gain
 			add_political_power = constant:iran_story.political_capital
-			custom_effect_tooltip = iran_caucasus_interest_tt
-			add_stability = constant:iran_story.stability_gain
 		}
 	}
 	focus = {
@@ -2179,9 +2282,9 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal modifier = { factor = 0 has_war = yes } }
 		completion_reward = {
-			set_country_flag = iran_mesopotamia_interest
+			add_to_variable = { iran_british_standing = constant:iran_focus_interwar.standing_loss }
+			set_country_flag = iran_shatt_programme
 			add_war_support = constant:iran_story.war_support_gain
-			custom_effect_tooltip = iran_mesopotamia_interest_tt
 			add_stability = constant:iran_story.stability_gain
 		}
 	}
@@ -2194,9 +2297,9 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_ANNEXATION }
 		ai_will_do = { factor = @normal modifier = { factor = 0 has_war = yes } }
 		completion_reward = {
-			set_country_flag = iran_gulf_islands_claim
+			iran_reclaim_british_small = yes
+			if = { limit = { country_exists = ENG } add_opinion_modifier = { target = ENG modifier = iran_oil_dispute } }
 			add_war_support = constant:iran_story.war_support_gain
-			custom_effect_tooltip = iran_gulf_islands_tt
 			add_political_power = constant:iran_story.political_capital
 		}
 	}
@@ -2209,8 +2312,9 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
-			set_country_flag = iran_afghan_influence
+			set_country_flag = iran_regional_programme
 			if = { limit = { country_exists = AFG } add_opinion_modifier = { target = AFG modifier = iran_treaty_relations } }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_political_power = constant:iran_story.political_capital
 		}
 	}
@@ -2237,6 +2341,8 @@ focus_tree = {
 		ai_will_do = { factor = @priority }
 		completion_reward = {
 			set_country_flag = iran_regional_settled
+			set_country_flag = iran_regional_programme
+			add_to_variable = { iran_sovereignty = constant:iran_focus_interwar.sovereignty_regional }
 			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
 			add_stability = constant:iran_story.stability_gain
 			hidden_effect = { iran_refresh_mechanics = yes }
@@ -2287,6 +2393,7 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		ai_will_do = { factor = @normal }
 		completion_reward = {
+			iran_reclaim_northern_small = yes
 			add_political_power = constant:iran_story.political_capital
 			add_fuel = constant:iran_story.oil_royalty_fuel
 			add_stability = constant:iran_story.stability_gain

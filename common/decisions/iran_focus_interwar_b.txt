@@ -1,0 +1,56 @@
+# Overview: the two follow-up decisions the 1919-1935 focus tree opens.
+#
+# iran_fund_the_debt_settlement   what IR2_postwar_settlement's event (iran_campaign.21) promises:
+#                                 the government puts money against the wartime debt instead of
+#                                 only announcing a programme. Visible on the flag that event sets.
+# iran_league_appeal              what IR2_league_of_nations buys: a standing right to take a
+#                                 grievance to Geneva, spent once for standing and sovereignty.
+#
+# Both live in categories that already exist (iran_state_authority, iran_political_course) and are
+# country-scoped to Iran, so no new category or interface file is needed.
+
+iran_state_authority = {
+
+	iran_fund_the_debt_settlement = {
+		icon = generic_industry
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_debt_settlement_programme
+			NOT = { has_country_flag = iran_debt_settlement_funded }
+		}
+		available = { has_political_power > 99 }
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_debt_settlement_funded
+			add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			hidden_effect = { iran_refresh_mechanics = yes }
+			add_stability = constant:iran_story.stability_gain
+		}
+		ai_will_do = { factor = 3 modifier = { factor = 2 check_variable = { var = iran_foreign_leverage value = 59 compare = greater_than } } }
+	}
+}
+
+iran_political_course = {
+
+	iran_league_appeal = {
+		icon = generic_foreign_policy
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_league_member
+			NOT = { has_country_flag = iran_league_appealed }
+		}
+		available = { has_political_power > 49 }
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_league_appealed
+			add_to_variable = { iran_sovereignty = constant:iran_focus_interwar.sovereignty_league }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			if = { limit = { country_exists = ENG } add_opinion_modifier = { target = ENG modifier = iran_treaty_relations } }
+			add_stability = constant:iran_story.stability_gain
+		}
+		ai_will_do = { factor = 3 }
+	}
+}
