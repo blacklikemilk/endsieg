@@ -3,6 +3,32 @@
 Newest batch first. This file records what was measured, what was changed, and what was
 deliberately *not* changed because it turned out not to be a defect.
 
+## Batch 2 — the 1936 handover no longer flattens three regimes
+
+`iran_route_chapter` handed Iran to the DLC's `persian_focus_tree` in 1936 whenever the DLC was
+present, whatever the interwar outcome. That tree only distinguishes four governments: communist,
+democratic, fascist and non-aligned. A Qajar restoration, a constitutional monarchy and a Pahlavi
+Iran all arrive as "neutral", so three of the six settlements became the same country at 1936.
+
+The router now hands over only to regimes the DLC tree can actually represent:
+
+| Settlement | 1936 tree | Why |
+| --- | --- | --- |
+| none (historical) | `persian_focus_tree` | the DLC's own historical content |
+| Pahlavi | `persian_focus_tree` | non-aligned *is* the historical Pahlavi line, and it is the deepest content |
+| Republic | `persian_focus_tree` | democratic branch |
+| Nationalist front | `persian_focus_tree` | fascist branch |
+| Socialist republic | `persian_focus_tree` | communist branch |
+| Qajar restoration | `iran_ww2` | the DLC tree has no Qajar concept; `IR3` has a dedicated branch |
+| Constitutional monarchy | `iran_ww2` | same — no distinct ideology to map onto |
+
+The three ideology settlements also gain `add_popularity` for their ideology (0.30), because the DLC
+tree's branch *entry* focuses are gated on popularity rather than on the ruling party alone; without
+it a legitimately communist Iran could still find Tudeh content locked.
+
+Validation: audit re-run clean (307 focuses, 0 problems); braces balanced; no localisation impact.
+Not yet seen on screen — the 1936 handover has not been played through in this batch.
+
 ## Batch 1 — audit tooling and the defects it found
 
 ### Branch
