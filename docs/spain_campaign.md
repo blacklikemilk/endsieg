@@ -261,6 +261,10 @@ Forcing an election costs 150, not 75.
 Statically checked: brace balance on every new file, no duplicate focus ids, every `focus =` reference resolves inside its tree, every `spain_*` effect and trigger call is defined, every idea, event, category and tooltip key referenced by script exists in localisation, and every icon reference resolves to a real sprite in this mod or the installed vanilla files.
 Not checked: in-game behaviour. No launch was performed; the transition dates, AI path choices and balance feel need one playtest per bookmark.
 
+### Encoding of these files
+
+Every Spain-owned `.txt` must be written as plain UTF-8 with no byte-order mark. A BOM in `common/script_constants/spain_campaign.txt` makes the engine drop the whole constant block, so every `constant:spain_campaign.*` reads as zero — which in game looks like focuses and decisions that do nothing, a missing Balance of Power and a chamber stuck at zero seats. A BOM in a decisions or scripted-effects file loses the category or every function it defines. `tools/check_script_bom.py` fails on any Spain-owned script file carrying one; run it before committing. Localisation `.yml` files are the opposite and must keep exactly one BOM.
+
 ## The Cortes as a party system
 
 The chamber is not decoration. It holds exactly 400 seats, 201 of them are needed to govern, and seats move because the player moves them.
