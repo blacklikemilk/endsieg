@@ -1,4 +1,4 @@
-# Overview: the Spanish Cortes as a chamber of seat blocs.
+﻿# Overview: the Spanish Cortes as a chamber of seat blocs.
 # Raw support is written to spain_cortes_raw_* and normalised to exactly 400 seats in
 # spain_cortes_seats_*, so a majority is always 201 however support drifts.
 # A decision category (SPR_cortes) mounts the chamber panel; its bills are ordinary decisions
@@ -9,7 +9,13 @@
 # =====================================================================================
 
 spain_cortes_initialize = {
-	spain_cortes_recount = yes
+	if = {
+		limit = { NOT = { has_variable = spain_party_shift_monarchists } }
+		spain_parties_initialize = yes
+	}
+	else = {
+		spain_cortes_recount = yes
+	}
 }
 
 # =====================================================================================
@@ -35,6 +41,22 @@ spain_cortes_recount = {
 	if = { limit = { has_country_flag = spain_conservative_governments } add_to_variable = { var = spain_cortes_raw_conservatives value = 9 } }
 	if = { limit = { has_country_flag = spain_mancomunitat } add_to_variable = { var = spain_cortes_raw_republicans value = 6 } }
 	if = { limit = { has_country_flag = spain_mancomunitat_suppressed } add_to_variable = { var = spain_cortes_raw_carlists value = 6 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 4 } }
+
+	# --- what the parties have won or lost through action, elections and proscription
+	add_to_variable = { var = spain_cortes_raw_monarchists value = spain_party_shift_monarchists }
+	add_to_variable = { var = spain_cortes_raw_liberals value = spain_party_shift_liberals }
+	add_to_variable = { var = spain_cortes_raw_conservatives value = spain_party_shift_conservatives }
+	add_to_variable = { var = spain_cortes_raw_republicans value = spain_party_shift_republicans }
+	add_to_variable = { var = spain_cortes_raw_socialists value = spain_party_shift_socialists }
+	add_to_variable = { var = spain_cortes_raw_carlists value = spain_party_shift_carlists }
+	add_to_variable = { var = spain_cortes_raw_falange value = spain_party_shift_falange }
+	clamp_variable = { var = spain_cortes_raw_monarchists min = 0 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_liberals min = 0 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_conservatives min = 0 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_republicans min = 0 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_socialists min = 0 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_carlists min = 0 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_falange min = 0 max = 1000 }
 
 	# --- raw support once the Republic exists
 	if = {
@@ -111,6 +133,8 @@ spain_cortes_recount = {
 	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_carlists }
 	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_falange }
 
+	spain_cortes_fix_seat_total = yes
+	spain_government_recount = yes
 	spain_cortes_refresh_display = yes
 }
 
@@ -156,9 +180,3 @@ spain_cortes_redraw_hemicycle = {
 	spain_cortes_refresh_display = yes
 }
 
-spain_hold_election = {
-	set_country_flag = spain_election_held
-	add_political_power = constant:spain_campaign.pp_medium
-	add_stability = constant:spain_campaign.stability_small
-	spain_cortes_recount = yes
-}

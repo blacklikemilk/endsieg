@@ -261,6 +261,44 @@ Forcing an election costs 150, not 75.
 Statically checked: brace balance on every new file, no duplicate focus ids, every `focus =` reference resolves inside its tree, every `spain_*` effect and trigger call is defined, every idea, event, category and tooltip key referenced by script exists in localisation, and every icon reference resolves to a real sprite in this mod or the installed vanilla files.
 Not checked: in-game behaviour. No launch was performed; the transition dates, AI path choices and balance feel need one playtest per bookmark.
 
+## The Cortes as a party system
+
+The chamber is not decoration. It holds exactly 400 seats, 201 of them are needed to govern, and seats move because the player moves them.
+
+### How a seat is decided
+
+1. **Support.** Each of the seven parties holds a support figure. Recount rebuilds it from the era and the campaign flags a chapter tree has set, then adds `spain_party_shift_*` — everything the player has won or lost through patronage, elections and proscription.
+2. **Seats.** Support is scaled to 400 seats by rounding each party's share. `spain_cortes_fix_seat_total` hands any rounding shortfall to the largest party, so the chamber is always exactly 400 and the total the panel prints is never wrong.
+3. **The hemicycle.** Seats become cumulative totals left to right, and each of the 54 dots takes the bloc that holds its slice. The dots are drawn by `common/scripted_localisation/spain_cortes_dots.txt`, which is scripted localisation and therefore lives under `common/scripted_localisation/`, never in `localisation/`. A file in the localisation folder is not loaded as scripted localisation and every dot falls back to one sprite.
+
+### The government
+
+The ruling party plus up to two coalition partners form the government bloc. `spain_government_recount` sums their seats and sets `spain_government_majority`. Below 201 the government is a minority: it loses stability and gains coup pressure every month, and it cannot pass a single bill.
+
+If no ruling party has been named yet, the era supplies the default — the court party under the Restoration and the Directory, the republicans under the Republic, the Falange once the civil war begins.
+
+### What the player can do
+
+Party management lives in the `SPR_parties` decision category, beside the chamber.
+
+- **Patronage.** One decision per party buys support at 20 political power, repeatable every 90 days. Support decays by one point a month, so patronage is a running cost and not a purchase.
+- **Court the Chamber.** 35 political power pulls deputies to the governing party from the largest opposition bloc, at a stability cost.
+- **Proscription.** Banning the Falange or the Carlists removes their seats entirely and hands a share to their neighbours, at a heavy stability and coup-pressure price.
+- **Coalitions.** Each party can be invited into government at 40 political power, filling one of two partner slots; `End the Coalition` drops both.
+- **Elections.** 50 political power calls a general election. A national tide swings the chamber, and an unpopular government — one without a majority, or one governing through unrest — loses ground whatever the tide does. The result arrives as `spain_campaign.80`, listing every party's new seat count.
+
+### Bills
+
+A bill now needs `spain_government_majority`. Building a majority is the price of legislating, and the chamber a government built is the chamber it has to work with.
+
+### Monthly upkeep
+
+`spain_party_monthly`, on `on_monthly_SPR`, decays patronage by one point per party, recounts the chamber so the panel stays honest, and applies the minority-government penalty.
+
+### Needed art
+
+The party decisions reuse vanilla decision-category sprites. Dedicated art would want one decision icon per party (monarchists, liberals, conservatives, republicans, socialists, Carlists, Falange), one for elections, one for courting deputies, one for proscription and one for coalitions, defined in `interface/endsieg_spain_icons.gfx` as `GFX_decision_spr_party_*` and swapped into `common/decisions/spain_parties.txt` one `icon =` line at a time.
+
 ## Future plans
 
 - A custom scripted GUI for the Crown and Cortes panel with the two chambers and the current ministry.
