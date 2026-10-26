@@ -3,6 +3,40 @@
 Newest batch first. This file records what was measured, what was changed, and what was
 deliberately *not* changed because it turned out not to be a defect.
 
+## Batch 5 — officer loyalty pays off, 1941 resistance gets a real gate, references get checked
+
+### Balance and interactivity
+
+- The 1941 crisis event (`iran_campaign.40`) offered resistance with **no condition at all** — any Iran
+  could choose to fight Britain and the Soviet Union. Resistance is now gated on `iran_army_stands_firm`:
+  officer loyalty ≥ 50, authority ≥ 40 and war support > 25%.
+- New third option: grant transit under protest. It needs 50 foreign leverage, costs authority and
+  stability, keeps Iran unoccupied, and grants the `iran_transit_standing` spirit
+  (+5% stability, +5% political power, −3% consumer goods). Without the spirit the flag it set was read
+  by nothing — a choice with no consequence.
+- The 1921 officer-loyalty variable now has a downstream effect instead of dying in 1925: below 40
+  loyalty Iran carries `iran_divided_officer_corps` (−5% army organisation, −10% planning speed,
+  −10% command power gain) until the corps is rebuilt. Purging the Cossacks in 1922 costs army quality
+  in 1941 — which is the point of tracking it.
+
+### Stability
+
+- `tools/iran_reference_check.py` resolves every event, idea and scripted call the package makes
+  against the mod plus the installed game: **262 event references and 29 idea references, all
+  resolving**. A decision firing an undefined event looks available and does nothing; that class is
+  now caught before a launch.
+- `tools/iran_balance_report.py` reports buildings, equipment, manpower, once-only gating and variable
+  write counts so outliers can be compared rather than guessed. Its first run flagged five repeatable
+  decisions and unbounded variables; both turned out to be checker artefacts — the decisions are gated
+  by completion flags, and `iran_authority`/`iran_foreign_leverage` are clamped in
+  `iran_refresh_mechanics`. Recorded here so the next pass does not re-investigate them.
+- Self-inflicted defect caught before commit: the new officer-corps idea was first appended **outside**
+  the `ideas = { }` wrapper, where the engine ignores it. Moved inside; the reference checker is what
+  caught it.
+
+Validation: audit clean (307 focuses, 141 events, 75 decisions, 0 unresolved sprites), reference check
+clean. Still not played.
+
 ## Batch 4 — the regime-switch decisions had no category to live in
 
 `common/decisions/iran_political_question.txt` exposed five decision bodies at top level
