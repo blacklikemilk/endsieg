@@ -1,0 +1,1300 @@
+# Overview: Qing China's late reform era, 1910-1918.
+# Shared reform trunk, four route-locked settlement branches, economy, army, diplomacy and revolution preparation.
+# Politics sits on x=18..32, the Beiyang command on x=14..18, economy on x=0..4,
+# the army on x=7..11, diplomacy on x=36..40 and the provinces on x=46..54.
+focus_tree = {
+	id = qing_ww1
+	country = {
+		factor = 0
+		modifier = {
+			original_tag = QIN date < 1919.1.1
+		}
+	}
+	default = no
+	reset_on_civilwar = no
+	initial_show_position = { focus = QW1_regency_council }
+	continuous_focus_position = { x = 1500 y = 6000 }
+	shortcut = { name = qing_politics_navigation target = QW1_regency_council }
+	shortcut = { name = qing_economy_navigation target = QW1_imperial_treasury }
+	shortcut = { name = qing_army_navigation target = QW1_new_army_budget }
+	shortcut = { name = qing_diplomacy_navigation target = QW1_foreign_office }
+	shortcut = { name = qing_provinces_navigation target = QW1_provincial_governors }
+
+	focus = {
+		id = QW1_regency_council
+		icon = GFX_focus_generic_monarchy_1
+		x = 26 y = 0
+		cost = 3
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_political_power = constant:qing_story.political_capital
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = QW1_edict_of_reform
+		icon = GFX_focus_CHI_revise_the_national_curriculum
+		x = 24 y = 1
+		cost = 5
+		prerequisite = { focus = QW1_regency_council }
+		mutually_exclusive = { focus = QW1_court_resistance }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+			qing_bop_push_assembly_small = yes
+		}
+	}
+	focus = {
+		id = QW1_court_resistance
+		icon = GFX_focus_generic_monarchy_2
+		x = 28 y = 1
+		cost = 5
+		prerequisite = { focus = QW1_regency_council }
+		mutually_exclusive = { focus = QW1_edict_of_reform }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_loss }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
+			qing_bop_push_court = yes
+		}
+	}
+	focus = {
+		id = QW1_provincial_assemblies
+		icon = GFX_focus_generic_election
+		x = 22 y = 2
+		cost = 5
+		prerequisite = { focus = QW1_edict_of_reform }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			qing_bop_push_assembly = yes
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_legal_code
+		icon = GFX_focus_CHI_meritocratic_principles
+		x = 24 y = 2
+		cost = 5
+		prerequisite = { focus = QW1_edict_of_reform }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_opinion_modifier = { target = ENG modifier = qing_recognition_of_the_dynasty }
+		}
+	}
+	focus = {
+		id = QW1_grand_council
+		icon = GFX_focus_chi_legislative_yuan
+		x = 28 y = 2
+		cost = 5
+		prerequisite = { focus = QW1_court_resistance }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_political_power = constant:qing_story.political_capital
+			qing_bop_push_court_small = yes
+		}
+	}
+	focus = {
+		id = QW1_banner_privilege
+		icon = GFX_focus_CHI_baojia_system
+		x = 30 y = 2
+		cost = 5
+		prerequisite = { focus = QW1_court_resistance }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
+			qing_bop_push_court_small = yes
+		}
+	}
+	focus = {
+		id = QW1_elective_assembly
+		icon = GFX_focus_generic_election
+		x = 20 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_provincial_assemblies }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			set_country_flag = qing_elective_assembly
+			qing_bop_push_assembly = yes
+		}
+	}
+	focus = {
+		id = QW1_budget_authority
+		icon = GFX_focus_CHI_registry_of_property
+		x = 22 y = 3
+		cost = 5
+		prerequisite = { focus = QW1_provincial_assemblies }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			set_country_flag = qing_budget_authority
+		}
+	}
+	focus = {
+		id = QW1_judicial_reform
+		icon = GFX_focus_CHI_dang_guo
+		x = 24 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_legal_code }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_court_appointments
+		icon = GFX_focus_CHI_clear_out_sycophants
+		x = 28 y = 3
+		cost = 5
+		prerequisite = { focus = QW1_grand_council }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_political_power = constant:qing_story.political_capital
+			qing_bop_push_court = yes
+		}
+	}
+	focus = {
+		id = QW1_imperial_guard
+		icon = GFX_focus_CHI_utmost_loyalty
+		x = 30 y = 3
+		cost = 5
+		prerequisite = { focus = QW1_banner_privilege }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			qing_fortify_capital = yes
+		}
+	}
+	focus = {
+		id = QW1_regency_end
+		icon = GFX_focus_generic_monarchy_1
+		x = 26 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_grand_council }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_constitutional_settlement
+		icon = GFX_focus_PER_constitutional_monarchy
+		x = 22 y = 4
+		cost = 10
+		prerequisite = { focus = QW1_regency_end }
+		prerequisite = { focus = QW1_elective_assembly }
+		mutually_exclusive = { focus = QW1_autocratic_settlement }
+		allow_branch = { qing_path_constitutional = yes }
+		available = { has_country_flag = qing_regime_settled }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 60 }
+		completion_reward = {
+			set_country_flag = qing_constitution_1912
+			set_politics = { ruling_party = neutrality elections_allowed = yes }
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_stability = constant:qing_story.stability_major_gain
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+	focus = {
+		id = QW1_constitution_draft
+		icon = GFX_focus_BRA_constitutional_monarchy
+		x = 20 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_constitutional_settlement }
+		allow_branch = { qing_path_constitutional = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_party_politics
+		icon = GFX_focus_generic_election
+		x = 18 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_constitution_draft }
+		allow_branch = { qing_path_constitutional = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			qing_bop_push_assembly = yes
+		}
+	}
+	focus = {
+		id = QW1_cabinet_responsibility
+		icon = GFX_focus_CHI_lay_the_foundation_for_a_united_china
+		x = 22 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_constitution_draft }
+		allow_branch = { qing_path_constitutional = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_stability = constant:qing_story.stability_gain
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_royal_prerogative
+		icon = GFX_focus_generic_monarchy_2
+		x = 24 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_constitution_draft }
+		allow_branch = { qing_path_constitutional = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			qing_bop_push_court_small = yes
+		}
+	}
+	focus = {
+		id = QW1_constitutional_capstone
+		icon = GFX_focus_BRA_constitutional_monarchy
+		x = 22 y = 8
+		cost = 14
+		prerequisite = { focus = QW1_party_politics focus = QW1_cabinet_responsibility focus = QW1_royal_prerogative }
+		allow_branch = { qing_path_constitutional = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_stability = constant:qing_story.stability_major_gain
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_autocratic_settlement
+		icon = GFX_focus_CHI_a_second_empire_of_china
+		x = 30 y = 4
+		cost = 10
+		prerequisite = { focus = QW1_regency_end }
+		prerequisite = { focus = QW1_court_appointments }
+		mutually_exclusive = { focus = QW1_constitutional_settlement }
+		allow_branch = { qing_path_authoritarian = yes }
+		available = { has_country_flag = qing_regime_settled }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			set_politics = { ruling_party = neutrality elections_allowed = no }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_loss }
+			qing_bop_push_court = yes
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+	focus = {
+		id = QW1_imperial_edicts
+		icon = GFX_focus_generic_monarchy_1
+		x = 28 y = 5
+		cost = 5
+		prerequisite = { focus = QW1_autocratic_settlement }
+		allow_branch = { qing_path_authoritarian = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_censorate
+		icon = GFX_focus_CHI_arrest_the_seven_gentlemen
+		x = 26 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_imperial_edicts }
+		allow_branch = { qing_path_authoritarian = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_stability = constant:qing_story.stability_gain
+			set_country_flag = qing_censorate
+		}
+	}
+	focus = {
+		id = QW1_dynastic_legitimacy
+		icon = GFX_focus_CHI_cradle_of_civilization
+		x = 30 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_imperial_edicts }
+		allow_branch = { qing_path_authoritarian = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_stability = constant:qing_story.stability_major_gain
+		}
+	}
+	focus = {
+		id = QW1_manchu_garrisons
+		icon = GFX_focus_chi_army_reform
+		x = 32 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_imperial_edicts }
+		allow_branch = { qing_path_authoritarian = yes }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_banner_reform
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_major_gain }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_authoritarian_capstone
+		icon = GFX_focus_CHI_a_second_empire_of_china
+		x = 30 y = 8
+		cost = 14
+		prerequisite = { focus = QW1_censorate focus = QW1_dynastic_legitimacy focus = QW1_manchu_garrisons }
+		allow_branch = { qing_path_authoritarian = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_stability = constant:qing_story.stability_gain
+			add_war_support = constant:qing_story.war_support_gain
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_imperial_treasury
+		icon = GFX_focus_CHI_promote_national_currency
+		x = 2 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			set_country_flag = qing_treasury_audited
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_salt_gabelle
+		icon = GFX_focus_PER_national_bank
+		x = 2 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_imperial_treasury }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_salt_reform
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_land_tax_survey
+		icon = GFX_focus_CHI_registry_of_property
+		x = 0 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_imperial_treasury }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_railway_programme
+		icon = GFX_focus_generic_railroad
+		x = 4 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_imperial_treasury }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			qing_build_railway_north = yes
+			set_country_flag = qing_railway_authority
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+		}
+	}
+	focus = {
+		id = QW1_currency_board
+		icon = GFX_focus_CHI_promote_national_currency
+		x = 2 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_salt_gabelle }
+		prerequisite = { focus = QW1_land_tax_survey }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_currency_reform
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_telegraph_network
+		icon = GFX_focus_generic_industry_1
+		x = 0 y = 3
+		cost = 5
+		prerequisite = { focus = QW1_land_tax_survey }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_stability = constant:qing_story.stability_gain
+			add_research_slot = 1
+		}
+	}
+	focus = {
+		id = QW1_hanyang_arsenal
+		icon = GFX_focus_generic_military_industry
+		x = 4 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_railway_programme }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			qing_build_hanyang = yes
+			set_country_flag = qing_arsenal_programme
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_modern_banking
+		icon = GFX_focus_PER_national_bank
+		x = 2 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_currency_board }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_budget_centralised
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_industrial_mission
+		icon = GFX_focus_generic_industry_investment
+		x = 0 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_telegraph_network }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_research_slot = 1
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_national_budget
+		icon = GFX_focus_CHI_promote_national_currency
+		x = 2 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_modern_banking }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_budget_centralised
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_foreign_loans
+		icon = GFX_focus_generic_industry_2
+		x = 4 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_hanyang_arsenal }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_loan_consolidated
+			add_opinion_modifier = { target = ENG modifier = qing_loan_understanding }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_famine_administration
+		icon = GFX_focus_prc_agrarian_socialism
+		x = 0 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_industrial_mission }
+		search_filters = { FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_stability = constant:qing_story.stability_major_gain
+		}
+	}
+	focus = {
+		id = QW1_arsenal_expansion
+		icon = GFX_focus_generic_military_industry
+		x = 4 y = 7
+		cost = 10
+		prerequisite = { focus = QW1_foreign_loans }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			qing_build_hanyang = yes
+			army_experience = 25
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+		}
+	}
+	focus = {
+		id = QW1_currency_capstone
+		icon = GFX_focus_CHI_promote_national_currency
+		x = 2 y = 8
+		cost = 14
+		prerequisite = { focus = QW1_national_budget focus = QW1_famine_administration }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			set_country_flag = qing_currency_reform
+			set_country_flag = qing_treasury_reformed
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_stability = constant:qing_story.stability_major_gain
+		}
+	}
+	focus = {
+		id = QW1_new_army_budget
+		icon = GFX_focus_CHI_military_affairs_commission
+		x = 9 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			army_experience = 25
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = QW1_officer_schools
+		icon = GFX_focus_generic_education
+		x = 7 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_new_army_budget }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			army_experience = 25
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			set_country_flag = qing_professional_officers
+		}
+	}
+	focus = {
+		id = QW1_modern_drill
+		icon = GFX_focus_CHI_formalise_training_regime
+		x = 11 y = 2
+		cost = 5
+		prerequisite = { focus = QW1_new_army_budget }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_military_academy
+		icon = GFX_focus_generic_military_academy
+		x = 9 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_officer_schools }
+		prerequisite = { focus = QW1_modern_drill }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_military_academy
+			qing_build_baoding_academy = yes
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_artillery_corps
+		icon = GFX_focus_ww1_pdx_native_auh_artillery_effort_1
+		x = 7 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_military_academy }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			army_experience = 25
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+		}
+	}
+	focus = {
+		id = QW1_engineering_corps
+		icon = GFX_focus_ww1_pdx_native_auh_construction_effort_1
+		x = 11 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_military_academy }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			army_experience = 25
+			qing_build_railway_north = yes
+		}
+	}
+	focus = {
+		id = QW1_german_instructors
+		icon = GFX_focus_CHI_utilize_german_contacts
+		x = 9 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_artillery_corps }
+		prerequisite = { focus = QW1_engineering_corps }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_german_mission
+			add_opinion_modifier = { target = GER modifier = qing_military_mission }
+			army_experience = 25
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+		}
+	}
+	focus = {
+		id = QW1_national_arsenals
+		icon = GFX_focus_generic_military_industry
+		x = 7 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_artillery_corps }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_arsenal_programme
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_supply_service
+		icon = GFX_focus_generic_railroad
+		x = 11 y = 6
+		cost = 7
+		prerequisite = { focus = QW1_engineering_corps }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:qing_story.stability_gain
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_general_staff
+		icon = GFX_focus_CHI_military_affairs_commission
+		x = 9 y = 7
+		cost = 10
+		prerequisite = { focus = QW1_german_instructors }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			army_experience = 25
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = QW1_frontier_garrisons
+		icon = GFX_focus_CHI_the_northern_mandate
+		x = 11 y = 8
+		cost = 10
+		prerequisite = { focus = QW1_supply_service }
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			army_experience = 25
+			add_war_support = constant:qing_story.war_support_gain
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = QW1_army_capstone
+		icon = GFX_focus_CHI_the_4_defence_areas
+		x = 9 y = 9
+		cost = 14
+		prerequisite = { focus = QW1_general_staff focus = QW1_frontier_garrisons }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_major_gain }
+			army_experience = 25
+			add_war_support = constant:qing_story.war_support_gain
+		}
+	}
+	focus = {
+		id = QW1_beiyang_command
+		icon = GFX_focus_CHI_the_northern_mandate
+		x = 16 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_gain }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_yuan_shikai_rise
+		icon = GFX_focus_CHI_change_in_leadership
+		x = 14 y = 2
+		cost = 5
+		prerequisite = { focus = QW1_beiyang_command }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_major_gain }
+			qing_promote_yuan = yes
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+		}
+	}
+	focus = {
+		id = QW1_beiyang_officers
+		icon = GFX_focus_chi_army_reform
+		x = 18 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_beiyang_command }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_gain }
+		}
+	}
+	focus = {
+		id = QW1_yuan_premiership
+		icon = GFX_focus_CHI_change_in_leadership
+		x = 16 y = 3
+		cost = 10
+		prerequisite = { focus = QW1_yuan_shikai_rise }
+		prerequisite = { focus = QW1_beiyang_officers }
+		allow_branch = { qing_path_yuan = yes }
+		available = { has_country_flag = qing_regime_settled }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			set_politics = { ruling_party = neutrality elections_allowed = no }
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_major_gain }
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			qing_bop_push_court = yes
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+	focus = {
+		id = QW1_yuan_cabinet
+		icon = GFX_focus_CHI_dang_guo
+		x = 14 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_yuan_premiership }
+		allow_branch = { qing_path_yuan = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_gain }
+			add_political_power = constant:qing_story.political_capital
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+		}
+	}
+	focus = {
+		id = QW1_beiyang_loyalty
+		icon = GFX_focus_CHI_utmost_loyalty
+		x = 18 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_yuan_premiership }
+		allow_branch = { qing_path_yuan = yes }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_major_gain }
+			army_experience = 25
+			add_stability = constant:qing_story.stability_cost
+		}
+	}
+	focus = {
+		id = QW1_military_finance
+		icon = GFX_focus_CHI_promote_national_currency
+		x = 14 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_yuan_cabinet }
+		allow_branch = { qing_path_yuan = yes }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_budget_centralised
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_army_politics
+		icon = GFX_focus_CHI_political_advisors_in_every_division
+		x = 18 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_beiyang_loyalty }
+		allow_branch = { qing_path_yuan = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_yuan_succession
+		icon = GFX_focus_CHI_change_in_leadership
+		x = 16 y = 7
+		cost = 14
+		prerequisite = { focus = QW1_military_finance focus = QW1_army_politics }
+		allow_branch = { qing_path_yuan = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_gain }
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_provincial_governors
+		icon = GFX_focus_CHI_the_southern_mandate
+		x = 48 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			set_country_flag = qing_provincial_governors
+		}
+	}
+	focus = {
+		id = QW1_gentry_compact
+		icon = GFX_focus_prc_agrarian_socialism
+		x = 46 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_provincial_governors }
+		search_filters = { FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+			add_stability = constant:qing_story.stability_gain
+			add_to_variable = { qing_reform = constant:qing_story.reform_loss }
+		}
+	}
+	focus = {
+		id = QW1_provincial_assemblies_ii
+		icon = GFX_focus_generic_election
+		x = 50 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_provincial_governors }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+		}
+	}
+	focus = {
+		id = QW1_provincial_taxation
+		icon = GFX_focus_CHI_registry_of_property
+		x = 46 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_gentry_compact }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_provincial_taxation
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+		}
+	}
+	focus = {
+		id = QW1_local_militia
+		icon = GFX_focus_generic_army_doctrines_2
+		x = 50 y = 3
+		cost = 5
+		prerequisite = { focus = QW1_provincial_assemblies_ii }
+		search_filters = { FOCUS_FILTER_MANPOWER }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_manpower = 8000
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		}
+	}
+	focus = {
+		id = QW1_border_marches
+		icon = GFX_focus_CHI_tour_the_west
+		x = 48 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_gentry_compact }
+		prerequisite = { focus = QW1_provincial_assemblies_ii }
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_war_support = constant:qing_story.war_support_gain
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		}
+	}
+	focus = {
+		id = QW1_federal_settlement
+		icon = GFX_focus_CZE_federative_republic
+		x = 48 y = 4
+		cost = 10
+		prerequisite = { focus = QW1_border_marches }
+		prerequisite = { focus = QW1_provincial_taxation }
+		allow_branch = { qing_path_federal = yes }
+		available = { has_country_flag = qing_regime_settled }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			set_politics = { ruling_party = neutrality elections_allowed = yes }
+			set_country_flag = qing_provincial_compact
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+	focus = {
+		id = QW1_provincial_charter
+		icon = GFX_focus_CZE_federative_republic
+		x = 46 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_federal_settlement }
+		allow_branch = { qing_path_federal = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_fiscal_compact
+		icon = GFX_focus_CHI_promote_national_currency
+		x = 48 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_federal_settlement }
+		allow_branch = { qing_path_federal = yes }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_provincial_taxation
+			add_political_power = constant:qing_story.political_capital
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_regional_armies
+		icon = GFX_focus_CHI_guerrilla_warfare
+		x = 50 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_federal_settlement }
+		allow_branch = { qing_path_federal = yes }
+		search_filters = { FOCUS_FILTER_MANPOWER }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_regional_armies
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_manpower = 8000
+		}
+	}
+	focus = {
+		id = QW1_federal_capstone
+		icon = GFX_focus_CZE_federative_republic
+		x = 48 y = 7
+		cost = 14
+		prerequisite = { focus = QW1_provincial_charter focus = QW1_fiscal_compact focus = QW1_regional_armies }
+		allow_branch = { qing_path_federal = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_stability = constant:qing_story.stability_major_gain
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_foreign_office
+		icon = GFX_focus_CHI_the_greater_game
+		x = 38 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_political_power = constant:qing_story.political_capital
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = QW1_treaty_ports
+		icon = GFX_focus_generic_arms_trade
+		x = 36 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_foreign_office }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_treaty_ports
+			add_political_power = constant:qing_story.political_capital
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+		}
+	}
+	focus = {
+		id = QW1_boxer_indemnity
+		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
+		x = 40 y = 2
+		cost = 7
+		prerequisite = { focus = QW1_foreign_office }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_opinion_modifier = { target = USA modifier = qing_open_door_note }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_british_understanding
+		icon = GFX_focus_chi_british_cooperation
+		x = 36 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_treaty_ports }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_british_loan
+			add_opinion_modifier = { target = ENG modifier = qing_loan_understanding }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_german_military_mission
+		icon = GFX_focus_chi_mission_to_germany
+		x = 40 y = 3
+		cost = 7
+		prerequisite = { focus = QW1_boxer_indemnity }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_german_mission
+			add_opinion_modifier = { target = GER modifier = qing_military_mission }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_japanese_relations
+		icon = GFX_focus_CHI_the_greater_game
+		x = 38 y = 3
+		cost = 5
+		prerequisite = { focus = QW1_treaty_ports }
+		prerequisite = { focus = QW1_boxer_indemnity }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+		}
+	}
+	focus = {
+		id = QW1_american_open_door
+		icon = GFX_focus_chi_mission_to_the_us
+		x = 36 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_british_understanding }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_american_open_door
+			add_opinion_modifier = { target = USA modifier = qing_open_door_note }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		}
+	}
+	focus = {
+		id = QW1_french_mission
+		icon = GFX_focus_chi_reach_out_to_france
+		x = 40 y = 4
+		cost = 5
+		prerequisite = { focus = QW1_german_military_mission }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_french_mission
+			add_opinion_modifier = { target = FRA modifier = qing_recognition_of_the_dynasty }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_shandong_question
+		icon = GFX_focus_CHI_invoke_the_nine_powers
+		x = 38 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_japanese_relations }
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_war_support = constant:qing_story.war_support_gain
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		}
+	}
+	focus = {
+		id = QW1_foreign_concessions
+		icon = GFX_focus_CHI_retake_the_coastal_cities
+		x = 38 y = 5
+		cost = 10
+		prerequisite = { focus = QW1_shandong_question }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = qing_concession_buyout
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_diplomacy_capstone
+		icon = GFX_focus_CHI_lay_the_foundation_for_a_united_china
+		x = 38 y = 6
+		cost = 14
+		prerequisite = { focus = QW1_foreign_concessions }
+		prerequisite = { focus = QW1_american_open_door }
+		prerequisite = { focus = QW1_french_mission }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_opinion_modifier = { target = ENG modifier = qing_recognition_of_the_dynasty }
+			add_opinion_modifier = { target = USA modifier = qing_recognition_of_the_dynasty }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_railway_guard
+		icon = GFX_focus_generic_railroad
+		x = 54 y = 2
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
+			set_country_flag = qing_railway_guarded
+		}
+	}
+	focus = {
+		id = QW1_wuchang_garrison
+		icon = GFX_focus_generic_army_attack
+		x = 54 y = 3
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_major_gain }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = QW1_provincial_loyalty
+		icon = GFX_goal_generic_national_unity
+		x = 54 y = 4
+		cost = 7
+		prerequisite = { focus = QW1_wuchang_garrison }
+		search_filters = { FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+	}
+	focus = {
+		id = QW1_capital_defences
+		icon = GFX_focus_generic_mountain_fortification
+		x = 54 y = 5
+		cost = 7
+		prerequisite = { focus = QW1_provincial_loyalty }
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			qing_fortify_capital = yes
+			add_war_support = constant:qing_story.war_support_gain
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+		}
+	}
+	focus = {
+		id = QW1_revolution_prepared
+		icon = GFX_focus_CHI_strengthening_our_resolve
+		x = 54 y = 6
+		cost = 10
+		prerequisite = { focus = QW1_capital_defences }
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_war_support = constant:qing_story.war_support_gain
+			add_political_power = constant:qing_story.political_capital
+		}
+	}
+	focus = {
+		id = QW1_chapter_end
+		icon = GFX_focus_CHI_lay_the_foundation_for_a_united_china
+		x = 26 y = 10
+		cost = 14
+		prerequisite = { focus = QW1_constitutional_capstone }
+		prerequisite = { focus = QW1_authoritarian_capstone }
+		prerequisite = { focus = QW1_yuan_succession }
+		prerequisite = { focus = QW1_federal_capstone }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			add_political_power = constant:qing_story.political_capital
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			country_event = { id = qing_campaign.50 days = 1 }
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+}

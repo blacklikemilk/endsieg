@@ -1,0 +1,488 @@
+# Overview: idempotent chapter routing, revolution settlement and project receipts for Qing China.
+# Country scope throughout unless a state scope is entered explicitly.
+# The dynasty survives only through the settlement effects; the historical chain is never rewritten.
+
+# ---------------------------------------------------------------------------
+# Mechanics refresh: exactly one regime spirit, one army spirit, one pressure spirit.
+# ---------------------------------------------------------------------------
+qing_refresh_mechanics = {
+	clamp_variable = { var = qing_legitimacy min = constant:qing_story.legitimacy_floor max = constant:qing_story.legitimacy_cap }
+	clamp_variable = { var = qing_reform min = constant:qing_story.reform_floor max = constant:qing_story.reform_cap }
+	clamp_variable = { var = qing_army_loyalty min = constant:qing_story.legitimacy_floor max = constant:qing_story.legitimacy_cap }
+	clamp_variable = { var = qing_provincial_trust min = constant:qing_story.legitimacy_floor max = constant:qing_story.legitimacy_cap }
+	clamp_variable = { var = qing_yuan_influence min = constant:qing_story.legitimacy_floor max = constant:qing_story.legitimacy_cap }
+
+	remove_ideas = {
+		qing_regency_court qing_constitutional_monarchy qing_imperial_autocracy
+		qing_beiyang_government qing_federal_empire
+		qing_banner_army qing_new_army qing_modern_officer_corps
+		qing_broken_treasury qing_japanese_pressure qing_wartime_mobilisation
+	}
+	if = {
+		limit = { qing_path_constitutional = yes }
+		add_ideas = qing_constitutional_monarchy
+	}
+	else_if = {
+		limit = { qing_path_authoritarian = yes }
+		add_ideas = qing_imperial_autocracy
+	}
+	else_if = {
+		limit = { qing_path_yuan = yes }
+		add_ideas = qing_beiyang_government
+	}
+	else_if = {
+		limit = { qing_path_federal = yes }
+		add_ideas = qing_federal_empire
+	}
+	else = {
+		add_ideas = qing_regency_court
+	}
+
+	if = {
+		limit = { qing_army_loyal = yes }
+		add_ideas = qing_modern_officer_corps
+	}
+	else_if = {
+		limit = { qing_army_unreliable = yes }
+		add_ideas = qing_banner_army
+	}
+	else = {
+		add_ideas = qing_new_army
+	}
+
+	if = {
+		limit = { has_country_flag = qing_at_war_with_japan }
+		add_ideas = qing_wartime_mobilisation
+	}
+	else_if = {
+		limit = { qing_path_japan = yes }
+		add_ideas = qing_japanese_pressure
+	}
+	else_if = {
+		limit = { check_variable = { var = qing_legitimacy value = constant:qing_story.legitimacy_weak compare = less_than } }
+		add_ideas = qing_broken_treasury
+	}
+}
+
+# ---------------------------------------------------------------------------
+# Initialisation and chapters.
+# ---------------------------------------------------------------------------
+qing_initialize_campaign = {
+	if = {
+		limit = {
+			qing_campaign_country = yes
+			any_owned_state = { always = yes }
+			NOT = { has_country_flag = qing_campaign_active }
+		}
+		set_country_flag = qing_campaign_active
+		set_variable = { qing_legitimacy = constant:qing_story.legitimacy_opening }
+		set_variable = { qing_reform = constant:qing_story.reform_opening }
+		set_variable = { qing_army_loyalty = constant:qing_story.army_opening }
+		set_variable = { qing_provincial_trust = constant:qing_story.trust_opening }
+		set_variable = { qing_yuan_influence = constant:qing_story.yuan_opening }
+		# A campaign opened after the historical revolution cannot happen: the Qing
+		# holds no states in 1914 and later bookmarks. Keep the guard anyway so a
+		# hand-made late start does not begin with an anachronistic regency.
+		if = {
+			limit = { date > 1911.10.9 }
+			set_variable = { qing_reform = constant:qing_story.reform_interwar }
+			set_variable = { qing_legitimacy = constant:qing_story.legitimacy_interwar }
+			set_variable = { qing_army_loyalty = constant:qing_story.army_interwar }
+			set_variable = { qing_provincial_trust = constant:qing_story.trust_interwar }
+			set_global_flag = qing_xinhai_settled
+			set_country_flag = qing_route_constitutional
+	clr_country_flag = qing_route_constitutional
+	clr_country_flag = qing_route_authoritarian
+	clr_country_flag = qing_route_federal
+	clr_country_flag = qing_route_yuan
+	set_country_flag = qing_route_constitutional
+		}
+		qing_refresh_mechanics = yes
+		qing_open_chapter_one = yes
+	}
+}
+
+qing_open_chapter_one = {
+	set_country_flag = qing_chapter_one
+	load_focus_tree = { tree = qing_ww1 keep_completed = yes }
+	set_country_flag = qing_bootstrap_pending
+	add_ideas = qing_regency_court
+	country_event = { id = qing_campaign.1 days = 3 }
+}
+
+qing_open_chapter_two = {
+	set_country_flag = qing_chapter_two
+	clr_country_flag = qing_chapter_one
+	load_focus_tree = { tree = qing_interwar keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	qing_refresh_mechanics = yes
+	country_event = { id = qing_campaign.30 days = 1 }
+}
+
+qing_open_chapter_three = {
+	set_country_flag = qing_chapter_three
+	clr_country_flag = qing_chapter_two
+	load_focus_tree = { tree = qing_ww2 keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	qing_refresh_mechanics = yes
+	country_event = { id = qing_campaign.40 days = 1 }
+}
+
+qing_route_chapter = {
+	if = {
+		limit = { date < 1919.1.1 NOT = { has_focus_tree = qing_ww1 } }
+		load_focus_tree = { tree = qing_ww1 keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { date > 1918.12.31 date < 1936.1.1 NOT = { has_focus_tree = qing_interwar } }
+		load_focus_tree = { tree = qing_interwar keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { date > 1935.12.31 NOT = { has_focus_tree = qing_ww2 } }
+		load_focus_tree = { tree = qing_ww2 keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+}
+
+# Called once from the daily tick. Creating the balance here rather than in the
+# startup hook avoids doing engine work before the frontend transition settles.
+qing_bootstrap = {
+	if = {
+		limit = { has_country_flag = qing_bootstrap_pending }
+		clr_country_flag = qing_bootstrap_pending
+		if = {
+			limit = { has_dlc = "Arms Against Tyranny" NOT = { has_power_balance = { id = QIN_throne_and_assembly } } }
+			set_power_balance = {
+				id = QIN_throne_and_assembly
+				left_side = QIN_side_court
+				right_side = QIN_side_assembly
+				set_default = yes
+			}
+		}
+	}
+	mark_focus_tree_layout_dirty = yes
+	qing_refresh_mechanics = yes
+}
+
+qing_ensure_chapter_tree = {
+	if = {
+		limit = { has_country_flag = qing_chapter_one NOT = { has_focus_tree = qing_ww1 } }
+		load_focus_tree = { tree = qing_ww1 keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { has_country_flag = qing_chapter_two NOT = { has_focus_tree = qing_interwar } }
+		load_focus_tree = { tree = qing_interwar keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { has_country_flag = qing_chapter_three NOT = { has_focus_tree = qing_ww2 } }
+		load_focus_tree = { tree = qing_ww2 keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+}
+
+# ---------------------------------------------------------------------------
+# The campaign clock.
+# ---------------------------------------------------------------------------
+qing_campaign_tick = {
+	if = {
+		limit = { qing_campaign_active = yes }
+		qing_ensure_chapter_tree = yes
+		qing_bootstrap = yes
+
+		# 1910-1911: the reform window and the railway crisis.
+		if = {
+			limit = { date > 1910.6.1 NOT = { has_country_flag = qing_opening_reform_seen } }
+			set_country_flag = qing_opening_reform_seen
+			country_event = { id = qing_campaign.2 days = 1 }
+		}
+		if = {
+			limit = { date > 1911.5.1 NOT = { has_country_flag = qing_railway_crisis_seen } }
+			set_country_flag = qing_railway_crisis_seen
+			country_event = { id = qing_campaign.10 days = 1 }
+		}
+		# The revolution window. A reformed dynasty is offered a settlement before
+		# the garrison rises; a strong army can still impose one; otherwise the
+		# historical chain fires on its own schedule.
+		if = {
+			limit = { date > 1911.9.1 NOT = { has_country_flag = qing_revolution_window_seen } }
+			set_country_flag = qing_revolution_window_seen
+			if = {
+				limit = { qing_survival_possible = yes }
+				country_event = { id = qing_campaign.20 days = 2 }
+			}
+			else_if = {
+				limit = { qing_can_impose_settlement = yes }
+				country_event = { id = qing_campaign.22 days = 2 }
+			}
+			else = {
+				country_event = { id = qing_campaign.21 days = 2 }
+			}
+		}
+		# A war that has begun can still end in a negotiated survival.
+		if = {
+			limit = {
+				date > 1911.10.20
+				has_war_with = RCH
+				NOT = { has_country_flag = qing_court_council_seen }
+			}
+			set_country_flag = qing_court_council_seen
+			country_event = { id = qing_campaign.23 days = 2 }
+		}
+		if = {
+			limit = { date > 1914.8.1 NOT = { has_country_flag = qing_great_war_seen } }
+			set_country_flag = qing_great_war_seen
+			country_event = { id = qing_campaign.50 days = 1 }
+		}
+		if = {
+			limit = { date > 1919.1.1 NOT = { has_country_flag = qing_chapter_two } }
+			qing_open_chapter_two = yes
+		}
+		if = {
+			limit = { date > 1925.6.1 NOT = { has_country_flag = qing_succession_seen } }
+			set_country_flag = qing_succession_seen
+			country_event = { id = qing_campaign.33 days = 1 }
+		}
+		if = {
+			limit = { date > 1931.9.15 NOT = { has_country_flag = qing_manchurian_crisis_seen } }
+			set_country_flag = qing_manchurian_crisis_seen
+			country_event = { id = qing_campaign.35 days = 1 }
+		}
+		if = {
+			limit = { date > 1936.1.1 NOT = { has_country_flag = qing_chapter_three } }
+			qing_open_chapter_three = yes
+		}
+		if = {
+			limit = { date > 1937.7.7 NOT = { has_country_flag = qing_marco_polo_seen } }
+			set_country_flag = qing_marco_polo_seen
+			country_event = { id = qing_campaign.41 days = 1 }
+		}
+		# If the incident was settled locally, Tokyo escalates within the month.
+		if = {
+			limit = { date > 1937.8.15 NOT = { has_country_flag = qing_war_with_japan } }
+			set_country_flag = qing_war_with_japan
+			if = {
+				limit = { NOT = { has_war_with = JAP } country_exists = JAP }
+				declare_war_on = { target = JAP type = annex_everything }
+			}
+			qing_refresh_mechanics = yes
+			country_event = { id = qing_campaign.42 days = 1 }
+		}
+		if = {
+			limit = { date > 1941.12.7 NOT = { has_country_flag = qing_pacific_war_seen } }
+			set_country_flag = qing_pacific_war_seen
+			country_event = { id = qing_campaign.44 days = 1 }
+		}
+		if = {
+			limit = { date > 1945.8.15 NOT = { has_country_flag = qing_victory_seen } has_country_flag = qing_war_with_japan }
+			set_country_flag = qing_victory_seen
+			country_event = { id = qing_campaign.46 days = 1 }
+		}
+	}
+}
+
+# ---------------------------------------------------------------------------
+# Balance of power moves. Literal values, because add_power_balance_value
+# rejects script constants.
+# ---------------------------------------------------------------------------
+qing_bop_push_court = {
+	if = { limit = { has_power_balance = { id = QIN_throne_and_assembly } } add_power_balance_value = { id = QIN_throne_and_assembly value = -0.15 } }
+}
+
+qing_bop_push_court_small = {
+	if = { limit = { has_power_balance = { id = QIN_throne_and_assembly } } add_power_balance_value = { id = QIN_throne_and_assembly value = -0.08 } }
+}
+
+qing_bop_push_assembly = {
+	if = { limit = { has_power_balance = { id = QIN_throne_and_assembly } } add_power_balance_value = { id = QIN_throne_and_assembly value = 0.15 } }
+}
+
+qing_bop_push_assembly_small = {
+	if = { limit = { has_power_balance = { id = QIN_throne_and_assembly } } add_power_balance_value = { id = QIN_throne_and_assembly value = 0.08 } }
+}
+
+qing_bop_pull_to_centre = {
+	if = {
+		limit = { has_power_balance = { id = QIN_throne_and_assembly } }
+		if = {
+			limit = { power_balance_value = { id = QIN_throne_and_assembly value > 0 } }
+			add_power_balance_value = { id = QIN_throne_and_assembly value = -0.20 }
+		}
+		else = {
+			add_power_balance_value = { id = QIN_throne_and_assembly value = 0.20 }
+		}
+	}
+}
+
+# ---------------------------------------------------------------------------
+# The revolution settlement.
+# ---------------------------------------------------------------------------
+# Ends the revolutionary war, absorbs the Republic and writes the route.
+qing_end_revolution = {
+	set_global_flag = qing_xinhai_settled
+	set_country_flag = qing_regime_settled
+	if = {
+		limit = { country_exists = RCH }
+		if = { limit = { has_war_with = RCH } white_peace = RCH }
+		annex_country = { target = RCH transfer_troops = no }
+	}
+	add_political_power = constant:qing_story.political_capital
+	add_stability = constant:qing_story.stability_major_gain
+	qing_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+}
+
+qing_settle_constitutional = {
+	qing_end_revolution = yes
+	clr_country_flag = qing_route_constitutional
+	clr_country_flag = qing_route_authoritarian
+	clr_country_flag = qing_route_federal
+	clr_country_flag = qing_route_yuan
+	set_country_flag = qing_route_constitutional
+	retire_country_leader = yes
+	qing_promote_puyi = yes
+	set_politics = { ruling_party = neutrality elections_allowed = yes }
+	add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+	add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+	qing_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+	country_event = { id = qing_campaign.24 days = 1 }
+}
+
+qing_settle_authoritarian = {
+	qing_end_revolution = yes
+	clr_country_flag = qing_route_constitutional
+	clr_country_flag = qing_route_authoritarian
+	clr_country_flag = qing_route_federal
+	clr_country_flag = qing_route_yuan
+	set_country_flag = qing_route_authoritarian
+	retire_country_leader = yes
+	qing_promote_puyi = yes
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+	add_to_variable = { qing_reform = constant:qing_story.reform_loss }
+	add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
+	qing_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+	country_event = { id = qing_campaign.25 days = 1 }
+}
+
+qing_settle_yuan = {
+	qing_end_revolution = yes
+	clr_country_flag = qing_route_constitutional
+	clr_country_flag = qing_route_authoritarian
+	clr_country_flag = qing_route_federal
+	clr_country_flag = qing_route_yuan
+	set_country_flag = qing_route_yuan
+	retire_country_leader = yes
+	qing_promote_yuan = yes
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_major_gain }
+	add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+	qing_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+	country_event = { id = qing_campaign.26 days = 1 }
+}
+
+qing_settle_federal = {
+	qing_end_revolution = yes
+	clr_country_flag = qing_route_constitutional
+	clr_country_flag = qing_route_authoritarian
+	clr_country_flag = qing_route_federal
+	clr_country_flag = qing_route_yuan
+	set_country_flag = qing_route_federal
+	retire_country_leader = yes
+	qing_promote_puyi = yes
+	set_politics = { ruling_party = neutrality elections_allowed = yes }
+	add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+	add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+	qing_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+	country_event = { id = qing_campaign.27 days = 1 }
+}
+
+# ---------------------------------------------------------------------------
+# Characters and leaders.
+# ---------------------------------------------------------------------------
+qing_promote_yuan = {
+	if = { limit = { has_character = QIN_yuan_shikai } promote_character = QIN_yuan_shikai }
+}
+
+qing_promote_puyi = {
+	if = { limit = { has_character = QIN_aisin_gioro_puyi } promote_character = QIN_aisin_gioro_puyi }
+}
+
+# ---------------------------------------------------------------------------
+# Finite projects. Each one checks the state it needs and its own receipt flag.
+# ---------------------------------------------------------------------------
+qing_build_railway_north = {
+	if = {
+		limit = { owns_state = 608 NOT = { has_country_flag = qing_railway_north_built } }
+		set_country_flag = qing_railway_north_built
+		608 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = infrastructure level = 1 instant_build = yes }
+		}
+		607 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+	}
+}
+
+qing_build_railway_south = {
+	if = {
+		limit = { owns_state = 605 NOT = { has_country_flag = qing_railway_south_built } }
+		set_country_flag = qing_railway_south_built
+		605 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = infrastructure level = 1 instant_build = yes }
+		}
+		602 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+	}
+}
+
+qing_build_hanyang = {
+	if = {
+		limit = { owns_state = 605 NOT = { has_country_flag = qing_hanyang_built } }
+		set_country_flag = qing_hanyang_built
+		605 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+		}
+	}
+}
+
+qing_build_shanghai_dock = {
+	if = {
+		limit = { owns_state = 613 NOT = { has_country_flag = qing_shanghai_dock_built } }
+		set_country_flag = qing_shanghai_dock_built
+		613 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = dockyard level = 1 instant_build = yes }
+		}
+	}
+}
+
+qing_build_baoding_academy = {
+	if = {
+		limit = { owns_state = 608 NOT = { has_country_flag = qing_baoding_built } }
+		set_country_flag = qing_baoding_built
+		608 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = air_base level = 1 instant_build = yes }
+		}
+		army_experience = 25
+	}
+}
+
+qing_fortify_capital = {
+	if = {
+		limit = { owns_state = 608 NOT = { has_country_flag = qing_capital_fortified } }
+		set_country_flag = qing_capital_fortified
+		608 = { add_building_construction = { type = bunker level = 1 instant_build = yes } }
+	}
+}
