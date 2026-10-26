@@ -1,0 +1,69 @@
+# Overview: Iran 1910-1945 - the two decisions the 1910-1918 chapter hands forward.
+# iran_paris_memorandum sits in the existing iran_great_game category: the capstone focus opens it and it
+# spends eight years of accumulated concessions at the peace. iran_proclaim_the_republic sits in
+# iran_state_authority because the republic question exists on the Majlis path, which need not have taken
+# any foreign programme. Both call the shared Great Game and settlement effects; the arithmetic is hidden
+# behind the *_effect_tt tooltips. Native cost and timer fields take literal values, so they are file-local
+# macros here, as in the other Iran decision files.
+
+@memorandum_cost = 100
+@memorandum_days = 90
+@republic_cost = 150
+@republic_days = 120
+@priority = 50
+@normal = 25
+
+iran_great_game = {
+	iran_paris_memorandum = {
+		icon = generic_foreign_policy
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_paris_conference
+			NOT = { has_country_flag = iran_paris_memorandum_sent }
+		}
+		available = { date > 1919.1.1 }
+		cost = @memorandum_cost
+		days_remove = @memorandum_days
+		fire_only_once = yes
+		modifier = { political_power_factor = -0.10 }
+		remove_effect = {
+			custom_effect_tooltip = iran_paris_memorandum_effect_tt
+			iran_reclaim_british_large = yes
+			hidden_effect = {
+				add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
+				add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+				if = {
+					limit = { has_idea = iran_british_financial_mission }
+					remove_ideas = iran_british_financial_mission
+				}
+				set_country_flag = iran_paris_memorandum_sent
+				iran_refresh_mechanics_hidden = yes
+			}
+			country_event = { id = iran_f1.1 }
+		}
+		ai_will_do = { factor = @priority modifier = { factor = 5 date > 1920.1.1 } }
+	}
+}
+
+iran_state_authority = {
+	iran_proclaim_the_republic = {
+		icon = generic_political_actions
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_republic_candidate
+			NOT = { has_country_flag = iran_republic }
+		}
+		available = {
+			date > 1919.1.1
+			check_variable = { var = iran_sovereignty value = constant:iran_story.sovereignty_independence_threshold compare = greater_than_or_equals }
+		}
+		cost = @republic_cost
+		days_remove = @republic_days
+		remove_effect = {
+			custom_effect_tooltip = iran_proclaim_the_republic_effect_tt
+			hidden_effect = { iran_settle_republic = yes }
+			country_event = { id = iran_f1.4 }
+		}
+		ai_will_do = { factor = @normal modifier = { factor = 0 is_historical_focus_on = yes } }
+	}
+}
