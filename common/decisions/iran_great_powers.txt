@@ -1,0 +1,176 @@
+# Overview: the Great Game's third power and its crises.
+#
+# Germany is not a third identical influence bar: it has no border with Iran, no
+# history of concessions and no ability to coerce until 1941, so its relationship
+# is technical and commercial rather than territorial. The crises are timed
+# missions in the TNO sense - a deadline, a resolution, and a penalty for letting
+# the clock run out.
+
+iran_great_powers = {
+
+	# ------------------------------------------------------------ Germany, 1935-
+	iran_invite_german_mission = {
+		icon = generic_research
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date > 1934.12.31
+			date < 1942.1.1
+			NOT = { has_country_flag = iran_agreement_german_mission }
+		}
+		available = {
+			political_power > 99
+			country_exists = GER
+			OR = {
+				has_country_flag = iran_rule_by_decree
+				power_balance_value = { id = PER_crown_and_majlis value > -0.10 }
+			}
+		}
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_agreement_german_mission
+			add_to_variable = { iran_german_influence = constant:iran_story.influence_per_agreement }
+			subtract_from_variable = { iran_sovereignty = 4 }
+			add_timed_idea = { idea = iran_german_technical_mission days = 1825 }
+			add_research_slot = 1
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	iran_german_barter_trade = {
+		icon = generic_industry
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date > 1934.12.31
+			country_exists = GER
+			NOT = { has_country_flag = iran_agreement_german_trade }
+		}
+		available = {
+			political_power > 49
+			has_country_flag = iran_agreement_german_mission
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_agreement_german_trade
+			add_to_variable = { iran_german_influence = 8 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.equipment_grant producer = GER }
+			add_resource = { type = steel amount = constant:iran_story.steel_expansion }
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	iran_expel_the_german_mission = {
+		icon = generic_independence
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			has_country_flag = iran_agreement_german_mission
+		}
+		available = {
+			political_power > 99
+			OR = {
+				has_country_flag = iran_german_mission_withdrawn
+				has_country_flag = iran_allied_demand
+			}
+		}
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			clr_country_flag = iran_agreement_german_mission
+			remove_ideas = iran_german_technical_mission
+			subtract_from_variable = { iran_german_influence = constant:iran_story.influence_per_agreement }
+			add_to_variable = { iran_sovereignty = 6 }
+			add_to_variable = { iran_british_standing = constant:iran_story.great_game_court_gain }
+			add_to_variable = { iran_northern_standing = constant:iran_story.great_game_court_gain }
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	# ------------------------------------------------- crises as timed missions
+	# The Anglo-Persian Agreement: offered, then pressed.
+	iran_crisis_anglo_persian_begin = {
+		icon = generic_political_discourse
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date > 1919.1.1
+			date < 1921.12.31
+			NOT = { has_country_flag = iran_crisis_anglo_persian_done }
+		}
+		available = { country_exists = ENG }
+		activation = { always = yes }
+		is_good = no
+		days_mission_timeout = 300
+		timeout_effect = {
+			# the agreement is signed without us
+			set_country_flag = iran_crisis_anglo_persian_done
+			set_country_flag = iran_agreement_anglo_persian_imposed
+			add_to_variable = { iran_british_influence = constant:iran_story.influence_per_agreement }
+			add_to_variable = { iran_foreign_leverage = 15 }
+			subtract_from_variable = { iran_sovereignty = 10 }
+			add_stability = -0.10
+			iran_refresh_mechanics_hidden = yes
+		}
+		# no complete_effect: the mission ends on its timeout, or when the player
+		# ratifies or rejects it in the two decisions alongside it
+	}
+
+	iran_crisis_anglo_persian_ratify = {
+		icon = generic_break_treaty
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date > 1919.1.1
+			date < 1921.12.31
+			NOT = { has_country_flag = iran_crisis_anglo_persian_done }
+		}
+		available = {
+			political_power > 74
+			country_exists = ENG
+		}
+		cost = 75
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_crisis_anglo_persian_done
+			set_country_flag = iran_agreement_anglo_persian
+			add_to_variable = { iran_british_influence = constant:iran_story.influence_per_agreement }
+			add_to_variable = { iran_foreign_leverage = 15 }
+			subtract_from_variable = { iran_sovereignty = 10 }
+			add_political_power = 50
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 1 }
+	}
+
+	iran_crisis_anglo_persian_reject = {
+		icon = generic_nationalism
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date > 1919.1.1
+			date < 1921.12.31
+			NOT = { has_country_flag = iran_crisis_anglo_persian_done }
+		}
+		available = {
+			political_power > 74
+			country_exists = ENG
+		}
+		cost = 75
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_crisis_anglo_persian_done
+			set_country_flag = iran_anglo_persian_rejected
+			add_to_variable = { iran_sovereignty = 8 }
+			subtract_from_variable = { iran_british_standing = constant:iran_story.great_game_expel_loss }
+			add_war_support = constant:iran_story.war_support_gain
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+}

@@ -108,6 +108,7 @@ iran_initialize_campaign = {
 		set_variable = { iran_sovereignty = constant:iran_story.sovereignty_opening }
 		set_variable = { iran_british_influence = constant:iran_story.influence_opening_british }
 		set_variable = { iran_northern_influence = constant:iran_story.influence_opening_northern }
+		set_variable = { iran_german_influence = 0 }
 		if = {
 			limit = { date > 1918.12.31 }
 			set_variable = { iran_authority = constant:iran_story.authority_interwar }
@@ -399,6 +400,43 @@ iran_influence_tick = {
 			check_variable = { var = iran_sovereignty value = 80 compare = less_than }
 		}
 		add_to_variable = { iran_sovereignty = 1 }
+	}
+	# A power at war demands transit; a power at peace with the upper hand
+	# demands a concession instead. This is what makes them actors, not bars.
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			country_exists = ENG
+			ENG = { has_war = yes }
+			NOT = { has_country_flag = iran_agreement_transit_allied }
+			NOT = { has_country_flag = iran_transit_demand_seen }
+		}
+		set_country_flag = iran_transit_demand_seen
+		country_event = { id = iran_campaign.74 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			country_exists = SOV
+			SOV = { has_war = yes }
+			date > 1941.1.1
+			NOT = { has_country_flag = iran_agreement_transit_allied }
+			NOT = { has_country_flag = iran_soviet_transit_seen }
+		}
+		set_country_flag = iran_soviet_transit_seen
+		country_event = { id = iran_campaign.75 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			country_exists = GER
+			GER = { has_war = yes }
+			has_country_flag = iran_agreement_german_mission
+			date > 1940.1.1
+			NOT = { has_country_flag = iran_allied_demand }
+		}
+		set_country_flag = iran_allied_demand
+		country_event = { id = iran_campaign.76 }
 	}
 	# Incompatible obligations: a British arrangement and a northern one that
 	# cannot both be honoured. Penalty applies while both are held.
