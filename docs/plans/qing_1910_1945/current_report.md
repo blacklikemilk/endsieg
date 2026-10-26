@@ -1,4 +1,4 @@
-# Qing overhaul, current report
+﻿# Qing overhaul, current report
 
 ## What is implemented
 
@@ -89,6 +89,14 @@ New content: a Japan war branch with an invasion root that is available only at 
 Four new events (`qing_campaign.60`-`.63`) carry the Tsingtao landing, the Wuchang mutiny, the abdication question and the restoration.
 
 Details, anchors and the layout table are in `chapter_one_expansion.md`.
+
+
+## Chapter one second pass
+
+158 focuses. The Beiyang command gained nine focuses (Baoding, Yuan's health, three cliques, military governors, its treasury, its army and the army-and-state capstone), all flag-setting and paying in equipment, manpower, opinion or political power.
+Four historic constraints became spirits: unequal treaties, provincial autonomy, reformed finance and public schools, with the refresh effect adding or clearing them from focus flags.
+The society chain, the 1911 crisis, the Japanese war, the later economy and the provincial additions were re-anchored one to three rows under their parents.
+Links longer than three cells: 49 before, 37 after; longest link: 15 cells before, 9 after; no box overlaps; 308 focuses across the three chapters, audit clean.
 
 ## Pending
 

@@ -1,4 +1,4 @@
-# Chapter one expansion, 1910-1919
+﻿# Chapter one expansion, 1910-1919
 
 ## What was wrong
 
@@ -72,3 +72,21 @@ The constitutional option in `.62` calls `qing_settle_constitutional`, so a play
 
 No launch has been made since these changes.
 Whether the new bands read well at the default zoom, whether the Japan branch appears and greys out as intended, and whether the four new events fire from their focuses are all engine questions.
+
+## Beiyang command and the constraint layer
+
+The Beiyang band now runs nine focuses deep: the Baoding academy, Yuan's health, the Zhili, Anhui and Fengtian cliques, the military governors, the Beiyang treasury, the Beiyang army and the army-and-state capstone.
+Each sets a flag later chapters read (`qing_zhili_clique`, `qing_anhui_clique`, `qing_fengtian_clique`, `qing_military_governors`, `qing_beiyang_state`) and pays in equipment, manpower, opinion or political power rather than experience alone.
+
+Four standing constraints are now spirits rather than text in a description:
+`qing_unequal_treaties` (political power, research and stability penalties) is cleared by the legal code or judicial reform;
+`qing_provincial_autonomy` (consumer goods, construction and stability penalties) is cleared by land tax reform;
+`qing_reformed_finance` is granted by the national bank and `qing_public_schools` by the new schools.
+The refresh effect adds and removes them from the flags, so the panel shows what the dynasty has actually fixed.
+
+## Layout corrections
+
+The society branch moved out of the political centre to a vertical chain at x=24 under the legal code, so its links are one row deep instead of eleven.
+The regency household no longer sits between the two mutually exclusive court focuses, which was drawing their exclusion arrow straight through its title plate.
+The 1911 crisis, the Japanese war, the later economy, the army reform and the provincial additions were pulled up to sit one to three rows under their parents.
+Measured result: links longer than three cells fell from 49 to 37, the longest from 15 cells to 9, and the tree still passes the geometry checker with 158 focuses and no box overlaps.
