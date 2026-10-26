@@ -76,6 +76,7 @@ spain_open_restoration_chapter = {
 	spain_cortes_initialize = yes
 	load_focus_tree = { tree = spain_restoration_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
+	spain_carry_over_choices = yes
 	set_country_flag = spain_bop_pending
 	set_country_flag = spain_focus_restore_pending
 	
@@ -92,6 +93,7 @@ spain_open_rivera_chapter = {
 	spain_cortes_initialize = yes
 	load_focus_tree = { tree = spain_rivera_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
+	spain_carry_over_choices = yes
 	set_country_flag = spain_bop_pending
 	set_country_flag = spain_focus_restore_pending
 	
@@ -110,6 +112,7 @@ spain_open_republic_chapter = {
 	spain_cortes_initialize = yes
 	load_focus_tree = { tree = spain_republic_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
+	spain_carry_over_choices = yes
 	set_country_flag = spain_bop_pending
 	set_country_flag = spain_focus_restore_pending
 	
@@ -128,6 +131,7 @@ spain_open_civil_war_chapter = {
 	set_country_flag = spain_chapter_civil_war
 	load_focus_tree = { tree = spanish_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
+	spain_carry_over_choices = yes
 	set_country_flag = spain_bop_pending
 	if = {
 		limit = { NOT = { has_country_flag = spain_factions_opened } }
@@ -143,6 +147,7 @@ spain_open_civil_war_chapter = {
 spain_open_postwar_chapter = {
 	set_country_flag = spain_bop_pending
 	set_country_flag = spain_chapter_postwar
+	spain_carry_over_choices = yes
 	spain_cortes_initialize = yes
 	if = { limit = { has_power_balance = { id = SPR_crown_and_cortes } } remove_power_balance = { id = SPR_crown_and_cortes } }
 	if = {
@@ -1093,5 +1098,121 @@ spain_ensure_chapter_tree = {
 		limit = { has_country_flag = spain_chapter_republican_postwar NOT = { has_focus_tree = spain_republic_postwar_focus } }
 		load_focus_tree = { tree = spain_republic_postwar_focus keep_completed = yes }
 		mark_focus_tree_layout_dirty = yes
+	}
+}
+
+# Overview: era handover for the Spanish campaign. Each chapter opener calls this once, so
+# choices made in a finished era become variables and legacy flags that later content reads,
+# instead of dying with the tree that set them. Guarded per era, so a reload cannot double it.
+spain_carry_over_choices = {
+	if = {
+		limit = { has_country_flag = spain_chapter_rivera NOT = { has_country_flag = spain_carried_restoration } }
+		set_country_flag = spain_carried_restoration
+		if = {
+			limit = { has_country_flag = spain_army_settled }
+			subtract_from_variable = { var = spain_military_loyalty value = 8 }
+			set_country_flag = spain_legacy_politicised_army
+		}
+		if = {
+			limit = { has_country_flag = spain_coup_prepared }
+			subtract_from_variable = { var = spain_military_loyalty value = 5 }
+			add_to_variable = { var = spain_coup_pressure value = 10 }
+		}
+		if = {
+			limit = { has_country_flag = spain_electoral_reform }
+			set_country_flag = spain_legacy_parliamentary
+			add_political_power = constant:spain_campaign.pp_small
+		}
+		if = {
+			limit = { has_country_flag = spain_labour_conciliation }
+			subtract_from_variable = { var = spain_nationalist_tension value = 5 }
+			set_country_flag = spain_legacy_labour_peace
+		}
+		if = {
+			limit = { has_country_flag = spain_labour_repression }
+			add_to_variable = { var = spain_nationalist_tension value = 5 }
+			set_country_flag = spain_legacy_labour_repressed
+		}
+		if = {
+			limit = { has_country_flag = spain_mining_districts }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+		}
+		if = {
+			limit = { has_country_flag = spain_agrarian_credit }
+			add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain }
+		}
+		if = {
+			limit = { has_country_flag = spain_mancomunitat }
+			add_to_variable = { var = spain_catalan_autonomy value = 1 }
+		}
+		if = {
+			limit = { has_country_flag = spain_basque_fueros }
+			add_to_variable = { var = spain_basque_autonomy value = 1 }
+		}
+		if = {
+			limit = { has_country_flag = spain_africanist_corps }
+			add_to_variable = { var = spain_rif_commitment value = 1 }
+			set_country_flag = spain_legacy_africanists
+		}
+	}
+	if = {
+		limit = { has_country_flag = spain_chapter_republic NOT = { has_country_flag = spain_carried_rivera } }
+		set_country_flag = spain_carried_rivera
+		if = {
+			limit = { has_country_flag = spain_constitution_suspended }
+			add_to_variable = { var = spain_nationalist_tension value = 8 }
+			set_country_flag = spain_legacy_decree_rule
+		}
+		if = {
+			limit = { has_country_flag = spain_consultative_assembly }
+			set_country_flag = spain_legacy_assembly
+		}
+		if = {
+			limit = { has_country_flag = spain_alhucemas_landed }
+			add_to_variable = { var = spain_military_loyalty value = 5 }
+			set_country_flag = spain_legacy_africanists
+		}
+		if = {
+			limit = { has_country_flag = spain_aircraft_industry }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+		}
+		if = {
+			limit = { has_country_flag = spain_iberian_railway }
+			add_to_variable = { var = spain_infrastructure value = constant:spain_campaign.development_gain }
+		}
+		if = {
+			limit = { has_country_flag = spain_corporatist_labour }
+			set_country_flag = spain_legacy_corporatism
+		}
+	}
+	if = {
+		limit = {
+			OR = { has_country_flag = spain_chapter_postwar has_country_flag = spain_chapter_civil_war }
+			NOT = { has_country_flag = spain_carried_republic }
+		}
+		set_country_flag = spain_carried_republic
+		if = {
+			limit = { has_country_flag = spain_agrarian_reform_started }
+			add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_nationalist_tension value = 5 }
+		}
+		if = {
+			limit = { has_country_flag = spain_catalan_statute_started }
+			add_to_variable = { var = spain_catalan_autonomy value = 1 }
+		}
+		if = {
+			limit = { has_country_flag = spain_army_plot }
+			subtract_from_variable = { var = spain_military_loyalty value = 10 }
+			add_to_variable = { var = spain_coup_pressure value = 15 }
+			set_country_flag = spain_legacy_plot
+		}
+		if = {
+			limit = { has_country_flag = spain_calvo_sotelo_dead }
+			add_to_variable = { var = spain_nationalist_tension value = 10 }
+		}
+		if = {
+			limit = { has_country_flag = spain_arms_for_militias }
+			set_country_flag = spain_legacy_armed_militias
+		}
 	}
 }
