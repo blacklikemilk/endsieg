@@ -105,19 +105,29 @@ iran_great_powers = {
 			NOT = { has_country_flag = iran_crisis_anglo_persian_done }
 		}
 		available = { country_exists = ENG }
-		activation = { always = yes }
+		# starts only when the Curzon draft is on the table: 1919, Britain exists, the question is unresolved
+		activation = {
+			has_country_flag = iran_campaign_active
+			date > 1919.1.1
+			date < 1921.12.31
+			country_exists = ENG
+			NOT = { has_country_flag = iran_crisis_anglo_persian_done }
+		}
 		is_good = no
 		days_mission_timeout = 300
 		timeout_effect = {
-			# the agreement is signed without us
-			set_country_flag = iran_crisis_anglo_persian_done
-			set_country_flag = iran_agreement_anglo_persian_imposed
-			add_to_variable = { iran_british_influence = constant:iran_story.influence_per_agreement }
-			add_to_variable = { iran_foreign_leverage = 15 }
-			subtract_from_variable = { iran_sovereignty = 10 }
-			add_stability = -0.10
-			PER_bop_push_crown_small = yes
-			iran_refresh_mechanics_hidden = yes
+			# the agreement is signed without us, unless the cabinet already ratified or rejected it
+			if = {
+				limit = { NOT = { has_country_flag = iran_crisis_anglo_persian_done } }
+				set_country_flag = iran_crisis_anglo_persian_done
+				set_country_flag = iran_agreement_anglo_persian_imposed
+				add_to_variable = { iran_british_influence = constant:iran_story.influence_per_agreement }
+				add_to_variable = { iran_foreign_leverage = 15 }
+				subtract_from_variable = { iran_sovereignty = 10 }
+				add_stability = -0.10
+				PER_bop_push_crown_small = yes
+				iran_refresh_mechanics_hidden = yes
+			}
 		}
 		# no complete_effect: the mission ends on its timeout, or when the player
 		# ratifies or rejects it in the two decisions alongside it
@@ -140,6 +150,7 @@ iran_great_powers = {
 		fire_only_once = yes
 		complete_effect = {
 			set_country_flag = iran_crisis_anglo_persian_done
+			remove_mission = iran_crisis_anglo_persian_begin
 			set_country_flag = iran_agreement_anglo_persian
 			add_to_variable = { iran_british_influence = constant:iran_story.influence_per_agreement }
 			add_to_variable = { iran_foreign_leverage = 15 }
@@ -168,6 +179,7 @@ iran_great_powers = {
 		fire_only_once = yes
 		complete_effect = {
 			set_country_flag = iran_crisis_anglo_persian_done
+			remove_mission = iran_crisis_anglo_persian_begin
 			set_country_flag = iran_anglo_persian_rejected
 			add_to_variable = { iran_sovereignty = 8 }
 			subtract_from_variable = { iran_british_standing = constant:iran_story.great_game_expel_loss }
