@@ -147,7 +147,8 @@ iran_route_chapter = {
 			# regimes it can actually represent, so a Qajar restoration or a
 			# constitutional monarchy is not flattened into "neutral Iran".
 			OR = {
-				NOT = { has_country_flag = iran_regime_settled }
+				# unsettled Iran keeps the interwar chapter until mid-1936
+				date > 1936.6.30
 				has_country_flag = iran_pahlavi
 				has_country_flag = iran_republic
 				has_country_flag = iran_nationalist_front
@@ -160,6 +161,7 @@ iran_route_chapter = {
 		limit = {
 			date > 1935.12.31
 			NOT = { has_focus_tree = iran_ww2 }
+			OR = { date > 1936.6.30 has_country_flag = iran_regime_settled }
 		}
 		load_focus_tree = { tree = iran_ww2 keep_completed = yes }
 	}
@@ -179,6 +181,20 @@ iran_campaign_tick = {
 			}
 			iran_route_chapter = yes
 			country_event = { id = iran_campaign.30 }
+		}
+		if = {
+			limit = {
+				date > 1934.1.1
+				NOT = { has_country_flag = iran_regime_settled }
+				NOT = { has_country_flag = iran_settlement_warned }
+			}
+			set_country_flag = iran_settlement_warned
+			country_event = { id = iran_campaign.31 }
+		}
+		if = {
+			limit = { date > 1936.6.30 NOT = { has_country_flag = iran_regime_settled } }
+			# history does not wait for a Majlis that will not decide
+			iran_settle_pahlavi = yes
 		}
 		if = {
 			limit = { date > 1940.12.31 iran_allied_pressure = yes NOT = { has_country_flag = iran_crisis_seen } NOT = { has_country_flag = SOV_ultimatum_sent_flag } }
