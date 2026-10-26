@@ -130,3 +130,17 @@ The HOI4 Agent Tools MCP was used for `focus_inspect`, `focus_rewrite` and `focu
 - A run to 1919 and 1936 to confirm the chapter swaps.
 - In-game confirmation that `qing_xinhai_settled` suppresses the historical chain and that the unset case still collapses.
 - Portrait and balance-of-power art noted in `qing_assets.md`.
+
+## Historical railroading, the rescue mission, and file formatting
+
+Historical focus is now the railroaded timeline for both countries.
+`qing_historical_collapse` wraps `is_historical_focus_on = yes`; `qing_survival_possible` and `qing_can_impose_settlement` both require its absence, and `qing_end_revolution` is a no-op under it, so the dynasty falls on the revolution's own schedule no matter which court path is picked.
+
+The Republic's 1934 rescue is off-script content only: `rch_save_the_republic` now requires `is_historical_focus_on = no` behind a `custom_trigger_tooltip`.
+Its difficulty was raised so that avoiding the 1936 warlord split is possible but demands a near-perfect year: entry at more than 200 political power with a 200 cost, Beijing held, legitimacy 80, stability above 55%, back above 150 political power, no war of any kind, the route settlement of the chosen path, and a second national programme.
+Thresholds live in `common/script_constants/rch_campaign.txt` as `legitimacy_rescue`, `rescue_stability`, `rescue_entry_power` and `rescue_remaining_power`.
+
+`QW1_chapter_end` required all four route capstones as separate prerequisite blocks, which made it unreachable because the routes are mutually exclusive.
+It is now a single prerequisite block, so it completes on whichever route was taken; this is the only gameplay field changed by the layout work.
+
+The six China tree files were formatted: one coordinate per line, tabs, no trailing whitespace, a single header describing purpose, families and the tree's real bounds, and CRLF line endings like the rest of the working tree.
