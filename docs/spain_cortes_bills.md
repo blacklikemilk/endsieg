@@ -21,20 +21,36 @@ The six government bills in the `SPR_cortes` decision category are no longer pol
 - `spain_bill_prepare_count` sets `spain_bill_votes` to 0, `spain_bill_needed` to the majority, and `spain_bill_floor` to the majority minus `constant:spain_campaign.bill_negotiation_reach`. The floor is the number of seats a government may be short of the bar and still bring the bill.
 - `spain_bill_add_government` adds `spain_government_seats`, which already contains the ruling party and both coalition partners.
 - Each `spain_bill_add_<party>` helper adds that party's seats **only when the party sits outside the government bloc**, which is what prevents double counting.
+- The swing party of a bill is never one of the helpers in that bill's base count. Its benches enter `spain_bill_swing_votes` in a separate block after the base is clamped, and that block is skipped while the party sits in the government bloc, where `spain_government_seats` already carries it. Each party therefore contributes its benches exactly once to each total.
 - The finished total is clamped to the chamber size and copied to `spain_bill_votes_<bill>`, the cache the decision buttons read.
 
-| Bill | Supporting bloc | Swing party whose votes can be bought |
+| Bill | Supporting bloc (base) | Swing party whose votes can be bought |
 | --- | --- | --- |
-| `SPR_bill_budget` | government + Liberals + Conservatives | Liberals |
+| `SPR_bill_budget` | government + Conservatives | Liberals |
 | `SPR_bill_agrarian_reform` | government + Republicans + Socialists + Liberals | Conservatives (the landowners) |
 | `SPR_bill_labour_charter` | government + Socialists + Republicans + Liberals | Conservatives |
-| `SPR_bill_army_budget` | government + Monarchists + Conservatives + Liberals + Falange | Liberals |
+| `SPR_bill_army_budget` | government + Monarchists + Conservatives + Falange | Liberals |
 | `SPR_bill_regional_statute` | government + Republicans + Socialists + Liberals | Conservatives |
 | `SPR_bill_electoral_law` | government + every bench outside the government | none |
 
 The electoral law is the exception by construction: the opposition plus the government's own seats are the whole chamber, so the count is 400 and never the obstacle. What the bill actually costs is the election it fires immediately, which is why it may only be brought once and still uses a 365-day re-enable.
 
-`spain_bill_swing_votes` records what the bill would reach with the swing party's benches added. The event uses it to decide whether a concession could close the gap.
+`spain_bill_swing_votes` starts as the base count and gains the swing party's benches once, and only while that party sits outside the government bloc. It is the true ceiling of the bill — the most the chamber could be made to vote — and never the base plus a second copy of benches the base already counted. The event uses it to decide whether a concession could close the gap.
+
+### Worked examples
+
+The government holds 100 Republican seats and neither the Liberals nor the Conservatives sit in it.
+
+| Case | Other benches | Base `spain_bill_votes` | Swing `spain_bill_swing_votes` | Options offered |
+| --- | --- | --- | --- | --- |
+| Budget, Liberals 60 | Conservatives 30, Socialists 120, Monarchists 40, Carlists 30, Falange 20 | 100 + 30 = **130** | 130 + 60 = **190** | below 201 even with the Liberals: only "water it down" or "withdraw" |
+| Budget, Liberals 80 | Conservatives 30, Socialists 110, Monarchists 40, Carlists 20, Falange 20 | 100 + 30 = **130** | 130 + 80 = **210** | the Liberal concession reaches the bar, so `spain_bills.1.b` appears |
+| Army budget, Liberals 60 | Monarchists 20, Conservatives 15, Falange 5, Socialists 140, Carlists 60 | 100 + 20 + 15 + 5 = **140** | 140 + 60 = **200** | below 201: no concession, the bill is withdrawn or watered down |
+| Army budget, Liberals 60 | Monarchists 40, Conservatives 30, Falange 20, Socialists 90, Carlists 60 | 100 + 40 + 30 + 20 = **190** | 190 + 60 = **250** | the Liberal concession reaches the bar, so `spain_bills.4.b` appears |
+
+When the Liberals are inside the government bloc, `spain_government_seats` already holds their benches: the base count carries them, the swing block is skipped, and the two totals are equal, so only a clean pass is possible. The party is in the room rather than to be bought.
+
+The options column describes what the negotiation offers once the bill is on the floor. Bringing it is a separate gate: the decision's `available` compares the cached base `spain_bill_votes_<bill>` — or the government's own seats — against `spain_bill_floor` (161), so a bill is only brought while its base bloc is within `bill_negotiation_reach` seats of the majority. A government whose base is below the floor never reaches the negotiation whatever the swing party would add; the concession is therefore reachable while the base sits between 161 and 200 seats and the swing benches lift the true total to 201.
 
 ## Flow
 
