@@ -8,7 +8,7 @@ code so the result is pixel-exact and never depends on an image model spelling t
 letters correctly.
 
 Outputs (all DXT5 `.dds` under ``gfx/interface/scenario_select``):
-    card_<scenario>.dds  456x284  scenario paintings, drawn at half size (228x142)
+    card_<scenario>.dds  228x142  scenario paintings, one pixel per screen pixel
     card_frame.dds       248x384  two frames of 248x192: normal, selected
     scenario_bg.dds     1600x800  header wordmark, card field, detail panel, footer
 
@@ -66,8 +66,8 @@ SOURCES = {
     "card_1945_03": ("1945_endsieg.png", 0, "1945"),
 }
 
-ART_W, ART_H = 228, 142          # on-screen size of the painting inside the card
-CARD_W, CARD_H = ART_W * 2, ART_H * 2
+ART_W, ART_H = 228, 142          # painting size inside the card; the icon is drawn 1:1
+CARD_W, CARD_H = ART_W, ART_H    # iconType has no scale/size, so art is built at display size
 FRAME_W, FRAME_H = 248, 192      # bookmark_entry size in frontendgamesetupview.gui
 BG_W, BG_H = 1600, 800           # gamesetup_scenario_window size
 
@@ -177,15 +177,15 @@ def build_cards(check_only: bool = False) -> None:
             card = Image.blend(card, Image.new("RGBA", card.size, (34, 32, 29, 255)), 0.08)
 
             # Shade the top edge so the burned-in year always sits on darkness.
-            band = 96
+            band = 48
             shade = Image.new("RGBA", (CARD_W, band), (10, 9, 8, 0))
             sd = ImageDraw.Draw(shade)
             for y in range(band):
                 sd.line([(0, y), (CARD_W, y)], fill=(10, 9, 8, int(195 * (1 - y / float(band)) ** 1.25)))
             card.alpha_composite(shade, (0, 0))
 
-            stamp = gold_fill(tracked(year, font(72), 6))
-            embossed(card, stamp, ((CARD_W - stamp.size[0]) // 2, 4), 0.6)
+            stamp = gold_fill(tracked(year, font(36), 3))
+            embossed(card, stamp, ((CARD_W - stamp.size[0]) // 2, 2), 0.6)
 
             card.convert("RGB").save(os.path.join(OUT_DIR, stem + ".dds"), pixel_format="DXT5")
             print(f"wrote {stem}.dds")
