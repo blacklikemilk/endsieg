@@ -1,69 +1,118 @@
 # The Great Game
 
-Britain and Russia meet across Iran because it is the only ground where they can meet without a war.
-The mechanic tracks standing with each separately, because the country's whole diplomatic art is
-keeping them interested in different things.
+Britain and the northern power meet across Iran because it is the only ground on which they can meet without a war.
+The mechanic is not a friendship score.
+It tracks three different things — how much each patron *controls*, how much goodwill it holds, and how much freedom of action the Iranian government still has — and it puts a price on every agreement in obligations that outlive the government that signed them.
 
-## State
+## The three axes
 
-| Variable | Range | Opens at |
-| --- | --- | --- |
-| `iran_british_standing` | 0–100 | 55 (London holds the Gulf and the telegraph in 1910) |
-| `iran_soviet_standing` | 0–100 | 30 (the northern sphere, weaker after 1917) |
+| Variable | Range | Opens at | Meaning |
+| --- | --- | --- | --- |
+| `iran_british_influence` | 0–100 | 45 | British control: concessions, advisers, customs, transit |
+| `iran_northern_influence` | 0–100 | 40 | Russian or Soviet control in the north |
+| `iran_german_influence` | 0–100 | 0 | German technical and commercial presence, 1935 onward |
+| `iran_british_standing` | 0–100 | 55 | British goodwill; buys nothing on its own |
+| `iran_northern_standing` | 0–100 | 30 | Goodwill of Petersburg, then Moscow |
+| `iran_sovereignty` | 0–100 | 35 (1910), 50 (interwar) | Freedom of action |
+| `iran_foreign_leverage` | 0–100 | 60 | Aggregate dependence, read by the rest of the tree |
 
-Initialised in `iran_initialize_campaign`, clamped in `iran_refresh_mechanics` alongside authority and
-leverage. Numbers live in `common/script_constants/iran_campaign.txt` under `great_game_*` and
-`british_opening` / `soviet_opening`.
+Influence and standing are deliberately separate.
+A patron can hold high goodwill and no control, or control and open contempt — the second is the normal case after a renegotiation.
 
-## The panel
+`iran_northern_standing` was previously `iran_soviet_standing`, which was wrong for 1910: the northern power is the Russian Empire until a Soviet state exists.
+Nothing is keyed to a fixed date — decisions that need the Soviet state test `country_exists = SOV`.
 
-Category `iran_great_game`, icon `GFX_decision_category_generic_foreign_policy`, six decisions —
-the count vanilla categories use (its own examples run 4–6), so the panel does not scroll.
+Initialised in `iran_initialize_campaign`; numbers live in `common/script_constants/iran_campaign.txt` under `sovereignty_*`, `influence_*` and `great_game_*`.
 
-| Decision | Cost | Effect |
-| --- | --- | --- |
-| Court the British Legation | 75 PP, 180 days | +15 British, −10 Soviet, +10 leverage |
-| Cultivate the Soviet Mission | 75 PP, 180 days | +15 Soviet, −10 British, −5% stability |
-| Play One Against the Other | 100 PP, 240 days, both ≥ 45 | +10 authority, +50 PP, −10 both |
-| Expel the Foreign Advisers | 150 PP, once, authority ≥ 50 | −20 both, +15 authority, −10 leverage, war support, −5% stability, −30 opinion with Britain |
-| Grant the Northern Concession | 50 PP, once | +15 Soviet, −10 leverage, +50 PP |
-| Invite a Third Power In | 100 PP, once, from 1933, British standing < 45 | +10 authority, −10 British, war support, fires `iran_campaign.70` at Germany |
+## How sovereignty moves
 
-## The three standings
+`iran_influence_tick` runs monthly on `on_monthly_PER`:
 
-Exactly one spirit is in force, applied inside a `hidden_effect` so the switch never appears in a
-focus tooltip:
+- −1 sovereignty per month for every patron whose influence is at or above `influence_pressure_threshold` (50).
+- +1 per month while `iran_customs_reformed` is set and sovereignty is below 80.
+- Clamped to 0–100.
 
-| Condition | Spirit | Modifier |
-| --- | --- | --- |
-| both ≥ 45 and both < 60 | `iran_balancing_powers` | +10% political power, +5% stability |
-| British ≥ 60 | `iran_british_preference` | −4% consumer goods, +5% political power |
-| Soviet ≥ 60 | `iran_soviet_preference` | +5% factory output, −5% stability |
+Sovereignty is therefore not a currency to farm; it is the residual of how much of the country is under foreign administration, and it recovers only through institutions.
 
-Balance pays more than either patron's favour and is the hardest state to hold, because every courting
-decision moves one patron up and the other down.
+## Agreements
+
+Decisions in category `iran_foreign_agreements`, each with an obligation spirit that outlasts the decision:
+
+| Agreement | Cost | Buys | Costs |
+| --- | --- | --- | --- |
+| British loan | 100 PP | +15 British influence, 5-year financial mission (build speed, cheaper consumer goods) | +10 leverage, −6 sovereignty, stability |
+| Northern railway | 100 PP | +15 northern influence, a railway in Golestan, 5-year concession | +10 leverage, −6 sovereignty, stability |
+| Foreign military mission | 75 PP | army experience, 4-year training mission | +10 influence to the stronger patron, −6 sovereignty |
+| Foreign customs officers | 100 PP | revenue, cheaper consumer goods, stability | +15 leverage, −10 sovereignty |
+
+The way back is slower and needs a state worth bargaining with:
+
+| Decision | Requires |
+| --- | --- |
+| Reform the customs service | 150 PP, authority ≥ 40 |
+| Found the National Bank | 200 PP, customs reform |
+| Professionalise the gendarmerie | 100 PP, authority ≥ 45 |
+| Renegotiate the concessions | 200 PP, sovereignty ≥ 65 |
+| End the foreign customs administration | 150 PP, sovereignty ≥ 75 |
+
+## Incompatible obligations
+
+Holding a British loan and a northern railway at the same time adds `iran_competing_concessions` (−10% stability, −10% political power) and fires `iran_campaign.73`, which asks which patron the government actually works for.
+Honouring one removes the other agreement and its influence; keeping both is allowed, and expensive.
+
+## The Majlis has to agree
+
+Signing a major agreement requires either a government on the parliamentary side of the Crown and Majlis balance, or a Shah ruling by decree.
+A decree signature is legal and costs stability and sovereignty, because the chamber was bypassed.
+
+## Crises
+
+Crises follow the TNO pattern: a mission decision with `days_mission_timeout`, resolved three ways — accept, refuse, or let the deadline decide.
+
+**The Anglo-Persian Agreement, 1919–1921** runs 300 days.
+Ratifying it grants influence and leverage in exchange for political power; rejecting it buys sovereignty, war support and authority at the cost of British goodwill; timing out signs it without the government, for a heavier price in stability and sovereignty.
+
+## The powers act
+
+`iran_great_game_tick` (monthly) has each power react to its own situation:
+
+- A Britain at war demands transit (`iran_campaign.74`) — grant it, refuse it, or offer the corridor to Germany instead.
+- A Soviet Union at war after 1941 demands the same corridor on better terms (`iran_campaign.75`).
+- A Germany at war with the mission still in Tehran makes the Allied demand unavoidable (`iran_campaign.76`).
+
+Agreements are once-only where they represent a single historical arrangement; the tick uses `seen` flags so no demand repeats, and each event is `is_triggered_only`.
+
+## Germany
+
+Germany has no frontier with Iran and no concession to defend, so its relationship is technical and commercial rather than territorial: a research institute and a barter agreement that asks for nothing in the customs house.
+Expelling the mission in 1941 costs the machinery and the research slot, and buys a hearing in London and Moscow.
 
 ## Interactions
 
-- Standing is not the same axis as `iran_foreign_leverage`: leverage is how much *any* foreign power
-  holds over the treasury, standing is who holds it. Expelling advisers cuts both.
-- The third-power path is closed to Iran whose British standing is already high — you cannot invite
-  Berlin in while London is being courted.
-- `iran_campaign.70` is gated `tag = GER`; the earlier reuse of `iran_campaign.64` would have done
-  nothing, because that event is gated to Britain.
+- Balance of Power (`PER_crown_and_majlis`): gates who may sign, and who pays for signing by decree.
+- `iran_refresh_mechanics`: applies the influence-driven spirits; always call it through `iran_refresh_mechanics_hidden` from decisions, or the whole spirit list prints into the tooltip.
+- Focus trees: the 1911 ultimatum, the Swedish gendarmerie and Majlis budget authority all move the new axes, so the chapters and the panel describe the same country.
+- `iran_foreign_leverage` remains the aggregate the focus trees read, so no existing content had to be rewritten for the redesign.
 
 ## Tuning
 
-Court gain 15, rival loss −10, expulsion −20, parity threshold 45, preference threshold 60. At +15 per
-action a patron reaches a decisive position in three actions, which is roughly two years of play.
+All numbers live in `common/script_constants/iran_campaign.txt`: `sovereignty_*`, `influence_*`, `great_game_*`.
+Thresholds that decide how easily a debuff comes off are `authority_reform` (65) and `leverage_dependency` (40).
+
+## Known limits
+
+- No custom GUI: the mechanic lives in decision categories. A second Balance of Power or a dedicated panel needs custom tabs, which vanilla does not draw.
+- Germany has no crisis of its own beyond the 1941 expulsion demand.
+- The 1933 oil negotiation is handled by the existing oil settlement decisions, not by a crisis mission.
+- Nothing here has been playtested; the drift rate and decision costs are reasoned, not tuned.
 
 ## Needed icons
 
-Vanilla only: `GFX_decision_category_generic_foreign_policy`, and the `generic_fundraising`,
-`generic_intelligence_operation`, `generic_political_discourse`, `generic_arrest` and `generic_trucks`
-decision icons. A purpose-made category plate would be better.
+No new art is required: every decision uses an existing `GFX_decision_*` sprite and every spirit an existing `GFX_idea_*` picture.
+A purpose-made category plate would still be better than `GFX_decision_category_generic_foreign_policy`.
 
 ## Future
 
-- Standing should gate the 1941 crisis terms (a high British standing ought to soften the ultimatum).
-- The 1907 Anglo-Russian Convention is before the mod's start but should shape the 1910 opening values.
+- A dedicated panel showing all three powers, the sovereignty meter and active agreements, replacing the three decision categories with one screen.
+- German crisis content for 1939–41 beyond the expulsion demand.
+- A Soviet crisis once the northern railway concession is torn up.
