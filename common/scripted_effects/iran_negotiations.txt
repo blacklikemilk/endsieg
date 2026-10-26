@@ -13,7 +13,6 @@
 @negotiation_binding_days = 1095
 @negotiation_mission_days = 730
 @negotiation_escalation_days = 200
-@negotiation_tension_days = 1460
 
 iran_negotiation_end = {
 	if = {
@@ -26,13 +25,13 @@ iran_negotiation_end = {
 # A patron that was played off against a rival remembers it, and its next demand is signed heavier.
 # Read by the concede effects below; it expires on its own, so there is no loop to keep.
 iran_negotiation_tension_british = {
-	set_country_flag = { flag = iran_patron_tension_british days = @negotiation_tension_days }
+	set_country_flag = iran_patron_tension_british
 }
 iran_negotiation_tension_northern = {
-	set_country_flag = { flag = iran_patron_tension_northern days = @negotiation_tension_days }
+	set_country_flag = iran_patron_tension_northern
 }
 iran_negotiation_tension_german = {
-	set_country_flag = { flag = iran_patron_tension_german days = @negotiation_tension_days }
+	set_country_flag = iran_patron_tension_german
 }
 
 # ---------------------------------------------------------------- demand 1: the northern railway, 1912-1914
@@ -418,6 +417,7 @@ iran_demand_german_pact_concede = {
 			limit = {
 				OR = {
 					has_country_flag = iran_demand_german_pact_delayed
+					has_country_flag = iran_patron_tension_german
 				}
 			}
 			iran_concede_german_large = yes
@@ -427,7 +427,7 @@ iran_demand_german_pact_concede = {
 			limit = { NOT = { has_idea = iran_german_technical_mission } }
 			add_timed_idea = { idea = iran_german_technical_mission days = @negotiation_binding_days }
 		}
-		add_research_slot = constant:iran_story.negotiation_research_slot
+		add_research_slot = 1
 		set_country_flag = iran_german_economic_pact
 		set_country_flag = iran_obligation_german_pact
 		if = {
@@ -537,6 +537,7 @@ iran_negotiation_tick = {
 				NOT = { has_country_flag = iran_demand_british_gulf_done }
 				NOT = { has_country_flag = iran_demand_british_gulf_delayed }
 				NOT = { has_country_flag = iran_agreement_british_loan }
+				NOT = { has_country_flag = iran_agreement_military_mission }
 				iran_sponsor_britain_valid = yes
 			}
 			set_country_flag = iran_negotiation_open

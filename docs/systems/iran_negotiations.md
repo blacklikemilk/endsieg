@@ -1,9 +1,9 @@
 # Negotiating with the Great Game
 
-Four demands, each with six ways to answer, one held at a time.
+Four demands, each with seven ways to answer, one held at a time.
 
 The Great Game tracks how much of Iran each patron controls; this layer is about the moment a patron turns that control into a demand on paper.
-A demand is one event with up to six visible options, resolved once, after which the table closes for a year and a half.
+A demand is one event with up to seven visible options, resolved once, after which the table closes for a year and a half.
 Nothing here repeats, and nothing pays twice.
 
 ## One demand at a time
@@ -23,7 +23,7 @@ When the table is clear it walks four demand windows in order and fires at most 
 Each fires only if its patron passes the same validity checks the rest of the tree uses (`iran_sponsor_britain_valid`, `iran_sponsor_germany_valid`, or the equivalent test written inline for the north), and only if the player has not already signed the corresponding Great Game agreement.
 The northern patron is tag `SOV` in this mod: `RUS` is Reichskommissariat Nordamerika, and no Iran content tests it.
 
-## The six answers
+## The seven answers
 
 Every option carries its own trigger, so only coherent answers appear.
 
