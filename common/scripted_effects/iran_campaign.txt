@@ -466,6 +466,38 @@ iran_influence_tick = {
 		}
 		remove_ideas = iran_competing_concessions
 	}
+	# Publish the sovereignty band as a spirit, so the state of the Great Game is
+	# visible in the political panel rather than only in a decision tooltip. Each
+	# branch fires only when the band actually changes, so the panel does not churn.
+	if = {
+		limit = {
+			check_variable = { var = iran_sovereignty value = 25 compare = less_than }
+			NOT = { has_idea = iran_sovereignty_capitulations }
+		}
+		remove_ideas = { iran_sovereignty_constrained iran_sovereignty_assertive iran_sovereignty_sovereign }
+		add_ideas = iran_sovereignty_capitulations
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = iran_sovereignty value = 50 compare = less_than }
+			NOT = { has_idea = iran_sovereignty_constrained }
+		}
+		remove_ideas = { iran_sovereignty_capitulations iran_sovereignty_assertive iran_sovereignty_sovereign }
+		add_ideas = iran_sovereignty_constrained
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = iran_sovereignty value = 75 compare = less_than }
+			NOT = { has_idea = iran_sovereignty_assertive }
+		}
+		remove_ideas = { iran_sovereignty_capitulations iran_sovereignty_constrained iran_sovereignty_sovereign }
+		add_ideas = iran_sovereignty_assertive
+	}
+	else_if = {
+		limit = { NOT = { has_idea = iran_sovereignty_sovereign } }
+		remove_ideas = { iran_sovereignty_capitulations iran_sovereignty_constrained iran_sovereignty_assertive }
+		add_ideas = iran_sovereignty_sovereign
+	}
 	clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
 	clamp_variable = { var = iran_british_influence min = 0 max = 100 }
 	clamp_variable = { var = iran_northern_influence min = 0 max = 100 }
