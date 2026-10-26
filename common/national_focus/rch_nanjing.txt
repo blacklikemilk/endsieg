@@ -1,0 +1,635 @@
+# Overview: Republic of China, 1928-1935.
+# Nanjing government trunk, four route trunks with continuations, economy, army, diplomacy and
+# the crises of the decade. Politics x=24..28, routes x=14..36, economy x=0..4, army x=7..11,
+# diplomacy x=36..42, crises x=44..48.
+focus_tree = {
+	id = rch_nanjing
+	country = {
+		factor = 0
+		modifier = {
+			original_tag = RCH date > 1927.12.31 date < 1936.1.1
+		}
+	}
+	default = no
+	reset_on_civilwar = no
+	initial_show_position = { focus = RC3_nanjing_government }
+	continuous_focus_position = { x = 1500 y = 6000 }
+	shortcut = { name = rch_politics_navigation target = RC3_nanjing_government }
+	shortcut = { name = rch_economy_navigation target = RC3_industry }
+	shortcut = { name = rch_army_navigation target = RC3_army }
+	shortcut = { name = rch_diplomacy_navigation target = RC3_diplomacy }
+	shortcut = { name = rch_society_navigation target = RC3_central_plains }
+
+	focus = {
+		id = RC3_nanjing_government
+		icon = GFX_focus_CHI_lay_the_foundation_for_a_united_china
+		x = 26 y = 0
+		cost = 3
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_political_power = constant:rch_story.political_capital
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_state_council
+		icon = GFX_focus_CHI_dang_guo
+		x = 26 y = 2
+		cost = 7
+		prerequisite = { focus = RC3_nanjing_government }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_country_flag = rch_state_council
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_finance_ministry
+		icon = GFX_focus_CHI_promote_national_currency
+		x = 24 y = 3
+		cost = 7
+		prerequisite = { focus = RC3_state_council }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_land_law
+		icon = GFX_focus_prc_agrarian_socialism
+		x = 26 y = 3
+		cost = 10
+		prerequisite = { focus = RC3_state_council }
+		search_filters = { FOCUS_FILTER_MANPOWER }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_manpower = 8000
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_local_government
+		icon = GFX_focus_generic_election
+		x = 28 y = 3
+		cost = 7
+		prerequisite = { focus = RC3_state_council }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_parliamentary_trunk
+		icon = GFX_focus_generic_election
+		x = 16 y = 5
+		cost = 5
+		prerequisite = { focus = RC3_nanjing_government }
+		allow_branch = { rch_path_parliamentary = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_beiyang_trunk
+		icon = GFX_focus_chi_army_reform
+		x = 22 y = 5
+		cost = 5
+		prerequisite = { focus = RC3_nanjing_government }
+		allow_branch = { rch_path_beiyang = yes }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			add_to_variable = { rch_military_influence = constant:rch_story.military_gain }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = RC3_kmt_trunk
+		icon = GFX_focus_CHI_dang_guo
+		x = 28 y = 5
+		cost = 5
+		prerequisite = { focus = RC3_nanjing_government }
+		allow_branch = { rch_path_kmt = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 60 }
+		completion_reward = {
+			add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_provincial_trunk
+		icon = GFX_focus_CZE_federative_republic
+		x = 34 y = 5
+		cost = 5
+		prerequisite = { focus = RC3_nanjing_government }
+		allow_branch = { rch_path_provincial = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_loss }
+		}
+	}
+	focus = {
+		id = RC3_constitution_1936
+		icon = GFX_focus_generic_election
+		x = 14 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_parliamentary_trunk }
+		allow_branch = { rch_path_parliamentary = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_elections
+		icon = GFX_focus_generic_election
+		x = 16 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_parliamentary_trunk }
+		allow_branch = { rch_path_parliamentary = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_gain
+			add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_gain }
+		}
+	}
+	focus = {
+		id = RC3_parliamentary_capstone
+		icon = GFX_focus_generic_election
+		x = 16 y = 8
+		cost = 14
+		prerequisite = { focus = RC3_constitution_1936 }
+		prerequisite = { focus = RC3_elections }
+		allow_branch = { rch_path_parliamentary = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_major_gain
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_northern_army
+		icon = GFX_focus_chi_army_reform
+		x = 20 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_beiyang_trunk }
+		allow_branch = { rch_path_beiyang = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_military_administration
+		icon = GFX_focus_chi_army_reform
+		x = 22 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_beiyang_trunk }
+		allow_branch = { rch_path_beiyang = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_gain
+			add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_gain }
+		}
+	}
+	focus = {
+		id = RC3_beiyang_capstone
+		icon = GFX_focus_chi_army_reform
+		x = 22 y = 8
+		cost = 14
+		prerequisite = { focus = RC3_northern_army }
+		prerequisite = { focus = RC3_military_administration }
+		allow_branch = { rch_path_beiyang = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_major_gain
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_party_congress
+		icon = GFX_focus_CHI_dang_guo
+		x = 26 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_kmt_trunk }
+		allow_branch = { rch_path_kmt = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_mass_movement
+		icon = GFX_focus_CHI_dang_guo
+		x = 28 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_kmt_trunk }
+		allow_branch = { rch_path_kmt = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_gain
+			add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_gain }
+		}
+	}
+	focus = {
+		id = RC3_kmt_capstone
+		icon = GFX_focus_CHI_dang_guo
+		x = 28 y = 8
+		cost = 14
+		prerequisite = { focus = RC3_party_congress }
+		prerequisite = { focus = RC3_mass_movement }
+		allow_branch = { rch_path_kmt = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_major_gain
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_provincial_council
+		icon = GFX_focus_CZE_federative_republic
+		x = 32 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_provincial_trunk }
+		allow_branch = { rch_path_provincial = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_regional_armies
+		icon = GFX_focus_CZE_federative_republic
+		x = 34 y = 6
+		cost = 7
+		prerequisite = { focus = RC3_provincial_trunk }
+		allow_branch = { rch_path_provincial = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_gain
+			add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_gain }
+		}
+	}
+	focus = {
+		id = RC3_provincial_capstone
+		icon = GFX_focus_CZE_federative_republic
+		x = 34 y = 8
+		cost = 14
+		prerequisite = { focus = RC3_provincial_council }
+		prerequisite = { focus = RC3_regional_armies }
+		allow_branch = { rch_path_provincial = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 50 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_major_gain
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_industry
+		icon = GFX_focus_generic_industry_1
+		x = 2 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_railways
+		icon = GFX_focus_generic_railroad
+		x = 0 y = 2
+		cost = 7
+		prerequisite = { focus = RC3_industry }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			rch_build_railway = yes
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_currency
+		icon = GFX_focus_PER_national_bank
+		x = 4 y = 2
+		cost = 10
+		prerequisite = { focus = RC3_industry }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_nanjing_industry
+		icon = GFX_focus_generic_industry_2
+		x = 2 y = 3
+		cost = 7
+		prerequisite = { focus = RC3_railways }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			rch_build_nanjing_industry = yes
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_agriculture
+		icon = GFX_focus_prc_agrarian_socialism
+		x = 0 y = 4
+		cost = 7
+		prerequisite = { focus = RC3_railways }
+		search_filters = { FOCUS_FILTER_MANPOWER }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_manpower = 8000
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_economy_capstone
+		icon = GFX_focus_generic_industry_3
+		x = 2 y = 6
+		cost = 14
+		prerequisite = { focus = RC3_nanjing_industry }
+		prerequisite = { focus = RC3_agriculture }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_major_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_army
+		icon = GFX_focus_CHI_military_affairs_commission
+		x = 9 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			army_experience = 25
+			add_to_variable = { rch_military_influence = constant:rch_story.military_gain }
+		}
+	}
+	focus = {
+		id = RC3_german_advisers
+		icon = GFX_focus_chi_mission_to_germany
+		x = 7 y = 2
+		cost = 7
+		prerequisite = { focus = RC3_army }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			army_experience = 25
+			add_opinion_modifier = { target = GER modifier = rch_german_mission }
+		}
+	}
+	focus = {
+		id = RC3_arsenal
+		icon = GFX_focus_generic_military_industry
+		x = 11 y = 2
+		cost = 7
+		prerequisite = { focus = RC3_army }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			rch_build_arsenal = yes
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = RC3_air_force
+		icon = GFX_focus_CHI_air_force
+		x = 9 y = 3
+		cost = 7
+		prerequisite = { focus = RC3_german_advisers }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			air_experience = 20
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_navy
+		icon = GFX_focus_generic_navy_battleship2
+		x = 11 y = 3
+		cost = 7
+		prerequisite = { focus = RC3_arsenal }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			navy_experience = 20
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_army_capstone
+		icon = GFX_focus_CHI_the_4_defence_areas
+		x = 9 y = 5
+		cost = 14
+		prerequisite = { focus = RC3_air_force }
+		prerequisite = { focus = RC3_navy }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			army_experience = 25
+			add_war_support = constant:rch_story.war_support_gain
+		}
+	}
+	focus = {
+		id = RC3_diplomacy
+		icon = GFX_focus_CHI_the_greater_game
+		x = 38 y = 1
+		cost = 3
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_unequal_treaties
+		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
+		x = 36 y = 2
+		cost = 7
+		prerequisite = { focus = RC3_diplomacy }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_league
+		icon = GFX_focus_generic_arms_trade
+		x = 40 y = 2
+		cost = 7
+		prerequisite = { focus = RC3_diplomacy }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_opinion_modifier = { target = ENG modifier = rch_republican_recognition }
+			add_opinion_modifier = { target = USA modifier = rch_washington_signatory }
+		}
+	}
+	focus = {
+		id = RC3_manchuria
+		icon = GFX_focus_CHI_the_northern_mandate
+		x = 38 y = 3
+		cost = 10
+		prerequisite = { focus = RC3_unequal_treaties }
+		prerequisite = { focus = RC3_league }
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_war_support = constant:rch_story.war_support_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_loss }
+			set_country_flag = rch_manchuria_lost
+		}
+	}
+	focus = {
+		id = RC3_germany
+		icon = GFX_focus_chi_mission_to_germany
+		x = 42 y = 3
+		cost = 7
+		prerequisite = { focus = RC3_league }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_opinion_modifier = { target = GER modifier = rch_german_mission }
+			army_experience = 25
+		}
+	}
+	focus = {
+		id = RC3_diplomacy_capstone
+		icon = GFX_focus_CHI_lay_the_foundation_for_a_united_china
+		x = 38 y = 5
+		cost = 14
+		prerequisite = { focus = RC3_manchuria }
+		prerequisite = { focus = RC3_germany }
+		search_filters = { FOCUS_FILTER_INTERNATIONAL_TRADE }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_political_power = constant:rch_story.political_capital
+		}
+	}
+	focus = {
+		id = RC3_central_plains
+		icon = GFX_focus_CHI_decisive_battles
+		x = 44 y = 1
+		cost = 10
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_war_support = constant:rch_story.war_support_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_stability = constant:rch_story.stability_cost
+		}
+	}
+	focus = {
+		id = RC3_flood
+		icon = GFX_focus_generic_welfare
+		x = 46 y = 2
+		cost = 7
+		prerequisite = { focus = RC3_central_plains }
+		search_filters = { FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+	}
+	focus = {
+		id = RC3_shanghai_1932
+		icon = GFX_focus_CHI_decisive_battles
+		x = 48 y = 2
+		cost = 10
+		prerequisite = { focus = RC3_central_plains }
+		search_filters = { FOCUS_FILTER_WAR_SUPPORT }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_war_support = constant:rch_story.war_support_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_communists
+		icon = GFX_focus_chi_cooperation_with_the_communists
+		x = 44 y = 3
+		cost = 10
+		prerequisite = { focus = RC3_flood }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_cost
+			add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_loss }
+		}
+	}
+	focus = {
+		id = RC3_new_life
+		icon = GFX_focus_CHI_strengthening_our_resolve
+		x = 46 y = 4
+		cost = 7
+		prerequisite = { focus = RC3_shanghai_1932 }
+		search_filters = { FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			add_stability = constant:rch_story.stability_major_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+	}
+	focus = {
+		id = RC3_crisis_capstone
+		icon = GFX_focus_CHI_victory_over_the_invaders
+		x = 46 y = 6
+		cost = 14
+		prerequisite = { focus = RC3_communists }
+		prerequisite = { focus = RC3_new_life }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 40 }
+		completion_reward = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_major_gain
+			add_war_support = constant:rch_story.war_support_gain
+		}
+	}
+}

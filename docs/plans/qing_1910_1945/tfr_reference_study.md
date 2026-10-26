@@ -14,6 +14,16 @@ Read-only inspection of `C:\Program Files (x86)\Steam\steamapps\workshop\content
 | `common/decisions/TFR_decisions_CHI.txt` | Decisions written as missions with `activation`, `available`, `days_mission_timeout`, `timeout_effect`, `complete_effect`, and category blocks keyed by category id | Qing decisions use timed missions for reform programmes and immediate decisions for court moves |
 | `common/scripted_guis/TFR_PRC_GUI.txt`, `TFR_scripted_guis_GER.txt` | Country-specific windows for values that do not fit a decision row | Not copied: the Qing keeps its values in native surfaces (balance panel, decision headers, spirit tooltips) to avoid a bespoke panel |
 
+## Measured presentation
+
+TFR's Chinese trees are dense horizontal fans, not tall ladders.
+The PRC block measured 44 focuses across 45 columns and 7 rows, with 130 of its positions expressed relative to a parent.
+The Qing WWI chapter was authored the same way and then compacted: its x extent is now 0..48 instead of 0..54, with the diplomacy and province columns moved two to six cells toward the political centre and eight focuses added, for 96 focuses.
+The Republic chapters use four route bands under one trunk, with the bands two cells apart so icons and title plates do not collide.
+
+Additional Chinese files inspected after the first pass: `TFR_national_focus_PRC_centrist.txt`, `TFR_national_focus_PRC_liberal.txt`, `TFR_national_focus_PRC_nationalist.txt`, `TFR_national_focus_PRC_nationalist_old.txt`, `TFR_national_focus_PRC_new_left.txt`, `TFR_national_focus_PRC_taiwan_war.txt`, `events/TFR_events_CHI.txt`, `events/TFR_events_PRC.txt`, `common/decisions/TFR_decisions_PRC.txt`, `common/scripted_effects/TFR_scripted_effects_PRC.txt`.
+Those files show one authored tree per political outcome, selected by a `country` block with `factor = 0` and a large `add`, and swapped at runtime from event options with `load_focus_tree`.
+
 ## Mechanisms judged compatible with this HOI4 version
 
 - `load_focus_tree = { tree = ... keep_completed = yes }` with `mark_focus_tree_layout_dirty`: already used by Iran, Spain, Japan and Turkey in this repository.

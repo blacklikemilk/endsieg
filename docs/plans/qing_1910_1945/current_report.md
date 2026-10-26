@@ -59,6 +59,29 @@ The first launch attempt logged:
 Both causes are fixed and the localisation files now carry exactly one BOM.
 That launch is the only engine run performed, and it did not reach a clean scenario with the tree, so it is not evidence that the tree loads.
 
+## The Republic tranche
+
+The Republic of China was left on the generic WWI tree because nothing assigned it a chapter tree: it is dormant at the 1910 start, so the startup hook skipped it, and the only later assignment came from the generic fallback sweep.
+It now has three authored chapters and an explicit routing path.
+
+| Surface | Content |
+| --- | --- |
+| `rch_republic`, 1912-1919 | 51 focuses: provisional government, assembly and presidency, four route settlements, economy, army, WWI diplomacy and the New Culture |
+| `rch_warlord`, 1919-1927 | 50 focuses: Beijing government, four clique settlements, industry, army, Washington system and the national public |
+| `rch_nanjing`, 1928-1935 | 45 focuses: Nanjing government, four route trunks, economy, army, treaty revision and the crises of the decade |
+| 1936 handover | the existing `china_nationalist_focus` is loaded by id at the boundary |
+| Events | 16 events, 38 options |
+| Decisions | 17 decisions in three categories |
+| Ideas | 10 spirits in three slots |
+| AI | historical and parliamentary plans |
+
+Routing: `on_startup` has an explicit `tag = RCH` branch, the generic sweep excludes `RCH`, `on_daily_RCH` self-heals the chapter, and the collapse events call `rch_initialize_campaign` in Republic scope on the day the tag changes.
+
+## Qing chapter one rework
+
+The WWI chapter was compacted and expanded: the diplomacy column moved from x 36-40 to 34-38, the province column from 46-54 to 40-44 and the revolution-preparation column to 48, and eight focuses were added (imperial examinations, the regency household, grain reserves, cotton mills, a steelworks, cavalry reform, railway troops and military telegraph).
+The chapter is now 96 focuses with a maximum x of 48 instead of 54.
+
 ## Pending
 
 - A launch that reaches the 1910 scenario with QIN played, to confirm the tree appears, the values initialise, the balance panel exists, and the first events fire.

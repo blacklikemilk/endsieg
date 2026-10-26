@@ -1,0 +1,351 @@
+# Overview: Republic of China chapter routing, 1912-1936.
+# Country scope throughout. The Republic is never given the Qing tree and never keeps the generic one.
+rch_refresh_mechanics = {
+	clamp_variable = { var = rch_legitimacy min = constant:rch_story.legitimacy_floor max = constant:rch_story.legitimacy_cap }
+	clamp_variable = { var = rch_military_influence min = constant:rch_story.legitimacy_floor max = constant:rch_story.legitimacy_cap }
+	clamp_variable = { var = rch_nationalist_support min = constant:rch_story.legitimacy_floor max = constant:rch_story.legitimacy_cap }
+
+	remove_ideas = {
+		rch_beiyang_republic rch_parliamentary_republic rch_nationalist_government rch_provincial_union
+		rch_warlord_armies rch_new_army rch_party_army
+		rch_empty_treasury rch_foreign_tutelage rch_japanese_pressure
+	}
+	if = {
+		limit = { rch_path_kmt = yes }
+		add_ideas = rch_nationalist_government
+	}
+	else_if = {
+		limit = { rch_path_beiyang = yes }
+		add_ideas = rch_beiyang_republic
+	}
+	else_if = {
+		limit = { rch_path_provincial = yes }
+		add_ideas = rch_provincial_union
+	}
+	else_if = {
+		limit = { rch_path_parliamentary = yes }
+		add_ideas = rch_parliamentary_republic
+	}
+	else = {
+		add_ideas = rch_beiyang_republic
+	}
+
+	if = {
+		limit = { rch_path_kmt = yes }
+		add_ideas = rch_party_army
+	}
+	else_if = {
+		limit = { rch_military_dominant = yes }
+		add_ideas = rch_warlord_armies
+	}
+	else = {
+		add_ideas = rch_new_army
+	}
+
+	if = {
+		limit = { has_country_flag = rch_japan_war }
+		add_ideas = rch_japanese_pressure
+	}
+	else_if = {
+		limit = { rch_legitimacy_weak = yes }
+		add_ideas = rch_empty_treasury
+	}
+}
+
+rch_initialize_campaign = {
+	if = {
+		limit = {
+			rch_campaign_country = yes
+			any_owned_state = { always = yes }
+			NOT = { has_country_flag = rch_campaign_active }
+		}
+		set_country_flag = rch_campaign_active
+		set_variable = { rch_legitimacy = constant:rch_story.legitimacy_opening }
+		set_variable = { rch_military_influence = constant:rch_story.military_opening }
+		set_variable = { rch_nationalist_support = constant:rch_story.nationalist_opening }
+		if = {
+			limit = { date > 1927.12.31 }
+			set_variable = { rch_legitimacy = constant:rch_story.legitimacy_nanjing }
+			set_variable = { rch_military_influence = constant:rch_story.military_nanjing }
+			set_variable = { rch_nationalist_support = constant:rch_story.nationalist_nanjing }
+			set_country_flag = rch_route_kmt
+			set_country_flag = rch_northern_expedition
+		}
+		else_if = {
+			limit = { date > 1915.12.31 }
+			set_country_flag = rch_route_beiyang
+			set_country_flag = rch_yuan_legacy
+		}
+		if = {
+			limit = { date < 1919.1.1 }
+			rch_open_chapter_one = yes
+		}
+		else_if = {
+			limit = { date < 1928.1.1 }
+			rch_open_chapter_two = yes
+		}
+		else = {
+			rch_open_chapter_three = yes
+		}
+		rch_refresh_mechanics = yes
+	}
+}
+
+rch_open_chapter_one = {
+	set_country_flag = rch_chapter_one
+	load_focus_tree = { tree = rch_republic keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	country_event = { id = rch_campaign.1 days = 2 }
+}
+
+rch_open_chapter_two = {
+	set_country_flag = rch_chapter_two
+	clr_country_flag = rch_chapter_one
+	load_focus_tree = { tree = rch_warlord keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	rch_refresh_mechanics = yes
+	country_event = { id = rch_campaign.20 days = 1 }
+}
+
+rch_open_chapter_three = {
+	set_country_flag = rch_chapter_three
+	clr_country_flag = rch_chapter_two
+	load_focus_tree = { tree = rch_nanjing keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+	rch_refresh_mechanics = yes
+	country_event = { id = rch_campaign.30 days = 1 }
+}
+
+rch_route_chapter = {
+	if = {
+		limit = { date < 1919.1.1 NOT = { has_focus_tree = rch_republic } }
+		load_focus_tree = { tree = rch_republic keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { date > 1918.12.31 date < 1928.1.1 NOT = { has_focus_tree = rch_warlord } }
+		load_focus_tree = { tree = rch_warlord keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { date > 1927.12.31 date < 1936.1.1 NOT = { has_focus_tree = rch_nanjing } }
+		load_focus_tree = { tree = rch_nanjing keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	# From 1936 the Republic hands over to the Waking the Tiger tree that every later
+	# bookmark already uses, so a continuous campaign ends in the same content as a 1936 start.
+	else_if = {
+		limit = { date > 1935.12.31 NOT = { has_focus_tree = china_nationalist_focus } }
+		load_focus_tree = { tree = china_nationalist_focus keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+}
+
+rch_ensure_chapter_tree = {
+	if = {
+		limit = { has_country_flag = rch_chapter_one NOT = { has_focus_tree = rch_republic } }
+		load_focus_tree = { tree = rch_republic keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { has_country_flag = rch_chapter_two NOT = { has_focus_tree = rch_warlord } }
+		load_focus_tree = { tree = rch_warlord keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+	else_if = {
+		limit = { has_country_flag = rch_chapter_three NOT = { has_focus_tree = rch_nanjing } }
+		load_focus_tree = { tree = rch_nanjing keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+	}
+}
+
+rch_campaign_tick = {
+	if = {
+		limit = { rch_campaign_active = yes }
+		rch_ensure_chapter_tree = yes
+		rch_route_chapter = yes
+
+		if = {
+			limit = { date > 1913.7.1 NOT = { has_country_flag = rch_second_revolution_seen } }
+			set_country_flag = rch_second_revolution_seen
+			country_event = { id = rch_campaign.3 days = 1 }
+		}
+		if = {
+			limit = { date > 1915.1.18 NOT = { has_country_flag = rch_21_demands_seen } }
+			set_country_flag = rch_21_demands_seen
+			country_event = { id = rch_campaign.4 days = 1 }
+		}
+		if = {
+			limit = { date > 1916.6.1 NOT = { has_country_flag = rch_yuan_death_seen } }
+			set_country_flag = rch_yuan_death_seen
+			country_event = { id = rch_campaign.5 days = 1 }
+		}
+		if = {
+			limit = { date > 1917.7.1 NOT = { has_country_flag = rch_restoration_seen } }
+			set_country_flag = rch_restoration_seen
+			country_event = { id = rch_campaign.6 days = 1 }
+		}
+		if = {
+			limit = { date > 1918.11.11 NOT = { has_country_flag = rch_armistice_seen } }
+			set_country_flag = rch_armistice_seen
+			country_event = { id = rch_campaign.7 days = 1 }
+		}
+		if = {
+			limit = { date > 1919.5.4 NOT = { has_country_flag = rch_may_fourth_seen } }
+			set_country_flag = rch_may_fourth_seen
+			country_event = { id = rch_campaign.8 days = 1 }
+		}
+		if = {
+			limit = { date > 1920.7.14 NOT = { has_country_flag = rch_zhili_anhui_seen } }
+			set_country_flag = rch_zhili_anhui_seen
+			country_event = { id = rch_campaign.21 days = 1 }
+		}
+		if = {
+			limit = { date > 1922.4.28 NOT = { has_country_flag = rch_zhili_fengtian_seen } }
+			set_country_flag = rch_zhili_fengtian_seen
+			country_event = { id = rch_campaign.22 days = 1 }
+		}
+		if = {
+			limit = { date > 1924.1.20 NOT = { has_country_flag = rch_kmt_reorganisation_seen } }
+			set_country_flag = rch_kmt_reorganisation_seen
+			country_event = { id = rch_campaign.23 days = 1 }
+		}
+		if = {
+			limit = { date > 1926.7.9 NOT = { has_country_flag = rch_expedition_seen } }
+			set_country_flag = rch_expedition_seen
+			country_event = { id = rch_campaign.24 days = 1 }
+		}
+		if = {
+			limit = { date > 1928.6.8 NOT = { has_country_flag = rch_nanjing_seen } }
+			set_country_flag = rch_nanjing_seen
+			country_event = { id = rch_campaign.31 days = 1 }
+		}
+		if = {
+			limit = { date > 1931.9.18 NOT = { has_country_flag = rch_manchuria_seen } }
+			set_country_flag = rch_manchuria_seen
+			country_event = { id = rch_campaign.33 days = 1 }
+		}
+		if = {
+			limit = { date > 1927.12.31 NOT = { has_country_flag = rch_chapter_three } }
+			rch_open_chapter_three = yes
+		}
+		if = {
+			limit = {
+				date > 1935.12.31
+				NOT = { has_focus_tree = china_nationalist_focus }
+			}
+			country_event = { id = rch_campaign.35 days = 1 }
+		}
+	}
+}
+
+# ---------------------------------------------------------------------------
+# Route settlements.
+# ---------------------------------------------------------------------------
+rch_settle_parliamentary = {
+	clr_country_flag = rch_route_parliamentary
+	clr_country_flag = rch_route_beiyang
+	clr_country_flag = rch_route_kmt
+	clr_country_flag = rch_route_provincial
+	set_country_flag = rch_route_parliamentary
+	set_country_flag = rch_regime_settled
+	set_politics = { ruling_party = democratic elections_allowed = yes }
+	add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+	add_to_variable = { rch_military_influence = constant:rch_story.military_loss }
+	add_stability = constant:rch_story.stability_gain
+	rch_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+}
+
+rch_settle_beiyang = {
+	clr_country_flag = rch_route_parliamentary
+	clr_country_flag = rch_route_beiyang
+	clr_country_flag = rch_route_kmt
+	clr_country_flag = rch_route_provincial
+	set_country_flag = rch_route_beiyang
+	set_country_flag = rch_regime_settled
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	add_to_variable = { rch_military_influence = constant:rch_story.military_major_gain }
+	add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_loss }
+	add_stability = constant:rch_story.stability_cost
+	rch_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+}
+
+rch_settle_kmt = {
+	clr_country_flag = rch_route_parliamentary
+	clr_country_flag = rch_route_beiyang
+	clr_country_flag = rch_route_kmt
+	clr_country_flag = rch_route_provincial
+	set_country_flag = rch_route_kmt
+	set_country_flag = rch_regime_settled
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_major_gain }
+	add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+	add_stability = constant:rch_story.stability_cost
+	rch_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+}
+
+rch_settle_provincial = {
+	clr_country_flag = rch_route_parliamentary
+	clr_country_flag = rch_route_beiyang
+	clr_country_flag = rch_route_kmt
+	clr_country_flag = rch_route_provincial
+	set_country_flag = rch_route_provincial
+	set_country_flag = rch_regime_settled
+	set_politics = { ruling_party = neutrality elections_allowed = yes }
+	add_to_variable = { rch_military_influence = constant:rch_story.military_gain }
+	add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_loss }
+	add_stability = constant:rch_story.stability_gain
+	rch_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+}
+
+# ---------------------------------------------------------------------------
+# Finite projects.
+# ---------------------------------------------------------------------------
+rch_build_railway = {
+	if = {
+		limit = { owns_state = 608 NOT = { has_country_flag = rch_railway_built } }
+		set_country_flag = rch_railway_built
+		608 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = infrastructure level = 1 instant_build = yes }
+		}
+	}
+}
+
+rch_build_arsenal = {
+	if = {
+		limit = { owns_state = 613 NOT = { has_country_flag = rch_arsenal_built } }
+		set_country_flag = rch_arsenal_built
+		613 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+		}
+	}
+}
+
+rch_build_nanjing_industry = {
+	if = {
+		limit = { owns_state = 613 NOT = { has_country_flag = rch_nanjing_industry_built } }
+		set_country_flag = rch_nanjing_industry_built
+		613 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
+		}
+	}
+}
+
+rch_build_whampoa = {
+	if = {
+		limit = { owns_state = 592 NOT = { has_country_flag = rch_whampoa_built } }
+		set_country_flag = rch_whampoa_built
+		592 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = { type = air_base level = 1 instant_build = yes }
+		}
+		army_experience = 25
+	}
+}
