@@ -8,7 +8,7 @@ code so the result is pixel-exact and never depends on an image model spelling t
 letters correctly.
 
 Outputs (all DXT5 `.dds` under ``gfx/interface/scenario_select``):
-    card_<scenario>.dds  228x142  scenario paintings, one pixel per screen pixel
+    card_<scenario>.dds  228x132  scenario plates, scaled from the 180x104 originals
     card_frame.dds       496x192  two frames of 248x192 side by side: normal, selected
     scenario_bg.dds     1600x800  header wordmark, card field, detail panel, footer
 
@@ -51,22 +51,25 @@ FONT_CANDIDATES = (
 )
 
 # sprite stem -> (source file, pixels cut from the bottom, year burned into the art)
+SOURCE_DIR = os.path.join(ROOT, "gfx", "interface")
+
+# sprite stem -> original Endsieg year plate, kept in gfx/interface
 SOURCES = {
-    "card_1910": ("1910_balkan_v2.png", 0, "1910"),
-    "card_1914": ("1914_great_war_v2.png", 0, "1914"),
-    "card_1916": ("1916_verdun_v2.png", 0, "1916"),
-    "card_1918": ("1918_kaiserschlacht.png", 72, "1918"),
-    "card_1936": ("1936_interwar.png", 0, "1936"),
-    "card_1939": ("1939_poland.png", 0, "1939"),
-    "card_1941": ("1941_barbarossa.png", 0, "1941"),
-    "card_1942": ("1942_fall_blau.png", 0, "1942"),
-    "card_1943": ("1943_turning_tide.png", 0, "1943"),
-    "card_1944_06": ("1944_normandy.png", 0, "1944"),
-    "card_1944_12": ("1944_ardennes.png", 0, "1944"),
-    "card_1945_03": ("1945_endsieg.png", 0, "1945"),
+    "card_1910": "select_date_1910.dds",
+    "card_1914": "select_date_1914.dds",
+    "card_1916": "select_date_1916.dds",
+    "card_1918": "select_date_1918.dds",
+    "card_1936": "select_date_1936.dds",
+    "card_1939": "select_date_1939.dds",
+    "card_1941": "select_date_1941.dds",
+    "card_1942": "select_date_1942.dds",
+    "card_1943": "select_date_1943.dds",
+    "card_1944_06": "select_date_1944.dds",
+    "card_1944_12": "select_date_1945.dds",
+    "card_1945_03": "select_date_1945_2.dds",
 }
 
-ART_W, ART_H = 228, 142          # painting size inside the card; the icon is drawn 1:1
+ART_W, ART_H = 228, 132          # painting size inside the card; the icon is drawn 1:1
 CARD_W, CARD_H = ART_W, ART_H    # iconType has no scale/size, so art is built at display size
 FRAME_W, FRAME_H = 248, 192      # bookmark_entry size in frontendgamesetupview.gui
 BG_W, BG_H = 1600, 800           # gamesetup_scenario_window size
@@ -155,39 +158,22 @@ def crop_to(img: Image.Image, ratio: float, vertical_bias: float = 0.45) -> Imag
 
 
 def build_cards(check_only: bool = False) -> None:
-    for stem, (name, cut_bottom, year) in SOURCES.items():
-        path = os.path.join(SRC_DIR, name)
+    for stem, name in SOURCES.items():
+        path = os.path.join(SOURCE_DIR, name)
         if not os.path.exists(path):
             raise FileNotFoundError(path)
         with Image.open(path) as im:
             im = im.convert("RGB")
             w, h = im.size
-            if cut_bottom:
-                im = im.crop((0, 0, w, h - cut_bottom))
             card = crop_to(im, ART_W / ART_H)
             if check_only:
                 print(f"{stem}: {name} {w}x{h} -> {card.size}")
                 continue
-            card = card.resize((CARD_W, CARD_H), Image.LANCZOS).convert("RGBA")
-            brightness, contrast = TONE.get(stem, (1.0, 1.0))
-            card = ImageEnhance.Brightness(card).enhance(brightness)
-            card = ImageEnhance.Contrast(card).enhance(contrast)
-            # Keep the paintings muted so the gold frame and the panel stay the
-            # brightest things on the screen.
-            card = Image.blend(card, Image.new("RGBA", card.size, (34, 32, 29, 255)), 0.08)
-
-            # Shade the top edge so the burned-in year always sits on darkness.
-            band = 48
-            shade = Image.new("RGBA", (CARD_W, band), (10, 9, 8, 0))
-            sd = ImageDraw.Draw(shade)
-            for y in range(band):
-                sd.line([(0, y), (CARD_W, y)], fill=(10, 9, 8, int(195 * (1 - y / float(band)) ** 1.25)))
-            card.alpha_composite(shade, (0, 0))
-
-            stamp = gold_fill(tracked(year, font(36), 3))
-            embossed(card, stamp, ((CARD_W - stamp.size[0]) // 2, 2), 0.6)
-
-            card.convert("RGB").save(os.path.join(OUT_DIR, stem + ".dds"), pixel_format="DXT5")
+            # The 180x104 originals carry their own year, grain and vignette, so
+            # they are only scaled up to the card window (1.27x), never redrawn.
+            card = card.resize((CARD_W, CARD_H), Image.LANCZOS)
+            card = ImageEnhance.Contrast(card).enhance(1.04)
+            card.convert("RGBA").save(os.path.join(OUT_DIR, stem + ".dds"), pixel_format="DXT5")
             print(f"wrote {stem}.dds")
 
 

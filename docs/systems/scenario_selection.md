@@ -30,13 +30,13 @@ The `bookmarks_grid` must carry an explicit pixel `size` (1524x400, exactly 6x2 
 | Detail panel | 566 - 786 | `bookmark_title` at (46,576), `bookmark_desc` at (46,620), compass inset right |
 | Footer | 786 - 800 | `back_button` (40,-34) and `select_button` (-40,-34) |
 
-Each card is 248x192: a 228x142 painting at (10,10), a caption band from y=152 with the engine's date, and a 1px frame that turns gold when selected.
+Each card is 248x192: a 228x132 plate at (10,10), a caption band from y=142 with the engine's date, and a 1px frame that turns gold when selected.
 
 ## Files
 
 - `interface/frontendgamesetupview.gui` - `bookmark_entry` template and `gamesetup_scenario_window`.
 - `interface/endsieg_scenario_select.gfx` - `GFX_bookmark_entry_bg`, `GFX_select_date_bg` and one `GFX_select_date_*` per scenario. These names are the ones `common/bookmarks/` points at; keep them stable.
-- `gfx/interface/scenario_select/` - built sprites (DXT5): `card_frame.dds` (496x192, two 248x192 frames side by side), `scenario_bg.dds` (1600x800), `card_<scenario>.dds` (228x142, one pixel per screen pixel).
+- `gfx/interface/scenario_select/` - built sprites (DXT5): `card_frame.dds` (496x192, two 248x192 frames side by side), `scenario_bg.dds` (1600x800), `card_<scenario>.dds` (228x132, scaled from the original 180x104 plates).
 - `tools/build_scenario_art.py` - builds every sprite above from the generated paintings in `.tmp/scenario_art/`.
 - `localisation/replace/english/bookmarks_l_english.yml` - scenario names, descriptions and the two screen strings.
 
@@ -76,5 +76,5 @@ The painter is cropped to 228x142, tone-corrected per source (`TONE`), and the y
 | --- | --- | --- | --- |
 | Card frame, normal + selected | `GFX_bookmark_entry_bg` | `gfx/interface/scenario_select/card_frame.dds` | 496x192 (DXT5, frames side by side) |
 | Screen background | `GFX_select_date_bg` | `gfx/interface/scenario_select/scenario_bg.dds` | 1600x800 (DXT5) |
-| Scenario paintings | `GFX_select_date_*` | `gfx/interface/scenario_select/card_*.dds` | 228x142 (DXT5) |
+| Scenario plates | `GFX_select_date_*` | `gfx/interface/scenario_select/card_*.dds` | 228x132 (DXT5) |
 | Primary button (wanted) | - | `gfx/interface/scenario_select/button_gold.dds` | 221x34, 2 frames |
