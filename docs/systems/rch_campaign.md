@@ -3,7 +3,7 @@
 ## What the system is
 
 The Republic of China has its own three chapters, its own routing and its own decisions, so a player who follows the historical collapse is not left on the generic WWI tree.
-The historical Qing collapse still runs through the existing `ww1_china` events; the Republic then continues under `rch_campaign` until 1936, when it hands over to the Waking the Tiger tree that every later bookmark already uses.
+The historical Qing collapse still runs through the existing `ww1_china` events; the Republic then continues under `rch_campaign` until 1936, when it hands over to the Chinese tree the installed DLC provides.
 
 ## Files
 
@@ -34,19 +34,64 @@ A 1914 or 1918 bookmark got the same generic tree for the same reason.
 Three changes fix it:
 
 1. `on_startup` now has an explicit `tag = RCH` branch that calls `rch_initialize_campaign`, before the generic fallback.
-2. The daily sweep's generic fallback list now excludes `RCH`, and `on_daily_RCH` self-heals the correct chapter if anything else ever replaces it.
+2. The daily sweep's generic fallback list now excludes `RCH`, and `on_daily_RCH` restores the chapter tree if anything else replaces it, without re-firing the chapter event.
 3. The historical collapse event (`ww1_china.19`) and the intermission event (`ww1_china.28`) call `rch_initialize_campaign` in the Republic scope immediately after the annexation, so the player has a tree on the day the tag changes.
 
 ## Chapters
 
-| Chapter | Tree id | Window | Loaded by |
+| Chapter | Tree id | Window | Opened by |
 | --- | --- | --- | --- |
-| The Early Republic | `rch_republic` | before 1919.1.1 | startup hook, collapse event, daily self-heal |
-| The Warlord Era | `rch_warlord` | 1919.1.1 - 1927.12.31 | daily tick at the era boundary |
-| The Nanjing Decade | `rch_nanjing` | 1928.1.1 - 1935.12.31 | daily tick at the era boundary |
-| Waking the Tiger China | `china_nationalist_focus` | 1936.1.1 onward | daily tick at the handover |
+| The Early Republic | `rch_republic` | before 1919.1.1 | `rch_open_chapter_one` |
+| The Warlord Era | `rch_warlord` | 1919.1.1 - 1927.12.31 | `rch_open_chapter_two` |
+| The Nanjing Decade | `rch_nanjing` | 1928.1.1 - 1935.12.31 | `rch_open_chapter_three` |
+| China after 1936 | `china_nationalist_sea_focus`, `china_nationalist_focus` or `generic_focus` | 1936.1.1 onward | `rch_load_handover_tree` |
 
-The handover loads the existing tree by id rather than copying the file, so the 1936 bookmark and a continuous campaign read the same content.
+The handover loads an existing tree by id rather than copying the file, so a continuous campaign reads the same content as a 1936 start.
+
+## One routing authority
+
+`rch_campaign_tick` calls one effect, `rch_route_chapter`, and that effect is the only place in the Republic's script that loads a focus tree on a daily cadence.
+Before this, the tick called `rch_ensure_chapter_tree` (driven by the stored chapter flag) and then `rch_route_chapter` (driven by the date), so every day from 1919 onward loaded two trees: the flag-driven one first and the date-driven one second.
+The flag-driven pass is gone.
+
+`rch_route_chapter` is one `if`/`else_if` chain over the date, with one band per chapter.
+
+| Band | Date | Chapter flag | Tree |
+| --- | --- | --- | --- |
+| One | before 1919.1.1 | `rch_chapter_one` | `rch_republic` |
+| Two | 1919.1.1 - 1927.12.31 | `rch_chapter_two` | `rch_warlord` |
+| Three | 1928.1.1 - 1935.12.31 | `rch_chapter_three` | `rch_nanjing` |
+| Four | 1936.1.1 onward | `rch_chapter_three` (record only) | the DLC tree from `rch_load_handover_tree` |
+
+Each band does one of two things, never both.
+
+- **Transition.** The band's own chapter flag is absent, so the band calls its opener.
+  The opener sets the flag, clears the other two, loads the tree and fires the chapter event once.
+  This is what carries a continuous pre-1919 campaign into the warlord era: on 1 January 1919 `rch_chapter_two` is absent, `rch_open_chapter_two` runs, and `rch_campaign.20` fires.
+- **Recovery.** The band's chapter flag is already set, so the band only clears a stale sibling flag and reloads the chapter tree if something else replaced it.
+  No event, no reward, no second flag.
+
+Exactly one chapter flag is set at any time, so a chapter cannot be recorded twice and a skipped chapter cannot survive into the next band; the 1936 band records the Nanjing chapter and drops any sibling an older save still carries.
+
+The date bands are the only chapter decision. `rch_initialize_campaign` still opens a chapter directly on the day the tag is created, so the player has a tree before the next daily tick; the first tick after that finds the flag already set and takes the recovery path.
+
+## The 1936 handover
+
+From 1 January 1936 the Republic stops being a chapter state.
+`rch_settle_1936` runs once, gated by `rch_1936_settled`, and the two outcomes are handled separately:
+
+- **Saved Republic** (`rch_republic_saved`): `endsieg_china_reclaim_states` keeps every Chinese state, and the Republic keeps playing as `RCH`.
+  `rch_load_handover_tree` then gives it the Chinese tree the installed DLC provides, once.
+- **Ordinary handover** (no saved-Republic flag): `CHI = { change_tag_from = ROOT }` moves the player to `CHI`.
+  A pre-1936 scenario leaves `CHI` on `generic_focus_ww1`, so `rch_load_handover_tree` is called in the `CHI` scope and a `rch_1936_handover_tree` flag stops the Republic's tick from touching that country again.
+
+`rch_load_handover_tree` follows the same DLC order as the 1936 setup in `common/on_actions/endsieg_on_actions.txt`: No Compromise, No Surrender gives `china_nationalist_sea_focus`, Waking the Tiger gives `china_nationalist_focus`, and neither gives `generic_focus`.
+It loads nothing when the receiving country already holds the right tree.
+
+The handover notice, `rch_campaign.35`, is gated by `rch_1936_handover_seen` and pays out once.
+The previous test asked whether `china_nationalist_focus` was loaded, which was only ever true because the handover hardcoded that tree; under the DLC branch the test would repeat every day under any other tree.
+The notice is still fired in the `RCH` scope, so in the ordinary handover it is queued for a country the player has just left and only the saved Republic sees it.
+Changing the recipient needs an events-file decision and is not part of this repair.
 
 ## Routes
 
@@ -66,9 +111,9 @@ Routes are settled by the Second Revolution, Yuan's death or the Northern Expedi
 
 ## Known limitation
 
-A continuous campaign plays the Republic as `RCH`; the 1936 bookmark plays China as `CHI`.
+A continuous campaign whose Republic survives 1936 keeps playing as `RCH`; the 1936 bookmark plays China as `CHI`.
 The focus tree is the same, but decisions and events that gate on `original_tag = CHI` (the Waking the Tiger political-struggle system) do not apply to `RCH`.
-Closing that gap needs either a tested tag transfer or an alias pass over the CHI decision and on_action files, and neither can be claimed without a live run.
+The ordinary 1936 handover does not have that gap, because it moves the player to `CHI` itself; only the saved-Republic outcome still needs either a tested tag transfer or an alias pass over the CHI decision and on_action files, and neither can be claimed without a live run.
 
 ## The 1936 crisis and the split
 
@@ -84,3 +129,15 @@ Two things now sit on top of it:
 A surviving Qing is protected the same way: `endsieg_china_reclaim_states` runs in the Qing tick after 1914 and after 1936, so the dynasty keeps China instead of losing it to the Republic and then to the warlords.
 
 The reclaim effect is `common/scripted_effects/endsieg_china_ownership.txt`; it takes every Asian state owned by a Chinese tag plus 609 and 743, sets owner, controller and core to ROOT.
+
+## Verification state
+
+Source and static evidence: the routing chain and both handover outcomes were walked as a state model over ten representative dates, all eight prior chapter-flag combinations, seven prior tree states and both handover variants, with three repeated same-day calls per case.
+Every case ends with at most one tree load, at most one chapter flag, one chapter event per transition and no state change on a repeated call.
+The same walk over a 1914-1937 continuous campaign loads three trees in total, against 7,392 under the previous two-pass tick.
+
+Not verified: chapter transitions, `change_tag_from`, a DLC tree load and focus progress across a tree change or a save reload in a running game.
+Those need a launch that this repair did not have.
+
+One edge sits outside the daily chain: `rch_initialize_campaign` still opens chapter three for any start date after 1927, so a hand-made 1936-or-later save that starts as `RCH` loads `rch_nanjing` on day one and the DLC tree on the first tick.
+No bookmark starts as `RCH`.

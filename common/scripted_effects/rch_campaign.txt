@@ -1,5 +1,7 @@
 # Overview: Republic of China chapter routing, 1912-1936.
 # Country scope throughout. The Republic is never given the Qing tree and never keeps the generic one.
+# rch_route_chapter is the only authority that loads a focus tree: one date band decides
+# one chapter per day, so no day can load two opposing trees or pay a chapter reward twice.
 rch_refresh_mechanics = {
 	clamp_variable = { var = rch_legitimacy min = constant:rch_story.legitimacy_floor max = constant:rch_story.legitimacy_cap }
 	clamp_variable = { var = rch_military_influence min = constant:rch_story.legitimacy_floor max = constant:rch_story.legitimacy_cap }
@@ -91,8 +93,12 @@ rch_initialize_campaign = {
 	}
 }
 
+# Each opener leaves exactly one chapter flag set, so a chapter can never be
+# recorded twice and a skipped chapter cannot survive into the next band.
 rch_open_chapter_one = {
 	set_country_flag = rch_chapter_one
+	clr_country_flag = rch_chapter_two
+	clr_country_flag = rch_chapter_three
 	load_focus_tree = { tree = rch_republic keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
 	country_event = { id = rch_campaign.1 days = 2 }
@@ -101,6 +107,7 @@ rch_open_chapter_one = {
 rch_open_chapter_two = {
 	set_country_flag = rch_chapter_two
 	clr_country_flag = rch_chapter_one
+	clr_country_flag = rch_chapter_three
 	load_focus_tree = { tree = rch_warlord keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
 	rch_refresh_mechanics = yes
@@ -109,6 +116,7 @@ rch_open_chapter_two = {
 
 rch_open_chapter_three = {
 	set_country_flag = rch_chapter_three
+	clr_country_flag = rch_chapter_one
 	clr_country_flag = rch_chapter_two
 	load_focus_tree = { tree = rch_nanjing keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
@@ -152,49 +160,120 @@ rch_republic_failed_effect = {
 	country_event = { id = rch_campaign.41 days = 1 }
 }
 
+# The one date-to-chapter decision. A band whose chapter flag is missing performs the
+# transition through the matching opener, which sets the flag, loads the tree and fires
+# the chapter event once. A band whose flag is already set repairs only a replaced tree
+# and any stale sibling flag, so no day pays a second chapter reward.
 rch_route_chapter = {
+	# The 1936 settlement runs exactly once, before any band decides on a tree.
 	if = {
 		limit = { date > 1935.12.31 NOT = { has_country_flag = rch_1936_settled } }
 		rch_settle_1936 = yes
 	}
+
 	if = {
-		limit = { date < 1919.1.1 NOT = { has_focus_tree = rch_republic } }
-		load_focus_tree = { tree = rch_republic keep_completed = yes }
-		mark_focus_tree_layout_dirty = yes
+		limit = { date < 1919.1.1 }
+		if = {
+			limit = { NOT = { has_country_flag = rch_chapter_one } }
+			rch_open_chapter_one = yes
+		}
+		else = {
+			clr_country_flag = rch_chapter_two
+			clr_country_flag = rch_chapter_three
+			if = {
+				limit = { NOT = { has_focus_tree = rch_republic } }
+				load_focus_tree = { tree = rch_republic keep_completed = yes }
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
 	}
 	else_if = {
-		limit = { date > 1918.12.31 date < 1928.1.1 NOT = { has_focus_tree = rch_warlord } }
-		load_focus_tree = { tree = rch_warlord keep_completed = yes }
-		mark_focus_tree_layout_dirty = yes
+		limit = { date < 1928.1.1 }
+		if = {
+			limit = { NOT = { has_country_flag = rch_chapter_two } }
+			rch_open_chapter_two = yes
+		}
+		else = {
+			clr_country_flag = rch_chapter_one
+			clr_country_flag = rch_chapter_three
+			if = {
+				limit = { NOT = { has_focus_tree = rch_warlord } }
+				load_focus_tree = { tree = rch_warlord keep_completed = yes }
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
 	}
 	else_if = {
-		limit = { date > 1927.12.31 date < 1936.1.1 NOT = { has_focus_tree = rch_nanjing } }
-		load_focus_tree = { tree = rch_nanjing keep_completed = yes }
-		mark_focus_tree_layout_dirty = yes
+		limit = { date < 1936.1.1 }
+		if = {
+			limit = { NOT = { has_country_flag = rch_chapter_three } }
+			rch_open_chapter_three = yes
+		}
+		else = {
+			clr_country_flag = rch_chapter_one
+			clr_country_flag = rch_chapter_two
+			if = {
+				limit = { NOT = { has_focus_tree = rch_nanjing } }
+				load_focus_tree = { tree = rch_nanjing keep_completed = yes }
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
 	}
-	# From 1936 the Republic hands over to the Waking the Tiger tree that every later
-	# bookmark already uses, so a continuous campaign ends in the same content as a 1936 start.
-	else_if = {
-		limit = { date > 1935.12.31 NOT = { has_focus_tree = china_nationalist_focus } }
-		load_focus_tree = { tree = china_nationalist_focus keep_completed = yes }
-		mark_focus_tree_layout_dirty = yes
+	else = {
+		# The handover records the Nanjing chapter it came through and drops any stale
+		# sibling flag an older save may still carry, without a reward or a tree load.
+		if = {
+			limit = { NOT = { has_country_flag = rch_chapter_three } }
+			set_country_flag = rch_chapter_three
+		}
+		clr_country_flag = rch_chapter_one
+		clr_country_flag = rch_chapter_two
+		# The saved Republic keeps playing as RCH and takes the Chinese tree the
+		# installed DLC provides.
+		if = {
+			limit = { has_country_flag = rch_republic_saved }
+			rch_load_handover_tree = yes
+		}
+		# The ordinary settlement has moved the player to CHI, which still carries the
+		# generic WWI tree from the 1910 setup, so CHI takes the same DLC tree once.
+		else_if = {
+			limit = { country_exists = CHI CHI = { NOT = { has_country_flag = rch_1936_handover_tree } } }
+			CHI = {
+				rch_load_handover_tree = yes
+				set_country_flag = rch_1936_handover_tree
+			}
+		}
 	}
 }
 
-rch_ensure_chapter_tree = {
+# Loads the 1936 Chinese tree that the installed DLC provides, and only when the
+# receiving country does not already hold it. Call it in the country that should get
+# the tree; the caller scopes ROOT for the saved Republic and CHI for the handover.
+rch_load_handover_tree = {
 	if = {
-		limit = { has_country_flag = rch_chapter_one NOT = { has_focus_tree = rch_republic } }
-		load_focus_tree = { tree = rch_republic keep_completed = yes }
+		limit = {
+			has_dlc = "No Compromise, No Surrender"
+			NOT = { has_focus_tree = china_nationalist_sea_focus }
+		}
+		load_focus_tree = { tree = china_nationalist_sea_focus keep_completed = yes }
 		mark_focus_tree_layout_dirty = yes
 	}
 	else_if = {
-		limit = { has_country_flag = rch_chapter_two NOT = { has_focus_tree = rch_warlord } }
-		load_focus_tree = { tree = rch_warlord keep_completed = yes }
+		limit = {
+			NOT = { has_dlc = "No Compromise, No Surrender" }
+			has_dlc = "Waking the Tiger"
+			NOT = { has_focus_tree = china_nationalist_focus }
+		}
+		load_focus_tree = { tree = china_nationalist_focus keep_completed = yes }
 		mark_focus_tree_layout_dirty = yes
 	}
 	else_if = {
-		limit = { has_country_flag = rch_chapter_three NOT = { has_focus_tree = rch_nanjing } }
-		load_focus_tree = { tree = rch_nanjing keep_completed = yes }
+		limit = {
+			NOT = { has_dlc = "No Compromise, No Surrender" }
+			NOT = { has_dlc = "Waking the Tiger" }
+			NOT = { has_focus_tree = generic_focus }
+		}
+		load_focus_tree = { tree = generic_focus keep_completed = yes }
 		mark_focus_tree_layout_dirty = yes
 	}
 }
@@ -202,7 +281,6 @@ rch_ensure_chapter_tree = {
 rch_campaign_tick = {
 	if = {
 		limit = { rch_campaign_active = yes }
-		rch_ensure_chapter_tree = yes
 		rch_route_chapter = yes
 
 		if = {
@@ -265,15 +343,11 @@ rch_campaign_tick = {
 			set_country_flag = rch_manchuria_seen
 			country_event = { id = rch_campaign.33 days = 1 }
 		}
+		# The 1936 handover notice pays out once. Its previous test asked for the Waking
+		# the Tiger tree alone, which the DLC branch no longer guarantees, so use a flag.
 		if = {
-			limit = { date > 1927.12.31 NOT = { has_country_flag = rch_chapter_three } }
-			rch_open_chapter_three = yes
-		}
-		if = {
-			limit = {
-				date > 1935.12.31
-				NOT = { has_focus_tree = china_nationalist_focus }
-			}
+			limit = { date > 1935.12.31 NOT = { has_country_flag = rch_1936_handover_seen } }
+			set_country_flag = rch_1936_handover_seen
 			country_event = { id = rch_campaign.35 days = 1 }
 		}
 	}
