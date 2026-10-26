@@ -36,7 +36,7 @@ Each card is 248x192: a 228x142 painting at (10,10), a caption band from y=152 w
 
 - `interface/frontendgamesetupview.gui` - `bookmark_entry` template and `gamesetup_scenario_window`.
 - `interface/endsieg_scenario_select.gfx` - `GFX_bookmark_entry_bg`, `GFX_select_date_bg` and one `GFX_select_date_*` per scenario. These names are the ones `common/bookmarks/` points at; keep them stable.
-- `gfx/interface/scenario_select/` - built sprites (DXT5): `card_frame.dds` (248x384, two frames), `scenario_bg.dds` (1600x800), `card_<scenario>.dds` (228x142, one pixel per screen pixel).
+- `gfx/interface/scenario_select/` - built sprites (DXT5): `card_frame.dds` (496x192, two 248x192 frames side by side), `scenario_bg.dds` (1600x800), `card_<scenario>.dds` (228x142, one pixel per screen pixel).
 - `tools/build_scenario_art.py` - builds every sprite above from the generated paintings in `.tmp/scenario_art/`.
 - `localisation/replace/english/bookmarks_l_english.yml` - scenario names, descriptions and the two screen strings.
 
@@ -74,7 +74,7 @@ The painter is cropped to 228x142, tone-corrected per source (`TONE`), and the y
 
 | Asset | Sprite | File | Size |
 | --- | --- | --- | --- |
-| Card frame, normal + selected | `GFX_bookmark_entry_bg` | `gfx/interface/scenario_select/card_frame.dds` | 248x384 (DXT5) |
+| Card frame, normal + selected | `GFX_bookmark_entry_bg` | `gfx/interface/scenario_select/card_frame.dds` | 496x192 (DXT5, frames side by side) |
 | Screen background | `GFX_select_date_bg` | `gfx/interface/scenario_select/scenario_bg.dds` | 1600x800 (DXT5) |
 | Scenario paintings | `GFX_select_date_*` | `gfx/interface/scenario_select/card_*.dds` | 228x142 (DXT5) |
 | Primary button (wanted) | - | `gfx/interface/scenario_select/button_gold.dds` | 221x34, 2 frames |

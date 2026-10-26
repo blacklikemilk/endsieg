@@ -9,7 +9,7 @@ letters correctly.
 
 Outputs (all DXT5 `.dds` under ``gfx/interface/scenario_select``):
     card_<scenario>.dds  228x142  scenario paintings, one pixel per screen pixel
-    card_frame.dds       248x384  two frames of 248x192: normal, selected
+    card_frame.dds       496x192  two frames of 248x192 side by side: normal, selected
     scenario_bg.dds     1600x800  header wordmark, card field, detail panel, footer
 
 The engine fills each card's painting (``icon``) from the bookmark's ``picture``
@@ -228,9 +228,12 @@ def _panel(frame: int) -> Image.Image:
 
 
 def build_frame() -> None:
-    sheet = Image.new("RGBA", (FRAME_W, FRAME_H * 2), (0, 0, 0, 0))
+    # HOI4 splits a multi-frame sprite sheet horizontally (vanilla's own
+    # bookmark_entry_bg is 464x211 for two 232x211 frames), so the selected
+    # frame goes to the right of the normal one, not below it.
+    sheet = Image.new("RGBA", (FRAME_W * 2, FRAME_H), (0, 0, 0, 0))
     sheet.paste(_panel(0), (0, 0))
-    sheet.paste(_panel(1), (0, FRAME_H))
+    sheet.paste(_panel(1), (FRAME_W, 0))
     sheet.save(os.path.join(OUT_DIR, "card_frame.dds"), pixel_format="DXT5")
     print("wrote card_frame.dds")
 
