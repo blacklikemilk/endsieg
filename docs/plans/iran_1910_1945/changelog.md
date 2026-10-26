@@ -3,6 +3,22 @@
 Newest batch first. This file records what was measured, what was changed, and what was
 deliberately *not* changed because it turned out not to be a defect.
 
+## Batch 4 — the regime-switch decisions had no category to live in
+
+`common/decisions/iran_political_question.txt` exposed five decision bodies at top level
+(`iran_political_question_qajar`, `_republic`, `_constitution`, `_socialist`, `_nationalist`)
+while `common/decisions/categories/` defined exactly one category, `iran_political_question`.
+A decisions file maps one top-level block to one category, so those five had nothing to attach
+to and every regime-switch decision in the fallback 1936 chapter would have been dropped.
+
+They are now nested inside a single `iran_political_question = { ... }` block matching the
+category, with consistent indentation and the stray indent on the last `ai_will_do` corrected.
+All five `iran_shift_to_*` effects they call exist.
+
+The audit gained a structural check for this: any Iran decisions block whose name has no
+category is now an error. Decision count rose from 70 to 75 simply because the five were
+invisible to the old counter — they were never loading.
+
 ## Batch 3 — the 1921 coup becomes a contest, and six corrupted focus lines
 
 ### Parser corruption (real defects, found by hand)

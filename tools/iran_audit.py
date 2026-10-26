@@ -208,6 +208,36 @@ def load_loc(mod: str) -> set[str]:
     return keys
 
 
+def check_decision_categories(mod: str, problems: list[str]) -> dict[str, Any]:
+    """A decisions file maps one top-level block to one category.
+
+    A block whose name has no category in common/decisions/categories/ has nothing
+    to attach to, and the engine drops every decision inside it.
+    """
+    cat_dir = os.path.join(mod, "common", "decisions", "categories")
+    categories: set[str] = set()
+    for dirpath, _d, files in os.walk(cat_dir):
+        for n in files:
+            if n.endswith(".txt") and ("iran" in n.lower() or "per" in n.lower()):
+                categories |= set(re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", read(os.path.join(dirpath, n)), re.M))
+    orphans = []
+    for dirpath, _d, files in os.walk(os.path.join(mod, "common", "decisions")):
+        if os.path.basename(dirpath) == "categories":
+            continue
+        for n in files:
+            if not n.endswith(".txt"):
+                continue
+            if not ("iran" in n.lower() or n.lower().startswith("per")):
+                continue
+            heads = re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", read(os.path.join(dirpath, n)), re.M)
+            for head in heads:
+                if head not in categories:
+                    orphans.append(f"{n}: block '{head}'")
+    if orphans:
+        problems.append(f"decision block(s) with no matching category: {orphans[:6]}")
+    return {"decision_categories": len(categories), "unattached_blocks": len(orphans)}
+
+
 def check_loc(mod: str, focus_ids: list[str], problems: list[str]) -> dict[str, Any]:
     keys = load_loc(mod)
     missing = []
@@ -317,6 +347,7 @@ def main() -> int:
     facts: dict[str, Any] = {"focuses": focus_total, "files": len(files)}
     facts.update(check_events(events, problems))
     facts.update(check_decisions(decisions, problems))
+    facts.update(check_decision_categories(mod, problems))
     facts.update(check_loc(mod, focus_ids, problems))
     facts.update(check_sprites(mod, args.game, files, problems))
     check_style(files, mod, problems)
