@@ -61,11 +61,11 @@ def collect(pattern_roots: list[str], kind: str) -> set[str]:
                 if m:
                     found.add(m.group(1))
         elif kind == "effect":
-            found |= set(re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", text, re.M))
+            found |= set(re.findall(r"^[ \t]*([A-Za-z0-9_]+)\s*=\s*\{", text, re.M))
         elif kind == "trigger":
-            found |= set(re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", text, re.M))
+            found |= set(re.findall(r"^[ \t]*([A-Za-z0-9_]+)\s*=\s*\{", text, re.M))
         elif kind == "idea":
-            found |= set(re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", text, re.M))
+            found |= set(re.findall(r"^[ \t]*([A-Za-z0-9_]+)\s*=\s*\{", text, re.M))
     return found
 
 
@@ -92,11 +92,11 @@ def main() -> int:
     all_ideas: set[str] = set()
     all_events: set[str] = set()
     for root in (mod, game):
-        all_effects |= set(re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", "", re.M))
+        all_effects |= set(re.findall(r"^[ \t]*([A-Za-z0-9_]+)\s*=\s*\{", "", re.M))
         for path in glob.glob(os.path.join(root, "common", "scripted_effects", "*.txt")):
-            all_effects |= set(re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", strip_comments(read(path)), re.M))
+            all_effects |= set(re.findall(r"^[ \t]*([A-Za-z0-9_]+)\s*=\s*\{", strip_comments(read(path)), re.M))
         for path in glob.glob(os.path.join(root, "common", "scripted_triggers", "*.txt")):
-            all_triggers |= set(re.findall(r"^([A-Za-z0-9_]+)\s*=\s*\{", strip_comments(read(path)), re.M))
+            all_triggers |= set(re.findall(r"^[ \t]*([A-Za-z0-9_]+)\s*=\s*\{", strip_comments(read(path)), re.M))
         for path in glob.glob(os.path.join(root, "common", "ideas", "*.txt")):
             all_ideas |= set(re.findall(r"^\t+([A-Za-z0-9_]+)\s*=\s*\{", strip_comments(read(path)), re.M))
         for path in glob.glob(os.path.join(root, "events", "**", "*.txt"), recursive=True):
