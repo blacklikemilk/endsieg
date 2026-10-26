@@ -265,6 +265,18 @@ Not checked: in-game behaviour. No launch was performed; the transition dates, A
 
 Every Spain-owned `.txt` must be written as plain UTF-8 with no byte-order mark. A BOM in `common/script_constants/spain_campaign.txt` makes the engine drop the whole constant block, so every `constant:spain_campaign.*` reads as zero — which in game looks like focuses and decisions that do nothing, a missing Balance of Power and a chamber stuck at zero seats. A BOM in a decisions or scripted-effects file loses the category or every function it defines. `tools/check_script_bom.py` fails on any Spain-owned script file carrying one; run it before committing. Localisation `.yml` files are the opposite and must keep exactly one BOM.
 
+### How the tree drives the chamber
+
+Every focus that changes who holds the Cortes does it through a country flag the recount reads, and `on_national_focus_complete` recounts the chamber the moment the focus completes, so the seats and the hemicycle move on the day rather than at the next month. Those focuses carry a `custom_effect_tooltip` naming the shift, for example *Electoral Reform* reads "The Cortes: republicans gain seats, monarchists lose them."
+
+### Dissolving the Cortes
+
+There is exactly one way to dissolve the chamber, and it is the last political choice of the Republic tree, `SPR3_rule_without_the_cortes`. It is not available before 1 January 1933, it needs two general elections to have been fought, and it needs the government to have lost the chamber — no majority, or coup pressure at 40 or above. The focus costs 70 days against the tree's usual 5 to 10, and completing it spends 150 political power, collapses stability by 25%, raises tension and hands the officers confidence. The cheap 40-power dissolution decision that used to sit in the bill list has been removed.
+
+### Scripted GUI scope
+
+A scripted GUI with `context_type = decision_category` binds its default scope to the decision category, not to the country. Variable lookups in that context are therefore empty unless they are scoped to `ROOT`, which is always the country that sees the window. The hemicycle's per-dot texture triggers scoped to nothing, so every trigger failed and every dot fell back to the first block — the whole chamber painted socialist. `ROOT = { check_variable = ... }` in the dot triggers and in the panel's own `visible` and majority triggers fixes it. Any further property added to that window must be scoped the same way.
+
 ## The Cortes as a party system
 
 The chamber is not decoration. It holds exactly 400 seats, 201 of them are needed to govern, and seats move because the player moves them.
