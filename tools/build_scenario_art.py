@@ -307,14 +307,6 @@ def build_background() -> None:
     d.line([(0, 148), (BG_W, 148)], fill=GOLD_DIM)
     d.line([(0, 149), (BG_W, 149)], fill=(0, 0, 0))
 
-    # Language-neutral date plate, balanced by a short rule on the opposite side.
-    plate = gold_fill(tracked("1910 - 1945", font(24), 3))
-    plate.putalpha(plate.getchannel("A").point(lambda v: int(v * 0.80)))
-    bg.alpha_composite(plate, (BG_W - plate.size[0] - 44, 16))
-    d = ImageDraw.Draw(bg)
-    d.line([(44, 26), (150, 26)], fill=GOLD_DIM + (235,), width=2)
-    d.line([(44, 34), (112, 34)], fill=GOLD_DIM + (150,))
-
     # --- detail panel -------------------------------------------------------
     panel = Image.new("RGB", (BG_W, BG_H - PANEL_TOP), (16, 15, 14))
     panel = Image.blend(panel, _texture("tex_ash.png", (BG_W, BG_H - PANEL_TOP)), 0.10)
