@@ -352,6 +352,11 @@ country_event = {
 		set_country_flag = iran_tribes_negotiated
 	}
 }
+
+# The 1933 concession terms are signed in the iran_settle_the_concession_1933 decision,
+# which fires iran_f2.2. This event is not dead: IR2_oil_revision and IR3_oil_sovereignty
+# still fire it later in the chapter for the revision of the terms, so it stays until those
+# two focuses stop calling it. Its settle branch sets iran_oil_settlement, which nothing reads.
 country_event = {
 	id = iran_campaign.55 title = iran_campaign.55.t desc = iran_campaign.55.d picture = GFX_report_event_russo_persian is_triggered_only = yes
 	option = {
@@ -407,8 +412,20 @@ country_event = {
 		set_country_flag = iran_wartime_majlis_cabinet
 	}
 }
+
+# The succession crisis of 1941 is a Pahlavi story. On the other five settlements the
+# same break in authority is a question of who governs, not of which Shah succeeds.
 country_event = {
-	id = iran_campaign.35 title = iran_campaign.35.t desc = iran_campaign.35.d picture = GFX_report_event_persiancoup is_triggered_only = yes
+	id = iran_campaign.35 title = iran_campaign.35.t picture = GFX_report_event_persiancoup is_triggered_only = yes
+	desc = {
+		text = iran_campaign.35.d_pahlavi
+		trigger = { has_country_flag = iran_pahlavi }
+	}
+	desc = {
+		text = iran_campaign.35.d_monarchy
+		trigger = { OR = { has_country_flag = iran_qajar_restoration has_country_flag = iran_constitutional_monarchy } }
+	}
+	desc = { text = iran_campaign.35.d_republic }
 	option = {
 		name = iran_campaign.35.a trigger = { has_country_flag = iran_pahlavi }
 		ai_chance = { factor = 50 modifier = { factor = 5 is_historical_focus_on = yes } }
@@ -416,7 +433,23 @@ country_event = {
 		set_country_flag = iran_succession_prepared
 	}
 	option = {
-		name = iran_campaign.35.b
+		name = iran_campaign.35.b trigger = { OR = { has_country_flag = iran_qajar_restoration has_country_flag = iran_constitutional_monarchy } }
+		ai_chance = { factor = 25 }
+		add_political_power = constant:iran_story.political_capital
+		add_stability = constant:iran_story.stability_gain
+		set_country_flag = iran_succession_managed
+	}
+	option = {
+		name = iran_campaign.35.c
+		trigger = {
+			NOT = {
+				OR = {
+					has_country_flag = iran_pahlavi
+					has_country_flag = iran_qajar_restoration
+					has_country_flag = iran_constitutional_monarchy
+				}
+			}
+		}
 		ai_chance = { factor = 25 }
 		add_political_power = constant:iran_story.political_capital
 		add_stability = constant:iran_story.stability_gain

@@ -40,7 +40,18 @@ iran_state_authority = {
 	}
 	iran_bread_distribution = {
 		icon = generic_consumer_goods
-		visible = { has_country_flag = iran_relief_programme }
+		# Bread is a wartime problem, not the property of the relief programme: the queue at
+		# the bakery appears whenever the country is occupied, at war, or already on relief,
+		# and only between the outbreak of the war and the end of the chapter.
+		visible = {
+			date > 1939.9.1
+			date < 1946.1.1
+			OR = {
+				has_country_flag = iran_occupied
+				has_country_flag = iran_relief_programme
+				has_war = yes
+			}
+		}
 		available = { iran_relief_affordable = yes }
 		custom_cost_text = iran_relief_cost custom_cost_trigger = { iran_relief_affordable = yes }
 		days_remove = @short_project days_re_enable = @cooldown
