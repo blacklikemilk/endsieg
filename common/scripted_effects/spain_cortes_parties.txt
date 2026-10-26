@@ -93,6 +93,11 @@ spain_cortes_fix_seat_total = {
 # The government bloc is the ruling party plus whoever it brought into coalition. It needs
 # 201 of the 400 seats; below that the government is a minority and cannot legislate.
 spain_government_recount = {
+	# a save that predates the party system has none of these variables yet
+	if = { limit = { NOT = { has_variable = spain_government_party } } set_variable = { var = spain_government_party value = 0 } }
+	if = { limit = { NOT = { has_variable = spain_coalition_1 } } set_variable = { var = spain_coalition_1 value = 0 } }
+	if = { limit = { NOT = { has_variable = spain_coalition_2 } } set_variable = { var = spain_coalition_2 value = 0 } }
+
 	# a chamber with no government named yet defaults to the party the era belongs to
 	if = {
 		limit = { check_variable = { var = spain_government_party value = 0 } }
@@ -237,9 +242,24 @@ spain_proscribe_party = {
 # month unless it is paid for again. A government below 201 seats bleeds authority and the
 # army notices.
 spain_party_monthly = {
+	# catch up any save or scenario that started before the party system existed
 	if = {
-		limit = { NOT = { has_variable = spain_cortes_total } }
+		limit = { NOT = { has_variable = spain_party_shift_monarchists } }
+		spain_parties_initialize = yes
+	}
+	if = {
+		limit = {
+			has_variable = spain_party_shift_monarchists
+			NOT = { has_variable = spain_cortes_total }
+		}
 		spain_cortes_recount = yes
+	}
+	if = {
+		limit = {
+			has_variable = spain_cortes_total
+			NOT = { has_variable = spain_government_majority }
+		}
+		spain_government_recount = yes
 	}
 
 	if = {
