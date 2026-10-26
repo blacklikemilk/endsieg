@@ -82,6 +82,14 @@ Routing: `on_startup` has an explicit `tag = RCH` branch, the generic sweep excl
 The WWI chapter was compacted and expanded: the diplomacy column moved from x 36-40 to 34-38, the province column from 46-54 to 40-44 and the revolution-preparation column to 48, and eight focuses were added (imperial examinations, the regency household, grain reserves, cotton mills, a steelworks, cavalry reform, railway troops and military telegraph).
 The chapter is now 96 focuses with a maximum x of 48 instead of 54.
 
+## Chapter one rebuilt (1910-1919)
+
+Chapter one is now 149 focuses, up from 96, in separated bands with a four-cell gutter between branches instead of two.
+New content: a Japan war branch with an invasion root that is available only at war, the Shandong crisis, the 1915 demands with a reject/accept fork, a war of posts, mobilisation and a long-war capstone; a full 1911 crisis chain from the Railway Protection Movement to the abdication question, the Second Revolution, Yuan's monarchy, the National Protection War, Zhang Xun's restoration and the Entente declaration; a society branch (schools, university charter, women's education, press law, students, the New Culture, public health, local self-government, labour); a later economy branch; army reform including an air service and navy; and provincial development.
+Four new events (`qing_campaign.60`-`.63`) carry the Tsingtao landing, the Wuchang mutiny, the abdication question and the restoration.
+
+Details, anchors and the layout table are in `chapter_one_expansion.md`.
+
 ## Pending
 
 - A launch that reaches the 1910 scenario with QIN played, to confirm the tree appears, the values initialise, the balance panel exists, and the first events fire.

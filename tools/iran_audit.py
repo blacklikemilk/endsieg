@@ -289,7 +289,7 @@ def check_sprites(mod: str, game: str | None, paths: list[str], problems: list[s
         for dirpath, _d, files in os.walk(root):
             for n in files:
                 if n.endswith(".gfx"):
-                    registered |= set(re.findall(r'name\s*=\s*"([A-Za-z0-9_]+)"', read(os.path.join(dirpath, n))))
+                    registered |= set(re.findall(r'name\s*=\s*"?([A-Za-z0-9_]+)"?', read(os.path.join(dirpath, n))))
     if not game:
         return {"note": "no --game given, sprite check skipped"}
 
