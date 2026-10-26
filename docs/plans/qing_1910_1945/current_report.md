@@ -1,4 +1,4 @@
-﻿﻿# Qing overhaul, current report
+﻿﻿﻿# Qing overhaul, current report
 
 ## What is implemented
 
@@ -103,6 +103,25 @@ Links longer than three cells: 49 before, 37 after; longest link: 15 cells befor
 
 `history/states` hands every Chinese state from QIN to RCH on 1914.1.1 and from RCH to CHI and the warlords on 1936.1.1.
 `common/scripted_effects/endsieg_china_ownership.txt` now restores ownership: the Qing tick reclaims after 1914 and after 1936, and the Republic tick reclaims in 1936 if the timed `rch_save_the_republic` mission succeeded. If it did not, the player is handed to CHI so a continuous campaign continues as the central government rather than as a stateless tag.
+
+
+## Layout rebuild (all six China trees)
+
+Every China focus tree was laid out again from a snapshot of the working copy at `.tmp/layout_snapshot_<ts>/`.
+The pass tiers each prerequisite family, orders rows by barycentre, positions x by parent median with two-cell sibling packing, and packs families into shelves so no single row becomes a strip.
+Focus IDs, counts, prerequisites, mutual exclusions, rewards, costs, AI weights, availability and bypasses are byte-identical to the snapshot; only x/y changed.
+
+| Tree | Before (cells) | After (cells) | Long links before/after |
+| --- | --- | --- | --- |
+| qing_ww1 | 58x22 | 50x27 | 49 / 37 |
+| qing_interwar | 46x14 | 41x16 | 24 / 2 crossings |
+| qing_ww2 | 43x11 | 46x11 | 1 crossing |
+| rch_republic | 46x8 | 43x7 | 6 / 3 |
+| rch_warlord | 46x7 | 43x6 | 10 / 6 |
+| rch_nanjing | 48x8 | 42x4 | 11 / 0 |
+
+The HOI4 Agent Tools MCP was used for `focus_inspect`, `focus_rewrite` and `focus_render`.
+`focus_rewrite` with `layoutMode: "compact"` succeeded on the three Republic trees but produced a 71-column strip on `rch_republic` (against 43 from this pass), and was blocked with `FOCUS_COMPACT_QUALITY_BLOCKED` on all three Qing trees, so its output was not adopted and its sidecar plan files were removed.
 
 ## Pending
 
