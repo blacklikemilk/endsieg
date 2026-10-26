@@ -337,3 +337,36 @@ iran_apply_historical_start = {
 		}
 	}
 }
+
+# Call this from decisions. iran_refresh_mechanics strips and re-adds the whole
+# state-spirit family, which otherwise prints every removal - including spirits
+# the country does not have - into the decision tooltip.
+iran_refresh_mechanics_hidden = {
+	hidden_effect = { iran_refresh_mechanics = yes }
+}
+
+# Once a patron has the upper hand, it starts asking for things. Fired from the
+# monthly clock; each demand is once per campaign so the panel cannot spam.
+iran_great_game_tick = {
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			date < 1946.1.1
+			check_variable = { var = iran_british_standing value = 70 compare = greater_than_or_equals }
+			NOT = { has_country_flag = iran_british_demand_seen }
+		}
+		set_country_flag = iran_british_demand_seen
+		country_event = { id = iran_campaign.71 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			date < 1946.1.1
+			country_exists = SOV
+			check_variable = { var = iran_soviet_standing value = 70 compare = greater_than_or_equals }
+			NOT = { has_country_flag = iran_soviet_demand_seen }
+		}
+		set_country_flag = iran_soviet_demand_seen
+		country_event = { id = iran_campaign.72 }
+	}
+}

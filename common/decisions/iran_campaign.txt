@@ -1,0 +1,422 @@
+# Overview: paid provincial reforms, finite geographic projects and foreign negotiations for Iran.
+# Native decision timer/cost fields use local macros because these database fields require literal values.
+@political = 50
+@project = 75
+@short_project = 60
+@long_project = 120
+@cooldown = 180
+@priority = 50
+@normal = 25
+iran_state_authority = {
+	iran_provincial_compact = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_security_programme NOT = { has_country_flag = iran_provincial_compact } }
+		available = { iran_provincial_states_held = yes }
+		cost = @political days_remove = @short_project fire_only_once = yes
+		modifier = { political_power_factor = -0.10 }
+		cancel_trigger = { NOT = { iran_provincial_states_held = yes } }
+		remove_effect = { set_country_flag = iran_provincial_compact add_to_variable = { iran_authority = constant:iran_story.authority_major_gain } iran_refresh_mechanics_hidden = yes }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @priority modifier = { factor = 0 has_capitulated = yes } }
+	}
+	iran_treasury_reform = {
+		icon = generic_industry
+		visible = { has_country_flag = iran_treasury_programme NOT = { has_country_flag = iran_tax_reformed } }
+		cost = @political days_remove = @long_project fire_only_once = yes
+		modifier = { consumer_goods_factor = 0.10 }
+		remove_effect = { set_country_flag = iran_tax_reformed set_country_flag = PER_treasury_reformed add_to_variable = { iran_authority = constant:iran_story.authority_major_gain } iran_refresh_mechanics_hidden = yes }
+		ai_will_do = { factor = @priority modifier = { factor = 0 has_capitulated = yes } }
+	}
+	iran_equip_gendarmerie = {
+		icon = generic_prepare_civil_war
+		visible = { has_country_flag = iran_security_programme NOT = { has_country_flag = iran_gendarmerie_ready } }
+		available = { iran_security_affordable = yes }
+		custom_cost_text = iran_security_cost
+		custom_cost_trigger = { iran_security_affordable = yes }
+		days_remove = @short_project fire_only_once = yes
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.security_equipment_cost } army_experience = constant:iran_story.army_experience_cost }
+		remove_effect = { set_country_flag = iran_gendarmerie_ready add_to_variable = { iran_authority = constant:iran_story.authority_gain } iran_refresh_mechanics_hidden = yes }
+		ai_will_do = { factor = @priority modifier = { factor = 5 has_war = yes } }
+	}
+	iran_bread_distribution = {
+		icon = generic_consumer_goods
+		visible = { has_country_flag = iran_relief_programme }
+		available = { iran_relief_affordable = yes }
+		custom_cost_text = iran_relief_cost custom_cost_trigger = { iran_relief_affordable = yes }
+		days_remove = @short_project days_re_enable = @cooldown
+		modifier = { consumer_goods_factor = 0.10 }
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.relief_equipment_cost } }
+		remove_effect = { set_country_flag = iran_relief_delivered remove_ideas = iran_supply_emergency add_stability = constant:iran_story.stability_gain }
+		ai_will_do = { factor = @normal modifier = { factor = 5 has_idea = iran_supply_emergency } modifier = { factor = 0 NOT = { has_idea = iran_supply_emergency } has_stability > 0.70 } }
+	}
+	iran_constitutional_petitions = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_constitutional_programme check_variable = { iran_authority < 100 } }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		modifier = { political_power_factor = -0.10 }
+		remove_effect = { add_to_variable = { iran_authority = constant:iran_story.authority_gain } add_stability = constant:iran_story.stability_gain iran_refresh_mechanics_hidden = yes }
+		ai_will_do = { factor = @normal }
+	}
+	iran_provincial_security = {
+		icon = generic_prepare_civil_war
+		visible = { has_country_flag = iran_centralizing_programme check_variable = { iran_authority < 100 } }
+		available = { iran_security_affordable = yes }
+		custom_cost_text = iran_security_cost custom_cost_trigger = { iran_security_affordable = yes }
+		days_remove = @short_project days_re_enable = @cooldown
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.security_equipment_cost } army_experience = constant:iran_story.army_experience_cost add_stability = constant:iran_story.stability_cost }
+		remove_effect = { add_to_variable = { iran_authority = constant:iran_story.authority_major_gain } iran_refresh_mechanics_hidden = yes }
+		ai_will_do = { factor = @normal modifier = { factor = 5 check_variable = { iran_authority < 50 } } }
+	}
+}
+iran_national_projects = {
+	iran_expand_arsenal = {
+		icon = generic_industry
+		visible = { has_country_flag = iran_arsenal_programme NOT = { has_country_flag = iran_tehran_arsenal_built } }
+		available = { owns_state = 266 controls_state = 266 }
+		cost = @project days_remove = @long_project
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { OR = { NOT = { owns_state = 266 } NOT = { controls_state = 266 } } }
+		remove_effect = { iran_build_tehran_arsenal = yes }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @priority }
+	}
+	iran_technical_college = {
+		icon = generic_industry
+		visible = { has_country_flag = iran_education_programme NOT = { has_country_flag = iran_college_established } }
+		cost = @project days_remove = @long_project
+		modifier = { civilian_factory_use = 1 }
+		remove_effect = { set_country_flag = iran_college_established add_research_slot = 1 }
+		ai_will_do = { factor = @normal }
+	}
+	iran_tehran_workshops = {
+		icon = generic_industry
+		visible = { has_country_flag = iran_workshop_subsidy NOT = { has_country_flag = iran_tehran_workshops_built } }
+		available = { owns_state = 266 controls_state = 266 }
+		cost = @project days_remove = @long_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { OR = { NOT = { owns_state = 266 } NOT = { controls_state = 266 } } }
+		remove_effect = { 266 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } set_country_flag = iran_tehran_workshops_built }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @priority modifier = { factor = 0 has_capitulated = yes } }
+	}
+	iran_khuzestan_capacity = {
+		icon = generic_oil
+		visible = { has_country_flag = iran_oil_programme NOT = { has_country_flag = iran_oil_expanded } }
+		available = { owns_state = 413 controls_state = 413 }
+		cost = @project days_remove = @long_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { OR = { NOT = { owns_state = 413 } NOT = { controls_state = 413 } } }
+		remove_effect = { 413 = { add_resource = { type = oil amount = 10 } } set_country_flag = iran_oil_expanded add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss } iran_refresh_mechanics_hidden = yes }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @normal }
+	}
+	iran_caspian_roads = {
+		icon = generic_construction
+		visible = { has_country_flag = iran_caspian_priority NOT = { has_country_flag = iran_caspian_roads_built } }
+		available = { owns_state = 420 controls_state = 420 }
+		cost = @political days_remove = @short_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { OR = { NOT = { owns_state = 420 } NOT = { controls_state = 420 } } }
+		remove_effect = { 420 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } set_country_flag = iran_caspian_roads_built }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @normal }
+	}
+	iran_gulf_harbour = {
+		icon = generic_navy
+		visible = { has_country_flag = iran_gulf_priority NOT = { has_country_flag = iran_gulf_harbour_built } }
+		available = { owns_state = 411 controls_state = 411 }
+		cost = @project days_remove = @long_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { OR = { NOT = { owns_state = 411 } NOT = { controls_state = 411 } } }
+		remove_effect = { 411 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } set_country_flag = iran_gulf_harbour_built }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @normal }
+	}
+	iran_railway_north = {
+		icon = generic_construction
+		visible = { has_country_flag = iran_railway_programme NOT = { has_country_flag = iran_railway_north } }
+		available = { iran_provincial_states_held = yes }
+		cost = @project days_remove = @long_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { NOT = { iran_provincial_states_held = yes } }
+		remove_effect = { build_railway = { level = 1 start_state = 266 target_state = 420 build_only_on_allied = yes } set_country_flag = iran_railway_north }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @priority }
+	}
+	iran_railway_south = {
+		icon = generic_construction
+		visible = { has_country_flag = iran_railway_programme NOT = { has_country_flag = iran_railway_south } }
+		available = { owns_state = 266 controls_state = 266 owns_state = 413 controls_state = 413 }
+		cost = @project days_remove = @long_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { OR = { NOT = { owns_state = 266 } NOT = { controls_state = 266 } NOT = { owns_state = 413 } NOT = { controls_state = 413 } } }
+		remove_effect = { build_railway = { level = 1 start_state = 266 target_state = 413 build_only_on_allied = yes } set_country_flag = iran_railway_south }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @priority }
+	}
+	iran_tehran_airfield = {
+		icon = generic_air
+		visible = { has_country_flag = iran_air_programme NOT = { has_country_flag = iran_airfield_built } }
+		available = { owns_state = 266 controls_state = 266 }
+		cost = @political days_remove = @short_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		cancel_trigger = { OR = { NOT = { owns_state = 266 } NOT = { controls_state = 266 } } }
+		remove_effect = { 266 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } set_country_flag = iran_airfield_built }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @normal }
+	}
+}
+iran_sovereignty = {
+	iran_gulf_arbitration = {
+		icon = generic_foreign_policy
+		visible = { has_country_flag = iran_gulf_diplomacy_programme NOT = { has_country_flag = iran_gulf_arbitration_requested } }
+		available = { iran_sponsor_britain_valid = yes }
+		cost = @political
+		complete_effect = { set_country_flag = iran_gulf_arbitration_requested ENG = { country_event = { id = iran_campaign.64 } } }
+		ai_will_do = { factor = @normal }
+	}
+	iran_regional_assurances = {
+		icon = generic_foreign_policy
+		visible = { has_country_flag = iran_regional_programme NOT = { has_country_flag = iran_regional_assurances_sent } }
+		available = { is_subject = no has_war = no }
+		cost = @political
+		complete_effect = {
+			set_country_flag = iran_regional_assurances_sent
+			if = { limit = { country_exists = IRQ NOT = { has_war_with = IRQ } } give_guarantee = IRQ }
+			if = { limit = { country_exists = AFG NOT = { has_war_with = AFG } } give_guarantee = AFG }
+			if = { limit = { country_exists = TUR NOT = { has_war_with = TUR } } give_guarantee = TUR }
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_northern_administration = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_northern_settlement_programme NOT = { has_country_flag = iran_northern_settlement_completed } }
+		available = { owns_state = 419 controls_state = 419 owns_state = 420 controls_state = 420 }
+		cost = @political days_remove = @long_project
+		modifier = { political_power_factor = -0.10 }
+		cancel_trigger = { OR = { NOT = { owns_state = 419 } NOT = { controls_state = 419 } NOT = { owns_state = 420 } NOT = { controls_state = 420 } } }
+		remove_effect = { set_country_flag = iran_northern_settlement_completed add_stability = constant:iran_story.stability_major_gain }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @priority }
+	}
+	iran_repay_foreign_credit = {
+		icon = generic_industry
+		visible = { check_variable = { iran_foreign_leverage > 0 } }
+		available = { has_equipment = { infantry_equipment > 499 } }
+		cost = @political days_re_enable = @cooldown
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_repayment } add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss } iran_refresh_mechanics_hidden = yes }
+		ai_will_do = { factor = @normal modifier = { factor = 0 has_war = yes } modifier = { factor = 5 check_variable = { iran_foreign_leverage > 49 } } }
+	}
+	iran_shatt_negotiations = {
+		icon = generic_foreign_policy
+		visible = { has_country_flag = iran_shatt_programme NOT = { has_country_flag = iran_shatt_dispatched } }
+		available = { country_exists = IRQ is_subject = no NOT = { has_war_with = IRQ } }
+		cost = @political fire_only_once = yes
+		complete_effect = { set_country_flag = iran_shatt_dispatched IRQ = { country_event = { id = iran_campaign.60 } } }
+		ai_will_do = { factor = @normal modifier = { factor = 0 has_war = yes } }
+	}
+	iran_corridor_deliveries = {
+		icon = generic_construction
+		visible = { has_country_flag = iran_corridor_programme has_country_flag = iran_allied_cooperation NOT = { has_country_flag = iran_corridor_delivered } }
+		available = { iran_corridor_states_held = yes iran_railway_ready = yes iran_relief_affordable = yes }
+		custom_cost_text = iran_relief_cost custom_cost_trigger = { iran_relief_affordable = yes }
+		days_remove = @long_project fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.relief_equipment_cost } }
+		cancel_trigger = { NOT = { iran_corridor_states_held = yes } }
+		remove_effect = { set_country_flag = iran_corridor_delivered country_event = { id = iran_campaign.42 } }
+		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
+		ai_will_do = { factor = @priority }
+	}
+	iran_withdrawal_guarantees = {
+		icon = generic_foreign_policy
+		visible = { has_country_flag = iran_withdrawal_programme NOT = { has_country_flag = iran_guarantees_requested } }
+		available = { is_subject = no has_war = no }
+		cost = @political fire_only_once = yes
+		complete_effect = { set_country_flag = iran_guarantees_requested if = { limit = { country_exists = ENG NOT = { has_war_with = ENG } } ENG = { country_event = { id = iran_campaign.61 } } } if = { limit = { country_exists = SOV NOT = { has_war_with = SOV } } SOV = { country_event = { id = iran_campaign.61 } } } }
+		ai_will_do = { factor = @priority }
+	}
+}
+
+iran_political_course = {
+	iran_court_appointments = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_qajar_restoration }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = {
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			add_stability = constant:iran_story.stability_cost
+			add_political_power = constant:iran_story.political_capital
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_majlis_session = {
+		icon = generic_political_actions
+		visible = { OR = { has_country_flag = iran_constitutional_monarchy has_country_flag = iran_republic } }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = {
+			add_stability = constant:iran_story.stability_gain
+			add_political_power = constant:iran_story.political_capital
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_army_review = {
+		icon = generic_army
+		visible = { OR = { has_country_flag = iran_pahlavi has_country_flag = iran_nationalist_front } }
+		available = { has_equipment = { infantry_equipment > 249 } }
+		custom_cost_text = iran_security_cost custom_cost_trigger = { has_equipment = { infantry_equipment > 249 } }
+		days_remove = @short_project days_re_enable = @cooldown
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.security_equipment_cost } }
+		remove_effect = {
+			add_war_support = constant:iran_story.war_support_gain
+			army_experience = constant:iran_story.army_experience
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_free_assembly = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_socialist }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = {
+			add_manpower = constant:iran_story.gendarmerie_manpower
+			add_stability = constant:iran_story.stability_cost
+			add_political_power = constant:iran_story.political_capital
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_constitutional_referendum = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_republic NOT = { has_country_flag = iran_referendum_held } }
+		cost = @political days_remove = @long_project fire_only_once = yes
+		modifier = { political_power_factor = -0.10 }
+		remove_effect = {
+			set_country_flag = iran_referendum_held
+			add_stability = constant:iran_story.stability_major_gain
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = @priority }
+	}
+	iran_court_reform = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_qajar_restoration NOT = { has_country_flag = iran_court_reformed } }
+		cost = @political days_remove = @long_project fire_only_once = yes
+		remove_effect = {
+			set_country_flag = iran_court_reformed
+			add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+			add_political_power = constant:iran_story.political_capital
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = @normal }
+	}
+}
+iran_wartime_emergency = {
+	iran_bread_rationing = {
+		icon = generic_consumer_goods
+		visible = { NOT = { has_country_flag = iran_rationing_active } }
+		available = { iran_relief_affordable = yes }
+		custom_cost_text = iran_relief_cost custom_cost_trigger = { iran_relief_affordable = yes }
+		days_remove = @short_project days_re_enable = @cooldown
+		modifier = { consumer_goods_factor = 0.10 }
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.relief_equipment_cost } }
+		remove_effect = {
+			set_country_flag = iran_rationing_active
+			add_stability = constant:iran_story.stability_gain
+			remove_ideas = iran_supply_emergency
+		}
+		ai_will_do = { factor = @priority modifier = { factor = 5 has_idea = iran_supply_emergency } }
+	}
+	iran_black_market_crackdown = {
+		icon = generic_political_actions
+		visible = { has_war = yes }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = {
+			add_political_power = constant:iran_story.political_capital
+			add_stability = constant:iran_story.stability_cost
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_civil_defence_drill = {
+		icon = generic_prepare_civil_war
+		visible = { has_war = yes }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = {
+			add_war_support = constant:iran_story.war_support_gain
+			add_stability = constant:iran_story.stability_gain
+		}
+		ai_will_do = { factor = @priority }
+	}
+	iran_refugee_shelters = {
+		icon = generic_civil_support
+		visible = { OR = { has_war = yes has_country_flag = iran_occupied } NOT = { has_country_flag = iran_shelters_built } }
+		available = { iran_relief_affordable = yes }
+		custom_cost_text = iran_relief_cost custom_cost_trigger = { iran_relief_affordable = yes }
+		days_remove = @long_project fire_only_once = yes
+		modifier = { consumer_goods_factor = 0.10 }
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.relief_equipment_cost } }
+		remove_effect = {
+			set_country_flag = iran_shelters_built
+			add_stability = constant:iran_story.stability_major_gain
+			add_manpower = constant:iran_story.tribal_manpower
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_underground_press = {
+		icon = generic_political_actions
+		visible = { has_country_flag = iran_occupied }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = {
+			add_war_support = constant:iran_story.war_support_gain
+			add_stability = constant:iran_story.stability_cost
+		}
+		ai_will_do = { factor = @priority }
+	}
+}
+iran_tribal_settlement = {
+	iran_negotiate_tribe = {
+		icon = generic_political_actions
+		visible = { check_variable = { iran_authority < 100 } }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = {
+			add_manpower = constant:iran_story.tribal_manpower
+			add_stability = constant:iran_story.stability_gain
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = @normal }
+	}
+	iran_punitive_expedition = {
+		icon = generic_prepare_civil_war
+		visible = { has_country_flag = iran_centralizing_programme OR = { has_country_flag = iran_pahlavi has_country_flag = iran_qajar_restoration } }
+		available = { iran_security_affordable = yes }
+		custom_cost_text = iran_security_cost custom_cost_trigger = { iran_security_affordable = yes }
+		days_remove = @medium days_re_enable = @cooldown
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.security_equipment_cost } army_experience = constant:iran_story.army_experience_cost }
+		remove_effect = {
+			add_to_variable = { iran_authority = constant:iran_story.authority_major_gain }
+			add_stability = constant:iran_story.stability_cost
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = @normal modifier = { factor = 5 has_country_flag = iran_counterinsurgency } }
+	}
+	iran_tribal_regiment = {
+		icon = generic_army
+		visible = { has_country_flag = iran_provincial_compact }
+		cost = @political days_remove = @short_project days_re_enable = @cooldown
+		remove_effect = { add_manpower = constant:iran_story.tribal_manpower }
+		ai_will_do = { factor = @normal }
+	}
+	iran_frontier_subsidy = {
+		icon = generic_industry
+		visible = { has_country_flag = iran_frontier_programme }
+		cost = @project days_remove = @medium fire_only_once = yes
+		modifier = { civilian_factory_use = 1 }
+		remove_effect = {
+			set_country_flag = iran_frontier_subsidised
+			add_stability = constant:iran_story.stability_gain
+			419 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+		}
+		ai_will_do = { factor = @normal }
+	}
+}
