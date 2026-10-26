@@ -25,6 +25,8 @@ Coordinates are in the 1600x800 space of `gamesetup_scenario_window`, which HOI4
 | --- | --- | --- |
 | Header | 0 - 150 | wordmark art, diamond rule, `ENDSIEG_SELECT_SCENARIO` text at 126, date plate top right |
 | Cards | 160 - 560 | `bookmarks` container at (36,160), grid slots 254x200, 6 columns x 2 rows |
+
+The `bookmarks_grid` must carry an explicit pixel `size` (1524x400, exactly 6x2 slots) and the container `clipping = yes`. With `size = { width = 100%% height = 100%% }` inside an unsized container the grid resolves against the window instead, lays out four rows of slots and paints the unfilled ones as flat grey boxes over the detail panel.
 | Detail panel | 566 - 786 | `bookmark_title` at (46,576), `bookmark_desc` at (46,620), compass inset right |
 | Footer | 786 - 800 | `back_button` (40,-34) and `select_button` (-40,-34) |
 
