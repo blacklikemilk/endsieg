@@ -120,9 +120,10 @@ A purpose-made category plate would still be better than `GFX_decision_category_
 ## Foreign acts
 
 Focuses, decisions and events that deal with a patron call one of four effects in `common/scripted_effects/iran_great_game_acts.txt`.
-`iran_concede_small`, `iran_concede_large`, `iran_reclaim_small` and `iran_reclaim_large` take `patron = british | northern | german`.
+`iran_concede_<patron>_<small|large>` and `iran_reclaim_<patron>_<small|large>`, with patron `british`, `northern` or `german`, are separate explicit effects because parameter substitution inside variable names is unproven.
 The `*_leading_*` variants act on whichever patron currently holds the most influence, and are used by domestic reforms such as the national bank, tariff and budget focuses.
 A concession raises the patron's influence, lowers sovereignty and raises foreign leverage; a reclaim does the inverse.
-All 41 focus rewards that used to add to `iran_foreign_leverage` directly now call these effects, so every foreign-flavoured focus moves the Great Game axes.
+All 41 focus rewards that used to add to `iran_foreign_leverage` directly now call these effects, as do the two legation decisions and the oil royalty advance; the oil nationalisation and Abadan compromise decisions move influence and sovereignty beside their own leverage values.
+The credit events and the repayment decision still move leverage alone, because that is the debt side.
 Tuning lives in `iran_story.concede_*` and `iran_story.reclaim_*`; tooltips are the `iran_concede_*_tt` and `iran_reclaim_*_tt` keys in `iran_great_game_acts_l_english.yml`.
 Foreign leverage is still a stored credit value, because the repayment decision and the credit events spend it directly; it is moved by these effects but not recomputed from the influences.

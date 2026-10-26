@@ -1,16 +1,42 @@
 # Overview: Iran's foreign acts for the Great Game, 1910-1945. Country scope, Iran only.
-# One effect per direction and tier, shared by focuses, decisions and events, so every foreign deal
+# One effect per patron, direction and tier, shared by focuses, decisions and events, so every foreign deal
 # moves the patron's influence, sovereignty and the foreign leverage that depends on them in one place.
 # concede: the patron gains influence, Iran loses sovereignty and takes on leverage (dependence).
-# reclaim: the inverse. Inputs: patron = british | northern | german. The *_leading_* variants act on
-# whichever patron currently holds the most influence (ties resolve british, then northern).
+# reclaim: the inverse. Patrons: british, northern (Russian Empire, then Soviet), german.
+# The *_leading_* variants act on whichever patron currently holds the most influence (ties resolve british,
+# then northern); domestic reforms use them. Foreign leverage here is the debt-like value that repayment spends.
+# Every patron has its own explicit effect because the engine's parameter substitution inside variable names is unproven.
 # Tooltips are the *_tt localisation keys; the arithmetic is hidden. Values live in constant:iran_story.*.
 
-iran_concede_small = {
-	custom_effect_tooltip = iran_concede_$patron$_small_tt
+iran_concede_british_small = {
+	custom_effect_tooltip = iran_concede_british_small_tt
 	hidden_effect = {
-		add_to_variable = { iran_$patron$_influence = constant:iran_story.concede_small_influence }
-		clamp_variable = { var = iran_$patron$_influence min = 0 max = 100 }
+		add_to_variable = { iran_british_influence = constant:iran_story.concede_small_influence }
+		clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+		subtract_from_variable = { iran_sovereignty = constant:iran_story.concede_small_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_concede_northern_small = {
+	custom_effect_tooltip = iran_concede_northern_small_tt
+	hidden_effect = {
+		add_to_variable = { iran_northern_influence = constant:iran_story.concede_small_influence }
+		clamp_variable = { var = iran_northern_influence min = 0 max = 100 }
+		subtract_from_variable = { iran_sovereignty = constant:iran_story.concede_small_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_concede_german_small = {
+	custom_effect_tooltip = iran_concede_german_small_tt
+	hidden_effect = {
+		add_to_variable = { iran_german_influence = constant:iran_story.concede_small_influence }
+		clamp_variable = { var = iran_german_influence min = 0 max = 100 }
 		subtract_from_variable = { iran_sovereignty = constant:iran_story.concede_small_sovereignty }
 		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
 		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
@@ -26,21 +52,45 @@ iran_concede_leading_small = {
 				check_variable = { var = iran_british_influence value = iran_northern_influence compare = greater_than_or_equals }
 				check_variable = { var = iran_british_influence value = iran_german_influence compare = greater_than_or_equals }
 			}
-			iran_concede_small = { patron = british }
+			iran_concede_british_small = yes
 		}
 		else_if = {
 			limit = { check_variable = { var = iran_northern_influence value = iran_german_influence compare = greater_than_or_equals } }
-			iran_concede_small = { patron = northern }
+			iran_concede_northern_small = yes
 		}
-		else = { iran_concede_small = { patron = german } }
+		else = { iran_concede_german_small = yes }
 	}
 }
 
-iran_concede_large = {
-	custom_effect_tooltip = iran_concede_$patron$_large_tt
+iran_concede_british_large = {
+	custom_effect_tooltip = iran_concede_british_large_tt
 	hidden_effect = {
-		add_to_variable = { iran_$patron$_influence = constant:iran_story.concede_large_influence }
-		clamp_variable = { var = iran_$patron$_influence min = 0 max = 100 }
+		add_to_variable = { iran_british_influence = constant:iran_story.concede_large_influence }
+		clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+		subtract_from_variable = { iran_sovereignty = constant:iran_story.concede_large_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_concede_northern_large = {
+	custom_effect_tooltip = iran_concede_northern_large_tt
+	hidden_effect = {
+		add_to_variable = { iran_northern_influence = constant:iran_story.concede_large_influence }
+		clamp_variable = { var = iran_northern_influence min = 0 max = 100 }
+		subtract_from_variable = { iran_sovereignty = constant:iran_story.concede_large_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_concede_german_large = {
+	custom_effect_tooltip = iran_concede_german_large_tt
+	hidden_effect = {
+		add_to_variable = { iran_german_influence = constant:iran_story.concede_large_influence }
+		clamp_variable = { var = iran_german_influence min = 0 max = 100 }
 		subtract_from_variable = { iran_sovereignty = constant:iran_story.concede_large_sovereignty }
 		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
 		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_gain }
@@ -56,21 +106,45 @@ iran_concede_leading_large = {
 				check_variable = { var = iran_british_influence value = iran_northern_influence compare = greater_than_or_equals }
 				check_variable = { var = iran_british_influence value = iran_german_influence compare = greater_than_or_equals }
 			}
-			iran_concede_large = { patron = british }
+			iran_concede_british_large = yes
 		}
 		else_if = {
 			limit = { check_variable = { var = iran_northern_influence value = iran_german_influence compare = greater_than_or_equals } }
-			iran_concede_large = { patron = northern }
+			iran_concede_northern_large = yes
 		}
-		else = { iran_concede_large = { patron = german } }
+		else = { iran_concede_german_large = yes }
 	}
 }
 
-iran_reclaim_small = {
-	custom_effect_tooltip = iran_reclaim_$patron$_small_tt
+iran_reclaim_british_small = {
+	custom_effect_tooltip = iran_reclaim_british_small_tt
 	hidden_effect = {
-		subtract_from_variable = { iran_$patron$_influence = constant:iran_story.reclaim_small_influence }
-		clamp_variable = { var = iran_$patron$_influence min = 0 max = 100 }
+		subtract_from_variable = { iran_british_influence = constant:iran_story.reclaim_small_influence }
+		clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+		add_to_variable = { iran_sovereignty = constant:iran_story.reclaim_small_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_reclaim_northern_small = {
+	custom_effect_tooltip = iran_reclaim_northern_small_tt
+	hidden_effect = {
+		subtract_from_variable = { iran_northern_influence = constant:iran_story.reclaim_small_influence }
+		clamp_variable = { var = iran_northern_influence min = 0 max = 100 }
+		add_to_variable = { iran_sovereignty = constant:iran_story.reclaim_small_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_reclaim_german_small = {
+	custom_effect_tooltip = iran_reclaim_german_small_tt
+	hidden_effect = {
+		subtract_from_variable = { iran_german_influence = constant:iran_story.reclaim_small_influence }
+		clamp_variable = { var = iran_german_influence min = 0 max = 100 }
 		add_to_variable = { iran_sovereignty = constant:iran_story.reclaim_small_sovereignty }
 		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
 		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
@@ -86,21 +160,45 @@ iran_reclaim_leading_small = {
 				check_variable = { var = iran_british_influence value = iran_northern_influence compare = greater_than_or_equals }
 				check_variable = { var = iran_british_influence value = iran_german_influence compare = greater_than_or_equals }
 			}
-			iran_reclaim_small = { patron = british }
+			iran_reclaim_british_small = yes
 		}
 		else_if = {
 			limit = { check_variable = { var = iran_northern_influence value = iran_german_influence compare = greater_than_or_equals } }
-			iran_reclaim_small = { patron = northern }
+			iran_reclaim_northern_small = yes
 		}
-		else = { iran_reclaim_small = { patron = german } }
+		else = { iran_reclaim_german_small = yes }
 	}
 }
 
-iran_reclaim_large = {
-	custom_effect_tooltip = iran_reclaim_$patron$_large_tt
+iran_reclaim_british_large = {
+	custom_effect_tooltip = iran_reclaim_british_large_tt
 	hidden_effect = {
-		subtract_from_variable = { iran_$patron$_influence = constant:iran_story.reclaim_large_influence }
-		clamp_variable = { var = iran_$patron$_influence min = 0 max = 100 }
+		subtract_from_variable = { iran_british_influence = constant:iran_story.reclaim_large_influence }
+		clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+		add_to_variable = { iran_sovereignty = constant:iran_story.reclaim_large_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_reclaim_northern_large = {
+	custom_effect_tooltip = iran_reclaim_northern_large_tt
+	hidden_effect = {
+		subtract_from_variable = { iran_northern_influence = constant:iran_story.reclaim_large_influence }
+		clamp_variable = { var = iran_northern_influence min = 0 max = 100 }
+		add_to_variable = { iran_sovereignty = constant:iran_story.reclaim_large_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+
+iran_reclaim_german_large = {
+	custom_effect_tooltip = iran_reclaim_german_large_tt
+	hidden_effect = {
+		subtract_from_variable = { iran_german_influence = constant:iran_story.reclaim_large_influence }
+		clamp_variable = { var = iran_german_influence min = 0 max = 100 }
 		add_to_variable = { iran_sovereignty = constant:iran_story.reclaim_large_sovereignty }
 		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
 		add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
@@ -116,12 +214,12 @@ iran_reclaim_leading_large = {
 				check_variable = { var = iran_british_influence value = iran_northern_influence compare = greater_than_or_equals }
 				check_variable = { var = iran_british_influence value = iran_german_influence compare = greater_than_or_equals }
 			}
-			iran_reclaim_large = { patron = british }
+			iran_reclaim_british_large = yes
 		}
 		else_if = {
 			limit = { check_variable = { var = iran_northern_influence value = iran_german_influence compare = greater_than_or_equals } }
-			iran_reclaim_large = { patron = northern }
+			iran_reclaim_northern_large = yes
 		}
-		else = { iran_reclaim_large = { patron = german } }
+		else = { iran_reclaim_german_large = yes }
 	}
 }
