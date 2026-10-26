@@ -1,0 +1,37 @@
+# Overview: the 1946 evacuation settlement that closes the occupation chapter of iran_ww2.
+# One decision, filed in the existing iran_wartime_emergency category (common/decisions/categories/iran_campaign.txt).
+# iran_occupied is set by iran_campaign.40 and by the 1941 campaign setup; nothing cleared it, so
+# IR3_occupation_government and IR3_resistance_council stayed open for the rest of the game.
+# This decision is the other half of that pair: once the Allies have gone, the wartime emergencies
+# lapse, the country keeps its sovereignty and the government gets a settlement it can present.
+iran_wartime_emergency = {
+
+	iran_evacuation_settled = {
+		icon = generic_political_actions
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			has_country_flag = iran_occupied
+			NOT = { has_country_flag = iran_evacuation_settled }
+			date > 1945.12.31
+		}
+		available = {
+			political_power > 74
+			NOT = { has_war_with = ENG }
+			NOT = { has_war_with = SOV }
+		}
+		cost = 75
+		fire_only_once = yes
+		complete_effect = {
+			clr_country_flag = iran_occupied
+			set_country_flag = iran_evacuation_settled
+			remove_ideas = iran_transit_standing
+			add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			add_stability = constant:iran_story.stability_gain
+			add_political_power = constant:iran_story.political_capital
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 60 }
+	}
+}

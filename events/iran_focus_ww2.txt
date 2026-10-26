@@ -1,0 +1,104 @@
+# Overview: Iran's focus-driven wartime events, 1936-1946, for the iran_ww2 chapter.
+# Fired only from common/national_focus/iran_ww2.txt; nothing here is triggered by the map or by other events.
+# Namespace iran_f3 so the chapter's own events stay out of iran_campaign's numbering.
+# The three events carry the consequences the focus tree cannot express on its own:
+#   .1 the concession ledger, once two of the three industry concessions are signed
+#   .2 the rupture with the German mission when the 1941 ultimatum is answered
+#   .3 the answer to the Tudeh question, which the oil debate and the 1945 settlement read
+
+add_namespace = iran_f3
+
+# The chamber's account of what has been given away. Fires once; the count lives in
+# iran_concession_ledger, incremented by the three concession focuses.
+country_event = {
+	id = iran_f3.1
+	title = iran_f3.1.t
+	desc = iran_f3.1.d
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+
+	option = {
+		name = iran_f3.1.a
+		ai_chance = { factor = 50 modifier = { factor = 3 has_country_flag = iran_constitutional_programme } }
+		# publish: the concessions become a public account of what the country has signed away
+		add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
+		add_stability = constant:iran_story.stability_cost
+		add_political_power = constant:iran_story.political_capital
+		iran_refresh_mechanics = yes
+	}
+
+	option = {
+		name = iran_f3.1.b
+		ai_chance = { factor = 50 modifier = { factor = 3 has_country_flag = iran_rule_by_decree } }
+		# keep it: the treasury knows what the country owes, the chamber does not
+		add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+		add_stability = constant:iran_story.stability_gain
+		iran_refresh_mechanics = yes
+	}
+}
+
+# The 1941 break. This repeats the complete_effect of the iran_expel_the_german_mission
+# decision, because a focus cannot complete a decision; see the note in common/decisions/
+# iran_great_powers.txt, which should one day call a shared scripted effect instead.
+country_event = {
+	id = iran_f3.2
+	title = iran_f3.2.t
+	desc = iran_f3.2.d
+	picture = GFX_report_event_persia_occupation
+	is_triggered_only = yes
+
+	option = {
+		name = iran_f3.2.a
+		ai_chance = { factor = 90 }
+		clr_country_flag = iran_agreement_german_mission
+		remove_ideas = iran_german_technical_mission
+		subtract_from_variable = { iran_german_influence = constant:iran_story.influence_per_agreement }
+		add_to_variable = { iran_sovereignty = 6 }
+		add_to_variable = { iran_british_standing = constant:iran_story.great_game_court_gain }
+		add_to_variable = { iran_northern_standing = constant:iran_story.great_game_court_gain }
+		set_country_flag = iran_german_mission_withdrawn
+		iran_refresh_mechanics = yes
+	}
+}
+
+# The Tudeh question, answered. The outcome flags are read by IR3_oil_debate and
+# IR3_final_settlement, so the 1945 settlement differs by what was done here.
+country_event = {
+	id = iran_f3.3
+	title = iran_f3.3.t
+	desc = iran_f3.3.d
+	picture = GFX_report_event_persiancoup
+	is_triggered_only = yes
+
+	option = {
+		name = iran_f3.3.a
+		ai_chance = { factor = 35 modifier = { factor = 4 has_country_flag = iran_pahlavi } }
+		# proscribe: the party is banned, its clubs closed and its press seized
+		set_country_flag = iran_tudeh_proscribed
+		add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+		add_stability = constant:iran_story.stability_cost
+		add_war_support = constant:iran_story.war_support_gain
+		iran_refresh_mechanics = yes
+	}
+
+	option = {
+		name = iran_f3.3.b
+		ai_chance = { factor = 40 }
+		# tolerate: the party keeps its offices and its seats and is watched
+		set_country_flag = iran_tudeh_tolerated
+		add_stability = constant:iran_story.stability_gain
+		add_political_power = constant:iran_story.political_capital
+	}
+
+	option = {
+		name = iran_f3.3.c
+		trigger = { OR = { has_country_flag = iran_socialist has_country_flag = iran_republic } }
+		ai_chance = { factor = 25 modifier = { factor = 5 has_country_flag = iran_socialist } }
+		# coalition: its leaders take ministries and the party answers for the government
+		set_country_flag = iran_tudeh_coalition
+		add_to_variable = { iran_socialist_support = constant:iran_story.socialist_support_gain }
+		add_political_power = constant:iran_story.political_capital
+		add_stability = constant:iran_story.stability_cost
+		iran_refresh_mechanics = yes
+	}
+}
