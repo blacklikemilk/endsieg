@@ -195,16 +195,20 @@ def check_decisions(paths: list[str], problems: list[str]) -> dict[str, Any]:
 
 # ---------------------------------------------------------------- localisation
 
-def load_loc(mod: str) -> set[str]:
+def load_loc(mod: str, game: str | None = None) -> set[str]:
     keys: set[str] = set()
-    for dirpath, _d, files in os.walk(os.path.join(mod, "localisation")):
-        for n in files:
-            if not n.endswith(".yml"):
-                continue
-            for line in read(os.path.join(dirpath, n)).splitlines():
-                m = re.match(r'\s*([A-Za-z0-9_.\-]+):\d*\s+"', line)
-                if m:
-                    keys.add(m.group(1))
+    roots = [os.path.join(mod, "localisation")]
+    if game:
+        roots.append(os.path.join(game, "localisation"))
+    for root in roots:
+        for dirpath, _d, files in os.walk(root):
+            for n in files:
+                if not n.endswith(".yml"):
+                    continue
+                for line in read(os.path.join(dirpath, n)).splitlines():
+                    m = re.match(r'\s*([A-Za-z0-9_.\-]+):\d*\s+"', line)
+                    if m:
+                        keys.add(m.group(1))
     return keys
 
 
@@ -238,17 +242,40 @@ def check_decision_categories(mod: str, problems: list[str]) -> dict[str, Any]:
     return {"decision_categories": len(categories), "unattached_blocks": len(orphans)}
 
 
-def check_loc(mod: str, focus_ids: list[str], problems: list[str]) -> dict[str, Any]:
-    keys = load_loc(mod)
+def decision_ids(mod: str) -> list[str]:
+    """Every decision name inside an Iran decisions file."""
+    ids: list[str] = []
+    root = os.path.join(mod, "common", "decisions")
+    for dirpath, _d, files in os.walk(root):
+        if os.path.basename(dirpath) == "categories":
+            continue
+        for n in files:
+            if not n.endswith(".txt") or not ("iran" in n.lower() or n.lower().startswith("per")):
+                continue
+            text = strip_comments(read(os.path.join(dirpath, n)))
+            for m in re.finditer(r"\n\t([A-Za-z0-9_]+)\s*=\s*\{", text):
+                body = text[m.end() - 1 : brace_block(text, m.end() - 1) + 1]
+                if re.search(r"\b(cost|complete_effect|remove_effect|days_remove)\s*=", body):
+                    ids.append(m.group(1))
+    return ids
+
+
+def check_loc(mod: str, focus_ids: list[str], problems: list[str], game: str | None = None) -> dict[str, Any]:
+    keys = load_loc(mod, game)
     missing = []
     for fid in focus_ids:
         if fid not in keys:
             missing.append(fid)
         if fid + "_desc" not in keys:
             missing.append(fid + "_desc")
+    # a decision needs a title; a description is optional (vanilla's own GoE
+    # decisions ship without one), so only names are treated as defects
+    decision_missing = [did for did in decision_ids(mod) if did not in keys]
+    if decision_missing:
+        problems.append(f"{len(decision_missing)} decision name(s) with no localisation: {sorted(decision_missing)[:8]}")
     if missing:
         problems.append(f"{len(missing)} focus localisation key(s) missing, e.g. {sorted(missing)[:8]}")
-    return {"loc_keys": len(keys), "focus_loc_missing": len(missing)}
+    return {"loc_keys": len(keys), "focus_loc_missing": len(missing), "decision_loc_missing": len(decision_missing)}
 
 
 # --------------------------------------------------------------------- sprites
@@ -348,7 +375,7 @@ def main() -> int:
     facts.update(check_events(events, problems))
     facts.update(check_decisions(decisions, problems))
     facts.update(check_decision_categories(mod, problems))
-    facts.update(check_loc(mod, focus_ids, problems))
+    facts.update(check_loc(mod, focus_ids, problems, args.game))
     facts.update(check_sprites(mod, args.game, files, problems))
     check_style(files, mod, problems)
 

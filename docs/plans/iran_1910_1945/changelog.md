@@ -3,6 +3,34 @@
 Newest batch first. This file records what was measured, what was changed, and what was
 deliberately *not* changed because it turned out not to be a defect.
 
+## Batch 6 — oil becomes the interactive system the country is actually about
+
+The package had one oil project decision and nothing else, while the brief treats the concession as
+Iran's defining mechanic. There is now a category with five decisions spanning 1925–1945: press the
+company for royalties (repeatable), settle the concession (the 1933 compromise), cancel it outright,
+build a domestic refinery, and spend the revenue on Khuzestan's roads.
+
+None of them is free. Squeezing costs leverage and stability and only pays for a year (timed dividend
+spirit). Settling keeps the company and grows its stake. Cancelling gives authority, war support and
+stability but takes 25 leverage and a −30 opinion hit with Britain.
+
+The interaction that matters: **cancelling the concession closes the 1941 transit option**, because that
+option requires 50 foreign leverage. A nationalist Iran cannot then negotiate a quiet arrangement with
+London — the consequence falls out of the ledger rather than from a scripted rule.
+
+### Validation tooling, again catching itself
+
+- Decision localisation is now audited. The first run reported 32 missing keys; 16 of those were
+  vanilla GoE decisions that ship without a `_desc`, so the check now requires titles only.
+- The localisation loader was reading the mod and ignoring the game, which made every vanilla-provided
+  key look absent. Fixed: 197,213 keys across mod plus vanilla.
+- `iran_cancel_the_concession` and `iran_abadan_company_deal` first pointed at decision icons that do not
+  exist (`generic_oil`, `generic_nationalization`). Replaced with registered ones
+  (`generic_fundraising`, `generic_nationalism`).
+
+Audit clean at 307 focuses / 141 events / 80 decisions / 0 unresolved sprites; reference check clean at
+262 event and 30 idea references. Not played.
+
 ## Batch 5 — officer loyalty pays off, 1941 resistance gets a real gate, references get checked
 
 ### Balance and interactivity
