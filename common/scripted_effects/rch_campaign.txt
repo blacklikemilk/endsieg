@@ -116,7 +116,47 @@ rch_open_chapter_three = {
 	country_event = { id = rch_campaign.30 days = 1 }
 }
 
+rch_settle_1936 = {
+	set_country_flag = rch_1936_settled
+	if = {
+		limit = { has_country_flag = rch_republic_saved }
+		endsieg_china_reclaim_states = yes
+		add_stability = 0.05
+		add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+	}
+	else = {
+		CHI = { change_tag_from = ROOT }
+	}
+}
+
+rch_save_the_republic_started = {
+	set_country_flag = rch_save_mission_running
+	add_stability = -0.05
+	add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_loss }
+}
+
+rch_republic_saved_effect = {
+	clr_country_flag = rch_save_mission_running
+	set_country_flag = rch_republic_saved
+	add_stability = 0.10
+	add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+	add_ideas = rch_republic_endures
+	country_event = { id = rch_campaign.40 days = 1 }
+}
+
+rch_republic_failed_effect = {
+	clr_country_flag = rch_save_mission_running
+	set_country_flag = rch_republic_failed
+	add_stability = -0.10
+	add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_loss }
+	country_event = { id = rch_campaign.41 days = 1 }
+}
+
 rch_route_chapter = {
+	if = {
+		limit = { date > 1935.12.31 NOT = { has_country_flag = rch_1936_settled } }
+		rch_settle_1936 = yes
+	}
 	if = {
 		limit = { date < 1919.1.1 NOT = { has_focus_tree = rch_republic } }
 		load_focus_tree = { tree = rch_republic keep_completed = yes }

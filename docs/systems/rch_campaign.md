@@ -1,4 +1,4 @@
-# Republic of China, 1912-1936
+﻿# Republic of China, 1912-1936
 
 ## What the system is
 
@@ -69,3 +69,18 @@ Routes are settled by the Second Revolution, Yuan's death or the Northern Expedi
 A continuous campaign plays the Republic as `RCH`; the 1936 bookmark plays China as `CHI`.
 The focus tree is the same, but decisions and events that gate on `original_tag = CHI` (the Waking the Tiger political-struggle system) do not apply to `RCH`.
 Closing that gap needs either a tested tag transfer or an alias pass over the CHI decision and on_action files, and neither can be claimed without a live run.
+
+## The 1936 crisis and the split
+
+The scenario state history hands every Chinese state from QIN to RCH on 1 January 1914 and from RCH to CHI, YUN, GXC, XSM, SIK, SHX, MAN and PRC on 1 January 1936.
+That transfer is a dated block in `history/states`, not a decision, so it used to fire regardless of play and left the player as a stateless RCH.
+
+Two things now sit on top of it:
+
+1. **A timed mission, `rch_save_the_republic`.** It opens in 1934, costs 150 political power to attempt, runs for 365 days, and is removed early only if the Republic holds Beijing, has legitimacy 60 or more, stability above 45 per cent, more than 100 political power, no war with Japan, and at least one flagship programme (constitution, currency, German mission, British loan or Whampoa).
+   Succeeding grants the `rch_republic_endures` spirit and sets `rch_republic_saved`; timing out sets `rch_republic_failed` and costs stability and legitimacy.
+2. **A 1936 settlement, `rch_settle_1936`.** On the first tick after 1 January 1936 it either reclaims every Chinese state for the Republic (if the mission succeeded) or hands the player to CHI with `change_tag_from`, so the player continues as the central government with the warlords splitting around them instead of being left with no land.
+
+A surviving Qing is protected the same way: `endsieg_china_reclaim_states` runs in the Qing tick after 1914 and after 1936, so the dynasty keeps China instead of losing it to the Republic and then to the warlords.
+
+The reclaim effect is `common/scripted_effects/endsieg_china_ownership.txt`; it takes every Asian state owned by a Chinese tag plus 609 and 743, sets owner, controller and core to ROOT.

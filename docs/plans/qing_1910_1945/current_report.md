@@ -1,4 +1,4 @@
-﻿# Qing overhaul, current report
+﻿﻿# Qing overhaul, current report
 
 ## What is implemented
 
@@ -97,6 +97,12 @@ Details, anchors and the layout table are in `chapter_one_expansion.md`.
 Four historic constraints became spirits: unequal treaties, provincial autonomy, reformed finance and public schools, with the refresh effect adding or clearing them from focus flags.
 The society chain, the 1911 crisis, the Japanese war, the later economy and the provincial additions were re-anchored one to three rows under their parents.
 Links longer than three cells: 49 before, 37 after; longest link: 15 cells before, 9 after; no box overlaps; 308 focuses across the three chapters, audit clean.
+
+
+## Scenario ownership repair
+
+`history/states` hands every Chinese state from QIN to RCH on 1914.1.1 and from RCH to CHI and the warlords on 1936.1.1.
+`common/scripted_effects/endsieg_china_ownership.txt` now restores ownership: the Qing tick reclaims after 1914 and after 1936, and the Republic tick reclaims in 1936 if the timed `rch_save_the_republic` mission succeeded. If it did not, the player is handed to CHI so a continuous campaign continues as the central government rather than as a stateless tag.
 
 ## Pending
 
