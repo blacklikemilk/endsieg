@@ -162,6 +162,42 @@ Custom art is pending for:
 | Spanish spirit family | `GFX_idea_spain_*` | same | 46 spirits |
 | Decision category art | `GFX_decision_category_SPR_*` | same | 8 categories |
 
+## Era handover
+
+Each chapter opener ends by calling `spain_carry_over_choices` (in `common/scripted_effects/spain_campaign_effects.txt`).
+It converts the flags a finished era set into the persistent variables the next era reads, so a player's choices survive the tree that made them rather than dying with it.
+One guard flag per era (`spain_carried_restoration`, `spain_carried_rivera`, `spain_carried_republic`) means a reload cannot apply it twice.
+
+| From | Flag | Becomes |
+| --- | --- | --- |
+| Restoration | `spain_army_settled`, `spain_coup_prepared` | `spain_military_loyalty` down, `spain_coup_pressure` up, `spain_legacy_politicised_army` |
+| Restoration | `spain_electoral_reform` | `spain_legacy_parliamentary`, political power |
+| Restoration | `spain_labour_conciliation` / `spain_labour_repression` | `spain_nationalist_tension` down / up, matching legacy flag |
+| Restoration | `spain_mining_districts`, `spain_agrarian_credit` | `spain_industry`, `spain_agriculture` |
+| Restoration | `spain_mancomunitat`, `spain_basque_fueros` | `spain_catalan_autonomy`, `spain_basque_autonomy` |
+| Dictatorship | `spain_constitution_suspended`, `spain_consultative_assembly` | tension up and `spain_legacy_decree_rule`, or `spain_legacy_assembly` |
+| Dictatorship | `spain_alhucemas_landed`, `spain_aircraft_industry`, `spain_iberian_railway` | loyalty, `spain_industry`, `spain_infrastructure` |
+| Republic | `spain_agrarian_reform_started`, `spain_catalan_statute_started` | `spain_agriculture`, `spain_catalan_autonomy` |
+| Republic | `spain_army_plot`, `spain_calvo_sotelo_dead` | loyalty down and pressure up, tension up |
+| Republic | `spain_arms_for_militias` | `spain_legacy_armed_militias` |
+
+## Decision availability
+
+Decisions appear when their own question opens, not at scenario start.
+Each era-specific decision reads the flag or date that begins its era: the Protectorate's columns need `spain_rif_war_active`, the officer decisions need the Juntas or the army question, the faction decisions need the civil war, reconstruction needs `spain_civil_war_reconstruction` or the postwar chapter, and wartime diplomacy needs its own date.
+A decision whose gate reads a flag nothing sets is a decision that never appears, so `python .tmp/check_decisions.py` verifies every gate flag against the setters in the mod.
+
+## Chapter events
+
+`spain_chapter_events` runs on the weekly tick and fires the era conversations that are not tied to a focus: `spain_campaign.70` (the Pact of San Sebastian, August 1930) and `spain_campaign.71` (Hendaye, October 1940).
+Both are triggered-only and guarded by a seen flag, so they fire once per campaign.
+
+## Continuous focus placement
+
+Every focus tree in the mod carries `continuous_focus_position = { x = 1500 y = 6000 }`.
+A tree without the key falls back to a default that draws the continuous panel over its last rows, which is why the Iran chapter trees overlapped until they were given the key.
+Tree ids using the key must be listed in that form; `INT - WHR Paths.txt` holds shared focuses only and correctly has none.
+
 ## Validation status
 
 Statically checked: brace balance on every new file, no duplicate focus ids, every `focus =` reference resolves inside its tree, every `spain_*` effect and trigger call is defined, every idea, event, category and tooltip key referenced by script exists in localisation, and every icon reference resolves to a real sprite in this mod or the installed vanilla files.
@@ -174,3 +210,7 @@ Not checked: in-game behaviour. No launch was performed; the transition dates, A
 - Generated icon families listed above.
 - Achievements for the surviving Republic, a Carlist restoration and a Falangist victory.
 - Portrait and character production for Sanjurjo, Companys, Durruti, Gil Robles and Miguel Primo de Rivera, who currently exist only in event text.
+
+Re-audited with `.tmp/audit_spain2.py`, `.tmp/validate_layout.py`, `.tmp/analyse_focus.py`, `.tmp/flag_readers.py`, `.tmp/list_decisions.py` and `.tmp/check_decisions.py`:
+no duplicate focus ids, no overlapping slots, no icon one column from its neighbour, every icon resolves, every focus has `ai_will_do`, no focus whose only reward is experience, all four trees balanced, every decision gate flag has a setter, and every event and tooltip key localised.
+Not checked: in-game behaviour. The handover, the new event firing and the decision gates need one playtest per bookmark.
