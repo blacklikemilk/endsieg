@@ -175,21 +175,35 @@ def close_and_order(entries: list[tuple[str, str]], graph: dict[str, list[list[s
                     date_of[pick] = date_of.get(focus, '1911.1.1')
                     changed = True
 
-    placed, result = set(), []
+    placed, topo = set(), []
     pending = sorted(chosen, key=lambda f: (date_of[f], order.index(f) if f in order else 999))
     while pending:
         progressed = False
         for focus in list(pending):
             groups = graph.get(focus, [])
             if all(any(alt in placed for alt in group) for group in groups):
-                result.append((date_of[focus], focus))
+                topo.append(focus)
                 placed.add(focus)
                 pending.remove(focus)
                 progressed = True
         if not progressed:
-            result.extend((date_of[f], f) for f in pending)
+            topo.extend(pending)
             break
-    return result
+
+    # Dates must respect the dependency order. The effect runs top to bottom and every block
+    # gates on its own date, so a prerequisite dated later than its dependent is skipped and
+    # the dependent then completes nothing. Walk the topological order once and push each
+    # focus to at least the earliest date its prerequisites become available on.
+    for focus in topo:
+        floor = date_of[focus]
+        for group in graph.get(focus, []):
+            available = [date_of[alt] for alt in group if alt in date_of]
+            if available:
+                floor = max(floor, min(available))
+        date_of[focus] = floor
+
+    rank = {f: i for i, f in enumerate(topo)}
+    return sorted(((date_of[f], f) for f in topo), key=lambda row: (row[0], rank[row[1]]))
 
 
 def emit_block() -> str:
