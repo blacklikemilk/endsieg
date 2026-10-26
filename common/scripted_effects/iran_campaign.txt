@@ -132,6 +132,7 @@ iran_route_chapter = {
 	if = {
 		limit = { date < 1919.1.1 NOT = { has_focus_tree = iran_ww1 } }
 		load_focus_tree = { tree = iran_ww1 keep_completed = yes }
+		iran_apply_historical_start = yes
 	}
 	else_if = {
 		limit = { date > 1918.12.31 date < 1936.1.1 NOT = { has_focus_tree = iran_interwar } }
@@ -270,4 +271,29 @@ iran_settle_socialist = {
 	add_stability = constant:iran_story.stability_cost
 	iran_refresh_mechanics = yes
 	mark_focus_tree_layout_dirty = yes
+}
+
+# Starting later than 1910 means part of the chapter has already happened.
+#
+# Only focuses that history *fixed* are completed: the Second Majlis sat, the
+# treasury was empty, the command was divided, the empires were already pressing.
+# The mutually exclusive choices - parliamentary mandate against court patronage,
+# armed neutrality against a German opening - are deliberately left to the
+# player, because those are the decisions the chapter is about.
+iran_apply_historical_start = {
+	if = {
+		limit = { NOT = { has_country_flag = iran_historical_start_applied } }
+		set_country_flag = iran_historical_start_applied
+		if = {
+			limit = { has_focus_tree = iran_ww1 date > 1911.1.1 }
+			complete_national_focus = IR1_second_majlis
+			complete_national_focus = IR1_empty_treasury
+			complete_national_focus = IR1_divided_command
+			complete_national_focus = IR1_between_empires
+			if = {
+				limit = { date > 1911.7.1 }
+				complete_national_focus = IR1_shuster_mission
+			}
+		}
+	}
 }
