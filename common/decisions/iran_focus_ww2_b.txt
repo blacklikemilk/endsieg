@@ -1,0 +1,59 @@
+# Overview: the two decisions the 1936-1945 Iranian chapter owes its focus rewards.
+# Filed in the iran_political_question category (common/decisions/categories/iran_political_question.txt),
+# so both appear in the same window as the other routes out of the historical line.
+# 1. iran_political_question_socialist wants iran_socialist_support 25, and in this chapter every
+#    source of that support sat inside the branch the decision unlocks. The syndicates of the
+#    northern factories are the way in: two congresses of workers' delegates, paid for in political
+#    power, carry the movement to the threshold from 1936 on.
+# 2. iran_campaign.34 sets iran_wartime_cabinet or iran_wartime_majlis_cabinet and nothing read
+#    either flag. The cabinet of the war years is now a standing body the government can convene.
+iran_political_question = {
+
+	iran_f3b_labour_congress = {
+		icon = generic_political_actions
+		allowed = { original_tag = PER }
+		visible = {
+			has_focus_tree = iran_ww2
+			NOT = { has_country_flag = iran_socialist }
+		}
+		available = { has_political_power > 100 }
+		cost = 100
+		days_remove = 90
+		days_re_enable = 180
+		modifier = { stability_factor = -0.10 }
+		remove_effect = {
+			add_to_variable = { iran_socialist_support = constant:iran_focus_ww2.labour_support_gain }
+			add_stability = constant:iran_story.stability_cost
+		}
+		ai_will_do = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes } }
+	}
+
+	iran_f3b_wartime_cabinet = {
+		icon = generic_political_actions
+		allowed = { original_tag = PER }
+		visible = {
+			has_focus_tree = iran_ww2
+			OR = {
+				has_country_flag = iran_wartime_cabinet
+				has_country_flag = iran_wartime_majlis_cabinet
+			}
+		}
+		available = { has_political_power > 49 }
+		cost = 50
+		days_remove = 120
+		days_re_enable = 240
+		remove_effect = {
+			if = {
+				limit = { has_country_flag = iran_wartime_cabinet }
+				add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+				add_stability = constant:iran_story.stability_cost
+			}
+			else = {
+				add_stability = constant:iran_story.stability_gain
+				add_political_power = constant:iran_story.political_capital
+			}
+			hidden_effect = { iran_refresh_mechanics = yes }
+		}
+		ai_will_do = { factor = 30 }
+	}
+}
