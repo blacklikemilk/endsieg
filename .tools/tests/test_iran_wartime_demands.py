@@ -22,6 +22,14 @@ parsed `iran_influence_tick` body with the engine's own `if` / `else_if`
 precedence: a member of the chain runs only when no earlier member of the same
 chain ran.
 
+The tick now also calls `iran_recompute_leverage`, the single publisher of the
+derived dependence values. The interpreter resolves scripted effects defined in
+the same file instead of ignoring them: the publisher's shipped body executes
+against the case state, its write set is checked, and every case is re-run with
+the call removed to prove the call cannot reach demand dispatch. A name that is
+not defined in the file still raises, so an unknown effect can never pass as a
+harmless one.
+
 Checks:
 
     A. structure: the three demands form one `if` / `else_if` / `else_if` chain
@@ -35,9 +43,11 @@ Checks:
        negotiation cases, the shared transit agreement, absent and not-at-war
        patrons, a non-Iran country, and the independent branches that follow the
        chain;
-    E. preservation: the three event definitions, their options and their
-       `ai_chance` weights, and their existing localisation, are byte-identical
-       to the pre-edit revision;
+    E. preservation: everything in the three event definitions except the one
+       accepted paired leverage write on 74 and 75 — their options, their
+       `ai_chance` weights and their existing localisation — is byte-identical
+       to the pre-edit revision, and the removed write is checked to have
+       copied the influence gain beside it;
     F. the wiring: `on_monthly_PER` is the hook that calls the effect, and the
        standing-demand helper does not carry the wartime branches.
 
@@ -105,6 +115,46 @@ GERMAN_MISSION = 'iran_agreement_german_mission'
 INCOMPATIBLE_EVENT = 'iran_campaign.73'
 COMPETING_IDEA = 'iran_competing_concessions'
 CAPITULATION_IDEA = 'iran_sovereignty_capitulations'
+
+# The single publisher of the derived dependence values, called from the tick.
+PUBLISHER = 'iran_recompute_leverage'
+PUBLISHED = ('iran_leverage_landed', 'iran_foreign_leverage')
+VARIABLE_WRITE_KEYS = ('set_variable', 'add_to_variable', 'subtract_from_variable',
+                       'multiply_variable', 'clamp_variable')
+DISPATCH_STATE_KEYS = ('set_country_flag', 'clr_country_flag', 'country_event',
+                       'news_event', 'add_ideas', 'remove_ideas', 'add_country_modifier',
+                       'add_timed_unit_dynamic_modifier')
+# The publisher may touch patron influence (to clamp it) and the derived values.
+PUBLISHER_WRITE_VARS = frozenset(PUBLISHED + (
+    'iran_british_influence', 'iran_northern_influence', 'iran_german_influence',
+    'iran_leverage_baseline', 'iran_influence_baseline', 'iran_leverage_debt'))
+# One-time baseline receipt, set on the publisher's first run only.
+PUBLISHER_FLAGS = frozenset({'iran_leverage_baselined'})
+
+# Unique anchor: the republication call in the tick, with the comment above it.
+PUBLISHER_CALL = (
+    '\t# Republication point for the monthly drift: anything that moved influence'
+    ' without asking for a\n'
+    '\t# refresh is corrected here instead of drifting until a decision happens to'
+    ' call one.\n'
+    '\tiran_recompute_leverage = yes\n')
+PUBLISHER_CALL_REMOVED = (
+    '\t# Republication point for the monthly drift: anything that moved influence'
+    ' without asking for a\n'
+    '\t# refresh is corrected here instead of drifting until a decision happens to'
+    ' call one.\n')
+
+PAIRED_LEVERAGE = {
+    BRITISH: ('iran_british_influence', 12),
+    NORTHERN: ('iran_northern_influence', 12),
+}
+
+# The publisher writing a demand flag is the shape that would silently couple
+# the two systems.
+PUBLISHER_FLAG_WRITE = '\t\tset_variable = { iran_foreign_leverage = iran_leverage_landed }\n'
+PUBLISHER_FLAG_WRITE_MUTATED = (
+    '\t\tset_variable = { iran_foreign_leverage = iran_leverage_landed }\n'
+    '\t\tset_country_flag = iran_negotiation_open\n')
 
 
 class Unsupported(Exception):
@@ -261,10 +311,15 @@ class State:
         self.variables = dict(variables or {})
         self.ideas = set(ideas)
         self.patrons = dict(patrons or {})
+        # Every variable the executed script wrote, so a caller can prove which
+        # values a helper touched rather than inferring it from its name.
+        self.writes = set()
 
     def clone(self):
-        return State(self.tag, self.flags, self.date, self.variables, self.ideas,
-                     self.patrons)
+        cloned = State(self.tag, self.flags, self.date, self.variables, self.ideas,
+                       self.patrons)
+        cloned.writes = set(self.writes)
+        return cloned
 
 
 def patron(state, tag):
@@ -283,6 +338,8 @@ class Model:
         if body is None:
             raise Unsupported('%s is missing' % TICK)
         self.tick = parse(body)
+        # Scripted effects defined in the same file are executed, not ignored.
+        self.effects = effect_definitions(effects_text)
         self.triggers = {}
         trigger_source = triggers_text if triggers_text is not None else read(TRIGGERS_PATH)
         self.triggers['iran_campaign_country'] = parse(
@@ -355,16 +412,36 @@ class Model:
             for idea in idea_names(value):
                 state.ideas.discard(idea)
             return
+        if key in self.effects:
+            if value != 'yes':
+                raise Unsupported('%s invoked with %r' % (key, value))
+            self.execute(self.effects[key], state, dispatched)
+            return
         if key in ('add_to_variable', 'subtract_from_variable'):
-            if not isinstance(value, list) or len(value) != 1:
-                raise Unsupported('%s with %r' % (key, value))
-            name, operand = value[0]
-            amount = self.number(operand)
+            name, operand = variable_pair(key, value)
+            amount = self.value_of(operand, state)
             current = state.variables.get(name, 0)
             state.variables[name] = current + (amount if key == 'add_to_variable' else -amount)
+            state.writes.add(name)
+            return
+        if key == 'set_variable':
+            name, operand = variable_pair(key, value)
+            state.variables[name] = self.value_of(operand, state)
+            state.writes.add(name)
+            return
+        if key == 'multiply_variable':
+            name = first_value(value, 'var')
+            multiplier = first_value(value, 'value')
+            if name is None or multiplier is None:
+                raise Unsupported('multiply_variable with %r' % (value,))
+            state.variables[name] = (state.variables.get(name, 0)
+                                     * self.value_of(multiplier, state))
+            state.writes.add(name)
             return
         if key == 'clamp_variable':
             name = first_value(value, 'var')
+            if name is None:
+                raise Unsupported('clamp_variable with %r' % (value,))
             low = self.number(first_value(value, 'min')) if first_value(value, 'min') else None
             high = self.number(first_value(value, 'max')) if first_value(value, 'max') else None
             current = state.variables.get(name, 0)
@@ -373,6 +450,7 @@ class Model:
             if high is not None:
                 current = min(high, current)
             state.variables[name] = current
+            state.writes.add(name)
             return
         if key == 'hidden_effect':
             self.execute(value, state, dispatched)
@@ -393,6 +471,15 @@ class Model:
             return float(token)
         except ValueError:
             raise Unsupported('non-numeric operand %r' % token)
+
+    def value_of(self, token, state):
+        """A numeric operand, a constant, or the value of another variable."""
+        try:
+            return self.number(token)
+        except Unsupported:
+            if isinstance(token, str) and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', token):
+                return state.variables.get(token, 0)
+            raise
 
     # -- triggers ------------------------------------------------------------------------
 
@@ -473,6 +560,52 @@ def idea_names(value):
     if isinstance(value, list):
         return [name for name, nested in value if nested is None]
     return [value]
+
+
+def variable_pair(key, value):
+    """(target, operand) for the `{ var = x value = y }` and `{ x = y }` forms."""
+    if not isinstance(value, list) or not value:
+        raise Unsupported('%s with %r' % (key, value))
+    if value[0][0] == 'var':
+        name = first_value(value, 'var')
+        operand = first_value(value, 'value')
+        if name is None or operand is None:
+            raise Unsupported('%s with %r' % (key, value))
+        return name, operand
+    if len(value) != 1:
+        raise Unsupported('%s with %r' % (key, value))
+    name, operand = value[0]
+    if not isinstance(operand, str):
+        raise Unsupported('%s with %r' % (key, value))
+    return name, operand
+
+
+def write_target(key, value):
+    """The variable a write key addresses."""
+    if key in ('clamp_variable', 'multiply_variable'):
+        target = first_value(value, 'var')
+    elif isinstance(value, list) and value and value[0][0] == 'var':
+        target = first_value(value, 'var')
+    elif isinstance(value, list) and value:
+        target = value[0][0]
+    else:
+        raise Unsupported('%s with %r' % (key, value))
+    if target is None:
+        raise Unsupported('%s with %r' % (key, value))
+    return target
+
+
+def effect_definitions(text):
+    """{name: parsed body} for every top-level `name = { ... }` in an effects file."""
+    out = {}
+    for match in re.finditer(r'(?m)^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{', text):
+        name = match.group(1)
+        if name in out:
+            continue
+        body = named_block(text, name)
+        if body is not None:
+            out[name] = parse(body)
+    return out
 
 
 def parse_constants(text):
@@ -768,6 +901,125 @@ def independent_branch_failures(model):
 
 
 # ---------------------------------------------------------------------------------------------
+# The influence publisher the tick calls
+# ---------------------------------------------------------------------------------------------
+
+def definition_writes(name, definitions, seen=None):
+    """(variables, forbidden) written by `name` and every effect it calls."""
+    seen = set() if seen is None else seen
+    if name in seen:
+        return set(), []
+    seen.add(name)
+    tree = definitions.get(name)
+    if tree is None:
+        return set(), ['%s is not defined in the effect file' % name]
+    variables = set()
+    forbidden = []
+    called = set()
+    for key, value in tree_entries(tree):
+        if key in VARIABLE_WRITE_KEYS:
+            variables.add(write_target(key, value))
+        elif key in DISPATCH_STATE_KEYS:
+            if key == 'set_country_flag' and value in PUBLISHER_FLAGS:
+                continue
+            forbidden.append('%s = %s' % (key, value if not isinstance(value, list) else '{...}'))
+        elif key in definitions:
+            called.add(key)
+    for child in sorted(called):
+        child_vars, child_forbidden = definition_writes(child, definitions, seen)
+        variables |= child_vars
+        forbidden.extend(child_forbidden)
+    return variables, forbidden
+
+
+def publisher_write_failures(effects_text):
+    """The publisher's declared writes, read from source rather than assumed."""
+    failures = []
+    definitions = effect_definitions(effects_text)
+    variables, forbidden = definition_writes(PUBLISHER, definitions)
+    unknown = sorted(variables - PUBLISHER_WRITE_VARS)
+    if unknown:
+        failures.append('the publisher writes variables it does not own: %r' % unknown)
+    missing = sorted(set(PUBLISHED) - variables)
+    if missing:
+        failures.append('the publisher does not write %r' % missing)
+    if forbidden:
+        failures.append('the publisher changes dispatch state: %r' % sorted(set(forbidden)))
+    return failures
+
+
+def publisher_execution_failures(model):
+    """Execute the shipped publisher body and compare what it touched."""
+    failures = []
+    if PUBLISHER not in model.effects:
+        return ['%s is not defined in the effect file' % PUBLISHER]
+    state = case_state((1941, 1, 2),
+                       variables={'iran_british_influence': 70,
+                                  'iran_northern_influence': 30,
+                                  'iran_german_influence': 10,
+                                  'iran_foreign_leverage': 60})
+    flags_before = set(state.flags)
+    ideas_before = set(state.ideas)
+    dispatched = []
+    model.execute(model.effects[PUBLISHER], state, dispatched)
+    extra = sorted(state.writes - PUBLISHER_WRITE_VARS)
+    if extra:
+        failures.append('the executed publisher writes %r' % extra)
+    if dispatched:
+        failures.append('the executed publisher dispatches %r' % dispatched)
+    added = state.flags - flags_before
+    removed = flags_before - state.flags
+    if added - PUBLISHER_FLAGS:
+        failures.append('the executed publisher sets %r' % sorted(added - PUBLISHER_FLAGS))
+    if removed:
+        failures.append('the executed publisher clears %r' % sorted(removed))
+    if state.ideas != ideas_before:
+        failures.append('the executed publisher changes ideas by %r'
+                        % sorted(state.ideas ^ ideas_before))
+    for name in PUBLISHED:
+        if name not in state.writes:
+            failures.append('the executed publisher never writes %s' % name)
+    return failures
+
+
+def republication_failures(model, without_publisher):
+    """The tick must publish both values and must not change dispatch by doing so."""
+    failures = []
+    with_call = run_cases(model)
+    without = dict((label, (dispatched, [flag for flag in added if flag not in PUBLISHER_FLAGS]))
+                   for label, expected, dispatched, added, state in run_cases(without_publisher))
+    for label, expected, dispatched, added, state in with_call:
+        consumed = [flag for flag in added if flag not in PUBLISHER_FLAGS]
+        if without.get(label) != (dispatched, consumed):
+            failures.append('%r dispatches %r and consumes %r with the publisher, %r without it'
+                            % (label, dispatched, consumed, without.get(label)))
+        missing = [name for name in PUBLISHED if name not in state.variables]
+        if missing:
+            failures.append('%r leaves %r unpublished' % (label, missing))
+    return failures
+
+
+def strip_publisher(text):
+    """Remove the tick's republication call when it is still there."""
+    if PUBLISHER_CALL not in text:
+        return text
+    return mutate(text, PUBLISHER_CALL, PUBLISHER_CALL_REMOVED)
+
+
+def unknown_effect_failures(effects_text):
+    """A name that is not defined in the file must still fail loudly."""
+    failures = []
+    renamed = mutate(effects_text, PUBLISHER_CALL,
+                     PUBLISHER_CALL.replace(PUBLISHER + ' = yes', PUBLISHER + '_undeclared = yes'))
+    try:
+        Model(renamed).run_tick(case_state((1941, 1, 2)))
+    except Unsupported:
+        return failures
+    failures.append('the interpreter accepted an effect that the file does not define')
+    return failures
+
+
+# ---------------------------------------------------------------------------------------------
 # Wiring, structure and preservation checks
 # ---------------------------------------------------------------------------------------------
 
@@ -839,22 +1091,37 @@ def option_weight(text, event_id):
     return tuple(out)
 
 
-def preservation_failures():
+def preservation_failures(working_events=None, baseline_events=None):
+    """Everything outside the accepted paired-write removal must stay byte-identical."""
     failures = []
-    working_events = read(EVENTS_PATH)
-    baseline_events = baseline(EVENTS_PATH)
+    accepted = []
+    working_events = read(EVENTS_PATH) if working_events is None else working_events
+    baseline_events = baseline(EVENTS_PATH) if baseline_events is None else baseline_events
     for event_id in CHAIN:
         before = event_block(baseline_events, event_id)
         after = event_block(working_events, event_id)
         if after is None:
             failures.append('%s is missing from the event file' % event_id)
-        elif before != after:
-            failures.append('%s changed outside the routing repair' % event_id)
+        elif before is None:
+            failures.append('%s is not present in the pre-edit revision' % event_id)
+        elif before == after:
+            continue
+        else:
+            normalised, problem = without_paired_leverage(before, event_id)
+            if problem:
+                failures.append(problem)
+            elif normalised != after:
+                failures.append('%s changed outside the paired leverage removal' % event_id)
+            else:
+                accepted.append(event_id)
         weights_before = option_weight(baseline_events, event_id)
         weights_after = option_weight(working_events, event_id)
         if weights_before != weights_after:
             failures.append('%s option weights changed: %r -> %r'
                             % (event_id, weights_before, weights_after))
+    if sorted(accepted) != sorted(PAIRED_LEVERAGE):
+        failures.append('the paired leverage write was not removed from %r'
+                        % sorted(set(PAIRED_LEVERAGE) - set(accepted)))
 
     working_loc = read(LOC_PATH)
     baseline_loc = baseline(LOC_PATH)
@@ -866,6 +1133,32 @@ def preservation_failures():
             failures.append('%s localisation changed: %r'
                             % (event_id, sorted(set(keys_before) ^ set(keys_after))))
     return failures
+
+
+def without_paired_leverage(block, event_id):
+    """Apply the one accepted edit: a leverage write that copied the influence gain."""
+    if event_id not in PAIRED_LEVERAGE:
+        return block, None
+    influence, amount = PAIRED_LEVERAGE[event_id]
+    influence_line = '\t\tadd_to_variable = { %s = %d }\n' % (influence, amount)
+    paired = '\t\tadd_to_variable = { iran_foreign_leverage = %d }\n' % amount
+    if paired not in block:
+        return block, None
+    if influence_line + paired not in block:
+        return block, ('the removed leverage write on %s was not the paired copy of the %s gain'
+                       % (event_id, influence))
+    return block.replace(influence_line + paired, influence_line, 1), None
+
+
+def mutate_event(text, event_id, old, new):
+    """Replace one pattern inside one event block, leaving the rest of the file alone."""
+    block = event_block(text, event_id)
+    if block is None:
+        raise Unsupported('%s is not in the event file' % event_id)
+    if old not in block:
+        raise Unsupported('pattern not present in %s: %r' % (event_id, old[:60]))
+    start = text.index(block)
+    return text[:start] + block.replace(old, new, 1) + text[start + len(block):]
 
 
 def localisation_values(text, prefix):
@@ -941,6 +1234,31 @@ MUTANTS = (
      [BRITISH, NORTHERN, ALLIED]),
 )
 
+# Integration mutants: the influence publisher is now part of the tick, so a
+# change there must be caught by the publisher checks and by nothing else.
+INTEGRATION_MUTANTS = (
+    ('publisher absent from the monthly tick',
+     lambda text: mutate(text, PUBLISHER_CALL, PUBLISHER_CALL_REMOVED),
+     'republication', 'write set intact'),
+    ('publisher writes a demand flag',
+     lambda text: mutate(text, PUBLISHER_FLAG_WRITE, PUBLISHER_FLAG_WRITE_MUTATED),
+     'write set', 'dispatch changes'),
+)
+
+# Event-side mutants: the preservation check must still notice a restored
+# paired write and any unrelated change to the demand reward.
+PRESERVATION_MUTANTS = (
+    ('paired leverage write restored in 74',
+     lambda text: mutate_event(text, BRITISH,
+                               '\t\tadd_to_variable = { iran_british_influence = 12 }\n',
+                               '\t\tadd_to_variable = { iran_british_influence = 12 }\n'
+                               '\t\tadd_to_variable = { iran_foreign_leverage = 12 }\n')),
+    ('unrelated reward changed in 74',
+     lambda text: mutate_event(text, BRITISH,
+                               'add_political_power = 40',
+                               'add_political_power = 45')),
+)
+
 
 # ---------------------------------------------------------------------------------------------
 # Report
@@ -1005,10 +1323,25 @@ def main(argv):
     report.check('the incompatible-obligations and sovereignty branches still run after a '
                  'demand dispatch', not independent, '; '.join(independent))
 
+    report.start('influence publisher')
+    publisher = publisher_write_failures(effects_text)
+    report.check('the publisher writes only the values it owns and never demand state',
+                 not publisher, '; '.join(publisher))
+    executed = publisher_execution_failures(model)
+    report.check('executing the shipped publisher leaves flags, ideas and dispatch alone',
+                 not executed, '; '.join(executed))
+    stripped_text = mutate(effects_text, PUBLISHER_CALL, PUBLISHER_CALL_REMOVED)
+    republication = republication_failures(model, Model(stripped_text))
+    report.check('every monthly run republishes the derived leverage without changing dispatch',
+                 not republication, '; '.join(republication))
+    unknown = unknown_effect_failures(effects_text)
+    report.check('an effect the file does not define still fails the interpreter',
+                 not unknown, '; '.join(unknown))
+
     report.start('preservation')
     preserved = preservation_failures()
-    report.check('the three events, their option weights and their localisation are '
-                 'unchanged', not preserved, '; '.join(preserved))
+    report.check('the three events keep everything except the accepted paired leverage '
+                 'removal', not preserved, '; '.join(preserved))
 
     report.start('pre-edit source is rejected')
     snapshot = baseline(EFFECTS_PATH)
@@ -1051,6 +1384,41 @@ def main(argv):
         report.check('mutant %s does not break every case' % name,
                      len(mutant_failures) < len(CASES),
                      'the mutant failed all %d cases' % len(CASES))
+
+    report.start('publisher mutants')
+    for name, mutator, target, also in INTEGRATION_MUTANTS:
+        try:
+            mutated = mutator(effects_text)
+        except Unsupported as error:
+            report.check('mutant %s applied' % name, False, str(error))
+            continue
+        mutant_model = Model(mutated)
+        write_problems = publisher_write_failures(mutated) + publisher_execution_failures(mutant_model)
+        republication_problems = republication_failures(mutant_model, Model(strip_publisher(mutated)))
+        family = {'write set': write_problems, 'republication': republication_problems}[target]
+        report.check('mutant %s fails for its own reason' % name, bool(family),
+                     'no failure reported by the %s check' % target)
+        if also == 'write set intact':
+            report.check('mutant %s leaves the write-set check intact' % name,
+                         not write_problems, '; '.join(write_problems))
+        else:
+            coupled = [problem for problem in republication_problems
+                       if 'dispatches' in problem]
+            report.check('mutant %s changes demand dispatch, and the tick check says so' % name,
+                         bool(coupled), '; '.join(republication_problems))
+
+    report.start('event preservation mutants')
+    baseline_events = baseline(EVENTS_PATH)
+    working_events = read(EVENTS_PATH)
+    for name, mutator in PRESERVATION_MUTANTS:
+        try:
+            mutated = mutator(working_events)
+        except Unsupported as error:
+            report.check('mutant %s applied' % name, False, str(error))
+            continue
+        problems = preservation_failures(mutated, baseline_events)
+        report.check('mutant %s is rejected by the preservation check' % name,
+                     bool(problems), 'the preservation check accepted it')
 
     return 0 if report.summary() else 1
 

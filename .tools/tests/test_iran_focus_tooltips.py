@@ -117,6 +117,43 @@ REPAIRED_BLOCKS = {
 
 IGNORED_FOCUS_FIELDS = REQUIREMENT_KEYS
 
+# The one focus edit this card may make: the American mission's leverage gain is
+# real debt rather than a derived value, and the spirit and its derivation are
+# republished after it. Everything else about the focus, and every other focus,
+# stays byte-equal.
+ACCEPTED_FOCUS_EDITS = {
+    'IR3_american_mission': 'the debt substitution and the spirit refresh',
+}
+
+AMERICAN_LEVERAGE_WRITE = ('add_to_variable',
+                           [('iran_foreign_leverage',
+                             'constant:iran_story.leverage_gain')])
+AMERICAN_REPLACEMENT = [
+    ('add_to_variable', [('iran_leverage_debt', 'constant:iran_story.leverage_gain')]),
+    ('hidden_effect', [('iran_refresh_mechanics', 'yes')]),
+]
+
+
+def accepted_focus_edit(ident, fields):
+    """Apply the declared edit for `ident` to a baseline field list."""
+    if ident not in ACCEPTED_FOCUS_EDITS:
+        return fields, False
+    applied = False
+    out = []
+    for key, value in fields:
+        if key != 'completion_reward' or not isinstance(value, list):
+            out.append((key, value))
+            continue
+        replaced = []
+        for entry in value:
+            if entry == AMERICAN_LEVERAGE_WRITE:
+                replaced.extend(AMERICAN_REPLACEMENT)
+                applied = True
+            else:
+                replaced.append(entry)
+        out.append((key, replaced))
+    return out, applied
+
 
 class Unsupported(Exception):
     """A script shape this check does not model. Failing loudly beats guessing."""
@@ -643,6 +680,7 @@ def check_preservation(report, data):
                      'added %s removed %s' % (sorted(set(current_ids) - set(baseline_ids)),
                                               sorted(set(baseline_ids) - set(current_ids))))
         mismatched = []
+        accepted = []
         for block in chapter['current']:
             ident = focus_id(block)
             baseline = baseline_by_id.get(ident)
@@ -653,10 +691,23 @@ def check_preservation(report, data):
                           if key not in IGNORED_FOCUS_FIELDS]
             new_fields = [(key, value) for key, value in block
                           if key not in IGNORED_FOCUS_FIELDS]
-            if canonical(old_fields) != canonical(new_fields):
+            if canonical(old_fields) == canonical(new_fields):
+                continue
+            normalised, applied = accepted_focus_edit(ident, old_fields)
+            if applied and canonical(normalised) == canonical(new_fields):
+                accepted.append(ident)
+            else:
                 mismatched.append(ident)
         report.check('%s every non-requirement focus field unchanged' % relative,
                      not mismatched, '; '.join(mismatched))
+        present = [focus_id(block) for block in chapter['current']]
+        for ident in ACCEPTED_FOCUS_EDITS:
+            if ident not in present:
+                continue
+            described = ACCEPTED_FOCUS_EDITS[ident]
+            report.check('%s %s carries %s' % (relative, ident, described),
+                         ident in accepted,
+                         'the accepted edit is not present exactly as declared')
 
     for ident, name in sorted(REPAIRED_BLOCKS.items()):
         found = False
@@ -750,6 +801,65 @@ def mutant_controls(report, data):
                              rebuilt({'IR2_parliamentary_republic':
                                       baseline_available['IR2_parliamentary_republic']})),
                  'raw-trigger check accepted the baseline requirement')
+
+    # Preservation controls: the accepted edit is exactly one substitution plus one
+    # call, and any wider change to a focus reward must still be rejected.
+    def preservation_failures_for(transform):
+        mutated = copy.deepcopy(data)
+        for chapter in mutated.values():
+            chapter['current'] = [transform(block) for block in chapter['current']]
+        local = Report(False)
+        check_preservation(local, mutated)
+        return local.failures
+
+    def drop_refresh(block):
+        if focus_id(block) != 'IR3_american_mission':
+            return block
+        return [(key, [entry for entry in value
+                       if entry != ('hidden_effect', [('iran_refresh_mechanics', 'yes')])])
+                if key == 'completion_reward' and isinstance(value, list) else (key, value)
+                for key, value in block]
+
+    def widen_reward(block):
+        if focus_id(block) != 'IR3_american_mission':
+            return block
+        return [(key, [('add_research_slot', '2') if entry[0] == 'add_research_slot' else entry
+                       for entry in value])
+                if key == 'completion_reward' and isinstance(value, list) else (key, value)
+                for key, value in block]
+
+    unrelated = None
+    for chapter in data.values():
+        for block in chapter['current']:
+            ident = focus_id(block)
+            if ident != 'IR3_american_mission' and isinstance(field(block, 'completion_reward'),
+                                                              list):
+                unrelated = ident
+                break
+        if unrelated:
+            break
+
+    def unrelated_reward(block):
+        if unrelated is None or focus_id(block) != unrelated:
+            return block
+        return [(key, value + [('add_political_power', '25')])
+                if key == 'completion_reward' and isinstance(value, list) else (key, value)
+                for key, value in block]
+
+    report.check('mutant control: the spirit refresh removed from the American mission is '
+                 'rejected',
+                 any('IR3_american_mission' in item
+                     for item in preservation_failures_for(drop_refresh)),
+                 'preservation check accepted the mission without its spirit refresh')
+    report.check('mutant control: a wider American-mission reward is rejected',
+                 any('IR3_american_mission' in item
+                     for item in preservation_failures_for(widen_reward)),
+                 'preservation check accepted a changed mission reward')
+    report.check('mutant control: an unrelated focus reward change is rejected',
+                 unrelated is not None and any(unrelated in item
+                                               for item in preservation_failures_for(
+                                                   unrelated_reward)),
+                 'preservation check accepted a changed reward on %s' % unrelated)
 
 
 def main(argv):

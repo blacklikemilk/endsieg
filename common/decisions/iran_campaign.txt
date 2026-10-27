@@ -117,7 +117,7 @@ iran_national_projects = {
 		cost = @project days_remove = @long_project fire_only_once = yes
 		modifier = { civilian_factory_use = 1 }
 		cancel_trigger = { OR = { NOT = { owns_state = 413 } NOT = { controls_state = 413 } } }
-		remove_effect = { 413 = { add_resource = { type = oil amount = 10 } } set_country_flag = iran_oil_expanded add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss } iran_refresh_mechanics_hidden = yes }
+		remove_effect = { 413 = { add_resource = { type = oil amount = 10 } } set_country_flag = iran_oil_expanded add_to_variable = { iran_leverage_debt = constant:iran_story.leverage_loss } iran_refresh_mechanics_hidden = yes }
 		cancel_effect = { custom_effect_tooltip = iran_project_cancelled_tt }
 		ai_will_do = { factor = @normal }
 	}
@@ -212,10 +212,10 @@ iran_sovereignty = {
 	}
 	iran_repay_foreign_credit = {
 		icon = generic_industry
-		visible = { check_variable = { iran_foreign_leverage > 0 } }
-		available = { has_equipment = { infantry_equipment > 499 } }
+		visible = { check_variable = { var = iran_leverage_debt value = 0 compare = greater_than } }
+		available = { has_equipment = { infantry_equipment > 499 } check_variable = { var = iran_leverage_debt value = constant:iran_story.leverage_repayment compare = greater_than_or_equals } }
 		cost = @political days_re_enable = @cooldown
-		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_repayment } add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss } iran_refresh_mechanics_hidden = yes }
+		complete_effect = { add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_repayment } subtract_from_variable = { iran_leverage_debt = constant:iran_story.leverage_repayment } iran_refresh_mechanics_hidden = yes }
 		ai_will_do = { factor = @normal modifier = { factor = 0 has_war = yes } modifier = { factor = 5 check_variable = { iran_foreign_leverage > 49 } } }
 	}
 	iran_shatt_negotiations = {
@@ -315,7 +315,7 @@ iran_political_course = {
 		cost = @political days_remove = @long_project fire_only_once = yes
 		remove_effect = {
 			set_country_flag = iran_court_reformed
-			add_to_variable = { iran_foreign_leverage = constant:iran_story.leverage_loss }
+			add_to_variable = { iran_leverage_debt = constant:iran_story.leverage_loss }
 			add_political_power = constant:iran_story.political_capital
 			iran_refresh_mechanics_hidden = yes
 		}

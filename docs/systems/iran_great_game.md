@@ -14,7 +14,9 @@ It tracks three different things — how much each patron *controls*, how much g
 | `iran_british_standing` | 0–100 | 55 | British goodwill; buys nothing on its own |
 | `iran_northern_standing` | 0–100 | 30 | Goodwill of Petersburg, then Moscow |
 | `iran_sovereignty` | 0–100 | 35 (1910), 50 (interwar) | Freedom of action |
-| `iran_foreign_leverage` | 0–100 | 60 | Aggregate dependence, read by the rest of the tree |
+| `iran_foreign_leverage` | 0–100 | 60 | Aggregate dependence: the influence-held part plus repayable debt |
+| `iran_leverage_landed` | 0–100 | 60 | The part of that dependence that patron influence holds |
+| `iran_leverage_debt` | 0–100 | 0 | Credit taken from a patron, settled with equipment by decision |
 
 Influence and standing are deliberately separate.
 A patron can hold high goodwill and no control, or control and open contempt — the second is the normal case after a renegotiation.
@@ -40,10 +42,10 @@ Decisions in category `iran_foreign_agreements`, each with an obligation spirit 
 
 | Agreement | Cost | Buys | Costs |
 | --- | --- | --- | --- |
-| British loan | 100 PP | +15 British influence, 5-year financial mission (build speed, cheaper consumer goods) | +10 leverage, −6 sovereignty, stability |
-| Northern railway | 100 PP | +15 northern influence, a railway in Golestan, 5-year concession | +10 leverage, −6 sovereignty, stability |
+| British loan | 100 PP | +15 British influence, 5-year financial mission (build speed, cheaper consumer goods) | +7.5 dependence through the influence, −6 sovereignty, stability |
+| Northern railway | 100 PP | +15 northern influence, a railway in Golestan, 5-year concession | +7.5 dependence through the influence, −6 sovereignty, stability |
 | Foreign military mission | 75 PP | army experience, 4-year training mission | +10 influence to the stronger patron, −6 sovereignty |
-| Foreign customs officers | 100 PP | revenue, cheaper consumer goods, stability | +15 leverage, −10 sovereignty |
+| Foreign customs officers | 100 PP | revenue, cheaper consumer goods, stability | +15 repayable debt, −10 sovereignty |
 
 The way back is slower and needs a state worth bargaining with:
 
@@ -100,12 +102,13 @@ Expelling the mission in 1941 costs the machinery and the research slot, and buy
 - Balance of Power (`PER_crown_and_majlis`): gates who may sign, and who pays for signing by decree.
 - `iran_refresh_mechanics`: applies the influence-driven spirits; always call it through `iran_refresh_mechanics_hidden` from decisions, or the whole spirit list prints into the tooltip.
 - Focus trees: the 1911 ultimatum, the Swedish gendarmerie and Majlis budget authority all move the new axes, so the chapters and the panel describe the same country.
-- `iran_foreign_leverage` remains the aggregate the focus trees read, so no existing content had to be rewritten for the redesign.
+- `iran_foreign_leverage` remains the published aggregate the focus trees and AI read, so no reader had to change when dependence stopped being stored by hand.
 
 ## Tuning
 
 All numbers live in `common/script_constants/iran_campaign.txt`: `sovereignty_*`, `influence_*`, `great_game_*`.
 Thresholds that decide how easily a debuff comes off are `authority_reform` (65) and `leverage_dependency` (40).
+The State Authority panel and the Foreign Dependence spirit quote the dependence threshold in words, so retuning `leverage_dependency` means editing both `iran_state_authority_desc` and `iran_foreign_dependence_desc` in `localisation/english/iran_campaign_l_english.yml` in the same change.
 
 ## Known limits
 
@@ -133,8 +136,26 @@ A purpose-made category plate would still be better than `GFX_decision_category_
 Focuses, decisions and events that deal with a patron call one of four effects in `common/scripted_effects/iran_great_game_acts.txt`.
 `iran_concede_<patron>_<small|large>` and `iran_reclaim_<patron>_<small|large>`, with patron `british`, `northern` or `german`, are separate explicit effects because parameter substitution inside variable names is unproven.
 The `*_leading_*` variants act on whichever patron currently holds the most influence, and are used by domestic reforms such as the national bank, tariff and budget focuses.
-A concession raises the patron's influence, lowers sovereignty and raises foreign leverage; a reclaim does the inverse.
-All 41 focus rewards that used to add to `iran_foreign_leverage` directly now call these effects, as do the two legation decisions and the oil royalty advance; the oil nationalisation and Abadan compromise decisions move influence and sovereignty beside their own leverage values.
-The credit events and the repayment decision still move leverage alone, because that is the debt side.
+A concession raises the patron's influence and lowers sovereignty; a reclaim does the inverse.
+Both republish dependence from the influence they actually moved, so a single act is never booked twice.
+All 41 focus rewards that used to add to `iran_foreign_leverage` directly now call these effects, as do the two legation decisions and the oil royalty advance.
 Tuning lives in `iran_story.concede_*` and `iran_story.reclaim_*`; tooltips are the `iran_concede_*_tt` and `iran_reclaim_*_tt` keys in `iran_great_game_acts_l_english.yml`.
-Foreign leverage is still a stored credit value, because the repayment decision and the credit events spend it directly; it is moved by these effects but not recomputed from the influences.
+
+## Dependence, and what is a loan
+
+Dependence is published, not accumulated. `iran_recompute_leverage` in `common/scripted_effects/iran_campaign.txt` is its only writer:
+
+- `iran_leverage_landed` = clamp(`iran_leverage_baseline` + (the three patron influences − `iran_influence_baseline`) × `leverage_derivation_weight`, 0, 100)
+- `iran_foreign_leverage` = clamp(`iran_leverage_landed` + `iran_leverage_debt`, 0, 100)
+
+The influences are clamped to 0–100 inside the publisher, so a concession taken at the cap cannot manufacture dependence the patron never gained.
+The weight is 0.5, so fifteen points of influence move dependence by 7.5, and the engine's fixed-point arithmetic keeps the half.
+`iran_leverage_baseline` and `iran_influence_baseline` are captured once, by `iran_leverage_baseline_init`, after the chapter's opening values and influences exist and before any band is published.
+A later chapter transition does not re-base them, and a country that is already running keeps the dependence it has.
+
+Credit is the only stored part. Events and decisions that lend Iran equipment, transit or revenue write `iran_leverage_debt`; nothing else may write it, and the settlement decision `iran_repay_foreign_credit` requires positive repayable debt rather than positive dependence, so equipment can never be spent on patronage that only concessions can buy back.
+Every body that writes the debt republishes the band in the same block, because `iran_foreign_dependence` is added and removed only inside `iran_refresh_mechanics`: decisions call `iran_refresh_mechanics_hidden`, and focus rewards wrap `iran_refresh_mechanics` in a `hidden_effect`.
+The customs reform and the national bank pay five points down, and the American mission takes ten, so each of them can cross `leverage_dependency`; a debt write that stopped at the publisher would move the numbers and leave the spirit on the old band.
+
+Republication points are `iran_refresh_mechanics` (before the dependence spirit is tested), `iran_influence_tick` (monthly, after the drift), every concession or reclaim effect, and every body that writes the repayable debt.
+The publisher never calls `iran_refresh_mechanics`, so no caller can recurse.

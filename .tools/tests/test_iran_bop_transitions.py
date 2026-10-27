@@ -306,6 +306,16 @@ def effect_body(text, name):
     return None
 
 
+def mutate(text, old, new):
+    """Replace one occurrence of a pattern in decision source, or fail loudly."""
+    if old not in text:
+        raise Unsupported('mutant pattern not present: %r' % old[:60])
+    mutated = text.replace(old, new, 1)
+    if mutated == text:
+        raise Unsupported('mutant changed nothing: %r' % old[:60])
+    return mutated
+
+
 def calls_of(body):
     """The scripted-effect calls in a body, in document order."""
     return [key for key, value, _line in body
@@ -517,17 +527,174 @@ def agreement_failures(text):
                      % (decision_id, 'available' if actual else 'unavailable', label,
                         country.label(), 'available' if expected else 'unavailable'))
 
-    # Nothing outside the four availability gates may move.
+    # Nothing outside the four availability gates may move, except the leverage
+    # bookkeeping the derivation replaces and the republish a debt payment now needs:
+    # a leverage write inside an effect that also moves patron influence was the paired
+    # copy of that move and must go, a leverage write with no influence change was real
+    # debt and keeps its operator and amount under the repayable name, and a body that
+    # writes that repayable debt must carry exactly one hidden refresh, because the
+    # dependence spirit is added and removed only inside `iran_refresh_mechanics`.
     old = decision_bodies(baseline_text(AGREEMENTS_PATH))
     if set(old) != set(decisions):
         fail('the decision ids in %s changed: %s'
              % (AGREEMENTS_PATH, sorted(set(old) ^ set(decisions))))
+    paired = []
+    retargeted = []
+    unrepublished = []
     for decision_id in sorted(set(old) & set(decisions)):
         old_rest = [entry for entry in old[decision_id] if entry[0] != 'available']
         new_rest = [entry for entry in decisions[decision_id] if entry[0] != 'available']
-        if normalize(old_rest) != normalize(new_rest):
-            fail('%s changed outside its available block' % decision_id)
+        normalised, changes = without_aggregate_leverage(old_rest)
+        paired.extend((decision_id, change) for change in changes if change[0] == 'paired')
+        retargeted.extend((decision_id, change) for change in changes
+                          if change[0] == 'retargeted')
+        if writes_variable(decisions[decision_id], DEBT_VAR):
+            calls = refresh_calls(new_rest)
+            if (len(calls) != 1 or calls[0][0] != 'iran_refresh_mechanics_hidden'
+                    or calls[0][1] != ('scalar', 'yes')):
+                unrepublished.append('%s carries %r'
+                                     % (decision_id, [call[:2] for call in calls]))
+            left = normalize(without_refresh_calls(normalised))
+            right = normalize(without_refresh_calls(new_rest))
+        else:
+            left = normalize(normalised)
+            right = normalize(new_rest)
+        if left != right:
+            fail('%s changed outside its available block, the leverage bookkeeping and the '
+                 'dependence republish' % decision_id)
+    if len(paired) != 4:
+        fail('%d paired leverage writes remain in %s, expected 4 removed'
+             % (len(paired), AGREEMENTS_PATH))
+    if len(retargeted) != 4:
+        fail('%d repayable debt writes in %s, expected 4 retargeted'
+             % (len(retargeted), AGREEMENTS_PATH))
+    if unrepublished:
+        fail('%s does not republish the dependence spirit after paying debt: %s'
+             % (AGREEMENTS_PATH, '; '.join(unrepublished)))
+    stragglers = sorted(decision_id for decision_id, body in decisions.items()
+                        if writes_variable(body, LEVERAGE_VAR))
+    if stragglers:
+        fail('%s still write %s directly: %s'
+             % (AGREEMENTS_PATH, LEVERAGE_VAR, stragglers))
     return failures
+
+
+# The aggregate the derivation publishes, and the repayable name that replaces a
+# write which was not mirroring an influence change.
+LEVERAGE_VAR = 'iran_foreign_leverage'
+DEBT_VAR = 'iran_leverage_debt'
+INFLUENCE_WRITES = frozenset((
+    'add_to_variable', 'subtract_from_variable', 'set_variable', 'multiply_variable',
+    'clamp_variable',
+))
+
+
+def write_of(entry):
+    """(operator, target, operand) for a variable write entry, or None."""
+    key, value, _line = entry
+    if key not in INFLUENCE_WRITES or value[0] != 'block':
+        return None
+    inner = value[1]
+    if not inner:
+        return None
+    if inner[0][0] == 'var':
+        target = scalar(inner, 'var')
+        operand = scalar(inner, 'value')
+    elif len(inner) == 1 and inner[0][1][0] == 'scalar':
+        target = inner[0][0]
+        operand = inner[0][1][1]
+    else:
+        return None
+    if target is None:
+        return None
+    return key, target, operand
+
+
+def walk_entries(entries):
+    yield entries
+    for _key, value, _line in entries:
+        if value[0] == 'block':
+            for nested in walk_entries(value[1]):
+                yield nested
+
+
+def writes_variable(entries, name):
+    for block in walk_entries(entries):
+        for entry in block:
+            write = write_of(entry)
+            if write and write[1] == name:
+                return True
+    return False
+
+
+def rename_write(entry, old, new):
+    key, value, line = entry
+    inner = value[1]
+    if inner[0][0] == 'var':
+        raise Unsupported('a var/value levy write is not modelled in %s' % AGREEMENTS_PATH)
+    rebuilt = [(new if inner_key == old else inner_key, inner_value, inner_line)
+               for inner_key, inner_value, inner_line in inner]
+    return key, ('block', rebuilt), line
+
+
+def without_aggregate_leverage(entries):
+    """Apply the accepted transformation to one decision body.
+
+    Returns the rewritten entries and [(kind, operator, operand)] for every
+    leverage write that was removed ('paired') or renamed ('retargeted').
+    """
+    changes = []
+    influence = writes_variable(entries, 'iran_british_influence') \
+        or writes_variable(entries, 'iran_northern_influence') \
+        or writes_variable(entries, 'iran_german_influence')
+
+    def rewrite(items):
+        out = []
+        for entry in items:
+            write = write_of(entry)
+            if write and write[1] == LEVERAGE_VAR:
+                if influence:
+                    changes.append(('paired', write[0], write[2]))
+                    continue
+                changes.append(('retargeted', write[0], write[2]))
+                out.append(rename_write(entry, LEVERAGE_VAR, DEBT_VAR))
+                continue
+            key, value, line = entry
+            if value[0] == 'block':
+                out.append((key, ('block', rewrite(value[1])), line))
+            else:
+                out.append(entry)
+        return out
+
+    return rewrite(entries), changes
+
+
+# A decision that pays down repayable debt has to republish the dependence spirit, and
+# the hidden wrapper is the shape the other debt decisions already use.
+REFRESH_CALLS = ('iran_refresh_mechanics', 'iran_refresh_mechanics_hidden')
+
+
+def refresh_calls(entries):
+    """Every dependence refresh call in a decision body, at any depth."""
+    found = []
+    for block in walk_entries(entries):
+        for entry in block:
+            if entry[0] in REFRESH_CALLS:
+                found.append(entry)
+    return found
+
+
+def without_refresh_calls(entries):
+    """The body with every refresh call removed, at any depth."""
+    kept = []
+    for key, value, line in entries:
+        if key in REFRESH_CALLS:
+            continue
+        if value[0] == 'block':
+            kept.append((key, ('block', without_refresh_calls(value[1])), line))
+        else:
+            kept.append((key, value, line))
+    return kept
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1258,6 +1425,51 @@ def main():
     report.check('the pre-repair gate is rejected for the Pahlavi state',
                  any('pahlavi_rule_alone' in failure for failure in old_failures),
                  '; '.join(old_failures))
+
+    report.start('D1-integration-mutants')
+    integration_mutants = (
+        ('a paired leverage write restored',
+         lambda text: mutate(
+             text,
+             '\t\t\tadd_to_variable = { iran_british_influence = '
+             'constant:iran_story.influence_per_agreement }\n',
+             '\t\t\tadd_to_variable = { iran_british_influence = '
+             'constant:iran_story.influence_per_agreement }\n'
+             '\t\t\tadd_to_variable = { iran_foreign_leverage = 10 }\n'),
+         'changed outside its available block'),
+        ('a repayable debt write put back on the aggregate',
+         lambda text: mutate(text,
+                             'add_to_variable = { iran_leverage_debt = 15 }',
+                             'add_to_variable = { iran_foreign_leverage = 15 }'),
+         'still write iran_foreign_leverage'),
+        ('the Crown-rule availability branch removed',
+         lambda text: mutate(text,
+                             'NOT = { has_power_balance = { id = PER_crown_and_majlis } }',
+                             ''),
+         'pahlavi_rule_alone'),
+        ('an unrelated agreement reward changed',
+         lambda text: mutate(text, '\t\t\tadd_political_power = 25\n',
+                             '\t\t\tadd_political_power = 30\n'),
+         'changed outside its available block'),
+        ('the debt republish removed from a customs payment',
+         lambda text: mutate(text,
+                             '\t\t\tsubtract_from_variable = { iran_leverage_debt = '
+                             'constant:iran_story.influence_erosion }\n'
+                             '\t\t\tiran_refresh_mechanics_hidden = yes\n',
+                             '\t\t\tsubtract_from_variable = { iran_leverage_debt = '
+                             'constant:iran_story.influence_erosion }\n'),
+         'does not republish the dependence spirit'),
+    )
+    for name, mutator, needle in integration_mutants:
+        try:
+            mutated = mutator(agreements)
+        except Unsupported as error:
+            report.check('mutant %s applied' % name, False, str(error))
+            continue
+        problems = agreement_failures(mutated)
+        report.check('mutant %s is rejected by the agreement check' % name,
+                     any(needle in problem for problem in problems),
+                     '; '.join(problems[:4]) if problems else 'no failure reported')
 
     report.start('D2-settlement')
     failures = shift_failures(shifts, effects, constants, ranges)

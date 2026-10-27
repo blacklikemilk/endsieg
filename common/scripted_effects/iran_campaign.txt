@@ -1,11 +1,56 @@
 # Overview: idempotent chapter routing, institutions and finite construction for Iran, 1910-1945.
 # Country scope throughout unless an explicit Iranian state scope is entered.
+# Dependence is published, not accumulated: iran_recompute_leverage turns patron influence and
+# repayable credit into the two values the rest of the campaign reads.
+#
+# Captures the one-time baselines that derivation measures influence against. Safe to call at any
+# time: it does nothing once the baselines exist, so a chapter transition never re-bases the value
+# and a country that is already running keeps the dependence it actually has.
+iran_leverage_baseline_init = {
+	hidden_effect = {
+		if = {
+			limit = { NOT = { has_country_flag = iran_leverage_baselined } }
+			clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+			set_variable = { iran_leverage_baseline = iran_foreign_leverage }
+			set_variable = { iran_influence_baseline = iran_british_influence }
+			add_to_variable = { iran_influence_baseline = iran_northern_influence }
+			add_to_variable = { iran_influence_baseline = iran_german_influence }
+			set_variable = { iran_leverage_debt = constant:iran_story.leverage_debt_opening }
+			set_country_flag = iran_leverage_baselined
+		}
+	}
+}
+#
+# The only publisher of iran_leverage_landed and iran_foreign_leverage.
+#   landed = clamp(baseline + (sum of patron influence - influence baseline) * weight, 0, 100)
+#   total  = clamp(landed + repayable debt, 0, 100)
+# Influences are clamped first so a concession capped at 100 cannot manufacture dependence that the
+# patron never actually gained. Does not call iran_refresh_mechanics, so a caller can never recurse.
+iran_recompute_leverage = {
+	hidden_effect = {
+		iran_leverage_baseline_init = yes
+		clamp_variable = { var = iran_british_influence min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_northern_influence min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_german_influence min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		set_variable = { iran_leverage_landed = iran_british_influence }
+		add_to_variable = { iran_leverage_landed = iran_northern_influence }
+		add_to_variable = { iran_leverage_landed = iran_german_influence }
+		subtract_from_variable = { iran_leverage_landed = iran_influence_baseline }
+		multiply_variable = { var = iran_leverage_landed value = constant:iran_story.leverage_derivation_weight }
+		add_to_variable = { iran_leverage_landed = iran_leverage_baseline }
+		clamp_variable = { var = iran_leverage_landed min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_leverage_debt min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		set_variable = { iran_foreign_leverage = iran_leverage_landed }
+		add_to_variable = { iran_foreign_leverage = iran_leverage_debt }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
 # Recomputes the clamps and swaps the route's state spirits. The whole body is hidden so callers show a clean tooltip
 # instead of a list of every spirit that might be removed or added.
 iran_refresh_mechanics = {
 	hidden_effect = {
+		iran_recompute_leverage = yes
 		clamp_variable = { var = iran_authority min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
-		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 		clamp_variable = { var = iran_british_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 		clamp_variable = { var = iran_northern_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
 		remove_ideas = { iran_fragmented_authority iran_constitutional_state iran_pahlavi_state iran_parliamentary_state iran_qajar_state iran_socialist_state iran_nationalist_state iran_constitutional_consolidated iran_pahlavi_consolidated iran_parliamentary_consolidated iran_socialist_consolidated iran_nationalist_consolidated iran_qajar_consolidated }
@@ -158,6 +203,10 @@ iran_initialize_campaign = {
 			set_country_flag = iran_succession_question
 		}
 		if = { limit = { date > 1943.11.30 } set_country_flag = iran_tehran_declaration }
+		# Baselines are captured here, after the chapter's opening values and influences exist and
+		# before anything publishes a dependence band. A fresh 1910, 1919 or 1936 start therefore
+		# opens at 60, 40 or 30, and a later start opens at its own value.
+		iran_leverage_baseline_init = yes
 		iran_route_chapter = yes
 		iran_refresh_mechanics = yes
 	}
@@ -438,6 +487,9 @@ iran_influence_tick = {
 		}
 		add_to_variable = { iran_sovereignty = 1 }
 	}
+	# Republication point for the monthly drift: anything that moved influence without asking for a
+	# refresh is corrected here instead of drifting until a decision happens to call one.
+	iran_recompute_leverage = yes
 	# A power at war demands transit. This is what makes the patrons actors
 	# rather than bars on a panel.
 	#
