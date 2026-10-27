@@ -570,6 +570,55 @@ SPR_nationalist_factions = {
 		}
 		ai_will_do = { base = 40 }
 	}
+
+	# The question the chapter exists to answer. The decision opens it; the event settles which
+	# part of the movement answers it, and the pact of 1945 concludes what the answer left open.
+	SPR_the_succession_question = {
+		icon = generic_political_discourse
+		cost = 50
+		fire_only_once = yes
+		available = {
+			date > 1945.1.1
+			custom_trigger_tooltip = {
+				tooltip = spain_postwar_chapter_tt
+				spain_in_postwar_chapter = yes
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_succession_open_tt
+				NOT = { has_country_flag = spain_succession_settled }
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_campaign.62 days = 1 }
+		}
+		ai_will_do = { base = 25 }
+	}
+
+	# The settlement of 1945 is what decides whether the regime is treated as a partner or as a
+	# leftover of the Axis year, so it comes after the succession and only once.
+	SPR_the_pact_of_1945 = {
+		icon = generic_political_address
+		cost = 75
+		fire_only_once = yes
+		available = {
+			date > 1945.1.1
+			custom_trigger_tooltip = {
+				tooltip = spain_postwar_chapter_tt
+				spain_in_postwar_chapter = yes
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_pact_open_tt
+				OR = {
+					has_country_flag = spain_succession_settled
+					has_country_flag = spain_monarchy_survived
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_campaign.63 days = 1 }
+		}
+		ai_will_do = { base = 20 }
+	}
 }
 
 # =====================================================================================
@@ -696,6 +745,10 @@ SPR_wartime_diplomacy = {
 			spain_allied_leverage_high = yes
 			date > 1944.6.1
 			NOT = { has_country_flag = spain_marshall_plan }
+			custom_trigger_tooltip = {
+				tooltip = spain_falangist_excluded_tt
+				NOT = { has_country_flag = spain_succession_falangist }
+			}
 		}
 		modifier = {
 			industrial_capacity_factory = 0.05
@@ -718,7 +771,19 @@ SPR_wartime_diplomacy = {
 		cost = 40
 		fire_only_once = yes
 		available = {
-			spain_allied_leverage_high = yes
+			# Allied leverage opens the seat on its own. A settlement of 1945 that recalled the
+			# Crown opens it too, because the founding members can accept a monarchy restored with
+			# the movement's consent where they will not accept the movement itself.
+			custom_trigger_tooltip = {
+				tooltip = spain_settled_1945_tt
+				OR = {
+					spain_allied_leverage_high = yes
+					AND = {
+						has_country_flag = spain_settled_1945
+						has_country_flag = spain_monarchy_recalled
+					}
+				}
+			}
 			date > 1945.1.1
 			NOT = { has_country_flag = spain_un_founding }
 		}

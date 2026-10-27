@@ -438,6 +438,404 @@ country_event = {
 }
 
 # =====================================================================================
+# 1945 - the succession and the settlement
+# =====================================================================================
+
+# The movement answers the succession with the part of itself that holds the most ground in it.
+# Each option pushes the faction that answers and then lets the standing arbitration write the
+# regime, so the country leaves the event with exactly one regime spirit.
+country_event = {
+	id = spain_campaign.62
+	title = spain_campaign.62.t
+	desc = spain_campaign.62.d
+	picture = GFX_report_event_generic_parliament
+	is_triggered_only = yes
+
+	option = {
+		name = spain_campaign.62.a
+		trigger = { spain_falange_leads = yes }
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 60
+				spain_falange_leads = yes
+			}
+			modifier = {
+				add = 15
+				has_war_support < 0.40
+			}
+		}
+		set_country_flag = spain_succession_falangist
+		set_country_flag = spain_succession_settled
+		# The answer has to carry the movement, not only the vote. The party is put the usual step
+		# above the largest part of the movement, bounded by the campaign's own cap, and every part
+		# that would then stand level with it gives way by the same step. The arbitration that
+		# follows is unchanged and now reaches the regime this answer names.
+		set_temp_variable = { spain_succession_top = spain_falange }
+		if = {
+			limit = { check_variable = { spain_carlists > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_carlists }
+		}
+		if = {
+			limit = { check_variable = { spain_monarchists > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_monarchists }
+		}
+		if = {
+			limit = { check_variable = { spain_army_faction > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_army_faction }
+		}
+		set_temp_variable = { spain_succession_result = spain_succession_top }
+		add_to_temp_variable = { spain_succession_result = constant:spain_campaign.faction_gain_large }
+		if = {
+			limit = {
+				check_variable = { var = spain_succession_result value = constant:spain_campaign.faction_cap compare = greater_than }
+			}
+			set_temp_variable = { spain_succession_result = constant:spain_campaign.faction_cap }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_falange < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_falange }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_falange value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_carlists < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_carlists }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_carlists value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_monarchists < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_monarchists }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_monarchists value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_army_faction < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_army_faction }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_army_faction value = spain_succession_cut }
+		}
+		set_temp_variable = { spain_succession_step = spain_succession_result }
+		subtract_from_temp_variable = { spain_succession_step = spain_falange }
+		add_to_variable = { var = spain_falange value = spain_succession_step }
+		add_stability = constant:spain_campaign.stability_medium
+		add_war_support = constant:spain_campaign.war_support_small
+		add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+		hidden_effect = { spain_faction_resolve_regime = yes }
+		custom_effect_tooltip = spain_campaign.62.a.tt
+	}
+
+	option = {
+		name = spain_campaign.62.b
+		# The army answers when it leads, and it answers when no civilian faction can: that is the
+		# same residuary rule the regime arbitration itself applies.
+		trigger = {
+			OR = {
+				spain_army_leads = yes
+				NOT = {
+					OR = {
+						spain_falange_leads = yes
+						spain_monarchists_lead = yes
+						spain_carlists_lead = yes
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 60
+				spain_army_leads = yes
+			}
+			modifier = {
+				add = 20
+				spain_loyalty_low = yes
+			}
+		}
+		set_country_flag = spain_succession_military
+		set_country_flag = spain_succession_settled
+		# The answer has to carry the movement, not only the vote. The army is put the usual step
+		# above the largest part of the movement, bounded by the campaign's own cap, and every part
+		# that would then stand level with it gives way by the same step. The arbitration that
+		# follows is unchanged and now reaches the regime this answer names, including when the
+		# army answers because no civilian part of the movement can.
+		set_temp_variable = { spain_succession_top = spain_falange }
+		if = {
+			limit = { check_variable = { spain_carlists > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_carlists }
+		}
+		if = {
+			limit = { check_variable = { spain_monarchists > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_monarchists }
+		}
+		if = {
+			limit = { check_variable = { spain_army_faction > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_army_faction }
+		}
+		set_temp_variable = { spain_succession_result = spain_succession_top }
+		add_to_temp_variable = { spain_succession_result = constant:spain_campaign.faction_gain_large }
+		if = {
+			limit = {
+				check_variable = { var = spain_succession_result value = constant:spain_campaign.faction_cap compare = greater_than }
+			}
+			set_temp_variable = { spain_succession_result = constant:spain_campaign.faction_cap }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_falange < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_falange }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_falange value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_carlists < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_carlists }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_carlists value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_monarchists < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_monarchists }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_monarchists value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_army_faction < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_army_faction }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_army_faction value = spain_succession_cut }
+		}
+		set_temp_variable = { spain_succession_step = spain_succession_result }
+		subtract_from_temp_variable = { spain_succession_step = spain_army_faction }
+		add_to_variable = { var = spain_army_faction value = spain_succession_step }
+		spain_loyalty_gain_small = yes
+		add_stability = constant:spain_campaign.stability_cost
+		hidden_effect = { spain_faction_resolve_regime = yes }
+		custom_effect_tooltip = spain_campaign.62.b.tt
+	}
+
+	option = {
+		name = spain_campaign.62.c
+		# Both royalist houses answer together, because the Carlist claim is a claim to the same
+		# crown. The house that holds more of the movement answers for it, so the arbitration that
+		# follows installs the crown the movement actually answered with.
+		trigger = {
+			OR = {
+				spain_monarchists_lead = yes
+				spain_carlists_lead = yes
+			}
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 60
+				spain_monarchists_lead = yes
+			}
+			modifier = {
+				add = 45
+				spain_carlists_lead = yes
+			}
+		}
+		set_country_flag = spain_succession_monarchist
+		set_country_flag = spain_succession_settled
+		# Both royalist houses answer together, because the Carlist claim is a claim to the same
+		# crown. The house that holds more of the movement answers for it, and the monarchists
+		# answer a tie between the two, which is read here before any influence moves.
+		set_temp_variable = { spain_succession_carlist = 0 }
+		if = {
+			limit = { check_variable = { spain_carlists > spain_monarchists } }
+			set_temp_variable = { spain_succession_carlist = 1 }
+		}
+		# The answer has to carry the movement, not only the vote. The answering house is put the
+		# usual step above the largest part of the movement, bounded by the campaign's own cap, and
+		# every part that would then stand level with it gives way by the same step. The arbitration
+		# that follows is unchanged and now reaches the crown this answer names.
+		set_temp_variable = { spain_succession_top = spain_falange }
+		if = {
+			limit = { check_variable = { spain_carlists > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_carlists }
+		}
+		if = {
+			limit = { check_variable = { spain_monarchists > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_monarchists }
+		}
+		if = {
+			limit = { check_variable = { spain_army_faction > spain_succession_top } }
+			set_temp_variable = { spain_succession_top = spain_army_faction }
+		}
+		set_temp_variable = { spain_succession_result = spain_succession_top }
+		add_to_temp_variable = { spain_succession_result = constant:spain_campaign.faction_gain_large }
+		if = {
+			limit = {
+				check_variable = { var = spain_succession_result value = constant:spain_campaign.faction_cap compare = greater_than }
+			}
+			set_temp_variable = { spain_succession_result = constant:spain_campaign.faction_cap }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_falange < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_falange }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_falange value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_carlists < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_carlists }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_carlists value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_monarchists < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_monarchists }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_monarchists value = spain_succession_cut }
+		}
+		if = {
+			limit = { NOT = { check_variable = { spain_army_faction < spain_succession_result } } }
+			set_temp_variable = { spain_succession_cut = spain_army_faction }
+			subtract_from_temp_variable = { spain_succession_cut = spain_succession_result }
+			add_to_temp_variable = { spain_succession_cut = constant:spain_campaign.faction_gain_large }
+			subtract_from_variable = { var = spain_army_faction value = spain_succession_cut }
+		}
+		if = {
+			limit = { check_variable = { spain_succession_carlist = 1 } }
+			set_temp_variable = { spain_succession_step = spain_succession_result }
+			subtract_from_temp_variable = { spain_succession_step = spain_carlists }
+			add_to_variable = { var = spain_carlists value = spain_succession_step }
+		}
+		else = {
+			set_temp_variable = { spain_succession_step = spain_succession_result }
+			subtract_from_temp_variable = { spain_succession_step = spain_monarchists }
+			add_to_variable = { var = spain_monarchists value = spain_succession_step }
+		}
+		add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+		add_to_variable = { var = spain_nationalist_tension_carried value = constant:spain_campaign.succession_tension }
+		hidden_effect = { spain_faction_resolve_regime = yes }
+		custom_effect_tooltip = spain_campaign.62.c.tt
+	}
+}
+
+# The settlement of 1945 is the last act of the chapter. It writes the regime as the balance now
+# stands and fixes the foreign footing, which is what decides whether the movement can still take
+# the Allied money and the seat in New York.
+country_event = {
+	id = spain_campaign.63
+	title = spain_campaign.63.t
+	desc = spain_campaign.63.d
+	picture = GFX_report_event_generic_parliament
+	is_triggered_only = yes
+
+	option = {
+		name = spain_campaign.63.a
+		# A partner needs a face the Allies can deal with: Allied leverage, or a recalled Crown,
+		# and no Falangist or military answer standing in the way.
+		trigger = {
+			OR = {
+				spain_allied_leverage_high = yes
+				has_country_flag = spain_succession_monarchist
+			}
+			NOT = {
+				OR = {
+					has_country_flag = spain_succession_falangist
+					has_country_flag = spain_succession_military
+				}
+			}
+		}
+		ai_chance = {
+			base = 15
+			modifier = {
+				add = 45
+				spain_allied_leverage_high = yes
+			}
+			modifier = {
+				add = 20
+				spain_monarchists_lead = yes
+			}
+		}
+		set_country_flag = spain_settled_1945
+		add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain_large }
+		add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+		add_stability = constant:spain_campaign.stability_small
+		hidden_effect = { spain_faction_resolve_regime = yes }
+		custom_effect_tooltip = spain_campaign.63.a.tt
+	}
+
+	option = {
+		name = spain_campaign.63.b
+		ai_chance = {
+			base = 20
+			modifier = {
+				add = 30
+				spain_axis_leverage_high = yes
+			}
+			modifier = {
+				add = 15
+				spain_loyalty_high = yes
+			}
+		}
+		set_country_flag = spain_settled_1945
+		add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+		add_stability = constant:spain_campaign.stability_medium
+		add_war_support = constant:spain_campaign.war_support_small
+		hidden_effect = { spain_faction_resolve_regime = yes }
+		custom_effect_tooltip = spain_campaign.63.b.tt
+	}
+
+	option = {
+		name = spain_campaign.63.c
+		# The Crown can be seated only while a royal house actually holds the movement. The route
+		# that led here still has to be open, but a royal succession that has since been overtaken
+		# is not a crown, and the settlement never promises a king the arbitration would not install.
+		trigger = {
+			OR = {
+				spain_monarchists_lead = yes
+				spain_carlists_lead = yes
+				has_country_flag = spain_succession_monarchist
+			}
+			OR = {
+				AND = {
+					check_variable = { spain_monarchists > spain_falange }
+					check_variable = { spain_monarchists > spain_carlists }
+					check_variable = { spain_monarchists > spain_army_faction }
+				}
+				AND = {
+					check_variable = { spain_carlists > spain_falange }
+					check_variable = { spain_carlists > spain_monarchists }
+					check_variable = { spain_carlists > spain_army_faction }
+				}
+			}
+		}
+		ai_chance = {
+			base = 15
+			modifier = {
+				add = 50
+				spain_monarchists_lead = yes
+			}
+			modifier = {
+				add = 25
+				spain_carlists_lead = yes
+			}
+		}
+		set_country_flag = spain_settled_1945
+		set_country_flag = spain_monarchy_recalled
+		add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain_small }
+		add_to_variable = { var = spain_nationalist_tension_carried value = constant:spain_campaign.succession_tension }
+		hidden_effect = { spain_faction_resolve_regime = yes }
+		custom_effect_tooltip = spain_campaign.63.c.tt
+	}
+}
+
+# =====================================================================================
 # News
 # =====================================================================================
 
