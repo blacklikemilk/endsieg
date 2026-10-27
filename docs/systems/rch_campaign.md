@@ -130,6 +130,139 @@ A surviving Qing is protected the same way: `endsieg_china_reclaim_states` runs 
 
 The reclaim effect is `common/scripted_effects/endsieg_china_ownership.txt`; it takes every Asian state owned by a Chinese tag plus 609 and 743, sets owner, controller and core to ROOT.
 
+## The 1915 settlement and the 1916 succession
+
+The Republic's first four years are a contest between a civil government and the commanders who guarantee it, and that contest is decided before Yuan Shikai dies.
+
+### The Beiyang Order category
+
+`rch_beiyang_order_category` holds eight repeatable cards in four families: constitution, army, provinces and money.
+
+Each family has one civil card and one military card, and one shared lock flag (`rch_press_lock_constitution`, `..._army`, `..._provinces`, `..._money`).
+Either side of a family takes the lock, and both sides carry the same `available` clause, so a family acts once per 180 days rather than twice.
+Every press clears its gate and its family lock before re-setting them, so the reform tenure and the lock date restart at that press instead of inheriting the date of the term before it.
+The lock is shown, not hidden: a card whose family has acted stays visible with `rch_press_family_available` explaining why it cannot be pressed.
+The shared text is worded as the requirement the card draws ("The government has not pressed this matter in the past six months."), so the line reads true when the family is free and unmet when it is locked, and the tooltip never states the tuning rule itself.
+
+A civil card sets its reform gate (`rch_gate_constitution`, `rch_gate_officer_rotation`, `rch_gate_civil_governors`, `rch_gate_treasury`).
+The military card in the same family clears that gate and takes a governor instead.
+Re-setting a cleared gate clears the flag first, so its date restarts and a stale date cannot re-qualify a reform.
+
+`rch_governor_count` is a new clamped counter (0 to 3). It is deliberately not the existing `rch_military_governors` flag, which a focus sets in every chapter tree.
+
+Every card is available with or without *Arms Against Tyranny*; only the display is DLC-bound.
+
+### The settlement, 12 December 1915
+
+`rch_settlement_snapshot` runs once from `rch_campaign_tick` on 12 December 1915 and stores `rch_reform_settled` (0 to 4).
+A gate counts only when its flag stood more than 180 days at that date: a gate set on 14 June 1915 counts, a gate set on 15 June does not.
+Nothing bought after 12 December 1915 can enlarge the count, and the snapshot is taken before the throne is answered.
+
+`rch_campaign.42` (the Hongxian choice) is queued once between 12 and 31 December 1915.
+Refusing sets `rch_gate_throne_refused`; accepting sets `rch_hongxian` and the refusal gate can never be set.
+A start at or after 1 January 1916 has already lived through the proclamation: `rch_succession_endow` gives it `rch_hongxian`, `rch_throne_choice_seen` and a sealed zero snapshot.
+
+### The succession, 6 June 1916
+
+`rch_campaign_tick` owns the resolution. On the first day after 5 June 1916 it calls `rch_succession_resolve`, which settles, freezes and only then queues `rch_campaign.5` with the existing one-day delay.
+
+`rch_succession_refresh` computes the score as a pure function of the three dials, the frozen reform count, the throne answer, the governor counter and a war against another Chinese government:
+
+`base = round((legitimacy + 100 - military_influence + round(nationalist_support / 2)) / 3)`
+`score = clamp(base + 8 * (settled reforms + refused throne) - 6 * governors - 15 * chinese war, 0, 100)`
+
+`rch_succession_evaluate` applies one exclusive precedence:
+
+| Order | Tier | Condition |
+| --- | --- | --- |
+| 1 | 3 Dissolved | military influence 80 or more, or legitimacy below 20 |
+| 2 | 0 Unified | not collapsed, score 70 or more, four settled reforms, throne refused, fewer than three governors, control of state 608, no Chinese war |
+| 3 | 1 Contested | not collapsed, score 45 or more |
+| 4 | 2 Garrison | everything else |
+
+The tier is frozen into `rch_succession_final_tier` and `rch_succession_final_score`, one line flag is set (`rch_line_unified`, `rch_line_contested`, `rch_line_garrison`, `rch_line_dissolved`) and one seat spirit is applied.
+`rch_campaign.5` presents exactly one option, chosen by an exclusive trigger on the frozen tier, and its `immediate` computes nothing.
+A deferred, closed or lost popup therefore cannot change the outcome, and a post-crisis start resolves silently at initialisation.
+
+`rch_refresh_mechanics` removes and reapplies the seat spirit from the frozen line flag, so a routine refresh of the other spirit families cannot erase the result.
+
+| Spirit | Tier | Payload |
+| --- | --- | --- |
+| `rch_succession_constitutional` | 0 | political power +10%, stability +10%, building speed +5% |
+| `rch_succession_contested` | 1 | political power -5%, stability -5% |
+| `rch_succession_garrison` | 2 | army organisation +5%, political power -10%, stability -5% |
+| `rch_succession_dissolved` | 3 | political power -15%, stability -10%, army organisation -5% |
+
+This slice creates no tag, transfers no state and changes no leader. The tier is the interface the later territorial and leader slices consume.
+
+### The Beiyang display
+
+`common/bop/RCH.txt` defines `RCH_beiyang_order` with two sides and five ranges, and no modifier anywhere: the spirit carries the gameplay.
+`rch_beiyang_refresh` reads `rch_military_influence` itself, so every existing focus, decision and event writer of the dial is mirrored, and it publishes one of five literal offsets through `add_power_balance_value`:
+
+| Military influence | Published offset |
+| --- | --- |
+| above 75 | +0.85 |
+| above 60 | +0.25 |
+| above 50 | 0.00 |
+| above 35 | -0.25 |
+| otherwise | -0.85 |
+
+The published band is remembered in `rch_bop_band`. A band change removes the old offset and applies the new one exactly once, so the panel is never re-initialised from a daily call.
+`rch_beiyang_bootstrap` creates the panel once, guarded by the DLC and by the absence of the balance, and it is also reachable from `rch_beiyang_refresh` so a save loaded mid-campaign gets the panel.
+Without *Arms Against Tyranny* no balance command runs and every card and outcome is unchanged.
+
+The panel never shows a raw identifier: `RCH_beiyang_order`, `RCH_side_civil`, `RCH_side_military`, `RCH_bop_settlement`, `RCH_bop_civil_ascendant`, `RCH_bop_civil_supremacy`, `RCH_bop_military_government` and `RCH_bop_military_supremacy` are all localised once in `localisation/english/rch_campaign_l_english.yml`, beside the category they belong to.
+
+### What the player is told
+
+The settlement, the conditions the seat is judged on and the standing it earned are stated in six player-facing values, so a player can plan the four reforms instead of discovering them after the fact and can read the result afterwards.
+
+| Surface | Key | What it states |
+| --- | --- | --- |
+| The Beiyang category | `rch_beiyang_order_category_desc` | The 12 December 1915 record, the more-than-180-days tenure, the four counted measures, and every condition the seat is judged on |
+| The 1912 announcement | `rch_campaign.2.d` | That December closes the reform record, the tenure a reform needs before it counts, and that the seat is judged when the presidency falls |
+| The succession popup | `rch_campaign.5.d` | The four counted measures, the tenure, the crown, the dials, the governors, Beijing and war with another Chinese government, the judgement at resolution, and the frozen standing it prints |
+| The four seat spirits | `rch_succession_constitutional_desc`, `rch_succession_contested_desc`, `rch_succession_garrison_desc`, `rch_succession_dissolved_desc` | The same frozen standing, printed by the spirit that is still standing after the crisis |
+
+The four measures named in the text are the four civil cards: the constitution, the rotation of the officer corps, the civil governors and the funding of the ministries.
+`display_contract()` in `.tools/tests/test_rch_succession.py` binds the prose to the script: it executes each of those four cards and requires the gate the text names to be the gate the card sets, and it requires the popup path to take no further settlement snapshot.
+The same section forbids a territorial claim in any of the three values, because a succession tier is not fragmentation.
+`score_readout()` resolves every fixture through the shipped `rch_succession_settle`, compares the number the popup and the standing seat spirit would draw with the score that effect froze, requires the pre-resolution category to print no number, and proves an absent variable is not read as zero.
+
+The lock is stated in the same style on the cards themselves, through `rch_press_family_available`.
+
+### What the standing number is, and when it exists
+
+`rch_succession_settle` assigns `rch_succession_final_score` and `rch_succession_final_tier` once, when the succession resolves, and only then queues the popup and leaves the seat spirit standing.
+Both consumers print the frozen variable directly, as `Seat standing: [?rch_succession_final_score|0] out of 100.`, in an ordinary localisation value.
+No `common/scripted_localisation` entry is involved and none is needed: this is a formatted country variable, the same form vanilla uses for a country variable inside a spirit description.
+The lifetime follows from that assignment order. During 1912, at the 12 December 1915 record and through January 1916 the variable does not exist, which is why the category and the eight cards describe composition and print no number; the popup and the four seat spirits exist only after the assignment, and the popup is queued after it.
+A post-crisis bookmark resolves at initialisation with no popup, so there the seat spirit is the surface that shows the number.
+The number is the standing the seat was judged on, not a projection: later dial changes, a refresh or a repeated tick leave it as it was, because nothing recomputes it after resolution.
+
+### Reference and validation state
+
+`.tools/tests/test_rch_succession.py` parses the shipped constants, triggers, effects, decisions, ideas and balance file and executes them against a synthetic Republic.
+It covers the eight cards, the three chapter openers, the opposing stability costs of the two civil bargains, the five emergency rows, the full-civil and three-civil plans, the military collapse, the 44/45 and 69/70 boundaries, tier exclusivity, the 181/180 settlement boundary, the sealed 1916 and silent 1918 starts, same-day repeats, seat-spirit survival across a refresh with an earlier seat already standing, the display band transitions, no-DLC parity, the frozen standing readout on the popup and on all four seat spirits, and the mutants listed below.
+Every claim is a named statement in a record, and the shipped source must hold all of them.
+Each effect handler the suite books a claim on is probed directly for the bookkeeping it performs, and each of those handlers also carries a source mutant that must raise a named defect through the same record: the frozen score and tier, every term of the succession arithmetic, the score clamp, the line flag, the seat addition and the seat removal, the panel creation, one published band offset, the queued popup, the chapter tree, the chapter clears, and the stability gain and cost.
+A handler that silently stops booking its command therefore fails twice, once as a probe and once as a mutant that no longer bites.
+The anti-exploit guards are executed rather than read.
+Each card's `available` block is run with its family lock absent, fresh, exactly at the window and one day past it, and the family is then pressed twice a term apart to prove the lock date follows the later press instead of the first.
+Every press effect is run with all four gates and all four locks aged 400 days, and the executed trace must clear its own gate and its own lock before setting them, leave the gate dated at the press, leave a military bargain with no gate standing, and touch no other family's gate.
+Each literal the engine fields demand (`days_re_enable`, the lock window, the settlement maturity window, `controls_state`) is compared with the constant it documents.
+`rch_campaign_tick` itself is executed on a 1916 day and on a quiet 1917 day, which proves the tick settles, records, queues one popup, republishes the display, stays silent on a repeat call and still publishes on a day with no other display work.
+On the text side it reads the eight identifiers the balance panel draws and fails on any that has no English key, and it checks that all eight cards still attach the shared family lock tooltip, that each tooltip ages its own family flag, and that the tooltip text is the availability requirement rather than the locked state or the tuning rule.
+Every guard carries a mutant that must break it: releasing every family lock at day 0, deleting a gate clear, deleting the family lock clears, drifting the cooldown constant to 200, drifting the capital constant to 611, and dropping the daily display refresh from the tick.
+The display contract has its own section and its own mutants: the settlement paragraph cut from the category description, the judgement sentence cut from the popup, the tenure clause replaced with a vague one in the settlement announcement, and a territorial claim inserted into the category text are each caught by a named check, while a clean mirror still passes.
+`display_contract_mutants()` runs those four inside the suite, and the same four were also applied to a full mirror tree through `RCH_TEST_ROOT`, where each run exited non-zero on the named check for the text it lost.
+The pre-source control runs this same suite against the `HEAD` version of every input through `RCH_TEST_ROOT` and requires a named failure there, so the suite cannot pass on the tree that had no slice in it.
+Three localisation mutants keep those checks honest: dropping the side and range keys, restoring the blocked-state wording and moving one card off the shared tooltip are all caught.
+
+The model is a single-country interpreter, not the engine: it does not debit a decision's `cost`, does not schedule events, missions or MTTH, and renders no panel, popup, focus tree or tooltip, so those surfaces remain unverified without a launch.
+Not verified: no launch was performed, so the panel has never been seen, the popup has never been presented and no campaign has been played through 1916.
+
 ## Verification state
 
 Source and static evidence: the routing chain and both handover outcomes were walked as a state model over ten representative dates, all eight prior chapter-flag combinations, seven prior tree states and both handover variants, with three repeated same-day calls per case.

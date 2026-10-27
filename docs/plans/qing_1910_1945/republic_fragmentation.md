@@ -485,3 +485,24 @@ No other path outside this document was written in this revision: no source, loc
 | `hoi4.event_inspect` | `mode = trace, selector rch_campaign.5` | `EVENT_INSPECTED_PARTIAL`: workspace counts only (9,316 events, 14,569 options, 2,414 diagnostics), **no per-option detail inline**; the `.5` option shape in §6.1 therefore comes from reading `events/rch_campaign.txt:72-104` directly, not from this route. Resource: `hoi4-agent://workspace/endsieg/artifact/d7ad817f…/41ebc69f…/event-trace-33196bbabcc7.json` |
 
 Earlier-route evidence still stands from revision 2 (`hoi4.focus_inspect` on `rch_republic` 51 focuses / 0 too-close pairs / 3 crossings and on `rch_warlord` 50 / 0 / 6; `hoi4.source_lookup rch_route_chapter` one definition and one caller). `hoi4.probability_analyze` and `hoi4.decision_inspect` remain unavailable at adapter 1.19.2.0 against the installed 1.19.3.0 game.
+
+## 12. Disposition after C9 implementation
+
+The first slice is implemented under the binding contract `docs/specs/qing_1910_1945/republic_succession.md`; the handoff is `docs/plans/qing_1910_1945/subagent_handoffs/republic_succession.md`.
+This section records only which rows of this proposal the shipped source no longer matches, so a later reader does not plan from them. Nothing else in this document is withdrawn, and every later slice in §9 and §10 stays open.
+
+| Proposal row | Shipped behaviour |
+| --- | --- |
+| §5 "The numbers, executed rather than asserted", `settle_boundary_180` counting three gates | A settlement date on which all four gates are exactly 180 days old counts zero. The binding spec overrides this row and the harness asserts 4 and 0. |
+| §5 `boundary_69_70` built from five settled gates | The tier-0 condition requires four settled reforms, so the boundary is constructed from base 29 and base 30 with four settled reforms and the refused throne. |
+| §4 display fallback: five `set_value` branches on a daily refresh | The shipped display publishes band offsets with `add_power_balance_value` and a stored published band, so no daily call re-initialises the panel. |
+| §6.1 "`immediate` freezes the score and tier" | The tick settles and freezes; the popup's `immediate` is gone and it only presents the frozen tier. |
+| §6 path table (twelve paths) | Fourteen paths, as the card reserved: `common/bop/RCH.txt`, `docs/systems/rch_campaign.md`, `.tools/tests/test_rch_succession.py`, the handoff and this file are the additions. |
+| §8 "Precedence is total and exclusive" listing a fourth-tier boundary fixture | Tiers are exclusive by construction; the harness asserts one tier per state on the shipped triggers rather than a separate fixture. |
+| §6 `rch_campaign.2` fired at `days = 5` from initialisation | As written, guarded by `rch_beiyang_intro_seen`. |
+
+The emergency table in §5 stands as printed and as the binding spec restates it: scores 35/38/42/44/46 and tiers 2/2/2/2/1.
+The four `rch_press_lock_*` flags, the eight gate and payload rows, the spirit payloads and the route-keyed AI weights are implemented as tabulated here.
+
+Still open, unchanged: the `rch_beiyang` tree (§7.2), the clique tags (§9.2), the seat transfers (§9.5), the leaders table (§7.3) and every remaining research gate G1 to G5.
+No part of §9 or §10 is retired by this implementation.

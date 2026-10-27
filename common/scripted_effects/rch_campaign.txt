@@ -1,4 +1,4 @@
-# Overview: Republic of China chapter routing, 1912-1936.
+﻿# Overview: Republic of China chapter routing, 1912-1936.
 # Country scope throughout. The Republic is never given the Qing tree and never keeps the generic one.
 # rch_route_chapter is the only authority that loads a focus tree: one date band decides
 # one chapter per day, so no day can load two opposing trees or pay a chapter reward twice.
@@ -11,6 +11,7 @@ rch_refresh_mechanics = {
 		rch_beiyang_republic rch_parliamentary_republic rch_nationalist_government rch_provincial_union
 		rch_warlord_armies rch_new_army rch_party_army
 		rch_empty_treasury rch_foreign_tutelage rch_japanese_pressure
+		rch_succession_constitutional rch_succession_contested rch_succession_garrison rch_succession_dissolved
 	}
 	if = {
 		limit = { rch_path_kmt = yes }
@@ -52,6 +53,12 @@ rch_refresh_mechanics = {
 		limit = { rch_legitimacy_weak = yes }
 		add_ideas = rch_empty_treasury
 	}
+
+	# The seat spirit is restored from the frozen line flag, so a routine refresh of the
+	# other families cannot erase the succession result, and the display is republished
+	# immediately after any settlement that moved the dial.
+	rch_succession_seat_spirit = yes
+	rch_beiyang_refresh = yes
 }
 
 rch_initialize_campaign = {
@@ -65,6 +72,9 @@ rch_initialize_campaign = {
 		set_variable = { rch_legitimacy = constant:rch_story.legitimacy_opening }
 		set_variable = { rch_military_influence = constant:rch_story.military_opening }
 		set_variable = { rch_nationalist_support = constant:rch_story.nationalist_opening }
+		set_variable = { rch_governor_count = 0 }
+		set_variable = { rch_reform_settled = 0 }
+		set_variable = { rch_bop_band = -1 }
 		if = {
 			limit = { date > 1927.12.31 }
 			set_variable = { rch_legitimacy = constant:rch_story.legitimacy_nanjing }
@@ -90,6 +100,13 @@ rch_initialize_campaign = {
 			rch_open_chapter_three = yes
 		}
 		rch_refresh_mechanics = yes
+		rch_succession_endow = yes
+		rch_beiyang_bootstrap = yes
+		if = {
+			limit = { NOT = { has_country_flag = rch_beiyang_intro_seen } }
+			set_country_flag = rch_beiyang_intro_seen
+			country_event = { id = rch_campaign.2 days = 5 }
+		}
 	}
 }
 
@@ -293,10 +310,26 @@ rch_campaign_tick = {
 			set_country_flag = rch_21_demands_seen
 			country_event = { id = rch_campaign.4 days = 1 }
 		}
+		# The settlement is taken once on 12 December 1915, before the throne is answered,
+		# so the answer cannot move the reform count.
 		if = {
-			limit = { date > 1916.6.1 NOT = { has_country_flag = rch_yuan_death_seen } }
-			set_country_flag = rch_yuan_death_seen
-			country_event = { id = rch_campaign.5 days = 1 }
+			limit = { date > 1915.12.11 }
+			rch_settlement_snapshot = yes
+		}
+		if = {
+			limit = {
+				date > 1915.12.11
+				date < 1916.1.1
+				NOT = { has_country_flag = rch_throne_choice_seen }
+			}
+			set_country_flag = rch_throne_choice_seen
+			country_event = { id = rch_campaign.42 days = 1 }
+		}
+		# The tick owns the succession on the first day after 5 June 1916: it resolves, then
+		# queues the popup. A deferred, closed or lost popup cannot change the outcome.
+		if = {
+			limit = { date > 1916.6.5 NOT = { has_country_flag = rch_succession_resolved } }
+			rch_succession_resolve = yes
 		}
 		if = {
 			limit = { date > 1917.7.1 NOT = { has_country_flag = rch_restoration_seen } }
@@ -350,6 +383,9 @@ rch_campaign_tick = {
 			set_country_flag = rch_1936_handover_seen
 			country_event = { id = rch_campaign.35 days = 1 }
 		}
+		# The display is republished daily from the dial, so every existing writer of
+		# military influence is mirrored within a day without touching those writers.
+		rch_beiyang_refresh = yes
 	}
 }
 
@@ -462,4 +498,354 @@ rch_build_whampoa = {
 		}
 		army_experience = 25
 	}
+}
+
+# ===========================================================================
+# The 1915 settlement, the 1916 succession and the Beiyang pressure cards.
+# Country scope throughout. Values live in constant:rch_story.*; the literals
+# below exist only where an engine field rejects a constant, and each one is
+# asserted against its constant by .tools/tests/test_rch_succession.py.
+# ===========================================================================
+
+# One snapshot, taken on 12 December 1915 and never retaken. A reform counts only
+# when its flag stood longer than the maturity window at that date, so nothing
+# bought afterwards can enlarge the count.
+rch_settlement_snapshot = {
+	if = {
+		limit = { NOT = { has_country_flag = rch_settlement_taken } }
+		set_country_flag = rch_settlement_taken
+		set_variable = { rch_reform_settled = 0 }
+		if = {
+			limit = { has_country_flag = { flag = rch_gate_constitution days > 180 } }
+			add_to_variable = { rch_reform_settled = 1 }
+		}
+		if = {
+			limit = { has_country_flag = { flag = rch_gate_officer_rotation days > 180 } }
+			add_to_variable = { rch_reform_settled = 1 }
+		}
+		if = {
+			limit = { has_country_flag = { flag = rch_gate_civil_governors days > 180 } }
+			add_to_variable = { rch_reform_settled = 1 }
+		}
+		if = {
+			limit = { has_country_flag = { flag = rch_gate_treasury days > 180 } }
+			add_to_variable = { rch_reform_settled = 1 }
+		}
+	}
+}
+
+# The score as a pure function of the three dials, the frozen settlement count, the
+# throne answer, the governor counter and a Chinese war. Assigned, never accumulated.
+rch_succession_refresh = {
+	set_variable = { var = rch_succession_base value = var:rch_legitimacy }
+	add_to_variable = { var = rch_succession_base value = constant:rch_story.legitimacy_cap }
+	subtract_from_variable = { var = rch_succession_base value = var:rch_military_influence }
+	set_variable = { var = rch_succession_half_nat value = var:rch_nationalist_support }
+	divide_variable = { var = rch_succession_half_nat value = constant:rch_story.succession_half_divisor }
+	round_variable = rch_succession_half_nat
+	add_to_variable = { var = rch_succession_base value = var:rch_succession_half_nat }
+	divide_variable = { var = rch_succession_base value = constant:rch_story.succession_divisor }
+	round_variable = rch_succession_base
+
+	set_variable = { var = rch_succession_gate_term value = var:rch_reform_settled }
+	multiply_variable = { var = rch_succession_gate_term value = constant:rch_story.succession_gate_weight }
+	add_to_variable = { var = rch_succession_base value = var:rch_succession_gate_term }
+	if = {
+		limit = { rch_gate_throne_refused = yes }
+		add_to_variable = { var = rch_succession_base value = constant:rch_story.succession_gate_weight }
+	}
+
+	set_variable = { var = rch_succession_governor_term value = var:rch_governor_count }
+	multiply_variable = { var = rch_succession_governor_term value = constant:rch_story.succession_governor_penalty }
+	subtract_from_variable = { var = rch_succession_base value = var:rch_succession_governor_term }
+	if = {
+		limit = { rch_chinese_war = yes }
+		subtract_from_variable = { var = rch_succession_base value = constant:rch_story.succession_war_penalty }
+	}
+
+	set_variable = { var = rch_succession_score value = var:rch_succession_base }
+	clamp_variable = { var = rch_succession_score min = constant:rch_story.succession_score_floor max = constant:rch_story.succession_score_cap }
+}
+
+# One exclusive precedence: collapse first, then the two earned tiers, historical as
+# the floor. The tier is a variable, not a chain of flags, so nothing reads it twice.
+rch_succession_evaluate = {
+	if = {
+		limit = { rch_succession_collapse = yes }
+		set_variable = { rch_succession_tier = 3 }
+	}
+	else_if = {
+		limit = { rch_succession_tier_0 = yes }
+		set_variable = { rch_succession_tier = 0 }
+	}
+	else_if = {
+		limit = { rch_succession_tier_1 = yes }
+		set_variable = { rch_succession_tier = 1 }
+	}
+	else = {
+		set_variable = { rch_succession_tier = 2 }
+	}
+}
+
+# The one seat spirit for the frozen tier. Removing the family before adding one keeps
+# exactly one seat spirit even when a refresh runs after the crisis.
+rch_succession_seat_spirit = {
+	remove_ideas = {
+		rch_succession_constitutional rch_succession_contested rch_succession_garrison rch_succession_dissolved
+	}
+	if = {
+		limit = { has_country_flag = rch_line_unified }
+		add_ideas = rch_succession_constitutional
+	}
+	else_if = {
+		limit = { has_country_flag = rch_line_contested }
+		add_ideas = rch_succession_contested
+	}
+	else_if = {
+		limit = { has_country_flag = rch_line_garrison }
+		add_ideas = rch_succession_garrison
+	}
+	else_if = {
+		limit = { has_country_flag = rch_line_dissolved }
+		add_ideas = rch_succession_dissolved
+	}
+}
+
+# The succession itself, without a popup. The tick owns this on 6 June 1916 and the
+# initialisation of a post-crisis start uses it silently, so no popup can change it.
+rch_succession_settle = {
+	if = {
+		limit = { NOT = { has_country_flag = rch_succession_resolved } }
+		set_country_flag = rch_succession_resolved
+		set_country_flag = rch_yuan_death_seen
+		set_country_flag = rch_yuan_legacy
+		rch_succession_refresh = yes
+		rch_succession_evaluate = yes
+		set_variable = { rch_succession_final_score = var:rch_succession_score }
+		set_variable = { rch_succession_final_tier = var:rch_succession_tier }
+		clr_country_flag = rch_hongxian
+		if = {
+			limit = { check_variable = { var = rch_succession_final_tier value = 0 compare = equals } }
+			set_country_flag = rch_line_unified
+		}
+		else_if = {
+			limit = { check_variable = { var = rch_succession_final_tier value = 1 compare = equals } }
+			set_country_flag = rch_line_contested
+		}
+		else_if = {
+			limit = { check_variable = { var = rch_succession_final_tier value = 2 compare = equals } }
+			set_country_flag = rch_line_garrison
+		}
+		else = {
+			set_country_flag = rch_line_dissolved
+		}
+		rch_succession_seat_spirit = yes
+		rch_refresh_mechanics = yes
+	}
+}
+
+# Settle, then announce. The popup only presents the frozen tier.
+rch_succession_resolve = {
+	rch_succession_settle = yes
+	if = {
+		limit = { NOT = { has_country_flag = rch_succession_popup_queued } }
+		set_country_flag = rch_succession_popup_queued
+		country_event = { id = rch_campaign.5 days = 1 }
+	}
+}
+
+# What a start inherits from the years it did not play. A Republic opened at or after
+# 1 January 1916 has already lived through the proclamation, so it receives the
+# Hongxian state and a sealed zero snapshot rather than retroactive maturity.
+rch_succession_endow = {
+	if = {
+		limit = { date > 1915.12.31 }
+		set_country_flag = rch_hongxian
+		set_country_flag = rch_throne_choice_seen
+		if = {
+			limit = { NOT = { has_country_flag = rch_settlement_taken } }
+			set_country_flag = rch_settlement_taken
+			set_variable = { rch_reform_settled = 0 }
+		}
+	}
+	if = {
+		limit = { date > 1916.6.5 }
+		rch_succession_settle = yes
+	}
+}
+
+# The panel is created once. Everything below is DLC-guarded, and the eight cards and
+# the succession run identically without Arms Against Tyranny.
+rch_beiyang_bootstrap = {
+	if = {
+		limit = {
+			has_dlc = "Arms Against Tyranny"
+			NOT = { has_power_balance = { id = RCH_beiyang_order } }
+		}
+		set_power_balance = { id = RCH_beiyang_order set_value = 0.0 }
+		set_variable = { rch_bop_band = -1 }
+	}
+}
+
+# The display mirrors military influence and nothing else, read from the dial itself, so
+# every existing focus, decision and event writer is reflected within a day. A band
+# change removes the published offset and applies the new one exactly once; the panel is
+# never re-initialised from a daily call.
+rch_beiyang_refresh = {
+	if = {
+		limit = { has_dlc = "Arms Against Tyranny" }
+		rch_beiyang_bootstrap = yes
+		if = {
+			limit = { has_power_balance = { id = RCH_beiyang_order } }
+			if = {
+				limit = { check_variable = { var = rch_military_influence value = constant:rch_story.succession_bop_high compare = greater_than } }
+				set_variable = { rch_bop_band_new = 4 }
+			}
+			else_if = {
+				limit = { check_variable = { var = rch_military_influence value = constant:rch_story.succession_bop_upper compare = greater_than } }
+				set_variable = { rch_bop_band_new = 3 }
+			}
+			else_if = {
+				limit = { check_variable = { var = rch_military_influence value = constant:rch_story.succession_bop_mid compare = greater_than } }
+				set_variable = { rch_bop_band_new = 2 }
+			}
+			else_if = {
+				limit = { check_variable = { var = rch_military_influence value = constant:rch_story.succession_bop_low compare = greater_than } }
+				set_variable = { rch_bop_band_new = 1 }
+			}
+			else = {
+				set_variable = { rch_bop_band_new = 0 }
+			}
+			if = {
+				limit = { NOT = { check_variable = { var = rch_bop_band_new value = var:rch_bop_band compare = equals } } }
+				# Retire the band that is published, in the five literals the dial maps to.
+				if = {
+					limit = { check_variable = { var = rch_bop_band value = 4 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = -0.85 }
+				}
+				else_if = {
+					limit = { check_variable = { var = rch_bop_band value = 3 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = -0.25 }
+				}
+				else_if = {
+					limit = { check_variable = { var = rch_bop_band value = 1 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = 0.25 }
+				}
+				else_if = {
+					limit = { check_variable = { var = rch_bop_band value = 0 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = 0.85 }
+				}
+				# Publish the new band.
+				if = {
+					limit = { check_variable = { var = rch_bop_band_new value = 4 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = 0.85 }
+				}
+				else_if = {
+					limit = { check_variable = { var = rch_bop_band_new value = 3 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = 0.25 }
+				}
+				else_if = {
+					limit = { check_variable = { var = rch_bop_band_new value = 1 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = -0.25 }
+				}
+				else_if = {
+					limit = { check_variable = { var = rch_bop_band_new value = 0 compare = equals } }
+					add_power_balance_value = { id = RCH_beiyang_order value = -0.85 }
+				}
+				set_variable = { rch_bop_band = var:rch_bop_band_new }
+			}
+		}
+	}
+}
+
+# One clamped governor increment. The counter is not the existing
+# rch_military_governors flag, and it can never exceed the cap.
+rch_governor_increment = {
+	add_to_variable = { rch_governor_count = constant:rch_story.pressure_governor_step }
+	clamp_variable = { var = rch_governor_count min = constant:rch_story.pressure_governor_floor max = constant:rch_story.pressure_governor_cap }
+}
+
+# ---------------------------------------------------------------------------
+# The eight pressure cards. Civil reform sets its gate, the military bargain in the
+# same family clears it, and either side takes the family lock for 180 days.
+# Every press clears its gate and its family lock before re-setting them, so the
+# reform tenure and the lock date always restart at the press rather than inherit
+# the date of the term before it.
+# ---------------------------------------------------------------------------
+rch_press_constitution_civil = {
+	add_to_variable = { rch_legitimacy = constant:rch_story.pressure_legitimacy_gain }
+	add_to_variable = { rch_nationalist_support = constant:rch_story.pressure_nationalist_gain }
+	add_stability = constant:rch_story.pressure_stability_gain
+	clr_country_flag = rch_gate_constitution
+	set_country_flag = rch_gate_constitution
+	clr_country_flag = rch_press_lock_constitution
+	set_country_flag = rch_press_lock_constitution
+	rch_refresh_mechanics = yes
+}
+
+rch_press_constitution_military = {
+	add_to_variable = { rch_legitimacy = constant:rch_story.pressure_legitimacy_loss }
+	add_to_variable = { rch_military_influence = constant:rch_story.pressure_military_step }
+	clr_country_flag = rch_gate_constitution
+	clr_country_flag = rch_press_lock_constitution
+	set_country_flag = rch_press_lock_constitution
+	rch_refresh_mechanics = yes
+}
+
+rch_press_army_civil = {
+	subtract_from_variable = { rch_military_influence = constant:rch_story.pressure_military_step }
+	add_to_variable = { rch_legitimacy = constant:rch_story.pressure_legitimacy_gain_army }
+	clr_country_flag = rch_gate_officer_rotation
+	set_country_flag = rch_gate_officer_rotation
+	clr_country_flag = rch_press_lock_army
+	set_country_flag = rch_press_lock_army
+	rch_refresh_mechanics = yes
+}
+
+rch_press_army_military = {
+	add_to_variable = { rch_military_influence = constant:rch_story.pressure_military_step }
+	rch_governor_increment = yes
+	clr_country_flag = rch_gate_officer_rotation
+	clr_country_flag = rch_press_lock_army
+	set_country_flag = rch_press_lock_army
+	rch_refresh_mechanics = yes
+}
+
+rch_press_provinces_civil = {
+	add_to_variable = { rch_legitimacy = constant:rch_story.pressure_legitimacy_gain }
+	clr_country_flag = rch_gate_civil_governors
+	set_country_flag = rch_gate_civil_governors
+	clr_country_flag = rch_press_lock_provinces
+	set_country_flag = rch_press_lock_provinces
+	rch_refresh_mechanics = yes
+}
+
+rch_press_provinces_military = {
+	rch_governor_increment = yes
+	add_to_variable = { rch_legitimacy = constant:rch_story.pressure_legitimacy_loss }
+	clr_country_flag = rch_gate_civil_governors
+	clr_country_flag = rch_press_lock_provinces
+	set_country_flag = rch_press_lock_provinces
+	rch_refresh_mechanics = yes
+}
+
+rch_press_money_civil = {
+	add_to_variable = { rch_legitimacy = constant:rch_story.pressure_legitimacy_gain }
+	add_stability = constant:rch_story.pressure_stability_cost
+	clr_country_flag = rch_gate_treasury
+	set_country_flag = rch_gate_treasury
+	clr_country_flag = rch_press_lock_money
+	set_country_flag = rch_press_lock_money
+	rch_refresh_mechanics = yes
+}
+
+rch_press_money_military = {
+	add_to_variable = { rch_military_influence = constant:rch_story.pressure_military_step_money }
+	rch_governor_increment = yes
+	add_to_variable = { rch_legitimacy = constant:rch_story.pressure_legitimacy_loss }
+	set_country_flag = rch_foreign_loans
+	clr_country_flag = rch_gate_treasury
+	clr_country_flag = rch_press_lock_money
+	set_country_flag = rch_press_lock_money
+	rch_refresh_mechanics = yes
 }

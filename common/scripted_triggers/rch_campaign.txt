@@ -94,3 +94,76 @@ rch_path_provinces = {
 		has_country_flag = rch_federal_council
 	}
 }
+
+# ---------------------------------------------------------------------------
+# The 1915 settlement and the 1916 succession (docs/systems/rch_campaign.md).
+# Every value here is read by the script and by .tools/tests/test_rch_succession.py.
+# ---------------------------------------------------------------------------
+rch_gate_constitution = {
+	has_country_flag = rch_gate_constitution
+}
+
+rch_gate_officer_rotation = {
+	has_country_flag = rch_gate_officer_rotation
+}
+
+rch_gate_civil_governors = {
+	has_country_flag = rch_gate_civil_governors
+}
+
+rch_gate_treasury = {
+	has_country_flag = rch_gate_treasury
+}
+
+rch_gate_throne_refused = {
+	has_country_flag = rch_gate_throne_refused
+}
+
+# The four reforms plus the throne answer, as the settlement counts them.
+rch_gate_settled_count = {
+	check_variable = { var = rch_reform_settled value = constant:rch_story.succession_tier0_settled compare = greater_than_or_equals }
+}
+
+rch_succession_governors_below_three = {
+	check_variable = { var = rch_governor_count value = constant:rch_story.pressure_governor_cap compare = less_than }
+}
+
+rch_succession_collapse = {
+	OR = {
+		check_variable = { var = rch_military_influence value = constant:rch_story.succession_collapse_military compare = greater_than_or_equals }
+		check_variable = { var = rch_legitimacy value = constant:rch_story.succession_collapse_legitimacy compare = less_than }
+	}
+}
+
+# A war against another Chinese government. Manchukuo is excluded because a war with
+# it is a war with Japan, which the seat condition does not count as a Chinese war.
+rch_chinese_war = {
+	OR = {
+		has_war_with = CHI
+		has_war_with = GDC
+		has_war_with = GXC
+		has_war_with = PRC
+		has_war_with = QIN
+		has_war_with = SHX
+		has_war_with = SIK
+		has_war_with = SND
+		has_war_with = XSM
+		has_war_with = YUN
+	}
+}
+
+# Tier 3 is an override: no score and no settlement can buy out of it.
+rch_succession_tier_0 = {
+	NOT = { rch_succession_collapse = yes }
+	check_variable = { var = rch_succession_score value = constant:rch_story.succession_tier0_score compare = greater_than_or_equals }
+	rch_gate_settled_count = yes
+	rch_gate_throne_refused = yes
+	rch_succession_governors_below_three = yes
+	controls_state = 608
+	NOT = { rch_chinese_war = yes }
+}
+
+rch_succession_tier_1 = {
+	NOT = { rch_succession_collapse = yes }
+	check_variable = { var = rch_succession_score value = constant:rch_story.succession_tier1_score compare = greater_than_or_equals }
+}
