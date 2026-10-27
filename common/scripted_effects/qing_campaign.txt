@@ -2,6 +2,11 @@
 # Country scope throughout unless a state scope is entered explicitly.
 # The dynasty survives only through the settlement effects; the historical chain is never rewritten.
 
+# Event timers take a literal day count, so the armistice length is mirrored here from
+# constant:qing_story.armistice_days (90) in common/script_constants/qing_campaign.txt.
+@qing_armistice_days = 90
+
+
 # ---------------------------------------------------------------------------
 # Mechanics refresh: exactly one regime spirit, one army spirit, one pressure spirit.
 # ---------------------------------------------------------------------------
@@ -219,11 +224,14 @@ qing_campaign_tick = {
 
 		# The scenario state history hands every Chinese state from QIN to RCH in 1914
 		# and to CHI and the warlords in 1936. A Qing that survived keeps its country.
+		# A partition leaves the Republic governing the south, so the bookkeeping
+		# repair stops at the frontier the two governments agreed.
 		if = {
 			limit = {
 				has_global_flag = qing_xinhai_settled
 				date > 1913.12.31
 				NOT = { has_country_flag = qing_ownership_1914 }
+				NOT = { has_country_flag = qing_settlement_partition }
 			}
 			set_country_flag = qing_ownership_1914
 			endsieg_china_reclaim_states = yes
@@ -233,6 +241,7 @@ qing_campaign_tick = {
 				has_global_flag = qing_xinhai_settled
 				date > 1935.12.31
 				NOT = { has_country_flag = qing_ownership_1936 }
+				NOT = { has_country_flag = qing_settlement_partition }
 			}
 			set_country_flag = qing_ownership_1936
 			endsieg_china_reclaim_states = yes
@@ -249,12 +258,23 @@ qing_campaign_tick = {
 			set_country_flag = qing_railway_crisis_seen
 			country_event = { id = qing_campaign.10 days = 1 }
 		}
-		# The revolution window. A reformed dynasty is offered a settlement before
-		# the garrison rises; a strong army can still impose one; otherwise the
-		# historical chain fires on its own schedule.
+		# The revolution window. Wuchang opens the war, and the war opens a short
+		# armistice the powers broker before the fighting spreads. Nothing can be
+		# settled before the garrison rises, and nothing after the armistice lapses:
+		# a reformed dynasty is offered terms, a strong army can impose them, and a
+		# court with neither watches the provinces go.
 		if = {
-			limit = { date > 1911.9.1 NOT = { has_country_flag = qing_revolution_window_seen } }
+			limit = {
+				date > 1911.10.9
+				has_war_with = RCH
+				NOT = { has_country_flag = qing_revolution_window_seen }
+			}
 			set_country_flag = qing_revolution_window_seen
+			country_event = { id = qing_campaign.19 days = @qing_armistice_days }
+			if = {
+				limit = { qing_historical_pressure = yes }
+				add_to_variable = { qing_legitimacy = constant:qing_story.revolution_pressure }
+			}
 			if = {
 				limit = { qing_survival_possible = yes }
 				country_event = { id = qing_campaign.20 days = 2 }
@@ -272,6 +292,7 @@ qing_campaign_tick = {
 			limit = {
 				date > 1911.10.20
 				has_war_with = RCH
+				qing_armistice_open = yes
 				NOT = { has_country_flag = qing_court_council_seen }
 			}
 			set_country_flag = qing_court_council_seen
@@ -365,94 +386,193 @@ qing_bop_pull_to_centre = {
 # ---------------------------------------------------------------------------
 # The revolution settlement.
 # ---------------------------------------------------------------------------
-# Ends the revolutionary war, absorbs the Republic and writes the route.
+# A settlement is not one act. The court ends the war in the strongest form its
+# position allows, and no form annexes the Republic's land without paying for it.
+# Reached only through the route effects below, which are themselves gated by the
+# armistice window, so a single focus can never buy survival.
 qing_end_revolution = {
 	if = {
-		limit = { NOT = { qing_historical_collapse = yes } }
-		set_global_flag = qing_xinhai_settled
-		set_country_flag = qing_regime_settled
-		if = {
-			limit = { country_exists = RCH }
-			if = { limit = { has_war_with = RCH } white_peace = RCH }
-			annex_country = { target = RCH transfer_troops = no }
+		limit = {
+			NOT = { qing_historical_collapse = yes }
+			qing_armistice_open = yes
 		}
-		add_political_power = constant:qing_story.political_capital
-		add_stability = constant:qing_story.stability_major_gain
-		qing_refresh_mechanics = yes
-		mark_focus_tree_layout_dirty = yes
+		if = {
+			limit = { qing_can_settle_conquest = yes }
+			qing_revolution_conquest = yes
+		}
+		else_if = {
+			limit = { qing_can_settle_reunion = yes }
+			qing_revolution_reunion = yes
+		}
+		else_if = {
+			limit = { qing_can_settle_partition = yes }
+			qing_revolution_partition = yes
+		}
 	}
 }
 
-qing_settle_constitutional = {
-	qing_end_revolution = yes
-	clr_country_flag = qing_route_constitutional
-	clr_country_flag = qing_route_authoritarian
-	clr_country_flag = qing_route_federal
-	clr_country_flag = qing_route_yuan
-	set_country_flag = qing_route_constitutional
-	retire_country_leader = yes
-	qing_promote_puyi = yes
-	set_politics = { ruling_party = neutrality elections_allowed = yes }
-	add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
-	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
-	add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+# Partition: the armistice stops the war where the armies stand. The Republic keeps
+# the south and governs it, the dynasty keeps the north, and neither side annexes
+# the other or takes the other's cores.
+qing_revolution_partition = {
+	set_global_flag = qing_xinhai_settled
+	set_country_flag = qing_regime_settled
+	set_country_flag = qing_settlement_partition
+	clr_country_flag = qing_settlement_reunion
+	clr_country_flag = qing_settlement_conquest
+	if = {
+		limit = { country_exists = RCH has_war_with = RCH }
+		white_peace = RCH
+	}
+	add_political_power = constant:qing_story.political_capital
+	add_stability = constant:qing_story.stability_major_gain
 	qing_refresh_mechanics = yes
 	mark_focus_tree_layout_dirty = yes
-	country_event = { id = qing_campaign.24 days = 1 }
+}
+
+# Reunion: the assembly accepts the monarchy and the Republican government dissolves
+# into it. The southern provinces are administered, not cored, and the court pays the
+# officers and the indemnity out of its own treasury.
+qing_revolution_reunion = {
+	set_global_flag = qing_xinhai_settled
+	set_country_flag = qing_regime_settled
+	set_country_flag = qing_settlement_reunion
+	clr_country_flag = qing_settlement_partition
+	clr_country_flag = qing_settlement_conquest
+	add_political_power = constant:qing_story.settlement_price_reunion
+	if = {
+		limit = { country_exists = RCH }
+		if = {
+			limit = { has_war_with = RCH }
+			white_peace = RCH
+		}
+		annex_country = { target = RCH transfer_troops = no }
+	}
+	add_stability = constant:qing_story.stability_major_gain
+	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+	qing_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+}
+
+# Conquest: the Beiyang army dictates the terms in a capital it still holds. The
+# south is occupied rather than reconciled, so it is held without cores and the
+# settlement is paid for like any other.
+qing_revolution_conquest = {
+	set_global_flag = qing_xinhai_settled
+	set_country_flag = qing_regime_settled
+	set_country_flag = qing_settlement_conquest
+	clr_country_flag = qing_settlement_partition
+	clr_country_flag = qing_settlement_reunion
+	add_political_power = constant:qing_story.settlement_price_conquest
+	if = {
+		limit = { country_exists = RCH }
+		if = {
+			limit = { has_war_with = RCH }
+			white_peace = RCH
+		}
+		annex_country = { target = RCH transfer_troops = no }
+	}
+	add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+	add_stability = constant:qing_story.stability_major_gain
+	qing_refresh_mechanics = yes
+	mark_focus_tree_layout_dirty = yes
+}
+
+qing_settle_constitutional = {
+	if = {
+		limit = {
+			NOT = { qing_historical_collapse = yes }
+			qing_armistice_open = yes
+		}
+		qing_end_revolution = yes
+		clr_country_flag = qing_route_constitutional
+		clr_country_flag = qing_route_authoritarian
+		clr_country_flag = qing_route_federal
+		clr_country_flag = qing_route_yuan
+		set_country_flag = qing_route_constitutional
+		retire_country_leader = yes
+		qing_promote_puyi = yes
+		set_politics = { ruling_party = neutrality elections_allowed = yes }
+		add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+		add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		qing_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+		country_event = { id = qing_campaign.24 days = 1 }
+	}
 }
 
 qing_settle_authoritarian = {
-	qing_end_revolution = yes
-	clr_country_flag = qing_route_constitutional
-	clr_country_flag = qing_route_authoritarian
-	clr_country_flag = qing_route_federal
-	clr_country_flag = qing_route_yuan
-	set_country_flag = qing_route_authoritarian
-	retire_country_leader = yes
-	qing_promote_puyi = yes
-	set_politics = { ruling_party = neutrality elections_allowed = no }
-	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
-	add_to_variable = { qing_reform = constant:qing_story.reform_loss }
-	add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
-	qing_refresh_mechanics = yes
-	mark_focus_tree_layout_dirty = yes
-	country_event = { id = qing_campaign.25 days = 1 }
+	if = {
+		limit = {
+			NOT = { qing_historical_collapse = yes }
+			qing_armistice_open = yes
+		}
+		qing_end_revolution = yes
+		clr_country_flag = qing_route_constitutional
+		clr_country_flag = qing_route_authoritarian
+		clr_country_flag = qing_route_federal
+		clr_country_flag = qing_route_yuan
+		set_country_flag = qing_route_authoritarian
+		retire_country_leader = yes
+		qing_promote_puyi = yes
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+		add_to_variable = { qing_reform = constant:qing_story.reform_loss }
+		add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
+		qing_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+		country_event = { id = qing_campaign.25 days = 1 }
+	}
 }
 
 qing_settle_yuan = {
-	qing_end_revolution = yes
-	clr_country_flag = qing_route_constitutional
-	clr_country_flag = qing_route_authoritarian
-	clr_country_flag = qing_route_federal
-	clr_country_flag = qing_route_yuan
-	set_country_flag = qing_route_yuan
-	retire_country_leader = yes
-	qing_promote_yuan = yes
-	set_politics = { ruling_party = neutrality elections_allowed = no }
-	add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_major_gain }
-	add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
-	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
-	qing_refresh_mechanics = yes
-	mark_focus_tree_layout_dirty = yes
-	country_event = { id = qing_campaign.26 days = 1 }
+	if = {
+		limit = {
+			NOT = { qing_historical_collapse = yes }
+			qing_armistice_open = yes
+		}
+		qing_end_revolution = yes
+		clr_country_flag = qing_route_constitutional
+		clr_country_flag = qing_route_authoritarian
+		clr_country_flag = qing_route_federal
+		clr_country_flag = qing_route_yuan
+		set_country_flag = qing_route_yuan
+		retire_country_leader = yes
+		qing_promote_yuan = yes
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_major_gain }
+		add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+		add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+		qing_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+		country_event = { id = qing_campaign.26 days = 1 }
+	}
 }
 
 qing_settle_federal = {
-	qing_end_revolution = yes
-	clr_country_flag = qing_route_constitutional
-	clr_country_flag = qing_route_authoritarian
-	clr_country_flag = qing_route_federal
-	clr_country_flag = qing_route_yuan
-	set_country_flag = qing_route_federal
-	retire_country_leader = yes
-	qing_promote_puyi = yes
-	set_politics = { ruling_party = neutrality elections_allowed = yes }
-	add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
-	add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
-	add_to_variable = { qing_reform = constant:qing_story.reform_gain }
-	qing_refresh_mechanics = yes
-	mark_focus_tree_layout_dirty = yes
-	country_event = { id = qing_campaign.27 days = 1 }
+	if = {
+		limit = {
+			NOT = { qing_historical_collapse = yes }
+			qing_armistice_open = yes
+		}
+		qing_end_revolution = yes
+		clr_country_flag = qing_route_constitutional
+		clr_country_flag = qing_route_authoritarian
+		clr_country_flag = qing_route_federal
+		clr_country_flag = qing_route_yuan
+		set_country_flag = qing_route_federal
+		retire_country_leader = yes
+		qing_promote_puyi = yes
+		set_politics = { ruling_party = neutrality elections_allowed = yes }
+		add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+		add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+		add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+		qing_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+		country_event = { id = qing_campaign.27 days = 1 }
+	}
 }
 
 # ---------------------------------------------------------------------------

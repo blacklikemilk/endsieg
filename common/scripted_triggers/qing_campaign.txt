@@ -70,19 +70,46 @@ qing_yuan_dominant = {
 }
 
 # --- the revolution gate ---
-# Historical focus is the railroaded timeline: the dynasty falls on the revolution's
-# own schedule, so no settlement is offered and no settlement effect can take hold.
+# The scenario's railroaded timeline. Only an AI Qing is held to it: a human who
+# keeps the historical focus still faces the revolution and can still negotiate,
+# but is never scripted out of the dynasty by the focus itself.
 qing_historical_collapse = {
+	is_historical_focus_on = yes
+	is_ai = yes
+}
+
+# A human court that keeps the historical focus on carries the weight of the old
+# order, so the provinces ask more of it before they will treat with it.
+qing_historical_pressure = {
 	is_historical_focus_on = yes
 }
 
 # A dynasty can negotiate its way out of the revolution only when reform,
 # army reliability and provincial confidence all hold at the same time.
-qing_survival_possible = {
-	NOT = { qing_historical_collapse = yes }
+qing_survival_bar = {
 	check_variable = { var = qing_reform value = constant:qing_story.survival_reform compare = greater_than_or_equals }
 	check_variable = { var = qing_army_loyalty value = constant:qing_story.survival_loyalty compare = greater_than_or_equals }
 	check_variable = { var = qing_provincial_trust value = constant:qing_story.survival_trust compare = greater_than_or_equals }
+}
+
+qing_survival_bar_pressure = {
+	check_variable = { var = qing_reform value = constant:qing_story.survival_reform_pressure compare = greater_than_or_equals }
+	check_variable = { var = qing_army_loyalty value = constant:qing_story.survival_loyalty_pressure compare = greater_than_or_equals }
+	check_variable = { var = qing_provincial_trust value = constant:qing_story.survival_trust_pressure compare = greater_than_or_equals }
+}
+
+qing_survival_possible = {
+	NOT = { qing_historical_collapse = yes }
+	OR = {
+		AND = {
+			qing_historical_pressure = yes
+			qing_survival_bar_pressure = yes
+		}
+		AND = {
+			NOT = { qing_historical_pressure = yes }
+			qing_survival_bar = yes
+		}
+	}
 }
 
 # The army can hold Beijing while the court negotiates, even if reform is thin.
@@ -95,6 +122,40 @@ qing_can_impose_settlement = {
 		qing_yuan_dominant = yes
 	}
 }
+
+# --- the armistice window ---
+# Wuchang opens the war, the powers broker a short armistice, and the court can
+# settle only while that armistice holds. The window is opened by the war
+# detector in qing_campaign_tick and closed by qing_campaign.19, so no settlement
+# can be taken before the garrison rises and none after the deadline passes.
+qing_armistice_open = {
+	has_country_flag = qing_revolution_window_seen
+	NOT = { has_country_flag = qing_armistice_closed }
+}
+
+# Partition: the war stops where the armies stand and the Republic keeps the south.
+qing_can_settle_partition = {
+	qing_armistice_open = yes
+}
+
+# Reunion: the assembly accepts the monarchy. The survival bar is what makes the
+# Republic's leaders take the offer, and the court must hold the treasury to pay them.
+# The power threshold mirrors constant:qing_story.settlement_treasury_reunion because
+# has_political_power takes a literal.
+qing_can_settle_reunion = {
+	qing_armistice_open = yes
+	qing_survival_possible = yes
+	has_political_power > 75
+}
+
+# Conquest: the Beiyang army dictates the terms in a capital it still holds.
+# The threshold mirrors constant:qing_story.settlement_treasury_conquest.
+qing_can_settle_conquest = {
+	qing_armistice_open = yes
+	qing_can_impose_settlement = yes
+	has_political_power > 50
+}
+
 
 # --- flags written by the chapters that later chapters read ---
 qing_path_railway = {
