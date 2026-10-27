@@ -1,6 +1,9 @@
 # Overview: the Spanish Cortes as a chamber of seat blocs.
 # Raw support is written to spain_cortes_raw_* and normalised to exactly 400 seats in
 # spain_cortes_seats_*, so a majority is always 201 however support drifts.
+# A recount runs in one fixed order: pick the era's base support, apply the flags and the
+# accumulated party shifts on top of it, then clamp. A modifier applied before the era is
+# chosen is discarded by the era's own set_variable lines, so the order is not cosmetic.
 # A decision category (SPR_cortes) mounts the chamber panel; its bills are ordinary decisions
 # gated on the bloc that has to carry them.
 
@@ -23,15 +26,35 @@ spain_cortes_initialize = {
 # =====================================================================================
 
 spain_cortes_recount = {
-	# --- raw support, restoration and dictatorship
-	set_variable = { var = spain_cortes_raw_monarchists value = 40 }
-	set_variable = { var = spain_cortes_raw_liberals value = 30 }
-	set_variable = { var = spain_cortes_raw_conservatives value = 25 }
-	set_variable = { var = spain_cortes_raw_republicans value = 15 }
-	set_variable = { var = spain_cortes_raw_socialists value = 8 }
-	set_variable = { var = spain_cortes_raw_carlists value = 5 }
-	set_variable = { var = spain_cortes_raw_falange value = 1 }
+	# --- one era base only, chosen before anything modifies it. The Republic that
+	# replaces the monarchy and the Directory inherits a different chamber from the one
+	# the Restoration and the Directory hand it, so the era is settled first and every
+	# modifier below acts on the base the country actually has.
+	if = {
+		limit = {
+			NOT = { has_country_flag = spain_chapter_restoration }
+			NOT = { has_country_flag = spain_chapter_rivera }
+		}
+		set_variable = { var = spain_cortes_raw_monarchists value = 12 }
+		set_variable = { var = spain_cortes_raw_liberals value = 22 }
+		set_variable = { var = spain_cortes_raw_conservatives value = 60 }
+		set_variable = { var = spain_cortes_raw_republicans value = 95 }
+		set_variable = { var = spain_cortes_raw_socialists value = 80 }
+		set_variable = { var = spain_cortes_raw_carlists value = 18 }
+		set_variable = { var = spain_cortes_raw_falange value = 5 }
+	}
+	else = {
+		# --- raw support, restoration and dictatorship
+		set_variable = { var = spain_cortes_raw_monarchists value = 40 }
+		set_variable = { var = spain_cortes_raw_liberals value = 30 }
+		set_variable = { var = spain_cortes_raw_conservatives value = 25 }
+		set_variable = { var = spain_cortes_raw_republicans value = 15 }
+		set_variable = { var = spain_cortes_raw_socialists value = 8 }
+		set_variable = { var = spain_cortes_raw_carlists value = 5 }
+		set_variable = { var = spain_cortes_raw_falange value = 1 }
+	}
 
+	# --- what the country has legislated, whichever era it is in
 	if = { limit = { has_country_flag = spain_electoral_reform } subtract_from_variable = { var = spain_cortes_raw_monarchists value = 15 } add_to_variable = { var = spain_cortes_raw_republicans value = 14 } }
 	if = { limit = { has_country_flag = spain_elections_managed } add_to_variable = { var = spain_cortes_raw_monarchists value = 12 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 6 } }
 	if = { limit = { has_country_flag = spain_press_freedom } add_to_variable = { var = spain_cortes_raw_republicans value = 6 } }
@@ -50,6 +73,23 @@ spain_cortes_recount = {
 	add_to_variable = { var = spain_cortes_raw_socialists value = spain_party_shift_socialists }
 	add_to_variable = { var = spain_cortes_raw_carlists value = spain_party_shift_carlists }
 	add_to_variable = { var = spain_cortes_raw_falange value = spain_party_shift_falange }
+
+	# --- the chamber the Republic brings with it
+	if = {
+		limit = {
+			NOT = { has_country_flag = spain_chapter_restoration }
+			NOT = { has_country_flag = spain_chapter_rivera }
+		}
+		if = { limit = { has_country_flag = spain_ceda_government } add_to_variable = { var = spain_cortes_raw_conservatives value = 30 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 20 } }
+		if = { limit = { has_country_flag = spain_falange_street } add_to_variable = { var = spain_cortes_raw_falange value = 12 } }
+		if = { limit = { has_country_flag = spain_cnt_split } add_to_variable = { var = spain_cortes_raw_socialists value = 8 } }
+		if = { limit = { has_country_flag = spain_generalitat } add_to_variable = { var = spain_cortes_raw_republicans value = 5 } }
+	}
+
+	# --- one clamp, after every era base, flag and shift above. The position is deliberate:
+	# nine of the operations subtract, so clamping after each one would give a different number
+	# from clamping the final support once, and the normalisation below divides this value.
+	# Every party therefore enters the seat arithmetic at 1 or above whatever the modifiers did.
 	clamp_variable = { var = spain_cortes_raw_monarchists min = 1 max = 1000 }
 	clamp_variable = { var = spain_cortes_raw_liberals min = 1 max = 1000 }
 	clamp_variable = { var = spain_cortes_raw_conservatives min = 1 max = 1000 }
@@ -57,25 +97,6 @@ spain_cortes_recount = {
 	clamp_variable = { var = spain_cortes_raw_socialists min = 1 max = 1000 }
 	clamp_variable = { var = spain_cortes_raw_carlists min = 1 max = 1000 }
 	clamp_variable = { var = spain_cortes_raw_falange min = 1 max = 1000 }
-
-	# --- raw support once the Republic exists
-	if = {
-		limit = {
-			NOT = { has_country_flag = spain_chapter_restoration }
-			NOT = { has_country_flag = spain_chapter_rivera }
-		}
-		set_variable = { var = spain_cortes_raw_monarchists value = 12 }
-		set_variable = { var = spain_cortes_raw_liberals value = 22 }
-		set_variable = { var = spain_cortes_raw_conservatives value = 60 }
-		set_variable = { var = spain_cortes_raw_republicans value = 95 }
-		set_variable = { var = spain_cortes_raw_socialists value = 80 }
-		set_variable = { var = spain_cortes_raw_carlists value = 18 }
-		set_variable = { var = spain_cortes_raw_falange value = 5 }
-		if = { limit = { has_country_flag = spain_ceda_government } add_to_variable = { var = spain_cortes_raw_conservatives value = 30 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 20 } }
-		if = { limit = { has_country_flag = spain_falange_street } add_to_variable = { var = spain_cortes_raw_falange value = 12 } }
-		if = { limit = { has_country_flag = spain_cnt_split } add_to_variable = { var = spain_cortes_raw_socialists value = 8 } }
-		if = { limit = { has_country_flag = spain_generalitat } add_to_variable = { var = spain_cortes_raw_republicans value = 5 } }
-	}
 
 	# --- raw total, never zero
 	set_variable = { var = spain_cortes_raw_total value = 0 }
