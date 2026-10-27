@@ -112,3 +112,53 @@ iran_concede_british_small = {
 - **Side effects:** none beyond the flag and the queued event.
 - **Cadence:** daily from the band-3 branch of `shx_campaign_tick`, effective once.
 - **Example:** `shx_nanjing_demand = yes` at the end of the band-3 branch, beside `shx_beijing_demand` and `shx_patronage_demand`.
+
+## china_build_proper_states
+
+- Purpose: build the global state array `global.china_proper_states` once per campaign, holding the 62 states of China proper as state scopes.
+- Scope: any (called from `on_startup` in `common/on_actions/endsieg_on_actions.txt`).
+- Inputs: none. The ids are literal in the effect body, because China proper is a historical set, not a current-ownership query.
+- Outputs: `global.china_proper_states` (array of state scopes); no other state changes.
+- Defaults: no parameters. Re-running is a no-op because the guard refuses when `global.china_proper_states^num > 0`.
+- Side effects: none outside the array. A second call changes nothing, including after a reload.
+- Example: `china_build_proper_states = yes`
+
+## china_publish_fragmentation_tier
+
+- Purpose: publish the frozen Republic succession tier as the global `china_fragmentation_tier`, the only value any continuity reader may test.
+- Scope: any country scope (called once from the freeze site in `rch_succession_settle`).
+- Inputs: country variable `rch_succession_final_tier`, set one line earlier by the same effect.
+- Outputs: `global.china_fragmentation_tier`, clamped to `constant:china_story.tier_floor`..`constant:china_story.tier_ceiling` (0..3; the constants themselves, no mirrored macro).
+- Defaults: when `rch_succession_final_tier` does not exist the effect does nothing at all, so a campaign that has not resolved has no tier rather than a zero tier.
+- Side effects: none. It never reads the live score, so a later day cannot rewrite the published value.
+- Example: `china_publish_fragmentation_tier = yes`
+
+## china_set_seat_holder
+
+- Purpose: write the single seat symbol, replacing the previous holder on every transfer.
+- Scope: any; the holder is passed explicitly, so the effect is correct from any scope.
+- Inputs: `$COUNTRY$`, a country tag.
+- Outputs: `global.china_seat_holder`.
+- Defaults: none. No parameter means a parse error rather than a silent no-op.
+- Side effects: replaces the previous holder, so no stale seat survives a transfer. Never called from a reader.
+- Example: `china_set_seat_holder = { COUNTRY = QIN }`
+
+## china_record_reunifier
+
+- Purpose: record the first reunifier permanently and give it the seat.
+- Scope: any country scope.
+- Inputs: `$COUNTRY$`, a country tag.
+- Outputs: `global.china_reunified_by` and, through `china_set_seat_holder`, `global.china_seat_holder`.
+- Defaults: none. The guard refuses every write once `global.china_reunified_by` exists, so a second unifier cannot take the seat from the first.
+- Side effects: both globals are permanent; nothing in this card clears them.
+- Example: `china_record_reunifier = { COUNTRY = CHI }`
+
+## china_test_reunification
+
+- Purpose: test whether one Chinese campaign country holds every China-proper state, and record it as the reunifier if so.
+- Scope: any country scope; called from the existing `on_daily_RCH` and nowhere else.
+- Inputs: `global.china_proper_states`, `global.china_reunified_by`, and per-state control.
+- Outputs: the two globals above when a candidate holds all 62 states; nothing otherwise.
+- Defaults: two guards first (array present, no reunifier yet), then a bounded candidate list of 19 Chinese tags. No `every_country`, no world sweep, no new tag hook.
+- Side effects: only on a successful match, and then once per campaign. A resolved campaign pays two variable checks a day.
+- Example: `china_test_reunification = yes`

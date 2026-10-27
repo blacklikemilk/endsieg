@@ -1,0 +1,32 @@
+# Overview: read-only triggers for the global China state model. Nothing in this file writes:
+# a trigger that sets a variable or flag is a defect, not a variant.
+# Writers live in common/scripted_effects/china_state_model.txt.
+
+# True once any country has been recorded as the reunifier. The record is permanent, so this
+# never returns to false.
+china_has_reunified = {
+	has_variable = global.china_reunified_by
+}
+
+# True once a seat holder has been recorded.
+china_seat_is_held = {
+	has_variable = global.china_seat_holder
+}
+
+# Parameterised tier test: true when the published tier is at least $TIER$ on the 0-3 scale.
+# Written with less_than so the comparison needs no greater_than_or_equals form.
+china_fragmentation_tier_is_at_least = {
+	has_variable = global.china_fragmentation_tier
+	NOT = { check_variable = { global.china_fragmentation_tier < $TIER$ } }
+}
+
+# True when the country named by $COUNTRY$ controls every state of China proper. The array holds
+# state scopes, so all_of_scopes walks the 62 states directly and no state outside the array is
+# ever considered. A no-op editor must not swap this for any_of_scopes: "at least one" is not a
+# reunification.
+china_holds_all_proper_states = {
+	all_of_scopes = {
+		array = global.china_proper_states
+		is_controlled_by = $COUNTRY$
+	}
+}

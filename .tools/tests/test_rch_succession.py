@@ -73,6 +73,42 @@ COMPARE = {
     'equals': lambda left, right: left == right,
 }
 
+# The global China state model (C5m) is a separate package, but the Republic's freeze site
+# publishes into it. These read that package's constants and candidate list from source so the
+# model below cannot drift from the script it is modelling.
+CHINA_MODEL_EFFECTS = 'common/scripted_effects/china_state_model.txt'
+CHINA_MODEL_CONSTANTS = 'common/script_constants/china_story.txt'
+GLOBAL_VARIABLES = {}
+
+
+def china_tier_range():
+    text = read(CHINA_MODEL_CONSTANTS) if os.path.exists(
+        os.path.join(os.environ.get('RCH_TEST_ROOT') or ROOT, CHINA_MODEL_CONSTANTS)) else None
+    if text is None:
+        return None
+    values = {}
+    for key in ('tier_floor', 'tier_ceiling'):
+        hit = re.search(r'^\s*%s\s*=\s*(\d+)' % key, text, re.M)
+        if not hit:
+            raise Unsupported('china_story.txt no longer defines %s' % key)
+        values[key] = int(hit.group(1))
+    return values['tier_floor'], values['tier_ceiling']
+
+
+def china_candidates():
+    if not os.path.exists(os.path.join(os.environ.get('RCH_TEST_ROOT') or ROOT,
+                                       CHINA_MODEL_EFFECTS)):
+        return []
+    text = read(CHINA_MODEL_EFFECTS)
+    tags = re.findall(r'china_holds_all_proper_states = \{ COUNTRY = ([A-Z]{3}) \}', text)
+    if not tags:
+        raise Unsupported('china_state_model.txt no longer lists reunification candidates')
+    return tags
+
+
+CHINA_TIER_RANGE = china_tier_range()
+CHINA_CANDIDATES = china_candidates()
+
 FAILURES = []
 
 
@@ -442,6 +478,31 @@ class Script:
                 country.bop_writes.append(('set', self.value(scalar(value[1], 'set_value'), country)))
             elif key == 'add_power_balance_value':
                 country.bop_writes.append(('add', self.value(scalar(value[1], 'value'), country)))
+            elif key == 'china_publish_fragmentation_tier':
+                # C5m global China state model. The script publishes the frozen Republic tier
+                # into the global store, clamped to the constants' range, and does nothing when
+                # nothing has been frozen. Modelled with the side effect so that a no-op
+                # adapter fails china_model_integration below.
+                if CHINA_TIER_RANGE is not None and 'rch_succession_final_tier' in country.variables:
+                    low, high = CHINA_TIER_RANGE
+                    tier = country.value('rch_succession_final_tier')
+                    GLOBAL_VARIABLES['china_fragmentation_tier'] = max(low, min(high, int(tier)))
+                    country.trace.append(('global', 'china_fragmentation_tier',
+                                          GLOBAL_VARIABLES['china_fragmentation_tier']))
+            elif key == 'china_test_reunification':
+                # C5m reunification hook, modelled with its side effect: a reunifier is recorded
+                # only when the China-proper array exists and the candidate controls every state
+                # in it. The array is absent unless a check seeds it, so the daily call costs
+                # nothing here, exactly as it does in a campaign before on_startup.
+                states = GLOBAL_VARIABLES.get('china_proper_states') or []
+                if states and 'china_reunified_by' not in GLOBAL_VARIABLES:
+                    control = GLOBAL_VARIABLES.get('state_controllers', {})
+                    for tag in CHINA_CANDIDATES:
+                        if all(control.get(sid) == tag for sid in states):
+                            GLOBAL_VARIABLES['china_reunified_by'] = tag
+                            GLOBAL_VARIABLES['china_seat_holder'] = tag
+                            country.trace.append(('global', 'china_reunified_by', tag))
+                            break
             elif key == 'country_event':
                 country.queued.append((scalar(value[1], 'id'), self.value(scalar(value[1], 'days'), country)))
             else:
@@ -867,6 +928,56 @@ def main():
         return 1
 
 
+def china_model_integration(script):
+    """The freeze site's call into the global China state model is executed, not skipped.
+
+    A no-op adapter passes the whole rest of this suite, so the side effect is observed here:
+    the published global tier must equal the value the shipped settle froze, and a Republic that
+    has not resolved must publish nothing.
+    """
+    label, dials, options, score, tier = FIXTURES[0]
+    if CHINA_TIER_RANGE is None or not CHINA_CANDIDATES:
+        fail('the China state model package is absent, so the freeze site has nothing to publish '
+             'into (baseline source)')
+        return
+    subject = decide(script, dials, **options)
+    GLOBAL_VARIABLES.clear()
+    script.run('rch_succession_resolve', subject)
+    frozen = subject.variables.get('rch_succession_final_tier')
+    check(GLOBAL_VARIABLES.get('china_fragmentation_tier') == frozen,
+          '%s publishes the frozen tier %r globally, got %r' % (
+              label, frozen, GLOBAL_VARIABLES.get('china_fragmentation_tier')))
+
+    GLOBAL_VARIABLES.clear()
+    decide(script, dials, **options)
+    check('china_fragmentation_tier' not in GLOBAL_VARIABLES,
+          'the tier is published before the succession resolves')
+
+    # The clamp the script applies must match the constants it is tuning.
+    low, high = CHINA_TIER_RANGE
+    check(low == 0 and high == 3,
+          'china_story tier range is %r, expected the 0-3 scale' % (CHINA_TIER_RANGE,))
+
+    # The reunification hook is modelled with its side effect: seeded array plus full control
+    # records a reunifier, one foreign-held state does not.
+    GLOBAL_VARIABLES.clear()
+    GLOBAL_VARIABLES['china_proper_states'] = [283, 287]
+    GLOBAL_VARIABLES['state_controllers'] = {283: CHINA_CANDIDATES[0], 287: CHINA_CANDIDATES[0]}
+    script.effect([('china_test_reunification', ('scalar', 'yes'), 0)], subject, 0)
+    check(GLOBAL_VARIABLES.get('china_reunified_by') == CHINA_CANDIDATES[0],
+          'full control of China proper records its reunifier, got %r'
+          % (GLOBAL_VARIABLES.get('china_reunified_by'),))
+
+    GLOBAL_VARIABLES.clear()
+    GLOBAL_VARIABLES['china_proper_states'] = [283, 287]
+    GLOBAL_VARIABLES['state_controllers'] = {283: CHINA_CANDIDATES[0], 287: 'JAP'}
+    script.effect([('china_test_reunification', ('scalar', 'yes'), 0)], subject, 0)
+    check('china_reunified_by' not in GLOBAL_VARIABLES,
+          'one foreign-held state still reunified China: %r'
+          % (GLOBAL_VARIABLES.get('china_reunified_by'),))
+    GLOBAL_VARIABLES.clear()
+
+
 def run():
     script = Script()
     cards(script)
@@ -874,6 +985,7 @@ def run():
     costs(script)
     rescue_window(script)
     succession(script)
+    china_model_integration(script)
     precedence(script)
     maturity(script)
     idempotence(script)

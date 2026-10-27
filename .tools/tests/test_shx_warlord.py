@@ -209,6 +209,11 @@ def new_state(day=0, **kw):
         "tag_owns": {},
         "captured": [],
         "dlc": {"No Compromise, No Surrender", "Waking the Tiger"},
+        # Global China state model (C5m): the state array, per-state controllers and the
+        # global variables the model publishes. Seeded by scenario_china_model_hook.
+        "globals": {},
+        "proper_states": [],
+        "control": {},
     }
     st.update(kw)
     return st
@@ -470,6 +475,19 @@ def run(defs, node, st):
         elif key == "declare_war_on":
             st["war"] = True
             st["ops"].append("declare_war_on:" + str(get(value, "target")))
+        elif key == "china_test_reunification":
+            # Global China state model (C5m), modelled with its side effect rather than skipped:
+            # a reunifier is recorded only when the China-proper array exists and the scoped
+            # country controls every state in it. An adapter that does nothing fails
+            # scenario_china_model_hook.
+            tag = st.get("tag_scope") or "SHX"
+            states = st.get("proper_states") or []
+            globs = st.setdefault("globals", {})
+            if states and "china_reunified_by" not in globs:
+                control = st.get("control", {})
+                if all(control.get(sid, tag) == tag for sid in states):
+                    globs["china_reunified_by"] = tag
+                    globs["china_seat_holder"] = tag
         elif key in defs:
             run(defs, defs[key], st)
         elif re.fullmatch(r"[A-Z]{3}", key) and isinstance(value, list):
@@ -1212,9 +1230,45 @@ def mutants():
                   "the AI does not pay Beijing at the threshold")
 
 
+def scenario_china_model_hook():
+    """The C5m hook is executed and its side effect observed, not skipped as a no-op."""
+    # 1. No China-proper array yet (on_startup has not run): nothing recorded.
+    st = new_state(day=1)
+    release_once(st)
+    check("china model: no array means no reunifier", "china_reunified_by" not in st["globals"],
+          str(st["globals"]))
+
+    # 2. Shanxi controls every China-proper state: the hook records it and gives it the seat.
+    st = new_state(day=1)
+    st["proper_states"] = [283, 287, 596]
+    st["control"] = {283: "SHX", 287: "SHX", 596: "SHX"}
+    release_once(st)
+    check("china model: full control records the reunifier",
+          st["globals"].get("china_reunified_by") == "SHX", str(st["globals"]))
+    check("china model: the seat follows the reunifier",
+          st["globals"].get("china_seat_holder") == "SHX", str(st["globals"]))
+
+    # 3. One state held by another tag: refused, and the record already made is not replaced.
+    st = new_state(day=1)
+    st["proper_states"] = [283, 287, 596]
+    st["control"] = {283: "SHX", 287: "PRC", 596: "SHX"}
+    release_once(st)
+    check("china model: one foreign-held state refuses reunification",
+          "china_reunified_by" not in st["globals"], str(st["globals"]))
+
+    st = new_state(day=1)
+    st["proper_states"] = [283]
+    st["control"] = {283: "SHX"}
+    st["globals"]["china_reunified_by"] = "RCH"
+    release_once(st)
+    check("china model: a recorded reunifier is never replaced",
+          st["globals"].get("china_reunified_by") == "RCH", str(st["globals"]))
+
+
 def main():
     scenario_release()
     scenario_routing()
+    scenario_china_model_hook()
     scenario_handover()
     scenario_sprites()
     scenario_constants()
