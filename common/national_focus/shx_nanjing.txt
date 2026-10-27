@@ -1,0 +1,201 @@
+# Overview: Shanxi's Nanjing decade, 1928.1.1 - 1935.12.31. The province answers a government it
+# does not obey, writes itself a statute, loses the one national coalition it joins, and is asked
+# to sell the north's iron road to Japan.
+#
+# Layout: the answer to Nanjing on the centre line at x=6, the submission fork at x=4 and x=8, the
+# statute line on the western wing, the garrison line on the eastern wing, the northern squeeze on
+# the centre line below the fork, and one capstone at x=6 y=4 that needs either wing and the
+# squeeze. Every connector is one or two columns long and no connector crosses another.
+@short = 35
+@programme = 70
+focus_tree = {
+	id = shx_nanjing
+	country = {
+		factor = 0
+		modifier = { add = 20000 original_tag = SHX date > 1927.12.31 date < 1936.1.1 }
+	}
+	default = no
+	reset_on_civilwar = no
+	initial_show_position = { focus = SHX_answers_nanjing }
+	continuous_focus_position = { x = 2000 y = 5000 }
+	shortcut = { name = shx_nanjing_submission_navigation target = SHX_answers_nanjing }
+	shortcut = { name = shx_nanjing_statute_navigation target = SHX_autonomy_statute }
+	shortcut = { name = shx_nanjing_arsenal_navigation target = SHX_northern_arsenal }
+
+	# The decade opens with a letter from Nanjing that asks the province to accept the national
+	# government's authority. Answering it costs nothing and settles nothing.
+	focus = {
+		id = SHX_answers_nanjing
+		icon = GFX_focus_chi_one_china_policy
+		x = 6 y = 0
+		cost = @short
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_political }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_major
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_submission }
+			shx_clamp_cohesion = yes
+			add_stability = constant:shx_story.stability_touch
+		}
+	}
+	# The historical answer: the province accepts the title and keeps the government. Nanjing gets
+	# a signature, Taiyuan keeps the tax registers.
+	focus = {
+		id = SHX_nominal_submission
+		icon = GFX_focus_generic_diplomatic_treaty
+		x = 4 y = 1
+		cost = @short
+		prerequisite = { focus = SHX_answers_nanjing }
+		mutually_exclusive = { focus = SHX_real_submission }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_political }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_minor
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_submission }
+			shx_clamp_cohesion = yes
+			add_stability = constant:shx_story.conference_stability
+		}
+	}
+	# The other answer: the province takes Nanjing's officers, its currency and its orders, and
+	# pays for them with the commanders who expected to be asked first.
+	focus = {
+		id = SHX_real_submission
+		icon = GFX_focus_chi_cooperation_with_the_nationalists
+		x = 8 y = 1
+		cost = @short
+		prerequisite = { focus = SHX_answers_nanjing }
+		mutually_exclusive = { focus = SHX_nominal_submission }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_command }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_major
+			army_experience = constant:shx_story.conference_army_experience
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_real_submission }
+			shx_clamp_cohesion = yes
+		}
+	}
+	# The statute line. A provincial administration that Nanjing recognises on paper and cannot
+	# replace in practice.
+	focus = {
+		id = SHX_autonomy_statute
+		icon = GFX_focus_generic_improve_the_administration
+		x = 2 y = 2
+		cost = @programme
+		prerequisite = { focus = SHX_nominal_submission }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_political }
+		completion_reward = {
+			615 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			add_political_power = constant:shx_story.reward_power_minor
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_statute }
+			shx_clamp_cohesion = yes
+		}
+	}
+	# The chamber that drafts the statute. It is the decision, not this focus, that writes the
+	# statute into law, so the focus pays more in a province that has already done so.
+	focus = {
+		id = SHX_the_charter
+		icon = GFX_focus_chi_legislative_yuan
+		x = 4 y = 2
+		cost = @short
+		prerequisite = { focus = SHX_nominal_submission }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_political }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_major
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_statute }
+			shx_clamp_cohesion = yes
+			if = {
+				limit = { has_country_flag = shx_autonomy_charter }
+				add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_charter }
+				shx_clamp_cohesion = yes
+			}
+		}
+	}
+	# The other side of real submission: a garrison that Nanjing has reorganised, paid for and
+	# posted orders to.
+	focus = {
+		id = SHX_nanjing_command
+		icon = GFX_focus_chi_army_reform
+		x = 8 y = 2
+		cost = @short
+		prerequisite = { focus = SHX_real_submission }
+		search_filters = { FOCUS_FILTER_ARMY }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_command }
+		completion_reward = {
+			add_command_power = constant:shx_story.order_cost_command_power
+			army_experience = constant:shx_story.conference_army_experience
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_garrison }
+			shx_clamp_cohesion = yes
+		}
+	}
+	# Iron and coal. The province's own mill, paid for out of the statute's tax registers.
+	focus = {
+		id = SHX_northern_arsenal
+		icon = GFX_focus_generic_steel_mill
+		x = 2 y = 3
+		cost = @programme
+		prerequisite = { focus = SHX_autonomy_statute }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_settlement }
+		completion_reward = {
+			615 = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+			}
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_arsenal }
+			shx_clamp_cohesion = yes
+		}
+	}
+	# The squeeze belongs to the whole province, not to one answer, so either political line
+	# reaches it. Japan's engineers come to survey the line north whatever Nanjing was told.
+	focus = {
+		id = SHX_the_squeeze
+		icon = GFX_focus_generic_concessions
+		x = 6 y = 3
+		cost = @short
+		prerequisite = { focus = SHX_the_charter focus = SHX_nanjing_command }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_political }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_minor
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_squeeze }
+			shx_clamp_cohesion = yes
+			add_stability = constant:shx_story.stability_touch
+		}
+	}
+	# The eastern wing's payoff: a garrison with its own schools rather than borrowed instructors.
+	focus = {
+		id = SHX_garrison_reform
+		icon = GFX_focus_generic_military_academy
+		x = 10 y = 3
+		cost = @programme
+		prerequisite = { focus = SHX_nanjing_command }
+		search_filters = { FOCUS_FILTER_ARMY }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_settlement }
+		completion_reward = {
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:shx_story.patron_soviet_equipment }
+			add_command_power = constant:shx_story.order_cost_command_power
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_garrison }
+			shx_clamp_cohesion = yes
+		}
+	}
+	# The capstone: the decade closes with the province still governed from Taiyuan, whatever it
+	# told Nanjing and whatever it sold to Japan. Either wing satisfies the first requirement.
+	focus = {
+		id = SHX_the_decade_closes
+		icon = GFX_focus_generic_central_planning
+		x = 6 y = 4
+		cost = @programme
+		prerequisite = { focus = SHX_northern_arsenal focus = SHX_garrison_reform }
+		prerequisite = { focus = SHX_the_squeeze }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_political }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_major
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_charter }
+			shx_clamp_cohesion = yes
+			add_stability = constant:shx_story.conference_stability
+		}
+	}
+}

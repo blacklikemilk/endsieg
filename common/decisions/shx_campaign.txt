@@ -8,6 +8,9 @@
 @patron_soviet_cost = 75
 @conference_cost = 50
 @war_cost = 100
+@charter_cost = 60
+@coalition_cost = 80
+@buyback_cost = 75
 @work = 60
 @long_work = 90
 @cooldown = 180
@@ -285,5 +288,79 @@ shx_provincial_command = {
 			custom_effect_tooltip = shx_tt_war_cost
 		}
 		ai_will_do = { factor = constant:shx_story.ai_war }
+	}
+}
+
+# The Nanjing decade's own government. These rows exist only while the third band is open, so the
+# panel the province gets in 1928 is not the panel it had as a broker. The cohesion tier that gates
+# the two weighty rows is the same tier that names its spirit.
+shx_nanjing_government = {
+	# The statute. Political, once, and permanent: it is the province's own constitution and every
+	# later row in this panel reads it.
+	shx_enact_the_statute = {
+		icon = generic_political_discourse
+		visible = { shx_charter_open = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = shx_tt_statute_terms
+				shx_cohesion_tier_three = yes
+			}
+		}
+		cost = @charter_cost
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = shx_autonomy_charter
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_statute_enacted }
+			shx_clamp_cohesion = yes
+			add_stability = constant:shx_story.conference_stability
+		}
+		ai_will_do = {
+			factor = constant:shx_story.ai_nanjing_charter
+			modifier = { factor = 0 has_war = yes }
+		}
+	}
+	# The coalition. The province joins the northern coalition against Nanjing, and loses. The row
+	# is the bid and the bill: the campaign is fought off-map, the price is paid here, and the
+	# chapter closes whether or not the player wanted it to.
+	shx_join_the_coalition = {
+		icon = generic_break_treaty
+		visible = { shx_coalition_open = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = shx_tt_coalition_terms
+				shx_cohesion_tier_three = yes
+			}
+		}
+		cost = @coalition_cost
+		fire_only_once = yes
+		complete_effect = {
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_coalition }
+			shx_clamp_cohesion = yes
+			add_stability = constant:shx_story.coalition_stability_cost
+			set_country_flag = shx_coalition_lost
+			country_event = { id = shx_campaign.5 days = 1 }
+			custom_effect_tooltip = shx_tt_coalition_loss
+		}
+		ai_will_do = {
+			factor = constant:shx_story.ai_nanjing_coalition
+			modifier = { factor = 0 has_war = yes }
+			modifier = { factor = 0 NOT = { check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_steady_below compare = greater_than_or_equals } } }
+		}
+	}
+	# Buying the concession back. The only way out of the northern squeeze, and it is paid for in
+	# the same coin the concession was: the province's own political capital.
+	shx_buy_back_the_concession = {
+		icon = generic_independence
+		visible = { has_country_flag = shx_concession_granted }
+		available = { has_idea = shx_japanese_concession }
+		cost = @buyback_cost
+		fire_only_once = yes
+		complete_effect = {
+			remove_ideas = shx_japanese_concession
+			clr_country_flag = shx_concession_granted
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_buyback }
+			shx_clamp_cohesion = yes
+		}
+		ai_will_do = { factor = constant:shx_story.ai_nanjing_buyback }
 	}
 }

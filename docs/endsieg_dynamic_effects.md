@@ -83,8 +83,32 @@ iran_concede_british_small = {
 - **File:** `common/scripted_effects/shx_campaign.txt`.
 - **Scope:** country, Shanxi only.
 - **Reads:** the `has_dlc` checks for No Compromise, No Surrender and Waking the Tiger.
-- **Writes:** `shx_handover_complete` (permanent), clears the band flags and the pending-demand flag, removes the four cohesion spirits, and issues one `load_focus_tree` with `keep_completed`.
-- **Guards:** the tick returns early while `shx_handover_complete` is set, so the province is not handed over twice.
+- **Writes:** `shx_handover_complete` (permanent), clears all three band flags, the pending-demand flag and the band's one-shot records (`shx_nanjing_squeeze_seen`, `shx_concession_granted`, `shx_coalition_lost`), removes the four cohesion spirits and `shx_japanese_concession`, and issues one `load_focus_tree` with `keep_completed`. Leaves `shx_autonomy_charter` standing as the province's own record.
+- **Guards:** the tick returns early while `shx_handover_complete` is set, so the province is not handed over twice. The northern concession is removed here because its only exit, `shx_buy_back_the_concession`, sits in the band panel this pass closes: a spirit left behind would be a penalty no row could lift.
 - **Side effects:** marks the focus layout dirty on the handover day.
 - **Cadence:** once, on the first daily pass after 1935.12.31.
 - **Example:** called from `shx_campaign_tick`, not from a focus reward.
+
+## shx_open_nanjing
+
+- **Purpose:** opens Shanxi's third band, the Nanjing decade, and retires the two earlier band flags.
+- **File:** `common/scripted_effects/shx_campaign.txt`.
+- **Scope:** country, Shanxi only.
+- **Reads:** nothing.
+- **Writes:** `shx_band_nanjing`, clears `shx_band_rise` and `shx_band_wars`, one `load_focus_tree` of `shx_nanjing` with `keep_completed`, and the layout-dirty mark.
+- **Guards:** the caller tests `NOT = { has_country_flag = shx_band_nanjing }` before calling it, and the tick repairs a replaced tree separately with `has_focus_tree`, so a second daily pass cannot open the band twice or reload the tree.
+- **Side effects:** none beyond the flags and the one load.
+- **Cadence:** once per campaign, on the first daily pass at or after 1928.1.1.
+- **Example:** `shx_open_nanjing = yes` inside the band-3 `if` of `shx_campaign_tick`.
+
+## shx_nanjing_demand
+
+- **Purpose:** asks the northern-squeeze question once, inside the Nanjing decade.
+- **File:** `common/scripted_effects/shx_campaign.txt`.
+- **Scope:** country, Shanxi only.
+- **Reads:** `shx_nanjing_squeeze_due`, which needs `shx_band_nanjing` older than `@squeeze_maturity_days` and no `shx_nanjing_squeeze_seen`.
+- **Writes:** `shx_nanjing_squeeze_seen` and `shx_campaign.4`, delayed one day.
+- **Guards:** the seen flag is written before the event is queued, so the next daily pass cannot ask again while the player is still reading the first question; the trigger also requires the band flag, so the question cannot arrive outside its band.
+- **Side effects:** none beyond the flag and the queued event.
+- **Cadence:** daily from the band-3 branch of `shx_campaign_tick`, effective once.
+- **Example:** `shx_nanjing_demand = yes` at the end of the band-3 branch, beside `shx_beijing_demand` and `shx_patronage_demand`.

@@ -4,6 +4,8 @@
 # Three rules hold this file together:
 #   1. Nothing happens before the province exists, so the release stays the only way in.
 #   2. Exactly one band tree is loaded, and the band flag is what makes a second load impossible.
+#      Three bands share that rule: the rise to 1920, the clique wars to 1928, the Nanjing decade
+#      to the 1936 handover.
 #   3. The refresh re-applies the current tier spirit on every pass. A refresh that removes a
 #      family without adding the surviving member back erases the state it was asked to publish.
 shx_campaign_tick = {
@@ -35,19 +37,39 @@ shx_campaign_tick = {
 					}
 				}
 			}
-			else = {
+			else_if = {
+				limit = { date < 1928.1.1 }
 				if = {
 					limit = { NOT = { has_country_flag = shx_band_wars } }
 					shx_open_wars = yes
 				}
 				else = {
 					clr_country_flag = shx_band_rise
+					clr_country_flag = shx_band_nanjing
 					if = {
 						limit = { NOT = { has_focus_tree = shx_wars } }
 						load_focus_tree = { tree = shx_wars keep_completed = yes }
 						mark_focus_tree_layout_dirty = yes
 					}
 				}
+			}
+			else = {
+				# 1928-1935. The province answers Nanjing without giving up its own government,
+				# and the northern squeeze arrives on the same clock as the other two demands.
+				if = {
+					limit = { NOT = { has_country_flag = shx_band_nanjing } }
+					shx_open_nanjing = yes
+				}
+				else = {
+					clr_country_flag = shx_band_rise
+					clr_country_flag = shx_band_wars
+					if = {
+						limit = { NOT = { has_focus_tree = shx_nanjing } }
+						load_focus_tree = { tree = shx_nanjing keep_completed = yes }
+						mark_focus_tree_layout_dirty = yes
+					}
+				}
+				shx_nanjing_demand = yes
 			}
 			shx_beijing_demand = yes
 			shx_patronage_demand = yes
@@ -59,12 +81,20 @@ shx_campaign_tick = {
 # which a campaign that began before 1936 never reaches again, so the province closes its own bands
 # and loads the tree that dispatcher would have loaded for it: same DLC order, same keep_completed.
 # Everything this slice created retires with it, leaving the province to the vanilla warlord tree.
+# The northern concession is removed here rather than kept: its only exit is the buy-back row in
+# the band panel below, and a spirit left behind by a closed panel is a penalty no player can ever
+# answer. The autonomy charter is the one survivor, because it is the statute the province wrote
+# and not a state the band was holding.
 shx_hand_over_to_vanilla = {
 	set_country_flag = shx_handover_complete
 	clr_country_flag = shx_band_rise
 	clr_country_flag = shx_band_wars
+	clr_country_flag = shx_band_nanjing
 	clr_country_flag = shx_demand_pending
-	remove_ideas = { warlord_cohesion_fractious warlord_cohesion_brittle warlord_cohesion_steady warlord_cohesion_devoted }
+	clr_country_flag = shx_nanjing_squeeze_seen
+	clr_country_flag = shx_concession_granted
+	clr_country_flag = shx_coalition_lost
+	remove_ideas = { warlord_cohesion_fractious warlord_cohesion_brittle warlord_cohesion_steady warlord_cohesion_devoted shx_japanese_concession }
 	if = {
 		limit = { has_dlc = "No Compromise, No Surrender" }
 		load_focus_tree = { tree = china_warlord_sea_focus keep_completed = yes }
@@ -93,6 +123,16 @@ shx_open_wars = {
 	set_country_flag = shx_band_wars
 	clr_country_flag = shx_band_rise
 	load_focus_tree = { tree = shx_wars keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+}
+
+# The third band. Same shape as the two above: one flag, the other two bands cleared, one load.
+# The province stops being a neutral broker and starts being a government that answers Nanjing.
+shx_open_nanjing = {
+	set_country_flag = shx_band_nanjing
+	clr_country_flag = shx_band_rise
+	clr_country_flag = shx_band_wars
+	load_focus_tree = { tree = shx_nanjing keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
 }
 
@@ -165,5 +205,16 @@ shx_patronage_demand = {
 		limit = { shx_patronage_due = yes }
 		set_country_flag = shx_demand_pending
 		country_event = { id = shx_campaign.3 days = 1 }
+	}
+}
+
+# The northern squeeze. Japan wants the iron road and the coal, and the province answers once.
+# The question is asked inside the Nanjing band only, four months after the band opens, and the
+# seen flag is what stops the daily tick from asking it again after the answer.
+shx_nanjing_demand = {
+	if = {
+		limit = { shx_nanjing_squeeze_due = yes }
+		set_country_flag = shx_nanjing_squeeze_seen
+		country_event = { id = shx_campaign.4 days = 1 }
 	}
 }

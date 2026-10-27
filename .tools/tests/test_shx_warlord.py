@@ -27,6 +27,7 @@ OWNED = [
     "events/shx_campaign.txt",
     "common/national_focus/shx_rise.txt",
     "common/national_focus/shx_wars.txt",
+    "common/national_focus/shx_nanjing.txt",
     "common/ai_strategy_plans/SHX_warlord.txt",
     "localisation/english/shx_campaign_l_english.yml",
     "localisation/english/shx_campaign_events_l_english.yml",
@@ -569,7 +570,9 @@ def scenario_routing():
         ("1916.6.6", "shx_rise"),
         ("1920.7.13", "shx_rise"),
         ("1920.7.14", "shx_wars"),
-        ("1935.12.31", "shx_wars"),
+        ("1927.12.31", "shx_wars"),
+        ("1928.1.1", "shx_nanjing"),
+        ("1935.12.31", "shx_nanjing"),
         ("1936.1.1", "china_warlord_sea_focus"),
     ]
     for stamp, expected in cases:
@@ -606,7 +609,8 @@ def scenario_handover():
     st = new_state(day=dated("1935.12.31"))
     st["flags"]["china_warlord_released"] = 0
     tick(st)
-    check("the last day of 1935 is still the clique-war band", st["tree"] == "shx_wars",
+    check("the last day of 1935 is still the province's own tree",
+          st["tree"] == "shx_nanjing",
           str(st["tree"]))
     st["day"] = dated("1936.1.1")
     st["ops"] = []
@@ -615,7 +619,8 @@ def scenario_handover():
           st["tree"] == "china_warlord_sea_focus", str(st["tree"]))
     check("1936 records the handover", "shx_handover_complete" in st["flags"])
     check("1936 closes the band flags",
-          "shx_band_rise" not in st["flags"] and "shx_band_wars" not in st["flags"],
+          "shx_band_rise" not in st["flags"] and "shx_band_wars" not in st["flags"]
+          and "shx_band_nanjing" not in st["flags"],
           str(st["flags"]))
     check("1936 retires the cohesion spirits", st["ideas"] == set(), str(st["ideas"]))
     check("1936 closes the decision category",
@@ -722,6 +727,10 @@ def scenario_debt():
 
 _DEC_ROOT = get(parse(read("common/decisions/shx_campaign.txt")), "shx_provincial_command")
 DECISIONS = {k: v for k, v in _DEC_ROOT if isinstance(v, list)}
+for _block in ("shx_nanjing_government",):
+    for _k, _v in get(parse(read("common/decisions/shx_campaign.txt")), _block) or []:
+        if isinstance(_v, list):
+            DECISIONS[_k] = _v
 CATEGORY = get(parse(read("common/decisions/categories/shx_campaign.txt")), "shx_provincial_command")
 
 
@@ -784,12 +793,14 @@ def scenario_flags_and_loc():
     defined = set(re.findall(r"^\s*([A-Za-z0-9_.]+):", loc, re.M))
     referenced = set()
     focus_ids = set(re.findall(r"id = (SHX_[a-z_]+)", read("common/national_focus/shx_rise.txt")
-                    + read("common/national_focus/shx_wars.txt")))
+                    + read("common/national_focus/shx_wars.txt")
+                    + read("common/national_focus/shx_nanjing.txt")))
     decision_ids = set(DECISIONS)
     event_ids = set(re.findall(r"id = (shx_campaign\.\d)", read("events/shx_campaign.txt")))
     referenced |= focus_ids | {f + "_desc" for f in focus_ids}
     referenced |= decision_ids | {d + "_desc" for d in decision_ids}
-    referenced |= {"shx_provincial_command", "shx_provincial_command_desc"}
+    referenced |= {"shx_provincial_command", "shx_provincial_command_desc",
+                   "shx_nanjing_government", "shx_nanjing_government_desc"}
     for key in event_ids:
         for suffix in (".t", ".d"):
             referenced.add(key + suffix)
@@ -802,7 +813,8 @@ def scenario_flags_and_loc():
         referenced.add(idea_id + "_desc")
     referenced |= set(re.findall(r"name = (shx_[a-z_]+_navigation)",
                                  read("common/national_focus/shx_rise.txt")
-                                 + read("common/national_focus/shx_wars.txt")))
+                                 + read("common/national_focus/shx_wars.txt")
+                                 + read("common/national_focus/shx_nanjing.txt")))
     referenced |= set(re.findall(r"tooltip = (shx_tt_[a-z_]+)",
                                  read("common/decisions/shx_campaign.txt")))
     for key in sorted(referenced):

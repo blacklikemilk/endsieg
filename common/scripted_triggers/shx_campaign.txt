@@ -72,3 +72,41 @@ shx_can_declare_clique_war = {
 shx_equipment_affordable = {
 	has_equipment = { infantry_equipment > 399 }
 }
+
+# --- The Nanjing decade, 1928-1935 -----------------------------------------------------------
+# Japan's squeeze matures four months into the band: long enough for the province to read its own
+# new politics first, short enough that the question still belongs to this band.
+@squeeze_maturity_days = 120
+# The question is asked once. The seen flag is written by the tick immediately before the event,
+# so a second daily pass cannot ask it again while the player is still reading the first one.
+shx_nanjing_squeeze_due = {
+	has_country_flag = { flag = shx_band_nanjing days > @squeeze_maturity_days }
+	NOT = { has_country_flag = shx_nanjing_squeeze_seen }
+}
+# Tier three of four: the steady band, or the devoted band above it. Written as the union of the
+# two upper tiers rather than as the negation of the brittle band, because the brittle band is
+# bounded on both sides and its complement would open the gate to the fractious province below 30
+# as well as to the steady one above 55.
+shx_cohesion_tier_three = {
+	OR = {
+		shx_cohesion_steady = yes
+		shx_cohesion_devoted = yes
+	}
+}
+# The autonomy statute is a bargain with a government that exists, so it needs the Nanjing decade,
+# a province behind its governor and no war already running. It is written once and kept.
+shx_charter_open = {
+	has_country_flag = shx_band_nanjing
+	NOT = { has_country_flag = shx_autonomy_charter }
+	NOT = { has_war = yes }
+	shx_cohesion_tier_three = yes
+}
+# The coalition needs the statute on the books, a province that can still march, and a campaign not
+# already lost. Once lost, the chapter is closed for good.
+shx_coalition_open = {
+	has_country_flag = shx_band_nanjing
+	has_country_flag = shx_autonomy_charter
+	NOT = { has_country_flag = shx_coalition_lost }
+	NOT = { has_war = yes }
+	shx_cohesion_tier_three = yes
+}
