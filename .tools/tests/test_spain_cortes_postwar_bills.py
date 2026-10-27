@@ -65,7 +65,9 @@ PRE_S11_REV = '5ad0945ad1a92944a258a5097680a220cb1c7af6'
 # Every file this test reads or stages, printed in the coverage footer.
 COVERED_FILES = (DECISIONS_PATH, CHECKER_PATH, BILLS_PATH,
                  'common/scripted_effects/spain_cortes_effects.txt',
-                 'common/scripted_effects/spain_cortes_parties.txt')
+                 'common/scripted_effects/spain_cortes_parties.txt',
+                 'common/scripted_effects/spain_campaign_effects.txt',
+                 'common/scripted_triggers/spain_campaign_triggers.txt')
 
 BILLS = ('budget', 'agrarian', 'labour', 'army', 'statute', 'electoral')
 BILL_DECISIONS = {
@@ -363,12 +365,32 @@ def drop_count_all(text):
     return re.sub(r'spain_bills_count_all = \{[^}]*\}\n', '', text, count=1)
 
 
+# The two campaign files the S12b card added to the registry: withdrawing one definition from each
+# proves the entry is load-bearing rather than a blanket allowance.
+CAMPAIGN_EFFECTS_PATH = 'common/scripted_effects/spain_campaign_effects.txt'
+CAMPAIGN_TRIGGERS_PATH = 'common/scripted_triggers/spain_campaign_triggers.txt'
+
+
+def withdraw_loyalty_helper(text):
+    return text.replace('\nspain_loyalty_gain_small = {',
+                        '\nspain_loyalty_gain_small_withdrawn = {', 1)
+
+
+def withdraw_cortes_live_trigger(text):
+    return text.replace('\nspain_restoration_cortes_live = {',
+                        '\nspain_restoration_cortes_live_withdrawn = {', 1)
+
+
 def test_checker(report):
     report.start('checker')
     registry = list(checker.EFFECTS) + list(getattr(checker, 'REGISTRY_ONLY', []))
     report.check('the registry reads the bills file', BILLS_PATH in registry, repr(registry))
     report.check('the registry still reads the effects file',
                  'common/scripted_effects/spain_cortes_effects.txt' in registry, repr(registry))
+    report.check('the registry reads the campaign effects the S12 call sites resolve against',
+                 CAMPAIGN_EFFECTS_PATH in registry, repr(registry))
+    report.check('the registry reads the campaign triggers the S12 call sites resolve against',
+                 CAMPAIGN_TRIGGERS_PATH in registry, repr(registry))
 
     code, output = run_checker(ROOT / CHECKER_PATH)
     report.equal('the shipped checker passes on this tree', code, 0)
@@ -415,6 +437,49 @@ def test_checker(report):
         report.check('the deleted definition is the finding',
                      'spain_cortes_effects.txt calls unknown effect: spain_bills_count_all'
                      in output, output.strip())
+    finally:
+        shutil.rmtree(shadow, ignore_errors=True)
+
+    # Negative control 3: the campaign effects entry resolves `spain_loyalty_gain_small` and nothing
+    # else, so withdrawing that one definition must put the finding back.
+    shadow = shadow_tree((CAMPAIGN_EFFECTS_PATH, withdraw_loyalty_helper))
+    try:
+        report.check('the campaign effects shadow really lost the helper',
+                     '\nspain_loyalty_gain_small = {' not in
+                     (shadow / CAMPAIGN_EFFECTS_PATH).read_text(encoding='utf-8'))
+        code, output = run_checker(ROOT / CHECKER_PATH, (str(shadow),))
+        report.equal('withdrawing the loyalty helper fails the checker', code, 1)
+        report.check('the withdrawn helper is the finding',
+                     'spain_cortes_parties.txt calls unknown effect: spain_loyalty_gain_small'
+                     in output, output.strip())
+    finally:
+        shutil.rmtree(shadow, ignore_errors=True)
+
+    # Negative control 4: the campaign triggers entry resolves the chapter gate the government
+    # effects ask for. Without it the trigger is a name nothing defines.
+    shadow = shadow_tree((CAMPAIGN_TRIGGERS_PATH, withdraw_cortes_live_trigger))
+    try:
+        report.check('the campaign triggers shadow really lost the gate',
+                     '\nspain_restoration_cortes_live = {' not in
+                     (shadow / CAMPAIGN_TRIGGERS_PATH).read_text(encoding='utf-8'))
+        code, output = run_checker(ROOT / CHECKER_PATH, (str(shadow),))
+        report.equal('withdrawing the chapter gate fails the checker', code, 1)
+        report.check('the withdrawn gate is the finding',
+                     'spain_cortes_parties.txt calls unknown effect: spain_restoration_cortes_live'
+                     in output, output.strip())
+    finally:
+        shutil.rmtree(shadow, ignore_errors=True)
+
+    # Negative control 5: a registry input that is missing from the tree must stop the run, not be
+    # skipped. The checker reads every file it names, so an absent one is a refusal by construction.
+    shadow = shadow_tree()
+    try:
+        (shadow / CAMPAIGN_TRIGGERS_PATH).unlink()
+        code, output = run_checker(ROOT / CHECKER_PATH, (str(shadow),))
+        report.check('a missing registry input fails the checker instead of being skipped',
+                     code != 0, output.strip())
+        report.check('the missing input is named in the failure',
+                     'spain_campaign_triggers.txt' in output, output.strip())
     finally:
         shutil.rmtree(shadow, ignore_errors=True)
 

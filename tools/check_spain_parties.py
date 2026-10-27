@@ -2,10 +2,12 @@
 
 Verifies that every decision has a localisation key, every scripted effect it calls is
 defined, and every `constant:spain_campaign.*` it uses exists. The effect registry is built from
-the party and effects files that are scanned, plus the bills and hemicycle files that are read for
-their declarations only: `spain_cortes_recount` calls `spain_bills_count_all`, which
-`common/scripted_effects/spain_cortes_bills.txt` defines, and a registry without that file reports
-a working effect as unknown.
+the party and effects files that are scanned, plus the bills, hemicycle, campaign-effects and
+campaign-triggers files that are read for their declarations only: `spain_cortes_recount` calls
+`spain_bills_count_all`, which `common/scripted_effects/spain_cortes_bills.txt` defines, and the
+Cortes government slice calls `spain_push_crown`, `spain_loyalty_gain_small` and the
+`spain_restoration_cortes_live` trigger, which the campaign effects and triggers files define. A
+registry without those files reports a working effect as unknown.
 
     python tools/check_spain_parties.py            # check this repository
     python tools/check_spain_parties.py <root>     # check another tree root
@@ -29,8 +31,16 @@ EFFECTS = ['common/scripted_effects/spain_cortes_parties.txt',
 # Files read for the effect registry only. They declare effects the scanned files call; their own
 # call sites reach campaign and party helpers through other files, so scanning them here would
 # report a different file's dependency as this checker's finding.
+#
+# `spain_campaign_effects.txt` and `spain_campaign_triggers.txt` are listed because the Cortes
+# government call sites use `spain_push_crown` and `spain_loyalty_gain_small` (defined in the
+# campaign effects) and `spain_restoration_cortes_live` (a scripted trigger defined in the campaign
+# triggers). The trigger is registry-only for the same reason an effect is: this checker resolves
+# `name = yes` calls against one registry, and a definition outside it is unknown by name alone.
 REGISTRY_ONLY = ['common/scripted_effects/spain_cortes_bills.txt',
-                 'common/scripted_effects/spain_cortes_hemicycle.txt']
+                 'common/scripted_effects/spain_cortes_hemicycle.txt',
+                 'common/scripted_effects/spain_campaign_effects.txt',
+                 'common/scripted_triggers/spain_campaign_triggers.txt']
 ENGINE_OR_TRIGGER = {'mark_focus_tree_layout_dirty'}
 CONSTANTS = 'common/script_constants/spain_campaign.txt'
 LOC = 'localisation/english/spain_parties_l_english.yml'

@@ -3,6 +3,15 @@
 # the Nationalist faction struggle, wartime diplomacy and reconstruction. A debug category exists for tuning.
 # Costs are paid in political power, experience, equipment, manpower or stability, never in political power alone.
 
+# Native decision timer and cost fields require literal values (the same reason
+# common/decisions/iran_campaign.txt uses macros), so the pacing values of the ministerial crisis
+# are local macros here. Their tuning anchors live in common/script_constants/spain_campaign.txt
+# and .tools/tests/test_spain_turno.py asserts the pair, so a retune cannot drift.
+@crisis_timeout_days = 90
+@election_pp = 50
+@election_cooldown = 90
+@decree_pp = 75
+
 # =====================================================================================
 # The Crown against the Cortes
 # =====================================================================================
@@ -67,6 +76,141 @@ SPR_crown_and_cortes_category = {
 			set_country_flag = spain_forced_election
 		}
 		ai_will_do = { base = 10 }
+	}
+
+	# =============================================================================
+	# The ministerial crisis
+	# =============================================================================
+
+	# A government that cannot command the chamber is a caretaker, and the King does not keep a
+	# caretaker. The mission runs while the crisis is open, completes the day the government bloc
+	# reaches 201 seats, and if the deadline runs out the Crown draws up the lists itself, which
+	# is spain_campaign.32: an ignored crisis costs caciquismo instead of lapsing.
+	SPR_ministerial_crisis = {
+		icon = generic_political_address
+		allowed = { original_tag = SPR }
+		activation = {
+			hidden_trigger = { has_country_flag = spain_ministry_crisis_open }
+			custom_trigger_tooltip = { tooltip = spain_ministry_crisis_open_tt }
+		}
+		available = {
+			hidden_trigger = { has_country_flag = spain_ministry_crisis_open }
+			custom_trigger_tooltip = {
+				tooltip = spain_ministry_crisis_resolved_tt
+				check_variable = { var = spain_government_seats value = constant:spain_campaign.cortes_majority compare = greater_than_or_equals }
+			}
+		}
+		cancel_trigger = { NOT = { has_country_flag = spain_ministry_crisis_open } }
+		days_mission_timeout = @crisis_timeout_days
+		# reaching the majority is the good outcome and the deadline is the failure, so the mission
+		# is not inverted: the panel must offer completion as the reward and the timeout as the cost.
+		# (is_good = yes would relabel the completion as "effects when failed".)
+		is_good = no
+		complete_effect = {
+			hidden_effect = { clr_country_flag = spain_ministry_crisis_open }
+			custom_effect_tooltip = spain_ministry_crisis_complete_tt
+		}
+		timeout_effect = {
+			hidden_effect = {
+				clr_country_flag = spain_ministry_crisis_open
+				country_event = { id = spain_campaign.32 days = 1 }
+			}
+			custom_effect_tooltip = spain_ministry_crisis_timeout_tt
+		}
+	}
+
+	# =============================================================================
+	# The three doors out of the crisis
+	# =============================================================================
+
+	# The turno: the minister of the interior writes the lists and the government's party takes
+	# the seats four named blocs lose. No political power changes hands; the price is patronage,
+	# the rot it feeds and the donors the machine empties.
+	SPR_encasillado = {
+		icon = generic_political_discourse
+		visible = {
+			hidden_trigger = {
+				spain_restoration_cortes_live = yes
+				spain_government_short = yes
+			}
+		}
+		available = {
+			custom_trigger_tooltip = { tooltip = spain_encasillado_available_tt spain_encasillado_available = yes }
+		}
+		complete_effect = { spain_encasillado = yes }
+		ai_will_do = {
+			base = 0
+			modifier = { add = 30 has_war = no }
+			modifier = { add = 20 check_variable = { var = spain_crown_patronage value = constant:spain_campaign.patronage_rot compare = less_than } }
+			modifier = { factor = 0.4 check_variable = { var = spain_crown_patronage value = constant:spain_campaign.patronage_rot compare = greater_than_or_equals } }
+			modifier = { factor = 0.5 has_war = yes }
+		}
+	}
+
+	# Let the country decide: the same election the party system already holds, the same cost, and
+	# the same appointment afterwards. Nothing guarantees the result.
+	SPR_honest_election = {
+		icon = generic_political_rally
+		cost = @election_pp
+		days_re_enable = @election_cooldown
+		visible = {
+			hidden_trigger = {
+				spain_restoration_cortes_live = yes
+				spain_government_short = yes
+			}
+		}
+		available = {
+			custom_trigger_tooltip = { tooltip = spain_honest_election_available_tt spain_restoration_cortes_live = yes }
+		}
+		complete_effect = {
+			spain_hold_election = yes
+			spain_appoint_government = { PARTY = 0 COALITION_1 = 0 COALITION_2 = 0 }
+			custom_effect_tooltip = spain_honest_election_tt
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = 25 has_war = no }
+			modifier = { add = 10 has_stability > 0.4 }
+			modifier = { factor = 0.5 has_war = yes }
+		}
+	}
+
+	# Rule without the chamber. No seat moves: the government simply stops asking, and the army
+	# and the country both read what that means.
+	SPR_royal_decree = {
+		icon = generic_monarchy
+		cost = @decree_pp
+		visible = {
+			hidden_trigger = {
+				spain_restoration_cortes_live = yes
+				spain_government_short = yes
+			}
+		}
+		available = {
+			custom_trigger_tooltip = { tooltip = spain_royal_decree_available_tt spain_restoration_cortes_live = yes }
+			# the decree is a one-way door: once the Crown governs by decree the route stays on the
+			# board, greyed with its reason, instead of vanishing without explanation
+			custom_trigger_tooltip = {
+				tooltip = spain_royal_decree_inforce_tt
+				NOT = { has_country_flag = spain_restoration_decree_rule }
+			}
+		}
+		complete_effect = {
+			hidden_effect = {
+				spain_push_cortes = yes
+				spain_loyalty_loss = yes
+				set_country_flag = spain_restoration_decree_rule
+				spain_appoint_government = { PARTY = 1 COALITION_1 = 0 COALITION_2 = 0 }
+				clr_country_flag = spain_ministry_crisis_open
+			}
+			custom_effect_tooltip = spain_royal_decree_tt
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = 12 has_war = no }
+			modifier = { add = 8 check_variable = { var = spain_encasillados value = constant:spain_campaign.encasillado_cap compare = greater_than_or_equals } }
+			modifier = { factor = 0.5 has_war = yes }
+		}
 	}
 }
 

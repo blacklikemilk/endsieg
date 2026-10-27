@@ -628,3 +628,39 @@ country_event = {
 		custom_effect_tooltip = spain_campaign.80.a.tt
 	}
 }
+
+# =====================================================================================
+# The Crown ends the ministerial crisis itself
+# =====================================================================================
+
+# Fired by SPR_ministerial_crisis when its deadline runs out. The King does not wait for a
+# cabinet that cannot count: the lists are drawn up and the machine takes another draw, which is
+# what an ignored crisis costs. Once the donors are exhausted there is nothing left to
+# manufacture, and the country simply watches the government lose its authority.
+country_event = {
+	id = spain_campaign.32
+	title = spain_campaign.32.t
+	desc = spain_campaign.32.d
+	picture = GFX_report_event_kuncrowd
+	is_triggered_only = yes
+
+	option = {
+		name = spain_campaign.32.a
+		ai_chance = { base = 100 }
+		hidden_effect = {
+			# clear first: the appointment the turno makes may legitimately open a new crisis
+			clr_country_flag = spain_ministry_crisis_open
+			if = {
+				limit = { spain_encasillado_available = yes }
+				spain_encasillado = yes
+			}
+			else = {
+				spain_loyalty_loss_small = yes
+				add_stability = constant:spain_campaign.stability_cost
+				spain_government_recount = yes
+			}
+			spain_cortes_refresh_display = yes
+		}
+		custom_effect_tooltip = spain_campaign.32.a.tt
+	}
+}

@@ -171,3 +171,30 @@ spain_allied_leverage_high = {
 spain_reconstruction_complete = {
 	check_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_complete compare = greater_than_or_equals }
 }
+
+# ---------------------------------------------------------------- the Restoration turno
+
+# The chamber this card's government formation works in. The Restoration is the only chapter
+# that appoints a government through the Crown's machine: the balance the effect pushes is
+# re-created for the Republic (which reads its own chamber), and a coup in progress has already
+# replaced the question the appointment asks.
+spain_restoration_cortes_live = {
+	spain_in_restoration_chapter = yes
+	has_power_balance = { id = SPR_crown_and_cortes }
+	NOT = { has_country_flag = spain_coup_in_progress }
+	NOT = { has_country_flag = spain_chapter_civil_war }
+}
+
+# A government without the chamber cannot legislate, which is the only condition under which
+# the three doors out of the crisis are worth showing.
+spain_government_short = {
+	check_variable = { var = spain_government_seats value = constant:spain_campaign.cortes_majority compare = less_than }
+}
+
+# The machine still has a draw left: the donors are not exhausted and the appointment can be
+# manufactured. Read by the encasillado decision, by the crisis timeout and by the test.
+spain_encasillado_available = {
+	spain_restoration_cortes_live = yes
+	spain_government_short = yes
+	check_variable = { var = spain_encasillados value = constant:spain_campaign.encasillado_cap compare = less_than }
+}
