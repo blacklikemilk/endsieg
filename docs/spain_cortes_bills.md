@@ -1,6 +1,6 @@
 # Negotiated bills in the Cortes
 
-The six government bills in the `SPR_cortes` decision category are no longer political-power spends that pass whenever the government holds 201 seats. Each bill now counts the benches that would carry it, and a bill only reaches the floor when that count can still be made to work. Bringing it opens a negotiation: the government passes it cleanly, buys the missing votes with a concession, waters it down, or withdraws and takes the political damage.
+The six government bills in the `SPR_cortes` decision category are no longer political-power spends that pass whenever the government holds 201 seats. Each bill now counts the benches that would carry it, and a bill only reaches the floor when that count can still be made to work. Bringing it opens a negotiation: the government passes it cleanly, buys the missing votes with a concession where there are benches to buy, waters it down, or withdraws and takes the political damage.
 
 ## Files
 
@@ -31,9 +31,9 @@ The six government bills in the `SPR_cortes` decision category are no longer pol
 | `SPR_bill_labour_charter` | government + Socialists + Republicans + Liberals | Conservatives |
 | `SPR_bill_army_budget` | government + Monarchists + Conservatives + Falange | Liberals |
 | `SPR_bill_regional_statute` | government + Republicans + Socialists + Liberals | Conservatives |
-| `SPR_bill_electoral_law` | government + every bench outside the government | none |
+| `SPR_bill_electoral_law` | government + Republicans + Socialists | none |
 
-The electoral law is the exception by construction: the opposition plus the government's own seats are the whole chamber, so the count is 400 and never the obstacle. What the bill actually costs is the election it fires immediately, which is why it may only be brought once and still uses a 365-day re-enable.
+The electoral law is counted like the other five, on the benches that would gain from it: the government's own seats plus the Republicans and the Socialists. The Monarchists, the Conservatives, the Carlists and the Falange vote against a franchise that would dilute their own seats, and the Liberals never enter the base — as the governing party they are already inside `spain_government_seats`, and in opposition they do not write the terms of the election they would fight. In the opening restoration chamber that is a Liberal government's 97 seats with 48 Republicans and 26 Socialists (171), or a Conservative government's 81 with the same two benches (155), so a bloc short of the 201 seats the law needs is never assumed to pass: it can only reform the register alone or withdraw the bill, and a chamber that already holds those benches carries it cleanly. The bill has no swing party and `spain_bills.6` has no concession option, because no bench outside the supporting bloc will sell a franchise that would unseat it. What the bill finally costs is the election it fires immediately, which is why it may only be brought once and still uses a 365-day re-enable.
 
 `spain_bill_swing_votes` starts as the base count and gains the swing party's benches once, and only while that party sits outside the government bloc. It is the true ceiling of the bill — the most the chamber could be made to vote — and never the base plus a second copy of benches the base already counted. The event uses it to decide whether a concession could close the gap.
 
@@ -73,7 +73,7 @@ The options column describes what the negotiation offers once the bill is on the
 | Labour charter | The right to organise is struck out | `spain_party_shift_socialists` down, `spain_party_shift_conservatives` up, no conciliation flag |
 | Army budget | A commission of enquiry on the Africanistas | `spain_coup_pressure` up instead of down, `spain_party_shift_republicans` down |
 | Regional statute | The Captain-General is reassured | `spain_military_loyalty` down permanently |
-| Electoral law | none — the whole chamber already votes for it | — |
+| Electoral law | none — no bench's votes can be bought for a franchise | — |
 
 No concession grants political power. Every concession either moves a party's support, moves a campaign variable, or both, so buying a bill is always paid for somewhere else and cannot be farmed.
 
