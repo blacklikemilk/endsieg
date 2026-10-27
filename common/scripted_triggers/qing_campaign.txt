@@ -235,3 +235,29 @@ qing_path_federalise = {
 qing_reform_depth = {
 	check_variable = { var = qing_reform value = 50 compare = greater_than_or_equals }
 }
+
+# --- consolidation ---
+# The score is derived by qing_consolidation_refresh from the four standing values
+# and the state's own works. Nothing else writes it, so the number the player reads
+# cannot drift away from the values the rest of the campaign moves.
+qing_consolidation_settled = {
+	check_variable = { var = qing_consolidation value = constant:qing_story.consolidation_gate compare = greater_than_or_equals }
+}
+
+# A standing, not a spike: the restoration band opens only after the score has held
+# at or above the gate for a full year. The tick clears the flag the day it falls.
+qing_consolidation_sustained = {
+	qing_consolidation_settled = yes
+	has_country_flag = qing_consolidation_held
+}
+
+# The floors under the five families. A programme running below its floor collapses
+# and charges the state for the failure; the court, army and province floors reuse
+# the weak bars the rest of the campaign already reads.
+qing_reform_weak = {
+	check_variable = { var = qing_reform value = constant:qing_story.reform_weak compare = less_than }
+}
+
+qing_provinces_strained = {
+	check_variable = { var = qing_provincial_trust value = constant:qing_story.trust_weak compare = less_than }
+}

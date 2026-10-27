@@ -314,6 +314,210 @@ qing_imperial_government = {
 		}
 		ai_will_do = { factor = 3 }
 	}
+
+	# --- the consolidated state ---
+	# Five programmes and a report. The score itself is derived in
+	# qing_consolidation_refresh from the four standing values and the works the
+	# state has actually finished; these are the levers the government has on it.
+	# A programme that is running when its own family collapses below the floor is
+	# cancelled and charged for, so consolidation is worked for and can be lost.
+
+	qing_consolidation_report = {
+		priority = 140
+		icon = GFX_decision_generic_political_discourse
+		allowed = { original_tag = QIN }
+		visible = { qing_campaign_active = yes }
+		available = { always = yes }
+		days_re_enable = 30
+		complete_effect = { qing_consolidation_refresh = yes }
+		ai_will_do = { factor = 0 }
+	}
+
+	qing_consolidation_court = {
+		priority = 135
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_legitimacy_strong = yes }
+		}
+		available = {
+			has_political_power = 40
+			NOT = { qing_legitimacy_weak = yes }
+		}
+		cost = 40
+		days_remove = 90
+		days_re_enable = 60
+		modifier = { stability_factor = 0.05 }
+		remove_effect = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_court_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_legitimacy_weak = yes }
+		cancel_effect = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_court_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_reform = {
+		priority = 130
+		icon = GFX_decision_generic_research
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_reform_strong = yes }
+		}
+		available = {
+			has_political_power = 40
+			NOT = { qing_reform_weak = yes }
+		}
+		cost = 40
+		days_remove = 120
+		days_re_enable = 90
+		modifier = { stability_factor = 0.03 }
+		remove_effect = {
+			add_to_variable = { qing_reform = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_reform_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_reform_weak = yes }
+		cancel_effect = {
+			add_to_variable = { qing_reform = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_reform_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_army = {
+		priority = 125
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_army_loyal = yes }
+		}
+		available = {
+			has_political_power = 35
+			has_army_experience = 15
+			NOT = { qing_army_unreliable = yes }
+		}
+		cost = 35
+		days_remove = 120
+		days_re_enable = 90
+		modifier = { war_support_factor = 0.05 }
+		remove_effect = {
+			army_experience = -15
+			add_to_variable = { qing_army_loyalty = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_army_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_army_unreliable = yes }
+		cancel_effect = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_army_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_provinces = {
+		priority = 120
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_provinces_trusting = yes }
+		}
+		available = {
+			has_political_power = 30
+			NOT = { qing_provinces_strained = yes }
+		}
+		cost = 30
+		days_remove = 120
+		days_re_enable = 90
+		modifier = { stability_factor = 0.03 }
+		remove_effect = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_provinces_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_provinces_strained = yes }
+		cancel_effect = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_provinces_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_works = {
+		priority = 115
+		icon = GFX_decision_generic_construction
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { has_country_flag = qing_works_completed }
+		}
+		available = {
+			has_political_power = 50
+			has_manpower = 6000
+		}
+		cost = 50
+		fire_only_once = yes
+		days_remove = 150
+		modifier = { production_speed_buildings_factor = 0.10 }
+		remove_effect = {
+			add_manpower = -6000
+			set_country_flag = qing_works_completed
+			if = {
+				limit = { owns_state = 608 }
+				608 = {
+					add_extra_state_shared_building_slots = 1
+					add_building_construction = { type = infrastructure level = 1 instant_build = yes }
+				}
+			}
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { NOT = { has_political_power > 25 } }
+		cancel_effect = {
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_works_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	# The interwar government is convened on a consolidated state. The daily tick
+	# opens the chapter from 1919 for a country that has met the bar; this decision
+	# lets a dynasty that consolidated early enter before the calendar catches up.
+	qing_convene_interwar = {
+		priority = 150
+		icon = GFX_decision_generic_political_address
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			date > 1918.6.1
+			NOT = { has_country_flag = qing_chapter_two }
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = qing_convene_interwar_tt
+				hidden_trigger = { qing_consolidation_settled = yes }
+			}
+		}
+		fire_only_once = yes
+		complete_effect = { qing_open_chapter_two = yes }
+		ai_will_do = { factor = 20 }
+	}
 }
 
 qing_reconstruction = {

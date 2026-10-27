@@ -91,6 +91,33 @@ qing_refresh_mechanics = {
 		limit = { has_country_flag = qing_schools_founded }
 		add_ideas = qing_public_schools
 	}
+
+	qing_consolidation_refresh = yes
+}
+
+# The consolidation score: four standing values and the state's own works, each
+# worth a fifth of it. Derived here and nowhere else, so the number the player
+# reads moves only when the country behind it moves, and cannot be bought directly.
+qing_consolidation_refresh = {
+	if = {
+		limit = { NOT = { has_variable = qing_consolidation_days } }
+		set_variable = { qing_consolidation_days = 0 }
+	}
+	# The divisor is a script constant, and a constant is only a documented value in a
+	# scoped variable, never inside a math operand. Read it into a variable first: a math
+	# expression that fails to parse is silently replaced with 0.0, which would pin the
+	# score at the floor and keep the interwar chapter shut for good.
+	set_variable = { qing_consolidation_divisor = constant:qing_story.consolidation_family_divisor }
+	set_variable = { qing_consolidation = { value = qing_legitimacy divide = qing_consolidation_divisor } }
+	add_to_variable = { qing_consolidation = { value = qing_reform divide = qing_consolidation_divisor } }
+	add_to_variable = { qing_consolidation = { value = qing_army_loyalty divide = qing_consolidation_divisor } }
+	add_to_variable = { qing_consolidation = { value = qing_provincial_trust divide = qing_consolidation_divisor } }
+	if = { limit = { has_country_flag = qing_currency_reform } add_to_variable = { qing_consolidation = constant:qing_story.consolidation_works_points } }
+	if = { limit = { has_country_flag = qing_railway_north_built } add_to_variable = { qing_consolidation = constant:qing_story.consolidation_works_points } }
+	if = { limit = { has_country_flag = qing_hanyang_built } add_to_variable = { qing_consolidation = constant:qing_story.consolidation_works_points } }
+	if = { limit = { has_country_flag = qing_civil_service_reformed } add_to_variable = { qing_consolidation = constant:qing_story.consolidation_works_points } }
+	if = { limit = { has_country_flag = qing_works_completed } add_to_variable = { qing_consolidation = constant:qing_story.consolidation_works_points } }
+	clamp_variable = { var = qing_consolidation min = constant:qing_story.consolidation_floor max = constant:qing_story.consolidation_cap }
 }
 
 # ---------------------------------------------------------------------------
@@ -139,13 +166,19 @@ qing_open_chapter_one = {
 	country_event = { id = qing_campaign.1 days = 3 }
 }
 
+# The interwar chapter opens on a consolidated state, not on the calendar. The
+# guard sits inside the effect so no caller - the tick, a decision or a later
+# chapter - can enter 1919 on the date alone.
 qing_open_chapter_two = {
-	set_country_flag = qing_chapter_two
-	clr_country_flag = qing_chapter_one
-	load_focus_tree = { tree = qing_interwar keep_completed = yes }
-	mark_focus_tree_layout_dirty = yes
-	qing_refresh_mechanics = yes
-	country_event = { id = qing_campaign.30 days = 1 }
+	if = {
+		limit = { qing_consolidation_settled = yes }
+		set_country_flag = qing_chapter_two
+		clr_country_flag = qing_chapter_one
+		load_focus_tree = { tree = qing_interwar keep_completed = yes }
+		mark_focus_tree_layout_dirty = yes
+		qing_refresh_mechanics = yes
+		country_event = { id = qing_campaign.30 days = 1 }
+	}
 }
 
 qing_open_chapter_three = {
@@ -164,7 +197,12 @@ qing_route_chapter = {
 		mark_focus_tree_layout_dirty = yes
 	}
 	else_if = {
-		limit = { date > 1918.12.31 date < 1936.1.1 NOT = { has_focus_tree = qing_interwar } }
+		limit = {
+			date > 1918.12.31
+			date < 1936.1.1
+			NOT = { has_focus_tree = qing_interwar }
+			qing_consolidation_settled = yes
+		}
 		load_focus_tree = { tree = qing_interwar keep_completed = yes }
 		mark_focus_tree_layout_dirty = yes
 	}
@@ -221,6 +259,22 @@ qing_campaign_tick = {
 		limit = { qing_campaign_active = yes }
 		qing_ensure_chapter_tree = yes
 		qing_bootstrap = yes
+
+		# The consolidation clock. qing_bootstrap has already recalculated the score,
+		# so this only adds time: a year at or above the bar before the restoration
+		# programme opens, and an immediate reset the day the state slips back.
+		if = {
+			limit = { qing_consolidation_settled = yes }
+			add_to_variable = { qing_consolidation_days = 1 }
+			if = {
+				limit = { check_variable = { var = qing_consolidation_days value = constant:qing_story.consolidation_hold_days compare = greater_than_or_equals } }
+				set_country_flag = qing_consolidation_held
+			}
+		}
+		else = {
+			set_variable = { qing_consolidation_days = 0 }
+			clr_country_flag = qing_consolidation_held
+		}
 
 		# The scenario state history hands every Chinese state from QIN to RCH in 1914
 		# and to CHI and the warlords in 1936. A Qing that survived keeps its country.
@@ -304,7 +358,11 @@ qing_campaign_tick = {
 			country_event = { id = qing_campaign.50 days = 1 }
 		}
 		if = {
-			limit = { date > 1919.1.1 NOT = { has_country_flag = qing_chapter_two } }
+			limit = {
+				date > 1919.1.1
+				NOT = { has_country_flag = qing_chapter_two }
+				qing_consolidation_settled = yes
+			}
 			qing_open_chapter_two = yes
 		}
 		if = {
