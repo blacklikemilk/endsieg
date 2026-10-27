@@ -1,7 +1,7 @@
 """Generate the Cortes seat dot textures.
 
-The chamber is drawn from one sprite strip: eight frames of a 16x16 disc, frame 0 the
-neutral seat and frames 1..7 the parties in chamber order. A dot's frame is a country
+The chamber is drawn from one sprite strip: eight cells of a 16x16 disc, addressed as frames 1..8,
+frame 1 the neutral seat and frames 2..8 the parties in chamber order. A dot's frame is a country
 variable, so the strip has to keep exactly the same party order as
 tools/build_spain_cortes_hemicycle.py, which is checked here when that module is importable.
 The single dots are still written because the legend swatch of each row uses its own sprite.
@@ -25,7 +25,8 @@ SIZE = 16
 OUT = os.path.join("gfx", "interface", "endsieg_spain_dots")
 STRIP = "spain_cortes_seats.dds"
 
-# political order, left to right around the hemicycle; frame 0 is written separately
+# political order, left to right around the hemicycle; the neutral seat is written separately as
+# the first cell of the strip, i.e. frame 1
 PARTIES = [
     ("socialists", (186, 46, 42)),
     ("republicans", (58, 122, 84)),

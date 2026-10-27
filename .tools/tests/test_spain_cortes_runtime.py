@@ -10,7 +10,7 @@ Six facts this card is responsible for, asserted against the shipped source rath
     3. the six bill caches are written by a recount before any bill is offered, a recount refreshes
        them once without recursion or cost, and the six reach gates no longer fail open on an
        absent cache;
-    4. the hemicycle writes 0-based frames for the eight-frame strip its sprite registers;
+    4. the hemicycle writes the 1-based frames the eight-cell strip is addressed with;
     5. one definition of `spain_iberian_accord_tt` remains and both focus consumers still resolve;
     6. each bill cooldown flag expires on the same day as its decision's `days_re_enable`.
 
@@ -60,6 +60,9 @@ COVERED_FILES = (CAMPAIGN_PATH, EFFECTS_PATH, BILLS_PATH, PARTIES_PATH, HEMICYLE
 
 # The pre-S10 tree, pinned by full object name so it stays a mutant after the repair is committed.
 BASELINE_REV = 'f6d12527cc8a3ed3cda6e533528f46bbba4d6e17'
+# The 0-based seat table S10 committed and S16 reverses, pinned the same way: it is the mutant the
+# frame-range checks have to reject now that the strip is addressed 1..8.
+ZERO_BASED_EFFECT_REV = '5ad0945ad1a92944a258a5097680a220cb1c7af6'
 
 CHAPTERS = ('restoration', 'rivera', 'republic', 'civil_war', 'postwar', 'republican_postwar')
 BILLS = ('budget', 'agrarian', 'labour', 'army', 'statute', 'electoral')
@@ -71,17 +74,18 @@ BILL_DECISIONS = {
     'statute': 'SPR_bill_regional_statute',
     'electoral': 'SPR_bill_electoral_law',
 }
-# dot frame each party owns, from the sprite registration's own comment
+# dot frame each party owns: the strip's eight cells are addressed as frames 1..8, frame 1 the
+# neutral seat and frames 2..8 the parties in the registration's own chamber order
 PARTY_FRAMES = {
-    'socialists': 1,
-    'republicans': 2,
-    'liberals': 3,
-    'conservatives': 4,
-    'monarchists': 5,
-    'carlists': 6,
-    'falange': 7,
+    'socialists': 2,
+    'republicans': 3,
+    'liberals': 4,
+    'conservatives': 5,
+    'monarchists': 6,
+    'carlists': 7,
+    'falange': 8,
 }
-NEUTRAL_FRAME = 0
+NEUTRAL_FRAME = 1
 STRIP_FRAMES = 8
 DOTS = 100
 
@@ -558,7 +562,10 @@ def test_hemicycle(report, script):
     dots = sorted(set(name for name, _ in assignments))
     report.equal('the effect writes one variable per dot', len(dots), DOTS)
     values = collections.Counter(int(value) for _, value in assignments)
-    report.equal('every frame written is inside the strip', sorted(values), list(range(frames)))
+    report.equal('every frame written is inside the strip',
+                 sorted(values), list(range(NEUTRAL_FRAME, frames + 1)))
+    report.equal('no frame 0 and no frame 9 is written',
+                 sorted(frame for frame in values if frame < NEUTRAL_FRAME or frame > frames), [])
     report.equal('each frame is written once per dot', set(values.values()), {DOTS})
 
     # Every dot defaults to the neutral frame.
@@ -586,13 +593,17 @@ def test_hemicycle(report, script):
     report.equal('every painted dot is a party frame',
                  sorted(set(seats.values())), sorted(set(PARTY_FRAMES.values())))
 
-    # Mutant: the pre-S10 effect writes nine frames' worth of values on an eight-frame strip.
-    old = re.findall(r'set_variable = \{ var = spain_cortes_seat_\d+ value = (\d+) \}',
-                     read(HEMICYLE_PATH, BASELINE_REV))
-    report.equal('mutant: the old effect writes frame 8 on an eight-frame strip',
-                 sorted(set(int(value) for value in old)), list(range(1, frames + 1)))
-    report.check('mutant: the old neutral frame is not the strip\'s first frame',
-                 min(int(value) for value in old) != NEUTRAL_FRAME, 'the mutant agreed')
+    # Mutant: the 0-based table S10 committed addresses the strip as 0..7, so it never reaches the
+    # falange's cell and paints an empty bench from a frame the strip does not start at.
+    old = [int(value) for value in re.findall(
+        r'set_variable = \{ var = spain_cortes_seat_\d+ value = (\d+) \}',
+        read(HEMICYLE_PATH, ZERO_BASED_EFFECT_REV))]
+    report.equal('mutant: the 0-based effect writes frames 0..7',
+                 sorted(set(old)), list(range(0, frames)))
+    report.check('mutant: the 0-based effect never reaches the strip\'s last cell',
+                 max(old) < STRIP_FRAMES, 'highest frame %d of %d' % (max(old), STRIP_FRAMES))
+    report.check('mutant: the 0-based effect addresses a frame below the first cell',
+                 min(old) < NEUTRAL_FRAME, 'lowest frame %d' % min(old))
 
 
 # ---------------------------------------------------------------------------------------------
