@@ -252,6 +252,15 @@ country_event = {
 	id = iran_campaign.29 title = iran_campaign.29.t desc = iran_campaign.29.d picture = GFX_report_event_persiancoup is_triggered_only = yes
 	option = {
 		name = iran_campaign.29.a
+		# How the armistice of 1918 was taken decides whether petitioning Geneva is
+		# still a credible move: a government that pressed its claims does it, a
+		# government that signed the terms as presented boycotts the conference.
+		trigger = {
+			OR = {
+				has_country_flag = iran_armistice_claims
+				NOT = { has_country_flag = iran_armistice_accepted }
+			}
+		}
 		ai_chance = { factor = 50 }
 		add_political_power = constant:iran_story.political_capital
 		add_to_variable = { iran_authority = constant:iran_story.authority_gain }
@@ -261,6 +270,12 @@ country_event = {
 	}
 	option = {
 		name = iran_campaign.29.b
+		trigger = {
+			OR = {
+				NOT = { has_country_flag = iran_armistice_claims }
+				has_country_flag = iran_armistice_accepted
+			}
+		}
 		ai_chance = { factor = 50 }
 		add_stability = constant:iran_story.stability_gain
 		set_country_flag = iran_conference_boycott
@@ -356,7 +371,9 @@ country_event = {
 # The 1933 concession terms are signed in the iran_settle_the_concession_1933 decision,
 # which fires iran_f2.2. This event is not dead: IR2_oil_revision and IR3_oil_sovereignty
 # still fire it later in the chapter for the revision of the terms, so it stays until those
-# two focuses stop calling it. Its settle branch sets iran_oil_settlement, which nothing reads.
+# two focuses stop calling it. Its two branches are read by the continuity gate:
+# iran_oil_settlement feeds iran_path_oil_concession, iran_oil_dispute feeds
+# iran_path_oil_national, so the terms chosen here shape the later oil decisions.
 country_event = {
 	id = iran_campaign.55 title = iran_campaign.55.t desc = iran_campaign.55.d picture = GFX_report_event_russo_persian is_triggered_only = yes
 	option = {
@@ -758,6 +775,10 @@ country_event = {
 	}
 	option = {
 		name = iran_campaign.76.b
+		# A government that has already handed the railway to Berlin cannot plead
+		# that the mission is only technical: the German transit agreement of
+		# iran_campaign.74.c closes the defiant answer.
+		trigger = { NOT = { has_country_flag = iran_agreement_transit_axis } }
 		ai_chance = { factor = 25 }
 		# keep the mission and accept that the Allies will remember it
 		add_to_variable = { iran_german_influence = 6 }

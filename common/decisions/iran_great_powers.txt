@@ -8,15 +8,33 @@
 
 iran_great_powers = {
 
-	# ------------------------------------------------------------ Germany, 1935-
+	# ------------------------------------------- Germany, 1935-1941 (see visible)
 	iran_invite_german_mission = {
 		icon = generic_research
 		allowed = { original_tag = PER }
 		visible = {
 			has_country_flag = iran_campaign_active
-			date > 1934.12.31
 			date < 1942.1.1
 			NOT = { has_country_flag = iran_agreement_german_mission }
+			# A government that has already answered a patron's demand hosts no
+			# German mission: paying London or Moscow is the choice that closes
+			# the third-power avenue. iran_campaign.71.a sets the British flag,
+			# iran_campaign.72.a the Soviet one.
+			NOT = { has_country_flag = iran_british_demand_paid }
+			NOT = { has_country_flag = iran_soviet_demand_paid }
+			# From 1935 the avenue is open to any Persian government. Before that
+			# it opens only to one that has already refused a patron's bill
+			# (iran_campaign.71.b/.71.c/.72.b): having told London or Moscow no, it
+			# looks for a counterweight without waiting for the calendar. The date
+			# test belongs to this OR and to nothing outside it, so the flag
+			# disjuncts decide the pre-1935 window instead of restating an outer
+			# conjunct.
+			OR = {
+				date > 1934.12.31
+				has_country_flag = iran_british_demand_refused
+				has_country_flag = iran_british_demand_deflected
+				has_country_flag = iran_soviet_demand_refused
+			}
 		}
 		available = {
 			has_political_power > 99
@@ -135,6 +153,10 @@ iran_great_powers = {
 			date > 1919.1.1
 			date < 1921.12.31
 			NOT = { has_country_flag = iran_crisis_anglo_persian_done }
+			# A Persia that proclaimed armed neutrality does not ratify a British
+			# protectorate: the neutral route has to refuse it or let the draft
+			# impose itself. iran_campaign.27.a sets the flag.
+			NOT = { iran_path_armed_neutrality = yes }
 		}
 		available = {
 			has_political_power > 74
@@ -164,6 +186,11 @@ iran_great_powers = {
 			date > 1919.1.1
 			date < 1921.12.31
 			NOT = { has_country_flag = iran_crisis_anglo_persian_done }
+			# Only a Persia that came through the war whole can repudiate the
+			# treaty. A country under an Ottoman frontier, a refugee
+			# administration or grain requisition is not in a position to say no
+			# to London, and this decision simply does not appear for it.
+			iran_path_intact = yes
 		}
 		available = {
 			has_political_power > 74
