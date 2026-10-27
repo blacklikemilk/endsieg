@@ -74,13 +74,21 @@ Ratifying it grants influence and leverage in exchange for political power; reje
 
 ## The powers act
 
-`iran_great_game_tick` (monthly) has each power react to its own situation:
+`iran_great_game_tick` (monthly) asks the standing demands, and `iran_influence_tick` (monthly, on the same `on_monthly_PER` hook) carries the wartime corridor.
+The two are separate helpers: the standing demands need a patron at 70 goodwill or more, while the corridor needs a patron at war.
 
-- A Britain at war demands transit (`iran_campaign.74`) — grant it, refuse it, or offer the corridor to Germany instead.
-- A Soviet Union at war after 1941 demands the same corridor on better terms (`iran_campaign.75`).
-- A Germany at war with the mission still in Tehran makes the Allied demand unavoidable (`iran_campaign.76`).
+- A Britain at war demands transit (`iran_campaign.74`): grant it and be paid while a foreign customs administration runs in the south, refuse it and be treated as a hostile neutral, or offer the corridor to Germany instead.
+- The northern power at war takes the same road on better terms (`iran_campaign.75`), and its demand follows Britain's on a later month rather than arriving beside it.
+- Germany at war with the mission still in Tehran makes the Allied demand unavoidable (`iran_campaign.76`): send the mission home, or keep it and be remembered for it.
 
-Agreements are once-only where they represent a single historical arrangement; the tick uses `seen` flags so no demand repeats, and each event is `is_triggered_only`.
+The three corridor demands are one chain, not three independent checks, so at most one of them leaves a monthly tick and the order above is the order of precedence.
+Each is fenced to the war years: `.74` and `.76` require `date > 1940.12.31` and `.75` requires `date > 1941.1.1`.
+The fences are year-level gameplay eras rather than claims about the day of any ultimatum, and they exist because a Britain at war in 1914 otherwise consumed the transit demand a generation early.
+All three also wait while `iran_negotiation_open` is set, so a month spent over another demand spends nothing here.
+Each branch sets its own seen flag (`iran_transit_demand_seen`, `iran_soviet_transit_seen`, `iran_allied_demand`) only when it dispatches, and `iran_agreement_transit_allied` still closes both corridor offers once either is signed.
+`iran_agreement_german_mission` remains the precondition for the Allied demand, so Germany's war only matters while its mission is still in Tehran.
+The incompatible-obligations penalty (`iran_campaign.73`) and the sovereignty band that follow the chain are independent of it, so they still run in a month that also delivers a demand.
+Every event here is `is_triggered_only`.
 
 ## Germany
 
@@ -105,6 +113,8 @@ Thresholds that decide how easily a debuff comes off are `authority_reform` (65)
 - Germany has no crisis of its own beyond the 1941 expulsion demand.
 - The 1933 oil negotiation is handled by the existing oil settlement decisions, not by a crisis mission.
 - Nothing here has been playtested; the drift rate and decision costs are reasoned, not tuned.
+- The 1941 corridor demands are routed and gated here, but their aftermath is still the original option set: no patron agenda, no fresh negotiating position and no separate post-occupation settlement exists for them yet.
+- `iran_campaign.75` describes a northern mission that has watched a British request arrive. The chain makes that the normal order, and a Britain that never went to war still lets the northern demand arrive alone.
 
 ## Needed icons
 
@@ -116,6 +126,7 @@ A purpose-made category plate would still be better than `GFX_decision_category_
 - A dedicated panel showing all three powers, the sovereignty meter and active agreements, replacing the three decision categories with one screen.
 - German crisis content for 1939–41 beyond the expulsion demand.
 - A Soviet crisis once the northern railway concession is torn up.
+- The I2 patron-agenda slices (fresh negotiating positions for each patron, the pay-as-concession standing demands) remain separate, unfinished work. Nothing in the wartime routing above implements them.
 
 ## Foreign acts
 

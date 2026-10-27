@@ -438,13 +438,27 @@ iran_influence_tick = {
 		}
 		add_to_variable = { iran_sovereignty = 1 }
 	}
-	# A power at war demands transit; a power at peace with the upper hand
-	# demands a concession instead. This is what makes them actors, not bars.
+	# A power at war demands transit. This is what makes the patrons actors
+	# rather than bars on a panel.
+	#
+	# The three wartime demands below are one chain, not three independent
+	# offers: there is a single corridor, so only one patron can put a claim on
+	# it in a given month. British transit is asked for first, the northern
+	# claim follows it, and the Allied demand over the German mission comes
+	# last. A branch sets its own seen flag only when it dispatches, so a month
+	# spent in negotiation consumes no demand and a later month can deliver the
+	# next one.
+	#
+	# The corridor belongs to the war years. A Britain at war in 1914 must not
+	# consume the British transit demand three decades early, so the era fence
+	# is a year-level boundary rather than a claim about the day of any
+	# ultimatum.
 	if = {
 		limit = {
 			iran_campaign_country = yes
 			country_exists = ENG
 			ENG = { has_war = yes }
+			date > 1940.12.31
 			NOT = { has_country_flag = iran_agreement_transit_allied }
 			NOT = { has_country_flag = iran_transit_demand_seen }
 			NOT = { has_country_flag = iran_negotiation_open }
@@ -452,7 +466,7 @@ iran_influence_tick = {
 		set_country_flag = iran_transit_demand_seen
 		country_event = { id = iran_campaign.74 }
 	}
-	if = {
+	else_if = {
 		limit = {
 			iran_campaign_country = yes
 			country_exists = SOV
@@ -460,18 +474,20 @@ iran_influence_tick = {
 			date > 1941.1.1
 			NOT = { has_country_flag = iran_agreement_transit_allied }
 			NOT = { has_country_flag = iran_soviet_transit_seen }
+			NOT = { has_country_flag = iran_negotiation_open }
 		}
 		set_country_flag = iran_soviet_transit_seen
 		country_event = { id = iran_campaign.75 }
 	}
-	if = {
+	else_if = {
 		limit = {
 			iran_campaign_country = yes
 			country_exists = GER
 			GER = { has_war = yes }
 			has_country_flag = iran_agreement_german_mission
-			date > 1940.1.1
+			date > 1940.12.31
 			NOT = { has_country_flag = iran_allied_demand }
+			NOT = { has_country_flag = iran_negotiation_open }
 		}
 		set_country_flag = iran_allied_demand
 		country_event = { id = iran_campaign.76 }
