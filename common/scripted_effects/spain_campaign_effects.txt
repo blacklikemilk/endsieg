@@ -72,10 +72,28 @@ spain_ensure_campaign_state = {
 
 # =====================================================================================
 # Chapter openers. These only establish state; the milestone events are fired by the
-# transitions below, so a bookmark start does not open on a popup.
+# transitions below, so a bookmark start does not open on a popup. Each one clears the
+# other chapter flags first, so a continuous campaign moves between chapters instead of
+# accumulating them.
 # =====================================================================================
 
+
+# Every chapter transition clears its siblings before it claims the chapter, so exactly one
+# spain_chapter_* flag is ever active. The chapter is read as a single state: the daily tree
+# assert, the transition clock, the AI chapter plans and the recount era all test one flag, and
+# a flag inherited from an earlier era made the Restoration and the Republic alternately load
+# their trees on consecutive daily ticks. New chapter flags must be added here as well.
+spain_clear_chapter_flags = {
+	clr_country_flag = spain_chapter_restoration
+	clr_country_flag = spain_chapter_rivera
+	clr_country_flag = spain_chapter_republic
+	clr_country_flag = spain_chapter_civil_war
+	clr_country_flag = spain_chapter_postwar
+	clr_country_flag = spain_chapter_republican_postwar
+}
+
 spain_open_restoration_chapter = {
+	spain_clear_chapter_flags = yes
 	set_country_flag = spain_chapter_restoration
 	spain_cortes_initialize = yes
 	load_focus_tree = { tree = spain_restoration_focus keep_completed = yes }
@@ -93,6 +111,7 @@ spain_open_restoration_chapter = {
 }
 
 spain_open_rivera_chapter = {
+	spain_clear_chapter_flags = yes
 	set_country_flag = spain_chapter_rivera
 	spain_cortes_initialize = yes
 	load_focus_tree = { tree = spain_rivera_focus keep_completed = yes }
@@ -112,6 +131,7 @@ spain_open_rivera_chapter = {
 }
 
 spain_open_republic_chapter = {
+	spain_clear_chapter_flags = yes
 	set_country_flag = spain_chapter_republic
 	spain_cortes_initialize = yes
 	load_focus_tree = { tree = spain_republic_focus keep_completed = yes }
@@ -132,6 +152,7 @@ spain_open_republic_chapter = {
 }
 
 spain_open_civil_war_chapter = {
+	spain_clear_chapter_flags = yes
 	set_country_flag = spain_chapter_civil_war
 	load_focus_tree = { tree = spanish_focus keep_completed = yes }
 	mark_focus_tree_layout_dirty = yes
@@ -161,8 +182,11 @@ spain_open_civil_war_chapter = {
 }
 
 spain_open_postwar_chapter = {
+	spain_clear_chapter_flags = yes
 	set_country_flag = spain_bop_pending
 	set_country_flag = spain_chapter_postwar
+	load_focus_tree = { tree = spanish_focus keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
 	spain_carry_over_choices = yes
 	spain_cortes_initialize = yes
 	if = { limit = { has_power_balance = { id = SPR_crown_and_cortes } } remove_power_balance = { id = SPR_crown_and_cortes } }
@@ -177,6 +201,7 @@ spain_open_postwar_chapter = {
 }
 
 spain_open_republican_postwar_chapter = {
+	spain_clear_chapter_flags = yes
 	set_country_flag = spain_chapter_republican_postwar
 	if = { limit = { has_power_balance = { id = SPR_crown_and_cortes } } remove_power_balance = { id = SPR_crown_and_cortes } }
 	load_focus_tree = { tree = spain_republic_postwar_focus keep_completed = yes }

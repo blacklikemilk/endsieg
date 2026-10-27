@@ -4,6 +4,10 @@
 # A recount runs in one fixed order: pick the era's base support, apply the flags and the
 # accumulated party shifts on top of it, then clamp. A modifier applied before the era is
 # chosen is discarded by the era's own set_variable lines, so the order is not cosmetic.
+# The Republic base is chosen by its own chapter flag, never by the absence of the other two:
+# a civil-war or post-war chamber is not the republican chamber and must not inherit it.
+# The recount is also the one place that refreshes the six bill caches, so a decision gate can
+# never read a cache that no recount has written.
 # A decision category (SPR_cortes) mounts the chamber panel; its bills are ordinary decisions
 # gated on the bloc that has to carry them.
 
@@ -26,15 +30,13 @@ spain_cortes_initialize = {
 # =====================================================================================
 
 spain_cortes_recount = {
-	# --- one era base only, chosen before anything modifies it. The Republic that
-	# replaces the monarchy and the Directory inherits a different chamber from the one
-	# the Restoration and the Directory hand it, so the era is settled first and every
-	# modifier below acts on the base the country actually has.
+	# --- one era base only, chosen before anything modifies it. Only the Republic brings
+	# its own chamber: it replaces the monarchy and the Directory, and every other chapter
+	# (civil war, both post-war governments) legislates with the benches the Crown and the
+	# Directory handed it. The test is the Republic's own flag, not the absence of the other
+	# two, so a chapter that is none of the three cannot fall through into the republican base.
 	if = {
-		limit = {
-			NOT = { has_country_flag = spain_chapter_restoration }
-			NOT = { has_country_flag = spain_chapter_rivera }
-		}
+		limit = { has_country_flag = spain_chapter_republic }
 		set_variable = { var = spain_cortes_raw_monarchists value = 12 }
 		set_variable = { var = spain_cortes_raw_liberals value = 22 }
 		set_variable = { var = spain_cortes_raw_conservatives value = 60 }
@@ -74,12 +76,9 @@ spain_cortes_recount = {
 	add_to_variable = { var = spain_cortes_raw_carlists value = spain_party_shift_carlists }
 	add_to_variable = { var = spain_cortes_raw_falange value = spain_party_shift_falange }
 
-	# --- the chamber the Republic brings with it
+	# --- the chamber the Republic brings with it, under the same positive era test
 	if = {
-		limit = {
-			NOT = { has_country_flag = spain_chapter_restoration }
-			NOT = { has_country_flag = spain_chapter_rivera }
-		}
+		limit = { has_country_flag = spain_chapter_republic }
 		if = { limit = { has_country_flag = spain_ceda_government } add_to_variable = { var = spain_cortes_raw_conservatives value = 30 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 20 } }
 		if = { limit = { has_country_flag = spain_falange_street } add_to_variable = { var = spain_cortes_raw_falange value = 12 } }
 		if = { limit = { has_country_flag = spain_cnt_split } add_to_variable = { var = spain_cortes_raw_socialists value = 8 } }
@@ -157,6 +156,14 @@ spain_cortes_recount = {
 	spain_cortes_fix_seat_total = yes
 	spain_government_recount = yes
 	spain_cortes_refresh_display = yes
+
+	# The bill decisions read cached counts because a trigger cannot add seats, so the caches
+	# are refreshed here, with the chamber and the government they describe. The six counts only
+	# write variables: they never call a recount, so this cannot recurse, and they charge no
+	# political power, so a refresh cannot cost the player anything. This is also the first
+	# writer of the caches in a campaign, which is what keeps a bill gate from reading a cache
+	# that does not exist yet.
+	spain_bills_count_all = yes
 }
 
 spain_cortes_refresh_display = {
