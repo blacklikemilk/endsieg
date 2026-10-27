@@ -5,6 +5,15 @@
 # These effects let the player leave that line inside the chapter itself: the
 # old regime flags are cleared and the new one set, which switches allow_branch
 # on the political continuations without reloading the tree.
+#
+# Pahlavi rule carries no balance of power, so a shift opens one before its settlement pushes it:
+# PER_bop_open_regime creates the balance at the constitutional centre and the settlement then
+# places it. Running the settlement first would silently do nothing and leave PER_bop_sync to
+# create the era's opening value, which is the position of the autocracy being left.
+#
+# Four shifts depose the dynasty and clear PER_pahlavi_dynasty with it. iran_shift_to_constitutional
+# keeps the Shah and binds him: the dynasty flag stays, only the autocracy ends. PER_bop_sync reads
+# the regime flags, not the dynasty alone, so that shift keeps its balance.
 
 iran_clear_regime_flags = {
 	clr_country_flag = iran_pahlavi
@@ -23,6 +32,7 @@ iran_shift_to_qajar = {
 	set_politics = { ruling_party = neutrality elections_allowed = no }
 	add_to_variable = { iran_authority = -10 }
 	add_stability = 0.05
+	PER_bop_open_regime = yes
 	PER_bop_settle_qajar = yes
 	PER_bop_sync = yes
 	mark_focus_tree_layout_dirty = yes
@@ -37,6 +47,7 @@ iran_shift_to_republic = {
 	set_politics = { ruling_party = democratic elections_allowed = yes }
 	add_to_variable = { iran_authority = -15 }
 	add_stability = 0.05
+	PER_bop_open_regime = yes
 	PER_bop_settle_republic = yes
 	PER_bop_sync = yes
 	mark_focus_tree_layout_dirty = yes
@@ -49,6 +60,7 @@ iran_shift_to_constitutional = {
 	set_country_flag = iran_regime_settled
 	set_politics = { ruling_party = neutrality elections_allowed = yes }
 	add_stability = 0.10
+	PER_bop_open_regime = yes
 	PER_bop_settle_constitution = yes
 	PER_bop_sync = yes
 	mark_focus_tree_layout_dirty = yes
@@ -59,9 +71,10 @@ iran_shift_to_socialist = {
 	set_country_flag = iran_socialist
 	set_country_flag = iran_regime_settled
 	clr_country_flag = PER_pahlavi_dynasty
-	set_politics = { ruling_party = communist elections_allowed = no }
+	set_politics = { ruling_party = communism elections_allowed = no }
 	add_to_variable = { iran_authority = -20 }
 	add_stability = -0.05
+	PER_bop_open_regime = yes
 	PER_bop_settle_socialist = yes
 	PER_bop_sync = yes
 	mark_focus_tree_layout_dirty = yes
@@ -74,6 +87,7 @@ iran_shift_to_nationalist = {
 	clr_country_flag = PER_pahlavi_dynasty
 	set_politics = { ruling_party = neutrality elections_allowed = yes }
 	add_war_support = 0.05
+	PER_bop_open_regime = yes
 	PER_bop_settle_nationalist = yes
 	PER_bop_sync = yes
 	mark_focus_tree_layout_dirty = yes
