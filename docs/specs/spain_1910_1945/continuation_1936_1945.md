@@ -195,3 +195,44 @@ Source/static: `source_lookup` on every new symbol, `script_validate` on each ne
 Renderer: `focus_inspect` on `spain_republic_postwar_focus` and `focus_render` after B1, expecting `2 blocking → 0`; `focus_render` after C1 only if a focus is added (it is not).
 Localisation: keys present in all eight language folders per the project rule; B1, A1 and C1 all ship English text in the same change as their script.
 Not performed by this card and not claimed: any in-game launch, clickability of the 17 stacked nodes, the AI actually choosing the new decisions, and the visual look of the repaired right column.
+
+## Director ruling after the approved S19 diagnostic, 2026-10-27
+
+Disposition: accepted clarification of A1's existing matching-answer contract within Christopher's approved Spain campaign, for linked DeepSeek correction after diagnostic `t_e83880e2` run 227.
+The diagnostic and native original `t_08b44a33` remain the evidence for the two rejected attempts, not implementation acceptance.
+The shared `spain_faction_resolve_regime` remains the only writer of the regime leader and its spirit.
+
+### Succession answers establish their named regime
+
+Existing threshold flags remain eligibility, so several answers can be offered when several factions qualify.
+The Directory remains available when no civilian faction qualifies, and the player always has an answer.
+An eligible selected answer must establish a strict numerical winner before the unchanged shared resolver runs exactly once.
+The Crown answer represents either royal house, including the Carlists, and selects the house with greater current influence, retaining the monarchist preference when the two houses tie.
+The generic `spain_succession_monarchist` flag records that Crown answer rather than an exclusive Alfonsine claimant.
+
+The selected faction advances above the largest current faction influence by the existing `faction_gain_large` margin, bounded by the existing `faction_cap`.
+Only rivals whose influence would tie or exceed that bounded result are lowered to the selected result minus the same existing margin.
+This cap-safe rebalance is authorized within the three succession answers and must be explained by their visible tooltips.
+It preserves a decisive answer after ordinary upkeep without exceeding the campaign cap or altering the shared resolver, constants, upkeep or AI weights.
+All other option payloads remain as specified.
+
+### The subsequent pact recognizes the current balance
+
+The Crown-recall option in `.63.c` keeps its existing route prerequisites and additionally requires a royal house to be the current strict numerical winner under the shared resolver's actual comparisons.
+A remembered royal succession alone cannot recall the Crown after a later non-royal takeover.
+The pact does not apply another decisive faction rebalance.
+Its own-terms option stays available, so a changed balance never traps the settlement popup.
+The existing leverage consequences, three settlement options, costs, once-only guards and registered icons remain intact.
+
+### Required correction proof
+
+Execute real option effects and the real shared resolver from coherent numerical states rather than a copied arbitration function.
+Reproduce the Crown tie `F45/C25/M35/A20` and no-lead Directory `F29/C15/M10/A5` before correction, then verify matching answer flag, leader and exactly one spirit afterwards.
+Cover every eligible answer, both royal houses, royal ties, values at zero and the lead threshold, competing maxima, the cap, stale flags, each old spirit and all four old spirits together.
+Run actual clamp/upkeep semantics after the answer and check both unchanged and deliberately changed balance before the pact.
+A `.63.c` guard-deletion mutant must expose the false recall, and fixed-push, wrong-house and spirit-removal mutants must fail coupled checks.
+Retain the original eight Spain regressions and mandatory independent DeepSeek QA with the canonical `s19-crown-answer-spirit-mismatch` history at two rejections.
+
+The rejected alternatives were fixed positive pushes that do not guarantee the named regime, an uncapped maximum-plus-margin that loses its victory at upkeep, direct local spirit overrides, and changing the shared resolver owned by S18b.
+None satisfies the existing matching-answer promise as safely within the four-path correction.
+This ruling does not accept S19, authorize another premium attempt or authorize a game launch.
