@@ -122,7 +122,7 @@ That transfer is a dated block in `history/states`, not a decision, so it used t
 
 Two things now sit on top of it:
 
-1. **A timed mission, `rch_save_the_republic`.** It opens in 1934, costs 150 political power to attempt, runs for 365 days, and is removed early only if the Republic holds Beijing, has legitimacy 60 or more, stability above 45 per cent, more than 100 political power, no war with Japan, and at least one flagship programme (constitution, currency, German mission, British loan or Whampoa).
+1. **A timed mission, `rch_save_the_republic`.** It opens in 1934, costs 200 political power to attempt, runs for 365 days, and is removed only while all seven conditions hold at once: the Republic holds Beijing, legitimacy is 80 or higher, stability is above 55 per cent, more than 150 political power remains unspent, the Republic is at war with nobody, one political programme of the five has been carried through, and one foreign or financial programme of the four is in place.
    Succeeding grants the `rch_republic_endures` spirit and sets `rch_republic_saved`; timing out sets `rch_republic_failed` and costs stability and legitimacy.
 2. **A 1936 settlement, `rch_settle_1936`.** On the first tick after 1 January 1936 it either reclaims every Chinese state for the Republic (if the mission succeeded) or hands the player to CHI with `change_tag_from`, so the player continues as the central government with the warlords splitting around them instead of being left with no land.
 
@@ -289,7 +289,7 @@ The date window and the entry conditions used to sit in `available` alone, so th
 Before: drawn in every year from 1912, with no statement of the success conditions.
 After: drawn only in 1934, and the completion tooltip lists the terms.
 
-One consequence of a daily appearance gate: a mission taken late in 1934 keeps its 365-day timer running past 1 January 1935, while `activation` stops drawing the card. `rch_save_mission_running` is written three times and read nowhere, so the only visible effect is a card whose window closes under a running mission, and the settlement flags it eventually sets are the same ones the window already reads.
+One consequence of a daily appearance gate that has not been established either way: a mission taken late in 1934 keeps its own 365-day clock, and whether the engine lets that clock run past 1 January 1935 while `activation` stops drawing the card is not stated by the offline wiki and was not observed, because no launch has been run for this mission. `rch_save_mission_running` is written three times and read nowhere, so the only candidate visible effect is a card whose window closes under a running mission; the settlement flags it eventually sets are the same ones the window already reads.
 
 ## The 1918 bookmark, and why the chapter tree is re-asserted
 
