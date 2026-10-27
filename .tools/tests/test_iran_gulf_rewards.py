@@ -21,6 +21,21 @@ The test reads the shipped sources rather than restating them:
 against the pre-repair revision pinned below and must reject it. That mutant control is what
 proves the test detects the defect instead of describing the current file.
 
+Two pins are in play, and they answer different questions:
+
+    * `BASELINE_REV` is the pre-repair file. `audit()` must keep rejecting it, so it stays the
+      mutant control and never moves.
+    * `PRESERVATION_REV` is the commit that integrated the two Gulf repairs. The preservation
+      checks compare the working tree against it, because between the two revisions the interwar
+      chapter also wrapped ten raw flag conditions in ten other focuses' requirement blocks in
+      English tooltips (its share of the sixteen the same integration wrapped across both
+      chapters) and gained ten localisation keys. Both are enumerated by name in
+      `ACCEPTED_DRIFT_FOCUSES` and `ACCEPTED_DRIFT_LOC_KEYS` and asserted against the real
+      revision diff, so freezing to this commit cannot bless drift the lists do not cover.
+    * `ACCEPTED_FOCUS_EDITS` declares the single later reward repair (the Khuzestan route gate)
+      as an exact transformation of the preservation body. Any other change to any focus reward,
+      and any wider shape of the declared one, still fails.
+
 Run from the repository root:
 
     python .tools/tests/test_iran_gulf_rewards.py           # exit 0 = pass
@@ -51,8 +66,64 @@ BUILDINGS_PATH = 'common/buildings/00_buildings.txt'
 LOC_PATH = 'localisation/english/iran_interwar_l_english.yml'
 
 # The pre-repair file, which built both rewards in state 411. Pinned by full object name: a
-# mutable `HEAD` would stop being a mutant once the repair is committed.
+# mutable `HEAD` would stop being a mutant once the repair is committed. This revision stays the
+# mutant control - `audit()` must keep rejecting it - and is never used for preservation.
 BASELINE_REV = 'f8f9225b048874109ff965654c9fb7fa973df0cd'
+
+# The integration commit that landed the two Gulf repairs. The preservation checks compare against
+# this revision, because after BASELINE_REV the interwar chapter also wrapped ten raw flag
+# conditions in ten other focuses' requirement blocks in English tooltips and gained ten
+# localisation keys. Both are enumerated below and asserted against the real revision diff, so this
+# pin cannot bless drift the lists do not cover.
+PRESERVATION_REV = 'b978f23e6d9588c9131786e4b75da46f24149040'
+
+# focus id -> the ten focuses whose requirement blocks changed between the two revisions. Each one
+# differs only inside its `available`/`bypass` block; `focus_drift()` asserts that.
+ACCEPTED_DRIFT_FOCUSES = (
+    'IR2_reject_the_agreement',
+    'IR2_accept_the_agreement',
+    'IR2_reza_khan_minister',
+    'IR2_jangali_congress',
+    'IR2_nationalist_press',
+    'IR2_nationalist_officers',
+    'IR2_parliamentary_republic',
+    'IR2_pahlavi_settlement',
+    'IR2_nationalist_front',
+    'IR2_socialist_republic',
+)
+
+# The ten keys that commit added to the interwar localisation file. No key was removed and only the
+# repaired description value changed.
+ACCEPTED_DRIFT_LOC_KEYS = (
+    'iran_anglo_persian_crisis_open_tt',
+    'iran_army_decisive_voice_tt',
+    'iran_cossack_refusal_tt',
+    'iran_gilan_republic_proclaimed_tt',
+    'iran_jangali_congress_held_tt',
+    'iran_majlis_ascendant_tt',
+    'iran_majlis_predominance_tt',
+    'iran_nationalist_front_base_tt',
+    'iran_nationalist_movement_organized_tt',
+    'iran_reza_at_the_army_tt',
+)
+
+# The one focus reward allowed to differ from the preservation revision: the Khuzestan capacity
+# project charged the British concession on both of its mutually exclusive entrance branches, so a
+# domestic-capital Iran paid for a deal it refused. The declared edit wraps that single call in the
+# route test the prerequisites already enforce; nothing else in the focus moves.
+ACCEPTED_FOCUS_EDITS = {
+    'IR2_khuzestan_oil': 'the route gate on the British concession',
+}
+
+KHUZESTAN_CONCESSION = ('iran_concede_british_small', ('scalar', 'yes'))
+KHUZESTAN_GATE = ('if', ('block', [
+    ('limit', ('block', [
+        ('NOT', ('block', [
+            ('has_country_flag', ('scalar', 'iran_domestic_capital'), 0),
+        ]), 0),
+    ]), 0),
+    ('iran_concede_british_small', ('scalar', 'yes'), 0),
+]), 0)
 
 NAVAL_FOCUS = 'IR2_gulf_claims'
 DOCKYARD_FOCUS = 'IR2_navy_gulf'
@@ -383,6 +454,95 @@ def focus_signature(body):
     return normalize(body, drop_constructions=True)
 
 
+def apply_accepted_edit(focus_id, body):
+    """The preservation body with the declared edit applied, or None when it did not apply.
+
+    The substitution is exact: one `iran_concede_british_small = yes` inside `completion_reward`
+    becomes one `if = { limit = { NOT = { has_country_flag = iran_domestic_capital } } ... }`.
+    """
+    if focus_id not in ACCEPTED_FOCUS_EDITS:
+        return None
+    applied = False
+    out = []
+    for key, value, line in body:
+        if key != 'completion_reward' or value[0] != 'block':
+            out.append((key, value, line))
+            continue
+        entries = []
+        for inner_key, inner_value, inner_line in value[1]:
+            if (inner_key, inner_value) == KHUZESTAN_CONCESSION:
+                entries.append(KHUZESTAN_GATE)
+                applied = True
+            else:
+                entries.append((inner_key, inner_value, inner_line))
+        out.append((key, ('block', entries), line))
+    return out if applied else None
+
+
+def preservation_failures(current, kept, current_text=None, kept_text=None):
+    """Every way `current` violates the preservation baseline `kept`."""
+    failures = []
+    if current_text is not None and kept_text is not None:
+        guarded = {NAVAL_FOCUS, DOCKYARD_FOCUS} | set(ACCEPTED_FOCUS_EDITS)
+        if code_outside(current_text, guarded) != code_outside(kept_text, guarded):
+            failures.append('code outside the two repaired focus blocks and the declared edit '
+                            'changed')
+    if len(current) != len(kept):
+        failures.append('focus count %d vs %d' % (len(current), len(kept)))
+    for ident in kept:
+        if ident not in current:
+            failures.append('%s is missing' % ident)
+            continue
+        if ident in (NAVAL_FOCUS, DOCKYARD_FOCUS) or ident in ACCEPTED_FOCUS_EDITS:
+            continue
+        if focus_signature(current[ident]) != focus_signature(kept[ident]):
+            failures.append('%s changed a field other than its building construction' % ident)
+    for ident in current:
+        if ident not in kept:
+            failures.append('%s was added' % ident)
+    for focus_id in (NAVAL_FOCUS, DOCKYARD_FOCUS):
+        if focus_id not in current or focus_id not in kept:
+            failures.append('%s is missing' % focus_id)
+            continue
+        if focus_signature(current[focus_id]) != focus_signature(kept[focus_id]):
+            failures.append('%s changed a field other than its building construction' % focus_id)
+        if len(state_relations(current[focus_id])) != 1:
+            failures.append('%s no longer carries exactly one state relation' % focus_id)
+    for focus_id, described in sorted(ACCEPTED_FOCUS_EDITS.items()):
+        if focus_id not in current or focus_id not in kept:
+            failures.append('%s is missing' % focus_id)
+            continue
+        expected = apply_accepted_edit(focus_id, kept[focus_id])
+        if expected is None or normalize(expected) != normalize(current[focus_id]):
+            failures.append('%s does not carry %s' % (focus_id, described))
+    return failures
+
+
+def focus_drift():
+    """focus id -> True when only its requirement blocks changed between the two baseline pins.
+
+    False means some other field moved, and 'added'/'removed' means the focus itself did. Used to
+    prove the `PRESERVATION_REV` pin covers exactly the focuses named in `ACCEPTED_DRIFT_FOCUSES`.
+    """
+    before = read_focus_blocks(baseline_file(FOCUS_PATH))
+    after = read_focus_blocks(preservation_file(FOCUS_PATH))
+    drift = {}
+    for ident in after:
+        if ident not in before:
+            drift[ident] = 'added'
+            continue
+        if focus_signature(before[ident]) == focus_signature(after[ident]):
+            continue
+        drift[ident] = (
+            normalize([(key, value, line) for key, value, line in before[ident]
+                       if key not in ('available', 'bypass')])
+            == normalize([(key, value, line) for key, value, line in after[ident]
+                          if key not in ('available', 'bypass')]))
+    for ident in before:
+        if ident not in after:
+            drift[ident] = 'removed'
+    return drift
+
 
 def code_outside(text, focus_ids):
     """Tokens of the whole file except the focus blocks under repair."""
@@ -682,6 +842,28 @@ def baseline_file(path):
     return baseline_raw(path).decode('utf-8-sig')
 
 
+def preservation_raw(path):
+    """The pinned integration bytes of one file, read from git rather than from the worktree."""
+    result = subprocess.run(
+        ['git', 'show', '%s:%s' % (PRESERVATION_REV, path)],
+        cwd=str(ROOT), capture_output=True,
+    )
+    if result.returncode != 0:
+        print('cannot read the preservation baseline %s:%s' % (PRESERVATION_REV, path))
+        print(result.stderr.decode('utf-8', 'replace').strip())
+        print('the preservation check needs the repository history; this is not a pass')
+        sys.exit(2)
+    return result.stdout
+
+
+def preservation_file(path):
+    return preservation_raw(path).decode('utf-8-sig')
+
+
+def preservation_text():
+    return preservation_file(FOCUS_PATH)
+
+
 def baseline_text():
     return baseline_file(FOCUS_PATH)
 
@@ -776,21 +958,81 @@ def main():
     report.check('both rewards parse and land on a coastal state', not failures,
                  '; '.join(failures))
 
+    report.start('baseline-drift')
+    drift = focus_drift()
+    report.check('the two baseline pins differ in exactly the %d declared focuses'
+                 % len(ACCEPTED_DRIFT_FOCUSES),
+                 sorted(drift) == sorted(ACCEPTED_DRIFT_FOCUSES), repr(sorted(drift)))
+    report.check('every declared baseline focus differs only inside a requirement block',
+                 all(drift.get(ident) is True for ident in ACCEPTED_DRIFT_FOCUSES),
+                 repr({ident: drift.get(ident) for ident in ACCEPTED_DRIFT_FOCUSES}))
+    before_loc = parse_localisation(baseline_file(LOC_PATH))['entries']
+    after_loc = parse_localisation(preservation_file(LOC_PATH))['entries']
+    added_keys = sorted(key for key in after_loc if key not in before_loc)
+    removed_keys = sorted(key for key in before_loc if key not in after_loc)
+    changed_values = sorted(key for key in after_loc
+                            if key in before_loc and after_loc[key][0] != before_loc[key][0])
+    report.check('the two baseline pins add exactly the %d declared localisation keys'
+                 % len(ACCEPTED_DRIFT_LOC_KEYS),
+                 added_keys == sorted(ACCEPTED_DRIFT_LOC_KEYS), repr(added_keys))
+    report.check('the integration baseline removed no localisation key', not removed_keys,
+                 repr(removed_keys))
+    report.check('the integration baseline changed only the repaired description value',
+                 changed_values == [DESC_KEY], repr(changed_values))
+
     report.start('preserved')
     focuses = read_focus_blocks(text)
-    old_focuses = read_focus_blocks(baseline_text())
-    report.check('nothing outside the two repaired focus blocks changed',
-                 code_outside(text, {NAVAL_FOCUS, DOCKYARD_FOCUS})
-                 == code_outside(baseline_text(), {NAVAL_FOCUS, DOCKYARD_FOCUS}))
-    report.check('focus count unchanged', len(focuses) == len(old_focuses),
-                 '%d vs %d' % (len(focuses), len(old_focuses)))
-    for focus_id in (NAVAL_FOCUS, DOCKYARD_FOCUS):
-        report.check('%s keeps every non-construction field' % focus_id,
-                     focus_signature(focuses[focus_id])
-                     == focus_signature(old_focuses[focus_id]))
-        report.check('%s still carries exactly one state relation' % focus_id,
-                     len(state_relations(focuses[focus_id])) == 1,
-                     repr([state for state, _, _ in state_relations(focuses[focus_id])]))
+    kept_focuses = read_focus_blocks(preservation_text())
+    problems = preservation_failures(focuses, kept_focuses, text, preservation_text())
+    for problem in problems:
+        report.check(problem, False)
+    report.check('every field outside the two repaired blocks and the declared edit is unchanged',
+                 not problems, '; '.join(problems))
+
+    report.start('non-blessing')
+    declared = dict(kept_focuses)
+    for focus_id in ACCEPTED_FOCUS_EDITS:
+        edited = apply_accepted_edit(focus_id, kept_focuses[focus_id])
+        if edited is None:
+            declared = None
+            break
+        declared[focus_id] = edited
+    report.check('the declared edit is accepted in the shape it is written',
+                 declared is not None and not preservation_failures(declared, kept_focuses),
+                 'the declared edit does not pass the preservation check')
+
+    def widened(body, extra):
+        out = []
+        for key, value, line in body:
+            if key == 'completion_reward' and value[0] == 'block':
+                out.append((key, ('block', list(value[1]) + [extra]), line))
+            else:
+                out.append((key, value, line))
+        return out
+
+    unrelated = next((ident for ident in sorted(kept_focuses)
+                      if ident not in ({NAVAL_FOCUS, DOCKYARD_FOCUS} | set(ACCEPTED_FOCUS_EDITS))
+                      and reward_entries(kept_focuses[ident])), None)
+    mutated = dict(kept_focuses)
+    if unrelated is not None:
+        mutated[unrelated] = widened(mutated[unrelated],
+                                     ('add_political_power', ('scalar', '25'), 0))
+    failures = preservation_failures(mutated, kept_focuses)
+    report.check('a changed reward on an undeclared focus is rejected',
+                 unrelated is not None and any(unrelated in failure for failure in failures),
+                 'picked %r; failures %r' % (unrelated, failures))
+
+    widened_edits = dict(kept_focuses)
+    for focus_id in ACCEPTED_FOCUS_EDITS:
+        edited = apply_accepted_edit(focus_id, kept_focuses[focus_id])
+        if edited is not None:
+            widened_edits[focus_id] = widened(edited,
+                                              ('add_war_support', ('scalar', '0.05'), 0))
+    failures = preservation_failures(widened_edits, kept_focuses)
+    report.check('the declared edit widened by one extra effect is rejected',
+                 bool(failures) and all(any(ident in failure for failure in failures)
+                                        for ident in ACCEPTED_FOCUS_EDITS),
+                 repr(failures))
 
     report.start('mutant')
     old_failures = audit(baseline_text(), coastal, state, old_state, kinds, slots)
@@ -812,13 +1054,13 @@ def main():
     report.check('the focus description matches the repaired build', not loc_failures,
                  '; '.join(loc_failures))
     loc = parse_localisation(loc_text)
-    base_loc = parse_localisation(baseline_file(LOC_PATH))
+    kept_loc = parse_localisation(preservation_file(LOC_PATH))
     report.check('the description is the only localisation value that changed',
-                 not localisation_diff(loc['entries'], base_loc['entries']),
-                 repr(localisation_diff(loc['entries'], base_loc['entries'])))
+                 not localisation_diff(loc['entries'], kept_loc['entries']),
+                 repr(localisation_diff(loc['entries'], kept_loc['entries'])))
     report.check('localisation key count unchanged',
-                 len(loc['entries']) == len(base_loc['entries']),
-                 '%d vs %d' % (len(loc['entries']), len(base_loc['entries'])))
+                 len(loc['entries']) == len(kept_loc['entries']),
+                 '%d vs %d' % (len(loc['entries']), len(kept_loc['entries'])))
     report.check('the description names the state the reward builds in',
                  TARGET_STATE_NAME.lower() in loc['entries'][DESC_KEY][0].lower(),
                  loc['entries'][DESC_KEY][0])

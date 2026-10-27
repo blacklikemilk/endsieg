@@ -29,6 +29,9 @@ What is checked, against the shipped sources:
        prerequisites, mutually exclusive set, branch gate, cost, search filters, AI weights,
        rewards) must be byte-identical to the pinned baseline, and the ordered focus id list of
        both chapters must be unchanged.  This is what proves the repair touched no gameplay field.
+       Two later reward repairs - the American mission's debt substitution and the Khuzestan
+       route gate - are declared below as exact transformations of the baseline, so each is
+       accepted only in the shape it is written and every other reward change still fails.
     6. **Encoding.**  Both English localisation files keep their UTF-8 BOM, and the two script
        files keep their CRLF line endings without gaining stray bare LF endings.
 
@@ -117,12 +120,16 @@ REPAIRED_BLOCKS = {
 
 IGNORED_FOCUS_FIELDS = REQUIREMENT_KEYS
 
-# The one focus edit this card may make: the American mission's leverage gain is
-# real debt rather than a derived value, and the spirit and its derivation are
-# republished after it. Everything else about the focus, and every other focus,
-# stays byte-equal.
+# The focus edits this guard may accept, each declared as an exact transformation of the pinned
+# baseline rather than as a re-pinned digest.  The American mission's leverage gain is real debt
+# rather than a derived value, and the spirit and its derivation are republished after it.  The
+# Khuzestan capacity project charged the British concession on both of its mutually exclusive
+# entrance branches, so a domestic-capital Iran paid for a deal it had refused; the call is now
+# wrapped in the route test the pair of prerequisites already enforces.  Everything else about
+# these focuses, and every field of every other focus, stays byte-equal.
 ACCEPTED_FOCUS_EDITS = {
     'IR3_american_mission': 'the debt substitution and the spirit refresh',
+    'IR2_khuzestan_oil': 'the route gate on the British concession',
 }
 
 AMERICAN_LEVERAGE_WRITE = ('add_to_variable',
@@ -133,11 +140,22 @@ AMERICAN_REPLACEMENT = [
     ('hidden_effect', [('iran_refresh_mechanics', 'yes')]),
 ]
 
+KHUZESTAN_CONCESSION = ('iran_concede_british_small', 'yes')
+KHUZESTAN_GATE = ('if', [('limit', [('NOT', [('has_country_flag',
+                                              'iran_domestic_capital')])]),
+                         ('iran_concede_british_small', 'yes')])
+
 
 def accepted_focus_edit(ident, fields):
     """Apply the declared edit for `ident` to a baseline field list."""
     if ident not in ACCEPTED_FOCUS_EDITS:
         return fields, False
+    if ident == 'IR2_khuzestan_oil':
+        substitution = KHUZESTAN_CONCESSION
+        replacement = [KHUZESTAN_GATE]
+    else:
+        substitution = AMERICAN_LEVERAGE_WRITE
+        replacement = AMERICAN_REPLACEMENT
     applied = False
     out = []
     for key, value in fields:
@@ -146,8 +164,8 @@ def accepted_focus_edit(ident, fields):
             continue
         replaced = []
         for entry in value:
-            if entry == AMERICAN_LEVERAGE_WRITE:
-                replaced.extend(AMERICAN_REPLACEMENT)
+            if entry == substitution:
+                replaced.extend(replacement)
                 applied = True
             else:
                 replaced.append(entry)
@@ -832,8 +850,8 @@ def mutant_controls(report, data):
     for chapter in data.values():
         for block in chapter['current']:
             ident = focus_id(block)
-            if ident != 'IR3_american_mission' and isinstance(field(block, 'completion_reward'),
-                                                              list):
+            if ident not in ACCEPTED_FOCUS_EDITS and isinstance(field(block, 'completion_reward'),
+                                                                list):
                 unrelated = ident
                 break
         if unrelated:
@@ -855,6 +873,20 @@ def mutant_controls(report, data):
                  any('IR3_american_mission' in item
                      for item in preservation_failures_for(widen_reward)),
                  'preservation check accepted a changed mission reward')
+
+    def invert_gate(block):
+        if focus_id(block) != 'IR2_khuzestan_oil':
+            return block
+        wrong_route = ('if', [('limit', [('has_country_flag', 'iran_domestic_capital')]),
+                              ('iran_concede_british_small', 'yes')])
+        return [(key, [wrong_route if entry == KHUZESTAN_GATE else entry for entry in value])
+                if key == 'completion_reward' and isinstance(value, list) else (key, value)
+                for key, value in block]
+
+    report.check('mutant control: a Khuzestan gate on the wrong route is rejected',
+                 any('IR2_khuzestan_oil' in item
+                     for item in preservation_failures_for(invert_gate)),
+                 'preservation check accepted a concession charged to the domestic route')
     report.check('mutant control: an unrelated focus reward change is rejected',
                  unrelated is not None and any(unrelated in item
                                                for item in preservation_failures_for(

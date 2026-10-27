@@ -159,3 +159,12 @@ The customs reform and the national bank pay five points down, and the American 
 
 Republication points are `iran_refresh_mechanics` (before the dependence spirit is tested), `iran_influence_tick` (monthly, after the drift), every concession or reclaim effect, and every body that writes the repayable debt.
 The publisher never calls `iran_refresh_mechanics`, so no caller can recurse.
+
+## Concessions follow the route
+
+A reward that concedes must be reachable only from a route that conceded something.
+`IR2_khuzestan_oil` is opened by either `IR2_domestic_capital` or `IR2_foreign_concessions`, those two are mutually exclusive, and they are its only entrances, so the missing `iran_domestic_capital` flag is exactly "took the foreign concessions".
+Its capacity project therefore calls `iran_concede_british_small` only inside `if = { limit = { NOT = { has_country_flag = iran_domestic_capital } } }`, so a domestic-capital Iran neither pays British influence nor loses the sovereignty it just reclaimed, and `iran_recompute_leverage` is not republished from a deal that player refused.
+The call sits outside `hidden_effect`, so the concession tooltip appears only on the branch that actually pays it, and the mutual exclusion is what makes that test correct rather than a guess.
+Do not widen this to `iran_path_oil_concession`: that trigger reads the concession flags set elsewhere in the campaign, and `IR2_foreign_concessions` sets none of them.
+`.tools/tests/test_iran_route_blind_rewards.py` executes the shipped reward against both routes and pins the gate, its exact limit, the tooltip placement and the single application, with four mutants that must each fail by name.
