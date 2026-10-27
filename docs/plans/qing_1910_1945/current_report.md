@@ -1,11 +1,11 @@
-﻿﻿﻿# Qing overhaul, current report
+﻿﻿# Qing overhaul, current report
 
 ## What is implemented
 
 | Surface | Content |
 | --- | --- |
 | Chapter one, `qing_ww1`, 1910–1918 | 88 focuses: shared reform trunk, four route settlements, economy, army, Beiyang command, diplomacy, provincial compact, revolution preparation, chapter convergence |
-| Chapter two, `qing_interwar`, 1919–1935 | 85 focuses: four route trunks, industry, army, diplomacy, provincial administration, Manchurian crisis, Nationalist question |
+| Chapter two, `qing_interwar`, 1919–1935 | 99 focuses: four route trunks, industry, army, diplomacy, provincial administration, Manchurian crisis, Nationalist question |
 | Chapter three, `qing_ww2`, 1936–1945 | 65 focuses: four route wartime governments, war economy, army, Allied diplomacy, fronts and victory |
 | Events | 33 events, 76 options, namespace `qing_campaign` |
 | Decisions | 38 decisions in five categories, including the balance-of-power family |
@@ -114,12 +114,13 @@ Focus IDs, counts, prerequisites, mutual exclusions, rewards, costs, AI weights,
 | Tree | Before (cells) | After (cells) | Long links before/after |
 | --- | --- | --- | --- |
 | qing_ww1 | 58x22 | 50x27 | 49 / 37 |
-| qing_interwar | 46x14 | 41x16 | 24 / 2 crossings |
+| qing_interwar | 46x19 | 50x12 | 42 crossings / 16 long before → 0 crossings / 4 long after |
 | qing_ww2 | 43x11 | 46x11 | 1 crossing |
 | rch_republic | 46x8 | 43x7 | 6 / 3 |
 | rch_warlord | 46x7 | 43x6 | 10 / 6 |
 | rch_nanjing | 48x8 | 42x4 | 11 / 0 |
 
+The `qing_interwar` row is the 2026-10-27 re-lay, measured with `hoi4.focus_inspect` (`treeId: qing_interwar`, `workspaceId: current`): 99 focuses on a 50 x 12 grid, 118 connectors, 0 crossings, 4 long connectors, 13 diagnostics, `validation.passed: true`, layoutHash `977168ee9e4eb53959425bf5418d8bd406986ded5989de8299b8ade528d3abb1`. The figures it replaced quoted an intermediate pass rather than the shipped chapter.
 The HOI4 Agent Tools MCP was used for `focus_inspect`, `focus_rewrite` and `focus_render`.
 `focus_rewrite` with `layoutMode: "compact"` succeeded on the three Republic trees but produced a 71-column strip on `rch_republic` (against 43 from this pass), and was blocked with `FOCUS_COMPACT_QUALITY_BLOCKED` on all three Qing trees, so its output was not adopted and its sidecar plan files were removed.
 
@@ -137,6 +138,7 @@ Historical focus is now the railroaded timeline for both countries.
 `qing_historical_collapse` wraps `is_historical_focus_on = yes`; `qing_survival_possible` and `qing_can_impose_settlement` both require its absence, and `qing_end_revolution` is a no-op under it, so the dynasty falls on the revolution's own schedule no matter which court path is picked.
 
 The Republic's 1934 rescue is off-script content only: `rch_save_the_republic` now requires `is_historical_focus_on = no` behind a `custom_trigger_tooltip`.
+It is also drawn in 1934 alone: `days_mission_timeout` makes it a mission, so the appearance gate is `activation` with `rch_campaign_active = yes`, `date > 1933.12.31` and `date < 1935.1.1`, and the matching `visible` block is inert on a mission.
 Its difficulty was raised so that avoiding the 1936 warlord split is possible but demands a near-perfect year: entry at more than 200 political power with a 200 cost, Beijing held, legitimacy 80, stability above 55%, back above 150 political power, no war of any kind, the route settlement of the chosen path, and a second national programme.
 Thresholds live in `common/script_constants/rch_campaign.txt` as `legitimacy_rescue`, `rescue_stability`, `rescue_entry_power` and `rescue_remaining_power`.
 

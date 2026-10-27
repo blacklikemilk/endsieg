@@ -1225,7 +1225,13 @@ def check_preserved_layout(shipped, baseline):
         if new is None:
             failures.append('%s was removed' % focus_id)
             continue
-        for field in ('icon', 'x', 'y', 'cost', 'search_filters', 'ai_will_do',
+        # x/y are deliberately not pinned to the baseline revision: an accepted layout
+        # pass exists to move them, and pinning them here turns every such pass red by
+        # construction. Coordinate stability is owned by
+        # .tools/tests/test_qing_interwar_layout.py, which pins each focus body digest with
+        # only x/y removed and rejects a duplicate cell or a tight row; the collision and
+        # spacing checks below run on the shipped coordinates, not on the pin.
+        for field in ('icon', 'cost', 'search_filters', 'ai_will_do',
                       'allow_branch', 'available', 'mutually_exclusive', 'offset'):
             if normalize(block(old, field) or []) != normalize(block(new, field) or []):
                 failures.append('%s changed its %s' % (focus_id, field))
