@@ -166,3 +166,42 @@ The brittle band is bounded on both sides (`>= 30` and `< 55`), so its negation 
 - `hoi4.source_lookup shx_hand_over_to_vanilla`: one definition, effects:88-110, text showing the concession removal and the three flag clears, one reference from `shx_campaign_tick:21`.
 - **Not performed:** no game launch, so the corrected gate, the handover and the concession remain unverified in play. No commit and no review request from this worker.
 
+
+## 2026-10-27 — the 1918 bookmark start
+
+Christopher's live 1918 report showed three defects in one session: the rescue mission drawn in 1918, the generic Republic tree, and Shanxi appearing only after unpausing. This pass repairs the last two and the mission's window and text; the reasoning is in `docs/systems/rch_campaign.md` and `docs/systems/shx_campaign.md`.
+
+### Root causes and paths
+
+- `common/decisions/rch_campaign.txt:141-195` — `rch_save_the_republic` kept its year and entry gates in `available`, so `visible` drew it from 1912 as a card the player could not take, and nothing stated the `remove_trigger` terms.
+- `common/on_actions/endsieg_on_actions.txt:126-238` — the pre-1936 tree pass loads a chapter inside `every_country`, so a start after the RCH history's own `shared_GEN_*` completions could keep the generic tree; the RCH branch alone was not a reliable bookmark initializer.
+- `common/on_actions/rch_campaign.txt:10-16` — Shanxi was released on the first `on_daily_RCH` tick, while `history/states/615-Shanxi.txt` gives the state to the Republic from 1914 and to Shanxi only in 1936. A 1918 start had no Shanxi until the player unpaused.
+
+### What changed
+
+- `activation` on `rch_save_the_republic` now requires `rch_campaign_active`, `date > 1933.12.31` and `date < 1935.1.1` as well as the two settlement flags. `days_mission_timeout` makes the block a mission, so `activation` is the gate the engine checks daily, and the identical `visible` block stays only as the card's stated window and is inert. `available` keeps the off-script and entry gates untouched.
+- `complete_effect` publishes `custom_effect_tooltip = rch_save_the_republic_terms_tt`, a new English key that states all seven success conditions in plain prose, and `rch_save_the_republic_desc` no longer promises a 1936 division the mission exists to prevent.
+- `on_startup` carries two bounded blocks after the tree pass. The first re-asserts the chapter for `country_exists = RCH` and `date < 1936.1.1` through `rch_initialize_campaign` then `rch_route_chapter`; the second runs `china_release_warlord_shx` for `date > 1916.6.5` and `date < 1936.1.1`, and only when the release landed and the flag was unset does `SHX` take `shx_campaign.1` once plus `shx_campaign_tick`, so the province loads with its rise band tree instead of an empty panel.
+- The daily hook, the continuous 1916 release and the 1936 handover are untouched. No date block was added to `history/states/615-Shanxi.txt`.
+
+### Tests and routes
+
+- `.tools/tests/test_china_1918_bookmark.py` (new): startup structure, the shipped 1918 world, two negative controls that delete the repair and the pre-release from the same text, and the 1916.6.5 / 1936.1.1 boundaries. All checks passed.
+- `.tools/tests/test_rch_succession.py`: all checks passed, including `rescue window` (the mission's `activation` is hidden at 1918.3.21 and 1933.12.31, drawn 1934.1.1 to 1934.12.31, hidden at 1935.1.1, hidden off-script, once saved and once failed, and the inert `visible` copy must agree on every boundary date) and `rescue mutants`, which catch a deleted `activation` (the `visible`-only shape), a removed window, a removed campaign gate, a renamed tooltip key and a terms text missing one condition. A further mutant deletes the inert `visible` copy alone and is required to leave every verdict intact, so the group cannot pass by measuring the block the engine ignores.
+- `.tools/tests/test_shx_nanjing.py`: 1778 checks, 0 failures. `.tools/tests/test_shx_warlord.py`: 769 checks, 0 failures.
+- `hoi4.script_validate path common/decisions/rch_campaign.txt`: `SCRIPT_CHECKED`, 0 findings, 220 commands, `unknownScopeRoots` 0. `path common/on_actions/endsieg_on_actions.txt`: `SCRIPT_CHECK_PARTIAL`, 14 unresolved, all pre-existing (six character tokens used as effects, eight raw `TAG` triggers at 1918, 1919, 1931, 1932, 1939, 1940, 1947 and 1948), none in the two startup blocks. `hoi4.decision_inspect mode inventory`: `DECISION_ANALYZED`, 4385 decisions, 0 unresolved. `decision_inspect` inspect and scenario modes are blocked here by `PROBABILITY_GAME_VERSION_UNSUPPORTED` (adapter 1.19.2.0, installed game 1.19.4.0).
+- **Not performed:** no game launch, so the tree the engine holds after the effect returns, the focus panel repaint at load, Shanxi's capital and politics after a startup release, and the 1934 mission card remain live checks. No commit and no review request from this worker; the card is queued for `director_qa_admission`.
+
+### Correction after QA round 1
+
+QA rejected the first delivery under `rch-save-the-republic-mission-gated-by-visible`. `rch_save_the_republic` declares `days_mission_timeout = 365`, which makes it a mission, and the offline wiki says twice that `visible` does nothing in missions while `activation` is the daily-checked gate that decides whether the card is drawn (`paradox_wiki/Decision modding - Hearts of Iron 4 Wiki.md:95` and `:473`, revision `7713b9bc…`; route `hoi4.reference_search` hit `1143d7db…`). The `visible` block this pass added could not hide the card, and the suite evaluated that same block through its own trigger model, so it agreed with the defect instead of catching it.
+
+What changed in the correction:
+
+- `common/decisions/rch_campaign.txt` — `rch_save_the_republic` now declares `activation` with `rch_campaign_active`, `date > 1933.12.31`, `date < 1935.1.1` and the two settlement flags. The identical `visible` block stays as the card's stated window and the comment records that the engine ignores it for missions.
+- `.tools/tests/test_rch_succession.py` — the `rescue window` group now reads `activation` for every verdict and asserts that the decision really is a mission, that the inert `visible` copy agrees with `activation` on every boundary date, and that a failed republic hides the card. `rescue mutants` deletes `activation` (the exact rejected shape), the activation date window, the activation campaign gate; it also removes the inert `visible` copy and requires the verdicts to be unchanged.
+- `docs/systems/rch_campaign.md` — the rescue section states the `activation`/`visible` split, records that a 365-day timer can outlive the window, and the validation list now reports 220 commands, eight raw `TAG` triggers (1947 and 1948 included) and the reference-search citation.
+
+Re-run after the correction: `test_rch_succession.py` all checks passed, `test_china_1918_bookmark.py` all checks passed, `test_shx_nanjing.py` 1778/0, `test_shx_warlord.py` 769/0, `test_qing_survival.py` and `test_qing_ww1_layout.py` exit 0, `hoi4.script_validate` on the decision `SCRIPT_CHECKED` 0 findings.
+
+`test_qing_consolidation.py` now reports 108 failures, all of them `QW2_*` focus `x`/`y` moves in `common/national_focus/qing_interwar.txt`, which was relaid out by another session at 15:52 while this pass was running (125 insertions and 125 deletions, coordinates only). That file is outside this card's ownership and was not touched here, so the failures are recorded rather than repaired.

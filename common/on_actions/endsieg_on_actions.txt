@@ -236,6 +236,53 @@ on_actions = {
                 }
             }
 
+            # The Republic's country history completes shared_GEN_* focuses at 1914 and
+            # 1918, so a bookmark that opens after those dates can come out of the tree
+            # loop above still holding the generic WWI tree. Re-assert the chapter after
+            # the loop: initialisation is flag-guarded and the router owns the single
+            # date-to-chapter decision, so a country that is already correct loses
+            # nothing and no chapter reward is paid twice.
+            if = {
+                limit = {
+                    country_exists = RCH
+                    date < 1936.1.1
+                }
+                RCH = {
+                    rch_initialize_campaign = yes
+                    rch_route_chapter = yes
+                }
+            }
+
+            # A start after the 1916 succession begins with the province the Republic
+            # would have released on its own daily clock in a continuous campaign.
+            # Without this, Shanxi owns nothing at load and pops into existence on the
+            # first unpause, which is the defect this block removes. The wrapper is
+            # idempotent and is entered only while its flag is unset, so a bookmark that
+            # already released the province does nothing here.
+            if = {
+                limit = {
+                    date > 1916.6.5
+                    date < 1936.1.1
+                    country_exists = RCH
+                }
+                RCH = {
+                    if = {
+                        limit = { NOT = { has_country_flag = china_released_shx } }
+                        china_release_warlord_shx = yes
+                        if = {
+                            limit = { has_country_flag = china_released_shx }
+                            SHX = {
+                                country_event = { id = shx_campaign.1 days = 1 }
+                                # The province is routed to its opening band now, so the
+                                # first tick finds a tree already standing rather than an
+                                # empty focus panel.
+                                shx_campaign_tick = yes
+                            }
+                        }
+                    }
+                }
+            }
+
             if = {
                 limit = { country_exists = TUR }
                 TUR = {

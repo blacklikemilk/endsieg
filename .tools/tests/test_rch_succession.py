@@ -10,7 +10,9 @@ Flag dates: set_country_flag is modelled as leaving an existing flag's set date 
 only an explicit clr_country_flag before the set renews a tenure. That is the stricter of
 the two readings of the documented "last set date" wording, and it is why every press
 clears its reform gate and its family lock before re-setting them. RCH_TEST_ROOT points
-the reader at another tree so the pre-implementation source can be run as a control.
+the reader at another tree so the pre-implementation source can be run as a control; the
+control reconstructs that tree from the pinned BASELINE_REVISION, never from HEAD, so
+committing the implementation cannot turn the control into a comparison with itself.
 
 Bookkeeping: each claim is a record of named statements, and the shipped source must pass
 every one of them. Every effect handler the suite books a claim on is also probed directly
@@ -870,6 +872,7 @@ def run():
     cards(script)
     chapters(script)
     costs(script)
+    rescue_window(script)
     succession(script)
     precedence(script)
     maturity(script)
@@ -885,6 +888,7 @@ def run():
     handler_models()
     mutants()
     loc_mutants()
+    rescue_mutants(script)
     display_contract_mutants()
     score_readout_mutants()
     guard_mutants()
@@ -978,6 +982,144 @@ def cost_record(script):
         None if subject.stability < 0.5 and subject.stability == 0.5 + cost
         else 'stability is %g' % subject.stability)
     return record
+
+
+RESCUE = 'rch_save_the_republic'
+RESCUE_TT = 'rch_save_the_republic_terms_tt'
+
+# The success conditions as `remove_trigger` states them, in the words the tooltip has to
+# carry so a player can read the mission instead of guessing at it.
+RESCUE_TERMS = ('Beiping', '80', '55 percent', '150', 'war',
+                'political programme', 'foreign or financial programme')
+
+
+def rescue_window(script, decisions=None, loc=None):
+    print('rescue window')
+    record_checks(rescue_record(script, decisions, loc))
+
+
+def rescue_subject(date_text, **kwargs):
+    """A 1930s Republic: on the campaign, holding Beiping, with power to enter the mission."""
+    kwargs.setdefault('flags', ('rch_campaign_active',))
+    kwargs.setdefault('political_power', 400)
+    kwargs.setdefault('controlled', (608,))
+    return Country(date=date_text, **kwargs)
+
+
+# The year the mission exists in. A mission is drawn from `activation`, so this is the
+# matrix the engine gate has to satisfy, and the inert `visible` copy has to agree with it.
+RESCUE_WINDOW = (('1918.3.21', False), ('1933.12.31', False),
+                 ('1934.1.1', True), ('1934.6.1', True),
+                 ('1934.12.31', True), ('1935.1.1', False))
+
+
+def rescue_record(script, decisions=None, loc=None):
+    """The rescue mission is drawn only in its own year and says how survival is judged."""
+    decisions = read(DECISIONS) if decisions is None else decisions
+    loc = read(LOC_DECISIONS) if loc is None else loc
+    record = {}
+    body = nested_named(decisions, RESCUE)
+    record['the decision is a mission, so the engine draws it from activation'] = (
+        None if scalar(body, 'days_mission_timeout') is not None
+        else 'it declares no days_mission_timeout, so this claim is not the one that applies')
+    activation = block(body, 'activation')
+    record['the mission carries the activation gate the engine reads'] = (
+        None if activation is not None else 'it declares no activation block')
+    if activation is None:
+        return record
+    for date_text, expected in RESCUE_WINDOW:
+        drawn = script.trigger(activation, rescue_subject(date_text))
+        record['the mission is %s on %s' % ('drawn' if expected else 'hidden', date_text)] = (
+            None if drawn == expected else 'it is %s' % ('drawn' if drawn else 'hidden'))
+    drawn = script.trigger(activation, rescue_subject('1934.6.1', flags=()))
+    record['the mission is hidden where the campaign is not running'] = (
+        None if not drawn else 'it is drawn without rch_campaign_active')
+    drawn = script.trigger(activation, rescue_subject(
+        '1934.6.1', flags=('rch_campaign_active', 'rch_republic_saved')))
+    record['the mission is hidden once the republic is saved'] = (
+        None if not drawn else 'it is drawn with rch_republic_saved standing')
+    drawn = script.trigger(activation, rescue_subject(
+        '1934.6.1', flags=('rch_campaign_active', 'rch_republic_failed')))
+    record['the mission is hidden once the republic has failed'] = (
+        None if not drawn else 'it is drawn with rch_republic_failed standing')
+
+    # `visible` is inert on a mission. It is kept as the card's stated window, so it has to
+    # say the same thing as the gate the engine reads rather than drift away from it.
+    visible = block(body, 'visible')
+    if visible is not None:
+        drift = [date_text for date_text, expected in RESCUE_WINDOW
+                 if script.trigger(visible, rescue_subject(date_text)) != expected]
+        record['the stated visible window matches the drawn window'] = (
+            None if not drift else 'it disagrees on %s' % ', '.join(drift))
+
+    tooltip = scalar(block(body, 'complete_effect') or [], 'custom_effect_tooltip')
+    record['the completion explains the survival terms'] = (
+        None if tooltip == RESCUE_TT
+        else 'it names %r rather than %s' % (tooltip, RESCUE_TT))
+    text = loc_value(loc, RESCUE_TT)
+    for term in RESCUE_TERMS:
+        record['the terms text states %r' % term] = (
+            None if term.lower() in text.lower() else 'the term is missing from the text')
+    record['the terms text carries no em dash or semicolon'] = (
+        None if u'\u2014' not in text and ';' not in text
+        else 'it carries a character the house style forbids')
+    description = loc_value(loc, RESCUE + '_desc')
+    record['the description no longer promises a 1936 collapse it cannot cause'] = (
+        None if 'divide in 1936' not in description else 'it still promises the 1936 division')
+    return record
+
+
+def strike_block(text, key):
+    """Remove one decision-level block, braces included, from a mutated decision body."""
+    lines = text.split('\n')
+    start = None
+    for index, line in enumerate(lines):
+        if line == '\t\t' + key + ' = {':
+            start = index
+            break
+    if start is None:
+        return text
+    depth = 0
+    for index in range(start, len(lines)):
+        depth += lines[index].count('{') - lines[index].count('}')
+        if depth == 0:
+            return '\n'.join(lines[:start] + lines[index + 1:])
+    return text
+
+
+def rescue_mutants(script):
+    print('rescue mutants')
+    shipped = plain(read(DECISIONS))
+    inert = strike_block(shipped, 'activation')
+    check(inert != shipped, 'the visible-only mutant removes the activation block')
+    check(record_defects(rescue_record(script, decisions=inert)),
+          'a mission that relies on visible alone is caught and stays drawn in 1918')
+    undated = shipped.replace(
+        '\t\tactivation = {\n\t\t\trch_campaign_active = yes\n'
+        '\t\t\tdate > 1933.12.31\n\t\t\tdate < 1935.1.1\n',
+        '\t\tactivation = {\n\t\t\trch_campaign_active = yes\n', 1)
+    check(undated != shipped, 'the undated mutant edits the shipped activation window')
+    check(record_defects(rescue_record(script, decisions=undated)),
+          'mutant without the activation date window draws the mission in 1918')
+    ungated = shipped.replace(
+        '\t\tactivation = {\n\t\t\trch_campaign_active = yes\n',
+        '\t\tactivation = {\n', 1)
+    check(ungated != shipped, 'the ungated mutant removes the campaign gate from activation')
+    check(record_defects(rescue_record(script, decisions=ungated)),
+          'mutant without the campaign gate draws the mission off the script')
+    stated = strike_block(shipped, 'visible')
+    check(stated != shipped, 'the stated-window mutant removes the inert visible block')
+    check(not record_defects(rescue_record(script, decisions=stated)),
+          'removing the inert visible block alone leaves every appearance verdict intact')
+    renamed = shipped.replace('custom_effect_tooltip = ' + RESCUE_TT,
+                              'custom_effect_tooltip = rch_save_the_republic_terms', 1)
+    check(renamed != shipped, 'the renamed mutant edits the shipped tooltip key')
+    check(record_defects(rescue_record(script, decisions=renamed)),
+          'mutant pointing at an undefined tooltip key is caught')
+    thin = plain(read(LOC_DECISIONS)).replace('Stability is above 55 percent. ', '', 1)
+    check(thin != plain(read(LOC_DECISIONS)), 'the thin mutant edits the shipped terms text')
+    check(record_defects(rescue_record(script, loc=thin)),
+          'mutant that drops a success condition from the terms text is caught')
 
 
 def succession(script):
@@ -1904,19 +2046,122 @@ def without_daily_refresh(text):
     return ''.join(kept)
 
 
+BASELINE_REVISION = '22f828575'
+"""The commit that shipped the Republic succession implementation.
+
+The control was written while that implementation was uncommitted, so it read its baseline
+from HEAD and HEAD was still the pre-implementation source. Once 22f828575 committed the
+implementation, HEAD became the shipped source and the control compared the suite with
+itself. The baseline is pinned to that commit instead, so it cannot drift with HEAD.
+Re-pin this revision if the display contract is rewritten, and let the control report the
+reconstruction as unusable rather than silently reading an empty input.
+"""
+
+INPUTS = (CONSTANTS, TRIGGERS, EFFECTS, DECISIONS, CATEGORIES, EVENTS, IDEAS, BOP,
+          LOC_DECISIONS, LOC_EVENTS)
+
+DISPLAY_EFFECT = 'rch_beiyang_refresh'
+"""The published display block the shipped effects file defines and the baseline lacks."""
+
+EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
+
+
+class BaselineUnavailable(Exception):
+    """The baseline revision cannot supply a path the suite reads."""
+
+
+def git_blob(spec):
+    """The text git holds for a revision path, or None when that revision has no such path."""
+    shown = subprocess.run(['git', 'show', spec], cwd=str(ROOT), capture_output=True)
+    if shown.returncode != 0:
+        return None
+    return shown.stdout.decode('utf-8-sig')
+
+
+def shipped_inputs():
+    """The ten inputs as they ship in this working tree."""
+    return dict((path, (ROOT / path).read_text(encoding='utf-8-sig')) for path in INPUTS)
+
+
+def baseline_tree_texts(revision=BASELINE_REVISION):
+    """The ten inputs as they stood before the Republic implementation.
+
+    Each path is read from the revision before the pinned commit. A path the commit itself
+    created has no pre-image, so that path keeps the commit's own first version: the suite
+    must be able to read all ten inputs, and an empty file is exactly the vacuous pass this
+    reconstruction exists to remove. A revision that cannot supply a path raises instead of
+    returning an empty string.
+    """
+    texts = {}
+    for path in INPUTS:
+        text = git_blob(revision + '^:' + path)
+        if text is None:
+            text = git_blob(revision + ':' + path)
+        if text is None:
+            raise BaselineUnavailable('%s is not in %s or its parent' % (path, revision))
+        texts[path] = text
+    return texts
+
+
+def baseline_defects(texts, shipped):
+    """Named defects that leave a reconstructed tree unable to act as a negative control."""
+    defects = []
+    for path in INPUTS:
+        if not texts.get(path, '').strip():
+            defects.append('the baseline input %s is missing or empty' % path)
+    if all(texts.get(path) == shipped.get(path) for path in INPUTS):
+        defects.append('the baseline is the shipped source, not the pre-implementation source')
+    elif DISPLAY_EFFECT in texts.get(EFFECTS, ''):
+        defects.append('the baseline still publishes %s, so it does not revert the display '
+                       'contract' % DISPLAY_EFFECT)
+    return defects
+
+
 def baseline_control():
     """Run this same suite against the pre-implementation source and require it to fail."""
     print('baseline control')
-    tree = Path(tempfile.mkdtemp(prefix='rch_head_'))
-    inputs = (CONSTANTS, TRIGGERS, EFFECTS, DECISIONS, CATEGORIES, EVENTS, IDEAS, BOP,
-              LOC_DECISIONS, LOC_EVENTS)
+    shipped = shipped_inputs()
+    if os.environ.get('RCH_BASELINE_MUTANT') == 'shipped':
+        texts = dict(shipped)
+    else:
+        try:
+            texts = baseline_tree_texts()
+        except BaselineUnavailable as error:
+            fail('the pinned baseline cannot be reconstructed: %s' % error)
+            return
+        except OSError as error:
+            fail('the pinned baseline cannot be read without git: %s' % error)
+            return
+    defects = baseline_defects(texts, shipped)
+    for defect in defects:
+        fail(defect)
+    check(texts[EFFECTS] != shipped[EFFECTS],
+          'the reconstructed tree differs from the shipped source in %s, where the display '
+          'contract lives' % EFFECTS)
+    check(DISPLAY_EFFECT in shipped[EFFECTS] and DISPLAY_EFFECT not in texts[EFFECTS],
+          'the baseline lacks %s, the display contract the shipped source publishes'
+          % DISPLAY_EFFECT)
+    check('the baseline is the shipped source, not the pre-implementation source'
+          in baseline_defects(shipped, shipped),
+          'the control refuses the shipped source itself as its baseline')
+    for revision, label in ((EMPTY_TREE, 'a revision without the inputs'),
+                            ('0' * 40, 'an unresolvable revision')):
+        try:
+            baseline_tree_texts(revision)
+        except BaselineUnavailable as error:
+            message = str(error)
+        else:
+            message = ''
+        check(message.endswith('is not in %s or its parent' % revision),
+              '%s fails the control instead of writing an empty input' % label)
+    if defects:
+        return
+    tree = Path(tempfile.mkdtemp(prefix='rch_baseline_'))
     try:
-        for path in inputs:
-            shown = subprocess.run(['git', 'show', 'HEAD:' + path], cwd=str(ROOT),
-                                   capture_output=True)
+        for path, text in texts.items():
             target = tree / path
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(shown.stdout if shown.returncode == 0 else b'')
+            target.write_text(text, encoding='utf-8-sig')
         environment = dict(os.environ, RCH_TEST_ROOT=str(tree))
         result = subprocess.run([sys.executable, str(Path(__file__).resolve()), '--no-baseline'],
                                 cwd=str(ROOT), capture_output=True, text=True, env=environment)
@@ -1924,6 +2169,11 @@ def baseline_control():
               'the pre-implementation source fails this suite (exit %d)' % result.returncode)
         check('FAIL' in result.stdout,
               'the baseline run reports a named failing check rather than crashing silently')
+        named = [line for line in result.stdout.splitlines() if line.startswith('FAIL')]
+        check(any('rch_' in line for line in named),
+              'the baseline run names the Republic script it cannot read')
+        check('Traceback' not in result.stderr and 'FileNotFoundError' not in result.stderr,
+              'the baseline run fails on its own claims, not on a missing input file')
         if VERBOSE:
             print('\n'.join(result.stdout.splitlines()[-12:]))
     finally:

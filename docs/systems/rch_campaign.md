@@ -272,5 +272,67 @@ The same walk over a 1914-1937 continuous campaign loads three trees in total, a
 Not verified: chapter transitions, `change_tag_from`, a DLC tree load and focus progress across a tree change or a save reload in a running game.
 Those need a launch that this repair did not have.
 
-One edge sits outside the daily chain: `rch_initialize_campaign` still opens chapter three for any start date after 1927, so a hand-made 1936-or-later save that starts as `RCH` loads `rch_nanjing` on day one and the DLC tree on the first tick.
-No bookmark starts as `RCH`.
+One edge sits outside the daily chain: `rch_initialize_campaign` still opens chapter three for any start date after 1927, so a 1936-or-later save that starts as `RCH` loads `rch_nanjing` on day one and the DLC tree on the first tick.
+No bookmark's default country is `RCH`, but a player can select the Republic in any scenario that carries it, and that is the case the next two sections repair.
+
+## The 1934 rescue, and what the player is told
+
+`rch_save_the_republic` in `common/decisions/rch_campaign.txt` is a mission whose success conditions live in `remove_trigger`.
+The date window and the entry conditions used to sit in `available` alone, so the mission was drawn from 1912 onward as a red card the player could not act on, and nothing in the interface said what survival required.
+
+1. `activation` now names the campaign and the year, because `days_mission_timeout` makes this a mission and the engine draws a mission from `activation` alone, checking it daily: `rch_campaign_active = yes`, `date > 1933.12.31`, `date < 1935.1.1`, and the two settlement flags still retire it once the question is answered.
+2. `visible` carries the same window and is inert on a mission. It stays as the card's stated window, and the suite asserts that it agrees with `activation` on every boundary date, so the two cannot drift apart.
+3. `available` keeps the entry gates (historical focus off, the same year, above `rescue_entry_power`, holding Beiping), so a drawn mission is one the player can also take.
+4. `complete_effect` publishes `custom_effect_tooltip = rch_save_the_republic_terms_tt`, and that English key states the seven conditions `remove_trigger` actually tests: Beiping held, legitimacy at 80 or higher, stability above 0.55, more than 150 political power in hand, no war, one political programme of the five, and one foreign or financial programme of the four. The numbers are the literals the script compares against; `.tools/tests/test_rch_succession.py` reads them from the text, so a threshold change without a text change fails the suite.
+5. `rch_save_the_republic_desc` was rewritten because the old text promised a 1936 division even in the year the mission exists to prevent.
+
+Before: drawn in every year from 1912, with no statement of the success conditions.
+After: drawn only in 1934, and the completion tooltip lists the terms.
+
+One consequence of a daily appearance gate: a mission taken late in 1934 keeps its 365-day timer running past 1 January 1935, while `activation` stops drawing the card. `rch_save_mission_running` is written three times and read nowhere, so the only visible effect is a card whose window closes under a running mission, and the settlement flags it eventually sets are the same ones the window already reads.
+
+## The 1918 bookmark, and why the chapter tree is re-asserted
+
+A 1918 start reported in live play on 2026-10-27 showed the generic WWI tree instead of `rch_republic`.
+The tree pass in `on_startup` (`common/on_actions/endsieg_on_actions.txt`) loads a chapter inside `every_country`, but the Republic's country history completes `shared_GEN_*` focuses in its 1914 and 1918 date blocks, so a start after those dates can come out of that pass still holding the generic tree.
+
+`on_startup` now carries a bounded repair after the tree pass:
+
+- guard: `country_exists = RCH` and `date < 1936.1.1`;
+- body: `RCH = { rch_initialize_campaign = yes rch_route_chapter = yes }`.
+
+`rch_initialize_campaign` is flag-guarded, so a Republic the loop already reached only loses the redundant work; `rch_route_chapter` is the single date-to-chapter authority and repairs a replaced tree without paying a chapter event, and it does not run `rch_settle_1936` before 1936.
+Before: the chapter depended on the loop reaching `RCH` at all.
+After: the chapter is re-asserted for every pre-1936 start, whether or not the loop reached it.
+
+## The 1918 start and Shanxi
+
+`on_daily_RCH` released Shanxi on the first tick after 6 June 1916, and `history/states/615-Shanxi.txt` gives the state to the Republic in 1914 and to Shanxi only in 1936.
+A 1918 start therefore loaded with the Republic owning state 615 and created Shanxi when the player unpaused, which is what the live report showed.
+
+`on_startup` now runs the same guarded wrapper before the first tick, in `RCH` scope, under `date > 1916.6.5`, `date < 1936.1.1` and `country_exists = RCH`:
+
+1. `china_release_warlord_shx` runs only while `china_released_shx` is unset, so the wrapper's own guards still decide whether a release happens.
+2. Only if the release landed, `SHX` takes `country_event = { id = shx_campaign.1 days = 1 }` once and `shx_campaign_tick`, which opens the `shx_rise` band so the province has a tree at load rather than an empty panel.
+
+The continuous path is untouched: a campaign that begins before 6 June 1916 still releases the province on the daily clock, the 1936 date block still hands the state over, and the 1936 tree dispatcher is unaffected because both startup blocks stop below 1936.
+No date block was added to `history/states/615-Shanxi.txt`.
+
+## Bookmark verification
+
+`.tools/tests/test_china_1918_bookmark.py` reads `on_startup` and runs both blocks against a modelled world: the Republic through the single-country interpreter in `.tools/tests/test_rch_succession.py`, and the warlord release through `common/scripted_effects/china_warlord_release.txt` extended with tag scopes, `transfer_state`, `add_state_core` and `recruit_character`.
+It asserts that a 1918 start ends on `rch_republic`, that the chapter event is queued zero times when the chapter stands and once when the campaign was never opened, that a second startup pass pays nothing twice, that Shanxi owns 615 with `china_warlord_released`, `SHX_yan_xishan`, its core and one `shx_campaign.1`, and that 1916.6.5 and 1936.1.1 are outside both guards.
+The negative controls delete first the repair and then the pre-release from the same text and require the reported defect back: the generic tree stays, and 615 stays with the Republic until the daily hook releases it.
+The pre-fix source (`git show HEAD:...`) fails both suites by name, so neither passes on the tree that had the defect.
+
+Not verified: no launch. The tree the engine holds after the effect returns, whether the focus panel repaints at load, whether releasing a tag during `on_startup` leaves it with a capital, politics and a working focus panel, and whether the mission card is drawn in 1934 are all live checks.
+
+## Validation of this pass
+
+- `.tools/tests/test_rch_succession.py`: all checks passed, including the `rescue window` group and `rescue mutants`. The window group reads the mission's `activation`, because that is the gate the engine checks daily, and a mutant that deletes `activation` while leaving `visible` in place is the rejected `visible`-only shape and fails by name. A second mutant removes the inert `visible` copy alone and is required to leave every appearance verdict intact, so the suite cannot be satisfied by measuring the block the engine ignores.
+- `.tools/tests/test_china_1918_bookmark.py`: all checks passed (`startup structure`, `1918 startup, as shipped`, `negative controls`, `date boundaries`).
+- `.tools/tests/test_shx_nanjing.py`: 1778 checks, 0 failures. `.tools/tests/test_shx_warlord.py`: 769 checks, 0 failures.
+- `hoi4.script_validate` `path common/decisions/rch_campaign.txt`: `SCRIPT_CHECKED`, 0 findings, 220 commands, `unknownScopeRoots` 0.
+- `hoi4.script_validate` `path common/on_actions/endsieg_on_actions.txt`: `SCRIPT_CHECK_PARTIAL`, 14 unresolved, none of them inside the two startup blocks. They are pre-existing shapes that the route cannot resolve from this file: six character tokens used as effects (`USA_franklin_delano_roosevelt` 1065, `JAP_emperor_hirohito` 1133, `ENG_stanley_baldwin` 1187, `ENG_neville_chamberlain` 1196, `TUR_mustafa_kemal_ataturk` 1390, `GER_paul_von_hindenburg` 1558) and eight raw `TAG` triggers (1918, 1919, 1931, 1932, 1939, 1940, 1947, 1948, the last two beyond the twelve findings the route prints inline). None was edited.
+- `hoi4.reference_search` for the mission gate returns the offline wiki section `Decision modding` §`Missions`, line 473, revision `7713b9bc…`: `activation` decides the triggers for the mission to appear, checked daily, and `visible` does nothing in missions. That is why the appearance gate is `activation` and not `visible`.
+- `hoi4.decision_inspect` `mode inventory`: `DECISION_ANALYZED`, 4385 decisions, 0 unresolved definitions. `mode inspect` and the scenario mode are blocked in this checkout by `PROBABILITY_GAME_VERSION_UNSUPPORTED` (adapter verified for 1.19.2.0, installed game 1.19.4.0), so the 1918 and 1934 verdicts come from the executable suite rather than from that route.

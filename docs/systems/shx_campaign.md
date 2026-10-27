@@ -193,3 +193,18 @@ Icons this slice would use if they existed, for a later artwork pass:
 - A warlord released by a later wrapper inherits the same handover shape, but each tree's own 1936 load has to name its tag's vanilla tree, because the dispatcher's tag list is not readable from script.
 - The band readout prints the meter in the row's description rather than in the row title, because a dynamic decision title needs scripted localisation and a description readout does not.
 - `SHX_model_governor` is still dropped by the character override (D1 in the design). This slice does not touch the character file and took a different reward where the trait would have been used.
+
+## A bookmark that begins after 1916
+
+The release was written for a continuous campaign, where the Republic's daily clock reaches 6 June 1916 and the province appears at the right moment.
+A scenario that begins in 1918 does not have those years, so the province used to appear only when the player unpaused and the first daily tick ran.
+`on_startup` in `common/on_actions/endsieg_on_actions.txt` now runs the same guarded hook before the first tick, in `RCH` scope, under `date > 1916.6.5`, `date < 1936.1.1` and `country_exists = RCH`:
+
+1. `china_release_warlord_shx` is called only while `china_released_shx` is unset, so the wrapper's own guards still decide whether a release happens.
+2. Only if the release landed, `SHX` receives `shx_campaign.1` once and `shx_campaign_tick`, which opens the `shx_rise` band so the province has its tree at load rather than an empty focus panel.
+
+What stays the same: the daily hook is unchanged, a campaign that begins before 6 June 1916 still releases the province on the daily clock, and the 1936 handover in the tick is untouched because both startup guards stop below 1936.
+`.tools/tests/test_china_1918_bookmark.py` runs both startup blocks against a modelled world and requires state 615, `china_warlord_released`, `SHX_yan_xishan`, the core, one province event and its band tree at 1918 load; deleting the block from the same text restores the pop-on-unpause defect, which is how the check is shown to bite.
+
+Not verified: no launch, so whether a tag released during `on_startup` receives its capital, its politics and a working focus panel from the engine is still a live check.
+Shanxi's country history (`history/countries/SHX - Shanxi.txt`) defines `capital = 615` at the top and then one `1936.1.1` block holding its politics, its officer corps, its order of battle and its technology. A 1918 start therefore owns state 615, carries `china_warlord_released`, holds `SHX_yan_xishan` through the release wrapper's `recruit_character`, and opens its rise band, but it does not receive the 1936 political block or OOB. That is the same shape the continuous 1916 release has always had; giving the province an earlier political and military kit would need `history/countries/SHX - Shanxi.txt`, which this card does not own, and is left as a separate decision.
