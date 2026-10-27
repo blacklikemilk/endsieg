@@ -1,0 +1,74 @@
+# Overview: Shanxi's warlord conditions, 1916-1935. Country scope throughout.
+# The cohesion tier is derived, never stored: one variable, four triggers, so the spirit the
+# player sees, the AI weight and the tooltip can never disagree about which band the province is in.
+#
+# The two day counts below are file-scoped macros because `has_country_flag = { days > }` takes a
+# number, not a constant. They are the single declaration for those two values.
+@patron_maturity_days = 365
+@demand_maturity_days = 90
+shx_cohesion_fractious = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_fractious_below compare = less_than }
+}
+shx_cohesion_brittle = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_fractious_below compare = greater_than_or_equals }
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_brittle_below compare = less_than }
+}
+shx_cohesion_steady = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_brittle_below compare = greater_than_or_equals }
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_steady_below compare = less_than }
+}
+shx_cohesion_devoted = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_steady_below compare = greater_than_or_equals }
+}
+# One patron, or none. The family is a set of flags, not a count, because a patron is an identity
+# that later content reads rather than a number that is spent.
+shx_has_patron = {
+	OR = {
+		has_country_flag = warlord_patron_japan
+		has_country_flag = warlord_patron_britain
+		has_country_flag = warlord_patron_soviet
+	}
+}
+# A patron may be taken when none is held, when none was refused, and, if one was ever held, only
+# once a year has passed since it was taken. The maturity test is the in-mod `days >` idiom, so a
+# flag written yesterday is still holding the door shut today.
+shx_patron_open = {
+	NOT = { has_country_flag = shx_no_patron }
+	OR = {
+		NOT = { has_country_flag = shx_patron_taken }
+		has_country_flag = { flag = shx_patron_taken days > @patron_maturity_days }
+	}
+}
+# The debt is due when it has reached its cap, no demand is already pending, and the last demand
+# was answered at least three months ago. Without the maturity gate the payment event would refire
+# on the next daily tick after a single unit was repaid.
+shx_patronage_due = {
+	check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = greater_than_or_equals }
+	NOT = { has_country_flag = shx_demand_pending }
+	OR = {
+		NOT = { has_country_flag = shx_demand_last }
+		has_country_flag = { flag = shx_demand_last days > @demand_maturity_days }
+	}
+}
+# Beijing's demand comes once, a month into the rise band, and never returns.
+shx_beijing_due = {
+	has_country_flag = { flag = shx_band_rise days > 30 }
+	NOT = { has_country_flag = shx_beijing_seen }
+	NOT = { has_country_flag = shx_no_troops_to_beijing }
+	NOT = { has_country_flag = shx_paid_beijing }
+}
+# A clique war needs the province behind the governor, no commander holding a grudge, no war
+# already running, and a target that is busy elsewhere. The last condition is the limited-war
+# rule: the province strikes only when the rival cannot turn on it. The window shuts at the 1936
+# handover, when the province is a vanilla warlord and this slice no longer speaks for it.
+shx_can_declare_clique_war = {
+	has_idea = warlord_cohesion_devoted
+	NOT = { has_country_flag = shx_commander_grudge }
+	NOT = { has_country_flag = shx_handover_complete }
+	NOT = { has_war = yes }
+	date > 1920.7.13
+	date < 1936.1.1
+}
+shx_equipment_affordable = {
+	has_equipment = { infantry_equipment > 399 }
+}

@@ -1,0 +1,95 @@
+# Overview: Shanxi's three campaign events, 1916-1935. All are triggered from the SHX tick or the
+# release hook, so none of them depends on a world scan or on a foreign AI taking an action.
+add_namespace = shx_campaign
+
+# The release. Fired from the Republic's release hook, in the released tag's own scope.
+country_event = {
+	id = shx_campaign.1
+	title = shx_campaign.1.t
+	desc = shx_campaign.1.d
+	picture = GFX_report_event_1912_coup
+	is_triggered_only = yes
+	option = {
+		name = shx_campaign.1.a
+		add_political_power = constant:shx_story.reward_power_minor
+		army_experience = constant:shx_story.conference_army_experience
+		add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_treasury }
+		shx_clamp_cohesion = yes
+	}
+}
+
+# Beijing asks for troops the province cannot spare. The question is asked once.
+country_event = {
+	id = shx_campaign.2
+	title = shx_campaign.2.t
+	desc = shx_campaign.2.d
+	picture = GFX_report_event_qing_uprising
+	is_triggered_only = yes
+	option = {
+		name = shx_campaign.2.a
+		add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_beijing }
+		shx_clamp_cohesion = yes
+		add_war_support = constant:shx_story.stand_alone_war_support
+		set_country_flag = shx_no_troops_to_beijing
+		ai_chance = {
+			factor = constant:shx_story.ai_event_refuse_high
+			# The same rule the focus carries: below the threshold the province pays, so refusing
+			# takes no share of the roll at all.
+			modifier = { factor = 0 NOT = { check_variable = { var = warlord_cohesion value = constant:shx_story.ai_beijing_refuse_above compare = greater_than_or_equals } } }
+			modifier = { factor = 0 has_war = yes }
+		}
+	}
+	option = {
+		name = shx_campaign.2.b
+		trigger = { has_political_power > 49 }
+		add_political_power = constant:shx_story.arrears_cost_power_negative
+		add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_conference }
+		shx_clamp_cohesion = yes
+		set_country_flag = shx_paid_beijing
+		ai_chance = {
+			factor = constant:shx_story.ai_event_refuse_low
+			modifier = { factor = 4 NOT = { check_variable = { var = warlord_cohesion value = constant:shx_story.ai_beijing_refuse_above compare = greater_than_or_equals } } }
+		}
+	}
+}
+
+# The patron's bill. Each answer writes off a single favour, so a province can buy loyalty twice
+# before the debt is cleared, and a refusal leaves a commander who will remember it.
+country_event = {
+	id = shx_campaign.3
+	title = shx_campaign.3.t
+	desc = shx_campaign.3.d
+	picture = GFX_report_event_manchuria
+	is_triggered_only = yes
+	option = {
+		name = shx_campaign.3.a
+		trigger = { has_political_power > 59 }
+		add_political_power = constant:shx_story.demand_power_cost_negative
+		shx_pay_debt = yes
+		clr_country_flag = shx_demand_pending
+		set_country_flag = shx_demand_last
+		ai_chance = { factor = constant:shx_story.ai_event_pay }
+	}
+	option = {
+		name = shx_campaign.3.b
+		trigger = { has_equipment = { infantry_equipment > 599 } }
+		add_equipment_to_stockpile = { type = infantry_equipment amount = constant:shx_story.demand_equipment_drained }
+		shx_pay_debt = yes
+		clr_country_flag = shx_demand_pending
+		set_country_flag = shx_demand_last
+		ai_chance = { factor = constant:shx_story.ai_event_pay }
+	}
+	option = {
+		name = shx_campaign.3.c
+		add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_refused_patron }
+		shx_clamp_cohesion = yes
+		set_country_flag = shx_commander_grudge
+		shx_pay_debt = yes
+		clr_country_flag = shx_demand_pending
+		set_country_flag = shx_demand_last
+		ai_chance = {
+			factor = constant:shx_story.ai_event_refuse_low
+			modifier = { factor = 5 has_political_power < 60 }
+		}
+	}
+}

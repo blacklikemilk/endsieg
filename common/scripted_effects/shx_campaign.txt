@@ -1,0 +1,169 @@
+# Overview: Shanxi's band routing, cohesion refresh and patronage clock, 1916-1935.
+# Country scope throughout. The tick is a per-tag on_action (on_daily_SHX), never a world scan.
+#
+# Three rules hold this file together:
+#   1. Nothing happens before the province exists, so the release stays the only way in.
+#   2. Exactly one band tree is loaded, and the band flag is what makes a second load impossible.
+#   3. The refresh re-applies the current tier spirit on every pass. A refresh that removes a
+#      family without adding the surviving member back erases the state it was asked to publish.
+shx_campaign_tick = {
+	if = {
+		limit = {
+			has_country_flag = china_warlord_released
+			# After the handover the province is an ordinary warlord on the vanilla tree. This tick
+			# stops asking, so it cannot fight the 1936 dispatcher or keep S1-S2 spirits alive.
+			NOT = { has_country_flag = shx_handover_complete }
+		}
+		if = {
+			limit = { date > 1935.12.31 }
+			shx_hand_over_to_vanilla = yes
+		}
+		else = {
+			shx_refresh_mechanics = yes
+			if = {
+				limit = { date < 1920.7.14 }
+				if = {
+					limit = { NOT = { has_country_flag = shx_band_rise } }
+					shx_open_rise = yes
+				}
+				else = {
+					clr_country_flag = shx_band_wars
+					if = {
+						limit = { NOT = { has_focus_tree = shx_rise } }
+						load_focus_tree = { tree = shx_rise keep_completed = yes }
+						mark_focus_tree_layout_dirty = yes
+					}
+				}
+			}
+			else = {
+				if = {
+					limit = { NOT = { has_country_flag = shx_band_wars } }
+					shx_open_wars = yes
+				}
+				else = {
+					clr_country_flag = shx_band_rise
+					if = {
+						limit = { NOT = { has_focus_tree = shx_wars } }
+						load_focus_tree = { tree = shx_wars keep_completed = yes }
+						mark_focus_tree_layout_dirty = yes
+					}
+				}
+			}
+			shx_beijing_demand = yes
+			shx_patronage_demand = yes
+		}
+	}
+}
+
+# The 1936 handover. The dispatcher in common/on_actions/endsieg_on_actions.txt sits in on_startup,
+# which a campaign that began before 1936 never reaches again, so the province closes its own bands
+# and loads the tree that dispatcher would have loaded for it: same DLC order, same keep_completed.
+# Everything this slice created retires with it, leaving the province to the vanilla warlord tree.
+shx_hand_over_to_vanilla = {
+	set_country_flag = shx_handover_complete
+	clr_country_flag = shx_band_rise
+	clr_country_flag = shx_band_wars
+	clr_country_flag = shx_demand_pending
+	remove_ideas = { warlord_cohesion_fractious warlord_cohesion_brittle warlord_cohesion_steady warlord_cohesion_devoted }
+	if = {
+		limit = { has_dlc = "No Compromise, No Surrender" }
+		load_focus_tree = { tree = china_warlord_sea_focus keep_completed = yes }
+	}
+	else_if = {
+		limit = { has_dlc = "Waking the Tiger" }
+		load_focus_tree = { tree = china_warlord_focus keep_completed = yes }
+	}
+	else = {
+		load_focus_tree = { tree = generic_focus keep_completed = yes }
+	}
+	mark_focus_tree_layout_dirty = yes
+}
+
+# Each opener sets exactly one band flag, clears the other, loads the band's tree and stays quiet on
+# a later pass: the flag is the guard, so a re-run after a reload repairs a replaced tree instead of
+# paying the band open twice.
+shx_open_rise = {
+	set_country_flag = shx_band_rise
+	clr_country_flag = shx_band_wars
+	load_focus_tree = { tree = shx_rise keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+}
+
+shx_open_wars = {
+	set_country_flag = shx_band_wars
+	clr_country_flag = shx_band_rise
+	load_focus_tree = { tree = shx_wars keep_completed = yes }
+	mark_focus_tree_layout_dirty = yes
+}
+
+# Publishes the tier the variable names. The three non-matching spirits are cleared and the
+# matching one is added again even when it is already held, so a spirit removed by any other
+# effect comes back on the next daily pass and the family is never left empty.
+shx_refresh_mechanics = {
+	hidden_effect = {
+		if = {
+			limit = { NOT = { has_variable = warlord_cohesion } }
+			set_variable = { warlord_cohesion = constant:shx_story.cohesion_opening }
+		}
+		if = {
+			limit = { NOT = { has_variable = warlord_patronage_debt } }
+			set_variable = { warlord_patronage_debt = constant:shx_story.debt_opening }
+		}
+		shx_clamp_cohesion = yes
+		clamp_variable = { var = warlord_patronage_debt min = constant:shx_story.debt_floor max = constant:shx_story.debt_cap }
+		if = {
+			limit = { shx_cohesion_fractious = yes }
+			remove_ideas = { warlord_cohesion_brittle warlord_cohesion_steady warlord_cohesion_devoted }
+			add_ideas = warlord_cohesion_fractious
+		}
+		else_if = {
+			limit = { shx_cohesion_brittle = yes }
+			remove_ideas = { warlord_cohesion_fractious warlord_cohesion_steady warlord_cohesion_devoted }
+			add_ideas = warlord_cohesion_brittle
+		}
+		else_if = {
+			limit = { shx_cohesion_steady = yes }
+			remove_ideas = { warlord_cohesion_fractious warlord_cohesion_brittle warlord_cohesion_devoted }
+			add_ideas = warlord_cohesion_steady
+		}
+		else = {
+			remove_ideas = { warlord_cohesion_fractious warlord_cohesion_brittle warlord_cohesion_steady }
+			add_ideas = warlord_cohesion_devoted
+		}
+	}
+}
+
+# The one clamp every caller goes through, so no decision can leave the meter outside its band.
+shx_clamp_cohesion = {
+	clamp_variable = { var = warlord_cohesion min = constant:shx_story.cohesion_floor max = constant:shx_story.cohesion_cap }
+}
+
+# A favour owed is a favour owed. The clamp is what stops a player from banking loyalty forever.
+shx_add_debt = {
+	add_to_variable = { warlord_patronage_debt = constant:shx_story.debt_per_favour }
+	clamp_variable = { var = warlord_patronage_debt min = constant:shx_story.debt_floor max = constant:shx_story.debt_cap }
+}
+
+shx_pay_debt = {
+	add_to_variable = { warlord_patronage_debt = constant:shx_story.debt_per_payment }
+	clamp_variable = { var = warlord_patronage_debt min = constant:shx_story.debt_floor max = constant:shx_story.debt_cap }
+}
+
+# Beijing asks the province for troops it cannot spare. The demand is a one-time question, asked a
+# month into the rise band and only while neither answer is on record.
+shx_beijing_demand = {
+	if = {
+		limit = { shx_beijing_due = yes }
+		set_country_flag = shx_beijing_seen
+		country_event = { id = shx_campaign.2 days = 1 }
+	}
+}
+
+# The patron's bill arrives when the debt has reached its cap and the last answer has matured.
+shx_patronage_demand = {
+	if = {
+		limit = { shx_patronage_due = yes }
+		set_country_flag = shx_demand_pending
+		country_event = { id = shx_campaign.3 days = 1 }
+	}
+}

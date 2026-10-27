@@ -1,0 +1,59 @@
+# Overview: the generic release of one Chinese warlord tag from the state that owns its seat.
+# Shared by every pre-1936 warlord slice: a later tag adds a wrapper, not a rewrite.
+#
+# Why this is a body plus one wrapper per tag, and not a single meta_effect:
+# meta_effect parameters are definition-internal (installed effects_documentation.md, "meta_effect"),
+# so a scripted-effect caller cannot hand a tag, a seat or a character token to a meta_effect body.
+# The split below carries the parameterisation instead:
+#
+#   china_release_warlord_receive  the shared body. Runs in the RECEIVING tag's scope, takes the
+#                                  seat from the variable `china_release_seat`, and holds no tag,
+#                                  seat, character token or per-tag flag. Every warlord runs this.
+#   china_release_warlord_<tag>    one wrapper per tag. Runs in the seat's current owner's scope and
+#                                  is the only place that tag's literals live: its owner guard flag,
+#                                  its seat, and its leading character.
+#
+# Adding a warlord means adding one wrapper of the same shape and one guarded line in the owner's
+# on_action. The body is not edited.
+#
+# Effects, in order, and only when every guard passes:
+#   - the owning country gains its permanent release flag, which is the caller's own re-entry guard;
+#   - the released tag gains china_warlord_released, used by its own campaign tick;
+#   - the state is transferred to the released tag as owner and controller, and cored;
+#   - the leader is recruited only when the tag does not already hold that character.
+# A second call does nothing: the caller's flag is already set, the tag already owns the state, and
+# the recruit is guarded by has_character, so a reload, a duplicate on_action line or a re-run after
+# a save cannot produce a second province or a second leader.
+china_release_warlord_receive = {
+	if = {
+		limit = { NOT = { has_country_flag = china_warlord_released } }
+		set_country_flag = china_warlord_released
+		# Vanilla resolves a variable seat here (events/GOE_Raj.txt: transfer_state = var:ROOT…), so
+		# the body does not need to know which province it is releasing.
+		transfer_state = var:china_release_seat
+	}
+}
+
+# Shanxi: seat 615, the province Yan Xishan has governed since 1911, and therefore not a 1936-only
+# identity. Scope: the seat's current owner (the Republic, RCH).
+china_release_warlord_shx = {
+	if = {
+		limit = {
+			NOT = { has_country_flag = china_released_shx }
+			owns_state = 615
+			SHX = { NOT = { owns_state = 615 } }
+		}
+		set_country_flag = china_released_shx
+		SHX = {
+			set_variable = { china_release_seat = 615 }
+			china_release_warlord_receive = yes
+			# add_state_core and recruit_character take database tokens rather than variables, so
+			# they stay beside the seat literal in the wrapper that owns it.
+			add_state_core = 615
+			if = {
+				limit = { NOT = { has_character = SHX_yan_xishan } }
+				recruit_character = SHX_yan_xishan
+			}
+		}
+	}
+}

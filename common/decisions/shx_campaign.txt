@@ -1,0 +1,289 @@
+# Overview: Shanxi's decisions, 1916-1935. Patronage, the four cohesion bands, and the earned war.
+# Native cost and timer fields take literals, so they are file-scoped macros that mirror
+# constant:shx_story.*; every tunable effect value reads the constant directly.
+@purchase_cost = 50
+@office_cost = 40
+@patron_japan_cost = 75
+@patron_britain_cost = 60
+@patron_soviet_cost = 75
+@conference_cost = 50
+@war_cost = 100
+@work = 60
+@long_work = 90
+@cooldown = 180
+@priority = 0
+
+shx_provincial_command = {
+	# --- The band readout -------------------------------------------------------------------
+	# One row is visible at a time and names the band the province is in. The row is the player's
+	# reading of the meter: when the band changes, the row that describes his province changes.
+	shx_band_readout_fractious = {
+		icon = generic_political_discourse
+		visible = { has_idea = warlord_cohesion_fractious }
+		available = { always = no }
+		ai_will_do = { factor = @priority }
+	}
+	shx_band_readout_brittle = {
+		icon = generic_political_discourse
+		visible = { has_idea = warlord_cohesion_brittle }
+		available = { always = no }
+		ai_will_do = { factor = @priority }
+	}
+	shx_band_readout_steady = {
+		icon = generic_political_discourse
+		visible = { has_idea = warlord_cohesion_steady }
+		available = { always = no }
+		ai_will_do = { factor = @priority }
+	}
+	shx_band_readout_devoted = {
+		icon = generic_political_discourse
+		visible = { has_idea = warlord_cohesion_devoted }
+		available = { always = no }
+		ai_will_do = { factor = @priority }
+	}
+
+	# --- Buying loyalty the province cannot pay for -----------------------------------------
+	# Each purchase states the debt it is adding to, so the price of buying loyalty is readable
+	# on the row itself rather than discovered when the patron's bill arrives.
+	shx_pay_arrears = {
+		icon = generic_political_address
+		visible = { has_country_flag = china_warlord_released check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = less_than } }
+		available = {
+			NOT = { has_war = yes }
+			custom_trigger_tooltip = {
+				tooltip = shx_tt_debt_state
+				check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = less_than }
+			}
+		}
+		cost = @purchase_cost
+		days_remove = @work
+		days_re_enable = @cooldown
+		modifier = { political_power_factor = -0.10 }
+		remove_effect = {
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_arrears }
+			shx_clamp_cohesion = yes
+			shx_add_debt = yes
+			add_stability = constant:shx_story.stability_touch
+		}
+		ai_will_do = {
+			factor = constant:shx_story.ai_purchase
+			modifier = { factor = 0 has_war = yes }
+		}
+	}
+	shx_equip_commanders = {
+		icon = generic_army_support
+		visible = { has_country_flag = china_warlord_released check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = less_than } }
+		available = {
+			shx_equipment_affordable = yes
+			custom_trigger_tooltip = {
+				tooltip = shx_tt_debt_state
+				check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = less_than }
+			}
+		}
+		days_remove = @work
+		days_re_enable = @cooldown
+		modifier = { army_morale_factor = 0.05 }
+		remove_effect = {
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:shx_story.equipment_cost_drained }
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_arrears }
+			shx_clamp_cohesion = yes
+			shx_add_debt = yes
+		}
+		ai_will_do = {
+			factor = constant:shx_story.ai_purchase
+			modifier = { factor = 0 NOT = { shx_equipment_affordable = yes } }
+		}
+	}
+	shx_grant_office = {
+		icon = generic_political_rally
+		visible = { has_country_flag = china_warlord_released check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = less_than } }
+		available = {
+			NOT = { has_war = yes }
+			custom_trigger_tooltip = {
+				tooltip = shx_tt_debt_state
+				check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = less_than }
+			}
+		}
+		cost = @office_cost
+		days_remove = @long_work
+		days_re_enable = @cooldown
+		modifier = { stability_factor = -0.05 }
+		remove_effect = {
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_office }
+			shx_clamp_cohesion = yes
+			shx_add_debt = yes
+		}
+		ai_will_do = { factor = constant:shx_story.ai_purchase }
+	}
+
+	# --- The three patrons, one at a time ----------------------------------------------------
+	# Each patron is an identity the rest of the band reads, so the flags are mutually exclusive and
+	# the maturity gate keeps a province from trading one patron for another inside a year.
+	shx_patron_japan = {
+		icon = generic_intelligence_operation
+		visible = { has_country_flag = shx_band_rise shx_patron_open = yes NOT = { has_country_flag = warlord_patron_japan } }
+		available = { NOT = { has_war_with = JAP } }
+		cost = @patron_japan_cost
+		fire_only_once = yes
+		complete_effect = {
+			clr_country_flag = warlord_patron_britain
+			clr_country_flag = warlord_patron_soviet
+			clr_country_flag = shx_no_patron
+			set_country_flag = warlord_patron_japan
+			set_country_flag = shx_patron_taken
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:shx_story.patron_japan_equipment }
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_patron }
+			shx_clamp_cohesion = yes
+			shx_add_debt = yes
+		}
+		ai_will_do = {
+			factor = constant:shx_story.ai_patron
+			modifier = { factor = 0 check_variable = { var = warlord_cohesion value = constant:shx_story.ai_patron_below compare = greater_than_or_equals } }
+			modifier = { factor = 0 has_war_with = JAP }
+		}
+	}
+	shx_patron_britain = {
+		icon = generic_protection
+		visible = { has_country_flag = shx_band_rise shx_patron_open = yes NOT = { has_country_flag = warlord_patron_britain } }
+		available = { NOT = { has_war_with = ENG } }
+		cost = @patron_britain_cost
+		fire_only_once = yes
+		complete_effect = {
+			clr_country_flag = warlord_patron_japan
+			clr_country_flag = warlord_patron_soviet
+			clr_country_flag = shx_no_patron
+			set_country_flag = warlord_patron_britain
+			set_country_flag = shx_patron_taken
+			add_political_power = constant:shx_story.patron_britain_power
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_patron }
+			shx_clamp_cohesion = yes
+			shx_add_debt = yes
+		}
+		ai_will_do = {
+			factor = constant:shx_story.ai_patron
+			modifier = { factor = 0 check_variable = { var = warlord_cohesion value = constant:shx_story.ai_patron_below compare = greater_than_or_equals } }
+			modifier = { factor = 0 has_war_with = ENG }
+		}
+	}
+	shx_patron_soviet = {
+		icon = generic_military
+		visible = { has_country_flag = shx_band_rise shx_patron_open = yes NOT = { has_country_flag = warlord_patron_soviet } }
+		available = { NOT = { has_war_with = SOV } }
+		cost = @patron_soviet_cost
+		fire_only_once = yes
+		complete_effect = {
+			clr_country_flag = warlord_patron_japan
+			clr_country_flag = warlord_patron_britain
+			clr_country_flag = shx_no_patron
+			set_country_flag = warlord_patron_soviet
+			set_country_flag = shx_patron_taken
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:shx_story.patron_soviet_equipment }
+			army_experience = constant:shx_story.patron_soviet_army_experience
+			add_stability = constant:shx_story.patron_soviet_stability_cost
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_patron }
+			shx_clamp_cohesion = yes
+			shx_add_debt = yes
+		}
+		ai_will_do = {
+			factor = constant:shx_story.ai_patron
+			modifier = { factor = 0 check_variable = { var = warlord_cohesion value = constant:shx_story.ai_patron_below compare = greater_than_or_equals } }
+			modifier = { factor = 0 has_war_with = SOV }
+		}
+	}
+	shx_stand_alone = {
+		icon = generic_independence
+		visible = { has_country_flag = shx_band_rise NOT = { shx_has_patron = yes } NOT = { has_country_flag = shx_no_patron } }
+		available = { always = yes }
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = shx_no_patron
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_refused_patron }
+			shx_clamp_cohesion = yes
+			add_war_support = constant:shx_story.stand_alone_war_support
+		}
+		ai_will_do = { factor = constant:shx_story.ai_stand_alone }
+	}
+
+	# --- One row per band, and only that band -------------------------------------------------
+	shx_restore_order = {
+		icon = generic_police_action
+		visible = { has_idea = warlord_cohesion_fractious }
+		available = { NOT = { has_war = yes } }
+		days_remove = @work
+		days_re_enable = @cooldown
+		modifier = { stability_factor = 0.10 }
+		remove_effect = {
+			add_command_power = constant:shx_story.order_cost_command_power
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_order }
+			shx_clamp_cohesion = yes
+		}
+		ai_will_do = { factor = constant:shx_story.ai_tier_action }
+	}
+	shx_court_the_gentry = {
+		icon = generic_political_rally
+		visible = { has_idea = warlord_cohesion_brittle }
+		available = { NOT = { has_war = yes } }
+		cost = @office_cost
+		days_remove = @long_work
+		modifier = { political_power_factor = -0.10 }
+		remove_effect = {
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_gentry }
+			shx_clamp_cohesion = yes
+		}
+		ai_will_do = { factor = constant:shx_story.ai_tier_action }
+	}
+	shx_host_the_conference = {
+		icon = generic_speech
+		visible = { has_idea = warlord_cohesion_steady }
+		available = {
+			NOT = { has_war = yes }
+			# The condition lives inside the custom tooltip, as vanilla AST and this mod's Qing
+			# chapter do: an empty custom_trigger_tooltip is an always-true trigger and would show
+			# the line whether or not Beijing had been settled with.
+			custom_trigger_tooltip = {
+				tooltip = shx_tt_paid_beijing
+				has_country_flag = shx_paid_beijing
+			}
+		}
+		cost = @conference_cost
+		fire_only_once = yes
+		complete_effect = {
+			army_experience = constant:shx_story.conference_army_experience
+			add_stability = constant:shx_story.conference_stability
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_conference }
+			shx_clamp_cohesion = yes
+		}
+		ai_will_do = { factor = constant:shx_story.ai_tier_action }
+	}
+
+	# --- The war, which exists only for a province that has earned it -------------------------
+	# Devoted cohesion, no grudging commander, no war already running, and a rival busy elsewhere.
+	# The war aim is a change of government, not annexation: the province fights to break the rival
+	# without swallowing a province it could not administer.
+	shx_declare_clique_war = {
+		icon = generic_break_treaty
+		targets = { XIC CHI SND }
+		target_trigger = {
+			FROM = {
+				exists = yes
+				has_war = yes
+				NOT = { has_war_with = ROOT }
+			}
+		}
+		visible = { shx_can_declare_clique_war = yes }
+		available = { shx_can_declare_clique_war = yes }
+		cost = @war_cost
+		fire_only_once = no
+		days_re_enable = @cooldown
+		complete_effect = {
+			# army_experience is the additive effect, so the cost constant that feeds it is negative:
+			# the province spends experience its officers have accumulated.
+			army_experience = constant:shx_story.war_cost_army_experience
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_war }
+			shx_clamp_cohesion = yes
+			declare_war_on = { target = FROM type = topple_government }
+			custom_effect_tooltip = shx_tt_war_cost
+		}
+		ai_will_do = { factor = constant:shx_story.ai_war }
+	}
+}

@@ -1,6 +1,20 @@
 # Overview: Republic of China chapter clock, without a world-iterating periodic hook.
 on_actions = {
 	on_daily_RCH = {
-		effect = { rch_campaign_tick = yes }
+		effect = {
+			rch_campaign_tick = yes
+			# One guarded release hook for the pre-1936 warlord roster. The wrapper is
+			# idempotent, but the flag is checked here as well so the call is skipped outright
+			# once Shanxi exists. rch_campaign_tick above is the Republic's own clock and is not
+			# part of this hook.
+			if = {
+				limit = { date > 1916.6.5 NOT = { has_country_flag = china_released_shx } }
+				china_release_warlord_shx = yes
+				if = {
+					limit = { has_country_flag = china_released_shx }
+					SHX = { country_event = { id = shx_campaign.1 days = 1 } }
+				}
+			}
+		}
 	}
 }

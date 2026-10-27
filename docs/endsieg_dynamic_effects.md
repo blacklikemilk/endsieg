@@ -40,3 +40,51 @@ iran_concede_british_small = {
 - **Side effects:** none beyond the writes above.
 - **Cadence:** called from `iran_initialize_campaign` after the chapter's opening values exist, and from `iran_recompute_leverage` for a country that is already active without baselines.
 - **Example:** `iran_leverage_baseline_init = yes` at the end of the opening block in `iran_initialize_campaign`, before `iran_refresh_mechanics`.
+
+## china_release_warlord_receive
+
+- **Purpose:** the shared body that turns a state held by the Republic into an independent Chinese warlord state, once, without carrying any tag's literals.
+- **File:** `common/scripted_effects/china_warlord_release.txt`.
+- **Scope:** the receiving tag, in country scope, entered by a per-tag wrapper such as `china_release_warlord_shx`.
+- **Reads:** `china_release_seat` (state id variable, set by the wrapper in the receiving tag's scope); the seat's current owner and the receiving tag's `china_warlord_released` flag.
+- **Writes:** state ownership and control of `var:china_release_seat`, the receiving tag's `china_warlord_released`.
+- **Guards:** returns unless the seat is RCH-owned and the receiving tag does not already own it, and returns if `china_warlord_released` is already set, so a second pass does nothing.
+- **Side effects:** none beyond the transfer; it fires no event and touches no other state. Callers wrap their own notification event.
+- **Cadence:** one guarded call per tag from the Republic's existing daily action, never from a periodic world hook.
+- **Example:** `china_release_warlord_shx = yes` inside the `date > 1916.6.5` guard in `on_daily_RCH`.
+
+## china_release_warlord_shx
+
+- **Purpose:** the Shanxi wrapper that supplies the literals the shared body cannot receive as parameters.
+- **File:** `common/scripted_effects/china_warlord_release.txt`.
+- **Scope:** the seat's current owner, in country scope. First consumer is `RCH`.
+- **Reads:** the caller's `china_released_shx` and the state-615 owner.
+- **Writes:** `china_released_shx` on the caller, the shared body's outputs, `add_state_core = 615`, and one recruitment of `SHX_yan_xishan` under `NOT = { has_character = SHX_yan_xishan }`.
+- **Guards:** the caller's flag, the body's ownership test and the `has_character` test each block a second release on their own.
+- **Side effects:** recruits a character into the new tag; it does not touch the Shanxi character file or its traits.
+- **Cadence:** called once per campaign from `on_daily_RCH`; later tags add their own wrapper of the same shape.
+- **Example:** a later `china_release_warlord_yun` wrapper with its own flag, seat and character, plus one guarded line in the same daily action; the shared body does not change.
+
+## shx_refresh_mechanics
+
+- **Purpose:** re-applies Shanxi's current cohesion band spirit and clamps the two mechanic variables.
+- **File:** `common/scripted_effects/shx_campaign.txt`.
+- **Scope:** country, Shanxi only.
+- **Reads:** `warlord_cohesion`, `warlord_patronage_debt`.
+- **Writes:** the matching band spirit and the two clamped variables; initialises both variables on first run from `constant:shx_story.cohesion_opening` and `constant:shx_story.debt_opening`.
+- **Guards:** removes only the three non-matching band spirits, so a refresh never deletes the family and never leaves the province without a tier.
+- **Side effects:** hidden, so callers show a clean tooltip. Every focus that moves cohesion calls it, and the daily tick calls it unconditionally.
+- **Cadence:** daily and after every cohesion or debt change.
+- **Example:** `hidden_effect = { shx_refresh_mechanics = yes }` inside a focus reward that adds cohesion.
+
+## shx_hand_over_to_vanilla
+
+- **Purpose:** hands Shanxi to the existing 1936 warlord tree in the same DLC order the startup dispatcher uses, then stops the mod's own band logic.
+- **File:** `common/scripted_effects/shx_campaign.txt`.
+- **Scope:** country, Shanxi only.
+- **Reads:** the `has_dlc` checks for No Compromise, No Surrender and Waking the Tiger.
+- **Writes:** `shx_handover_complete` (permanent), clears the band flags and the pending-demand flag, removes the four cohesion spirits, and issues one `load_focus_tree` with `keep_completed`.
+- **Guards:** the tick returns early while `shx_handover_complete` is set, so the province is not handed over twice.
+- **Side effects:** marks the focus layout dirty on the handover day.
+- **Cadence:** once, on the first daily pass after 1935.12.31.
+- **Example:** called from `shx_campaign_tick`, not from a focus reward.
