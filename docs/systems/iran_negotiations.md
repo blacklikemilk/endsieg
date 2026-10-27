@@ -29,7 +29,7 @@ Every option carries its own trigger, so only coherent answers appear.
 
 1. **Accept** - concedes to the patron (`iran_concede_*`), adds a named obligation (an `add_timed_idea` or a flag such as `iran_obligation_russian_railway`), and sets `iran_demand_<id>_accepted`.
 2. **Submit to the Majlis** - shown instead of Accept when the chamber is strong (`power_balance_value > negotiation_majlis_block`). It sets `iran_demand_<id>_submitted` and fires a vote 75 days later; the deputies ratify or refuse by balance side and by the patron's standing (the German treaty reads `iran_german_influence`, because Germany has no standing value). One of the two vote options is therefore always available: the standing tests are complementary.
-3. **Sign by royal decree** - shown when the Crown is strong (balance below `negotiation_crown_bypass`). Same concession, plus `PER_bop_push_crown_small`, a stability cost, and `iran_decree_treaty`, which the vote events read: a chamber asked to ratify a treaty signed behind its back refuses more readily.
+3. **Sign by royal decree** - shown when the Crown is strong (balance below `negotiation_crown_bypass`). Same concession, plus `PER_bop_push_crown_small`, a stability cost, and `iran_decree_treaty`, which the vote events read and which bars the budget vote while it runs: a chamber asked to ratify a treaty signed behind its back refuses more readily.
 4. **Refuse** - `iran_reclaim_<patron>_small`, the patron's standing falls, `iran_demand_<id>_rejected`. A second demand follows 200 days later only if the patron can still apply pressure: it must exist, answer to nobody, not have capitulated, and not be at war with Germany. A patron that cannot is simply refused.
 5. **Compromise** - a smaller concession and a named counter-term, different per demand: a Persian railway company with Russian minority shareholders, the customs retained, a joint fisheries company, advisers without a treaty.
 6. **Delay** - once per demand. Costs authority and stability and re-fires the same event in 120 days with the compromise off the table and the concession a tier heavier.
@@ -61,6 +61,8 @@ The two older arrangements are gated by date rather than by a binding flag, beca
 
 ## Flags
 
+Day counts are file macros rather than script constants, because a `days =` field rejects a `constant:` reference: `@negotiation_cooldown_days` and `@negotiation_binding_days` in `common/scripted_effects/iran_negotiations.txt`, and `@decree_treaty_days` in `events/iran_negotiations.txt`.
+
 | Flag | Duration | Meaning |
 | --- | --- | --- |
 | `iran_negotiation_open` | until the demand resolves | one demand on the table |
@@ -74,7 +76,7 @@ The two older arrangements are gated by date rather than by a binding flag, beca
 | `iran_demand_<id>_binding` | 1095 days | the terms cannot be reopened |
 | `iran_demand_<id>_renegotiated` | permanent | the concession was bought back |
 | `iran_patron_tension_british` / `_northern` / `_german` | 1460 days | that patron's next demand is signed heavier |
-| `iran_decree_treaty` | permanent | a treaty was signed without the chamber |
+| `iran_decree_treaty` | 365 days (`@decree_treaty_days`) | a treaty was signed without the chamber, and the budget vote is barred until the year is out |
 | `iran_obligation_*` | until renegotiated | the named obligation the concession created |
 | `iran_railway_company_chartered`, `iran_customs_retained`, `iran_joint_fisheries_company`, `iran_german_advisers_only` | permanent | which compromise was taken |
 | `iran_german_economic_pact`, `iran_german_alignment` (existing) | - | the German treaty is in force |
@@ -86,7 +88,7 @@ Demand ids: `russian_railway`, `british_gulf`, `soviet_caspian`, `german_pact`.
 - **Crown and Majlis** (`PER_crown_and_majlis`): decides whether a demand is answered by the government, by the chamber or by decree, and whether a renegotiation can be carried at all. Every read of `power_balance_value` is guarded by `has_power_balance`.
 - **Great Game acts** (`iran_concede_*`, `iran_reclaim_*`): all influence, sovereignty and leverage movement goes through them, so a negotiation moves the same axes as a focus or an agreement. The tier rule lives in the concede effects: a patron already betrayed (`iran_patron_tension_*`) or a demand delayed once is signed one tier heavier.
 - **Great Game agreements**: a demand is suppressed if the equivalent agreement is already signed (`iran_agreement_northern_railway`, `iran_agreement_british_loan`, `iran_agreement_german_mission`), so the two systems do not ask for the same thing twice.
-- **Budget vote**: `iran_decree_treaty` is the hook a later pass should read; see the note in the change list.
+- **Budget vote**: `PER_bop_budget_vote` cannot be taken while `iran_decree_treaty` is set (`common/decisions/PER_crown_and_majlis.txt`), so a treaty signed by decree costs the chamber one yearly cycle and no more. The flag carries its own duration, so the veto lifts without any further effect.
 - `iran_refresh_mechanics_hidden` is called from every consequence, so the influence-driven spirits follow the numbers.
 
 ## AI
@@ -101,4 +103,4 @@ None. The decisions reuse `generic_break_treaty`; the events use `GFX_report_eve
 
 ## Untested
 
-Not played in game. The things most likely to need adjustment: whether `constant:iran_story.negotiation_*_days` is accepted in `days =` fields (the pattern is used elsewhere in this mod for `country_event` delays, not yet for `set_country_flag`), whether the option list reads well at six, and whether the 540-day cooldown starves the 1912-1914 window when both the railway and the Gulf demands are waiting.
+Not played in game. The things most likely to need adjustment: whether the option list reads well at six, and whether the 540-day cooldown starves the 1912-1914 window when both the railway and the Gulf demands are waiting.

@@ -16,14 +16,21 @@ The balance is built by `PER_bop_sync` on the daily Iran tick and after every se
 A start before 1919 opens at +0.15, a later start at -0.15, and a start after the 1941 occupation at +0.30.
 Under the Pahlavi settlement the balance is removed and the Pahlavi Autocracy spirit applies; the Majlis sits at the Shah's pleasure.
 `PER_bop_resurgence_check` ends that after 16 September 1941 once the country is occupied or has granted the Allies transit: event `iran_campaign.77` fires, the flag `PER_majlis_resurgence` is set and the balance returns at +0.30.
-Qajar, constitutional, republican, socialist and nationalist settlements keep the balance.
+Qajar, constitutional, republican, socialist and nationalist settlements keep the balance; the Pahlavi settlement is the only one that removes it.
 The republic keeps the Shah side's art, because no President sprite exists yet.
+
+## Regime shifts
+
+A regime shift out of the autocracy starts with no balance to move, so it builds one before it pushes.
+Each shift clears the old regime flags, proclaims its successor flag, creates the balance at the constitutional centre through `PER_bop_open_regime`, applies its settlement push through `PER_bop_settle_*`, and resyncs.
+A push applied before the balance existed would move nothing and would leave `PER_bop_sync` to create the era's opening value, which is the position of the autocracy the shift is leaving.
+The constitutional shift keeps the Shah and `PER_pahlavi_dynasty`, and its successor flag is what holds `PER_bop_sync` off the autocracy branch, so the balance survives at the centre with the dynasty bound.
 
 ## What moves it
 
-- Ten standing decisions became four: Appoint a Royal Cabinet, Convene the Majlis, Negotiate the Settlement and Ratify the Fundamental Laws.
+- Four standing decisions: Appoint a Royal Cabinet, Convene the Majlis, Negotiate the Settlement and Ratify the Fundamental Laws.
 - Foreign agreements: `PER_bop_sign_agreement` pushes the Crown if the Court signed by decree and the Majlis if it ratified.
-- The six regime settlements and the six later regime shifts push the balance through `PER_bop_settle_*`.
+- The five settlements that keep the balance push it through `PER_bop_settle_*`, and the five later regime shifts open it at the centre first, push it and resync.
 - The coup decisions push the Crown (officers, brigade, minister, purge) or the Majlis (the motion against Reza Khan); the motion needs a chamber that can sit, and the monthly coup drift reads the balance.
 - 28 political focuses push the balance: the Second Majlis, the 1911 ultimatum and Shuster's dismissal, the 1921 coup, the regency and court ministries, the wartime Majlis and the 1945 constitution among them.
 - Every push is guarded, so a focus completed under the Pahlavi settlement does nothing.
