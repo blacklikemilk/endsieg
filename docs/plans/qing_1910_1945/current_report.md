@@ -1,4 +1,4 @@
-﻿﻿# Qing overhaul, current report
+﻿# Qing overhaul, current report
 
 ## What is implemented
 
@@ -123,6 +123,17 @@ Focus IDs, counts, prerequisites, mutual exclusions, rewards, costs, AI weights,
 The `qing_interwar` row is the 2026-10-27 re-lay, measured with `hoi4.focus_inspect` (`treeId: qing_interwar`, `workspaceId: current`): 99 focuses on a 50 x 12 grid, 118 connectors, 0 crossings, 4 long connectors, 13 diagnostics, `validation.passed: true`, layoutHash `977168ee9e4eb53959425bf5418d8bd406986ded5989de8299b8ade528d3abb1`. The figures it replaced quoted an intermediate pass rather than the shipped chapter.
 The HOI4 Agent Tools MCP was used for `focus_inspect`, `focus_rewrite` and `focus_render`.
 `focus_rewrite` with `layoutMode: "compact"` succeeded on the three Republic trees but produced a 71-column strip on `rch_republic` (against 43 from this pass), and was blocked with `FOCUS_COMPACT_QUALITY_BLOCKED` on all three Qing trees, so its output was not adopted and its sidecar plan files were removed.
+
+## Interwar reward identities
+
+`hoi4.focus_inspect` reported nine `FOCUS_REPEATED_GENERIC_REWARD` diagnostics on `qing_interwar`: three groups of three focuses paid one generic reward each. Those nine are `QW2_constitutional_trunk`, `QW2_cotton_mills`, `QW2_road_programme`, `QW2_federal_trunk`, `QW2_provincial_administration`, `QW2_local_government`, `QW2_industrial_takeoff`, `QW2_civil_service` and `QW2_tariff_policy`, and each now pays a reward of its own subject.
+The whole chapter was then audited for shared rewards, not only those nine: eight two-focus pairs paid identical reward text and three further pairs paid the same effects in a different line order behind different tooltip keys.
+One member of each pair and each order-insensitive pair now carries a subject-specific addition or substitution, so no two of the 99 focuses pay the same reward text and no two of the 25 accepted rewards share a gameplay signature.
+Twenty-five `completion_reward` blocks differ from the integrated tree, all of them enumerated in `tools`-level tests, and every one states itself through a `custom_effect_tooltip` key in `localisation/english/qing_interwar_l_english.yml`.
+Two earlier tooltip faults are corrected: `QW2_federal_trunk`, `QW2_provincial_administration`, `QW2_civil_service` and `QW2_local_government` now name the Balance of Power move they pay, and `QW2_tariff_policy` states that the government gains political capital rather than spending it.
+Equipment amounts are `constant:qing_story.equipment_small` and `constant:qing_story.equipment_grant`, including `QW2_cotton_mills`, whose `amount = 500` literal was the last bare number in the chapter's rewards.
+Every coordinate, icon, cost, prerequisite, mutual exclusion, availability block, AI weight and search filter is identical to the integrated tree, and the layout is frozen at layoutHash `977168ee9e4eb53959425bf5418d8bd406986ded5989de8299b8ade528d3abb1` with four remaining diagnostics, all long connectors.
+`python .tools/tests/test_qing_interwar_rewards.py` pins the 25 accepted rewards, the 74 untouched ones and every non-reward field, and rejects a reintroduced duplicate, an order-permuted duplicate, a dropped tooltip, a dropped localisation key, a constant replaced by a literal, an unstated balance-of-power move and a tooltip that reverses its own effect.
 
 ## Pending
 

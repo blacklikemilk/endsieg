@@ -1,4 +1,4 @@
-"""Regression test: Qing consolidation is worked for, and gates the interwar chapter.
+﻿"""Regression test: Qing consolidation is worked for, and gates the interwar chapter.
 
 The C8 package adds a derived consolidation score, five programme decisions that
 move it, a gate on the interwar chapter and a gated restoration band.  Six things
@@ -1211,6 +1211,67 @@ def check_restoration_band(shipped, baseline):
 
 
 # ---------------------------------------------------------------------------------------------
+# C7r accepted reward contract (task t_5f11d3f0).
+#
+# These nine interwar focuses paid one of three repeated generic rewards, so focus_inspect
+# reported FOCUS_REPEATED_GENERIC_REWARD nine times. Each now carries a reward of its own
+# subject. The mapping below is the repr of the normalised completion_reward block, which
+# is the same field the baseline pin compares: the nine are pinned to this exact contract
+# and the other ninety focuses stay pinned to the pre-edit baseline.
+# ---------------------------------------------------------------------------------------------
+C7R_ACCEPTED_REWARDS = {
+    'QW2_settlement_government':
+        [('add_political_power', 'scalar', 'constant:qing_story.political_capital'), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_settlement_government')],
+    'QW2_constitutional_trunk':
+        [('qing_bop_push_assembly_small', 'scalar', 'yes'), ('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_constitutional_trunk')],
+    'QW2_federal_trunk':
+        [('qing_bop_push_assembly_small', 'scalar', 'yes'), ('add_to_variable', 'block', [('qing_provincial_trust', 'scalar', 'constant:qing_story.trust_gain')]), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_federal_trunk')],
+    'QW2_industrial_takeoff':
+        [('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_major_gain')]), ('add_stability', 'scalar', 'constant:qing_story.stability_cost'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_industrial_takeoff')],
+    'QW2_cotton_mills':
+        [('add_equipment_to_stockpile', 'block', [('type', 'scalar', 'infantry_equipment'), ('amount', 'scalar', 'constant:qing_story.equipment_small')]), ('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_cotton_mills')],
+    'QW2_provincial_administration':
+        [('qing_bop_push_assembly', 'scalar', 'yes'), ('add_to_variable', 'block', [('qing_provincial_trust', 'scalar', 'constant:qing_story.trust_major_gain')]), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_provincial_administration')],
+    'QW2_civil_service':
+        [('qing_bop_push_court_small', 'scalar', 'yes'), ('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_civil_service')],
+    'QW2_local_government':
+        [('qing_bop_push_assembly_small', 'scalar', 'yes'), ('add_to_variable', 'block', [('qing_provincial_trust', 'scalar', 'constant:qing_story.trust_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_local_government')],
+    'QW2_road_programme':
+        [('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('add_war_support', 'scalar', 'constant:qing_story.war_support_gain'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_road_programme')],
+    'QW2_tariff_policy':
+        [('add_political_power', 'scalar', 'constant:qing_story.political_capital'), ('add_stability', 'scalar', 'constant:qing_story.stability_cost'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_tariff_policy')],
+    'QW2_versailles_revision':
+        [('add_political_power', 'scalar', 'constant:qing_story.political_capital'), ('add_stability', 'scalar', 'constant:qing_story.stability_gain'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_versailles_revision')],
+    'QW2_authoritarian_prefects':
+        [('set_country_flag', 'scalar', 'qing_direct_rule'), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('add_to_variable', 'block', [('qing_provincial_trust', 'scalar', 'constant:qing_story.trust_loss')]), ('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_authoritarian_prefects')],
+    'QW2_education_drive':
+        [('add_research_slot', 'scalar', '1'), ('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('add_to_variable', 'block', [('qing_provincial_trust', 'scalar', 'constant:qing_story.trust_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_education_drive')],
+    'QW2_public_health':
+        [('add_stability', 'scalar', 'constant:qing_story.stability_major_gain'), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('add_to_variable', 'block', [('qing_provincial_trust', 'scalar', 'constant:qing_story.trust_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_public_health')],
+    'QW2_army_establishment':
+        [('add_to_variable', 'block', [('qing_army_loyalty', 'scalar', 'constant:qing_story.army_gain')]), ('army_experience', 'scalar', '25'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_army_establishment')],
+    'QW2_army_air_force':
+        [('air_experience', 'scalar', '20'), ('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('add_to_variable', 'block', [('qing_army_loyalty', 'scalar', 'constant:qing_story.army_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_army_air_force')],
+    'QW2_army_armour':
+        [('army_experience', 'scalar', '25'), ('add_to_variable', 'block', [('qing_army_loyalty', 'scalar', 'constant:qing_story.army_gain')]), ('add_war_support', 'scalar', 'constant:qing_story.war_support_gain'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_army_armour')],
+    'QW2_japanese_pressure_ii':
+        [('add_war_support', 'scalar', 'constant:qing_story.war_support_gain'), ('add_to_variable', 'block', [('qing_army_loyalty', 'scalar', 'constant:qing_story.army_gain')]), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_japanese_pressure_ii')],
+    'QW2_restoration_army':
+        [('add_to_variable', 'block', [('qing_army_loyalty', 'scalar', 'constant:qing_story.army_major_gain')]), ('army_experience', 'scalar', '25'), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_restoration_army')],
+    'QW2_cultural_mission':
+        [('add_research_slot', 'scalar', '1'), ('add_to_variable', 'block', [('qing_reform', 'scalar', 'constant:qing_story.reform_gain')]), ('add_stability', 'scalar', 'constant:qing_story.stability_cost'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_cultural_mission')],
+    'QW2_tibet':
+        [('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('add_stability', 'scalar', 'constant:qing_story.stability_gain'), ('add_to_variable', 'block', [('qing_provincial_trust', 'scalar', 'constant:qing_story.trust_gain')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_tibet')],
+    'QW2_restoration_court':
+        [('add_political_power', 'scalar', 'constant:qing_story.political_capital'), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_major_gain')]), ('qing_bop_push_court_small', 'scalar', 'yes'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_restoration_court')],
+    'QW2_restoration_guard':
+        [('add_to_variable', 'block', [('qing_army_loyalty', 'scalar', 'constant:qing_story.army_major_gain')]), ('army_experience', 'scalar', '25'), ('add_equipment_to_stockpile', 'block', [('type', 'scalar', 'infantry_equipment'), ('amount', 'scalar', 'constant:qing_story.equipment_small')]), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_restoration_guard')],
+    'QW2_restoration_treasury':
+        [('add_political_power', 'scalar', 'constant:qing_story.political_capital'), ('add_equipment_to_stockpile', 'block', [('type', 'scalar', 'infantry_equipment'), ('amount', 'scalar', 'constant:qing_story.equipment_grant')]), ('add_stability', 'scalar', 'constant:qing_story.stability_gain'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_restoration_treasury')],
+    'QW2_restoration_legation':
+        [('add_political_power', 'scalar', 'constant:qing_story.political_capital'), ('add_to_variable', 'block', [('qing_legitimacy', 'scalar', 'constant:qing_story.legitimacy_gain')]), ('add_war_support', 'scalar', 'constant:qing_story.war_support_gain'), ('add_equipment_to_stockpile', 'block', [('type', 'scalar', 'infantry_equipment'), ('amount', 'scalar', 'constant:qing_story.equipment_grant')]), ('set_country_flag', 'scalar', 'qing_restoration_recognised'), ('custom_effect_tooltip', 'scalar', 'qing_interwar_reward_restoration_legation')],
+}
+# ---------------------------------------------------------------------------------------------
 # Section 5: every pre-existing focus is untouched, and the band collides with nothing
 # ---------------------------------------------------------------------------------------------
 
@@ -1239,8 +1300,15 @@ def check_preserved_layout(shipped, baseline):
                 failures.append('%s changed its %s' % (focus_id, field))
         if focus_prerequisites(old) != focus_prerequisites(new):
             failures.append('%s changed its prerequisites' % focus_id)
-        if normalize(block(old, 'completion_reward') or []) != \
-                normalize(block(new, 'completion_reward') or []):
+        reward = normalize(block(new, 'completion_reward') or [])
+        if focus_id in C7R_ACCEPTED_REWARDS:
+            # Task t_5f11d3f0 replaced this focus's repeated generic reward with a
+            # subject-specific one. Only the exact accepted block is allowed: any further
+            # edit to a value, effect or constant fails here as it would on the pin below.
+            if repr(reward) != repr(C7R_ACCEPTED_REWARDS[focus_id]):
+                failures.append('%s reward deviates from the C7r accepted contract'
+                                % focus_id)
+        elif reward != normalize(block(old, 'completion_reward') or []):
             failures.append('%s changed its reward' % focus_id)
 
     # Cells: the band must not share a cell with anything, and same-row spacing holds.

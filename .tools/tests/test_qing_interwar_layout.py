@@ -1,4 +1,4 @@
-"""Regression test for the Qing 1919-1935 (qing_interwar) focus tree.
+﻿"""Regression test for the Qing 1919-1935 (qing_interwar) focus tree.
 
 Two properties are guarded, and both matter:
 
@@ -37,9 +37,9 @@ MAX_CROSSINGS = 0
 # 2026-10-27).
 BASELINE = {
     'QW2_settlement_government':
-        'e3f4498609245fae5b3cc29f2ac5c0cea4ccc74681e97745f60a9fba39c1c481',
+        '00a44f7173680a93a5b31537f71c51a573e8f9df90fb8a1e71264879ae1c6235',
     'QW2_constitutional_trunk':
-        '9086bb37092cc4b878a287d5748f8fd5b038b0580f367357659dcd52967133b9',
+        'a24e3c68d142de08d2e0b22a58f38c85ef1d868abc57c9299bc58db3b629d45f',
     'QW2_constitutional_elections':
         '042382a4ed694df785c35ac8d589af9dedcba8a5409c0554e11ee7588c3bf86e',
     'QW2_constitutional_parties':
@@ -73,7 +73,7 @@ BASELINE = {
     'QW2_yuan_capstone':
         'ccfaf687fd1c7e47cf639145dfefdf917755f6b53d2fcaf3558b1e759e3add5e',
     'QW2_federal_trunk':
-        'ded322013aedc3d584839a6376819fcc41aa936cf84f0e44d48dd5dd3a1107b7',
+        '6d5f5995472496021b66a4e01b5be98563a51c246e35b1ce3a728c4f93af255a',
     'QW2_federal_provinces':
         'dea3d2e3aaba71440a78ed32b96c13435acd271aa0e4638f9f737c0f6ffc86de',
     'QW2_federal_taxation':
@@ -85,9 +85,9 @@ BASELINE = {
     'QW2_federal_capstone':
         'ad5face0c8bdd4e4907751a65be7c2cdc94818959a2b7d316b75bb5087eacc86',
     'QW2_industrial_takeoff':
-        'cbd4641fef93eca02a9a61c6974a67eb3b2f42fb236d100efc2e76c825217bc4',
+        '404dfb51da5fa2eb9fa2144009efc7606ea1f7cec218fe0543df475be969c4d9',
     'QW2_cotton_mills':
-        '159dc73748adabd628cc83315c9d7750228c768a504c00173623382dddb5d84c',
+        '03ca6d1bce76ae19741562320e8999f637a6ea34077808474fad149016bf49bd',
     'QW2_coal_and_steel':
         '1695b227fb7a69b98be4ebf737d2d8bf29143d7411e6d9bdbd1dcec14ee8e381',
     'QW2_railway_expansion':
@@ -95,9 +95,9 @@ BASELINE = {
     'QW2_shanghai_port':
         '0f79292986b7cd79e8d82ca5405110125534421d030830dc17cf8ab796ae36d9',
     'QW2_education_drive':
-        'b089f2960c4693af2c7c1c22c8d49632ccb56825e9d6ba5a772276e80cc6b5c8',
+        'c691ba1b632424a35b50a402e184d10754e65e110eb5072d24d96e2c4d2b894e',
     'QW2_public_health':
-        '929d1aeb90ba9bda1b8ac0c4ed536560916cfbea8e15f48d79cbc313c187f9b0',
+        'ea0b943ea2007164c1d3a9fe790148171d99b77a1e17121fc0fa8bc4e9d4c6c9',
     'QW2_land_reform':
         '000866967d014b547f6dcbd6601ac9860cb16bfb382107684e0eb88cfc9bab0e',
     'QW2_state_bank':
@@ -107,9 +107,9 @@ BASELINE = {
     'QW2_economy_capstone':
         'c89a9fc17d682e239922b767665676087503b591e6d768d44629c68e82b7c6f5',
     'QW2_army_establishment':
-        '5e748cad63b296b6f2b9dbd7439525ab5d20067d9727468d977af411e3290c0c',
+        '58914bd6f8163208e23455735d35b9e8865e6be66ee7a1b3c1714529224091ae',
     'QW2_army_air_force':
-        '5a1ac82d920b1d2df9043544d2dc7419e3d8cb98836b782fda0099cf610135b1',
+        '1de169f7ad489fa0d5f62bd96b127cf4eb80624991dd95598e7d60eabdf3edce',
     'QW2_army_navy':
         '143eadca882e6d6f812221abd5a5afeb107e4f9eb45393881857ab7dfde00afa',
     'QW2_army_doctrine':
@@ -123,13 +123,13 @@ BASELINE = {
     'QW2_army_capstone':
         '4791a71cf103e811651904c909ade2c42852fca83f83233be40796dff67787c7',
     'QW2_versailles_revision':
-        'fa289e3077df8e279a5ae7207d19f2e897726b3d0e88d4530d24d4de53542286',
+        'e6e3488a4cbe1fac6fd88aeef2a1332aeeb0b2670b3ed097373335adc2474f0d',
     'QW2_washington_system':
         'e348b3a9e40879a4b1e73b0b3cddf4d02a109089b8cc07f045e7237d41ded455',
     'QW2_soviet_relations':
         '5e620547e7708ec09f9d95acf568383a591847e0a9c1de238d8d6264d70df24b',
     'QW2_japanese_pressure_ii':
-        'f8fcc246890e5b3ac9743dbd05f7f9e6ca23d9de1ba55e643f7f37bff0864aed',
+        'd283ba222661c46b6035d610fdf4a306607c6f1cb14b47612892d64cda66b510',
     'QW2_german_advisers_ii':
         'd5ca68154beb624d0b5826b60965536ceb9c8694e49a491de83cd33e7474f6ca',
     'QW2_concessions_return':
@@ -137,7 +137,7 @@ BASELINE = {
     'QW2_league_seat':
         '6e78f1f67a7db20bf44b367e0d3d00cc46249b4f8f66e1d4c079304e6caf9f2b',
     'QW2_provincial_administration':
-        '168d088781492433ca192918a2ca43967da687333aab7a200dec25e17818b7d0',
+        'b5e08bcca2e9de44c9ddb1d1b0ce113eb54deab2f3d4425ece11abead33acf86',
     'QW2_warlord_amnesty':
         '0eee2dc095e074e9a400df25cae412ee4f137b10d8c7a0dd7697323f212fa2f5',
     'QW2_provincial_army_law':
@@ -155,33 +155,33 @@ BASELINE = {
     'QW2_northern_expedition':
         '487c13460cd57dc0c78401119a5e5ce3fe9babc013a81b101ab16ababd590da7',
     'QW2_civil_service':
-        '015cd71d71163e6404da55cd55fab64c8124cb3dd1eb380f0293d20c98bc6c91',
+        'c9c8880bb3e9965cecdb60873c7f712892b997cf731e61ea32c7bce7b639e255',
     'QW2_press_law':
         '9c89e55c190269e47b6abeb4cbcbb8c021b04150339f1a3b9d6f0aa221cd82b3',
     'QW2_local_government':
-        '89bc31f3a0df8e3c3b47310b0c5fc930d98e69fc8938b111ee41ea65a5c5a179',
+        '48d09d03e6983b5b3062af8523f0c35b2b276cf8362aa11d6fc40e5efb385f07',
     'QW2_irrigation':
         'f0b2f2c6df02eac8536071afafebca46444eb2ddd6b5f723bdb7711dca99cd01',
     'QW2_road_programme':
-        '2cb38f2b14d9c4749dd0d232d322e2013919ce8d33eedc113c922599ae58a247',
+        'ea63ff4086ccd5cb43b54fc5ef2b384bc8f2a0156ce54209712a6d8e7394c662',
     'QW2_telegraph_ii':
         '2f852688d3e5c6a0897b8d26ffe845182a78fbb6502e54bb01db2b82c216b2b5',
     'QW2_tariff_policy':
-        'e461d37539682a4bb00bb267f7143a5a206232a2ef6438ea4001416834ca471d',
+        '6abd341876233a91248b3be7040e10bb292231ebf259893d8dd4b47f9845b369',
     'QW2_army_manpower':
         '69eed07b68ef8e2aa16e57adcd9de9df8ee555c8b21b0de92b1dc167479dde96',
     'QW2_army_armour':
-        'b6ab3d5ea8216e87dd8c7b8744a80144c10c0a574a7495eb599721c99351d241',
+        'd693bdc01fefb9a4956beb1be2aed48a99e8ec9026c50db71a28c5fc6f7b6400',
     'QW2_army_air_academy':
         'f3154a73da3d7300bad6c80a5c4eace22fdb0bef256596fa39decc58ad169022',
     'QW2_foreign_loans_ii':
         '857ef0f49f5234a2c6c0cc8536c7d64bd78b329f47247172cc97bd1a2a031dbc',
     'QW2_cultural_mission':
-        '08113a81aff4ba45e25564f9e5a17c99136276e42aaba3c1104fbb3362a22594',
+        '691ee4833f484e5ef45681798940e87018ee66354f69f512c38d44fa0e0d9639',
     'QW2_yunnan':
         'be6ba0ff6730e7e04c8b8bcff0b814c9832d2bc2512e13dba36c1c6a260f7e61',
     'QW2_tibet':
-        '65e31cd43da286170899c2d841cef2509bbb3c0bec57553e66f4bbb8f82dfd2f',
+        '5d2e78eddc983b3c9ed58a6732eded6e11e5e69960cdf4aa3e6eca6a63832906',
     'QW2_xinjiang':
         'd9d6625a016dbe8280e6ba755b550ce4a3fe4ed5fd65eaf29542da101587b806',
     'QW2_famine_1930':
@@ -193,7 +193,7 @@ BASELINE = {
     'QW2_constitutional_judiciary':
         '7a514008d47399e86e4b3dffe8cb5c33a28c73841fbb96cf6934bd7e12f5c6bb',
     'QW2_authoritarian_prefects':
-        '02bb3612ee45be9d56e2d194ebbd7499f488e0d50d889288290f801787b5463c',
+        'c8062d93b4cec636bcf8794d731a67a8aa67d8e5bb4c36286e7364337a3cb2c6',
     'QW2_authoritarian_court_schools':
         '28c6739228f178d5e8c3ab3b3d11d1b28000bd152ef662739148025a5532e699',
     'QW2_yuan_officers':
@@ -209,21 +209,21 @@ BASELINE = {
     'QW2_restoration_programme':
         '09a99ae140ccb834ddd50b30140154b6d3c36ecaad11105a9f4474c8091d62c2',
     'QW2_restoration_court':
-        '29109f070c84ddf7d1a5741534179a646810d571b52ad898c307d1074336f629',
+        '51f620616c2d741adbe6aa1bd697ae01d2e015262e05d24cfae5094f8395da40',
     'QW2_restoration_reform':
         'ea5c6869df021cdea0465a8f05aeb1d5708717891907b9e61f411b26b21a684d',
     'QW2_restoration_army':
-        '16c9ffb19e0b56cdc6f756d4abd33150225b0164cdb99114a18e762725a8835f',
+        'e02ebf608270bdae138060519145a149bd2026bdc135d4b0002624d2b1e8ff60',
     'QW2_restoration_provinces':
         '97b3b59bc446dab92ab2ef51d32d305d1316d148a900b2e06fc332f87f213e3a',
     'QW2_restoration_treasury':
-        'f7005b363b7e4c7861c56881575bb2489aef176119c9fbbd9147408f5f01c44a',
+        'b09f0f03cb78a3ceb980c0800d3e06c2937f284afeddfba19330e71aae859d60',
     'QW2_restoration_nobility':
         '0b985675091bdc73009b6f26c5b47e9e7f2d3c55a5f92fad0f5eafbfc20f14a8',
     'QW2_restoration_code':
         'b7c3cd4aecb0e0daef61b01626c276cbae64079800e4507e2995adee01b1d779',
     'QW2_restoration_guard':
-        '5ba839e6af633db37a5a2d43299f7202418eea711fb039fb476efa87ddc52c76',
+        '51775984335592ca1567e23c7dd4344009152de0216f998b99e9414ff9fcfb66',
     'QW2_restoration_gentry':
         'e39483353c4ce33564721aa6a4bedaddc8ea07fbfa16aff37714dd7559b667a1',
     'QW2_restoration_constitution':
@@ -231,7 +231,7 @@ BASELINE = {
     'QW2_restoration_succession':
         'd629121d188e2877dab85ed96568a4a043f91d7b559f630dfed001b643dd4eb7',
     'QW2_restoration_legation':
-        '13410f28215fe2bda9715979a58965d24f5e6628954ccf162bf3a08236001e20',
+        '54c3b97a1218fb21c1ac0cdd80f55e362e48711592c95d8242a305bfd94e28a4',
     'QW2_restoration_proclaimed':
         '784235837737b5470dd8b0fb560cce77ea1e17c6e0a60f050bb3d80154ac111f',
 }
