@@ -120,7 +120,7 @@ Focus IDs, counts, prerequisites, mutual exclusions, rewards, costs, AI weights,
 | rch_warlord | 46x7 | 43x6 | 10 / 6 |
 | rch_nanjing | 48x8 | 42x4 | 11 / 0 |
 
-The `qing_interwar` row is the 2026-10-27 re-lay, measured with `hoi4.focus_inspect` (`treeId: qing_interwar`, `workspaceId: current`): 99 focuses on a 50 x 12 grid, 118 connectors, 0 crossings, 4 long connectors, 13 diagnostics, `validation.passed: true`, layoutHash `977168ee9e4eb53959425bf5418d8bd406986ded5989de8299b8ade528d3abb1`. The figures it replaced quoted an intermediate pass rather than the shipped chapter.
+The `qing_interwar` row is the 2026-10-27 re-lay, measured with `hoi4.focus_inspect` (`treeId: qing_interwar`, `workspaceId: current`): 99 focuses on a 50 x 12 grid, 118 connectors, 0 crossings, 4 long connectors, 4 diagnostics, `validation.passed: true`, layoutHash `977168ee9e4eb53959425bf5418d8bd406986ded5989de8299b8ade528d3abb1`. The figures it replaced quoted an intermediate pass rather than the shipped chapter.
 The HOI4 Agent Tools MCP was used for `focus_inspect`, `focus_rewrite` and `focus_render`.
 `focus_rewrite` with `layoutMode: "compact"` succeeded on the three Republic trees but produced a 71-column strip on `rch_republic` (against 43 from this pass), and was blocked with `FOCUS_COMPACT_QUALITY_BLOCKED` on all three Qing trees, so its output was not adopted and its sidecar plan files were removed.
 

@@ -21,13 +21,14 @@ files the game loads and proves that
     6. every localisation key the new blocks reference exists, every key the new localisation
        section defines is referenced, and the text carries no formatting glyphs;
     7. nothing outside the slice moved: the four faction decisions and events .60/.61/.70/.71 are
-       unchanged against HEAD, and the two payoff decisions changed only inside `available`.
+       unchanged against the pinned pre-slice commit, and the two payoff decisions changed only
+       inside `available`.
 
-Negative controls, each of which must FAIL: the pre-change tree at HEAD, an option left without
-its faction trigger, the pact with `fire_only_once` removed, the succession with `fire_only_once`
-removed, the pact's 1945 date gate widened to 1944, a pact icon the engine cannot resolve, the
-Crown answer reverted to pushing one fixed royal house, a deleted settlement tooltip key, and the
-two AI plans with their chapter flags swapped.
+Negative controls, each of which must FAIL: the pre-change tree at the pinned pre-slice commit
+`2b15aad63`, an option left without its faction trigger, the pact with `fire_only_once` removed,
+the succession with `fire_only_once` removed, the pact's 1945 date gate widened to 1944, a pact
+icon the engine cannot resolve, the Crown answer reverted to pushing one fixed royal house, a
+deleted settlement tooltip key, and the two AI plans with their chapter flags swapped.
 
 Run from the repository root:
 
@@ -67,7 +68,7 @@ IDEAS = 'common/ideas/spain_campaign.txt'
 TEXT_FILES = (DECISIONS, EVENTS, PLANS, LOC)
 CONSTANT_FILE = CONSTANTS
 READ_ONLY = (NATIONAL_TREE, REPUBLIC_TREE, EFFECTS, IDEAS)
-BASELINE = 'HEAD'
+BASELINE = '2b15aad63f224711ece7f44cd1103f1f5ecbb8bf'
 
 # --- the ids this slice owns -------------------------------------------------------------
 CATEGORY = 'SPR_nationalist_factions'
