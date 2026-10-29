@@ -1,6 +1,22 @@
 # Hearts of Iron IV 1.19.4 compatibility
 
-Updated on 29 October 2026 against the installed **Operation Postern 1.19.4.0 / a783** build. The repository descriptor and local development launcher entry now target `1.19.4`. The mod's own release number is unchanged.
+Updated on 29 October 2026 against the installed **Operation Postern 1.19.4.1 / f584** hotfix (Steam build 26282552). The repository descriptor and local development launcher entry target the `1.19.4` patch family. The mod's own release number is unchanged.
+
+## October 29 hotfix follow-up
+
+Paradox's hotfix addresses multiplayer disconnections, the focus minimap at different UI scales, the unit-leader trait window, and focus/decision conditions involving annexed countries. The compatibility checker now verifies the installed `1.19.4.1` build.
+
+A fresh startup log also exposed remaining integration errors. This follow-up:
+
+- Restores 18 current vanilla trade labels, including the two numeric factory counters whose missing keys wrapped down across the resource table, and updates the import-factory tooltip.
+- Uses `game:scope` and the native `faction_members` operator for the two WW1 membership collections.
+- Restores the native privacy-eye and three-state checkbox sprites in the existing GFX overrides.
+- Supplies missing autonomy/peace-conference triggers and the New Guard marker used by inherited vanilla scripts. The Indochina trigger uses Endsieg's own state boundaries. Nation-selection previews reuse the existing display spirits through aliases.
+- Converts rejected scripted-effect argument blocks to native country scopes or temporary argument variables for Chinese reunification, Spanish government formation and the super-event helper. Existing effect IDs and argument values are retained.
+- Converts 57 AI score constants to their declared numeric values, corrects two invalid modifier names, and charges the Republic rescue's existing 200 PP entry price through its completion effect because mission `cost` is unsupported.
+- Corrects the election stability threshold to 0.60, scopes the Belgian occupation checks through Germany's controlled states, and removes ten nonexistent technology grants from Galicia while translating its legacy ideology groups to the mod's four supported groups.
+
+The expanded structural check passes across 1,292 script files. The trade strings, native sprites, helper references and preserved AI scores receive separate integration checks in this checkout. These results require an in-game restart to verify; the saved startup log predates the fixes. Ignored air-base `include_locked` warnings and invalid descriptors belonging to unrelated Workshop mods are outside this patch.
 
 ## Changes
 

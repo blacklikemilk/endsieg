@@ -94,8 +94,16 @@ def inspect(nodes, rel):
         if n.key in RUNTIME_ADVISOR_FIELDS and any(a.key == 'add_advisor_role' for a in ancestors):
             problems.append((n, 'Runtime advisor role contains a database-only trigger/effect'))
         if rel.startswith('common/collections/') and n.key == 'input':
-            if str(scalar(n.value)).startswith('country:'):
-                problems.append((n, 'Use a native collection/game input, not country:'))
+            if str(scalar(n.value)).startswith('country:') or scalar(n.value) == 'collection:faction_members':
+                problems.append((n, 'Use a native input; faction members require game:scope and the faction_members operator'))
+        if n.key in {'industrial_capacity_factor', 'manpower_factor'} and any(a.key == 'modifier' for a in ancestors):
+            problems.append((n, 'Unknown modifier; use the supported factory output or conscription modifier'))
+        if n.key in {'factor', 'base', 'add'} and str(scalar(n.value)).startswith('constant:'):
+            if any(a.key in {'ai_chance', 'ai_will_do'} for a in ancestors):
+                problems.append((n, 'AI score fields require literal numbers, not script constants'))
+        if ancestors and n.key in {'china_record_reunifier', 'china_set_seat_holder', 'spain_appoint_government', 'endsieg_show_super_event'}:
+            if isinstance(n.value, list):
+                problems.append((n, 'Scripted effect arguments must be passed through native scopes or variables'))
     if rel.startswith('history/countries/'):
         for date in nodes:
             if not re.fullmatch(r'\d{1,4}\.\d{1,2}\.\d{1,2}(?:\.\d{1,2})?', date.key):
@@ -115,7 +123,7 @@ def main():
     repo = args.repo.resolve()
     errors, parsed, registration = [], 0, set()
     folders = ['common/decisions', 'common/ai_strategy_plans', 'common/scripted_effects',
-               'common/collections', 'history/countries']
+               'common/scripted_triggers', 'common/ideas', 'common/collections', 'history/countries']
     for folder in folders:
         for path in sorted((repo / folder).rglob('*.txt')):
             rel = path.relative_to(repo).as_posix()
@@ -136,6 +144,12 @@ def main():
         text = path.read_text(encoding='utf-8-sig')
         for n, message in inspect(parse(text), rel):
             errors.append({'file': rel, 'line': text[:n.start].count('\n') + 1, 'message': message})
+    for rel in ('common/national_focus/shx_nanjing.txt', 'events/shx_campaign.txt', 'events/rch_campaign.txt'):
+        text = (repo / rel).read_text(encoding='utf-8-sig')
+        nodes = parse(text)
+        parsed += 1
+        for n, message in inspect(nodes, rel):
+            errors.append({'file': rel, 'line': text[:n.start].count('\n') + 1, 'message': message})
     missing = sorted(MEX_CHARACTERS - registration)
     if missing:
         errors.append({'file': 'history/countries/MEX - Mexico.txt', 'message': 'Missing identity registration: ' + ', '.join(missing)})
@@ -145,8 +159,8 @@ def main():
     native = None
     if args.game:
         native = json.loads((args.game / 'launcher-settings.json').read_text(encoding='utf-8-sig'))
-        if native.get('rawVersion') != '1.19.4.0':
-            errors.append({'file': 'launcher-settings.json', 'message': 'Expected installed 1.19.4.0'})
+        if native.get('rawVersion') != '1.19.4.1':
+            errors.append({'file': 'launcher-settings.json', 'message': 'Expected installed 1.19.4.1'})
     result = {'result': 'FAIL' if errors else 'PASS', 'parsed_script_files': parsed,
               'registered_mexican_identities': len(MEX_CHARACTERS - set(missing)),
               'native_version': native.get('version') if native else None,
