@@ -1,0 +1,132 @@
+# Overview: decision categories for the Spanish campaign of 1910-1945.
+# Each category is the control surface for one scripted system in common/scripted_effects/spain_campaign_effects.txt.
+# SPR_crown_and_cortes is attached to the balance of power, so it is opened from the balance panel rather than the decision tab.
+
+SPR_crown_and_cortes_category = {
+	icon = generic_monarchism
+	priority = 95
+	allowed = {
+		original_tag = SPR
+	}
+	# the panel belongs to the balance of power, so it exists only while the balance does
+	visible = {
+		has_power_balance = { id = SPR_crown_and_cortes }
+	}
+}
+
+SPR_military_loyalty = {
+	icon = army_reform
+	priority = 90
+	allowed = {
+		original_tag = SPR
+		spain_chapter_open = yes
+	}
+	# the officer corps becomes playable once the army question is on the table
+	visible = {
+		spain_pre_civil_war = yes
+		date > 1916.12.31
+	}
+}
+
+SPR_regional_question = {
+	icon = generic_independence
+	priority = 85
+	allowed = {
+		original_tag = SPR
+		spain_chapter_open = yes
+	}
+	# appears with the Mancomunitat and the autonomy debate, not in 1910
+	visible = {
+		spain_pre_civil_war = yes
+		OR = {
+			has_country_flag = spain_regional_question_open
+			has_country_flag = spain_mancomunitat
+			has_country_flag = spain_mancomunitat_suppressed
+		}
+	}
+}
+
+SPR_rif_war = {
+	icon = border_war
+	priority = 80
+	allowed = {
+		original_tag = SPR
+		spain_chapter_open = yes
+	}
+	# the Protectorate is only a front once the army is actually campaigning there
+	visible = {
+		spain_pre_civil_war = yes
+		date < 1928.1.1
+		OR = {
+			has_country_flag = spain_africanist_corps
+			has_country_flag = spain_rif_offensive
+			has_country_flag = spain_annual_disaster
+			has_country_flag = spain_rif_campaign_supported
+		}
+	}
+}
+
+SPR_nationalist_factions = {
+	icon = generic_fascism
+	priority = 88
+	allowed = { original_tag = SPR }
+	visible = {
+		OR = {
+			AND = {
+				has_global_flag = spanish_civil_war
+				NOT = { has_government = democratic }
+				NOT = { has_government = communism }
+			}
+			AND = {
+				OR = { has_country_flag = spain_chapter_postwar has_country_flag = spain_chapter_republican_postwar }
+				OR = { has_government = fascism has_government = neutrality }
+			}
+		}
+	}
+	visible_when_empty = yes
+}
+
+SPR_wartime_diplomacy = {
+	icon = generic_foreign_policy
+	priority = 86
+	allowed = { original_tag = SPR }
+	visible = {
+		spain_post_civil_war = yes
+		date > 1939.3.31
+	}
+	visible_when_empty = yes
+}
+
+SPR_civil_war_preparation = {
+	icon = generic_crisis
+	priority = 82
+	allowed = {
+		original_tag = SPR
+		spain_pre_civil_war = yes
+	}
+	visible = {
+		date > 1931.1.1
+	}
+	visible_when_empty = yes
+}
+
+SPR_reconstruction = {
+	icon = generic_industry
+	priority = 84
+	allowed = { original_tag = SPR }
+	visible = {
+		spain_post_civil_war = yes
+		NOT = { spain_reconstruction_complete = yes }
+	}
+	visible_when_empty = yes
+}
+
+SPR_campaign_debug = {
+	icon = generic
+	priority = 1
+	allowed = {
+		original_tag = SPR
+		is_debug = yes
+	}
+	visible_when_empty = yes
+}

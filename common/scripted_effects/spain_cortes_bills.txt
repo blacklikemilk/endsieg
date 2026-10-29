@@ -1,0 +1,570 @@
+# Overview: negotiated government bills in the Spanish Cortes.
+# A bill no longer passes on a political-power spend alone. Each bill has a supporting bloc of party
+# ids, spain_bill_count_votes turns that bloc into spain_bill_votes out of the 400 seats, and the
+# negotiation in events/spain_cortes_bills.txt decides whether the bill passes cleanly, passes after a
+# concession to a swing party, passes watered down, or is withdrawn.
+#
+# Chain: seats (spain_cortes_effects.txt) -> spain_bill_count_votes -> spain_bill_votes_<bill>
+#        -> decision availability (common/decisions/spain_cortes.txt)
+#        -> spain_bills.<n> negotiation -> outcome effect -> spain_cortes_recount.
+#
+# Seat totals are cached per bill because a trigger cannot add variables, so the decision buttons read
+# the cache and the hidden clerk event spain_bills.90 refreshes it roughly every month.
+# Documented in docs/spain_cortes_bills.md.
+
+# days = does not accept a script constant, so each cooldown length lives here as a file
+# macro. Each one mirrors the days_re_enable of its decision in common/decisions/spain_cortes.txt,
+# so the flag and the decision's own re-enable lapse on the same day: a shorter flag would be
+# dead weight, and a longer one would silently extend a cooldown nobody chose.
+@bill_budget_cooldown_days = 120
+@bill_agrarian_cooldown_days = 180
+@bill_labour_cooldown_days = 180
+@bill_army_cooldown_days = 180
+@bill_statute_cooldown_days = 240
+@bill_electoral_cooldown_days = 365
+
+# =====================================================================================
+# Counting the chamber
+# =====================================================================================
+
+# Common start of every count. spain_bill_needed is a clean majority of the chamber;
+# spain_bill_floor is that majority less constant:spain_campaign.bill_negotiation_reach, the seats a
+# government may still be short of the bar and still bring the bill to the floor.
+spain_bill_prepare_count = {
+	set_variable = { var = spain_bill_votes value = 0 }
+	set_variable = { var = spain_bill_swing_votes value = 0 }
+	set_variable = { var = spain_bill_needed value = constant:spain_campaign.cortes_majority }
+	set_variable = { var = spain_bill_floor value = spain_bill_needed }
+	subtract_from_variable = { var = spain_bill_floor value = constant:spain_campaign.bill_negotiation_reach }
+}
+
+# The government's own benches always vote for a bill the government brings forward.
+# spain_government_seats already holds the ruling party and its coalition partners, so every
+# supporter helper below only adds a party that sits outside those three: that is what keeps
+# spain_bill_votes free of double counting.
+spain_bill_add_government = {
+	add_to_variable = { var = spain_bill_votes value = spain_government_seats }
+}
+
+spain_bill_add_monarchists = {
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 1 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 1 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 1 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_votes value = spain_cortes_seats_monarchists }
+	}
+}
+
+spain_bill_add_liberals = {
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 2 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 2 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 2 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_votes value = spain_cortes_seats_liberals }
+	}
+}
+
+spain_bill_add_conservatives = {
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 3 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_votes value = spain_cortes_seats_conservatives }
+	}
+}
+
+spain_bill_add_republicans = {
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 4 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 4 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 4 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_votes value = spain_cortes_seats_republicans }
+	}
+}
+
+spain_bill_add_socialists = {
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 5 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 5 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 5 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_votes value = spain_cortes_seats_socialists }
+	}
+}
+
+spain_bill_add_carlists = {
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 6 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 6 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 6 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_votes value = spain_cortes_seats_carlists }
+	}
+}
+
+spain_bill_add_falange = {
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 7 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 7 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 7 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_votes value = spain_cortes_seats_falange }
+	}
+}
+
+# =====================================================================================
+# Per-bill counts
+# =====================================================================================
+
+# spain_bill_current selects the bill for spain_bill_count_votes, so a single call site can count
+# whichever bill the negotiation event is about.
+spain_bill_count_votes = {
+	spain_bill_prepare_count = yes
+	if = { limit = { check_variable = { var = spain_bill_current value = 1 } } spain_bill_count_budget = yes }
+	else_if = { limit = { check_variable = { var = spain_bill_current value = 2 } } spain_bill_count_agrarian = yes }
+	else_if = { limit = { check_variable = { var = spain_bill_current value = 3 } } spain_bill_count_labour = yes }
+	else_if = { limit = { check_variable = { var = spain_bill_current value = 4 } } spain_bill_count_army = yes }
+	else_if = { limit = { check_variable = { var = spain_bill_current value = 5 } } spain_bill_count_statute = yes }
+	else_if = { limit = { check_variable = { var = spain_bill_current value = 6 } } spain_bill_count_electoral = yes }
+	else = {
+		clamp_variable = { var = spain_bill_votes min = 0 max = constant:spain_campaign.cortes_total }
+	}
+}
+
+# Budget: the Treasury bill is carried by the government and the Conservative benches. The Liberals
+# are the benches whose votes have to be bought, so they never enter the base count: they are added
+# to spain_bill_swing_votes only while they sit outside the government bloc, and their seats then
+# appear exactly once.
+spain_bill_count_budget = {
+	spain_bill_prepare_count = yes
+	spain_bill_add_government = yes
+	spain_bill_add_conservatives = yes
+	clamp_variable = { var = spain_bill_votes min = 0 max = constant:spain_campaign.cortes_total }
+	set_variable = { var = spain_bill_votes_budget value = spain_bill_votes }
+	set_variable = { var = spain_bill_swing_votes value = spain_bill_votes }
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 2 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 2 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 2 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_swing_votes value = spain_cortes_seats_liberals }
+	}
+}
+
+# Agrarian reform: the republican, socialist and liberal benches against the landowners, whose
+# compensation is what the government can offer when the bill is short.
+spain_bill_count_agrarian = {
+	spain_bill_prepare_count = yes
+	spain_bill_add_government = yes
+	spain_bill_add_republicans = yes
+	spain_bill_add_socialists = yes
+	spain_bill_add_liberals = yes
+	clamp_variable = { var = spain_bill_votes min = 0 max = constant:spain_campaign.cortes_total }
+	set_variable = { var = spain_bill_votes_agrarian value = spain_bill_votes }
+	set_variable = { var = spain_bill_swing_votes value = spain_bill_votes }
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 3 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_swing_votes value = spain_cortes_seats_conservatives }
+	}
+}
+
+# Labour charter: socialists, republicans and liberals, with the Conservative benches available
+# if the text is softened.
+spain_bill_count_labour = {
+	spain_bill_prepare_count = yes
+	spain_bill_add_government = yes
+	spain_bill_add_socialists = yes
+	spain_bill_add_republicans = yes
+	spain_bill_add_liberals = yes
+	clamp_variable = { var = spain_bill_votes min = 0 max = constant:spain_campaign.cortes_total }
+	set_variable = { var = spain_bill_votes_labour value = spain_bill_votes }
+	set_variable = { var = spain_bill_swing_votes value = spain_bill_votes }
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 3 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_swing_votes value = spain_cortes_seats_conservatives }
+	}
+}
+
+# Army budget: the Crown's clients, the Conservatives and the Falange carry it. The Liberals' votes
+# are the ones that have to be bought, and their price is a watch on the Africanistas, so they never
+# enter the base count: they are added to spain_bill_swing_votes only while they sit outside the
+# government bloc, and their seats then appear exactly once.
+spain_bill_count_army = {
+	spain_bill_prepare_count = yes
+	spain_bill_add_government = yes
+	spain_bill_add_monarchists = yes
+	spain_bill_add_conservatives = yes
+	spain_bill_add_falange = yes
+	clamp_variable = { var = spain_bill_votes min = 0 max = constant:spain_campaign.cortes_total }
+	set_variable = { var = spain_bill_votes_army value = spain_bill_votes }
+	set_variable = { var = spain_bill_swing_votes value = spain_bill_votes }
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 2 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 2 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 2 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_swing_votes value = spain_cortes_seats_liberals }
+	}
+}
+
+# Regional statute: republicans, socialists and liberals. The Conservative benches vote for it only
+# once the Captain-General has been reassured, which is the price the statute pays.
+spain_bill_count_statute = {
+	spain_bill_prepare_count = yes
+	spain_bill_add_government = yes
+	spain_bill_add_republicans = yes
+	spain_bill_add_socialists = yes
+	spain_bill_add_liberals = yes
+	clamp_variable = { var = spain_bill_votes min = 0 max = constant:spain_campaign.cortes_total }
+	set_variable = { var = spain_bill_votes_statute value = spain_bill_votes }
+	set_variable = { var = spain_bill_swing_votes value = spain_bill_votes }
+	if = {
+		limit = {
+			check_variable = { var = spain_government_party value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_1 value = 3 compare = not_equals }
+			check_variable = { var = spain_coalition_2 value = 3 compare = not_equals }
+		}
+		add_to_variable = { var = spain_bill_swing_votes value = spain_cortes_seats_conservatives }
+	}
+}
+
+# Electoral law: a new franchise is voted by the benches that would gain from it, which are the
+# government's own seats plus the Republican and Socialist deputies. The Monarchists, the
+# Conservatives, the Carlists and the Falange will not enfranchise the voters who would unseat them,
+# and the Liberals are not sponsors: as the governing party they already sit inside
+# spain_government_seats, and in opposition they do not write the terms of the election they would
+# fight. The count can therefore fall short of the majority, which is what makes the vote a vote;
+# the decision's floor gate and the negotiation in spain_bills.6 decide the outcome. The election the
+# law triggers is still the real risk, and it is why the bill may only be brought once.
+spain_bill_count_electoral = {
+	spain_bill_prepare_count = yes
+	spain_bill_add_government = yes
+	spain_bill_add_republicans = yes
+	spain_bill_add_socialists = yes
+	clamp_variable = { var = spain_bill_votes min = 0 max = constant:spain_campaign.cortes_total }
+	set_variable = { var = spain_bill_votes_electoral value = spain_bill_votes }
+	set_variable = { var = spain_bill_swing_votes value = spain_bill_votes }
+}
+
+# Refresh all six cached counts without a bill in scope.
+spain_bills_count_all = {
+	spain_bill_count_budget = yes
+	spain_bill_count_agrarian = yes
+	spain_bill_count_labour = yes
+	spain_bill_count_army = yes
+	spain_bill_count_statute = yes
+	spain_bill_count_electoral = yes
+}
+
+# One hidden clerk event chain keeps the cached counts current. It is started by the first
+# negotiation and stops when the chamber is dissolved.
+spain_bills_start_ticker = {
+	if = {
+		limit = {
+			NOT = { has_country_flag = spain_bills_ticker }
+			has_country_flag = spain_campaign_initialized
+		}
+		set_country_flag = spain_bills_ticker
+		country_event = { id = spain_bills.90 days = 1 }
+	}
+}
+
+# =====================================================================================
+# Who pays for a bill
+# =====================================================================================
+
+# A bill that passes gives its sponsor the credit.
+spain_bill_credit_government = {
+	if = { limit = { check_variable = { var = spain_government_party value = 1 } } add_to_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.bill_concession_gain } }
+	if = { limit = { check_variable = { var = spain_government_party value = 2 } } add_to_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.bill_concession_gain } }
+	if = { limit = { check_variable = { var = spain_government_party value = 3 } } add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.bill_concession_gain } }
+	if = { limit = { check_variable = { var = spain_government_party value = 4 } } add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.bill_concession_gain } }
+	if = { limit = { check_variable = { var = spain_government_party value = 5 } } add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.bill_concession_gain } }
+	if = { limit = { check_variable = { var = spain_government_party value = 6 } } add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.bill_concession_gain } }
+	if = { limit = { check_variable = { var = spain_government_party value = 7 } } add_to_variable = { var = spain_party_shift_falange value = constant:spain_campaign.bill_concession_gain } }
+}
+
+# A bill that fails or is withdrawn costs the government that brought it: the chamber loses
+# confidence, the army reads the failure, and the governing party loses support.
+spain_bill_penalise_government = {
+	add_stability = constant:spain_campaign.stability_cost
+	spain_government_strain = yes
+	if = { limit = { check_variable = { var = spain_government_party value = 1 } } add_to_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.bill_defeat_shift } }
+	if = { limit = { check_variable = { var = spain_government_party value = 2 } } add_to_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.bill_defeat_shift } }
+	if = { limit = { check_variable = { var = spain_government_party value = 3 } } add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.bill_defeat_shift } }
+	if = { limit = { check_variable = { var = spain_government_party value = 4 } } add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.bill_defeat_shift } }
+	if = { limit = { check_variable = { var = spain_government_party value = 5 } } add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.bill_defeat_shift } }
+	if = { limit = { check_variable = { var = spain_government_party value = 6 } } add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.bill_defeat_shift } }
+	if = { limit = { check_variable = { var = spain_government_party value = 7 } } add_to_variable = { var = spain_party_shift_falange value = constant:spain_campaign.bill_defeat_shift } }
+	spain_cortes_recount = yes
+}
+
+# Cooldowns. A bill that was withdrawn leaves the order paper for a fixed stretch, so a government
+# cannot simply reopen the same vote the next day.
+spain_bill_cooldown_budget = {
+	set_country_flag = { flag = spain_bill_budget_cooldown days = @bill_budget_cooldown_days }
+}
+
+spain_bill_cooldown_agrarian = {
+	set_country_flag = { flag = spain_bill_agrarian_cooldown days = @bill_agrarian_cooldown_days }
+}
+
+spain_bill_cooldown_labour = {
+	set_country_flag = { flag = spain_bill_labour_cooldown days = @bill_labour_cooldown_days }
+}
+
+spain_bill_cooldown_army = {
+	set_country_flag = { flag = spain_bill_army_cooldown days = @bill_army_cooldown_days }
+}
+
+spain_bill_cooldown_statute = {
+	set_country_flag = { flag = spain_bill_statute_cooldown days = @bill_statute_cooldown_days }
+}
+
+spain_bill_cooldown_electoral = {
+	set_country_flag = { flag = spain_bill_electoral_cooldown days = @bill_electoral_cooldown_days }
+}
+
+# =====================================================================================
+# Budget
+# =====================================================================================
+
+# Carried cleanly: the Treasury gets its room, the Crown takes the credit for a chamber that votes
+# its taxes, and the government gains support.
+spain_bill_pass_budget = {
+	add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+	add_stability = constant:spain_campaign.stability_small
+	spain_push_crown_small = yes
+	set_country_flag = spain_bill_budget_passed
+	spain_bill_credit_government = yes
+	spain_cortes_recount = yes
+}
+
+# The Liberals' price: the Catalan question is reopened, which the Conservatives will not forgive,
+# and the Liberal benches take the credit for the money.
+spain_bill_concede_budget = {
+	add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_gain }
+	add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.bill_concession_shift }
+	add_to_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.bill_concession_gain }
+	add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+	add_stability = constant:spain_campaign.stability_small
+	spain_push_crown_small = yes
+	set_country_flag = spain_bill_budget_passed
+	spain_cortes_recount = yes
+}
+
+# Watered down: the appropriations pass, the political credit does not.
+spain_bill_water_budget = {
+	add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+	add_stability = constant:spain_campaign.stability_cost
+	set_country_flag = spain_bill_budget_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_fail_budget = {
+	spain_bill_penalise_government = yes
+	spain_bill_cooldown_budget = yes
+}
+
+# =====================================================================================
+# Agrarian reform
+# =====================================================================================
+
+spain_bill_pass_agrarian = {
+	add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain_large }
+	add_stability = constant:spain_campaign.stability_cost
+	set_country_flag = spain_bill_agrarian_passed
+	spain_bill_credit_government = yes
+	spain_cortes_recount = yes
+}
+
+# The grandees' price: the estates are compensated, the land still moves, and the right keeps its
+# hold on the countryside.
+spain_bill_concede_agrarian = {
+	add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.bill_concession_gain }
+	add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.bill_concession_gain }
+	add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain_large }
+	add_stability = constant:spain_campaign.stability_cost
+	add_stability = constant:spain_campaign.stability_cost
+	set_country_flag = spain_bill_agrarian_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_water_agrarian = {
+	add_to_variable = { var = spain_agriculture value = constant:spain_campaign.development_gain }
+	add_stability = constant:spain_campaign.stability_cost
+	set_country_flag = spain_bill_agrarian_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_fail_agrarian = {
+	spain_bill_penalise_government = yes
+	spain_bill_cooldown_agrarian = yes
+}
+
+# =====================================================================================
+# Labour charter
+# =====================================================================================
+
+# A charter with the right to organise in it settles the labour question: conciliation replaces
+# repression and the socialist benches gain.
+spain_bill_pass_labour = {
+	add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+	add_stability = constant:spain_campaign.stability_small
+	if = { limit = { has_country_flag = spain_labour_repression } clr_country_flag = spain_labour_repression }
+	set_country_flag = spain_labour_conciliation
+	set_country_flag = spain_bill_labour_passed
+	spain_bill_credit_government = yes
+	spain_cortes_recount = yes
+}
+
+# The Conservatives' price: hours and wages are written in, the right to organise is not. The
+# charter passes and the socialist benches call it a betrayal.
+spain_bill_concede_labour = {
+	add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+	add_stability = constant:spain_campaign.stability_small
+	add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.bill_concession_shift }
+	add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.bill_concession_gain }
+	set_country_flag = spain_bill_labour_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_water_labour = {
+	add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+	add_stability = constant:spain_campaign.stability_cost
+	set_country_flag = spain_bill_labour_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_fail_labour = {
+	spain_bill_penalise_government = yes
+	spain_bill_cooldown_labour = yes
+}
+
+# =====================================================================================
+# Army budget
+# =====================================================================================
+
+spain_bill_pass_army = {
+	spain_loyalty_gain = yes
+	add_war_support = constant:spain_campaign.war_support_small
+	subtract_from_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief }
+	set_country_flag = spain_bill_army_passed
+	spain_bill_credit_government = yes
+	spain_cortes_recount = yes
+}
+
+# The Liberals' price: the credits pass, but the Africanistas are watched and the officers know who
+# ordered it. The barracks are paid and suspicious at the same time.
+spain_bill_concede_army = {
+	spain_loyalty_gain = yes
+	add_war_support = constant:spain_campaign.war_support_small
+	subtract_from_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief }
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_gain }
+	add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.bill_concession_shift }
+	add_to_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.bill_concession_gain }
+	set_country_flag = spain_bill_army_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_water_army = {
+	spain_loyalty_gain_small = yes
+	subtract_from_variable = { var = spain_coup_pressure value = constant:spain_campaign.bill_coup_relief_half }
+	set_country_flag = spain_bill_army_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_fail_army = {
+	spain_bill_penalise_government = yes
+	spain_bill_cooldown_army = yes
+}
+
+# =====================================================================================
+# Regional statute
+# =====================================================================================
+
+spain_bill_pass_statute = {
+	add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_gain }
+	add_to_variable = { var = spain_basque_autonomy value = constant:spain_campaign.autonomy_gain }
+	add_stability = constant:spain_campaign.stability_cost
+	spain_refresh_campaign_ideas = yes
+	set_country_flag = spain_bill_statute_passed
+	spain_bill_credit_government = yes
+	spain_cortes_recount = yes
+}
+
+# The army's price: the Captain-General is reassured that the statute costs him nothing, and the
+# officer corps is told the regions are a political matter. The loyalty lost is permanent.
+spain_bill_concede_statute = {
+	add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_loss }
+	add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_gain }
+	add_to_variable = { var = spain_basque_autonomy value = constant:spain_campaign.autonomy_gain }
+	add_stability = constant:spain_campaign.stability_cost
+	spain_refresh_campaign_ideas = yes
+	set_country_flag = spain_bill_statute_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_water_statute = {
+	add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.bill_autonomy_half }
+	add_to_variable = { var = spain_basque_autonomy value = constant:spain_campaign.bill_autonomy_half }
+	add_stability = constant:spain_campaign.stability_cost
+	spain_refresh_campaign_ideas = yes
+	set_country_flag = spain_bill_statute_passed
+	spain_cortes_recount = yes
+}
+
+spain_bill_fail_statute = {
+	spain_bill_penalise_government = yes
+	spain_bill_cooldown_statute = yes
+}
+
+# =====================================================================================
+# Electoral law
+# =====================================================================================
+
+# A new franchise and a new register. The chamber that votes it dissolves into the election it has
+# just made possible, so the bill's real cost is the vote that follows.
+spain_bill_pass_electoral = {
+	spain_push_cortes_large = yes
+	add_stability = constant:spain_campaign.stability_small
+	set_country_flag = spain_electoral_reform
+	spain_bill_credit_government = yes
+	spain_cortes_recount = yes
+	spain_hold_election = yes
+}
+
+# The register is reformed but the chambers keep their veto, and the government that spent its
+# credit on the reform gets nothing back from it.
+spain_bill_water_electoral = {
+	add_stability = constant:spain_campaign.stability_cost
+	set_country_flag = spain_electoral_reform
+	spain_cortes_recount = yes
+	spain_hold_election = yes
+}
+
+spain_bill_fail_electoral = {
+	spain_bill_penalise_government = yes
+	spain_bill_cooldown_electoral = yes
+}

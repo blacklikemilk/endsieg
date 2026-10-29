@@ -1,0 +1,260 @@
+# Overview: the Spanish Cortes as a chamber of seat blocs.
+# Raw support is written to spain_cortes_raw_* and normalised to exactly 400 seats in
+# spain_cortes_seats_*, so a majority is always 201 however support drifts.
+# A recount runs in one fixed order: pick the era's base support, apply the flags and the
+# accumulated party shifts on top of it, then clamp. A modifier applied before the era is
+# chosen is discarded by the era's own set_variable lines, so the order is not cosmetic.
+# The Republic base is chosen by its own chapter flag, never by the absence of the other two:
+# a civil-war or post-war chamber is not the republican chamber and must not inherit it.
+# The recount is also the one place that refreshes the six bill caches, so a decision gate can
+# never read a cache that no recount has written.
+# A decision category (SPR_cortes) mounts the chamber panel; its bills are ordinary decisions
+# gated on the bloc that has to carry them.
+
+# =====================================================================================
+# Initialisation
+# =====================================================================================
+
+spain_cortes_initialize = {
+	if = {
+		limit = { NOT = { has_variable = spain_party_shift_monarchists } }
+		spain_parties_initialize = yes
+	}
+	else = {
+		spain_cortes_recount = yes
+	}
+}
+
+# =====================================================================================
+# Seats
+# =====================================================================================
+
+spain_cortes_recount = {
+	# --- one era base only, chosen before anything modifies it. Only the Republic brings
+	# its own chamber: it replaces the monarchy and the Directory, and every other chapter
+	# (civil war, both post-war governments) legislates with the benches the Crown and the
+	# Directory handed it. The test is the Republic's own flag, not the absence of the other
+	# two, so a chapter that is none of the three cannot fall through into the republican base.
+	if = {
+		limit = { has_country_flag = spain_chapter_republic }
+		set_variable = { var = spain_cortes_raw_monarchists value = 12 }
+		set_variable = { var = spain_cortes_raw_liberals value = 22 }
+		set_variable = { var = spain_cortes_raw_conservatives value = 60 }
+		set_variable = { var = spain_cortes_raw_republicans value = 95 }
+		set_variable = { var = spain_cortes_raw_socialists value = 80 }
+		set_variable = { var = spain_cortes_raw_carlists value = 18 }
+		set_variable = { var = spain_cortes_raw_falange value = 5 }
+	}
+	else = {
+		# --- raw support, restoration and dictatorship
+		set_variable = { var = spain_cortes_raw_monarchists value = 40 }
+		set_variable = { var = spain_cortes_raw_liberals value = 30 }
+		set_variable = { var = spain_cortes_raw_conservatives value = 25 }
+		set_variable = { var = spain_cortes_raw_republicans value = 15 }
+		set_variable = { var = spain_cortes_raw_socialists value = 8 }
+		set_variable = { var = spain_cortes_raw_carlists value = 5 }
+		set_variable = { var = spain_cortes_raw_falange value = 1 }
+	}
+
+	# --- what the country has legislated, whichever era it is in
+	if = { limit = { has_country_flag = spain_electoral_reform } subtract_from_variable = { var = spain_cortes_raw_monarchists value = 15 } add_to_variable = { var = spain_cortes_raw_republicans value = 14 } }
+	if = { limit = { has_country_flag = spain_elections_managed } add_to_variable = { var = spain_cortes_raw_monarchists value = 12 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 6 } }
+	if = { limit = { has_country_flag = spain_press_freedom } add_to_variable = { var = spain_cortes_raw_republicans value = 6 } }
+	if = { limit = { has_country_flag = spain_labour_conciliation } add_to_variable = { var = spain_cortes_raw_socialists value = 14 } }
+	if = { limit = { has_country_flag = spain_labour_repression } subtract_from_variable = { var = spain_cortes_raw_socialists value = 6 } add_to_variable = { var = spain_cortes_raw_carlists value = 5 } }
+	if = { limit = { has_country_flag = spain_liberal_governments } add_to_variable = { var = spain_cortes_raw_liberals value = 9 } }
+	if = { limit = { has_country_flag = spain_conservative_governments } add_to_variable = { var = spain_cortes_raw_conservatives value = 9 } }
+	if = { limit = { has_country_flag = spain_mancomunitat } add_to_variable = { var = spain_cortes_raw_republicans value = 6 } }
+	if = { limit = { has_country_flag = spain_mancomunitat_suppressed } add_to_variable = { var = spain_cortes_raw_carlists value = 6 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 4 } }
+
+	# --- what the parties have won or lost through action, elections and proscription
+	add_to_variable = { var = spain_cortes_raw_monarchists value = spain_party_shift_monarchists }
+	add_to_variable = { var = spain_cortes_raw_liberals value = spain_party_shift_liberals }
+	add_to_variable = { var = spain_cortes_raw_conservatives value = spain_party_shift_conservatives }
+	add_to_variable = { var = spain_cortes_raw_republicans value = spain_party_shift_republicans }
+	add_to_variable = { var = spain_cortes_raw_socialists value = spain_party_shift_socialists }
+	add_to_variable = { var = spain_cortes_raw_carlists value = spain_party_shift_carlists }
+	add_to_variable = { var = spain_cortes_raw_falange value = spain_party_shift_falange }
+
+	# --- the chamber the Republic brings with it, under the same positive era test
+	if = {
+		limit = { has_country_flag = spain_chapter_republic }
+		if = { limit = { has_country_flag = spain_ceda_government } add_to_variable = { var = spain_cortes_raw_conservatives value = 30 } subtract_from_variable = { var = spain_cortes_raw_republicans value = 20 } }
+		if = { limit = { has_country_flag = spain_falange_street } add_to_variable = { var = spain_cortes_raw_falange value = 12 } }
+		if = { limit = { has_country_flag = spain_cnt_split } add_to_variable = { var = spain_cortes_raw_socialists value = 8 } }
+		if = { limit = { has_country_flag = spain_generalitat } add_to_variable = { var = spain_cortes_raw_republicans value = 5 } }
+	}
+
+	# --- one clamp, after every era base, flag and shift above. The position is deliberate:
+	# nine of the operations subtract, so clamping after each one would give a different number
+	# from clamping the final support once, and the normalisation below divides this value.
+	# Every party therefore enters the seat arithmetic at 1 or above whatever the modifiers did.
+	clamp_variable = { var = spain_cortes_raw_monarchists min = 1 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_liberals min = 1 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_conservatives min = 1 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_republicans min = 1 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_socialists min = 1 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_carlists min = 1 max = 1000 }
+	clamp_variable = { var = spain_cortes_raw_falange min = 1 max = 1000 }
+
+	# --- raw total, never zero
+	set_variable = { var = spain_cortes_raw_total value = 0 }
+	add_to_variable = { var = spain_cortes_raw_total value = spain_cortes_raw_monarchists }
+	add_to_variable = { var = spain_cortes_raw_total value = spain_cortes_raw_liberals }
+	add_to_variable = { var = spain_cortes_raw_total value = spain_cortes_raw_conservatives }
+	add_to_variable = { var = spain_cortes_raw_total value = spain_cortes_raw_republicans }
+	add_to_variable = { var = spain_cortes_raw_total value = spain_cortes_raw_socialists }
+	add_to_variable = { var = spain_cortes_raw_total value = spain_cortes_raw_carlists }
+	add_to_variable = { var = spain_cortes_raw_total value = spain_cortes_raw_falange }
+	clamp_variable = { var = spain_cortes_raw_total min = 1 max = 10000 }
+
+	# --- normalised seats: round(raw * 400 / raw_total)
+	set_variable = { var = spain_cortes_seats_monarchists value = spain_cortes_raw_monarchists }
+	multiply_variable = { var = spain_cortes_seats_monarchists value = 400 }
+	divide_variable = { var = spain_cortes_seats_monarchists value = spain_cortes_raw_total }
+	round_variable = spain_cortes_seats_monarchists
+
+	set_variable = { var = spain_cortes_seats_liberals value = spain_cortes_raw_liberals }
+	multiply_variable = { var = spain_cortes_seats_liberals value = 400 }
+	divide_variable = { var = spain_cortes_seats_liberals value = spain_cortes_raw_total }
+	round_variable = spain_cortes_seats_liberals
+
+	set_variable = { var = spain_cortes_seats_conservatives value = spain_cortes_raw_conservatives }
+	multiply_variable = { var = spain_cortes_seats_conservatives value = 400 }
+	divide_variable = { var = spain_cortes_seats_conservatives value = spain_cortes_raw_total }
+	round_variable = spain_cortes_seats_conservatives
+
+	set_variable = { var = spain_cortes_seats_republicans value = spain_cortes_raw_republicans }
+	multiply_variable = { var = spain_cortes_seats_republicans value = 400 }
+	divide_variable = { var = spain_cortes_seats_republicans value = spain_cortes_raw_total }
+	round_variable = spain_cortes_seats_republicans
+
+	set_variable = { var = spain_cortes_seats_socialists value = spain_cortes_raw_socialists }
+	multiply_variable = { var = spain_cortes_seats_socialists value = 400 }
+	divide_variable = { var = spain_cortes_seats_socialists value = spain_cortes_raw_total }
+	round_variable = spain_cortes_seats_socialists
+
+	set_variable = { var = spain_cortes_seats_carlists value = spain_cortes_raw_carlists }
+	multiply_variable = { var = spain_cortes_seats_carlists value = 400 }
+	divide_variable = { var = spain_cortes_seats_carlists value = spain_cortes_raw_total }
+	round_variable = spain_cortes_seats_carlists
+
+	set_variable = { var = spain_cortes_seats_falange value = spain_cortes_raw_falange }
+	multiply_variable = { var = spain_cortes_seats_falange value = 400 }
+	divide_variable = { var = spain_cortes_seats_falange value = spain_cortes_raw_total }
+	round_variable = spain_cortes_seats_falange
+
+	set_variable = { var = spain_cortes_total value = 0 }
+	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_monarchists }
+	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_liberals }
+	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_conservatives }
+	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_republicans }
+	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_socialists }
+	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_carlists }
+	add_to_variable = { var = spain_cortes_total value = spain_cortes_seats_falange }
+
+	spain_cortes_fix_seat_total = yes
+	spain_government_recount = yes
+	spain_cortes_refresh_display = yes
+
+	# The bill decisions read cached counts because a trigger cannot add seats, so the caches
+	# are refreshed here, with the chamber and the government they describe. The six counts only
+	# write variables: they never call a recount, so this cannot recurse, and they charge no
+	# political power, so a refresh cannot cost the player anything. This is also the first
+	# writer of the caches in a campaign, which is what keeps a bill gate from reading a cache
+	# that does not exist yet.
+	spain_bills_count_all = yes
+}
+
+spain_cortes_refresh_display = {
+	set_variable = { var = spain_cortes_right_bloc value = 0 }
+	add_to_variable = { var = spain_cortes_right_bloc value = spain_cortes_seats_monarchists }
+	add_to_variable = { var = spain_cortes_right_bloc value = spain_cortes_seats_liberals }
+	add_to_variable = { var = spain_cortes_right_bloc value = spain_cortes_seats_conservatives }
+	add_to_variable = { var = spain_cortes_right_bloc value = spain_cortes_seats_carlists }
+	add_to_variable = { var = spain_cortes_right_bloc value = spain_cortes_seats_falange }
+
+	set_variable = { var = spain_cortes_left_bloc value = 0 }
+	add_to_variable = { var = spain_cortes_left_bloc value = spain_cortes_seats_republicans }
+	add_to_variable = { var = spain_cortes_left_bloc value = spain_cortes_seats_socialists }
+
+	set_variable = { var = spain_cortes_bar_frame value = spain_cortes_left_bloc }
+	multiply_variable = { var = spain_cortes_bar_frame value = 100 }
+	divide_variable = { var = spain_cortes_bar_frame value = 400 }
+	round_variable = spain_cortes_bar_frame
+	clamp_variable = { var = spain_cortes_bar_frame min = 0 max = 100 }
+
+	# cumulative totals across the chamber, left to right: the hemicycle reads these to decide
+	# which bloc owns each seat
+	set_variable = { var = spain_cortes_cum_socialists value = spain_cortes_seats_socialists }
+	set_variable = { var = spain_cortes_cum_republicans value = spain_cortes_cum_socialists }
+	add_to_variable = { var = spain_cortes_cum_republicans value = spain_cortes_seats_republicans }
+	set_variable = { var = spain_cortes_cum_liberals value = spain_cortes_cum_republicans }
+	add_to_variable = { var = spain_cortes_cum_liberals value = spain_cortes_seats_liberals }
+	set_variable = { var = spain_cortes_cum_conservatives value = spain_cortes_cum_liberals }
+	add_to_variable = { var = spain_cortes_cum_conservatives value = spain_cortes_seats_conservatives }
+	set_variable = { var = spain_cortes_cum_monarchists value = spain_cortes_cum_conservatives }
+	add_to_variable = { var = spain_cortes_cum_monarchists value = spain_cortes_seats_monarchists }
+	set_variable = { var = spain_cortes_cum_carlists value = spain_cortes_cum_monarchists }
+	add_to_variable = { var = spain_cortes_cum_carlists value = spain_cortes_seats_carlists }
+	set_variable = { var = spain_cortes_cum_falange value = spain_cortes_cum_carlists }
+	add_to_variable = { var = spain_cortes_cum_falange value = spain_cortes_seats_falange }
+
+	# --- what the legend reads: each bloc's share of the chamber, the majority it has to clear,
+	# and how far the government sits from it. The panel shows absolute distances, so a
+	# minority reads as "short of a majority: 81" and a majority as "above a majority: 39".
+	set_variable = { var = spain_cortes_majority_seats value = constant:spain_campaign.cortes_majority }
+
+	set_variable = { var = spain_cortes_govt_gap value = spain_government_seats }
+	if = {
+		limit = { check_variable = { var = spain_cortes_govt_gap value = constant:spain_campaign.cortes_majority compare = greater_than_or_equals } }
+		subtract_from_variable = { var = spain_cortes_govt_gap value = constant:spain_campaign.cortes_majority }
+	}
+	else = {
+		set_variable = { var = spain_cortes_govt_gap value = constant:spain_campaign.cortes_majority }
+		subtract_from_variable = { var = spain_cortes_govt_gap value = spain_government_seats }
+	}
+
+	set_variable = { var = spain_cortes_share_socialists value = spain_cortes_seats_socialists }
+	multiply_variable = { var = spain_cortes_share_socialists value = 100 }
+	divide_variable = { var = spain_cortes_share_socialists value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_socialists
+
+	set_variable = { var = spain_cortes_share_republicans value = spain_cortes_seats_republicans }
+	multiply_variable = { var = spain_cortes_share_republicans value = 100 }
+	divide_variable = { var = spain_cortes_share_republicans value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_republicans
+
+	set_variable = { var = spain_cortes_share_liberals value = spain_cortes_seats_liberals }
+	multiply_variable = { var = spain_cortes_share_liberals value = 100 }
+	divide_variable = { var = spain_cortes_share_liberals value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_liberals
+
+	set_variable = { var = spain_cortes_share_conservatives value = spain_cortes_seats_conservatives }
+	multiply_variable = { var = spain_cortes_share_conservatives value = 100 }
+	divide_variable = { var = spain_cortes_share_conservatives value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_conservatives
+
+	set_variable = { var = spain_cortes_share_monarchists value = spain_cortes_seats_monarchists }
+	multiply_variable = { var = spain_cortes_share_monarchists value = 100 }
+	divide_variable = { var = spain_cortes_share_monarchists value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_monarchists
+
+	set_variable = { var = spain_cortes_share_carlists value = spain_cortes_seats_carlists }
+	multiply_variable = { var = spain_cortes_share_carlists value = 100 }
+	divide_variable = { var = spain_cortes_share_carlists value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_carlists
+
+	set_variable = { var = spain_cortes_share_falange value = spain_cortes_seats_falange }
+	multiply_variable = { var = spain_cortes_share_falange value = 100 }
+	divide_variable = { var = spain_cortes_share_falange value = constant:spain_campaign.cortes_total }
+	round_variable = spain_cortes_share_falange
+
+	if = { limit = { has_variable = spain_cortes_total } spain_cortes_draw_hemicycle = yes }
+}
+
+# separate so the panel can be redrawn without a full recount
+spain_cortes_redraw_hemicycle = {
+	spain_cortes_refresh_display = yes
+}
+

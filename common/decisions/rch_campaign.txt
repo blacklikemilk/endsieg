@@ -1,0 +1,640 @@
+# Overview: Republic of China decisions, 1912-1936.
+# Costs use political power, army experience, manpower and time; the categories are gated by date.
+
+rch_government = {
+
+	rch_decision_assembly_session = {
+		priority = 100
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = RCH }
+		visible = { rch_path_parliamentary = yes }
+		available = { has_political_power = 35 }
+		cost = 35
+		days_re_enable = 120
+		complete_effect = {
+			add_stability = 0.05
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_decision_presidential_decree = {
+		priority = 95
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = RCH }
+		visible = { rch_path_beiyang = yes }
+		available = { has_political_power = 40 }
+		cost = 40
+		days_re_enable = 150
+		complete_effect = {
+			add_to_variable = { rch_military_influence = constant:rch_story.military_gain }
+			add_stability = constant:rch_story.stability_cost
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_loss }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_decision_party_campaign = {
+		priority = 95
+		icon = GFX_decision_generic_political_rally
+		allowed = { original_tag = RCH }
+		visible = { rch_path_kmt = yes }
+		available = { has_political_power = 35 }
+		cost = 35
+		days_re_enable = 120
+		complete_effect = {
+			add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_decision_provincial_conference = {
+		priority = 90
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = RCH }
+		visible = { rch_path_provincial = yes }
+		available = { has_political_power = 30 }
+		cost = 30
+		days_re_enable = 120
+		complete_effect = {
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_decision_army_pay = {
+		priority = 100
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = RCH }
+		visible = { always = yes }
+		available = {
+			has_political_power = 30
+			has_manpower = 4000
+		}
+		cost = 30
+		days_re_enable = 120
+		complete_effect = {
+			add_manpower = -4000
+			army_experience = 25
+			add_to_variable = { rch_military_influence = constant:rch_story.military_gain }
+			add_stability = constant:rch_story.stability_cost
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_decision_officer_purge = {
+		priority = 85
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = RCH }
+		visible = { always = yes }
+		available = { has_army_experience = 25 }
+		days_re_enable = 180
+		complete_effect = {
+			army_experience = -25
+			add_to_variable = { rch_military_influence = constant:rch_story.military_loss }
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+			add_stability = constant:rch_story.stability_cost
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	rch_decision_constitution = {
+		priority = 110
+		icon = GFX_decision_generic_research
+		allowed = { original_tag = RCH }
+		visible = { rch_path_parliamentary = yes }
+		available = {
+			has_political_power = 50
+			rch_legitimacy_strong = yes
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = rch_constitution_1936
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_major_gain
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	rch_decision_land_reform = {
+		priority = 95
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = RCH }
+		visible = { always = yes }
+		available = {
+			has_political_power = 40
+			has_manpower = 5000
+		}
+		cost = 40
+		days_re_enable = 365
+		complete_effect = {
+			add_manpower = -5000
+			add_stability = constant:rch_story.stability_major_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_save_the_republic = {
+		priority = 200
+		icon = GFX_decision_generic_political_rally
+		allowed = { original_tag = RCH }
+		# `days_mission_timeout` makes this a mission, and a mission is drawn from
+		# `activation`: the engine checks it daily and ignores `visible` entirely.
+		# Both blocks state one window so the stated year and the drawn year cannot
+		# drift apart, and so the settlement flags retire the card on every path.
+		activation = {
+			rch_campaign_active = yes
+			date > 1933.12.31
+			date < 1935.1.1
+			NOT = { has_country_flag = rch_republic_saved }
+			NOT = { has_country_flag = rch_republic_failed }
+		}
+		visible = {
+			rch_campaign_active = yes
+			date > 1933.12.31
+			date < 1935.1.1
+			NOT = { has_country_flag = rch_republic_saved }
+			NOT = { has_country_flag = rch_republic_failed }
+		}
+		available = {
+			# Historical focus keeps the railroaded collapse. The rescue is an
+			# off-script timeline only.
+			custom_trigger_tooltip = {
+				tooltip = rch_rescue_off_script
+				is_historical_focus_on = no
+			}
+			date > 1934.1.1
+			date < 1935.1.1
+			has_political_power > constant:rch_story.rescue_entry_power
+			controls_state = 608
+		}
+		cost = constant:rch_story.rescue_entry_power
+		days_mission_timeout = 365
+		is_good = yes
+		fire_only_once = yes
+		complete_effect = {
+			custom_effect_tooltip = rch_save_the_republic_terms_tt
+			rch_save_the_republic_started = yes
+		}
+		remove_trigger = {
+			controls_state = 608
+			rch_legitimacy_rescue = yes
+			has_stability > constant:rch_story.rescue_stability
+			has_political_power > constant:rch_story.rescue_remaining_power
+			NOT = { has_war = yes }
+			OR = {
+				has_country_flag = rch_constitution_1936
+				has_country_flag = rch_cabinet_government
+				has_country_flag = rch_beiyang_command
+				has_country_flag = rch_party_army
+				has_country_flag = rch_provincial_compact
+			}
+			OR = {
+				has_country_flag = rch_currency_reform
+				has_country_flag = rch_german_mission
+				has_country_flag = rch_british_loan
+				has_country_flag = rch_whampoa
+			}
+		}
+		remove_effect = {
+			rch_republic_saved_effect = yes
+		}
+		timeout_effect = {
+			rch_republic_failed_effect = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+}
+
+rch_reconstruction = {
+
+	rch_project_railway = {
+		priority = 100
+		icon = GFX_decision_generic_train
+		allowed = { original_tag = RCH }
+		visible = { NOT = { has_country_flag = rch_railway_built } }
+		available = {
+			owns_state = 608
+			has_political_power = 40
+			has_manpower = 5000
+		}
+		cost = 40
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -5000
+			rch_build_railway = yes
+			set_country_flag = rch_railway_programme
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	rch_project_arsenal = {
+		priority = 95
+		icon = GFX_decision_generic_construction
+		allowed = { original_tag = RCH }
+		visible = { NOT = { has_country_flag = rch_arsenal_built } }
+		available = {
+			owns_state = 613
+			has_political_power = 45
+		}
+		cost = 45
+		fire_only_once = yes
+		complete_effect = {
+			rch_build_arsenal = yes
+			army_experience = 25
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	rch_project_nanjing_industry = {
+		priority = 90
+		icon = GFX_decision_generic_industry
+		allowed = { original_tag = RCH }
+		visible = { date > 1927.1.1 NOT = { has_country_flag = rch_nanjing_industry_built } }
+		available = {
+			owns_state = 613
+			has_political_power = 50
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			rch_build_nanjing_industry = yes
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	rch_project_whampoa = {
+		priority = 85
+		icon = GFX_decision_generic_research
+		allowed = { original_tag = RCH }
+		visible = { NOT = { has_country_flag = rch_whampoa_built } }
+		available = {
+			owns_state = 592
+			has_political_power = 40
+			has_army_experience = 20
+		}
+		cost = 40
+		fire_only_once = yes
+		complete_effect = {
+			army_experience = -20
+			rch_build_whampoa = yes
+			set_country_flag = rch_whampoa
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	rch_project_currency = {
+		priority = 100
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = RCH }
+		visible = { date > 1933.1.1 NOT = { has_country_flag = rch_currency_reform } }
+		available = {
+			has_political_power = 60
+			rch_legitimacy_strong = yes
+		}
+		cost = 60
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = rch_currency_reform
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_major_gain }
+			add_stability = constant:rch_story.stability_gain
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	rch_project_relief = {
+		priority = 110
+		icon = GFX_decision_generic_welfare
+		allowed = { original_tag = RCH }
+		visible = { always = yes }
+		available = {
+			has_political_power = 25
+			has_manpower = 2000
+		}
+		cost = 25
+		days_re_enable = 365
+		complete_effect = {
+			add_manpower = -2000
+			add_stability = constant:rch_story.stability_major_gain
+			add_to_variable = { rch_legitimacy = constant:rch_story.legitimacy_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+}
+
+rch_foreign_policy = {
+
+	rch_diplomacy_british_loan = {
+		priority = 100
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = RCH }
+		visible = { NOT = { has_country_flag = rch_british_loan } }
+		available = {
+			has_political_power = 50
+			NOT = { has_war_with = ENG }
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = rch_british_loan
+			add_opinion_modifier = { target = ENG modifier = rch_republican_recognition }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 1200 }
+			add_stability = 0.03
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_diplomacy_soviet_advisers = {
+		priority = 90
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = RCH }
+		visible = { date > 1923.1.1 NOT = { has_country_flag = rch_soviet_advisers } }
+		available = {
+			has_political_power = 40
+			NOT = { has_war_with = SOV }
+		}
+		cost = 40
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = rch_soviet_advisers
+			add_opinion_modifier = { target = SOV modifier = rch_soviet_understanding }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 1000 }
+			army_experience = 25
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_diplomacy_league_appeal = {
+		priority = 95
+		icon = GFX_decision_generic_political_discourse
+		allowed = { original_tag = RCH }
+		visible = { date > 1931.1.1 }
+		available = { has_political_power = 35 }
+		cost = 35
+		days_re_enable = 365
+		complete_effect = {
+			add_opinion_modifier = { target = ENG modifier = rch_republican_recognition }
+			add_stability = 0.05
+			add_war_support = 0.05
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	rch_diplomacy_german_mission = {
+		priority = 85
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = RCH }
+		visible = { date > 1928.1.1 NOT = { has_country_flag = rch_german_mission } }
+		available = {
+			has_political_power = 45
+			NOT = { has_war_with = GER }
+		}
+		cost = 45
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = rch_german_mission
+			add_opinion_modifier = { target = GER modifier = rch_german_mission }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 1000 }
+			army_experience = 30
+		}
+		ai_will_do = { factor = 3 }
+	}
+}
+
+# The Beiyang Order: eight repeatable pressure cards in four families.
+# Each family can act once per 180 days, so the shared lock is what serialises the civil
+# and military sides. A civil card sets its reform gate, the military bargain in the same
+# family clears it, and the gates are counted only at the 1915 settlement.
+rch_beiyang_order_category = {
+
+	rch_press_constitution_civil = {
+		priority = 130
+		icon = GFX_decision_generic_research
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_constitution }
+					has_country_flag = { flag = rch_press_lock_constitution days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_constitution
+		}
+		cost = constant:rch_story.pressure_cost_constitution
+		days_re_enable = 180
+		complete_effect = {
+			rch_press_constitution_civil = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_civil_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_civil_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_civil_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+
+	rch_press_constitution_military = {
+		priority = 120
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_constitution }
+					has_country_flag = { flag = rch_press_lock_constitution days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_military
+		}
+		cost = constant:rch_story.pressure_cost_military
+		days_re_enable = 180
+		complete_effect = {
+			rch_press_constitution_military = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_military_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_military_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_military_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+
+	rch_press_army_civil = {
+		priority = 130
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_army }
+					has_country_flag = { flag = rch_press_lock_army days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_army
+			has_army_experience = constant:rch_story.pressure_army_experience
+		}
+		cost = constant:rch_story.pressure_cost_army
+		days_re_enable = 180
+		complete_effect = {
+			army_experience = -25
+			rch_press_army_civil = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_civil_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_civil_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_civil_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+
+	rch_press_army_military = {
+		priority = 120
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_army }
+					has_country_flag = { flag = rch_press_lock_army days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_military
+		}
+		cost = constant:rch_story.pressure_cost_military
+		days_re_enable = 180
+		complete_effect = {
+			rch_press_army_military = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_military_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_military_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_military_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+
+	rch_press_provinces_civil = {
+		priority = 130
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_provinces }
+					has_country_flag = { flag = rch_press_lock_provinces days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_provinces
+		}
+		cost = constant:rch_story.pressure_cost_provinces
+		days_re_enable = 180
+		complete_effect = {
+			rch_press_provinces_civil = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_civil_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_civil_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_civil_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+
+	rch_press_provinces_military = {
+		priority = 120
+		icon = GFX_decision_generic_political_rally
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_provinces }
+					has_country_flag = { flag = rch_press_lock_provinces days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_military
+		}
+		cost = constant:rch_story.pressure_cost_military
+		days_re_enable = 180
+		complete_effect = {
+			rch_press_provinces_military = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_military_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_military_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_military_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+
+	rch_press_money_civil = {
+		priority = 130
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_money }
+					has_country_flag = { flag = rch_press_lock_money days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_money
+		}
+		cost = constant:rch_story.pressure_cost_money
+		days_re_enable = 180
+		complete_effect = {
+			rch_press_money_civil = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_civil_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_civil_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_civil_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+
+	rch_press_money_military = {
+		priority = 120
+		icon = GFX_decision_generic_industry
+		allowed = { original_tag = RCH }
+		visible = { rch_campaign_active = yes }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = rch_press_family_available
+				OR = {
+					NOT = { has_country_flag = rch_press_lock_money }
+					has_country_flag = { flag = rch_press_lock_money days > 180 }
+				}
+			}
+			has_political_power = constant:rch_story.pressure_cost_military
+		}
+		cost = constant:rch_story.pressure_cost_military
+		days_re_enable = 180
+		complete_effect = {
+			rch_press_money_military = yes
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = constant:rch_story.pressure_ai_military_parliamentary has_country_flag = rch_route_parliamentary }
+			modifier = { add = constant:rch_story.pressure_ai_military_kmt has_country_flag = rch_route_kmt }
+			modifier = { add = constant:rch_story.pressure_ai_military_provincial has_country_flag = rch_route_provincial }
+		}
+	}
+}

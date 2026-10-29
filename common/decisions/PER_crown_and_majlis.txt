@@ -1,0 +1,130 @@
+# The Crown and the Majlis - the decisions that move Persia's balance of power.
+# Four standing decisions answer the question: does the country belong to the Shah or to the Majlis?
+# The yearly budget vote is the mission that tests the answer. Foreign agreements, settlements, the coup
+# decisions and the political focuses move the balance too; see docs/systems/crown_and_majlis.md.
+
+@budget_cooldown_days = 365
+
+PER_crown_and_majlis_category = {
+
+	PER_bop_appoint_royal_cabinet = {
+		priority = 100
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = PER }
+		visible = { NOT = { power_balance_value = { id = PER_crown_and_majlis value < -0.70 } } }
+		available = { always = yes }
+		cost = 50
+		days_re_enable = 120
+		complete_effect = {
+			PER_bop_push_crown = yes
+			add_political_power = 10
+		}
+		ai_will_do = {
+			factor = 2
+			modifier = { factor = 3 date > 1921.2.20 NOT = { iran_path_majlis = yes } }
+			modifier = { factor = 0 has_country_flag = iran_qajar_restoration }
+			modifier = { factor = 0 has_country_flag = iran_constitutional_monarchy }
+		}
+	}
+
+
+
+
+	PER_bop_convene_the_majlis = {
+		priority = 100
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = PER }
+		visible = { NOT = { power_balance_value = { id = PER_crown_and_majlis value > 0.70 } } }
+		available = { always = yes }
+		cost = 50
+		days_re_enable = 120
+		complete_effect = {
+			PER_bop_push_majlis = yes
+			add_political_power = 10
+		}
+		ai_will_do = {
+			factor = 2
+			modifier = { factor = 3 iran_path_majlis = yes }
+			modifier = { factor = 2 has_country_flag = PER_majlis_resurgence }
+			modifier = { factor = 0.3 date > 1921.2.20 has_country_flag = iran_cossack_ascendant }
+		}
+	}
+
+
+
+
+	PER_bop_negotiate_the_settlement = {
+		priority = 120
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = PER }
+		visible = { NOT = { AND = { power_balance_value = { id = PER_crown_and_majlis value > -0.10 } power_balance_value = { id = PER_crown_and_majlis value < 0.10 } } } }
+		available = { always = yes }
+		cost = 100
+		days_re_enable = 240
+		complete_effect = {
+			PER_bop_pull_to_centre = yes
+			add_political_power = 25
+		}
+		ai_will_do = {
+			factor = 3
+			modifier = { factor = 3 has_country_flag = iran_qajar_restoration }
+			modifier = { factor = 3 has_country_flag = iran_constitutional_monarchy }
+		}
+	}
+
+	PER_bop_ratify_the_fundamental_laws = {
+		priority = 130
+		icon = GFX_decision_generic_construction
+		allowed = { original_tag = PER }
+		visible = { AND = { power_balance_value = { id = PER_crown_and_majlis value > -0.10 } power_balance_value = { id = PER_crown_and_majlis value < 0.10 } } }
+		available = { always = yes }
+		cost = 80
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = PER_constitution_ratified
+			add_stability = 0.05
+			add_political_power = 40
+		}
+		ai_will_do = { factor = 5 }
+	}
+
+	# The yearly test of the balance. The deputies pass the budget only if the state can collect what it
+	# votes and the Court is not governing alone; otherwise the vote collapses into a constitutional crisis.
+	PER_bop_budget_vote = {
+		priority = 140
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = PER }
+		visible = {
+			has_power_balance = { id = PER_crown_and_majlis }
+			NOT = { has_country_flag = PER_bop_budget_cooldown }
+		}
+		activation = {
+			has_power_balance = { id = PER_crown_and_majlis }
+			NOT = { has_country_flag = PER_bop_budget_cooldown }
+			date > 1910.1.1
+		}
+		available = {
+			check_variable = { var = iran_authority value = constant:iran_story.bop_budget_authority compare = greater_than_or_equals }
+			power_balance_value = { id = PER_crown_and_majlis value > -0.40 }
+			# A decree is a timed flag, so this veto lifts a year after the treaty was signed and the
+			# next yearly cycle of the mission runs normally; no treaty can close the loop for good.
+			custom_trigger_tooltip = {
+				tooltip = PER_bop_decree_treaty_tt
+				NOT = { has_country_flag = iran_decree_treaty }
+			}
+		}
+		is_good = yes
+		days_mission_timeout = 150
+		complete_effect = {
+			set_country_flag = { flag = PER_bop_budget_cooldown days = @budget_cooldown_days }
+			PER_bop_push_majlis_small = yes
+			add_political_power = constant:iran_story.bop_budget_reward
+			add_stability = constant:iran_story.stability_gain
+		}
+		timeout_effect = {
+			set_country_flag = { flag = PER_bop_budget_cooldown days = @budget_cooldown_days }
+			country_event = { id = iran_campaign.78 }
+		}
+		ai_will_do = { factor = 10 }
+	}
+}

@@ -1,0 +1,112 @@
+# Overview: Shanxi's warlord conditions, 1916-1935. Country scope throughout.
+# The cohesion tier is derived, never stored: one variable, four triggers, so the spirit the
+# player sees, the AI weight and the tooltip can never disagree about which band the province is in.
+#
+# The two day counts below are file-scoped macros because `has_country_flag = { days > }` takes a
+# number, not a constant. They are the single declaration for those two values.
+@patron_maturity_days = 365
+@demand_maturity_days = 90
+shx_cohesion_fractious = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_fractious_below compare = less_than }
+}
+shx_cohesion_brittle = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_fractious_below compare = greater_than_or_equals }
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_brittle_below compare = less_than }
+}
+shx_cohesion_steady = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_brittle_below compare = greater_than_or_equals }
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_steady_below compare = less_than }
+}
+shx_cohesion_devoted = {
+	check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_steady_below compare = greater_than_or_equals }
+}
+# One patron, or none. The family is a set of flags, not a count, because a patron is an identity
+# that later content reads rather than a number that is spent.
+shx_has_patron = {
+	OR = {
+		has_country_flag = warlord_patron_japan
+		has_country_flag = warlord_patron_britain
+		has_country_flag = warlord_patron_soviet
+	}
+}
+# A patron may be taken when none is held, when none was refused, and, if one was ever held, only
+# once a year has passed since it was taken. The maturity test is the in-mod `days >` idiom, so a
+# flag written yesterday is still holding the door shut today.
+shx_patron_open = {
+	NOT = { has_country_flag = shx_no_patron }
+	OR = {
+		NOT = { has_country_flag = shx_patron_taken }
+		has_country_flag = { flag = shx_patron_taken days > @patron_maturity_days }
+	}
+}
+# The debt is due when it has reached its cap, no demand is already pending, and the last demand
+# was answered at least three months ago. Without the maturity gate the payment event would refire
+# on the next daily tick after a single unit was repaid.
+shx_patronage_due = {
+	check_variable = { var = warlord_patronage_debt value = constant:shx_story.debt_cap compare = greater_than_or_equals }
+	NOT = { has_country_flag = shx_demand_pending }
+	OR = {
+		NOT = { has_country_flag = shx_demand_last }
+		has_country_flag = { flag = shx_demand_last days > @demand_maturity_days }
+	}
+}
+# Beijing's demand comes once, a month into the rise band, and never returns.
+shx_beijing_due = {
+	has_country_flag = { flag = shx_band_rise days > 30 }
+	NOT = { has_country_flag = shx_beijing_seen }
+	NOT = { has_country_flag = shx_no_troops_to_beijing }
+	NOT = { has_country_flag = shx_paid_beijing }
+}
+# A clique war needs the province behind the governor, no commander holding a grudge, no war
+# already running, and a target that is busy elsewhere. The last condition is the limited-war
+# rule: the province strikes only when the rival cannot turn on it. The window shuts at the 1936
+# handover, when the province is a vanilla warlord and this slice no longer speaks for it.
+shx_can_declare_clique_war = {
+	has_idea = warlord_cohesion_devoted
+	NOT = { has_country_flag = shx_commander_grudge }
+	NOT = { has_country_flag = shx_handover_complete }
+	NOT = { has_war = yes }
+	date > 1920.7.13
+	date < 1936.1.1
+}
+shx_equipment_affordable = {
+	has_equipment = { infantry_equipment > 399 }
+}
+
+# --- The Nanjing decade, 1928-1935 -----------------------------------------------------------
+# Japan's squeeze matures four months into the band: long enough for the province to read its own
+# new politics first, short enough that the question still belongs to this band.
+@squeeze_maturity_days = 120
+# The question is asked once. The seen flag is written by the tick immediately before the event,
+# so a second daily pass cannot ask it again while the player is still reading the first one.
+shx_nanjing_squeeze_due = {
+	has_country_flag = { flag = shx_band_nanjing days > @squeeze_maturity_days }
+	NOT = { has_country_flag = shx_nanjing_squeeze_seen }
+}
+# Tier three of four: the steady band, or the devoted band above it. Written as the union of the
+# two upper tiers rather than as the negation of the brittle band, because the brittle band is
+# bounded on both sides and its complement would open the gate to the fractious province below 30
+# as well as to the steady one above 55.
+shx_cohesion_tier_three = {
+	OR = {
+		shx_cohesion_steady = yes
+		shx_cohesion_devoted = yes
+	}
+}
+# The autonomy statute is a bargain with a government that exists, so it needs the Nanjing decade,
+# a province behind its governor and no war already running. It is written once and kept.
+shx_charter_open = {
+	has_country_flag = shx_band_nanjing
+	NOT = { has_country_flag = shx_autonomy_charter }
+	NOT = { has_war = yes }
+	shx_cohesion_tier_three = yes
+}
+# The coalition needs the statute on the books, a province that can still march, and a campaign not
+# already lost. Once lost, the chapter is closed for good.
+shx_coalition_open = {
+	has_country_flag = shx_band_nanjing
+	has_country_flag = shx_autonomy_charter
+	NOT = { has_country_flag = shx_coalition_lost }
+	NOT = { has_war = yes }
+	shx_cohesion_tier_three = yes
+}

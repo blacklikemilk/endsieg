@@ -1,0 +1,61 @@
+# Overview: Iran 1919-1935 - the two decisions the interwar focus tree opens.
+#
+# iran_settle_the_concession_1933  the act behind IR2_oil_renegotiation and
+#                                  IR2_apoc_negotiation_1933. Those focuses no longer
+#                                  settle the concession themselves: each sets
+#                                  iran_oil_settlement_open, and this decision is the one
+#                                  place where the terms are actually signed or refused
+#                                  (event iran_f2.2).
+# iran_court_audit_the_concession  what IR2_court_and_concessions buys for a restored
+#                                  Qajar court: a standing right to reopen the company's
+#                                  accounts, at a price in political power.
+#
+# Both live in the existing iran_political_course category, which is visible once a
+# regime has been settled, and both are country-scoped to Iran.
+
+iran_political_course = {
+
+	iran_settle_the_concession_1933 = {
+		icon = generic_political_discourse
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_oil_settlement_open
+			NOT = { has_country_flag = iran_oil_settlement_taken }
+		}
+		available = {
+			has_political_power > 149
+			custom_trigger_tooltip = {
+				tooltip = iran_concession_authority_tt
+				check_variable = { var = iran_authority value = 50 compare = greater_than_or_equals }
+			}
+		}
+		cost = 150
+		fire_only_once = yes
+		complete_effect = {
+			clr_country_flag = iran_oil_settlement_open
+			set_country_flag = iran_oil_settlement_taken
+			country_event = { id = iran_f2.2 }
+		}
+		ai_will_do = { factor = 3 modifier = { factor = 2 is_historical_focus_on = yes } }
+	}
+
+	iran_court_audit_the_concession = {
+		icon = generic_nationalism
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_court_sovereignty
+			NOT = { has_country_flag = iran_concession_audited }
+		}
+		available = { has_political_power > 74 }
+		cost = 75
+		complete_effect = {
+			set_country_flag = iran_concession_audited
+			iran_reclaim_british_small = yes
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			add_to_variable = { iran_sovereignty = 5 }
+			add_political_power = constant:iran_story.political_capital
+			hidden_effect = { iran_refresh_mechanics = yes }
+		}
+		ai_will_do = { factor = 2 }
+	}
+}

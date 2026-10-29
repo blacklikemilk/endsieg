@@ -1,0 +1,316 @@
+# Overview: party management for the Spanish Cortes.
+# The chamber in decision category SPR_parties is where the player works the parties: finance
+# them, pull deputies across the floor, proscribe the radicals, build a governing coalition and
+# call elections. Every one of these moves seats, and the bill list reacts to the result.
+
+SPR_parties = {
+
+	# =================================================================================
+	# Elections
+	# =================================================================================
+
+	SPR_call_election = {
+		icon = GFX_decision_category_generic_political_actions
+		cost = 50
+		days_re_enable = 300
+		available = {
+			has_country_flag = spain_campaign_initialized
+			has_variable = spain_cortes_total
+			NOT = { has_country_flag = spain_elections_suspended }
+		}
+		visible = {
+			has_variable = spain_cortes_total
+		}
+		complete_effect = {
+			spain_hold_election = yes
+		}
+		ai_will_do = { factor = 40 }
+	}
+
+	# =================================================================================
+	# Patronage: money behind a party, repeatable
+	# =================================================================================
+
+	SPR_finance_monarchists = {
+		icon = GFX_decision_category_generic_monarchism
+		cost = 20
+		days_re_enable = 90
+		available = { has_country_flag = spain_campaign_initialized has_variable = spain_cortes_total }
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			add_to_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.finance_gain }
+			spain_finance_party = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_finance_liberals = {
+		icon = GFX_decision_category_generic_democracy
+		cost = 20
+		days_re_enable = 90
+		available = { has_country_flag = spain_campaign_initialized has_variable = spain_cortes_total }
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			add_to_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.finance_gain }
+			spain_finance_party = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_finance_conservatives = {
+		icon = GFX_decision_category_generic_political_actions
+		cost = 20
+		days_re_enable = 90
+		available = { has_country_flag = spain_campaign_initialized has_variable = spain_cortes_total }
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.finance_gain }
+			spain_finance_party = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_finance_republicans = {
+		icon = GFX_decision_category_generic_propaganda
+		cost = 20
+		days_re_enable = 90
+		available = { has_country_flag = spain_campaign_initialized has_variable = spain_cortes_total }
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.finance_gain }
+			spain_finance_party = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_finance_socialists = {
+		icon = GFX_decision_category_generic_communism
+		cost = 20
+		days_re_enable = 90
+		available = { has_country_flag = spain_campaign_initialized has_variable = spain_cortes_total }
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.finance_gain }
+			spain_finance_party = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_finance_carlists = {
+		icon = GFX_decision_category_generic_monarchism
+		cost = 20
+		days_re_enable = 90
+		available = { has_country_flag = spain_campaign_initialized has_variable = spain_cortes_total }
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.finance_gain }
+			spain_finance_party = yes
+		}
+		ai_will_do = { factor = 20 }
+	}
+
+	SPR_finance_falange = {
+		icon = GFX_decision_category_generic_fascism
+		cost = 20
+		days_re_enable = 90
+		available = { has_country_flag = spain_campaign_initialized has_variable = spain_cortes_total }
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			add_to_variable = { var = spain_party_shift_falange value = constant:spain_campaign.finance_gain }
+			spain_finance_party = yes
+		}
+		ai_will_do = { factor = 20 }
+	}
+
+	# =================================================================================
+	# Working the chamber
+	# =================================================================================
+
+	SPR_court_the_chamber = {
+		icon = GFX_decision_category_generic_propaganda
+		cost = 35
+		days_re_enable = 150
+		available = {
+			has_country_flag = spain_campaign_initialized
+			check_variable = { var = spain_government_party value = 0 compare = greater_than }
+		}
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			# deputies cross the floor to the government, and the largest opposition group
+			# loses them
+			if = { limit = { check_variable = { var = spain_government_party value = 1 } } add_to_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.court_gain } }
+			if = { limit = { check_variable = { var = spain_government_party value = 2 } } add_to_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.court_gain } }
+			if = { limit = { check_variable = { var = spain_government_party value = 3 } } add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.court_gain } }
+			if = { limit = { check_variable = { var = spain_government_party value = 4 } } add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.court_gain } }
+			if = { limit = { check_variable = { var = spain_government_party value = 5 } } add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.court_gain } }
+			if = { limit = { check_variable = { var = spain_government_party value = 6 } } add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.court_gain } }
+			if = { limit = { check_variable = { var = spain_government_party value = 7 } } add_to_variable = { var = spain_party_shift_falange value = constant:spain_campaign.court_gain } }
+			subtract_from_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.finance_gain }
+			subtract_from_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.finance_gain }
+			spain_court_the_chamber = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_proscribe_the_falange = {
+		icon = GFX_decision_category_generic_crisis
+		cost = 50
+		days_re_enable = 365
+		available = {
+			has_country_flag = spain_campaign_initialized
+			check_variable = { var = spain_cortes_seats_falange value = 0 compare = greater_than }
+			NOT = { has_country_flag = spain_falange_proscribed }
+		}
+		visible = { check_variable = { var = spain_cortes_seats_falange value = 0 compare = greater_than } }
+		complete_effect = {
+			set_country_flag = spain_falange_proscribed
+			subtract_from_variable = { var = spain_party_shift_falange value = 1000 }
+			add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.proscribe_gain }
+			spain_proscribe_party = yes
+		}
+		ai_will_do = { factor = 25 }
+	}
+
+	SPR_proscribe_the_carlists = {
+		icon = GFX_decision_category_generic_crisis
+		cost = 50
+		days_re_enable = 365
+		available = {
+			has_country_flag = spain_campaign_initialized
+			check_variable = { var = spain_cortes_seats_carlists value = 0 compare = greater_than }
+			NOT = { has_country_flag = spain_carlists_proscribed }
+		}
+		visible = { check_variable = { var = spain_cortes_seats_carlists value = 0 compare = greater_than } }
+		complete_effect = {
+			set_country_flag = spain_carlists_proscribed
+			subtract_from_variable = { var = spain_party_shift_carlists value = 1000 }
+			add_to_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.proscribe_gain }
+			spain_proscribe_party = yes
+		}
+		ai_will_do = { factor = 15 }
+	}
+
+	# =================================================================================
+	# Coalitions: the government must reach 201 seats to legislate
+	# =================================================================================
+
+	SPR_coalition_monarchists = {
+		icon = GFX_decision_category_generic_foreign_policy
+		cost = 40
+		days_re_enable = 90
+		available = {
+			has_country_flag = spain_campaign_initialized
+			NOT = { check_variable = { var = spain_government_party value = 1 } }
+			NOT = { check_variable = { var = spain_coalition_1 value = 1 } }
+			NOT = { check_variable = { var = spain_coalition_2 value = 1 } }
+		}
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			if = { limit = { check_variable = { var = spain_coalition_1 value = 0 } } set_variable = { var = spain_coalition_1 value = 1 } }
+			else = { set_variable = { var = spain_coalition_2 value = 1 } }
+			add_stability = constant:spain_campaign.coalition_opinion
+			spain_government_strain = yes
+		}
+		ai_will_do = { factor = 25 }
+	}
+
+	SPR_coalition_liberals = {
+		icon = GFX_decision_category_generic_foreign_policy
+		cost = 40
+		days_re_enable = 90
+		available = {
+			has_country_flag = spain_campaign_initialized
+			NOT = { check_variable = { var = spain_government_party value = 2 } }
+			NOT = { check_variable = { var = spain_coalition_1 value = 2 } }
+			NOT = { check_variable = { var = spain_coalition_2 value = 2 } }
+		}
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			if = { limit = { check_variable = { var = spain_coalition_1 value = 0 } } set_variable = { var = spain_coalition_1 value = 2 } }
+			else = { set_variable = { var = spain_coalition_2 value = 2 } }
+			add_stability = constant:spain_campaign.coalition_opinion
+			spain_government_strain = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_coalition_conservatives = {
+		icon = GFX_decision_category_generic_foreign_policy
+		cost = 40
+		days_re_enable = 90
+		available = {
+			has_country_flag = spain_campaign_initialized
+			NOT = { check_variable = { var = spain_government_party value = 3 } }
+			NOT = { check_variable = { var = spain_coalition_1 value = 3 } }
+			NOT = { check_variable = { var = spain_coalition_2 value = 3 } }
+		}
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			if = { limit = { check_variable = { var = spain_coalition_1 value = 0 } } set_variable = { var = spain_coalition_1 value = 3 } }
+			else = { set_variable = { var = spain_coalition_2 value = 3 } }
+			add_stability = constant:spain_campaign.coalition_opinion
+			spain_government_strain = yes
+		}
+		ai_will_do = { factor = 30 }
+	}
+
+	SPR_coalition_republicans = {
+		icon = GFX_decision_category_generic_foreign_policy
+		cost = 40
+		days_re_enable = 90
+		available = {
+			has_country_flag = spain_campaign_initialized
+			NOT = { check_variable = { var = spain_government_party value = 4 } }
+			NOT = { check_variable = { var = spain_coalition_1 value = 4 } }
+			NOT = { check_variable = { var = spain_coalition_2 value = 4 } }
+		}
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			if = { limit = { check_variable = { var = spain_coalition_1 value = 0 } } set_variable = { var = spain_coalition_1 value = 4 } }
+			else = { set_variable = { var = spain_coalition_2 value = 4 } }
+			add_stability = constant:spain_campaign.coalition_opinion
+			spain_government_strain = yes
+		}
+		ai_will_do = { factor = 35 }
+	}
+
+	SPR_coalition_socialists = {
+		icon = GFX_decision_category_generic_foreign_policy
+		cost = 40
+		days_re_enable = 90
+		available = {
+			has_country_flag = spain_campaign_initialized
+			NOT = { check_variable = { var = spain_government_party value = 5 } }
+			NOT = { check_variable = { var = spain_coalition_1 value = 5 } }
+			NOT = { check_variable = { var = spain_coalition_2 value = 5 } }
+			NOT = { has_country_flag = spain_chapter_restoration }
+		}
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			if = { limit = { check_variable = { var = spain_coalition_1 value = 0 } } set_variable = { var = spain_coalition_1 value = 5 } }
+			else = { set_variable = { var = spain_coalition_2 value = 5 } }
+			add_stability = constant:spain_campaign.coalition_opinion
+			spain_government_strain = yes
+		}
+		ai_will_do = { factor = 25 }
+	}
+
+	SPR_drop_the_coalition = {
+		icon = GFX_decision_category_generic_propaganda
+		cost = 25
+		days_re_enable = 60
+		available = {
+			OR = {
+				check_variable = { var = spain_coalition_1 value = 0 compare = greater_than }
+				check_variable = { var = spain_coalition_2 value = 0 compare = greater_than }
+			}
+		}
+		visible = { has_variable = spain_cortes_total }
+		complete_effect = {
+			set_variable = { var = spain_coalition_1 value = 0 }
+			set_variable = { var = spain_coalition_2 value = 0 }
+			spain_government_strain = yes
+		}
+		ai_will_do = { factor = 10 }
+	}
+}

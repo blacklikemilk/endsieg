@@ -1,0 +1,944 @@
+# Overview: Qing China's decisions.
+# Court and assembly moves sit in the balance category. Government, reconstruction,
+# foreign policy and war each have their own category so the player never sees a wall.
+# Costs use political power, command power, army experience, manpower, stability and
+# time rather than political power alone.
+
+QIN_throne_and_assembly_category = {
+
+	qing_bop_appoint_grand_council = {
+		priority = 100
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = QIN }
+		visible = { NOT = { power_balance_value = { id = QIN_throne_and_assembly value < -0.70 } } }
+		available = { always = yes }
+		cost = 40
+		days_re_enable = 120
+		complete_effect = {
+			add_stability = 0.05
+			qing_bop_push_court = yes
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_bop_court_the_gentry = {
+		priority = 90
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { always = yes }
+		cost = 25
+		days_re_enable = 90
+		complete_effect = {
+			qing_bop_push_court_small = yes
+			add_stability = constant:qing_story.stability_gain
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	qing_bop_imperial_progress = {
+		priority = 85
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { always = yes }
+		cost = 30
+		days_re_enable = 120
+		complete_effect = {
+			qing_bop_push_court_small = yes
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_war_support = constant:qing_story.war_support_gain
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	qing_bop_convene_assembly = {
+		priority = 100
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = QIN }
+		visible = { NOT = { power_balance_value = { id = QIN_throne_and_assembly value > 0.70 } } }
+		available = { always = yes }
+		cost = 40
+		days_re_enable = 120
+		complete_effect = {
+			add_stability = 0.05
+			qing_bop_push_assembly = yes
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_bop_provincial_budget = {
+		priority = 95
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { qing_provinces_trusting = yes }
+		cost = 50
+		days_re_enable = 150
+		complete_effect = {
+			add_stability = 0.05
+			qing_bop_push_assembly = yes
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_bop_empower_provincial_assemblies = {
+		priority = 90
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { always = yes }
+		cost = 30
+		days_re_enable = 120
+		complete_effect = {
+			qing_bop_push_assembly_small = yes
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_stability = constant:qing_story.stability_gain
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	qing_bop_negotiate_settlement = {
+		priority = 120
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = QIN }
+		visible = {
+			NOT = {
+				AND = {
+					power_balance_value = { id = QIN_throne_and_assembly value > -0.10 }
+					power_balance_value = { id = QIN_throne_and_assembly value < 0.10 }
+				}
+			}
+		}
+		available = { always = yes }
+		cost = 75
+		days_re_enable = 240
+		complete_effect = {
+			add_stability = 0.05
+			qing_bop_pull_to_centre = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_bop_promulgate_constitution = {
+		priority = 130
+		icon = GFX_decision_generic_construction
+		allowed = { original_tag = QIN }
+		visible = {
+			AND = {
+				power_balance_value = { id = QIN_throne_and_assembly value > -0.10 }
+				power_balance_value = { id = QIN_throne_and_assembly value < 0.10 }
+			}
+		}
+		available = {
+			qing_reform_strong = yes
+			has_political_power = 50
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = QIN_constitution_promulgated
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_stability = constant:qing_story.stability_major_gain
+		}
+		ai_will_do = { factor = 5 }
+	}
+}
+
+qing_imperial_government = {
+
+	qing_decision_reform_edict = {
+		priority = 100
+		icon = GFX_decision_generic_construction
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { has_political_power = 40 }
+		cost = 40
+		days_re_enable = 90
+		complete_effect = {
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+			add_stability = constant:qing_story.stability_gain
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_decision_new_army_pay = {
+		priority = 95
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = {
+			has_political_power = 30
+			has_manpower = 4000
+		}
+		cost = 30
+		days_re_enable = 120
+		complete_effect = {
+			add_manpower = -4000
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_major_gain }
+			add_stability = constant:qing_story.stability_cost
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_decision_officer_purge = {
+		priority = 90
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { has_army_experience = 25 }
+		days_re_enable = 180
+		complete_effect = {
+			army_experience = -10
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_loss }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_stability = constant:qing_story.stability_cost
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	qing_decision_yuan_commission = {
+		priority = 85
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = QIN }
+		visible = { NOT = { qing_path_yuan = yes } }
+		available = { has_political_power = 60 }
+		cost = 60
+		days_re_enable = 240
+		complete_effect = {
+			add_stability = 0.05
+			add_to_variable = { qing_yuan_influence = constant:qing_story.yuan_major_gain }
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_loss }
+			qing_promote_yuan = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	qing_decision_provincial_compact = {
+		priority = 95
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = {
+			qing_provinces_trusting = yes
+			has_political_power = 40
+		}
+		cost = 40
+		days_re_enable = 150
+		complete_effect = {
+			add_stability = 0.05
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+			set_country_flag = qing_provincial_compact
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_decision_banner_reform = {
+		priority = 80
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = QIN }
+		visible = { has_country_flag = qing_route_authoritarian }
+		available = {
+			has_political_power = 60
+			has_army_experience = 25
+		}
+		cost = 60
+		fire_only_once = yes
+		complete_effect = {
+			army_experience = -10
+			set_country_flag = qing_banner_reform
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			qing_refresh_mechanics = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_decision_civil_service_exam = {
+		priority = 75
+		icon = GFX_decision_generic_research
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { has_political_power = 35 }
+		cost = 35
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = qing_civil_service_reformed
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_research_slot = 1
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_decision_elections = {
+		priority = 105
+		icon = GFX_decision_generic_political_rally
+		allowed = { original_tag = QIN }
+		visible = { qing_path_constitutional = yes }
+		available = {
+			OR = {
+				has_country_flag = QIN_constitution_promulgated
+				has_country_flag = qing_constitution_1912
+			}
+		}
+		days_re_enable = 1460
+		complete_effect = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_stability = constant:qing_story.stability_gain
+			set_country_flag = qing_election_held
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_decision_court_purge = {
+		priority = 85
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = QIN }
+		visible = { qing_path_authoritarian = yes }
+		available = { has_political_power = 50 }
+		cost = 50
+		days_re_enable = 240
+		complete_effect = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_loss }
+			add_stability = constant:qing_story.stability_cost
+			add_war_support = constant:qing_story.war_support_gain
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	# --- the consolidated state ---
+	# Five programmes and a report. The score itself is derived in
+	# qing_consolidation_refresh from the four standing values and the works the
+	# state has actually finished; these are the levers the government has on it.
+	# A programme that is running when its own family collapses below the floor is
+	# cancelled and charged for, so consolidation is worked for and can be lost.
+
+	qing_consolidation_report = {
+		priority = 140
+		icon = GFX_decision_generic_political_discourse
+		allowed = { original_tag = QIN }
+		visible = { qing_campaign_active = yes }
+		available = { always = yes }
+		days_re_enable = 30
+		complete_effect = { qing_consolidation_refresh = yes }
+		ai_will_do = { factor = 0 }
+	}
+
+	qing_consolidation_court = {
+		priority = 135
+		icon = GFX_decision_generic_speech
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_legitimacy_strong = yes }
+		}
+		available = {
+			has_political_power = 40
+			NOT = { qing_legitimacy_weak = yes }
+		}
+		cost = 40
+		days_remove = 90
+		days_re_enable = 60
+		modifier = { stability_factor = 0.05 }
+		remove_effect = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_court_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_legitimacy_weak = yes }
+		cancel_effect = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_court_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_reform = {
+		priority = 130
+		icon = GFX_decision_generic_research
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_reform_strong = yes }
+		}
+		available = {
+			has_political_power = 40
+			NOT = { qing_reform_weak = yes }
+		}
+		cost = 40
+		days_remove = 120
+		days_re_enable = 90
+		modifier = { stability_factor = 0.03 }
+		remove_effect = {
+			add_to_variable = { qing_reform = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_reform_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_reform_weak = yes }
+		cancel_effect = {
+			add_to_variable = { qing_reform = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_reform_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_army = {
+		priority = 125
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_army_loyal = yes }
+		}
+		available = {
+			has_political_power = 35
+			has_army_experience = 15
+			NOT = { qing_army_unreliable = yes }
+		}
+		cost = 35
+		days_remove = 120
+		days_re_enable = 90
+		modifier = { war_support_factor = 0.05 }
+		remove_effect = {
+			army_experience = -15
+			add_to_variable = { qing_army_loyalty = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_army_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_army_unreliable = yes }
+		cancel_effect = {
+			add_to_variable = { qing_army_loyalty = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_army_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_provinces = {
+		priority = 120
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { qing_provinces_trusting = yes }
+		}
+		available = {
+			has_political_power = 30
+			NOT = { qing_provinces_strained = yes }
+		}
+		cost = 30
+		days_remove = 120
+		days_re_enable = 90
+		modifier = { stability_factor = 0.03 }
+		remove_effect = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.consolidation_family_gain }
+			clr_country_flag = qing_consolidation_provinces_lapsed
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { qing_provinces_strained = yes }
+		cancel_effect = {
+			add_to_variable = { qing_provincial_trust = constant:qing_story.consolidation_family_loss }
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_provinces_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_consolidation_works = {
+		priority = 115
+		icon = GFX_decision_generic_construction
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			NOT = { has_country_flag = qing_works_completed }
+		}
+		available = {
+			has_political_power = 50
+			has_manpower = 6000
+		}
+		cost = 50
+		fire_only_once = yes
+		days_remove = 150
+		modifier = { production_speed_buildings_factor = 0.10 }
+		remove_effect = {
+			add_manpower = -6000
+			set_country_flag = qing_works_completed
+			if = {
+				limit = { owns_state = 608 }
+				608 = {
+					add_extra_state_shared_building_slots = 1
+					add_building_construction = { type = infrastructure level = 1 instant_build = yes }
+				}
+			}
+			qing_consolidation_refresh = yes
+		}
+		cancel_trigger = { NOT = { has_political_power > 25 } }
+		cancel_effect = {
+			add_stability = constant:qing_story.stability_cost
+			set_country_flag = qing_consolidation_works_lapsed
+			qing_consolidation_refresh = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	# The interwar government is convened on a consolidated state. The daily tick
+	# opens the chapter from 1919 for a country that has met the bar; this decision
+	# lets a dynasty that consolidated early enter before the calendar catches up.
+	qing_convene_interwar = {
+		priority = 150
+		icon = GFX_decision_generic_political_address
+		allowed = { original_tag = QIN }
+		visible = {
+			qing_campaign_active = yes
+			date > 1918.6.1
+			NOT = { has_country_flag = qing_chapter_two }
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = qing_convene_interwar_tt
+				hidden_trigger = { qing_consolidation_settled = yes }
+			}
+		}
+		fire_only_once = yes
+		complete_effect = { qing_open_chapter_two = yes }
+		ai_will_do = { factor = 20 }
+	}
+}
+
+qing_reconstruction = {
+
+	qing_project_railway_north = {
+		priority = 100
+		icon = GFX_decision_generic_train
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_railway_north_built } }
+		available = {
+			owns_state = 608
+			has_political_power = 45
+			has_manpower = 5000
+		}
+		cost = 45
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -5000
+			qing_build_railway_north = yes
+			set_country_flag = qing_railway_authority
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_project_railway_south = {
+		priority = 95
+		icon = GFX_decision_generic_train
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_railway_south_built } }
+		available = {
+			owns_state = 605
+			has_political_power = 45
+			has_manpower = 5000
+		}
+		cost = 45
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -5000
+			qing_build_railway_south = yes
+			set_country_flag = qing_railway_authority
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_project_hanyang = {
+		priority = 100
+		icon = GFX_decision_generic_construction
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_hanyang_built } }
+		available = {
+			owns_state = 605
+			has_political_power = 50
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			qing_build_hanyang = yes
+			set_country_flag = qing_arsenal_programme
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_project_shanghai_dock = {
+		priority = 90
+		icon = GFX_decision_generic_naval
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_shanghai_dock_built } }
+		available = {
+			owns_state = 613
+			has_political_power = 40
+		}
+		cost = 40
+		fire_only_once = yes
+		complete_effect = {
+			qing_build_shanghai_dock = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_project_baoding_academy = {
+		priority = 85
+		icon = GFX_decision_generic_research
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_baoding_built } }
+		available = {
+			owns_state = 608
+			has_political_power = 45
+			has_army_experience = 20
+		}
+		cost = 45
+		fire_only_once = yes
+		complete_effect = {
+			army_experience = -20
+			qing_build_baoding_academy = yes
+			set_country_flag = qing_military_academy
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_project_capital_forts = {
+		priority = 80
+		icon = GFX_decision_generic_fortification
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_capital_fortified } }
+		available = {
+			owns_state = 608
+			has_political_power = 35
+			has_manpower = 3000
+		}
+		cost = 35
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -3000
+			qing_fortify_capital = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_project_currency = {
+		priority = 100
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_currency_reform } }
+		available = {
+			qing_reform_strong = yes
+			has_political_power = 60
+		}
+		cost = 60
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = qing_currency_reform
+			add_to_variable = { qing_reform = constant:qing_story.reform_major_gain }
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_stability = constant:qing_story.stability_major_gain
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_project_famine_relief = {
+		priority = 110
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = {
+			has_political_power = 25
+			has_manpower = 2000
+		}
+		cost = 25
+		days_re_enable = 365
+		complete_effect = {
+			add_manpower = -2000
+			add_stability = constant:qing_story.stability_major_gain
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+}
+
+qing_foreign_policy = {
+
+	qing_diplomacy_british_loan = {
+		priority = 100
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_british_loan } }
+		available = {
+			has_political_power = 50
+			NOT = { has_war_with = ENG }
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = qing_british_loan
+			add_opinion_modifier = { target = ENG modifier = qing_loan_understanding }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 1500 }
+			add_stability = 0.03
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_diplomacy_german_mission = {
+		priority = 95
+		icon = GFX_decision_generic_military
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_german_mission } }
+		available = {
+			has_political_power = 45
+			NOT = { has_war_with = GER }
+		}
+		cost = 45
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = qing_german_mission
+			set_country_flag = qing_german_arms
+			add_opinion_modifier = { target = GER modifier = qing_military_mission }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 1000 }
+			army_experience = 25
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_diplomacy_japanese_accommodation = {
+		priority = 90
+		icon = GFX_decision_generic_political_discourse
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_japan_resistance } }
+		available = { has_political_power = 40 }
+		cost = 40
+		days_re_enable = 365
+		complete_effect = {
+			set_country_flag = qing_japan_accommodation
+			add_opinion_modifier = { target = JAP modifier = qing_commercial_understanding }
+			add_stability = 0.05
+			add_political_power = 20
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_loss }
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	qing_diplomacy_reject_japan = {
+		priority = 95
+		icon = GFX_decision_generic_political_address
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_japan_accommodation } }
+		available = {
+			has_political_power = 40
+			has_war_support = 0.20
+		}
+		cost = 40
+		days_re_enable = 365
+		complete_effect = {
+			set_country_flag = qing_japan_resistance
+			remove_opinion_modifier = { target = JAP modifier = qing_commercial_understanding }
+			add_opinion_modifier = { target = JAP modifier = qing_rejection_of_the_demands }
+			add_war_support = constant:qing_story.war_support_major_gain
+			add_manpower = 6000
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_diplomacy_american_open_door = {
+		priority = 85
+		icon = GFX_decision_generic_political_discourse
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_american_open_door } }
+		available = {
+			has_political_power = 35
+			NOT = { has_war_with = USA }
+		}
+		cost = 35
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = qing_american_open_door
+			add_opinion_modifier = { target = USA modifier = qing_open_door_note }
+			add_research_slot = 1
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_diplomacy_shandong = {
+		priority = 110
+		icon = GFX_decision_generic_political_discourse
+		allowed = { original_tag = QIN }
+		visible = {
+			date > 1919.1.1
+			NOT = { has_country_flag = qing_shandong_settlement }
+		}
+		available = { has_political_power = 60 }
+		cost = 60
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = qing_shandong_settlement
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+			add_opinion_modifier = { target = JAP modifier = qing_commercial_understanding }
+			add_stability = 0.05
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_diplomacy_buy_concessions = {
+		priority = 80
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = QIN }
+		visible = { date > 1920.1.1 }
+		available = {
+			has_political_power = 75
+			qing_reform_strong = yes
+		}
+		cost = 75
+		days_re_enable = 730
+		complete_effect = {
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
+			add_to_variable = { qing_reform = constant:qing_story.reform_gain }
+			add_war_support = constant:qing_story.war_support_gain
+			set_country_flag = qing_concession_buyout
+		}
+		ai_will_do = { factor = 2 }
+	}
+}
+
+qing_war_council = {
+
+	qing_war_general_mobilisation = {
+		priority = 110
+		icon = GFX_decision_generic_political_address
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = {
+			has_political_power = 40
+			has_manpower = 20000
+		}
+		cost = 40
+		days_re_enable = 180
+		complete_effect = {
+			add_manpower = -20000
+			add_war_support = constant:qing_story.war_support_gain
+			add_stability = constant:qing_story.stability_cost
+			add_to_variable = { qing_army_loyalty = constant:qing_story.army_gain }
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_war_scorched_earth = {
+		priority = 100
+		icon = GFX_decision_generic_arrest
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = {
+			has_political_power = 30
+			has_war_support = 0.30
+		}
+		cost = 30
+		days_re_enable = 240
+		complete_effect = {
+			add_war_support = constant:qing_story.war_support_gain
+			add_stability = constant:qing_story.stability_cost
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_war_guerrilla_committees = {
+		priority = 95
+		icon = GFX_decision_generic_civil_support
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = {
+			has_political_power = 35
+			has_manpower = 8000
+		}
+		cost = 35
+		days_re_enable = 180
+		complete_effect = {
+			add_manpower = -8000
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_war_support = constant:qing_story.war_support_gain
+			set_country_flag = qing_guerrilla_network
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	qing_war_burma_road = {
+		priority = 105
+		icon = GFX_decision_generic_train
+		allowed = { original_tag = QIN }
+		visible = { NOT = { has_country_flag = qing_burma_road } }
+		available = {
+			has_political_power = 50
+			has_manpower = 6000
+			owns_state = 325
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			add_manpower = -6000
+			set_country_flag = qing_burma_road
+			add_to_variable = { qing_provincial_trust = constant:qing_story.trust_gain }
+			add_war_support = constant:qing_story.war_support_gain
+			325 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_war_lend_lease = {
+		priority = 100
+		icon = GFX_decision_generic_political_discourse
+		allowed = { original_tag = QIN }
+		visible = {
+			date > 1941.1.1
+			NOT = { has_country_flag = qing_lend_lease }
+		}
+		available = {
+			has_political_power = 40
+			NOT = { has_war_with = USA }
+			country_exists = USA
+		}
+		cost = 40
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = qing_lend_lease
+			add_opinion_modifier = { target = USA modifier = qing_lend_lease_agreement }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2000 producer = USA }
+		}
+		ai_will_do = { factor = 4 }
+	}
+
+	qing_war_inflation_control = {
+		priority = 90
+		icon = GFX_decision_generic_fundraising
+		allowed = { original_tag = QIN }
+		visible = { always = yes }
+		available = { has_political_power = 35 }
+		cost = 35
+		days_re_enable = 365
+		complete_effect = {
+			add_stability = constant:qing_story.stability_gain
+			add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
+		}
+		ai_will_do = { factor = 3 }
+	}
+}

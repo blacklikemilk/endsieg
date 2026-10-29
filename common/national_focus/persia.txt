@@ -58,13 +58,17 @@ focus_tree = {
 
 	default = no
 
-	continuous_focus_position = { x = 200 y = 2000 }
+	continuous_focus_position = { x = 1500 y = 6000 }
 
 	initial_show_position = {
 		x = 25
 		y = 0
 	}
 
+	shortcut = {
+		name = PER_occupation_shortcut
+		target = PER_the_august_ultimatum
+	}
 	shortcut = {
 		name = PER_navy_shortcut
 		target = PER_establish_the_navy
@@ -112,6 +116,350 @@ focus_tree = {
 		target = PER_rally_the_reformers
 		trigger = {
 		    has_dlc = "Graveyard of Empires"
+		}
+	}
+
+	#################################
+	####### OCCUPIED IRAN ###########
+	#################################
+	# Era III of the Persian era trunk; Eras I and II live in WWI - Persia.txt (persian_focus_ww1) for pre-1936 starts.
+	# Documented in docs/persia_era_focus_tree.md.
+
+
+	focus = { #ERA
+		id = PER_the_august_ultimatum
+		icon = GFX_goal_generic_demand_territory
+		x = 25
+		y = -6
+		cost = 1
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_allied_demands_tt
+				OR = {
+					date > 1941.8.24
+					has_war_with = ENG
+					has_war_with = SOV
+				}
+			}
+		}
+
+		ai_will_do = {
+			factor = 100
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_ultimatum_1941
+		}
+	}
+
+	focus = { #ERA
+		id = PER_defend_the_homeland
+		icon = GFX_focus_PER_fight_for_iran
+		prerequisite = { focus = PER_the_august_ultimatum }
+		mutually_exclusive = { focus = PER_the_tripartite_treaty focus = PER_look_to_berlin }
+		x = 19
+		y = -5
+		cost = 5
+
+		ai_will_do = {
+			factor = 10
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+			FOCUS_FILTER_WAR_SUPPORT
+		}
+
+		completion_reward = {
+			set_country_flag = PER_resist_1941
+			add_war_support = constant:per_focus_tree.war_support_medium
+			army_experience = constant:per_focus_tree.army_xp_large
+			add_manpower = constant:per_focus_tree.manpower_medium
+		}
+	}
+
+	focus = { #ERA
+		id = PER_the_tripartite_treaty
+		icon = GFX_focus_generic_diplomatic_treaty
+		prerequisite = { focus = PER_the_august_ultimatum }
+		mutually_exclusive = { focus = PER_defend_the_homeland focus = PER_look_to_berlin }
+		x = 25
+		y = -5
+		cost = 5
+
+		ai_will_do = {
+			factor = 40
+			modifier = {
+				factor = 3
+				is_historical_focus_on = yes
+			}
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_HISTORICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_tripartite
+			add_ideas = PER_allied_occupation
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_political_power = constant:per_focus_tree.pp_medium
+				if = {
+					limit = { country_exists = ENG }
+					ENG = {
+						add_opinion_modifier = {
+							target = PER
+							modifier = large_increase
+						}
+					}
+				}
+				if = {
+					limit = { country_exists = SOV }
+					SOV = {
+						add_opinion_modifier = {
+							target = PER
+							modifier = large_increase
+						}
+					}
+				}
+				if = {
+					limit = { country_exists = USA }
+					USA = {
+						add_opinion_modifier = {
+							target = PER
+							modifier = medium_increase
+						}
+					}
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_look_to_berlin
+		icon = GFX_focus_generic_german_trade
+		prerequisite = { focus = PER_the_august_ultimatum }
+		mutually_exclusive = { focus = PER_defend_the_homeland focus = PER_the_tripartite_treaty }
+		x = 31
+		y = -5
+		cost = 5
+
+		available = {
+			country_exists = GER
+		}
+
+		ai_will_do = {
+			factor = 5
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+		}
+
+		completion_reward = {
+			set_country_flag = PER_axis_hopes
+			add_war_support = constant:per_focus_tree.war_support_medium
+			if = {
+				limit = { country_exists = GER }
+				GER = {
+					add_opinion_modifier = {
+						target = PER
+						modifier = large_increase
+					}
+				}
+			}
+			if = {
+				limit = { country_exists = ENG }
+				ENG = {
+					add_opinion_modifier = {
+						target = PER
+						modifier = large_decrease
+					}
+				}
+			}
+			if = {
+				limit = { country_exists = SOV }
+				SOV = {
+					add_opinion_modifier = {
+						target = PER
+						modifier = large_decrease
+					}
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_german_agents
+		icon = GFX_goal_generic_intelligence_exchange
+		prerequisite = { focus = PER_look_to_berlin }
+		x = 31
+		y = -4
+		cost = 5
+
+		ai_will_do = {
+			factor = 20
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+		}
+
+		completion_reward = {
+			set_country_flag = PER_german_agents
+			army_experience = constant:per_focus_tree.army_xp_medium
+			add_political_power = constant:per_focus_tree.pp_medium
+			if = {
+				limit = { country_exists = GER }
+				GER = {
+					add_opinion_modifier = {
+						target = PER
+						modifier = medium_increase
+					}
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_persian_corridor
+		icon = GFX_focus_generic_railroad
+		prerequisite = { focus = PER_the_tripartite_treaty }
+		x = 25
+		y = -4
+		cost = 10
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		search_filters = {
+			FOCUS_FILTER_INDUSTRY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_persian_corridor
+			413 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+			266 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+			419 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_tehran_declaration
+		icon = GFX_goal_generic_national_unity
+		prerequisite = { focus = PER_persian_corridor }
+		x = 25
+		y = -3
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_tehran_conference_held_tt
+				date > 1943.11.27
+			}
+		}
+
+		ai_will_do = {
+			factor = 80
+		}
+
+		search_filters = {
+			FOCUS_FILTER_POLITICAL
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_tehran_declaration
+			remove_ideas = PER_allied_occupation
+			if = {
+				limit = { PER_not_history_start = yes }
+				add_stability = constant:per_focus_tree.stability_medium
+			}
+			if = {
+				limit = { country_exists = ENG }
+				ENG = { give_guarantee = PER }
+			}
+			if = {
+				limit = { country_exists = SOV }
+				SOV = { give_guarantee = PER }
+			}
+			if = {
+				limit = { country_exists = USA }
+				USA = { give_guarantee = PER }
+			}
+		}
+	}
+
+	focus = { #ERA
+		id = PER_the_azerbaijan_question
+		icon = GFX_goal_generic_small_arms
+		prerequisite = { focus = PER_tehran_declaration }
+		x = 25
+		y = -2
+		cost = 5
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = PER_northwest_crisis_tt
+				date > 1945.7.31
+			}
+		}
+
+		ai_will_do = {
+			factor = 80
+		}
+
+		search_filters = {
+			FOCUS_FILTER_ARMY_XP
+			FOCUS_FILTER_STABILITY
+		}
+
+		completion_reward = {
+			set_country_flag = PER_azerbaijan_secured
+			army_experience = constant:per_focus_tree.army_xp_large
+			add_political_power = constant:per_focus_tree.pp_large
+			if = {
+				limit = { country_exists = SOV }
+				SOV = {
+					add_opinion_modifier = {
+						target = PER
+						modifier = medium_decrease
+					}
+				}
+			}
+			419 = {
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+			}
 		}
 	}
 

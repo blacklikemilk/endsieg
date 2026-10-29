@@ -1,0 +1,263 @@
+# Overview: Qing campaign gates. Every trigger is safe on any country scope.
+# They read country flags and variables only, so a non-Qing country gets false rather than an error.
+
+qing_campaign_country = {
+	original_tag = QIN
+}
+
+qing_campaign_active = {
+	has_country_flag = qing_campaign_active
+	NOT = { has_country_flag = qing_collapsed }
+}
+
+# --- the four survival routes ---
+qing_path_constitutional = {
+	has_country_flag = qing_route_constitutional
+}
+
+qing_path_authoritarian = {
+	has_country_flag = qing_route_authoritarian
+}
+
+qing_path_yuan = {
+	has_country_flag = qing_route_yuan
+}
+
+qing_path_federal = {
+	has_country_flag = qing_route_federal
+}
+
+qing_has_route = {
+	OR = {
+		qing_path_constitutional = yes
+		qing_path_authoritarian = yes
+		qing_path_yuan = yes
+		qing_path_federal = yes
+	}
+}
+
+# --- the values as readable bands ---
+qing_reform_strong = {
+	check_variable = { var = qing_reform value = constant:qing_story.reform_strong compare = greater_than_or_equals }
+}
+
+qing_reform_complete = {
+	check_variable = { var = qing_reform value = constant:qing_story.reform_complete compare = greater_than_or_equals }
+}
+
+qing_legitimacy_weak = {
+	check_variable = { var = qing_legitimacy value = constant:qing_story.legitimacy_weak compare = less_than }
+}
+
+qing_legitimacy_strong = {
+	check_variable = { var = qing_legitimacy value = constant:qing_story.legitimacy_strong compare = greater_than_or_equals }
+}
+
+qing_army_loyal = {
+	check_variable = { var = qing_army_loyalty value = constant:qing_story.army_strong compare = greater_than_or_equals }
+}
+
+qing_army_unreliable = {
+	check_variable = { var = qing_army_loyalty value = constant:qing_story.army_weak compare = less_than }
+}
+
+qing_provinces_trusting = {
+	check_variable = { var = qing_provincial_trust value = constant:qing_story.trust_strong compare = greater_than_or_equals }
+}
+
+qing_yuan_dominant = {
+	check_variable = { var = qing_yuan_influence value = constant:qing_story.yuan_dominant compare = greater_than_or_equals }
+}
+
+# --- the revolution gate ---
+# The scenario's railroaded timeline. Only an AI Qing is held to it: a human who
+# keeps the historical focus still faces the revolution and can still negotiate,
+# but is never scripted out of the dynasty by the focus itself.
+qing_historical_collapse = {
+	is_historical_focus_on = yes
+	is_ai = yes
+}
+
+# A human court that keeps the historical focus on carries the weight of the old
+# order, so the provinces ask more of it before they will treat with it.
+qing_historical_pressure = {
+	is_historical_focus_on = yes
+}
+
+# A dynasty can negotiate its way out of the revolution only when reform,
+# army reliability and provincial confidence all hold at the same time.
+qing_survival_bar = {
+	check_variable = { var = qing_reform value = constant:qing_story.survival_reform compare = greater_than_or_equals }
+	check_variable = { var = qing_army_loyalty value = constant:qing_story.survival_loyalty compare = greater_than_or_equals }
+	check_variable = { var = qing_provincial_trust value = constant:qing_story.survival_trust compare = greater_than_or_equals }
+}
+
+qing_survival_bar_pressure = {
+	check_variable = { var = qing_reform value = constant:qing_story.survival_reform_pressure compare = greater_than_or_equals }
+	check_variable = { var = qing_army_loyalty value = constant:qing_story.survival_loyalty_pressure compare = greater_than_or_equals }
+	check_variable = { var = qing_provincial_trust value = constant:qing_story.survival_trust_pressure compare = greater_than_or_equals }
+}
+
+qing_survival_possible = {
+	NOT = { qing_historical_collapse = yes }
+	OR = {
+		AND = {
+			qing_historical_pressure = yes
+			qing_survival_bar_pressure = yes
+		}
+		AND = {
+			NOT = { qing_historical_pressure = yes }
+			qing_survival_bar = yes
+		}
+	}
+}
+
+# The army can hold Beijing while the court negotiates, even if reform is thin.
+qing_can_impose_settlement = {
+	NOT = { qing_historical_collapse = yes }
+	controls_state = 608
+	qing_army_loyal = yes
+	OR = {
+		qing_reform_strong = yes
+		qing_yuan_dominant = yes
+	}
+}
+
+# --- the armistice window ---
+# Wuchang opens the war, the powers broker a short armistice, and the court can
+# settle only while that armistice holds. The window is opened by the war
+# detector in qing_campaign_tick and closed by qing_campaign.19, so no settlement
+# can be taken before the garrison rises and none after the deadline passes.
+qing_armistice_open = {
+	has_country_flag = qing_revolution_window_seen
+	NOT = { has_country_flag = qing_armistice_closed }
+}
+
+# Partition: the war stops where the armies stand and the Republic keeps the south.
+qing_can_settle_partition = {
+	qing_armistice_open = yes
+}
+
+# Reunion: the assembly accepts the monarchy. The survival bar is what makes the
+# Republic's leaders take the offer, and the court must hold the treasury to pay them.
+# The power threshold mirrors constant:qing_story.settlement_treasury_reunion because
+# has_political_power takes a literal.
+qing_can_settle_reunion = {
+	qing_armistice_open = yes
+	qing_survival_possible = yes
+	has_political_power > 75
+}
+
+# Conquest: the Beiyang army dictates the terms in a capital it still holds.
+# The threshold mirrors constant:qing_story.settlement_treasury_conquest.
+qing_can_settle_conquest = {
+	qing_armistice_open = yes
+	qing_can_impose_settlement = yes
+	has_political_power > 50
+}
+
+
+# --- flags written by the chapters that later chapters read ---
+qing_path_railway = {
+	OR = {
+		has_country_flag = qing_railway_authority
+		has_country_flag = qing_railway_nationalised
+		has_country_flag = qing_railway_provincial
+	}
+}
+
+qing_path_arsenal = {
+	OR = {
+		has_country_flag = qing_hanyang_expanded
+		has_country_flag = qing_arsenal_programme
+		has_country_flag = qing_foreign_arms
+	}
+}
+
+qing_path_army_reform = {
+	OR = {
+		has_country_flag = qing_new_army_modernised
+		has_country_flag = qing_military_academy
+		has_country_flag = qing_beiyang_command
+		has_country_flag = qing_banner_reform
+	}
+}
+
+qing_path_treasury = {
+	OR = {
+		has_country_flag = qing_currency_reform
+		has_country_flag = qing_salt_reform
+		has_country_flag = qing_loan_consolidated
+		has_country_flag = qing_budget_centralised
+	}
+}
+
+qing_path_japan = {
+	OR = {
+		has_country_flag = qing_japan_accommodation
+		has_country_flag = qing_japan_resistance
+		has_country_flag = qing_shandong_settlement
+	}
+}
+
+qing_path_entente = {
+	OR = {
+		has_country_flag = qing_british_loan
+		has_country_flag = qing_french_mission
+		has_country_flag = qing_american_open_door
+	}
+}
+
+qing_path_germany = {
+	OR = {
+		has_country_flag = qing_german_mission
+		has_country_flag = qing_german_arms
+	}
+}
+
+qing_path_centralise = {
+	OR = {
+		has_country_flag = qing_provincial_governors
+		has_country_flag = qing_central_army
+		has_country_flag = qing_direct_rule
+	}
+}
+
+qing_path_federalise = {
+	OR = {
+		has_country_flag = qing_provincial_compact
+		has_country_flag = qing_provincial_taxation
+		has_country_flag = qing_regional_armies
+	}
+}
+
+# Counted once so a later chapter can pay off how much reform actually happened.
+qing_reform_depth = {
+	check_variable = { var = qing_reform value = 50 compare = greater_than_or_equals }
+}
+
+# --- consolidation ---
+# The score is derived by qing_consolidation_refresh from the four standing values
+# and the state's own works. Nothing else writes it, so the number the player reads
+# cannot drift away from the values the rest of the campaign moves.
+qing_consolidation_settled = {
+	check_variable = { var = qing_consolidation value = constant:qing_story.consolidation_gate compare = greater_than_or_equals }
+}
+
+# A standing, not a spike: the restoration band opens only after the score has held
+# at or above the gate for a full year. The tick clears the flag the day it falls.
+qing_consolidation_sustained = {
+	qing_consolidation_settled = yes
+	has_country_flag = qing_consolidation_held
+}
+
+# The floors under the five families. A programme running below its floor collapses
+# and charges the state for the failure; the court, army and province floors reuse
+# the weak bars the rest of the campaign already reads.
+qing_reform_weak = {
+	check_variable = { var = qing_reform value = constant:qing_story.reform_weak compare = less_than }
+}
+
+qing_provinces_strained = {
+	check_variable = { var = qing_provincial_trust value = constant:qing_story.trust_weak compare = less_than }
+}

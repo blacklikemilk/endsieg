@@ -1,0 +1,350 @@
+# Overview: bills before the Spanish Cortes.
+# A bill is no longer a political-power spend gated only on the government's majority. Each bill has a
+# supporting bloc of party ids in common/scripted_effects/spain_cortes_bills.txt, which counts the
+# seats that would carry it (spain_bill_votes_<bill>). The bill is offered only while the chamber can
+# still carry it: either the supporting bloc holds a clear majority of the 400 seats, or the government
+# is within constant:spain_campaign.bill_negotiation_reach seats of one.
+# Both numbers come from the cached counts that spain_cortes_recount writes, so the gate always
+# measures a counted chamber. It has no fall-through for a cache that does not exist yet: a bill
+# cannot reach the floor on the strength of nothing having been counted.
+# Visibility is a chapter question and availability is a support question. The chapter flags in
+# `visible` decide which chambers are offered a bill at all; the reach gate in `available` decides
+# whether the counted chamber can still carry it, so a postwar chamber too weak to pass a bill is
+# still refused. Every chapter that legislates is named explicitly in the gates below, because the
+# six chapter flags are exclusive: a chapter that is not named is a chamber with no legislation.
+# Taking the bill pays its political-power cost and opens the negotiation event spain_bills.<n>, where
+# the government passes it cleanly, buys the missing votes with a concession, waters it down, or
+# withdraws. Passage is once per campaign; a bill that fails can be brought again after its re-enable.
+# Documented in docs/spain_cortes_bills.md.
+
+SPR_cortes = {
+
+	# Budget. Backed by the government, the Liberals and the Conservatives.
+	SPR_bill_budget = {
+		icon = GFX_decision_category_generic_economy
+		cost = 50
+		days_re_enable = 120
+		visible = {
+			hidden_trigger = {
+				has_country_flag = spain_campaign_initialized
+				NOT = { has_country_flag = spain_bill_budget_passed }
+				OR = {
+					has_country_flag = spain_chapter_restoration
+					has_country_flag = spain_chapter_rivera
+					has_country_flag = spain_chapter_republic
+					has_country_flag = spain_chapter_postwar
+					has_country_flag = spain_chapter_republican_postwar
+				}
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_dissolved_tt
+				NOT = { has_country_flag = spain_cortes_dissolved }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_cooldown_tt
+				NOT = { has_country_flag = spain_bill_budget_cooldown }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_reach_budget_tt
+				OR = {
+					check_variable = { var = spain_bill_votes_budget value = spain_bill_floor compare = greater_than_or_equals }
+					check_variable = { var = spain_government_seats value = spain_bill_floor compare = greater_than_or_equals }
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_bills.1 }
+		}
+		ai_will_do = {
+			factor = 60
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_bill_votes_budget value = spain_bill_needed compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 1.5
+				has_stability < constant:spain_campaign.election_unrest_threshold
+			}
+			modifier = {
+				factor = 0.6
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+	}
+
+	# Agrarian reform. Backed by the republicans, the socialists and the Liberals; the landowners'
+	# benches are the ones that have to be bought off.
+	SPR_bill_agrarian_reform = {
+		icon = GFX_decision_category_generic_economy
+		cost = 75
+		days_re_enable = 180
+		visible = {
+			hidden_trigger = {
+				has_country_flag = spain_campaign_initialized
+				NOT = { has_country_flag = spain_bill_agrarian_passed }
+				OR = {
+					has_country_flag = spain_chapter_republic
+					has_country_flag = spain_chapter_postwar
+					has_country_flag = spain_chapter_republican_postwar
+				}
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_dissolved_tt
+				NOT = { has_country_flag = spain_cortes_dissolved }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_cooldown_tt
+				NOT = { has_country_flag = spain_bill_agrarian_cooldown }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_reach_agrarian_tt
+				OR = {
+					check_variable = { var = spain_bill_votes_agrarian value = spain_bill_floor compare = greater_than_or_equals }
+					check_variable = { var = spain_government_seats value = spain_bill_floor compare = greater_than_or_equals }
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_bills.2 }
+		}
+		ai_will_do = {
+			factor = 50
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_bill_votes_agrarian value = spain_bill_needed compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 1.5
+				has_stability < constant:spain_campaign.election_unrest_threshold
+			}
+			modifier = {
+				factor = 0.7
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+	}
+
+	# Labour charter. Backed by the socialists, the republicans and the Liberals; the Conservative
+	# benches vote for a softer text.
+	SPR_bill_labour_charter = {
+		icon = GFX_decision_category_eng_concessions_to_the_trade_unions
+		cost = 60
+		days_re_enable = 180
+		visible = {
+			hidden_trigger = {
+				has_country_flag = spain_campaign_initialized
+				NOT = { has_country_flag = spain_bill_labour_passed }
+				OR = {
+					has_country_flag = spain_chapter_republic
+					has_country_flag = spain_chapter_postwar
+					has_country_flag = spain_chapter_republican_postwar
+				}
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_dissolved_tt
+				NOT = { has_country_flag = spain_cortes_dissolved }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_cooldown_tt
+				NOT = { has_country_flag = spain_bill_labour_cooldown }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_reach_labour_tt
+				OR = {
+					check_variable = { var = spain_bill_votes_labour value = spain_bill_floor compare = greater_than_or_equals }
+					check_variable = { var = spain_government_seats value = spain_bill_floor compare = greater_than_or_equals }
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_bills.3 }
+		}
+		ai_will_do = {
+			factor = 45
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_bill_votes_labour value = spain_bill_needed compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 1.6
+				has_country_flag = spain_labour_repression
+			}
+			modifier = {
+				factor = 0.7
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+		}
+	}
+
+	# Army budget. Backed by the monarchists, the Conservatives, the Liberals and the Falange; the
+	# Liberals' price is a watch on the Africanistas.
+	SPR_bill_army_budget = {
+		icon = GFX_decision_category_army_reform
+		cost = 60
+		days_re_enable = 180
+		visible = {
+			hidden_trigger = {
+				has_country_flag = spain_campaign_initialized
+				NOT = { has_country_flag = spain_bill_army_passed }
+				OR = {
+					has_country_flag = spain_chapter_restoration
+					has_country_flag = spain_chapter_rivera
+					has_country_flag = spain_chapter_republic
+					has_country_flag = spain_chapter_postwar
+					has_country_flag = spain_chapter_republican_postwar
+				}
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_dissolved_tt
+				NOT = { has_country_flag = spain_cortes_dissolved }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_cooldown_tt
+				NOT = { has_country_flag = spain_bill_army_cooldown }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_reach_army_tt
+				OR = {
+					check_variable = { var = spain_bill_votes_army value = spain_bill_floor compare = greater_than_or_equals }
+					check_variable = { var = spain_government_seats value = spain_bill_floor compare = greater_than_or_equals }
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_bills.4 }
+		}
+		ai_will_do = {
+			factor = 55
+			modifier = {
+				factor = 3
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_bill_votes_army value = spain_bill_needed compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 0.7
+				spain_loyalty_high = yes
+			}
+		}
+	}
+
+	# Regional statute. Backed by the republicans, the socialists and the Liberals; the Conservative
+	# benches vote for it once the Captain-General has been reassured.
+	SPR_bill_regional_statute = {
+		icon = GFX_decision_category_generic_democracy
+		cost = 70
+		days_re_enable = 240
+		visible = {
+			hidden_trigger = {
+				has_country_flag = spain_campaign_initialized
+				NOT = { has_country_flag = spain_bill_statute_passed }
+				OR = {
+					has_country_flag = spain_chapter_republic
+					has_country_flag = spain_chapter_postwar
+					has_country_flag = spain_chapter_republican_postwar
+				}
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_dissolved_tt
+				NOT = { has_country_flag = spain_cortes_dissolved }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_cooldown_tt
+				NOT = { has_country_flag = spain_bill_statute_cooldown }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_reach_statute_tt
+				OR = {
+					check_variable = { var = spain_bill_votes_statute value = spain_bill_floor compare = greater_than_or_equals }
+					check_variable = { var = spain_government_seats value = spain_bill_floor compare = greater_than_or_equals }
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_bills.5 }
+		}
+		ai_will_do = {
+			factor = 35
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_bill_votes_statute value = spain_bill_needed compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_attempt_floor compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 1.4
+				check_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_statute compare = less_than }
+			}
+		}
+	}
+
+	# Electoral law. The whole chamber votes on its own franchise: every bench outside the government
+	# plus the government's own seats. It is brought once, and the election it triggers is the risk.
+	SPR_bill_electoral_law = {
+		icon = GFX_decision_category_generic_democracy
+		cost = 40
+		days_re_enable = 365
+		visible = {
+			hidden_trigger = {
+				has_country_flag = spain_campaign_initialized
+				NOT = { has_country_flag = spain_electoral_reform }
+				OR = {
+					has_country_flag = spain_chapter_restoration
+					has_country_flag = spain_chapter_republic
+					has_country_flag = spain_chapter_postwar
+					has_country_flag = spain_chapter_republican_postwar
+				}
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_dissolved_tt
+				NOT = { has_country_flag = spain_cortes_dissolved }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_cooldown_tt
+				NOT = { has_country_flag = spain_bill_electoral_cooldown }
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_bill_reach_electoral_tt
+				OR = {
+					check_variable = { var = spain_bill_votes_electoral value = spain_bill_floor compare = greater_than_or_equals }
+					check_variable = { var = spain_government_seats value = spain_bill_floor compare = greater_than_or_equals }
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_bills.6 }
+		}
+		ai_will_do = {
+			factor = 45
+			modifier = {
+				factor = 2
+				check_variable = { var = spain_bill_votes_electoral value = spain_bill_needed compare = greater_than_or_equals }
+			}
+			modifier = {
+				factor = 0.5
+				has_stability < constant:spain_campaign.election_unrest_threshold
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { var = spain_government_majority value = 0 }
+			}
+		}
+	}
+
+}

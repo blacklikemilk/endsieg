@@ -1,0 +1,610 @@
+# Overview: idempotent chapter routing, institutions and finite construction for Iran, 1910-1945.
+# Country scope throughout unless an explicit Iranian state scope is entered.
+# Dependence is published, not accumulated: iran_recompute_leverage turns patron influence and
+# repayable credit into the two values the rest of the campaign reads.
+#
+# Captures the one-time baselines that derivation measures influence against. Safe to call at any
+# time: it does nothing once the baselines exist, so a chapter transition never re-bases the value
+# and a country that is already running keeps the dependence it actually has.
+iran_leverage_baseline_init = {
+	hidden_effect = {
+		if = {
+			limit = { NOT = { has_country_flag = iran_leverage_baselined } }
+			clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+			set_variable = { iran_leverage_baseline = iran_foreign_leverage }
+			set_variable = { iran_influence_baseline = iran_british_influence }
+			add_to_variable = { iran_influence_baseline = iran_northern_influence }
+			add_to_variable = { iran_influence_baseline = iran_german_influence }
+			set_variable = { iran_leverage_debt = constant:iran_story.leverage_debt_opening }
+			set_country_flag = iran_leverage_baselined
+		}
+	}
+}
+#
+# The only publisher of iran_leverage_landed and iran_foreign_leverage.
+#   landed = clamp(baseline + (sum of patron influence - influence baseline) * weight, 0, 100)
+#   total  = clamp(landed + repayable debt, 0, 100)
+# Influences are clamped first so a concession capped at 100 cannot manufacture dependence that the
+# patron never actually gained. Does not call iran_refresh_mechanics, so a caller can never recurse.
+iran_recompute_leverage = {
+	hidden_effect = {
+		iran_leverage_baseline_init = yes
+		clamp_variable = { var = iran_british_influence min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_northern_influence min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_german_influence min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		set_variable = { iran_leverage_landed = iran_british_influence }
+		add_to_variable = { iran_leverage_landed = iran_northern_influence }
+		add_to_variable = { iran_leverage_landed = iran_german_influence }
+		subtract_from_variable = { iran_leverage_landed = iran_influence_baseline }
+		multiply_variable = { var = iran_leverage_landed value = constant:iran_story.leverage_derivation_weight }
+		add_to_variable = { iran_leverage_landed = iran_leverage_baseline }
+		clamp_variable = { var = iran_leverage_landed min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_leverage_debt min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		set_variable = { iran_foreign_leverage = iran_leverage_landed }
+		add_to_variable = { iran_foreign_leverage = iran_leverage_debt }
+		clamp_variable = { var = iran_foreign_leverage min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+	}
+}
+# Recomputes the clamps and swaps the route's state spirits. The whole body is hidden so callers show a clean tooltip
+# instead of a list of every spirit that might be removed or added.
+iran_refresh_mechanics = {
+	hidden_effect = {
+		iran_recompute_leverage = yes
+		clamp_variable = { var = iran_authority min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_british_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		clamp_variable = { var = iran_northern_standing min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		remove_ideas = { iran_fragmented_authority iran_constitutional_state iran_pahlavi_state iran_parliamentary_state iran_qajar_state iran_socialist_state iran_nationalist_state iran_constitutional_consolidated iran_pahlavi_consolidated iran_parliamentary_consolidated iran_socialist_consolidated iran_nationalist_consolidated iran_qajar_consolidated }
+		if = {
+			limit = { has_country_flag = iran_republic }
+			if = {
+				limit = { has_country_flag = iran_republic_settled }
+				add_ideas = iran_parliamentary_consolidated
+			}
+			else = { add_ideas = iran_parliamentary_state }
+		}
+		else_if = {
+			limit = { has_country_flag = iran_pahlavi }
+			if = {
+				limit = { has_country_flag = iran_pahlavi_settled }
+				add_ideas = iran_pahlavi_consolidated
+			}
+			else = { add_ideas = iran_pahlavi_state }
+		}
+		else_if = {
+			limit = { has_country_flag = iran_qajar_restoration }
+			if = {
+				limit = { has_country_flag = iran_restoration_settled }
+				add_ideas = iran_qajar_consolidated
+			}
+			else = { add_ideas = iran_qajar_state }
+		}
+		else_if = {
+			limit = { has_country_flag = iran_socialist }
+			if = {
+				limit = { has_country_flag = iran_socialist_settled }
+				add_ideas = iran_socialist_consolidated
+			}
+			else = { add_ideas = iran_socialist_state }
+		}
+		else_if = {
+			limit = { has_country_flag = iran_nationalist_front }
+			if = {
+				limit = { has_country_flag = iran_nationalist_settled }
+				add_ideas = iran_nationalist_consolidated
+			}
+			else = { add_ideas = iran_nationalist_state }
+		}
+		else_if = {
+			limit = { check_variable = { var = iran_authority value = constant:iran_story.authority_reform compare = greater_than_or_equals } }
+			if = {
+				limit = { has_country_flag = iran_constitutional_settled }
+				add_ideas = iran_constitutional_consolidated
+			}
+			else = { add_ideas = iran_constitutional_state }
+		}
+		else = { add_ideas = iran_fragmented_authority }
+		if = {
+			limit = { check_variable = { var = iran_foreign_leverage value = constant:iran_story.leverage_dependency compare = greater_than_or_equals } }
+			add_ideas = iran_foreign_dependence
+		}
+		else = { remove_ideas = iran_foreign_dependence }
+		# The Great Game: exactly one of the three standings is ever in force, and the
+		# switch is hidden because it fires from dozens of focuses and decisions.
+		# "Balanced" needs no arithmetic: both patrons present, neither dominant.
+		hidden_effect = {
+			remove_ideas = { iran_british_preference iran_soviet_preference iran_balancing_powers }
+			if = {
+				limit = {
+					check_variable = { var = iran_british_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
+					check_variable = { var = iran_northern_standing value = constant:iran_story.great_game_parity_threshold compare = greater_than_or_equals }
+					check_variable = { var = iran_british_standing value = constant:iran_story.great_game_preference_threshold compare = less_than }
+					check_variable = { var = iran_northern_standing value = constant:iran_story.great_game_preference_threshold compare = less_than }
+				}
+				add_ideas = iran_balancing_powers
+			}
+			else_if = {
+				limit = { check_variable = { var = iran_british_standing value = constant:iran_story.great_game_preference_threshold compare = greater_than_or_equals } }
+				add_ideas = iran_british_preference
+			}
+			else_if = {
+				limit = { check_variable = { var = iran_northern_standing value = constant:iran_story.great_game_preference_threshold compare = greater_than_or_equals } }
+				add_ideas = iran_soviet_preference
+			}
+		}
+		# The 1921 contest's long shadow: an officer corps that was bought, purged
+		# or left unpaid does not fight well for whoever is sitting in Tehran.
+		if = {
+			limit = {
+				check_variable = { var = iran_officer_loyalty value = 40 compare = less_than }
+				date > 1918.12.31
+			}
+			add_ideas = iran_divided_officer_corps
+		}
+		else = { remove_ideas = iran_divided_officer_corps }
+	}
+}
+iran_initialize_campaign = {
+	if = {
+		limit = { original_tag = PER NOT = { has_country_flag = iran_campaign_active } }
+		set_country_flag = iran_campaign_active
+		remove_ideas = { PER_spheres_of_influence PER_anglo_persian_tutelage PER_weak_central_authority PER_allied_occupation }
+		set_variable = { iran_authority = constant:iran_story.authority_opening }
+		set_variable = { iran_foreign_leverage = constant:iran_story.leverage_opening }
+		set_variable = { iran_socialist_support = 0 }
+		iran_coup_init = yes
+		set_variable = { iran_british_standing = constant:iran_story.british_opening }
+		set_variable = { iran_northern_standing = constant:iran_story.soviet_opening }
+		set_variable = { iran_sovereignty = constant:iran_story.sovereignty_opening }
+		set_variable = { iran_british_influence = constant:iran_story.influence_opening_british }
+		set_variable = { iran_northern_influence = constant:iran_story.influence_opening_northern }
+		set_variable = { iran_german_influence = 0 }
+		if = {
+			limit = { date > 1918.12.31 }
+			set_variable = { iran_authority = constant:iran_story.authority_interwar }
+			set_variable = { iran_sovereignty = constant:iran_story.sovereignty_interwar }
+			set_variable = { iran_foreign_leverage = constant:iran_story.leverage_interwar }
+			set_country_flag = iran_treasury_programme
+			set_country_flag = iran_security_programme
+			set_country_flag = iran_construction_programme
+			set_country_flag = iran_provincial_compact
+			set_country_flag = iran_tax_reformed
+			set_country_flag = PER_treasury_reformed
+			set_country_flag = iran_gendarmerie_ready
+		}
+		if = {
+			limit = { date > 1925.12.14 }
+			set_country_flag = iran_pahlavi
+			set_country_flag = PER_pahlavi_dynasty
+			set_country_flag = iran_civil_service
+			set_country_flag = iran_regime_settled
+			set_country_flag = iran_cossack_tradition
+			set_country_flag = iran_dynastic_assembly
+		}
+		if = {
+			limit = { date > 1935.12.31 }
+			set_variable = { iran_authority = constant:iran_story.authority_late_start }
+			set_variable = { iran_foreign_leverage = constant:iran_story.leverage_late_start }
+			set_country_flag = iran_budget_established
+			set_country_flag = iran_foreign_programme
+			set_country_flag = iran_education_programme
+		}
+		if = { limit = { date > 1938.8.25 } set_country_flag = iran_railway_north set_country_flag = iran_railway_south }
+		if = {
+			limit = { date > 1941.9.16 }
+			set_country_flag = PER_majlis_resurgence
+			set_country_flag = iran_allied_cooperation
+			set_country_flag = iran_ultimatum_resolved
+			set_country_flag = iran_crisis_seen
+			set_country_flag = iran_relief_programme
+			set_country_flag = iran_relief_delivered
+			set_country_flag = iran_public_granaries
+			set_country_flag = iran_wartime_government
+			set_country_flag = iran_occupied
+			set_country_flag = iran_succession_question
+		}
+		if = { limit = { date > 1943.11.30 } set_country_flag = iran_tehran_declaration }
+		# Baselines are captured here, after the chapter's opening values and influences exist and
+		# before anything publishes a dependence band. A fresh 1910, 1919 or 1936 start therefore
+		# opens at 60, 40 or 30, and a later start opens at its own value.
+		iran_leverage_baseline_init = yes
+		iran_route_chapter = yes
+		iran_refresh_mechanics = yes
+	}
+}
+iran_route_chapter = {
+	if = {
+		limit = { date < 1919.1.1 NOT = { has_focus_tree = iran_ww1 } }
+		load_focus_tree = { tree = iran_ww1 keep_completed = yes }
+		iran_apply_historical_start = yes
+	}
+	else_if = {
+		limit = { date > 1918.12.31 date < 1936.1.1 NOT = { has_focus_tree = iran_interwar } }
+		load_focus_tree = { tree = iran_interwar keep_completed = yes }
+	}
+	else_if = {
+		limit = {
+			date > 1935.12.31
+			has_dlc = "Graveyard of Empires"
+			NOT = { has_focus_tree = persian_focus_tree }
+			# The DLC tree distinguishes four governments. Hand over only for
+			# regimes it can actually represent, so a Qajar restoration or a
+			# constitutional monarchy is not flattened into "neutral Iran".
+			OR = {
+				has_country_flag = iran_pahlavi
+				has_country_flag = iran_republic
+				has_country_flag = iran_nationalist_front
+				has_country_flag = iran_socialist
+			}
+		}
+		load_focus_tree = { tree = persian_focus_tree keep_completed = yes }
+	}
+	else_if = {
+		limit = {
+			date > 1935.12.31
+			NOT = { has_focus_tree = iran_ww2 }
+			OR = { date > 1936.6.30 has_country_flag = iran_regime_settled }
+		}
+		load_focus_tree = { tree = iran_ww2 keep_completed = yes }
+	}
+}
+iran_campaign_tick = {
+	iran_negotiation_tick = yes
+	PER_bop_resurgence_check = yes
+	PER_bop_sync = yes
+	if = {
+		limit = { iran_campaign_country = yes }
+		if = {
+			limit = { date > 1918.12.31 has_focus_tree = iran_ww1 }
+			iran_route_chapter = yes
+			country_event = { id = iran_campaign.20 }
+		}
+		if = {
+			limit = {
+				date > 1935.12.31
+				has_focus_tree = iran_interwar
+			}
+			iran_route_chapter = yes
+			country_event = { id = iran_campaign.30 }
+		}
+		if = {
+			limit = {
+				date > 1934.1.1
+				NOT = { has_country_flag = iran_regime_settled }
+				NOT = { has_country_flag = iran_settlement_warned }
+			}
+			set_country_flag = iran_settlement_warned
+			country_event = { id = iran_campaign.31 }
+		}
+		if = {
+			limit = { date > 1936.6.30 NOT = { has_country_flag = iran_regime_settled } }
+			# history does not wait for a Majlis that will not decide
+			iran_settle_pahlavi = yes
+		}
+		if = {
+			limit = { date > 1940.12.31 iran_allied_pressure = yes NOT = { has_country_flag = iran_crisis_seen } NOT = { has_country_flag = SOV_ultimatum_sent_flag } }
+			set_country_flag = iran_crisis_seen
+			country_event = { id = iran_campaign.40 }
+		}
+	}
+}
+iran_build_tehran_arsenal = {
+	if = {
+		limit = { owns_state = 266 controls_state = 266 NOT = { has_country_flag = iran_tehran_arsenal_built } }
+		266 = {
+			add_extra_state_shared_building_slots = constant:iran_story.project_slots
+			add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+		}
+		set_country_flag = iran_tehran_arsenal_built
+	}
+}
+iran_build_frontier_posts = {
+	if = {
+		limit = { owns_state = 419 controls_state = 419 NOT = { has_country_flag = iran_frontier_posts_built } }
+		419 = { add_building_construction = { type = bunker level = 1 instant_build = yes } }
+		set_country_flag = iran_frontier_posts_built
+	}
+}
+iran_settle_pahlavi = {
+	hidden_effect = {
+		set_country_flag = iran_pahlavi
+		set_country_flag = PER_pahlavi_dynasty
+		set_country_flag = iran_regime_settled
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		if = { limit = { has_character = PER_reza_shah_pahlavi } promote_character = PER_reza_shah_pahlavi }
+		add_to_variable = { iran_authority = constant:iran_story.authority_major_gain }
+		add_stability = constant:iran_story.stability_cost
+		PER_bop_sync = yes
+		iran_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+	}
+	custom_effect_tooltip = iran_settle_pahlavi_tt
+}
+iran_settle_constitution = {
+	hidden_effect = {
+		set_country_flag = iran_constitutional_monarchy
+		set_country_flag = iran_regime_settled
+		set_country_flag = iran_constitutionalist
+		set_politics = { ruling_party = neutrality elections_allowed = yes }
+		add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+		add_stability = constant:iran_story.stability_major_gain
+		PER_bop_settle_constitution = yes
+		PER_bop_sync = yes
+		iran_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+	}
+	custom_effect_tooltip = iran_settle_constitution_tt
+}
+iran_settle_republic = {
+	hidden_effect = {
+		set_country_flag = iran_republic
+		set_country_flag = PER_republic
+		set_country_flag = iran_regime_settled
+		set_politics = { ruling_party = democratic elections_allowed = yes }
+		# give the ideology enough support that the 1936 tree's own branch gates pass
+		add_popularity = { ideology = democratic popularity = 0.30 }
+		if = { limit = { has_character = PER_mohammad_ali_foroughi } promote_character = PER_mohammad_ali_foroughi }
+		add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+		add_stability = constant:iran_story.stability_cost
+		PER_bop_settle_republic = yes
+		PER_bop_sync = yes
+		iran_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+	}
+	custom_effect_tooltip = iran_settle_republic_tt
+}
+
+iran_settle_qajar_restoration = {
+	hidden_effect = {
+		set_country_flag = iran_qajar_restoration
+		set_country_flag = iran_regime_settled
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		if = { limit = { has_character = PER_ahmad_shah_qajar } promote_character = PER_ahmad_shah_qajar }
+		add_to_variable = { iran_authority = constant:iran_story.authority_major_gain }
+		add_stability = constant:iran_story.stability_gain
+		remove_ideas = iran_foreign_dependence
+		PER_bop_settle_qajar = yes
+		PER_bop_sync = yes
+		iran_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+	}
+	custom_effect_tooltip = iran_settle_qajar_restoration_tt
+}
+iran_settle_nationalist = {
+	hidden_effect = {
+		set_country_flag = iran_nationalist_front
+		set_country_flag = iran_regime_settled
+		set_politics = { ruling_party = fascism elections_allowed = no }
+		add_popularity = { ideology = fascism popularity = 0.30 }
+		if = { limit = { has_character = PER_zia_ol_din_tabatabee } promote_character = PER_zia_ol_din_tabatabee }
+		add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+		add_war_support = constant:iran_story.war_support_gain
+		PER_bop_settle_nationalist = yes
+		PER_bop_sync = yes
+		iran_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+	}
+	custom_effect_tooltip = iran_settle_nationalist_tt
+}
+iran_settle_socialist = {
+	hidden_effect = {
+		set_country_flag = iran_socialist
+		set_country_flag = iran_regime_settled
+		set_politics = { ruling_party = communism elections_allowed = yes }
+		add_popularity = { ideology = communism popularity = 0.30 }
+		if = { limit = { has_character = PER_soleiman_mirza_eskandari } promote_character = PER_soleiman_mirza_eskandari }
+		add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+		add_stability = constant:iran_story.stability_cost
+		PER_bop_settle_socialist = yes
+		PER_bop_sync = yes
+		iran_refresh_mechanics = yes
+		mark_focus_tree_layout_dirty = yes
+	}
+	custom_effect_tooltip = iran_settle_socialist_tt
+}
+
+# Starting later than 1910 means part of the chapter has already happened.
+#
+# Only focuses that history *fixed* are completed: the Second Majlis sat, the
+# treasury was empty, the command was divided, the empires were already pressing.
+# The mutually exclusive choices - parliamentary mandate against court patronage,
+# armed neutrality against a German opening - are deliberately left to the
+# player, because those are the decisions the chapter is about.
+iran_apply_historical_start = {
+	if = {
+		limit = { NOT = { has_country_flag = iran_historical_start_applied } }
+		set_country_flag = iran_historical_start_applied
+		if = {
+			limit = { has_focus_tree = iran_ww1 date > 1911.1.1 }
+			complete_national_focus = IR1_second_majlis
+			complete_national_focus = IR1_empty_treasury
+			complete_national_focus = IR1_divided_command
+			complete_national_focus = IR1_between_empires
+			if = {
+				limit = { date > 1911.7.1 }
+				complete_national_focus = IR1_shuster_mission
+			}
+		}
+	}
+}
+
+# Call this from decisions. iran_refresh_mechanics strips and re-adds the whole
+# state-spirit family, which otherwise prints every removal - including spirits
+# the country does not have - into the decision tooltip.
+iran_refresh_mechanics_hidden = {
+	hidden_effect = { iran_refresh_mechanics = yes }
+}
+
+# Once a patron has the upper hand, it starts asking for things. Fired from the
+# monthly clock; each demand is once per campaign so the panel cannot spam.
+iran_great_game_tick = {
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			date < 1946.1.1
+			check_variable = { var = iran_british_standing value = 70 compare = greater_than_or_equals }
+			NOT = { has_country_flag = iran_british_demand_seen }
+			NOT = { has_country_flag = iran_negotiation_open }
+		}
+		set_country_flag = iran_british_demand_seen
+		country_event = { id = iran_campaign.71 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			date < 1946.1.1
+			country_exists = SOV
+			check_variable = { var = iran_northern_standing value = 70 compare = greater_than_or_equals }
+			NOT = { has_country_flag = iran_soviet_demand_seen }
+			NOT = { has_country_flag = iran_negotiation_open }
+		}
+		set_country_flag = iran_soviet_demand_seen
+		country_event = { id = iran_campaign.72 }
+	}
+}
+
+# Great Game 2.0 clock: influence erodes sovereignty, reform restores it, and
+# holding incompatible concessions raises a crisis. Monthly, Iran only.
+iran_influence_tick = {
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			check_variable = { var = iran_british_influence value = constant:iran_story.influence_pressure_threshold compare = greater_than_or_equals }
+		}
+		subtract_from_variable = { iran_sovereignty = 1 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			check_variable = { var = iran_northern_influence value = constant:iran_story.influence_pressure_threshold compare = greater_than_or_equals }
+		}
+		subtract_from_variable = { iran_sovereignty = 1 }
+	}
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			has_country_flag = iran_customs_reformed
+			check_variable = { var = iran_sovereignty value = 80 compare = less_than }
+		}
+		add_to_variable = { iran_sovereignty = 1 }
+	}
+	# Republication point for the monthly drift: anything that moved influence without asking for a
+	# refresh is corrected here instead of drifting until a decision happens to call one.
+	iran_recompute_leverage = yes
+	# A power at war demands transit. This is what makes the patrons actors
+	# rather than bars on a panel.
+	#
+	# The three wartime demands below are one chain, not three independent
+	# offers: there is a single corridor, so only one patron can put a claim on
+	# it in a given month. British transit is asked for first, the northern
+	# claim follows it, and the Allied demand over the German mission comes
+	# last. A branch sets its own seen flag only when it dispatches, so a month
+	# spent in negotiation consumes no demand and a later month can deliver the
+	# next one.
+	#
+	# The corridor belongs to the war years. A Britain at war in 1914 must not
+	# consume the British transit demand three decades early, so the era fence
+	# is a year-level boundary rather than a claim about the day of any
+	# ultimatum.
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			country_exists = ENG
+			ENG = { has_war = yes }
+			date > 1940.12.31
+			NOT = { has_country_flag = iran_agreement_transit_allied }
+			NOT = { has_country_flag = iran_transit_demand_seen }
+			NOT = { has_country_flag = iran_negotiation_open }
+		}
+		set_country_flag = iran_transit_demand_seen
+		country_event = { id = iran_campaign.74 }
+	}
+	else_if = {
+		limit = {
+			iran_campaign_country = yes
+			country_exists = SOV
+			SOV = { has_war = yes }
+			date > 1941.1.1
+			NOT = { has_country_flag = iran_agreement_transit_allied }
+			NOT = { has_country_flag = iran_soviet_transit_seen }
+			NOT = { has_country_flag = iran_negotiation_open }
+		}
+		set_country_flag = iran_soviet_transit_seen
+		country_event = { id = iran_campaign.75 }
+	}
+	else_if = {
+		limit = {
+			iran_campaign_country = yes
+			country_exists = GER
+			GER = { has_war = yes }
+			has_country_flag = iran_agreement_german_mission
+			date > 1940.12.31
+			NOT = { has_country_flag = iran_allied_demand }
+			NOT = { has_country_flag = iran_negotiation_open }
+		}
+		set_country_flag = iran_allied_demand
+		country_event = { id = iran_campaign.76 }
+	}
+	# Incompatible obligations: a British arrangement and a northern one that
+	# cannot both be honoured. Penalty applies while both are held.
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			has_country_flag = iran_agreement_british_loan
+			has_country_flag = iran_agreement_northern_railway
+			NOT = { has_idea = iran_competing_concessions }
+		}
+		add_ideas = iran_competing_concessions
+		country_event = { id = iran_campaign.73 }
+	}
+	else_if = {
+		limit = {
+			iran_campaign_country = yes
+			has_idea = iran_competing_concessions
+			NOT = { has_country_flag = iran_agreement_british_loan }
+		}
+		remove_ideas = iran_competing_concessions
+	}
+	else_if = {
+		limit = {
+			iran_campaign_country = yes
+			has_idea = iran_competing_concessions
+			NOT = { has_country_flag = iran_agreement_northern_railway }
+		}
+		remove_ideas = iran_competing_concessions
+	}
+	# Publish the sovereignty band as a spirit, so the state of the Great Game is
+	# visible in the political panel rather than only in a decision tooltip. Each
+	# branch fires only when the band actually changes, so the panel does not churn.
+	if = {
+		limit = {
+			check_variable = { var = iran_sovereignty value = 25 compare = less_than }
+			NOT = { has_idea = iran_sovereignty_capitulations }
+		}
+		remove_ideas = { iran_sovereignty_constrained iran_sovereignty_assertive iran_sovereignty_sovereign }
+		add_ideas = iran_sovereignty_capitulations
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = iran_sovereignty value = 50 compare = less_than }
+			NOT = { has_idea = iran_sovereignty_constrained }
+		}
+		remove_ideas = { iran_sovereignty_capitulations iran_sovereignty_assertive iran_sovereignty_sovereign }
+		add_ideas = iran_sovereignty_constrained
+	}
+	else_if = {
+		limit = {
+			check_variable = { var = iran_sovereignty value = 75 compare = less_than }
+			NOT = { has_idea = iran_sovereignty_assertive }
+		}
+		remove_ideas = { iran_sovereignty_capitulations iran_sovereignty_constrained iran_sovereignty_sovereign }
+		add_ideas = iran_sovereignty_assertive
+	}
+	else_if = {
+		limit = { NOT = { has_idea = iran_sovereignty_sovereign } }
+		remove_ideas = { iran_sovereignty_capitulations iran_sovereignty_constrained iran_sovereignty_assertive }
+		add_ideas = iran_sovereignty_sovereign
+	}
+	clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+	clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+	clamp_variable = { var = iran_northern_influence min = 0 max = 100 }
+}

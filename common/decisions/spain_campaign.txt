@@ -1,0 +1,985 @@
+# Overview: the Spanish campaign decision systems, 1910-1945.
+# Seven live categories: the Crown against the Cortes, the officer corps, the regional question, the Rif War,
+# the Nationalist faction struggle, wartime diplomacy and reconstruction. A debug category exists for tuning.
+# Costs are paid in political power, experience, equipment, manpower or stability, never in political power alone.
+
+# Native decision timer and cost fields require literal values (the same reason
+# common/decisions/iran_campaign.txt uses macros), so the pacing values of the ministerial crisis
+# are local macros here. Their tuning anchors live in common/script_constants/spain_campaign.txt
+# and .tools/tests/test_spain_turno.py asserts the pair, so a retune cannot drift.
+@crisis_timeout_days = 90
+@election_pp = 50
+@election_cooldown = 90
+@decree_pp = 75
+
+# =====================================================================================
+# The Crown against the Cortes
+# =====================================================================================
+
+SPR_crown_and_cortes_category = {
+	SPR_court_appointments = {
+		icon = generic_monarchy
+		cost = 40
+		days_re_enable = 120
+		complete_effect = {
+			spain_push_crown = yes
+			spain_loyalty_gain_small = yes
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_royal_progress = {
+		icon = generic_political_rally
+		cost = 25
+		days_re_enable = 90
+		complete_effect = {
+			spain_push_crown_small = yes
+			add_stability = constant:spain_campaign.stability_small
+		}
+		ai_will_do = { base = 15 }
+	}
+
+	SPR_budget_offensive = {
+		icon = generic_political_address
+		cost = 40
+		days_re_enable = 120
+		complete_effect = {
+			spain_push_cortes = yes
+			add_stability = constant:spain_campaign.stability_cost
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_parliamentary_inquiry = {
+		icon = generic_political_discourse
+		cost = 30
+		days_re_enable = 90
+		complete_effect = {
+			spain_push_cortes_small = yes
+			spain_loyalty_loss_small = yes
+		}
+		ai_will_do = { base = 15 }
+	}
+
+
+	SPR_force_an_election = {
+		icon = generic_political_rally
+		cost = 150
+		fire_only_once = yes
+		available = {
+			spain_cortes_ascendant = yes
+		}
+		complete_effect = {
+			spain_push_cortes_large = yes
+			add_stability = constant:spain_campaign.stability_cost
+			spain_loyalty_loss_small = yes
+			set_country_flag = spain_forced_election
+		}
+		ai_will_do = { base = 10 }
+	}
+
+	# =============================================================================
+	# The ministerial crisis
+	# =============================================================================
+
+	# A government that cannot command the chamber is a caretaker, and the King does not keep a
+	# caretaker. The mission runs while the crisis is open, completes the day the government bloc
+	# reaches 201 seats, and if the deadline runs out the Crown draws up the lists itself, which
+	# is spain_campaign.32: an ignored crisis costs caciquismo instead of lapsing.
+	SPR_ministerial_crisis = {
+		icon = generic_political_address
+		allowed = { original_tag = SPR }
+		activation = {
+			hidden_trigger = { has_country_flag = spain_ministry_crisis_open }
+			custom_trigger_tooltip = { tooltip = spain_ministry_crisis_open_tt }
+		}
+		available = {
+			hidden_trigger = { has_country_flag = spain_ministry_crisis_open }
+			custom_trigger_tooltip = {
+				tooltip = spain_ministry_crisis_resolved_tt
+				check_variable = { var = spain_government_seats value = constant:spain_campaign.cortes_majority compare = greater_than_or_equals }
+			}
+		}
+		cancel_trigger = { NOT = { has_country_flag = spain_ministry_crisis_open } }
+		days_mission_timeout = @crisis_timeout_days
+		# reaching the majority is the good outcome and the deadline is the failure, so the mission
+		# is not inverted: the panel must offer completion as the reward and the timeout as the cost.
+		# (is_good = yes would relabel the completion as "effects when failed".)
+		is_good = no
+		complete_effect = {
+			hidden_effect = { clr_country_flag = spain_ministry_crisis_open }
+			custom_effect_tooltip = spain_ministry_crisis_complete_tt
+		}
+		timeout_effect = {
+			hidden_effect = {
+				clr_country_flag = spain_ministry_crisis_open
+				country_event = { id = spain_campaign.32 days = 1 }
+			}
+			custom_effect_tooltip = spain_ministry_crisis_timeout_tt
+		}
+	}
+
+	# =============================================================================
+	# The three doors out of the crisis
+	# =============================================================================
+
+	# The turno: the minister of the interior writes the lists and the government's party takes
+	# the seats four named blocs lose. No political power changes hands; the price is patronage,
+	# the rot it feeds and the donors the machine empties.
+	SPR_encasillado = {
+		icon = generic_political_discourse
+		visible = {
+			hidden_trigger = {
+				spain_restoration_cortes_live = yes
+				spain_government_short = yes
+			}
+		}
+		available = {
+			custom_trigger_tooltip = { tooltip = spain_encasillado_available_tt spain_encasillado_available = yes }
+		}
+		complete_effect = { spain_encasillado = yes }
+		ai_will_do = {
+			base = 0
+			modifier = { add = 30 has_war = no }
+			modifier = { add = 20 check_variable = { var = spain_crown_patronage value = constant:spain_campaign.patronage_rot compare = less_than } }
+			modifier = { factor = 0.4 check_variable = { var = spain_crown_patronage value = constant:spain_campaign.patronage_rot compare = greater_than_or_equals } }
+			modifier = { factor = 0.5 has_war = yes }
+		}
+	}
+
+	# Let the country decide: the same election the party system already holds, the same cost, and
+	# the same appointment afterwards. Nothing guarantees the result.
+	SPR_honest_election = {
+		icon = generic_political_rally
+		cost = @election_pp
+		days_re_enable = @election_cooldown
+		visible = {
+			hidden_trigger = {
+				spain_restoration_cortes_live = yes
+				spain_government_short = yes
+			}
+		}
+		available = {
+			custom_trigger_tooltip = { tooltip = spain_honest_election_available_tt spain_restoration_cortes_live = yes }
+		}
+		complete_effect = {
+			spain_hold_election = yes
+			spain_appoint_government = { PARTY = 0 COALITION_1 = 0 COALITION_2 = 0 }
+			custom_effect_tooltip = spain_honest_election_tt
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = 25 has_war = no }
+			modifier = { add = 10 has_stability > 0.4 }
+			modifier = { factor = 0.5 has_war = yes }
+		}
+	}
+
+	# Rule without the chamber. No seat moves: the government simply stops asking, and the army
+	# and the country both read what that means.
+	SPR_royal_decree = {
+		icon = generic_monarchy
+		cost = @decree_pp
+		visible = {
+			hidden_trigger = {
+				spain_restoration_cortes_live = yes
+				spain_government_short = yes
+			}
+		}
+		available = {
+			custom_trigger_tooltip = { tooltip = spain_royal_decree_available_tt spain_restoration_cortes_live = yes }
+			# the decree is a one-way door: once the Crown governs by decree the route stays on the
+			# board, greyed with its reason, instead of vanishing without explanation
+			custom_trigger_tooltip = {
+				tooltip = spain_royal_decree_inforce_tt
+				NOT = { has_country_flag = spain_restoration_decree_rule }
+			}
+		}
+		complete_effect = {
+			hidden_effect = {
+				spain_push_cortes = yes
+				spain_loyalty_loss = yes
+				set_country_flag = spain_restoration_decree_rule
+				spain_appoint_government = { PARTY = 1 COALITION_1 = 0 COALITION_2 = 0 }
+				clr_country_flag = spain_ministry_crisis_open
+			}
+			custom_effect_tooltip = spain_royal_decree_tt
+		}
+		ai_will_do = {
+			base = 0
+			modifier = { add = 12 has_war = no }
+			modifier = { add = 8 check_variable = { var = spain_encasillados value = constant:spain_campaign.encasillado_cap compare = greater_than_or_equals } }
+			modifier = { factor = 0.5 has_war = yes }
+		}
+	}
+}
+
+# =====================================================================================
+# The officer corps
+# =====================================================================================
+
+SPR_military_loyalty = {
+	SPR_raise_officer_pay = {
+		icon = generic_army_support
+		available = {
+			OR = { has_country_flag = spain_juntas has_country_flag = spain_army_question_open date > 1916.1.1 }
+		}
+		cost = 50
+		days_re_enable = 180
+		complete_effect = {
+			spain_loyalty_gain = yes
+			add_stability = constant:spain_campaign.stability_cost
+		}
+		ai_will_do = { base = 25 }
+	}
+
+	SPR_promote_the_africanists = {
+		icon = generic_military
+		cost = 40
+		days_re_enable = 150
+		available = {
+			OR = { has_country_flag = spain_legion_formed has_country_flag = spain_africanist_corps date > 1920.1.1 } has_army_experience > 14 }
+		complete_effect = {
+			army_experience = constant:spain_campaign.army_experience_cost
+			spain_loyalty_gain = yes
+			add_war_support = constant:spain_campaign.war_support_small
+			spain_push_crown_small = yes
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_retire_senior_officers = {
+		icon = generic_arrest
+		available = {
+			OR = { has_country_flag = spain_army_question_open has_country_flag = spain_chapter_republic }
+		}
+		cost = 25
+		days_re_enable = 180
+		complete_effect = {
+			spain_loyalty_loss = yes
+			army_experience = constant:spain_campaign.army_experience
+			spain_push_cortes_small = yes
+		}
+		ai_will_do = { base = 10 }
+	}
+
+	SPR_garrison_the_cities = {
+		icon = generic_police_action
+		cost = 50
+		days_re_enable = 120
+		available = {
+			OR = { has_country_flag = spain_labour_question_open has_country_flag = spain_general_strike_1917 }
+			has_equipment = { infantry_equipment > 499 }
+		}
+		complete_effect = {
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:spain_campaign.infantry_equipment_cost }
+			subtract_from_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief_large }
+			add_stability = constant:spain_campaign.stability_small
+		}
+		ai_will_do = { base = 15 }
+	}
+
+	SPR_amnesty_for_the_juntas = {
+		icon = generic_civil_support
+		available = {
+			has_country_flag = spain_juntas
+		}
+		cost = 30
+		days_re_enable = 240
+		complete_effect = {
+			subtract_from_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief }
+			spain_loyalty_gain_small = yes
+			add_stability = constant:spain_campaign.stability_small
+		}
+		ai_will_do = { base = 20 }
+	}
+}
+
+# =====================================================================================
+# The regional question
+# =====================================================================================
+
+SPR_regional_question = {
+	SPR_negotiate_the_catalan_statute = {
+		icon = generic_political_discourse
+		cost = 50
+		days_re_enable = 180
+		available = {
+			OR = { has_country_flag = spain_mancomunitat has_country_flag = spain_chapter_republic } check_variable = { var = spain_catalan_autonomy value = 100 compare = less_than } }
+		complete_effect = {
+			add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_gain_large }
+			add_stability = constant:spain_campaign.stability_small
+			spain_refresh_campaign_ideas = yes
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_dissolve_the_mancomunitat = {
+		icon = generic_arrest
+		cost = 30
+		days_re_enable = 180
+		available = {
+			has_country_flag = spain_mancomunitat check_variable = { var = spain_catalan_autonomy value = 0 compare = greater_than } }
+		complete_effect = {
+			add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_loss_large }
+			add_stability = constant:spain_campaign.stability_cost
+			spain_loyalty_gain_small = yes
+			spain_refresh_campaign_ideas = yes
+		}
+		ai_will_do = { base = 12 }
+	}
+
+	SPR_basque_economic_accord = {
+		icon = generic_industry
+		cost = 40
+		days_re_enable = 180
+		available = {
+			OR = { has_country_flag = spain_basque_fueros has_country_flag = spain_chapter_republic } check_variable = { var = spain_basque_autonomy value = 100 compare = less_than } }
+		complete_effect = {
+			add_to_variable = { var = spain_basque_autonomy value = constant:spain_campaign.autonomy_gain }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			spain_refresh_campaign_ideas = yes
+			custom_effect_tooltip = spain_industry_gain_tt
+		}
+		ai_will_do = { base = 18 }
+	}
+
+	SPR_provincial_police = {
+		icon = generic_police_action
+		available = {
+			date > 1918.1.1
+		}
+		cost = 40
+		days_re_enable = 150
+		complete_effect = {
+			add_to_variable = { var = spain_catalan_autonomy value = constant:spain_campaign.autonomy_loss }
+			add_to_variable = { var = spain_basque_autonomy value = constant:spain_campaign.autonomy_loss }
+			add_stability = constant:spain_campaign.stability_small
+			add_war_support = constant:spain_campaign.war_support_small
+			spain_refresh_campaign_ideas = yes
+		}
+		ai_will_do = { base = 12 }
+	}
+}
+
+# =====================================================================================
+# The Rif War
+# =====================================================================================
+
+SPR_rif_war = {
+	SPR_reinforce_the_presidios = {
+		icon = generic_military
+		cost = 50
+		days_remove = 120
+		available = {
+			date < 1927.1.1 has_equipment = { infantry_equipment > 499 } }
+		modifier = {
+			army_morale_factor = 0.02
+		}
+		complete_effect = {
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:spain_campaign.infantry_equipment_cost }
+			set_country_flag = spain_rif_war_active
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_gain }
+			spain_loyalty_gain_small = yes
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_advance_the_column = {
+		icon = generic_army_support
+		cost = 30
+		days_remove = 90
+		available = {
+			OR = { has_country_flag = spain_rif_war_active date < 1927.1.1 } has_manpower > 4999 }
+		modifier = {
+			army_morale_factor = 0.05
+			war_support_factor = -0.02
+		}
+		complete_effect = {
+			add_manpower = constant:spain_campaign.manpower_cost
+			set_country_flag = spain_rif_war_active
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_gain_large }
+			add_stability = constant:spain_campaign.stability_cost
+			spain_loyalty_gain = yes
+		}
+		ai_will_do = { base = 15 }
+	}
+
+	SPR_negotiate_with_the_tribes = {
+		icon = generic_political_discourse
+		available = {
+			OR = { has_country_flag = spain_rif_war_active date < 1927.1.1 }
+		}
+		cost = 40
+		days_remove = 120
+		complete_effect = {
+			set_country_flag = spain_rif_war_active
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_loss }
+			add_stability = constant:spain_campaign.stability_small
+			add_war_support = constant:spain_campaign.war_support_cost
+			spain_loyalty_loss_small = yes
+		}
+		ai_will_do = { base = 10 }
+	}
+
+	SPR_annual_relief_expedition = {
+		icon = generic_crisis
+		cost = 60
+		days_remove = 90
+		fire_only_once = yes
+		available = {
+			has_country_flag = spain_annual_disaster
+			has_manpower > 9999
+		}
+		modifier = {
+			stability_factor = -0.03
+		}
+		complete_effect = {
+			add_manpower = constant:spain_campaign.manpower_cost
+			add_manpower = constant:spain_campaign.manpower_cost
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_gain_large }
+			add_war_support = constant:spain_campaign.war_support_small
+			army_experience = constant:spain_campaign.army_experience
+		}
+		ai_will_do = { base = 25 }
+	}
+
+	# The way out of a commitment that has outgrown the state. It only appears once the
+	# commitment has reached the exhaustion band, so a Rif campaign that was paid for cheaply
+	# never sees it; a campaign that was paid for in full ends with a cabinet that has to retreat
+	# from the Protectorate and say so out loud.
+	SPR_withdraw_from_the_column = {
+		icon = generic_break_treaty
+		cost = 75
+		fire_only_once = yes
+		available = {
+			spain_pre_civil_war = yes
+			spain_rif_commitment_exhausted = yes
+			OR = {
+				spain_rif_war_active = yes
+				has_country_flag = spain_rif_campaign_supported
+			}
+			date < 1928.1.1
+		}
+		complete_effect = {
+			add_to_variable = { var = spain_rif_commitment value = constant:spain_campaign.rif_loss_large }
+			if = { limit = { has_idea = spain_rif_quagmire } remove_ideas = spain_rif_quagmire }
+			if = { limit = { has_idea = spain_rif_exhaustion } remove_ideas = spain_rif_exhaustion }
+			add_to_variable = { var = spain_military_loyalty value = constant:spain_campaign.loyalty_gain }
+			add_war_support = constant:spain_campaign.war_support_cost
+			add_stability = constant:spain_campaign.stability_cost
+			add_political_power = constant:spain_campaign.pp_small
+			set_country_flag = spain_rif_withdrawn
+			spain_refresh_campaign_ideas = yes
+		}
+		ai_will_do = { base = 20 }
+	}
+}
+
+# =====================================================================================
+# The Nationalist faction struggle
+# =====================================================================================
+
+SPR_nationalist_factions = {
+	SPR_back_the_falange = {
+		icon = generic_nationalism
+		available = {
+			OR = { has_country_flag = spain_factions_opened has_country_flag = spain_chapter_postwar }
+		}
+		cost = 40
+		days_re_enable = 90
+		complete_effect = {
+			add_to_variable = { var = spain_falange value = constant:spain_campaign.faction_gain_large }
+			add_to_variable = { var = spain_army_faction value = constant:spain_campaign.faction_loss }
+			spain_refresh_faction_leadership = yes
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_back_the_carlists = {
+		icon = generic_monarchy
+		available = {
+			OR = { has_country_flag = spain_factions_opened has_country_flag = spain_chapter_postwar }
+		}
+		cost = 40
+		days_re_enable = 90
+		complete_effect = {
+			add_to_variable = { var = spain_carlists value = constant:spain_campaign.faction_gain_large }
+			add_to_variable = { var = spain_falange value = constant:spain_campaign.faction_loss }
+			spain_refresh_faction_leadership = yes
+		}
+		ai_will_do = { base = 15 }
+	}
+
+	SPR_back_the_monarchists = {
+		icon = generic_monarchy
+		available = {
+			OR = { has_country_flag = spain_factions_opened has_country_flag = spain_chapter_postwar }
+		}
+		cost = 40
+		days_re_enable = 90
+		complete_effect = {
+			add_to_variable = { var = spain_monarchists value = constant:spain_campaign.faction_gain_large }
+			add_to_variable = { var = spain_carlists value = constant:spain_campaign.faction_loss }
+			spain_refresh_faction_leadership = yes
+		}
+		ai_will_do = { base = 15 }
+	}
+
+	SPR_back_the_army = {
+		icon = generic_military
+		available = {
+			OR = { has_country_flag = spain_factions_opened has_country_flag = spain_chapter_postwar }
+		}
+		cost = 40
+		days_re_enable = 90
+		complete_effect = {
+			add_to_variable = { var = spain_army_faction value = constant:spain_campaign.faction_gain_large }
+			add_to_variable = { var = spain_monarchists value = constant:spain_campaign.faction_loss }
+			spain_loyalty_gain_small = yes
+			spain_refresh_faction_leadership = yes
+		}
+		ai_will_do = { base = 25 }
+	}
+
+	SPR_unify_the_movement = {
+		icon = generic_nationalism
+		cost = 100
+		fire_only_once = yes
+		available = {
+			has_country_flag = spain_factions_opened
+			OR = {
+				has_global_flag = spanish_civil_war
+				has_global_flag = scw_over
+			}
+			check_variable = { var = spain_nationalist_tension value = constant:spain_campaign.tension_crisis compare = greater_than_or_equals }
+		}
+		complete_effect = {
+			spain_faction_resolve_regime = yes
+			set_variable = { var = spain_nationalist_tension_carried value = 0 }
+			clr_country_flag = spain_faction_crisis_fired
+			add_stability = constant:spain_campaign.stability_small
+		}
+		ai_will_do = { base = 40 }
+	}
+
+	# The question the chapter exists to answer. The decision opens it; the event settles which
+	# part of the movement answers it, and the pact of 1945 concludes what the answer left open.
+	SPR_the_succession_question = {
+		icon = generic_political_discourse
+		cost = 50
+		fire_only_once = yes
+		available = {
+			date > 1945.1.1
+			custom_trigger_tooltip = {
+				tooltip = spain_postwar_chapter_tt
+				spain_in_postwar_chapter = yes
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_succession_open_tt
+				NOT = { has_country_flag = spain_succession_settled }
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_campaign.62 days = 1 }
+		}
+		ai_will_do = { base = 25 }
+	}
+
+	# The settlement of 1945 is what decides whether the regime is treated as a partner or as a
+	# leftover of the Axis year, so it comes after the succession and only once.
+	SPR_the_pact_of_1945 = {
+		icon = generic_political_address
+		cost = 75
+		fire_only_once = yes
+		available = {
+			date > 1945.1.1
+			custom_trigger_tooltip = {
+				tooltip = spain_postwar_chapter_tt
+				spain_in_postwar_chapter = yes
+			}
+			custom_trigger_tooltip = {
+				tooltip = spain_pact_open_tt
+				OR = {
+					has_country_flag = spain_succession_settled
+					has_country_flag = spain_monarchy_survived
+				}
+			}
+		}
+		complete_effect = {
+			country_event = { id = spain_campaign.63 days = 1 }
+		}
+		ai_will_do = { base = 20 }
+	}
+}
+
+# =====================================================================================
+# Wartime diplomacy
+# =====================================================================================
+
+SPR_wartime_diplomacy = {
+	SPR_negotiate_with_germany = {
+		icon = generic_political_discourse
+		cost = 40
+		days_re_enable = 150
+		available = {
+			date > 1936.7.17 country_exists = GER }
+		complete_effect = {
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_gain_large }
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+			GER = { add_opinion_modifier = { target = SPR modifier = spain_german_trade } }
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_negotiate_with_britain = {
+		icon = generic_political_discourse
+		cost = 40
+		days_re_enable = 150
+		available = {
+			date > 1936.7.17 country_exists = ENG }
+		complete_effect = {
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain_large }
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+			ENG = { add_opinion_modifier = { target = SPR modifier = spain_british_trade } }
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_wolfram_exports = {
+		icon = generic_industry
+		available = {
+			date > 1940.6.1
+		}
+		cost = 30
+		days_remove = 365
+		modifier = {
+			industrial_capacity_factory = 0.05
+		}
+		complete_effect = {
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_gain }
+		}
+		remove_effect = {
+			add_political_power = constant:spain_campaign.pp_medium
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+		}
+		ai_will_do = { base = 15 }
+	}
+
+	SPR_the_blue_division = {
+		icon = generic_military
+		cost = 75
+		fire_only_once = yes
+		available = {
+			spain_axis_leverage_high = yes
+			has_manpower > 9999
+			OR = { has_global_flag = welcome_event_WW2 date > 1941.6.21 }
+		}
+		complete_effect = {
+			add_manpower = constant:spain_campaign.manpower_cost
+			add_manpower = constant:spain_campaign.manpower_cost
+			add_ideas = spain_blue_division_sent
+			add_war_support = constant:spain_campaign.war_support_medium
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_loss }
+			if = { limit = { country_exists = GER } GER = { add_opinion_modifier = { target = SPR modifier = spain_german_trade } } }
+			set_country_flag = spain_blue_division
+		}
+		ai_will_do = { base = 25 }
+	}
+
+	SPR_close_the_pyrenees = {
+		icon = generic_protection
+		cost = 50
+		fire_only_once = yes
+		available = {
+			date > 1940.6.1
+			# either the Axis has enough leverage to be worth defying, or the border is already
+			# fortified (SPR4_pyrenees_defences) and closing it is the obvious next step
+			OR = {
+				spain_axis_leverage_high = yes
+				has_country_flag = spain_pyrenees_fortified
+			}
+		}
+		complete_effect = {
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_pyrenees_closed
+		}
+		ai_will_do = { base = 15 }
+	}
+
+	SPR_declare_armed_neutrality = {
+		icon = generic_foreign_policy
+		cost = 60
+		fire_only_once = yes
+		available = {
+			date > 1939.9.1 NOT = { has_idea = spain_armed_neutrality } }
+		complete_effect = {
+			if = { limit = { has_idea = spain_axis_alignment } remove_ideas = spain_axis_alignment }
+			if = { limit = { has_idea = spain_allied_alignment } remove_ideas = spain_allied_alignment }
+			add_ideas = spain_armed_neutrality
+			add_stability = constant:spain_campaign.stability_medium
+		}
+		ai_will_do = { base = 35 }
+	}
+
+	# The Allied half of the wartime channel. Allied leverage used to be written by focuses,
+	# decisions, two events and the weekly tick and read by nothing; these two decisions are what
+	# it buys. Both are alternatives to the post-war focus that grants the same prize, so a Spain
+	# that never loads the republican post-war tree can still reach it.
+	SPR_accept_the_marshall_aid = {
+		icon = generic_industry
+		cost = 50
+		days_remove = 365
+		fire_only_once = yes
+		available = {
+			spain_allied_leverage_high = yes
+			date > 1944.6.1
+			NOT = { has_country_flag = spain_marshall_plan }
+			custom_trigger_tooltip = {
+				tooltip = spain_falangist_excluded_tt
+				NOT = { has_country_flag = spain_succession_falangist }
+			}
+		}
+		modifier = {
+			industrial_capacity_factory = 0.05
+		}
+		complete_effect = {
+			set_country_flag = spain_marshall_plan
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			add_political_power = constant:spain_campaign.pp_medium
+			add_stability = constant:spain_campaign.stability_small
+		}
+		ai_will_do = { base = 30 }
+	}
+
+	SPR_take_the_un_seat = {
+		icon = generic_foreign_policy
+		cost = 40
+		fire_only_once = yes
+		available = {
+			# Allied leverage opens the seat on its own. A settlement of 1945 that recalled the
+			# Crown opens it too, because the founding members can accept a monarchy restored with
+			# the movement's consent where they will not accept the movement itself.
+			custom_trigger_tooltip = {
+				tooltip = spain_settled_1945_tt
+				OR = {
+					spain_allied_leverage_high = yes
+					AND = {
+						has_country_flag = spain_settled_1945
+						has_country_flag = spain_monarchy_recalled
+					}
+				}
+			}
+			date > 1945.1.1
+			NOT = { has_country_flag = spain_un_founding }
+		}
+		complete_effect = {
+			set_country_flag = spain_un_founding
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			add_to_variable = { var = spain_axis_leverage value = constant:spain_campaign.leverage_loss }
+			add_political_power = constant:spain_campaign.pp_medium
+			add_stability = constant:spain_campaign.stability_small
+			if = { limit = { NOT = { has_idea = spain_allied_alignment } } add_ideas = spain_allied_alignment }
+		}
+		ai_will_do = { base = 25 }
+	}
+}
+
+# =====================================================================================
+# Reconstruction
+# =====================================================================================
+
+SPR_reconstruction = {
+	SPR_rebuild_the_railways = {
+		icon = generic_construction
+		available = {
+			OR = { has_idea = spain_civil_war_reconstruction has_country_flag = spain_chapter_postwar }
+		}
+		cost = 50
+		days_remove = 180
+		modifier = {
+			production_speed_buildings_factor = 0.05
+		}
+		complete_effect = {
+			set_country_flag = spain_reconstruction_programme
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			add_to_variable = { var = spain_infrastructure value = constant:spain_campaign.development_gain }
+			41 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+		}
+		ai_will_do = { base = 30 }
+	}
+
+	SPR_restore_the_industry = {
+		icon = generic_factory
+		available = {
+			OR = { has_idea = spain_civil_war_reconstruction has_country_flag = spain_chapter_postwar }
+		}
+		cost = 60
+		days_remove = 240
+		modifier = {
+			industrial_capacity_factory = 0.03
+		}
+		complete_effect = {
+			set_country_flag = spain_reconstruction_programme
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			add_to_variable = { var = spain_industry value = constant:spain_campaign.development_gain }
+			165 = { add_building_construction = { type = industrial_complex level = 1 instant_build = yes } }
+		}
+		ai_will_do = { base = 30 }
+	}
+
+	SPR_housing_programme = {
+		icon = generic_welfare
+		available = {
+			OR = { has_idea = spain_civil_war_reconstruction has_country_flag = spain_chapter_postwar }
+		}
+		cost = 40
+		days_remove = 180
+		modifier = {
+			stability_factor = 0.03
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			add_stability = constant:spain_campaign.stability_small
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_veterans_pension = {
+		icon = generic_civil_support
+		available = {
+			OR = { has_idea = spain_civil_war_reconstruction has_country_flag = spain_chapter_postwar }
+		}
+		cost = 30
+		days_remove = 365
+		modifier = {
+			stability_factor = 0.02
+		}
+		remove_effect = {
+			add_to_variable = { var = spain_reconstruction value = constant:spain_campaign.reconstruction_gain }
+			add_stability = constant:spain_campaign.stability_medium
+		}
+		ai_will_do = { base = 15 }
+	}
+}
+
+# =====================================================================================
+# Civil-war preparation. The rising belongs to events/LAR_Spain.txt and the vanilla
+# decisions in common/decisions/SPR.txt; these are the levers that decide how it starts.
+# =====================================================================================
+
+SPR_civil_war_preparation = {
+	SPR_buy_arms_abroad = {
+		icon = generic_arms_trade
+		cost = 50
+		days_re_enable = 180
+		available = {
+			date > 1931.1.1
+			NOT = { has_global_flag = spanish_civil_war }
+			OR = { country_exists = FRA country_exists = MEX country_exists = CZE }
+		}
+		complete_effect = {
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:spain_campaign.infantry_equipment }
+			add_equipment_to_stockpile = { type = support_equipment amount = constant:spain_campaign.support_equipment }
+			add_stability = constant:spain_campaign.stability_cost
+			set_country_flag = spain_arms_purchased
+		}
+		ai_will_do = { base = 25 }
+	}
+
+	SPR_court_the_french = {
+		icon = generic_foreign_policy
+		cost = 40
+		days_re_enable = 240
+		available = {
+			date > 1931.1.1
+			NOT = { has_global_flag = spanish_civil_war }
+			country_exists = FRA
+		}
+		complete_effect = {
+			FRA = { add_opinion_modifier = { target = SPR modifier = spain_french_cultural_accord } }
+			add_to_variable = { var = spain_allied_leverage value = constant:spain_campaign.leverage_gain }
+			set_country_flag = spain_french_support
+		}
+		ai_will_do = { base = 20 }
+	}
+
+	SPR_arm_the_unions = {
+		icon = generic_military
+		cost = 30
+		days_re_enable = 180
+		available = {
+			date > 1931.1.1
+			NOT = { has_global_flag = spanish_civil_war }
+			has_equipment = { infantry_equipment > 499 }
+		}
+		complete_effect = {
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:spain_campaign.infantry_equipment_cost }
+			add_war_support = constant:spain_campaign.war_support_small
+			spain_loyalty_loss = yes
+			set_country_flag = spain_unions_armed
+		}
+		ai_will_do = { base = 12 }
+	}
+
+	SPR_secure_the_garrisons = {
+		icon = generic_police_action
+		cost = 45
+		days_re_enable = 150
+		available = {
+			date > 1931.1.1
+			NOT = { has_global_flag = spanish_civil_war }
+		}
+		complete_effect = {
+			subtract_from_variable = { var = spain_coup_pressure value = constant:spain_campaign.coup_relief_large }
+			spain_loyalty_loss_small = yes
+			add_stability = constant:spain_campaign.stability_small
+			set_country_flag = spain_garrisons_screened
+		}
+		ai_will_do = { base = 18 }
+	}
+
+	SPR_negotiate_with_the_officers = {
+		icon = generic_political_discourse
+		cost = 60
+		days_re_enable = 240
+		available = {
+			OR = { has_country_flag = spain_army_question_open has_country_flag = spain_chapter_republic }
+			date > 1931.1.1
+			NOT = { has_global_flag = spanish_civil_war }
+			spain_loyalty_low = yes
+		}
+		complete_effect = {
+			spain_loyalty_gain = yes
+			set_variable = { var = spain_coup_pressure value = 0 }
+			add_stability = constant:spain_campaign.stability_cost
+			set_country_flag = spain_officers_negotiated
+		}
+		ai_will_do = { base = 30 }
+	}
+}
+
+# =====================================================================================
+# Debug helpers. Hidden in normal play, available with -debug for balance work.
+# =====================================================================================
+
+SPR_campaign_debug = {
+}

@@ -1,0 +1,307 @@
+# Overview: Great Game 2.0 agreements and the sovereignty programme.
+#
+# Every agreement buys something real and costs freedom of action: influence on
+# one patron, leverage overall, and sovereignty. The four bottom decisions are
+# the long way back - they need authority, a reformed customs service and time,
+# and they are the only way to buy independence down.
+#
+# The four agreements at the top ask who can carry a treaty: the Court signs alone while it rules
+# without a chamber (Pahlavi Iran has no balance at all), while it holds the Crown side of the
+# balance, or while the balance has not been pushed to -0.10 against it. Anything else needs the
+# Majlis, and the decision waits for it.
+iran_foreign_agreements = {
+
+	# ------------------------------------------------------------------ loans
+	iran_accept_british_loan = {
+		icon = generic_fundraising
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1936.1.1
+			country_exists = ENG
+		}
+		available = {
+			has_political_power > 99
+			NOT = { has_country_flag = iran_agreement_british_loan }
+			OR = {
+				NOT = { has_power_balance = { id = PER_crown_and_majlis } }
+				has_country_flag = PER_bop_crown_side
+				power_balance_value = { id = PER_crown_and_majlis value > -0.10 }
+			}
+		}
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			if = {
+				limit = { has_country_flag = PER_bop_crown_side }
+				add_stability = -0.05
+				subtract_from_variable = { iran_sovereignty = 2 }
+			}
+
+			set_country_flag = iran_agreement_british_loan
+			add_to_variable = { iran_british_influence = constant:iran_story.influence_per_agreement }
+			subtract_from_variable = { iran_sovereignty = constant:iran_story.sovereignty_agreement_cost }
+			add_timed_idea = { idea = iran_british_financial_mission days = 1825 }
+			add_stability = constant:iran_story.stability_cost
+			PER_bop_sign_agreement = yes
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	# --------------------------------------------------------------- railways
+	iran_accept_northern_railway = {
+		icon = generic_construction
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1936.1.1
+			OR = { country_exists = RIE country_exists = SOV }
+		}
+		available = {
+			has_political_power > 99
+			NOT = { has_country_flag = iran_agreement_northern_railway }
+			OR = {
+				NOT = { has_power_balance = { id = PER_crown_and_majlis } }
+				has_country_flag = PER_bop_crown_side
+				power_balance_value = { id = PER_crown_and_majlis value > -0.10 }
+			}
+		}
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			if = {
+				limit = { has_country_flag = PER_bop_crown_side }
+				add_stability = -0.05
+				subtract_from_variable = { iran_sovereignty = 2 }
+			}
+
+			set_country_flag = iran_agreement_northern_railway
+			add_to_variable = { iran_northern_influence = constant:iran_story.influence_per_agreement }
+			subtract_from_variable = { iran_sovereignty = constant:iran_story.sovereignty_agreement_cost }
+			417 = { add_building_construction = { type = railway level = 2 instant_build = yes } }
+			add_timed_idea = { idea = iran_northern_railway_concession days = 1825 }
+			add_stability = constant:iran_story.stability_cost
+			PER_bop_sign_agreement = yes
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	# ---------------------------------------------------------------- missions
+	iran_accept_military_mission = {
+		icon = generic_military
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			NOT = { has_country_flag = iran_agreement_military_mission }
+		}
+		available = {
+			has_political_power > 74
+			OR = {
+				check_variable = { var = iran_british_influence value = 40 compare = greater_than_or_equals }
+				check_variable = { var = iran_northern_influence value = 40 compare = greater_than_or_equals }
+			}
+			OR = {
+				NOT = { has_power_balance = { id = PER_crown_and_majlis } }
+				has_country_flag = PER_bop_crown_side
+				power_balance_value = { id = PER_crown_and_majlis value > -0.10 }
+			}
+		}
+		cost = 75
+		fire_only_once = yes
+		complete_effect = {
+			if = {
+				limit = { has_country_flag = PER_bop_crown_side }
+				add_stability = -0.05
+				subtract_from_variable = { iran_sovereignty = 2 }
+			}
+
+			set_country_flag = iran_agreement_military_mission
+			army_experience = 25
+			add_timed_idea = { idea = iran_foreign_military_mission days = 1460 }
+			subtract_from_variable = { iran_sovereignty = constant:iran_story.sovereignty_agreement_cost }
+			# the patron with the ear of the court sends the mission
+			if = {
+				limit = {
+					check_variable = { var = iran_british_influence value = iran_northern_influence compare = greater_than_or_equals }
+				}
+				add_to_variable = { iran_british_influence = 10 }
+			}
+			else = {
+				add_to_variable = { iran_northern_influence = 10 }
+			}
+			PER_bop_sign_agreement = yes
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	# ---------------------------------------------------------------- customs
+	iran_accept_customs_officers = {
+		icon = generic_consumer_goods
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			date < 1946.1.1
+			NOT = { has_country_flag = iran_agreement_foreign_customs }
+		}
+		available = {
+			has_political_power > 99
+			check_variable = { var = iran_sovereignty value = 20 compare = greater_than_or_equals }
+			OR = {
+				NOT = { has_power_balance = { id = PER_crown_and_majlis } }
+				has_country_flag = PER_bop_crown_side
+				power_balance_value = { id = PER_crown_and_majlis value > -0.10 }
+			}
+		}
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			if = {
+				limit = { has_country_flag = PER_bop_crown_side }
+				add_stability = -0.05
+				subtract_from_variable = { iran_sovereignty = 2 }
+			}
+
+			set_country_flag = iran_agreement_foreign_customs
+			add_to_variable = { iran_leverage_debt = 15 }
+			subtract_from_variable = { iran_sovereignty = 10 }
+			add_timed_idea = { idea = iran_foreign_customs_administration days = 2190 }
+			add_political_power = 25
+			PER_bop_sign_agreement = yes
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 1 }
+	}
+
+	# --------------------------------------------------- buying the country back
+	iran_reform_customs_service = {
+		icon = generic_political_discourse
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			NOT = { has_country_flag = iran_customs_reformed }
+		}
+		available = {
+			has_political_power > 149
+			check_variable = { var = iran_authority value = 40 compare = greater_than_or_equals }
+		}
+		cost = 150
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_customs_reformed
+			add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
+			subtract_from_variable = { iran_leverage_debt = constant:iran_story.influence_erosion }
+			iran_refresh_mechanics_hidden = yes
+			add_political_power = -25
+		}
+		ai_will_do = { factor = 3 }
+	}
+
+	iran_found_national_bank = {
+		icon = generic_industry
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			NOT = { has_country_flag = iran_national_bank }
+		}
+		available = {
+			has_political_power > 199
+			has_country_flag = iran_customs_reformed
+		}
+		cost = 200
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_national_bank
+			add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
+			subtract_from_variable = { iran_leverage_debt = constant:iran_story.influence_erosion }
+			iran_refresh_mechanics_hidden = yes
+			capital_scope = { add_building_construction = { type = industrial_complex level = 1 instant_build = yes } }
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	iran_professionalise_gendarmerie = {
+		icon = generic_army_support
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			NOT = { has_country_flag = iran_gendarmerie_professional }
+		}
+		available = {
+			has_political_power > 99
+			check_variable = { var = iran_authority value = 45 compare = greater_than_or_equals }
+		}
+		cost = 100
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_gendarmerie_professional
+			add_to_variable = { iran_sovereignty = constant:iran_story.sovereignty_reform_gain }
+			army_experience = 20
+			add_to_variable = { iran_authority = 5 }
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	# ---------------------------------------------------------- renegotiation
+	iran_renegotiate_concessions = {
+		icon = generic_break_treaty
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			OR = {
+				has_country_flag = iran_agreement_british_loan
+				has_country_flag = iran_agreement_northern_railway
+			}
+		}
+		available = {
+			has_political_power > 199
+			check_variable = { var = iran_sovereignty value = constant:iran_story.sovereignty_renegotiate_threshold compare = greater_than_or_equals }
+		}
+		cost = 200
+		days_re_enable = 730
+		complete_effect = {
+			if = {
+				limit = { has_country_flag = iran_agreement_british_loan }
+				clr_country_flag = iran_agreement_british_loan
+				remove_ideas = iran_british_financial_mission
+				subtract_from_variable = { iran_british_influence = constant:iran_story.influence_per_agreement }
+			}
+			if = {
+				limit = { has_country_flag = iran_agreement_northern_railway }
+				clr_country_flag = iran_agreement_northern_railway
+				remove_ideas = iran_northern_railway_concession
+				subtract_from_variable = { iran_northern_influence = constant:iran_story.influence_per_agreement }
+			}
+			add_to_variable = { iran_sovereignty = 10 }
+			add_stability = -0.05
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	iran_terminate_foreign_customs = {
+		icon = generic_independence
+		allowed = { original_tag = PER }
+		visible = {
+			has_country_flag = iran_campaign_active
+			has_country_flag = iran_agreement_foreign_customs
+		}
+		available = {
+			has_political_power > 149
+			check_variable = { var = iran_sovereignty value = constant:iran_story.sovereignty_terminate_threshold compare = greater_than_or_equals }
+		}
+		cost = 150
+		fire_only_once = yes
+		complete_effect = {
+			clr_country_flag = iran_agreement_foreign_customs
+			remove_ideas = iran_foreign_customs_administration
+			add_to_variable = { iran_sovereignty = 12 }
+			subtract_from_variable = { iran_leverage_debt = 15 }
+			add_stability = -0.08
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 1 }
+	}
+}

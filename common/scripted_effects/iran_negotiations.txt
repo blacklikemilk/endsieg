@@ -1,0 +1,573 @@
+# Overview: Iran's Great Game negotiations, 1910-1945 - timed foreign demands and the four answers to them.
+# A patron with a grievance puts one demand on the table. The government concedes, compromises, refuses,
+# or plays the rival patron against it; a demand already delayed once comes back heavier, and a refusal
+# from a patron that can still apply pressure brings a second, narrower demand.
+# State is country flags with durations only: iran_negotiation_open, iran_negotiation_cooldown,
+# iran_demand_<id>_done / _accepted / _compromised / _rejected / _supported, iran_demand_<id>_binding and
+# iran_patron_tension_<patron>. Nothing is a 0/1 variable and nothing has to be cleared by hand.
+# Values and day counts are constant:iran_story.negotiation_*. Country scope, Iran only.
+
+# A resolved demand frees the table and shuts it for the cooldown, so two patrons cannot queue up.
+# Durations are file macros because day fields reject constants; keep them equal across the three negotiation files.
+@negotiation_cooldown_days = 540
+@negotiation_binding_days = 1095
+@negotiation_mission_days = 730
+@negotiation_escalation_days = 200
+
+iran_negotiation_end = {
+	if = {
+		limit = { has_country_flag = iran_negotiation_open }
+		clr_country_flag = iran_negotiation_open
+	}
+	set_country_flag = { flag = iran_negotiation_cooldown days = @negotiation_cooldown_days }
+}
+
+# A patron that was played off against a rival remembers it, and its next demand is signed heavier.
+# Read by the concede effects below; it expires on its own, so there is no loop to keep.
+iran_negotiation_tension_british = {
+	set_country_flag = iran_patron_tension_british
+}
+iran_negotiation_tension_northern = {
+	set_country_flag = iran_patron_tension_northern
+}
+iran_negotiation_tension_german = {
+	set_country_flag = iran_patron_tension_german
+}
+
+# ---------------------------------------------------------------- demand 1: the northern railway, 1912-1914
+# The railway convention, the Caspian trade route and a subsidy for the Cossack Brigade.
+# A delayed demand, or a patron already betrayed at the table, is signed one tier heavier.
+iran_demand_russian_railway_concede = {
+	custom_effect_tooltip = iran_demand_russian_railway_concede_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				OR = {
+					has_country_flag = iran_patron_tension_northern
+					has_country_flag = iran_demand_russian_railway_delayed
+				}
+			}
+			iran_concede_northern_large = yes
+		}
+		else = { iran_concede_northern_small = yes }
+		if = {
+			limit = { NOT = { has_idea = iran_northern_railway_concession } }
+			add_timed_idea = { idea = iran_northern_railway_concession days = @negotiation_binding_days }
+		}
+		set_country_flag = iran_obligation_russian_railway
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = SOV }
+			add_opinion_modifier = { target = SOV modifier = iran_treaty_relations }
+		}
+		iran_refresh_mechanics_hidden = yes
+	}
+}
+
+iran_demand_russian_railway_accept = {
+	iran_demand_russian_railway_concede = yes
+	set_country_flag = iran_demand_russian_railway_accepted
+	set_country_flag = { flag = iran_demand_russian_railway_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_russian_railway_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_russian_railway_compromise = {
+	custom_effect_tooltip = iran_demand_russian_railway_compromise_tt
+	hidden_effect = {
+		iran_concede_northern_small = yes
+		add_to_variable = { var = iran_sovereignty value = constant:iran_story.negotiation_board_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		if = {
+			limit = { NOT = { has_idea = iran_northern_railway_concession } }
+			add_timed_idea = { idea = iran_northern_railway_concession days = @negotiation_binding_days }
+		}
+		set_country_flag = iran_railway_company_chartered
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_compromise }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_russian_railway_compromised
+	set_country_flag = { flag = iran_demand_russian_railway_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_russian_railway_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_russian_railway_reject = {
+	custom_effect_tooltip = iran_demand_russian_railway_reject_tt
+	hidden_effect = {
+		iran_reclaim_northern_small = yes
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_refusal }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = SOV }
+			remove_opinion_modifier = { target = SOV modifier = iran_treaty_relations }
+		}
+		add_war_support = constant:iran_story.war_support_gain
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_russian_railway_rejected
+	set_country_flag = iran_demand_russian_railway_done
+	iran_negotiation_end = yes
+	# Pressure follows a refusal only if the patron can still apply it: it must exist, answer to nobody,
+	# not have capitulated, and not be consumed by a war with Germany. A patron that cannot is simply refused.
+	if = {
+		limit = {
+			NOT = { has_country_flag = iran_demand_russian_railway_escalated }
+			country_exists = SOV
+			NOT = { has_war_with = SOV }
+			SOV = { is_subject = no has_capitulated = no NOT = { has_war_with = GER } }
+		}
+		set_country_flag = iran_demand_russian_railway_escalated
+		country_event = { id = iran_n.3 days = @negotiation_escalation_days }
+	}
+}
+
+iran_demand_russian_railway_support = {
+	custom_effect_tooltip = iran_demand_russian_railway_support_tt
+	hidden_effect = {
+		iran_concede_british_small = yes
+		add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_equipment producer = ENG }
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_abandon }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		iran_refresh_mechanics_hidden = yes
+	}
+	iran_negotiation_tension_northern = yes
+	set_country_flag = iran_demand_russian_railway_supported
+	set_country_flag = iran_demand_russian_railway_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_russian_railway_escalation_accept = {
+	custom_effect_tooltip = iran_demand_russian_railway_escalation_accept_tt
+	hidden_effect = {
+		iran_concede_northern_large = yes
+		if = {
+			limit = { NOT = { has_idea = iran_northern_railway_concession } }
+			add_timed_idea = { idea = iran_northern_railway_concession days = @negotiation_binding_days }
+		}
+		set_country_flag = iran_obligation_russian_railway
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = SOV }
+			add_opinion_modifier = { target = SOV modifier = iran_treaty_relations }
+		}
+		iran_refresh_mechanics_hidden = yes
+	}
+	clr_country_flag = iran_demand_russian_railway_rejected
+	set_country_flag = iran_demand_russian_railway_accepted
+	set_country_flag = { flag = iran_demand_russian_railway_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_russian_railway_done
+	iran_negotiation_end = yes
+}
+
+# ---------------------------------------------------------------- demand 2: the Gulf and the telegraph, 1912-1914 or 1916-1918
+# Naval facilities, a garrison at Bushire and the telegraph concessions.
+iran_demand_british_gulf_concede = {
+	custom_effect_tooltip = iran_demand_british_gulf_concede_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				OR = {
+					has_country_flag = iran_patron_tension_british
+					has_country_flag = iran_demand_british_gulf_delayed
+				}
+			}
+			iran_concede_british_large = yes
+		}
+		else = { iran_concede_british_small = yes }
+		if = {
+			limit = { NOT = { has_idea = iran_foreign_military_mission } }
+			add_timed_idea = { idea = iran_foreign_military_mission days = @negotiation_binding_days }
+		}
+		set_country_flag = iran_obligation_gulf_garrison
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = ENG }
+			add_opinion_modifier = { target = ENG modifier = iran_treaty_relations }
+		}
+		iran_refresh_mechanics_hidden = yes
+	}
+}
+
+iran_demand_british_gulf_accept = {
+	iran_demand_british_gulf_concede = yes
+	set_country_flag = iran_demand_british_gulf_accepted
+	set_country_flag = { flag = iran_demand_british_gulf_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_british_gulf_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_british_gulf_compromise = {
+	custom_effect_tooltip = iran_demand_british_gulf_compromise_tt
+	hidden_effect = {
+		iran_concede_british_small = yes
+		add_to_variable = { var = iran_authority value = constant:iran_story.authority_gain }
+		clamp_variable = { var = iran_authority min = constant:iran_story.authority_floor max = constant:iran_story.authority_cap }
+		set_country_flag = iran_customs_retained
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_compromise }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_british_gulf_compromised
+	set_country_flag = { flag = iran_demand_british_gulf_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_british_gulf_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_british_gulf_reject = {
+	custom_effect_tooltip = iran_demand_british_gulf_reject_tt
+	hidden_effect = {
+		iran_reclaim_british_small = yes
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_refusal }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = ENG }
+			remove_opinion_modifier = { target = ENG modifier = iran_treaty_relations }
+		}
+		add_war_support = constant:iran_story.war_support_gain
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_british_gulf_rejected
+	set_country_flag = iran_demand_british_gulf_done
+	iran_negotiation_end = yes
+	if = {
+		limit = {
+			NOT = { has_country_flag = iran_demand_british_gulf_escalated }
+			country_exists = ENG
+			NOT = { has_war_with = ENG }
+			ENG = { is_subject = no has_capitulated = no NOT = { has_war_with = GER } }
+		}
+		set_country_flag = iran_demand_british_gulf_escalated
+		country_event = { id = iran_n.6 days = @negotiation_escalation_days }
+	}
+}
+
+iran_demand_british_gulf_support = {
+	custom_effect_tooltip = iran_demand_british_gulf_support_tt
+	hidden_effect = {
+		iran_concede_german_small = yes
+		if = {
+			limit = { NOT = { has_idea = iran_german_technical_mission } }
+			add_timed_idea = { idea = iran_german_technical_mission days = @negotiation_mission_days }
+		}
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_abandon }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		iran_refresh_mechanics_hidden = yes
+	}
+	iran_negotiation_tension_british = yes
+	set_country_flag = iran_demand_british_gulf_supported
+	set_country_flag = iran_demand_british_gulf_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_british_gulf_escalation_accept = {
+	custom_effect_tooltip = iran_demand_british_gulf_escalation_accept_tt
+	hidden_effect = {
+		iran_concede_british_large = yes
+		if = {
+			limit = { NOT = { has_idea = iran_foreign_military_mission } }
+			add_timed_idea = { idea = iran_foreign_military_mission days = @negotiation_binding_days }
+		}
+		set_country_flag = iran_obligation_gulf_garrison
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = ENG }
+			add_opinion_modifier = { target = ENG modifier = iran_treaty_relations }
+		}
+		iran_refresh_mechanics_hidden = yes
+	}
+	clr_country_flag = iran_demand_british_gulf_rejected
+	set_country_flag = iran_demand_british_gulf_accepted
+	set_country_flag = { flag = iran_demand_british_gulf_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_british_gulf_done
+	iran_negotiation_end = yes
+}
+
+# ---------------------------------------------------------------- demand 3: the Caspian fisheries, 1922-1932
+# The fisheries and the Gilan trade treaty, in exchange for recognition of the Soviet state.
+iran_demand_soviet_caspian_concede = {
+	custom_effect_tooltip = iran_demand_soviet_caspian_concede_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				OR = {
+					has_country_flag = iran_patron_tension_northern
+					has_country_flag = iran_demand_soviet_caspian_delayed
+				}
+			}
+			iran_concede_northern_large = yes
+		}
+		else = { iran_concede_northern_small = yes }
+		set_country_flag = iran_obligation_caspian_fisheries
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = SOV }
+			add_opinion_modifier = { target = SOV modifier = iran_treaty_relations }
+		}
+		iran_refresh_mechanics_hidden = yes
+	}
+}
+
+iran_demand_soviet_caspian_accept = {
+	iran_demand_soviet_caspian_concede = yes
+	set_country_flag = iran_demand_soviet_caspian_accepted
+	set_country_flag = { flag = iran_demand_soviet_caspian_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_soviet_caspian_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_soviet_caspian_compromise = {
+	custom_effect_tooltip = iran_demand_soviet_caspian_compromise_tt
+	hidden_effect = {
+		iran_concede_northern_small = yes
+		add_to_variable = { var = iran_sovereignty value = constant:iran_story.negotiation_board_sovereignty }
+		clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+		set_country_flag = iran_joint_fisheries_company
+		add_stability = constant:iran_story.stability_gain
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_compromise }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_soviet_caspian_compromised
+	set_country_flag = { flag = iran_demand_soviet_caspian_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_soviet_caspian_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_soviet_caspian_reject = {
+	custom_effect_tooltip = iran_demand_soviet_caspian_reject_tt
+	hidden_effect = {
+		iran_reclaim_northern_small = yes
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_refusal }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = SOV }
+			remove_opinion_modifier = { target = SOV modifier = iran_treaty_relations }
+		}
+		add_war_support = constant:iran_story.war_support_gain
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_soviet_caspian_rejected
+	set_country_flag = iran_demand_soviet_caspian_done
+	iran_negotiation_end = yes
+	if = {
+		limit = {
+			NOT = { has_country_flag = iran_demand_soviet_caspian_escalated }
+			country_exists = SOV
+			NOT = { has_war_with = SOV }
+			SOV = { is_subject = no has_capitulated = no NOT = { has_war_with = GER } }
+		}
+		set_country_flag = iran_demand_soviet_caspian_escalated
+		country_event = { id = iran_n.9 days = @negotiation_escalation_days }
+	}
+}
+
+iran_demand_soviet_caspian_support = {
+	custom_effect_tooltip = iran_demand_soviet_caspian_support_tt
+	hidden_effect = {
+		iran_concede_british_small = yes
+		add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_equipment producer = ENG }
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_abandon }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		iran_refresh_mechanics_hidden = yes
+	}
+	iran_negotiation_tension_northern = yes
+	set_country_flag = iran_demand_soviet_caspian_supported
+	set_country_flag = iran_demand_soviet_caspian_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_soviet_caspian_escalation_accept = {
+	custom_effect_tooltip = iran_demand_soviet_caspian_escalation_accept_tt
+	hidden_effect = {
+		iran_concede_northern_large = yes
+		set_country_flag = iran_obligation_caspian_fisheries
+		add_to_variable = { var = iran_northern_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_northern_standing min = 0 max = 100 }
+		if = {
+			limit = { country_exists = SOV }
+			add_opinion_modifier = { target = SOV modifier = iran_treaty_relations }
+		}
+		iran_refresh_mechanics_hidden = yes
+	}
+	clr_country_flag = iran_demand_soviet_caspian_rejected
+	set_country_flag = iran_demand_soviet_caspian_accepted
+	set_country_flag = { flag = iran_demand_soviet_caspian_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_soviet_caspian_done
+	iran_negotiation_end = yes
+}
+
+# ---------------------------------------------------------------- demand 4: the German economic offer, 1936-1940
+# No frontier and no concession to demand, so Germany asks for a commercial treaty instead.
+# Accepting it while Britain is at war with Germany is what turns a technical mission into a liability.
+iran_demand_german_pact_concede = {
+	custom_effect_tooltip = iran_demand_german_pact_concede_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				OR = {
+					has_country_flag = iran_demand_german_pact_delayed
+					has_country_flag = iran_patron_tension_german
+				}
+			}
+			iran_concede_german_large = yes
+		}
+		else = { iran_concede_german_small = yes }
+		if = {
+			limit = { NOT = { has_idea = iran_german_technical_mission } }
+			add_timed_idea = { idea = iran_german_technical_mission days = @negotiation_binding_days }
+		}
+		add_research_slot = 1
+		set_country_flag = iran_german_economic_pact
+		set_country_flag = iran_obligation_german_pact
+		if = {
+			limit = { country_exists = GER }
+			add_opinion_modifier = { target = GER modifier = iran_treaty_relations }
+		}
+		if = {
+			limit = { country_exists = ENG ENG = { has_war_with = GER } }
+			add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_abandon }
+			clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		}
+		iran_refresh_mechanics_hidden = yes
+	}
+	if = {
+		limit = { country_exists = ENG ENG = { has_war_with = GER } }
+		iran_negotiation_tension_british = yes
+	}
+}
+
+iran_demand_german_pact_accept = {
+	iran_demand_german_pact_concede = yes
+	set_country_flag = iran_demand_german_pact_accepted
+	set_country_flag = { flag = iran_demand_german_pact_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_german_pact_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_german_pact_compromise = {
+	custom_effect_tooltip = iran_demand_german_pact_compromise_tt
+	hidden_effect = {
+		iran_concede_german_small = yes
+		if = {
+			limit = { NOT = { has_idea = iran_german_technical_mission } }
+			add_timed_idea = { idea = iran_german_technical_mission days = @negotiation_mission_days }
+		}
+		set_country_flag = iran_german_advisers_only
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_german_pact_compromised
+	set_country_flag = { flag = iran_demand_german_pact_binding days = @negotiation_binding_days }
+	set_country_flag = iran_demand_german_pact_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_german_pact_reject = {
+	custom_effect_tooltip = iran_demand_german_pact_reject_tt
+	hidden_effect = {
+		iran_reclaim_german_small = yes
+		if = {
+			limit = { country_exists = GER }
+			remove_opinion_modifier = { target = GER modifier = iran_treaty_relations }
+		}
+		add_war_support = constant:iran_story.war_support_gain
+		iran_refresh_mechanics_hidden = yes
+	}
+	set_country_flag = iran_demand_german_pact_rejected
+	set_country_flag = iran_demand_german_pact_done
+	iran_negotiation_end = yes
+}
+
+iran_demand_german_pact_support = {
+	custom_effect_tooltip = iran_demand_german_pact_support_tt
+	hidden_effect = {
+		iran_concede_british_small = yes
+		add_equipment_to_stockpile = { type = infantry_equipment amount = constant:iran_story.credit_equipment producer = ENG }
+		add_to_variable = { var = iran_british_standing value = constant:iran_story.negotiation_standing_grant }
+		clamp_variable = { var = iran_british_standing min = 0 max = 100 }
+		iran_refresh_mechanics_hidden = yes
+	}
+	iran_negotiation_tension_german = yes
+	set_country_flag = iran_demand_german_pact_supported
+	set_country_flag = iran_demand_german_pact_done
+	iran_negotiation_end = yes
+}
+
+# ---------------------------------------------------------------- the clock
+# One demand at a time, none during the cooldown, each once per campaign. Cheap on purpose: the first
+# two guards are the normal case, and the chain below them only runs when the table is clear.
+iran_negotiation_tick = {
+	if = {
+		limit = {
+			iran_campaign_country = yes
+			NOT = { has_country_flag = iran_negotiation_open }
+			NOT = { has_country_flag = iran_negotiation_cooldown }
+		}
+		if = {
+			limit = {
+				date > 1912.1.1
+				date < 1914.12.31
+				NOT = { has_country_flag = iran_demand_russian_railway_done }
+				NOT = { has_country_flag = iran_demand_russian_railway_delayed }
+				NOT = { has_country_flag = iran_agreement_northern_railway }
+				country_exists = SOV
+				NOT = { has_war_with = SOV }
+				# the northern power is still the Empire: the SOV tag holds the Tsarist state until it turns Soviet
+				SOV = { NOT = { has_government = communism } }
+			}
+			set_country_flag = iran_negotiation_open
+			country_event = { id = iran_n.1 }
+		}
+		else_if = {
+			limit = {
+				OR = {
+					AND = { date > 1912.1.1 date < 1914.12.31 }
+					AND = { date > 1916.1.1 date < 1918.12.31 }
+				}
+				NOT = { has_country_flag = iran_demand_british_gulf_done }
+				NOT = { has_country_flag = iran_demand_british_gulf_delayed }
+				NOT = { has_country_flag = iran_agreement_british_loan }
+				NOT = { has_country_flag = iran_agreement_military_mission }
+				iran_sponsor_britain_valid = yes
+			}
+			set_country_flag = iran_negotiation_open
+			country_event = { id = iran_n.4 }
+		}
+		else_if = {
+			limit = {
+				date > 1922.1.1
+				date < 1932.12.31
+				NOT = { has_country_flag = iran_demand_soviet_caspian_done }
+				NOT = { has_country_flag = iran_demand_soviet_caspian_delayed }
+				NOT = { has_country_flag = iran_agreement_northern_railway }
+				country_exists = SOV
+				NOT = { has_war_with = SOV }
+				SOV = { is_subject = no has_capitulated = no has_government = communism }
+			}
+			set_country_flag = iran_negotiation_open
+			country_event = { id = iran_n.7 }
+		}
+		else_if = {
+			limit = {
+				date > 1936.1.1
+				date < 1940.12.31
+				NOT = { has_country_flag = iran_demand_german_pact_done }
+				NOT = { has_country_flag = iran_demand_german_pact_delayed }
+				NOT = { has_country_flag = iran_agreement_german_mission }
+				iran_sponsor_germany_valid = yes
+			}
+			set_country_flag = iran_negotiation_open
+			country_event = { id = iran_n.10 }
+		}
+	}
+}

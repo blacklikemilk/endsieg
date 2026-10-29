@@ -1,0 +1,93 @@
+# Overview: the Crown against the Cortes, the constitutional struggle that runs from the Restoration to the Republic.
+# Value -1 is the Crown ruling alone, value 1 is parliamentary sovereignty.
+# Side and range modifiers are felt in the same tick the balance moves, and the two extreme ranges fire the chapter milestones.
+
+SPR_crown_and_cortes = {
+	initial_value = -0.15
+	left_side = SPR_crown_side
+	right_side = SPR_cortes_side
+	decision_category = SPR_crown_and_cortes_category
+
+	# Deadlock: neither the palace nor the chamber can govern.
+	range = {
+		id = SPR_crown_cortes_deadlock
+		min = -0.25
+		max = 0.25
+		modifier = {
+			 political_power_gain = -0.10
+			stability_factor = -0.05
+		}
+	}
+
+	side = {
+		id = SPR_crown_side
+		icon = GFX_bop_SPR_crown_side
+
+		# The Crown governs through the army and the caciques.
+		range = {
+			id = SPR_crown_absolute
+			min = -1
+			max = -0.6
+			modifier = {
+				stability_factor = 0.10
+				war_support_factor = 0.05
+				political_power_gain = 0.15
+				research_speed_factor = -0.05
+			}
+			on_activate = {
+				if = {
+					limit = { NOT = { has_country_flag = spain_crown_absolute_reached } }
+					set_country_flag = spain_crown_absolute_reached
+					country_event = { id = spain_campaign.30 days = 1 }
+				}
+			}
+		}
+
+		range = {
+			id = SPR_crown_ascendant
+			min = -0.6
+			max = -0.25
+			modifier = {
+				stability_factor = 0.05
+				political_power_gain = 0.05
+			}
+		}
+	}
+
+	side = {
+		id = SPR_cortes_side
+		icon = GFX_bop_SPR_cortes_side
+
+		# The chamber writes the budget and the palace signs it.
+		range = {
+			id = SPR_cortes_ascendant
+			min = 0.25
+			max = 0.6
+			modifier = {
+				stability_factor = 0.05
+				political_power_gain = 0.05
+				war_support_factor = -0.05
+			}
+		}
+
+		# Parliamentary sovereignty. The Crown reigns and does not rule.
+		range = {
+			id = SPR_cortes_sovereign
+			min = 0.6
+			max = 1
+			modifier = {
+				stability_factor = 0.10
+				political_power_gain = 0.10
+				war_support_factor = -0.10
+				research_speed_factor = 0.05
+			}
+			on_activate = {
+				if = {
+					limit = { NOT = { has_country_flag = spain_cortes_sovereign_reached } }
+					set_country_flag = spain_cortes_sovereign_reached
+					country_event = { id = spain_campaign.31 days = 1 }
+				}
+			}
+		}
+	}
+}

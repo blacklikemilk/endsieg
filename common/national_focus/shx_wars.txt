@@ -1,0 +1,173 @@
+# Overview: Shanxi's clique-war band, 1920.7.14 - 1935.12.31. The province prices its neutrality.
+# Layout: brokerage on the centre line, the two border questions on the wings, the expedition
+# question as the one real fork, and one army line under the western wing. The capstone needs the
+# expedition answer and the army reform, so both halves of the band converge on it.
+@short = 35
+@programme = 70
+@priority = 50
+@normal = 20
+focus_tree = {
+	id = shx_wars
+	country = {
+		factor = 0
+		modifier = { add = 20000 original_tag = SHX date > 1920.7.13 date < 1936.1.1 }
+	}
+	default = no
+	reset_on_civilwar = no
+	initial_show_position = { focus = SHX_brokers_table }
+	continuous_focus_position = { x = 2000 y = 5000 }
+	shortcut = { name = shx_wars_brokerage_navigation target = SHX_brokers_table }
+	shortcut = { name = shx_wars_borders_navigation target = SHX_suiyuan_question }
+	shortcut = { name = shx_wars_army_navigation target = SHX_provincial_army_reform }
+
+	focus = {
+		id = SHX_brokers_table
+		icon = GFX_focus_ww1_pdx_native_jp1_r_arbitration_commission
+		x = 6 y = 0
+		cost = @short
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_major
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_conference }
+			shx_clamp_cohesion = yes
+		}
+	}
+	focus = {
+		id = SHX_sell_passage
+		icon = GFX_focus_ww1_pdx_native_en1_r_neutral_ports
+		x = 2 y = 1
+		cost = @short
+		prerequisite = { focus = SHX_brokers_table }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_political_power = constant:shx_story.reward_power_minor
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_treasury }
+			shx_clamp_cohesion = yes
+		}
+	}
+	focus = {
+		id = SHX_sell_munitions
+		icon = GFX_focus_ww1_pdx_native_fr3_ww1i_national_industry_program
+		x = 6 y = 1
+		cost = @programme
+		prerequisite = { focus = SHX_brokers_table }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			615 = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = { type = arms_factory level = 1 instant_build = yes }
+			}
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:shx_story.patron_soviet_equipment }
+		}
+	}
+	focus = {
+		id = SHX_host_arbitration
+		icon = GFX_focus_ww1_pdx_native_en1_r_neutral_mediation
+		x = 10 y = 1
+		cost = @short
+		prerequisite = { focus = SHX_brokers_table }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_stability = constant:shx_story.conference_stability
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_conference }
+			shx_clamp_cohesion = yes
+		}
+	}
+	focus = {
+		id = SHX_suiyuan_question
+		icon = GFX_focus_ww1_pdx_native_shared_gen_state_claims
+		x = 2 y = 2
+		cost = @programme
+		prerequisite = { focus = SHX_sell_passage }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = @normal }
+		completion_reward = {
+			add_state_claim = 621
+			add_political_power = constant:shx_story.reward_power_minor
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_gentry }
+			shx_clamp_cohesion = yes
+		}
+	}
+	focus = {
+		id = SHX_chahar_road
+		icon = GFX_focus_ww1_pdx_native_en1_i_rail_freight_priority
+		x = 10 y = 2
+		cost = @programme
+		prerequisite = { focus = SHX_host_arbitration }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = @normal }
+		completion_reward = {
+			add_state_claim = 611
+			615 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+		}
+	}
+	focus = {
+		id = SHX_join_the_expedition
+		icon = GFX_focus_ww1_pdx_native_jp1_r_china_conference
+		x = 4 y = 3
+		cost = @short
+		prerequisite = { focus = SHX_sell_munitions }
+		mutually_exclusive = { focus = SHX_wait_out_the_expedition }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = {
+			factor = @normal
+			modifier = { factor = 2 check_variable = { var = warlord_cohesion value = constant:shx_story.cohesion_steady_below compare = greater_than_or_equals } }
+		}
+		completion_reward = {
+			add_war_support = constant:shx_story.stand_alone_war_support
+			army_experience = constant:shx_story.conference_army_experience
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_loss_grudge }
+			shx_clamp_cohesion = yes
+		}
+	}
+	focus = {
+		id = SHX_wait_out_the_expedition
+		icon = GFX_focus_ww1_pdx_native_en1_stay_neutral
+		x = 8 y = 3
+		cost = @short
+		prerequisite = { focus = SHX_sell_munitions }
+		mutually_exclusive = { focus = SHX_join_the_expedition }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_stability = constant:shx_story.conference_stability
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_compact }
+			shx_clamp_cohesion = yes
+		}
+	}
+	focus = {
+		id = SHX_provincial_army_reform
+		icon = GFX_focus_ww1_pdx_native_ge1_a_railway_mobilisation
+		x = 2 y = 3
+		cost = @programme
+		prerequisite = { focus = SHX_suiyuan_question }
+		search_filters = { FOCUS_FILTER_ARMY }
+		ai_will_do = { factor = @normal }
+		completion_reward = {
+			add_equipment_to_stockpile = { type = infantry_equipment amount = constant:shx_story.patron_japan_equipment }
+			add_command_power = constant:shx_story.order_cost_command_power
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_order }
+			shx_clamp_cohesion = yes
+		}
+	}
+	focus = {
+		id = SHX_the_province_endures
+		icon = GFX_focus_ww1_pdx_native_en1_stay_neutral
+		x = 6 y = 4
+		cost = @programme
+		prerequisite = { focus = SHX_join_the_expedition focus = SHX_wait_out_the_expedition }
+		prerequisite = { focus = SHX_provincial_army_reform }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_STABILITY }
+		ai_will_do = { factor = @priority }
+		completion_reward = {
+			add_to_variable = { warlord_cohesion = constant:shx_story.cohesion_gain_compact }
+			shx_clamp_cohesion = yes
+			add_stability = constant:shx_story.conference_stability
+			add_political_power = constant:shx_story.reward_power_major
+		}
+	}
+}

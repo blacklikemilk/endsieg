@@ -1,0 +1,150 @@
+@oil_project = 120
+@oil_cooldown = 365
+
+# Iran 1919-1945 - the oil settlement.
+#
+# Four ways to treat the concession, each with a different cost. Squeezing the
+# company pays now and costs standing later; nationalising it pays politically
+# and costs leverage and British goodwill; the compromise keeps the company and
+# the revenue but entrenches it; investing keeps the money in the ground and
+# turns it into roads, refineries and fuel.
+
+iran_oil_settlement = {
+
+	iran_renegotiate_royalties = {
+		icon = generic_fundraising
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1929.12.31
+			date < 1946.1.1
+			owns_state = 413
+			NOT = { has_country_flag = iran_oil_nationalised }
+		}
+		available = { has_political_power > 99 }
+		cost = 100
+		days_re_enable = @oil_cooldown
+		complete_effect = {
+			add_fuel = constant:iran_story.oil_royalty_fuel
+			add_political_power = constant:iran_story.oil_royalty_capital
+			add_timed_idea = { idea = iran_oil_revenue_dividend days = 365 }
+			iran_concede_british_small = yes
+			add_stability = constant:iran_story.stability_cost
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 2 modifier = { factor = 3 is_historical_focus_on = yes } }
+	}
+
+	iran_abadan_company_deal = {
+		icon = generic_political_discourse
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1932.6.30
+			date < 1946.1.1
+			owns_state = 413
+			NOT = { has_country_flag = iran_oil_nationalised }
+			NOT = { has_country_flag = iran_abadan_deal_signed }
+			NOT = { has_country_flag = iran_oil_settlement_taken }
+		}
+		available = { has_political_power > 124 }
+		cost = 125
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_abadan_deal_signed
+			set_country_flag = iran_oil_settlement_taken
+			clr_country_flag = iran_oil_settlement_open
+			add_political_power = constant:iran_story.oil_compromise_capital
+			add_fuel = constant:iran_story.oil_royalty_fuel
+			add_to_variable = { iran_british_influence = constant:iran_story.concede_small_influence }
+			subtract_from_variable = { iran_sovereignty = constant:iran_story.concede_small_sovereignty }
+			clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+			clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+			add_to_variable = { iran_authority = constant:iran_story.authority_gain }
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 4 modifier = { factor = 4 is_historical_focus_on = yes } }
+	}
+
+	iran_cancel_the_concession = {
+		icon = generic_nationalism
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1932.6.30
+			date < 1946.1.1
+			owns_state = 413
+			NOT = { has_country_flag = iran_oil_nationalised }
+			NOT = { has_country_flag = iran_oil_settlement_taken }
+		}
+		available = {
+			has_political_power > 149
+			check_variable = { var = iran_authority value = constant:iran_story.authority_reform compare = greater_than_or_equals }
+		}
+		cost = 150
+		fire_only_once = yes
+		complete_effect = {
+			set_country_flag = iran_oil_nationalised
+			set_country_flag = iran_oil_settlement_taken
+			clr_country_flag = iran_oil_settlement_open
+			add_to_variable = { iran_authority = constant:iran_story.oil_nationalise_authority }
+			subtract_from_variable = { iran_british_influence = constant:iran_story.reclaim_large_influence }
+			add_to_variable = { iran_sovereignty = constant:iran_story.reclaim_large_sovereignty }
+			clamp_variable = { var = iran_british_influence min = 0 max = 100 }
+			clamp_variable = { var = iran_sovereignty min = 0 max = constant:iran_story.sovereignty_cap }
+			add_war_support = constant:iran_story.war_support_gain
+			add_stability = constant:iran_story.stability_major_gain
+			if = {
+				limit = { country_exists = ENG }
+				add_opinion_modifier = { target = ENG modifier = iran_oil_dispute }
+			}
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 1 modifier = { factor = 3 has_country_flag = iran_path_oil_national } }
+	}
+
+	iran_domestic_refining = {
+		icon = generic_industry
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1924.12.31
+			date < 1946.1.1
+			owns_state = 413
+			NOT = { has_country_flag = iran_refinery_built }
+		}
+		available = {
+			owns_state = 413
+			controls_state = 413
+			check_variable = { var = iran_authority value = constant:iran_story.authority_interwar compare = greater_than_or_equals }
+		}
+		cost = 75
+		days_remove = @oil_project
+		modifier = { civilian_factory_use = 1 }
+		fire_only_once = yes
+		remove_effect = {
+			set_country_flag = iran_refinery_built
+			413 = { add_building_construction = { type = industrial_complex level = 1 instant_build = yes } }
+			add_fuel = constant:iran_story.oil_refinery_capacity
+		}
+		ai_will_do = { factor = 2 }
+	}
+
+	iran_oil_revenue_fund = {
+		icon = generic_construction
+		allowed = { original_tag = PER }
+		visible = {
+			date > 1924.12.31
+			date < 1946.1.1
+			owns_state = 413
+		}
+		available = {
+			has_political_power > 74
+			controls_state = 413
+		}
+		cost = 75
+		days_re_enable = 180
+		complete_effect = {
+			413 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			add_stability = constant:iran_story.stability_gain
+			iran_refresh_mechanics_hidden = yes
+		}
+		ai_will_do = { factor = 3 }
+	}
+}

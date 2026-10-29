@@ -1,0 +1,253 @@
+# The Crown and the Majlis - value shifts, era transitions and the budget vote.
+# Country scope, Iran only. add_power_balance_value rejects constants, so shifts are file macros.
+# Every shift is guarded: under the Pahlavi settlement the balance does not exist.
+@bop_crown_large = -0.30
+@bop_crown = -0.20
+@bop_crown_small = -0.10
+@bop_majlis_small = 0.10
+@bop_majlis = 0.20
+@bop_majlis_large = 0.30
+
+PER_bop_push_crown_large = {
+	custom_effect_tooltip = PER_bop_push_crown_large_tt
+	hidden_effect = {
+		if = {
+			limit = { has_power_balance = { id = PER_crown_and_majlis } }
+			add_power_balance_value = { id = PER_crown_and_majlis value = @bop_crown_large }
+		}
+	}
+}
+
+PER_bop_push_crown = {
+	custom_effect_tooltip = PER_bop_push_crown_tt
+	hidden_effect = {
+		if = {
+			limit = { has_power_balance = { id = PER_crown_and_majlis } }
+			add_power_balance_value = { id = PER_crown_and_majlis value = @bop_crown }
+		}
+	}
+}
+
+PER_bop_push_crown_small = {
+	custom_effect_tooltip = PER_bop_push_crown_small_tt
+	hidden_effect = {
+		if = {
+			limit = { has_power_balance = { id = PER_crown_and_majlis } }
+			add_power_balance_value = { id = PER_crown_and_majlis value = @bop_crown_small }
+		}
+	}
+}
+
+PER_bop_push_majlis_large = {
+	custom_effect_tooltip = PER_bop_push_majlis_large_tt
+	hidden_effect = {
+		if = {
+			limit = { has_power_balance = { id = PER_crown_and_majlis } }
+			add_power_balance_value = { id = PER_crown_and_majlis value = @bop_majlis_large }
+		}
+	}
+}
+
+PER_bop_push_majlis = {
+	custom_effect_tooltip = PER_bop_push_majlis_tt
+	hidden_effect = {
+		if = {
+			limit = { has_power_balance = { id = PER_crown_and_majlis } }
+			add_power_balance_value = { id = PER_crown_and_majlis value = @bop_majlis }
+		}
+	}
+}
+
+PER_bop_push_majlis_small = {
+	custom_effect_tooltip = PER_bop_push_majlis_small_tt
+	hidden_effect = {
+		if = {
+			limit = { has_power_balance = { id = PER_crown_and_majlis } }
+			add_power_balance_value = { id = PER_crown_and_majlis value = @bop_majlis_small }
+		}
+	}
+}
+
+# Pulls whichever institution is ahead back towards the constitutional centre.
+PER_bop_pull_to_centre = {
+	custom_effect_tooltip = PER_bop_pull_to_centre_tt
+	hidden_effect = {
+		if = {
+			limit = { has_power_balance = { id = PER_crown_and_majlis } }
+			if = {
+				limit = { power_balance_value = { id = PER_crown_and_majlis value > 0.25 } }
+				add_power_balance_value = { id = PER_crown_and_majlis value = -0.25 }
+			}
+			else_if = {
+				limit = { power_balance_value = { id = PER_crown_and_majlis value < -0.25 } }
+				add_power_balance_value = { id = PER_crown_and_majlis value = 0.25 }
+			}
+			else = {
+				set_power_balance = {
+					id = PER_crown_and_majlis
+					left_side = PER_bop_crown
+					right_side = PER_bop_majlis
+					set_value = 0
+				}
+			}
+		}
+	}
+}
+
+# A foreign agreement signed by decree strengthens the Crown; one the Majlis ratified strengthens the Majlis.
+# Called from the agreement decisions, which already require the Majlis signature unless the Crown rules alone.
+PER_bop_sign_agreement = {
+	custom_effect_tooltip = PER_bop_sign_agreement_tt
+	hidden_effect = {
+		if = {
+			limit = { has_country_flag = PER_bop_crown_side }
+			PER_bop_push_crown_small = yes
+		}
+		else = { PER_bop_push_majlis_small = yes }
+	}
+}
+
+# Idempotent regime sync, run daily for Iran and after every settlement.
+# Pahlavi rule: no balance and the Pahlavi autocracy spirit. Every other regime, and the Majlis resurgence
+# after the 1941 occupation, has the balance. It is built here, on a live tick, because the engine cannot
+# create a balance during country initialisation.
+#
+# "Pahlavi rule" means the autocracy, not the dynasty: iran_shift_to_constitutional keeps the Shah and
+# binds him, so the dynasty flag alone does not make the country an autocracy. Every regime shift
+# proclaims one of the successor flags below and iran_clear_regime_flags clears them on the next shift,
+# so the autocracy branch applies only while none of them is set.
+PER_bop_sync = {
+	hidden_effect = {
+		if = {
+			limit = {
+				iran_campaign_country = yes
+				has_country_flag = iran_campaign_active
+				has_dlc = "Arms Against Tyranny"
+			}
+			if = {
+				limit = {
+					OR = { has_country_flag = iran_pahlavi has_country_flag = PER_pahlavi_dynasty }
+					NOT = { has_country_flag = PER_majlis_resurgence }
+					NOT = {
+						OR = {
+							has_country_flag = iran_qajar_restoration
+							has_country_flag = iran_republic
+							has_country_flag = iran_constitutional_monarchy
+							has_country_flag = iran_socialist
+							has_country_flag = iran_nationalist_front
+						}
+					}
+				}
+				if = {
+					limit = { has_power_balance = { id = PER_crown_and_majlis } }
+					remove_power_balance = { id = PER_crown_and_majlis }
+					clr_country_flag = PER_bop_crown_side
+					clr_country_flag = PER_bop_majlis_side
+					clr_country_flag = PER_bop_settled
+				}
+				if = {
+					limit = { NOT = { has_idea = iran_pahlavi_autocracy } }
+					add_ideas = iran_pahlavi_autocracy
+				}
+			}
+			else = {
+				if = {
+					limit = { has_idea = iran_pahlavi_autocracy }
+					remove_ideas = iran_pahlavi_autocracy
+				}
+				if = {
+					limit = { NOT = { has_power_balance = { id = PER_crown_and_majlis } } }
+					if = {
+						limit = { has_country_flag = PER_majlis_resurgence }
+						set_power_balance = {
+							id = PER_crown_and_majlis
+							left_side = PER_bop_crown
+							right_side = PER_bop_majlis
+							set_value = constant:iran_story.bop_resurgence
+						}
+					}
+					else_if = {
+						limit = { date < 1919.1.1 }
+						set_power_balance = {
+							id = PER_crown_and_majlis
+							left_side = PER_bop_crown
+							right_side = PER_bop_majlis
+							set_value = constant:iran_story.bop_opening_constitutional
+						}
+					}
+					else = {
+						set_power_balance = {
+							id = PER_crown_and_majlis
+							left_side = PER_bop_crown
+							right_side = PER_bop_majlis
+							set_value = constant:iran_story.bop_opening_interwar
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+# The 1941 occupation ends the Pahlavi autocracy: the Majlis sits again and the balance returns.
+# Same regime test as PER_bop_sync: a country that proclaimed a successor regime already has a sitting
+# chamber, so the abdication report (iran_campaign.77) must not fire for it.
+PER_bop_resurgence_check = {
+	hidden_effect = {
+		if = {
+			limit = {
+				iran_campaign_country = yes
+				date > 1941.9.16
+				NOT = { has_country_flag = PER_majlis_resurgence }
+				OR = { has_country_flag = iran_pahlavi has_country_flag = PER_pahlavi_dynasty }
+				NOT = {
+					OR = {
+						has_country_flag = iran_qajar_restoration
+						has_country_flag = iran_republic
+						has_country_flag = iran_constitutional_monarchy
+						has_country_flag = iran_socialist
+						has_country_flag = iran_nationalist_front
+					}
+				}
+				OR = {
+					has_country_flag = iran_occupied
+					has_country_flag = iran_allied_cooperation
+					has_country_flag = iran_agreement_transit_allied
+					has_country_flag = iran_transit_agreement
+				}
+			}
+			set_country_flag = PER_majlis_resurgence
+			country_event = { id = iran_campaign.77 }
+		}
+	}
+}
+
+# Political settlements move the balance: each regime pushes it the way its constitution leans.
+# A regime change out of the Pahlavi autocracy has no balance to push, so it opens one first:
+# `PER_bop_open_regime` creates it at the constitutional centre, and the settlement's own push then
+# places it. Reusing the era opening value would instead create a 1936-41 constitutional monarchy on
+# the Court's side of the range, because that value describes the autocracy the shift is leaving.
+PER_bop_open_regime = {
+	hidden_effect = {
+		if = {
+			limit = {
+				iran_campaign_country = yes
+				has_country_flag = iran_campaign_active
+				has_dlc = "Arms Against Tyranny"
+				NOT = { has_power_balance = { id = PER_crown_and_majlis } }
+			}
+			set_power_balance = {
+				id = PER_crown_and_majlis
+				left_side = PER_bop_crown
+				right_side = PER_bop_majlis
+				set_value = constant:iran_story.bop_centre
+			}
+		}
+	}
+}
+
+PER_bop_settle_qajar = { PER_bop_push_crown = yes }
+PER_bop_settle_constitution = { PER_bop_pull_to_centre = yes }
+PER_bop_settle_republic = { PER_bop_push_majlis = yes }
+PER_bop_settle_nationalist = { PER_bop_push_crown = yes }
+PER_bop_settle_socialist = { PER_bop_push_majlis = yes }

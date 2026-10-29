@@ -1,0 +1,388 @@
+# Overview: the party half of the Cortes.
+# Seats are 400 fixed; each party holds a share of them. Player action moves support
+# (`spain_party_shift_*`), elections swing the chamber, and the government needs 201 seats to
+# legislate, so the chamber a government built decides what it can pass.
+#
+# Chain: support -> spain_cortes_recount -> seats -> government bloc -> bill availability.
+
+# =====================================================================================
+# Setup
+# =====================================================================================
+
+spain_parties_initialize = {
+	set_variable = { var = spain_party_shift_monarchists value = 0 }
+	set_variable = { var = spain_party_shift_liberals value = 0 }
+	set_variable = { var = spain_party_shift_conservatives value = 0 }
+	set_variable = { var = spain_party_shift_republicans value = 0 }
+	set_variable = { var = spain_party_shift_socialists value = 0 }
+	set_variable = { var = spain_party_shift_carlists value = 0 }
+	set_variable = { var = spain_party_shift_falange value = 0 }
+	set_variable = { var = spain_government_party value = 0 }
+	set_variable = { var = spain_coalition_1 value = 0 }
+	set_variable = { var = spain_coalition_2 value = 0 }
+	set_variable = { var = spain_election_wave value = 0 }
+	set_variable = { var = spain_elections_fought value = 0 }
+	set_variable = { var = spain_campaign_finance_count value = 0 }
+	# the Restoration turno's counters; a save that predates them keeps its progress
+	if = { limit = { NOT = { has_variable = spain_government_changes } } set_variable = { var = spain_government_changes value = 0 } }
+	if = { limit = { NOT = { has_variable = spain_encasillados } } set_variable = { var = spain_encasillados value = 0 } }
+	if = { limit = { NOT = { has_variable = spain_coup_pressure } } set_variable = { var = spain_coup_pressure value = 0 } }
+	set_variable = { var = spain_government_seats value = 0 }
+	set_variable = { var = spain_government_majority value = 0 }
+	spain_cortes_recount = yes
+}
+
+# =====================================================================================
+# Seat arithmetic
+# =====================================================================================
+
+# Rounding the seven shares can leave the chamber short of or over 400 seats. Give the
+# difference to the largest party so the total is always exactly 400 and 201 is a majority.
+spain_cortes_fix_seat_total = {
+	set_variable = { var = spain_cortes_seat_drift value = 400 }
+	subtract_from_variable = { var = spain_cortes_seat_drift value = spain_cortes_total }
+
+	if = {
+		limit = { check_variable = { var = spain_cortes_seat_drift value = 0 compare = not_equals } }
+		set_variable = { var = spain_cortes_top_party value = 1 }
+		set_variable = { var = spain_cortes_top_seats value = spain_cortes_seats_monarchists }
+		if = {
+			limit = { check_variable = { var = spain_cortes_seats_liberals value = spain_cortes_top_seats compare = greater_than } }
+			set_variable = { var = spain_cortes_top_party value = 2 }
+			set_variable = { var = spain_cortes_top_seats value = spain_cortes_seats_liberals }
+		}
+		if = {
+			limit = { check_variable = { var = spain_cortes_seats_conservatives value = spain_cortes_top_seats compare = greater_than } }
+			set_variable = { var = spain_cortes_top_party value = 3 }
+			set_variable = { var = spain_cortes_top_seats value = spain_cortes_seats_conservatives }
+		}
+		if = {
+			limit = { check_variable = { var = spain_cortes_seats_republicans value = spain_cortes_top_seats compare = greater_than } }
+			set_variable = { var = spain_cortes_top_party value = 4 }
+			set_variable = { var = spain_cortes_top_seats value = spain_cortes_seats_republicans }
+		}
+		if = {
+			limit = { check_variable = { var = spain_cortes_seats_socialists value = spain_cortes_top_seats compare = greater_than } }
+			set_variable = { var = spain_cortes_top_party value = 5 }
+			set_variable = { var = spain_cortes_top_seats value = spain_cortes_seats_socialists }
+		}
+		if = {
+			limit = { check_variable = { var = spain_cortes_seats_carlists value = spain_cortes_top_seats compare = greater_than } }
+			set_variable = { var = spain_cortes_top_party value = 6 }
+			set_variable = { var = spain_cortes_top_seats value = spain_cortes_seats_carlists }
+		}
+		if = {
+			limit = { check_variable = { var = spain_cortes_seats_falange value = spain_cortes_top_seats compare = greater_than } }
+			set_variable = { var = spain_cortes_top_party value = 7 }
+			set_variable = { var = spain_cortes_top_seats value = spain_cortes_seats_falange }
+		}
+
+		if = { limit = { check_variable = { var = spain_cortes_top_party value = 1 compare = equals } } add_to_variable = { var = spain_cortes_seats_monarchists value = spain_cortes_seat_drift } }
+		if = { limit = { check_variable = { var = spain_cortes_top_party value = 2 compare = equals } } add_to_variable = { var = spain_cortes_seats_liberals value = spain_cortes_seat_drift } }
+		if = { limit = { check_variable = { var = spain_cortes_top_party value = 3 compare = equals } } add_to_variable = { var = spain_cortes_seats_conservatives value = spain_cortes_seat_drift } }
+		if = { limit = { check_variable = { var = spain_cortes_top_party value = 4 compare = equals } } add_to_variable = { var = spain_cortes_seats_republicans value = spain_cortes_seat_drift } }
+		if = { limit = { check_variable = { var = spain_cortes_top_party value = 5 compare = equals } } add_to_variable = { var = spain_cortes_seats_socialists value = spain_cortes_seat_drift } }
+		if = { limit = { check_variable = { var = spain_cortes_top_party value = 6 compare = equals } } add_to_variable = { var = spain_cortes_seats_carlists value = spain_cortes_seat_drift } }
+		if = { limit = { check_variable = { var = spain_cortes_top_party value = 7 compare = equals } } add_to_variable = { var = spain_cortes_seats_falange value = spain_cortes_seat_drift } }
+
+		set_variable = { var = spain_cortes_total value = 400 }
+	}
+}
+
+# =====================================================================================
+# Government
+# =====================================================================================
+
+# The government bloc is the ruling party plus whoever it brought into coalition. It needs
+# 201 of the 400 seats; below that the government is a minority and cannot legislate.
+spain_government_recount = {
+	# a save that predates the party system has none of these variables yet
+	if = { limit = { NOT = { has_variable = spain_government_party } } set_variable = { var = spain_government_party value = 0 } }
+	if = { limit = { NOT = { has_variable = spain_coalition_1 } } set_variable = { var = spain_coalition_1 value = 0 } }
+	if = { limit = { NOT = { has_variable = spain_coalition_2 } } set_variable = { var = spain_coalition_2 value = 0 } }
+
+	# a chamber with no government named yet defaults to the party the era belongs to
+	if = {
+		limit = { check_variable = { var = spain_government_party value = 0 compare = equals } }
+		if = { limit = { has_country_flag = spain_chapter_restoration } set_variable = { var = spain_government_party value = 1 } }
+		else_if = { limit = { has_country_flag = spain_chapter_rivera } set_variable = { var = spain_government_party value = 1 } }
+		else_if = { limit = { has_country_flag = spain_chapter_republic } set_variable = { var = spain_government_party value = 4 } }
+		else_if = { limit = { has_country_flag = spain_chapter_civil_war } set_variable = { var = spain_government_party value = 7 } }
+		else = { set_variable = { var = spain_government_party value = 4 } }
+	}
+
+	set_variable = { var = spain_government_seats value = 0 }
+	set_variable = { var = spain_government_majority value = 0 }
+
+	if = { limit = { check_variable = { var = spain_government_party value = 1 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_monarchists } }
+	if = { limit = { check_variable = { var = spain_government_party value = 2 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_liberals } }
+	if = { limit = { check_variable = { var = spain_government_party value = 3 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_conservatives } }
+	if = { limit = { check_variable = { var = spain_government_party value = 4 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_republicans } }
+	if = { limit = { check_variable = { var = spain_government_party value = 5 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_socialists } }
+	if = { limit = { check_variable = { var = spain_government_party value = 6 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_carlists } }
+	if = { limit = { check_variable = { var = spain_government_party value = 7 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_falange } }
+
+	if = { limit = { check_variable = { var = spain_coalition_1 value = 1 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_monarchists } }
+	if = { limit = { check_variable = { var = spain_coalition_1 value = 2 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_liberals } }
+	if = { limit = { check_variable = { var = spain_coalition_1 value = 3 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_conservatives } }
+	if = { limit = { check_variable = { var = spain_coalition_1 value = 4 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_republicans } }
+	if = { limit = { check_variable = { var = spain_coalition_1 value = 5 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_socialists } }
+	if = { limit = { check_variable = { var = spain_coalition_1 value = 6 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_carlists } }
+	if = { limit = { check_variable = { var = spain_coalition_1 value = 7 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_falange } }
+
+	if = { limit = { check_variable = { var = spain_coalition_2 value = 1 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_monarchists } }
+	if = { limit = { check_variable = { var = spain_coalition_2 value = 2 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_liberals } }
+	if = { limit = { check_variable = { var = spain_coalition_2 value = 3 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_conservatives } }
+	if = { limit = { check_variable = { var = spain_coalition_2 value = 4 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_republicans } }
+	if = { limit = { check_variable = { var = spain_coalition_2 value = 5 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_socialists } }
+	if = { limit = { check_variable = { var = spain_coalition_2 value = 6 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_carlists } }
+	if = { limit = { check_variable = { var = spain_coalition_2 value = 7 compare = equals } } add_to_variable = { var = spain_government_seats value = spain_cortes_seats_falange } }
+
+	if = {
+		limit = { check_variable = { var = spain_government_seats value = constant:spain_campaign.cortes_majority compare = greater_than_or_equals } }
+		set_variable = { var = spain_government_majority value = 1 }
+	}
+}
+
+# =====================================================================================
+# Appointing a government
+# =====================================================================================
+
+# The Crown names a government: one governing party, up to two coalition partners, and a fresh
+# count of the bloc it can command. A bloc below 201 seats cannot legislate, so the appointment
+# opens the ministerial crisis; a bloc that reaches 201 closes it on the spot, because a
+# government that can legislate has nothing left to settle. Every route in
+# SPR_crown_and_cortes_category ends here, which is why the seat table, the panel and the
+# hemicycle are refreshed in this effect and nowhere else.
+#
+# Inputs: PARTY (1-7, or 0 to keep the party that already governs), COALITION_1 and
+# COALITION_2 (1-7, or 0 for no partner). Every call site passes all three: a scripted effect
+# cannot test whether an input was supplied.
+#
+# No-op outside spain_restoration_cortes_live. The Republic re-creates the balance this effect
+# pushes and reads its own chamber, and a coup in progress has already replaced the question.
+spain_appoint_government = {
+	if = {
+		limit = { spain_restoration_cortes_live = yes }
+		# check_variable reads a variable name, never a value, so the party input is written to a
+		# scratch variable first: $PARTY$ is a bare number and 0 means "keep the sitting party".
+		set_variable = { var = spain_appoint_party value = $PARTY$ }
+		if = {
+			limit = { check_variable = { var = spain_appoint_party value = 0 compare = not_equals } }
+			set_variable = { var = spain_government_party value = spain_appoint_party }
+		}
+		set_variable = { var = spain_coalition_1 value = $COALITION_1$ }
+		set_variable = { var = spain_coalition_2 value = $COALITION_2$ }
+		add_to_variable = { var = spain_government_changes value = 1 }
+		spain_government_recount = yes
+		spain_cortes_refresh_display = yes
+		spain_cortes_redraw_hemicycle = yes
+		if = {
+			limit = { check_variable = { var = spain_government_seats value = constant:spain_campaign.cortes_majority compare = less_than } }
+			set_country_flag = spain_ministry_crisis_open
+		}
+		else = { clr_country_flag = spain_ministry_crisis_open }
+	}
+}
+
+# The turno itself: the minister of the interior draws up the lists, and the government's party
+# takes the eighteen raw support points the liberals, conservatives, republicans and socialists
+# lose, so the chamber's raw total is unchanged and only the benches move. The machine is paid
+# for in patronage, the draws are limited by the donors, and the appointment that follows is
+# what re-counts the bloc and opens or closes the crisis.
+spain_encasillado = {
+	if = {
+		limit = {
+			spain_restoration_cortes_live = yes
+			check_variable = { var = spain_encasillados value = constant:spain_campaign.encasillado_cap compare = less_than }
+		}
+		hidden_effect = {
+			# the machine's beneficiary is the party that governs; a chamber with no government
+			# named yet is the Restoration's own, which is the monarchists
+			if = { limit = { check_variable = { var = spain_government_party value = 0 compare = equals } } set_variable = { var = spain_government_party value = 1 } }
+			if = { limit = { check_variable = { var = spain_government_party value = 1 compare = equals } } add_to_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.turno_seat_transfer } }
+			if = { limit = { check_variable = { var = spain_government_party value = 2 compare = equals } } add_to_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.turno_seat_transfer } }
+			if = { limit = { check_variable = { var = spain_government_party value = 3 compare = equals } } add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.turno_seat_transfer } }
+			if = { limit = { check_variable = { var = spain_government_party value = 4 compare = equals } } add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.turno_seat_transfer } }
+			if = { limit = { check_variable = { var = spain_government_party value = 5 compare = equals } } add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.turno_seat_transfer } }
+			if = { limit = { check_variable = { var = spain_government_party value = 6 compare = equals } } add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.turno_seat_transfer } }
+			if = { limit = { check_variable = { var = spain_government_party value = 7 compare = equals } } add_to_variable = { var = spain_party_shift_falange value = constant:spain_campaign.turno_seat_transfer } }
+			subtract_from_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.turno_from_liberals }
+			subtract_from_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.turno_from_conservatives }
+			subtract_from_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.turno_from_republicans }
+			subtract_from_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.turno_from_socialists }
+			add_to_variable = { var = spain_crown_patronage value = constant:spain_campaign.patronage_gain }
+			clamp_variable = { var = spain_crown_patronage min = 0 max = constant:spain_campaign.patronage_cap }
+			add_to_variable = { var = spain_encasillados value = 1 }
+			clamp_variable = { var = spain_encasillados min = 0 max = constant:spain_campaign.encasillado_cap }
+			set_country_flag = spain_election_manufactured
+			# the chamber moves the day the lists are written, so the appointment below counts the
+			# benches the transfer just made, not the ones the last election left behind
+			spain_cortes_recount = yes
+		}
+		spain_push_crown = yes
+		spain_loyalty_gain_small = yes
+		spain_appoint_government = { PARTY = 0 COALITION_1 = 0 COALITION_2 = 0 }
+		custom_effect_tooltip = spain_encasillado_tt
+	}
+}
+
+# A government without the chamber loses authority, and the army notices.
+spain_government_strain = {
+	if = {
+		limit = { check_variable = { var = spain_government_majority value = 0 compare = equals } }
+		add_stability = constant:spain_campaign.minority_stability
+		add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.minority_coup }
+	}
+	spain_government_recount = yes
+}
+
+# =====================================================================================
+# Elections
+# =====================================================================================
+
+# A national swing moves the chamber: the tide breaks one way or the other, the government
+# of the day is held responsible, and the result is reported. Support the government bought
+# survives, so a party that has been financed keeps its ground.
+spain_hold_election = {
+	add_to_variable = { var = spain_elections_fought value = 1 }
+	set_variable = { var = spain_election_wave value = 0 }
+
+	# the national tide
+	random_list = {
+		22 = { set_variable = { var = spain_election_wave value = constant:spain_campaign.swing_small } }
+		22 = { set_variable = { var = spain_election_wave value = constant:spain_campaign.swing_medium } }
+		34 = { set_variable = { var = spain_election_wave value = 0 } }
+		12 = { set_variable = { var = spain_election_wave value = constant:spain_campaign.swing_medium_back } }
+		10 = { set_variable = { var = spain_election_wave value = constant:spain_campaign.swing_large_back } }
+	}
+
+	# the tide runs to the left or the right depending on which way the wave points
+	if = {
+		limit = { check_variable = { var = spain_election_wave value = 0 compare = greater_than } }
+		add_to_variable = { var = spain_party_shift_socialists value = spain_election_wave }
+		add_to_variable = { var = spain_party_shift_republicans value = spain_election_wave }
+		subtract_from_variable = { var = spain_party_shift_monarchists value = spain_election_wave }
+		subtract_from_variable = { var = spain_party_shift_conservatives value = spain_election_wave }
+	}
+	if = {
+		limit = { check_variable = { var = spain_election_wave value = 0 compare = less_than } }
+		add_to_variable = { var = spain_party_shift_monarchists value = spain_election_wave }
+		add_to_variable = { var = spain_party_shift_conservatives value = spain_election_wave }
+		subtract_from_variable = { var = spain_party_shift_socialists value = spain_election_wave }
+		subtract_from_variable = { var = spain_party_shift_republicans value = spain_election_wave }
+	}
+
+	# an unpopular government loses ground whoever it is
+	if = {
+		limit = {
+			OR = {
+				check_variable = { var = spain_government_majority value = 0 compare = equals }
+				has_stability < constant:spain_campaign.election_unrest_threshold
+			}
+		}
+		add_to_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.incumbent_loss }
+		add_to_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.incumbent_loss }
+		add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.incumbent_loss }
+		add_to_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.incumbent_loss }
+	}
+
+	set_country_flag = spain_election_held
+	spain_cortes_recount = yes
+	spain_government_recount = yes
+	country_event = { id = spain_campaign.80 }
+}
+
+# =====================================================================================
+# Player levers
+# =====================================================================================
+
+# Money and patronage behind one party. Cheap, repeatable, and the only lever that works
+# whatever the government is, which is why the parties all want it.
+spain_finance_party = {
+	add_political_power = constant:spain_campaign.finance_cost
+	add_to_variable = { var = spain_campaign_finance_count value = 1 }
+	spain_cortes_recount = yes
+}
+
+# Pull deputies across the floor. Costs money and reputation, and the loser remembers.
+spain_court_the_chamber = {
+	add_stability = constant:spain_campaign.court_stability
+	spain_cortes_recount = yes
+	spain_government_recount = yes
+}
+
+# Proscription removes a party from the chamber and drives its voters underground.
+spain_proscribe_party = {
+	add_stability = constant:spain_campaign.proscribe_stability
+	add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.proscribe_coup }
+	spain_cortes_recount = yes
+	spain_government_recount = yes
+}
+
+# =====================================================================================
+# Monthly upkeep
+# =====================================================================================
+
+# Patronage is a running cost: what a party gained fades by a seat's worth of support each
+# month unless it is paid for again. A government below 201 seats bleeds authority and the
+# army notices.
+spain_party_monthly = {
+	# catch up any save or scenario that started before the party system existed
+	if = {
+		limit = { NOT = { has_variable = spain_party_shift_monarchists } }
+		spain_parties_initialize = yes
+	}
+	if = {
+		limit = {
+			has_variable = spain_party_shift_monarchists
+			NOT = { has_variable = spain_cortes_total }
+		}
+		spain_cortes_recount = yes
+	}
+	if = {
+		limit = {
+			has_variable = spain_cortes_total
+			NOT = { has_variable = spain_government_majority }
+		}
+		spain_government_recount = yes
+	}
+
+	if = {
+		limit = {
+			OR = {
+				check_variable = { var = spain_party_shift_monarchists value = 0 compare = greater_than }
+				check_variable = { var = spain_party_shift_liberals value = 0 compare = greater_than }
+				check_variable = { var = spain_party_shift_conservatives value = 0 compare = greater_than }
+				check_variable = { var = spain_party_shift_republicans value = 0 compare = greater_than }
+				check_variable = { var = spain_party_shift_socialists value = 0 compare = greater_than }
+				check_variable = { var = spain_party_shift_carlists value = 0 compare = greater_than }
+				check_variable = { var = spain_party_shift_falange value = 0 compare = greater_than }
+			}
+		}
+		if = { limit = { check_variable = { var = spain_party_shift_monarchists value = 0 compare = greater_than } } subtract_from_variable = { var = spain_party_shift_monarchists value = constant:spain_campaign.support_decay } }
+		if = { limit = { check_variable = { var = spain_party_shift_liberals value = 0 compare = greater_than } } subtract_from_variable = { var = spain_party_shift_liberals value = constant:spain_campaign.support_decay } }
+		if = { limit = { check_variable = { var = spain_party_shift_conservatives value = 0 compare = greater_than } } subtract_from_variable = { var = spain_party_shift_conservatives value = constant:spain_campaign.support_decay } }
+		if = { limit = { check_variable = { var = spain_party_shift_republicans value = 0 compare = greater_than } } subtract_from_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.support_decay } }
+		if = { limit = { check_variable = { var = spain_party_shift_socialists value = 0 compare = greater_than } } subtract_from_variable = { var = spain_party_shift_socialists value = constant:spain_campaign.support_decay } }
+		if = { limit = { check_variable = { var = spain_party_shift_carlists value = 0 compare = greater_than } } subtract_from_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.support_decay } }
+		if = { limit = { check_variable = { var = spain_party_shift_falange value = 0 compare = greater_than } } subtract_from_variable = { var = spain_party_shift_falange value = constant:spain_campaign.support_decay } }
+		spain_cortes_recount = yes
+	}
+
+	# Patronage past the rot line is no longer a machine, it is a grievance: the parties that want
+	# the regime gone gain ground every month and the officer corps starts to count. The recount
+	# keeps the chamber and the panel on the same month as the shift.
+	if = {
+		limit = { check_variable = { var = spain_crown_patronage value = constant:spain_campaign.patronage_rot compare = greater_than_or_equals } }
+		add_to_variable = { var = spain_party_shift_republicans value = constant:spain_campaign.patronage_rot_shift }
+		add_to_variable = { var = spain_party_shift_carlists value = constant:spain_campaign.patronage_rot_shift }
+		add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.patronage_rot_coup }
+		spain_cortes_recount = yes
+	}
+	if = {
+		limit = { check_variable = { var = spain_government_majority value = 0 compare = equals } }
+		add_stability = constant:spain_campaign.minority_stability
+		add_to_variable = { var = spain_coup_pressure value = constant:spain_campaign.minority_coup }
+	}
+}
