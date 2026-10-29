@@ -1,0 +1,89 @@
+add_namespace = mex_ww1_revolution
+
+country_event = {
+    id = mex_ww1_revolution.100
+    hidden = yes
+    is_triggered_only = yes
+    immediate = {
+        clr_country_flag = MEX_WW1_R_tick_queued
+        if = {
+            limit = { MEX_WW1_R_active = yes }
+            MEX_WW1_R_advance_settlement = yes
+            set_country_flag = MEX_WW1_R_tick_queued
+            country_event = { id = mex_ww1_revolution.100 days = 45 }
+        }
+        else = { MEX_WW1_refresh_settlement = yes }
+    }
+}
+# One-time initialization for saves which already loaded the Mexican WW1 tree.
+country_event = {
+    id = mex_ww1_revolution.101
+    hidden = yes
+    fire_only_once = yes
+    trigger = {
+        tag = MEX
+        MEX_WW1_R_active = yes
+        NOT = { has_country_flag = MEX_WW1_R_initialized }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = { MEX_WW1_initialize_revolution = yes }
+}
+country_event = {
+    id = mex_ww1_revolution.10
+    title = mex_ww1_revolution.10.t
+    desc = mex_ww1_revolution.10.d
+    picture = GFX_report_event_constitutionalists
+    is_triggered_only = yes
+    trigger = { MEX_WW1_R_active = yes }
+    option = { name = mex_ww1_revolution.10.a }
+}
+country_event = {
+    id = mex_ww1_revolution.20
+    title = mex_ww1_revolution.20.t
+    desc = mex_ww1_revolution.20.d
+    picture = GFX_report_event_maderista_revolution
+    is_triggered_only = yes
+    trigger = { MEX_WW1_R_active = yes }
+    immediate = { add_timed_idea = { idea = MEX_WW1_R_food_crisis days = 180 } }
+    option = {
+        name = mex_ww1_revolution.20.a
+        add_political_power = -35
+        subtract_from_variable = { MEX_WW1_land_discontent = 6 }
+        add_to_variable = { MEX_WW1_legitimacy = 3 }
+        MEX_WW1_refresh_settlement = yes
+        ai_chance = { factor = 75 }
+    }
+    option = {
+        name = mex_ww1_revolution.20.b
+        subtract_from_variable = { MEX_WW1_army_autonomy = 5 }
+        add_to_variable = { MEX_WW1_land_discontent = 8 }
+        subtract_from_variable = { MEX_WW1_legitimacy = 3 }
+        MEX_WW1_refresh_settlement = yes
+        ai_chance = { factor = 25 }
+    }
+}
+country_event = {
+    id = mex_ww1_revolution.21
+    title = mex_ww1_revolution.21.t
+    desc = mex_ww1_revolution.21.d
+    picture = GFX_report_event_maderista_revolution
+    is_triggered_only = yes
+    trigger = { MEX_WW1_R_active = yes }
+    immediate = { add_timed_idea = { idea = MEX_WW1_R_general_strike days = 180 } }
+    option = {
+        name = mex_ww1_revolution.21.a
+        add_political_power = -40
+        add_to_variable = { MEX_WW1_legitimacy = 5 }
+        MEX_WW1_refresh_settlement = yes
+        ai_chance = { factor = 70 modifier = { factor = 0 is_historical_focus_on = yes } }
+    }
+    option = {
+        name = mex_ww1_revolution.21.b
+        subtract_from_variable = { MEX_WW1_legitimacy = 7 }
+        subtract_from_variable = { MEX_WW1_army_autonomy = 5 }
+        remove_ideas = MEX_WW1_R_general_strike
+        add_timed_idea = { idea = MEX_WW1_R_emergency_decrees days = 180 }
+        MEX_WW1_refresh_settlement = yes
+        ai_chance = { factor = 30 modifier = { factor = 100 is_historical_focus_on = yes } }
+    }
+}

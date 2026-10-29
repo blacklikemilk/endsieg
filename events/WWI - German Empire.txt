@@ -302,16 +302,20 @@ country_event = {
  has_completed_focus = GE1_zimmerman OR = { NOT = { WW1_historical_ai_preparation = yes } NOT = { date < 1917.3.1 } }
 
  NOT = { has_country_flag = WW1_focus_action_ww1_germany_13_seen }
-}
+
+		OR = { NOT = { MEX = { has_focus_tree = mexico_focus_ww1 } } MEX = { MEX_WW1_ZT_sender_available = yes } }
+	}
 	option = {
 		name = ww1_germany.13.a
 		set_global_flag = zimmerman_telegram
-		# The telegram's discovery immediately provoked the United States.
-		# Previously this flag only unlocked a U.S. focus, leaving the event
-		# chain stalled whenever that focus was not selected.
-		if = {
+		# Custom Mexico separates receipt from publication; generic trees
+		# retain the existing American response.
+		if = { limit = { country_exists = MEX MEX = { has_focus_tree = mexico_focus_ww1 } } MEX = { MEX_WW1_ZT_receive_offer = yes } }
+		else = {
+if = {
 			limit = { country_exists = USA NOT = { has_global_flag = compiegne } NOT = { has_global_flag = central_powers_victory } USA = { NOT = { is_in_faction_with = GER } NOT = { has_country_flag = US2_R_german_agreement } } }
 			USA = { country_event = { id = ww1_usa.7 days = 1 } }
+		}
 		}
 
  set_country_flag = WW1_focus_action_ww1_germany_13_seen clr_country_flag = WW1_focus_action_ww1_germany_13_queued
@@ -331,11 +335,15 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		tag = MEX
 		has_global_flag = zimmerman_telegram
+
+		NOT = { has_focus_tree = mexico_focus_ww1 }
 	}
 
 	mean_time_to_happen = { days = 1 }
 
 	option = {
+		trigger = { NOT = { has_focus_tree = mexico_focus_ww1 } }
+
 		name = ww1_germany.1301.a
 		ai_chance = {
 			factor = 5
@@ -345,12 +353,17 @@ country_event = {
 		}
 	}
 	option = {
+		trigger = { NOT = { has_focus_tree = mexico_focus_ww1 } }
+
 		name = ww1_germany.1301.b
 		ai_chance = {
 			factor = 95
 		}
 		set_global_flag = mexico_says_no
 	}
+
+
+
 }
 
 # Negotiate With Sweden part 2
@@ -2124,27 +2137,30 @@ country_event = {
 
 	option = {
 		name = ww1_germany.5302.a
-		news_event = { hours = 6 id = endsieg_news.145 }
-		MEX = {
-			add_political_power = -150
-			set_stability = 0.05
-			set_war_support = -0.1
-			set_politics = {
-				ruling_party = neutrality
-				elections_allowed = no        }
+		if = {
+			limit = { NOT = { MEX = { OR = { has_completed_focus = MEX_WW1_constitutional_compact has_completed_focus = MEX_WW1_agrarian_convention has_completed_focus = MEX_WW1_army_of_reconstruction } } } }
+			news_event = { hours = 6 id = endsieg_news.145 }
+			MEX = {
+				add_political_power = -150
+				set_stability = 0.05
+				set_war_support = -0.1
+				set_politics = {
+					ruling_party = neutrality
+					elections_allowed = no        }
 
-            set_popularities = {
-                fascism = 0
-                neutrality = 55
-                democratic = 40
-                communism = 5
-            }
-			kill_country_leader = yes
-			if = {
-				limit = { NOT = { endsieg_character_active_mex_victoriano_huerta_ff0e42d0 = yes } }
-				endsieg_character_activate_mex_victoriano_huerta_ff0e42d0 = yes
+	            set_popularities = {
+	                fascism = 0
+	                neutrality = 55
+	                democratic = 40
+	                communism = 5
+	            }
+				kill_country_leader = yes
+				if = {
+					limit = { NOT = { endsieg_character_active_mex_victoriano_huerta_ff0e42d0 = yes } }
+					endsieg_character_activate_mex_victoriano_huerta_ff0e42d0 = yes
+				}
+				promote_character = MEX_victoriano_huerta
 			}
-			promote_character = MEX_victoriano_huerta
 		}
 	}
 }
