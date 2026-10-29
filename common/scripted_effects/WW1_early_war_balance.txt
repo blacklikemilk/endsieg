@@ -1,0 +1,95 @@
+# Country-scoped setup for the 1910-1912 regional campaigns.
+WW1_RCH_raise_hubei_army = {
+	if = {
+		limit = {
+			tag = RCH
+			has_start_date < 1912.1.1
+			date < 1912.1.1
+			NOT = { has_country_flag = WW1_RCH_hubei_army_raised }
+		}
+		QIN = {
+			delete_units = { division_template = "Hubei New Army Division" disband = no }
+		}
+		transfer_state = 620
+		set_capital = { state = 620 }
+		rch_initialize_campaign = yes
+		load_oob = wuchang_uprising
+		add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 12000 producer = FRA }
+		set_country_flag = WW1_RCH_hubei_army_raised
+		declare_war_on = { target = QIN type = annex_everything }
+	}
+}
+
+WW1_TIB_restore_administration = {
+	if = {
+		limit = {
+			tag = TIB
+			has_start_date < 1913.1.1
+			date < 1913.1.1
+			NOT = { has_country_flag = WW1_TIB_uprising_started }
+		}
+		transfer_state = 322
+		transfer_state = 757
+		transfer_state = 758
+		set_capital = { state = 757 }
+		load_oob = tibetan_uprising
+		add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 1000 producer = TIB }
+		set_country_flag = WW1_TIB_uprising_started
+	}
+}
+
+WW1_TIB_begin_uprising = {
+	if = {
+		limit = { NOT = { has_country_flag = WW1_TIB_uprising_started } }
+		WW1_TIB_restore_administration = yes
+		if = {
+			limit = { has_country_flag = WW1_TIB_uprising_started QIN = { exists = yes } }
+			declare_war_on = { target = QIN type = annex_everything }
+		}
+	}
+}
+
+WW1_TIB_settle_independence = {
+	if = {
+		limit = {
+			tag = TIB
+			date < 1914.1.1
+			has_country_flag = WW1_TIB_uprising_started
+			controls_province = 5033
+			NOT = { has_country_flag = WW1_TIB_independence_secured }
+		}
+		if = { limit = { has_war_with = QIN } white_peace = QIN }
+		if = { limit = { has_war_with = RCH } white_peace = RCH }
+		set_country_flag = WW1_TIB_independence_secured
+		country_event = { id = ww1_early_campaigns.2 days = 1 }
+	}
+}
+
+WW1_TUR_raise_libyan_levies = {
+	if = {
+		limit = {
+			tag = TUR
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			NOT = { has_global_flag = treaty_of_ouchy }
+		}
+		if = {
+			limit = {
+				661 = { is_owned_by = TUR }
+				controls_province = 1174
+				NOT = { has_country_flag = WW1_TUR_tripolitanian_levy_raised }
+			}
+			set_country_flag = WW1_TUR_tripolitanian_levy_raised
+			load_oob = WW1_TUR_Tripolitanian_levy
+		}
+		if = {
+			limit = {
+				663 = { is_owned_by = TUR }
+				controls_province = 10049
+				NOT = { has_country_flag = WW1_TUR_cyrenaican_levy_raised }
+			}
+			set_country_flag = WW1_TUR_cyrenaican_levy_raised
+			load_oob = WW1_TUR_Cyrenaican_levy
+		}
+	}
+}

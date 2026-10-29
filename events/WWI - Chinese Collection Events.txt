@@ -53,25 +53,15 @@ country_event = {
 		name = ww1_china.3.a
 		set_global_flag = xinhai_revolution
 		RCH = {
-			transfer_state = 620
-			load_oob = wuchang_uprising
-			declare_war_on = { target = QIN type = annex_everything }
-		}
-		RCH = {
-			add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 55000 producer = FRA }
+			WW1_RCH_raise_hubei_army = yes
 		}
 	}
 	option = {
 		name = ww1_china.3.b
 		set_global_flag = xinhai_revolution
 		RCH = {
-			transfer_state = 620
-			load_oob = wuchang_uprising
-			declare_war_on = { target = QIN type = annex_everything }
+			WW1_RCH_raise_hubei_army = yes
 			change_tag_from = QIN
-		}
-		RCH = {
-			add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 55000 producer = FRA }
 		}
 	}
 }
@@ -93,6 +83,7 @@ country_event = {
 		name = ww1_china.4.a
 		RCH = {
 			transfer_state = 602
+			if = { limit = { 750 = { is_owned_by = QIN } } transfer_state = 750 }
 			load_oob = Changsha_Restoration
 		}
 	}
@@ -115,6 +106,7 @@ country_event = {
 		name = ww1_china.5.a
 		RCH = {
 			transfer_state = 622
+			if = { limit = { 744 = { is_owned_by = QIN } } transfer_state = 744 }
 			load_oob = Shaanxi_Uprising
 		}
 	}
@@ -181,6 +173,7 @@ country_event = {
 		name = ww1_china.8.a
 		RCH = {
 			transfer_state = 325
+			if = { limit = { 747 = { is_owned_by = QIN } } transfer_state = 747 }
 			load_oob = Kunming_Uprising
 		}
 	}
@@ -202,9 +195,7 @@ country_event = {
 	option = {
 		name = ww1_china.9.a
 		TIB = {
-			transfer_state = 322
-			load_oob = tibetan_uprising
-			declare_war_on = { target = QIN type = annex_everything }
+			WW1_TIB_begin_uprising = yes
 		}
 	}
 }
@@ -427,8 +418,21 @@ country_event = {
 		tag = QIN
 		OR = {
 			AND = {
+				qing_historical_collapse = yes
+				date > 1912.2.11
+				has_global_flag = xinhai_revolution
+				has_war_with = RCH
+				RCH = {
+					exists = yes
+					NOT = { has_capitulated = yes }
+					controls_province = 4619
+					num_of_owned_states > 4
+				}
+			}
+			AND = {
 				surrender_progress > 0.45
 				is_ai = yes
+				NOT = { qing_historical_collapse = yes }
 			}
 			AND = {
 				surrender_progress > 0.80
@@ -445,9 +449,11 @@ country_event = {
 	option = {
 		name = ww1_china.19.a
 		set_global_flag = end_of_qing
+		set_global_flag = qing_xinhai_settled
+		TIB = { WW1_TIB_settle_independence = yes }
 		QIN = { set_country_flag = qing_collapsed }
 		RCH = {
-			annex_country = { target = QIN transfer_troops = no }
+			annex_country = { target = QIN transfer_troops = yes }
 			change_tag_from = QIN
 			rch_initialize_campaign = yes
 		}
@@ -468,13 +474,7 @@ country_event = {
 
 	option = {
 		name = ww1_china.27.a
-		QIN = {
-			annex_country = { target = RCH transfer_troops = no }
-			change_tag_from = RCH
-		}
-		QIN = {
-			country_event = { id = ww1_china.28 days = 1 }
-		}
+		rch_initialize_campaign = yes
 	}
 }
 
@@ -489,14 +489,7 @@ country_event = {
 
 	option = {
 		name = ww1_china.28.a
-		RCH = {
-			annex_country = { target = QIN transfer_troops = no }
-			change_tag_from = QIN
-			rch_initialize_campaign = yes
-		}
-		RCH = {
-			load_oob = RCH_1914
-		}
+		rch_initialize_campaign = yes
 	}
 }
 
