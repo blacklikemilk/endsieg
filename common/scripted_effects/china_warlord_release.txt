@@ -20,9 +20,9 @@
 #   - the owning country gains its permanent release flag, which is the caller's own re-entry guard;
 #   - the released tag gains china_warlord_released, used by its own campaign tick;
 #   - the state is transferred to the released tag as owner and controller, and cored;
-#   - the leader is recruited only when the tag does not already hold that character.
+#   - Yan Xishan is already registered by early-start country history; no runtime recruitment occurs.
 # A second call does nothing: the caller's flag is already set, the tag already owns the state, and
-# the recruit is guarded by has_character, so a reload, a duplicate on_action line or a re-run after
+# country history registers the identity once, so a reload, a duplicate on_action line or a re-run after
 # a save cannot produce a second province or a second leader.
 china_release_warlord_receive = {
 	if = {
@@ -47,13 +47,9 @@ china_release_warlord_shx = {
 		SHX = {
 			set_variable = { china_release_seat = 615 }
 			china_release_warlord_receive = yes
-			# add_state_core and recruit_character take database tokens rather than variables, so
-			# they stay beside the seat literal in the wrapper that owns it.
+			# add_state_core takes a database token rather than a variable, so
+			# the core stays beside its seat literal. The character is registered in SHX history.
 			add_state_core = 615
-			if = {
-				limit = { NOT = { has_character = SHX_yan_xishan } }
-				recruit_character = SHX_yan_xishan
-			}
 		}
 	}
 }

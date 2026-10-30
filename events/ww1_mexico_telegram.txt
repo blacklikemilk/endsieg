@@ -1,0 +1,239 @@
+add_namespace = mex_ww1_telegram
+
+country_event = {
+	id = mex_ww1_telegram.1
+	title = mex_ww1_telegram.1.t
+	desc = mex_ww1_telegram.1.d
+	picture = GFX_MEX_WW1_ZT_country
+	is_triggered_only = yes
+
+	option = { name = mex_ww1_telegram.1.a
+		ai_chance = { factor = 100 }
+		custom_effect_tooltip = MEX_WW1_ZT_no_automatic_entry_tt
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.2
+	title = mex_ww1_telegram.2.t
+	desc = { text = mex_ww1_telegram.2.withdrawn.d trigger = { has_country_flag = MEX_WW1_ZT_withdrawn } }
+	desc = { text = mex_ww1_telegram.2.active.d trigger = { NOT = { has_country_flag = MEX_WW1_ZT_withdrawn } } }
+
+	picture = GFX_MEX_WW1_ZT_country
+	is_triggered_only = yes
+
+	option = { name = mex_ww1_telegram.2.a
+		ai_chance = { factor = 100 }
+
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.3
+	title = mex_ww1_telegram.3.t
+	desc = mex_ww1_telegram.3.d
+	picture = GFX_report_event_random_diplomacy
+	is_triggered_only = yes
+	trigger = { tag = GER country_exists = MEX MEX = { has_country_flag = MEX_WW1_ZT_terms_pending } }
+	option = { name = mex_ww1_telegram.3.a
+		trigger = { MEX = { MEX_WW1_ZT_terms_still_valid = yes } has_political_power > 49 has_equipment = { infantry_equipment > 999 } }
+		ai_chance = { factor = 60 modifier = { factor = 2 has_war_with = USA } modifier = { factor = 0.25 has_political_power < 100 } }
+		if = { limit = { MEX = { has_country_flag = MEX_WW1_ZT_terms_pending MEX_WW1_ZT_terms_still_valid = yes } has_political_power > 49 has_equipment = { infantry_equipment > 999 } }
+			add_political_power = -50
+			send_equipment = { equipment = infantry_equipment amount = 1000 target = MEX }
+			MEX = {
+				clr_country_flag = MEX_WW1_ZT_terms_pending
+				clr_country_flag = MEX_WW1_ZT_terms_refused
+				clr_country_flag = MEX_WW1_ZT_withdrawn
+				set_country_flag = MEX_WW1_ZT_terms_accepted
+				set_country_flag = MEX_WW1_central_consent
+				clr_country_flag = MEX_WW1_central_refused
+				country_event = { id = mex_ww1_telegram.4 days = 1 }
+			}
+		}
+	}
+	option = { name = mex_ww1_telegram.3.b
+		ai_chance = { factor = 40 }
+		if = { limit = { MEX = { has_country_flag = MEX_WW1_ZT_terms_pending } }
+			MEX = { clr_country_flag = MEX_WW1_ZT_terms_pending clr_country_flag = MEX_WW1_central_consent set_country_flag = MEX_WW1_ZT_terms_refused set_country_flag = MEX_WW1_central_refused country_event = { id = mex_ww1_telegram.4 days = 1 } }
+		}
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.4
+	title = mex_ww1_telegram.4.t
+	desc = { text = mex_ww1_telegram.4.accepted.d trigger = { has_country_flag = MEX_WW1_ZT_terms_accepted } }
+	desc = { text = mex_ww1_telegram.4.refused.d trigger = { NOT = { has_country_flag = MEX_WW1_ZT_terms_accepted } } }
+
+	picture = GFX_MEX_WW1_ZT_country
+	is_triggered_only = yes
+
+	option = { name = mex_ww1_telegram.4.a
+		trigger = { has_country_flag = MEX_WW1_ZT_terms_accepted }
+		ai_chance = { factor = 100 }
+		custom_effect_tooltip = MEX_WW1_ZT_no_automatic_entry_tt
+	}
+	option = { name = mex_ww1_telegram.4.b
+		trigger = { NOT = { has_country_flag = MEX_WW1_ZT_terms_accepted } }
+		ai_chance = { factor = 100 }
+
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.5
+	title = mex_ww1_telegram.5.t
+	desc = mex_ww1_telegram.5.d
+	picture = GFX_MEX_WW1_ZT_country
+	is_triggered_only = yes
+
+	option = { name = mex_ww1_telegram.5.a
+		ai_chance = { factor = 100 }
+
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.6
+	title = mex_ww1_telegram.6.t
+	desc = mex_ww1_telegram.6.d
+	picture = GFX_MEX_WW1_ZT_country
+	is_triggered_only = yes
+
+	option = { name = mex_ww1_telegram.6.a
+		ai_chance = { factor = 100 }
+
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.10
+	title = mex_ww1_telegram.10.t
+	desc = mex_ww1_telegram.10.d
+	picture = GFX_report_event_zimmerman_condemned
+	is_triggered_only = yes
+	trigger = { tag = USA country_exists = MEX MEX = { has_focus_tree = mexico_focus_ww1 } NOT = { has_country_flag = MEX_WW1_ZT_us_inquiry_handled } }
+	option = { name = mex_ww1_telegram.10.a
+		ai_chance = { factor = 100 }
+		set_country_flag = MEX_WW1_ZT_us_inquiry_handled MEX = { country_event = { id = mex_ww1_telegram.11 days = 1 } }
+	}
+	option = { name = mex_ww1_telegram.10.b
+		ai_chance = { factor = 20 modifier = { factor = 0 is_historical_focus_on = yes } }
+		set_country_flag = MEX_WW1_ZT_us_inquiry_handled
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.11
+	title = mex_ww1_telegram.11.t
+	desc = mex_ww1_telegram.11.d
+	picture = GFX_report_event_random_diplomacy
+	is_triggered_only = yes
+	trigger = { tag = MEX has_focus_tree = mexico_focus_ww1 NOT = { has_country_flag = MEX_WW1_ZT_us_answered } }
+	option = { name = mex_ww1_telegram.11.a
+		trigger = { OR = { has_country_flag = MEX_WW1_ZT_rejected has_completed_focus = MEX_WW1_armed_neutrality } is_in_faction = no }
+		ai_chance = { factor = 100 }
+		set_country_flag = MEX_WW1_ZT_us_answered set_country_flag = MEX_WW1_ZT_public_neutrality USA = { add_opinion_modifier = { target = MEX modifier = MEX_WW1_ZT_public_assurance } country_event = { id = mex_ww1_telegram.12 days = 1 } }
+	}
+	option = { name = mex_ww1_telegram.11.b
+		trigger = { NOT = { has_completed_focus = MEX_WW1_armed_neutrality } NOT = { has_country_flag = MEX_WW1_ZT_rejected } NOT = { is_in_faction_with = GER } NOT = { is_in_faction_with = FRA } }
+		ai_chance = { factor = 100 }
+		set_country_flag = MEX_WW1_ZT_us_answered set_country_flag = MEX_WW1_ZT_no_signed_convention add_political_power = -15 USA = { country_event = { id = mex_ww1_telegram.12 days = 1 } }
+	}
+	option = { name = mex_ww1_telegram.11.c
+		trigger = { is_in_faction_with = FRA }
+		ai_chance = { factor = 100 }
+		set_country_flag = MEX_WW1_ZT_us_answered set_country_flag = MEX_WW1_ZT_public_atlantic USA = { add_opinion_modifier = { target = MEX modifier = MEX_WW1_ZT_atlantic_reply } country_event = { id = mex_ww1_telegram.12 days = 1 } }
+	}
+	option = { name = mex_ww1_telegram.11.e
+		ai_chance = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes NOT = { is_in_faction_with = GER } } }
+		set_country_flag = MEX_WW1_ZT_us_answered set_country_flag = MEX_WW1_ZT_public_defiance add_war_support = 0.03 USA = { add_opinion_modifier = { target = MEX modifier = MEX_WW1_ZT_evasive_reply } country_event = { id = mex_ww1_telegram.12 days = 1 } }
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.12
+	title = mex_ww1_telegram.12.t
+	desc = { text = mex_ww1_telegram.12.neutral.d trigger = { MEX = { has_country_flag = MEX_WW1_ZT_public_neutrality } } }
+	desc = { text = mex_ww1_telegram.12.unsigned.d trigger = { MEX = { has_country_flag = MEX_WW1_ZT_no_signed_convention } } }
+	desc = { text = mex_ww1_telegram.12.atlantic.d trigger = { MEX = { has_country_flag = MEX_WW1_ZT_public_atlantic } } }
+	desc = { text = mex_ww1_telegram.12.defiant.d trigger = { MEX = { has_country_flag = MEX_WW1_ZT_public_defiance } } }
+
+	picture = GFX_report_event_zimmerman_condemned
+	is_triggered_only = yes
+	trigger = { tag = USA country_exists = MEX }
+	option = { name = mex_ww1_telegram.12.a
+		trigger = { NOT = { MEX = { has_country_flag = MEX_WW1_ZT_public_defiance } } }
+		ai_chance = { factor = 100 }
+
+	}
+	option = { name = mex_ww1_telegram.12.b
+		trigger = { MEX = { has_country_flag = MEX_WW1_ZT_public_defiance } }
+		ai_chance = { factor = 100 }
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = mex_ww1_telegram.100 hidden = yes fire_only_once = yes
+	trigger = {
+		tag = GER is_ai = yes is_historical_focus_on = yes
+		has_start_date < 1917.1.19 date > 1917.1.18 date < 1918.1.1
+		country_exists = MEX NOT = { has_global_flag = zimmerman_telegram }
+		MEX = { MEX_WW1_ZT_recipient_available = yes MEX_WW1_ZT_sender_available = yes NOT = { has_country_flag = MEX_WW1_ZT_received } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { MEX = { MEX_WW1_ZT_receive_offer = yes } }
+}
+country_event = {
+	id = mex_ww1_telegram.101 hidden = yes fire_only_once = yes
+	trigger = {
+		tag = MEX MEX_WW1_ZT_recipient_available = yes date > 1917.1.18
+		NOT = { has_country_flag = MEX_WW1_ZT_received }
+		OR = { has_global_flag = zimmerman_telegram has_country_flag = MEX_WW1_zimmermann_offer }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { OR = { has_completed_focus = MEX_WW1_armed_neutrality has_global_flag = mexico_says_no has_start_date > 1917.12.31 } }
+			set_country_flag = MEX_WW1_ZT_received set_country_flag = MEX_WW1_ZT_assessed set_country_flag = MEX_WW1_ZT_report_considered set_country_flag = MEX_WW1_ZT_rejected
+		}
+		else_if = { limit = { date > 1917.12.31 NOT = { has_completed_focus = MEX_WW1_ratify_central } }
+			set_country_flag = MEX_WW1_ZT_received set_country_flag = MEX_WW1_ZT_assessed set_country_flag = MEX_WW1_ZT_report_considered set_country_flag = MEX_WW1_ZT_withdrawn
+		}
+		else_if = {
+ limit = { NOT = { MEX_WW1_ZT_sender_available = yes } NOT = { has_completed_focus = MEX_WW1_ratify_central } }
+ set_country_flag = MEX_WW1_ZT_received
+ MEX_WW1_ZT_withdraw = yes
+ }
+ else = { MEX_WW1_ZT_receive_offer = yes }
+	}
+}
+country_event = {
+	id = mex_ww1_telegram.102 hidden = yes fire_only_once = yes
+	trigger = {
+		tag = MEX has_focus_tree = mexico_focus_ww1
+		has_start_date < 1917.3.1 date > 1917.2.28 date < 1918.1.1
+		has_country_flag = MEX_WW1_ZT_received has_global_flag = zimmerman_telegram
+		NOT = { has_global_flag = MEX_WW1_ZT_published }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { MEX_WW1_ZT_publish = yes }
+}
+country_event = {
+	id = mex_ww1_telegram.103 hidden = yes is_triggered_only = yes
+	trigger = { tag = MEX has_country_flag = MEX_WW1_ZT_terms_pending }
+	immediate = { MEX_WW1_ZT_withdraw = yes }
+}
+
+news_event = {
+	id = mex_ww1_telegram.200
+	title = mex_ww1_telegram.200.t
+	desc = mex_ww1_telegram.200.d
+	picture = GFX_MEX_WW1_ZT_news
+	is_triggered_only = yes
+	major = yes
+	option = { name = mex_ww1_telegram.200.a
+
+	}
+}

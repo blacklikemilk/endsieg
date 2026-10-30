@@ -1,0 +1,75 @@
+MEX_WW1_foreign_negotiations = {
+ MEX_WW1_renew_central_convention = {
+	icon = GFX_decision_generic_political_discourse
+	allowed = { original_tag = MEX }
+	visible = {
+		MEX_WW1_ZT_recipient_available = yes has_country_flag = MEX_WW1_ZT_received
+		OR = { has_completed_focus = MEX_WW1_request_german_guarantees has_completed_focus = MEX_WW1_ratify_central }
+		NOT = { has_completed_focus = MEX_WW1_armed_neutrality } NOT = { has_completed_focus = MEX_WW1_ratify_entente }
+		OR = { NOT = { has_country_flag = MEX_WW1_ZT_terms_accepted } AND = { has_completed_focus = MEX_WW1_ratify_central NOT = { is_in_faction_with = GER } } }
+	}
+	available = { MEX_WW1_ZT_sender_available = yes NOT = { has_country_flag = MEX_WW1_diplomatic_work } NOT = { has_country_flag = MEX_WW1_ZT_terms_pending } }
+	cost = 30 days_remove = 60 days_re_enable = 180 fire_only_once = no
+	complete_effect = { set_country_flag = MEX_WW1_diplomatic_work }
+	cancel_trigger = { OR = { NOT = { MEX_WW1_ZT_recipient_available = yes } NOT = { MEX_WW1_ZT_sender_available = yes } has_completed_focus = MEX_WW1_armed_neutrality has_completed_focus = MEX_WW1_ratify_entente } }
+	cancel_effect = { clr_country_flag = MEX_WW1_diplomatic_work }
+	remove_effect = {
+		if = { limit = { has_country_flag = MEX_WW1_diplomatic_work }
+			clr_country_flag = MEX_WW1_diplomatic_work
+			if = { limit = { MEX_WW1_ZT_recipient_available = yes NOT = { has_completed_focus = MEX_WW1_armed_neutrality } NOT = { has_completed_focus = MEX_WW1_ratify_entente } }
+				if = { limit = { has_completed_focus = MEX_WW1_ratify_central has_country_flag = MEX_WW1_ZT_terms_accepted has_country_flag = MEX_WW1_central_consent MEX_WW1_central_host_available = yes } MEX_WW1_ratify_central_convention = yes }
+				else = { MEX_WW1_ZT_request_guarantees = yes }
+			}
+		}
+	}
+	ai_will_do = { base = 1 modifier = { factor = 0 is_historical_focus_on = yes } modifier = { factor = 5 has_completed_focus = MEX_WW1_ratify_central } }
+}
+ MEX_WW1_renew_entente_convention = {
+  icon = GFX_decision_generic_political_discourse
+  allowed = { original_tag = MEX }
+  visible = {
+   MEX_WW1_diplomacy_allowed = yes
+   has_completed_focus = MEX_WW1_entente_purchasing
+   NOT = { has_completed_focus = MEX_WW1_armed_neutrality }
+   NOT = { has_completed_focus = MEX_WW1_ratify_central }
+   OR = {
+    NOT = { has_country_flag = MEX_WW1_entente_consent }
+    AND = { has_completed_focus = MEX_WW1_ratify_entente NOT = { is_in_faction_with = FRA } }
+   }
+  }
+  available = {
+   NOT = { has_country_flag = MEX_WW1_diplomatic_work }
+   NOT = { has_country_flag = MEX_WW1_entente_offer_pending }
+  }
+  cost = 30
+  days_remove = 60
+  days_re_enable = 180
+  fire_only_once = no
+  complete_effect = { set_country_flag = MEX_WW1_diplomatic_work }
+  cancel_trigger = {
+   OR = {
+    NOT = { MEX_WW1_diplomacy_allowed = yes }
+    has_completed_focus = MEX_WW1_armed_neutrality
+    has_completed_focus = MEX_WW1_ratify_central
+   }
+  }
+  cancel_effect = { clr_country_flag = MEX_WW1_diplomatic_work }
+  remove_effect = {
+   clr_country_flag = MEX_WW1_diplomatic_work
+   if = {
+    limit = { MEX_WW1_diplomacy_allowed = yes NOT = { has_completed_focus = MEX_WW1_armed_neutrality } NOT = { has_completed_focus = MEX_WW1_ratify_central } }
+    if = {
+     limit = { has_completed_focus = MEX_WW1_ratify_entente has_country_flag = MEX_WW1_entente_consent MEX_WW1_entente_host_available = yes }
+     MEX_WW1_ratify_entente_convention = yes
+    }
+    else = { MEX_WW1_offer_entente_convention = yes }
+   }
+  }
+  ai_will_do = {
+   base = 1
+   modifier = { factor = 0 is_historical_focus_on = yes }
+   modifier = { factor = 5 has_completed_focus = MEX_WW1_ratify_entente }
+   modifier = { factor = 0 NOT = { MEX_WW1_entente_host_available = yes } }
+  }
+ }
+}

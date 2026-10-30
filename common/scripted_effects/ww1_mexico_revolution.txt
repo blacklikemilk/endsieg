@@ -1,0 +1,246 @@
+# Mexican WW1 settlement. Only the national Mexican tag runs the recurring update.
+MEX_WW1_refresh_settlement = {
+    clamp_variable = { var = MEX_WW1_legitimacy min = 0 max = 100 }
+    clamp_variable = { var = MEX_WW1_land_discontent min = 0 max = 100 }
+    clamp_variable = { var = MEX_WW1_army_autonomy min = 0 max = 100 }
+    clamp_variable = { var = MEX_WW1_R_active_programmes min = 0 max = 2 }
+    if = {
+        limit = { MEX_WW1_R_active = yes }
+        if = {
+            limit = {
+                OR = {
+                    check_variable = { var = MEX_WW1_legitimacy value = 35 compare = less_than }
+                    check_variable = { var = MEX_WW1_land_discontent value = 75 compare = greater_than_or_equals }
+                    check_variable = { var = MEX_WW1_army_autonomy value = 80 compare = greater_than_or_equals }
+                }
+            }
+            remove_ideas = MEX_WW1_R_contested_settlement
+            remove_ideas = MEX_WW1_R_consolidated_settlement
+            if = { limit = { NOT = { has_idea = MEX_WW1_R_fractured_revolution } } add_ideas = MEX_WW1_R_fractured_revolution }
+        }
+        else_if = {
+            limit = {
+                check_variable = { var = MEX_WW1_legitimacy value = 75 compare = greater_than_or_equals }
+                check_variable = { var = MEX_WW1_land_discontent value = 36 compare = less_than }
+                check_variable = { var = MEX_WW1_army_autonomy value = 36 compare = less_than }
+            }
+            remove_ideas = MEX_WW1_R_fractured_revolution
+            remove_ideas = MEX_WW1_R_contested_settlement
+            if = { limit = { NOT = { has_idea = MEX_WW1_R_consolidated_settlement } } add_ideas = MEX_WW1_R_consolidated_settlement }
+        }
+        else = {
+            remove_ideas = MEX_WW1_R_fractured_revolution
+            remove_ideas = MEX_WW1_R_consolidated_settlement
+            if = { limit = { NOT = { has_idea = MEX_WW1_R_contested_settlement } } add_ideas = MEX_WW1_R_contested_settlement }
+        }
+    }
+    else = {
+        remove_ideas = MEX_WW1_R_fractured_revolution
+        remove_ideas = MEX_WW1_R_contested_settlement
+        remove_ideas = MEX_WW1_R_consolidated_settlement
+    }
+}
+MEX_WW1_initialize_revolution = {
+    if = {
+        limit = { MEX_WW1_R_active = yes NOT = { has_country_flag = MEX_WW1_R_initialized } }
+        set_country_flag = MEX_WW1_R_initialized
+        if = { limit = { date > 1912.12.31 has_war = yes NOT = { has_country_flag = MEX_WW1_DLC_currency_seen has_completed_focus = MEX_WW1_monetary_commission_1916 } } set_country_flag = MEX_WW1_DLC_currency_seen add_ideas = MEX_WW1_DLC_revolutionary_currency }
+        set_variable = { MEX_WW1_R_active_programmes = 0 }
+        if = {
+            limit = { date > 1917.12.31 }
+            set_variable = { MEX_WW1_legitimacy = 55 }
+            set_variable = { MEX_WW1_land_discontent = 55 }
+            set_variable = { MEX_WW1_army_autonomy = 60 }
+            set_country_flag = MEX_WW1_R_convention_resolved
+            set_country_flag = MEX_WW1_R_schism_raised
+            if = {
+                limit = { has_completed_focus = MEX_WW1_constitutional_compact }
+                set_country_flag = MEX_WW1_R_first_chief_mandate
+                set_country_flag = MEX_WW1_convention_summoned
+            }
+            else_if = {
+                limit = { has_completed_focus = MEX_WW1_agrarian_convention }
+                set_country_flag = MEX_WW1_R_convention_mandate
+                set_country_flag = MEX_WW1_convention_summoned
+            }
+        }
+        else_if = {
+            limit = { date > 1913.12.31 }
+            set_variable = { MEX_WW1_legitimacy = 20 }
+            set_variable = { MEX_WW1_land_discontent = 80 }
+            set_variable = { MEX_WW1_army_autonomy = 80 }
+        }
+        else = {
+            set_variable = { MEX_WW1_legitimacy = 25 }
+            set_variable = { MEX_WW1_land_discontent = 70 }
+            set_variable = { MEX_WW1_army_autonomy = 65 }
+        }
+        # Migration must not resurrect the 1914 split in a later save.
+        if = {
+            limit = { date > 1915.12.31 }
+            set_country_flag = MEX_WW1_R_convention_resolved
+            set_country_flag = MEX_WW1_R_schism_raised
+        }
+        if = {
+            limit = { has_global_flag = fall_of_huerta }
+            MEX_WW1_post_huerta_conference = yes
+        }
+        MEX_WW1_refresh_settlement = yes
+    }
+    if = {
+        limit = { MEX_WW1_R_active = yes NOT = { has_country_flag = MEX_WW1_R_tick_queued } }
+        set_country_flag = MEX_WW1_R_tick_queued
+        country_event = { id = mex_ww1_revolution.100 days = 45 }
+    }
+}
+MEX_WW1_post_huerta_conference = {
+    if = {
+        limit = {
+            MEX_WW1_R_active = yes
+            NOT = { has_country_flag = MEX_WW1_R_post_huerta_pending }
+            NOT = { has_country_flag = MEX_WW1_R_convention_resolved }
+        }
+        set_country_flag = MEX_WW1_R_post_huerta_pending
+    }
+}
+MEX_WW1_R_summon_convention = {
+    if = {
+        limit = {
+            MEX_WW1_R_convention_window = yes
+            has_country_flag = MEX_WW1_R_post_huerta_pending
+            has_country_leader = { ruling_only = yes character = MEX_venustiano_carranza }
+            NOT = { has_country_flag = MEX_WW1_convention_summoned }
+        }
+        set_country_flag = MEX_WW1_convention_summoned
+        country_event = { id = mex_ww1_revolution.10 days = 1 }
+    }
+}
+MEX_WW1_reject_convention = {
+    if = {
+        limit = { MEX_WW1_R_active = yes NOT = { has_country_flag = MEX_WW1_R_convention_resolved } }
+        if = {
+            limit = { MEX_WW1_R_convention_window = yes has_country_flag = MEX_WW1_convention_summoned }
+            set_country_flag = MEX_WW1_R_schism_raised
+            # Each OOB is loaded once, only when all of its home states are available.
+            if = {
+                limit = { NOT = { country_exists = VIL } owns_state = 481 controls_state = 481 owns_state = 482 controls_state = 482 }
+                VIL = {
+                    transfer_state = 481
+                    transfer_state = 482
+                    endsieg_ww1_restore_villa = yes
+                    load_oob = Villistas_1913
+                    declare_war_on = { target = MEX type = civil_war }
+                }
+            }
+            if = {
+                limit = { NOT = { country_exists = ZAP } owns_state = 485 controls_state = 485 }
+                ZAP = {
+                    transfer_state = 485
+                    endsieg_ww1_restore_zapata = yes
+                    load_oob = Zapatistas_1913
+                    declare_war_on = { target = MEX type = civil_war }
+                }
+            }
+        }
+        set_country_flag = MEX_WW1_R_first_chief_mandate
+        set_country_flag = MEX_WW1_R_convention_resolved
+        add_to_variable = { MEX_WW1_legitimacy = 10 }
+        add_to_variable = { MEX_WW1_land_discontent = 5 }
+        add_to_variable = { MEX_WW1_army_autonomy = 5 }
+        MEX_WW1_refresh_settlement = yes
+    }
+}
+MEX_WW1_recognize_convention = {
+    if = {
+        limit = { MEX_WW1_R_active = yes NOT = { has_country_flag = MEX_WW1_R_convention_resolved } }
+        if = {
+            limit = { MEX_WW1_R_convention_window = yes has_country_flag = MEX_WW1_convention_summoned }
+            set_country_flag = MEX_WW1_R_schism_raised
+            if = {
+                limit = {
+                    NOT = { country_exists = CNT }
+                    owns_state = 483 controls_state = 483
+                    owns_state = 479 controls_state = 479
+                    owns_state = 480 controls_state = 480
+                    owns_state = 484 controls_state = 484
+                    owns_state = 1041 controls_state = 1041
+                }
+                CNT = {
+                    transfer_state = 483
+                    transfer_state = 479
+                    transfer_state = 480
+                    transfer_state = 484
+                    transfer_state = 1041
+                    endsieg_ww1_restore_carranza = yes
+                    load_oob = Constitutionalistas_1913
+                    declare_war_on = { target = MEX type = civil_war }
+                }
+            }
+        }
+        set_country_flag = MEX_WW1_R_convention_mandate
+        set_country_flag = MEX_WW1_R_convention_resolved
+        add_to_variable = { MEX_WW1_legitimacy = 5 }
+        subtract_from_variable = { MEX_WW1_land_discontent = 15 }
+        add_to_variable = { MEX_WW1_army_autonomy = 10 }
+        MEX_WW1_refresh_settlement = yes
+    }
+}
+MEX_WW1_celaya_preparations = {
+    if = {
+        limit = { MEX_WW1_R_active = yes NOT = { has_country_flag = MEX_WW1_R_celaya_prepared } }
+        set_country_flag = MEX_WW1_R_celaya_prepared
+        add_timed_idea = { idea = MEX_WW1_R_entrenched_army days = 270 }
+        subtract_from_variable = { MEX_WW1_army_autonomy = 5 }
+        MEX_WW1_refresh_settlement = yes
+    }
+}
+MEX_WW1_R_advance_settlement = {
+    if = { limit = { date > 1912.12.31 has_war = yes NOT = { has_country_flag = MEX_WW1_DLC_currency_seen has_completed_focus = MEX_WW1_monetary_commission_1916 } } set_country_flag = MEX_WW1_DLC_currency_seen add_ideas = MEX_WW1_DLC_revolutionary_currency }
+    if = {
+        limit = { has_war = yes }
+        subtract_from_variable = { MEX_WW1_legitimacy = 1 }
+        add_to_variable = { MEX_WW1_land_discontent = 1 }
+        add_to_variable = { MEX_WW1_army_autonomy = 1 }
+    }
+    else_if = {
+        limit = { MEX_WW1_R_final_settlement = yes }
+        add_to_variable = { MEX_WW1_legitimacy = 1 }
+    }
+    if = {
+        limit = { OR = { has_capitulated = yes NOT = { controls_state = 277 } } }
+        subtract_from_variable = { MEX_WW1_legitimacy = 2 }
+        add_to_variable = { MEX_WW1_land_discontent = 2 }
+        add_to_variable = { MEX_WW1_army_autonomy = 2 }
+    }
+    if = {
+        limit = { has_country_flag = MEX_WW1_R_land_settlement }
+        subtract_from_variable = { MEX_WW1_land_discontent = 1 }
+    }
+    if = {
+        limit = { has_country_flag = MEX_WW1_R_officer_pay_settled has_completed_focus = MEX_WW1_field_regulations }
+        subtract_from_variable = { MEX_WW1_army_autonomy = 1 }
+    }
+    if = {
+        limit = {
+            date > 1915.1.1 date < 1916.1.1
+            has_war = yes
+            check_variable = { var = MEX_WW1_land_discontent value = 65 compare = greater_than_or_equals }
+            NOT = { has_country_flag = MEX_WW1_R_food_crisis_seen }
+        }
+        set_country_flag = MEX_WW1_R_food_crisis_seen
+        country_event = { id = mex_ww1_revolution.20 days = 1 }
+    }
+    if = {
+        limit = {
+            date > 1916.7.30 date < 1917.7.1
+            OR = { has_completed_focus = MEX_WW1_red_battalions has_completed_focus = MEX_WW1_casa_obrera_pact }
+            NOT = { has_country_flag = MEX_WW1_R_labour_arbitrated }
+            NOT = { has_country_flag = MEX_WW1_R_labour_dispute_seen }
+            OR = { has_war = yes check_variable = { var = MEX_WW1_legitimacy value = 60 compare = less_than } }
+        }
+        set_country_flag = MEX_WW1_R_labour_dispute_seen
+        country_event = { id = mex_ww1_revolution.21 days = 1 }
+    }
+    MEX_WW1_R_summon_convention = yes
+    MEX_WW1_refresh_settlement = yes
+}

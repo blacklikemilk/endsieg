@@ -156,8 +156,8 @@ spain_government_recount = {
 # hemicycle are refreshed in this effect and nowhere else.
 #
 # Inputs: PARTY (1-7, or 0 to keep the party that already governs), COALITION_1 and
-# COALITION_2 (1-7, or 0 for no partner). Every call site passes all three: a scripted effect
-# cannot test whether an input was supplied.
+# COALITION_2 (1-7, or 0 for no partner). Call sites set all three temporary
+# spain_appoint_*_input variables before invoking the effect.
 #
 # No-op outside spain_restoration_cortes_live. The Republic re-creates the balance this effect
 # pushes and reads its own chamber, and a coup in progress has already replaced the question.
@@ -165,14 +165,14 @@ spain_appoint_government = {
 	if = {
 		limit = { spain_restoration_cortes_live = yes }
 		# check_variable reads a variable name, never a value, so the party input is written to a
-		# scratch variable first: $PARTY$ is a bare number and 0 means "keep the sitting party".
-		set_variable = { var = spain_appoint_party value = $PARTY$ }
+		# scratch variable first; 0 means "keep the sitting party".
+		set_variable = { var = spain_appoint_party value = var:spain_appoint_party_input }
 		if = {
 			limit = { check_variable = { var = spain_appoint_party value = 0 compare = not_equals } }
 			set_variable = { var = spain_government_party value = spain_appoint_party }
 		}
-		set_variable = { var = spain_coalition_1 value = $COALITION_1$ }
-		set_variable = { var = spain_coalition_2 value = $COALITION_2$ }
+		set_variable = { var = spain_coalition_1 value = var:spain_appoint_coalition_1_input }
+		set_variable = { var = spain_coalition_2 value = var:spain_appoint_coalition_2_input }
 		add_to_variable = { var = spain_government_changes value = 1 }
 		spain_government_recount = yes
 		spain_cortes_refresh_display = yes
@@ -222,7 +222,10 @@ spain_encasillado = {
 		}
 		spain_push_crown = yes
 		spain_loyalty_gain_small = yes
-		spain_appoint_government = { PARTY = 0 COALITION_1 = 0 COALITION_2 = 0 }
+		set_temp_variable = { spain_appoint_party_input = 0 }
+		set_temp_variable = { spain_appoint_coalition_1_input = 0 }
+		set_temp_variable = { spain_appoint_coalition_2_input = 0 }
+		spain_appoint_government = yes
 		custom_effect_tooltip = spain_encasillado_tt
 	}
 }
