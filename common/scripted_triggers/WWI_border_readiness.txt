@@ -1,0 +1,80 @@
+# Country-scoped. A covering order never targets a current ally, pact partner or belligerent.
+WW1_border_can_prepare_against = {
+ country_exists = $TARGET$
+ $TARGET$ = { has_capitulated = no NOT = { is_subject_of = PREV } }
+ has_capitulated = no
+ NOT = {
+  OR = {
+   has_war_with = $TARGET$
+   is_in_faction_with = $TARGET$
+   is_subject_of = $TARGET$
+   has_non_aggression_pact_with = $TARGET$
+  }
+ }
+}
+WW1_border_can_cover = {
+ WW1_border_can_prepare_against = { TARGET = $TARGET$ }
+ is_neighbor_of = $TARGET$
+}
+WW1_border_july_serbia = {
+ WW1_crisis_focus_window = yes
+ date < 1914.8.18
+ has_global_flag = franz_dead
+ AUH = {
+  NOT = { has_country_flag = AUH_ww1_july_mediation }
+  NOT = { has_completed_focus = AUH_ww1_july_mediation }
+  OR = {
+   has_country_flag = AUH_ww1_ultimatum_prepared
+   has_global_flag = ultimatum_to_servia_sent
+  }
+ }
+}
+# Berlin and Vienna can prepare from their own commitment. The public
+# ultimatum is the warning available to the other continental governments.
+WW1_border_july_central = {
+ WW1_border_july_serbia = yes
+ has_global_flag = GE1_gives_blank_cheque
+ GER = { WW1_crisis_GER_focus_allowed = yes }
+}
+WW1_border_july_continental = {
+ WW1_border_july_central = yes
+ has_global_flag = ultimatum_to_servia_sent
+}
+WW1_border_libya = {
+ has_global_flag = welcome_event_WW1_active
+ has_start_date < 1911.9.30
+ date > 1911.8.14
+ date < 1912.3.1
+ NOT = { has_global_flag = treaty_of_ouchy }
+ NOT = { has_global_flag = ottoman_victory_italo_turkish_War }
+ ITA = {
+  has_completed_focus = IT1_claims_libya
+  NOT = { has_country_flag = IT1_ww1_ottoman_accommodation }
+  NOT = { has_completed_focus = IT1_ww1_ottoman_accommodation }
+  WW1_border_can_prepare_against = { TARGET = TUR }
+ }
+ OR = {
+  448 = { is_owned_by = TUR is_claimed_by = ITA }
+  450 = { is_owned_by = TUR is_claimed_by = ITA }
+ }
+}
+WW1_border_first_balkan = {
+ has_global_flag = welcome_event_WW1_active
+ has_start_date < 1912.10.8
+ date > 1912.9.14 date < 1912.10.16
+ NOT = { has_global_flag = first_balkan_war }
+ NOT = { has_global_flag = treaty_of_london_1913 }
+ NOT = { has_global_flag = let_go_balkans }
+ SER = { WW1_is_balkan_league_member = yes WW1_border_can_cover = { TARGET = TUR } }
+}
+WW1_border_second_balkan = {
+ has_global_flag = welcome_event_WW1_active
+ has_start_date < 1913.6.17
+ date > 1913.5.29 date < 1913.8.11
+ has_global_flag = treaty_of_london_1913
+ NOT = { has_global_flag = treaty_of_bucharest_1913 }
+ BUL = {
+  NOT = { has_country_flag = WW1_border_bulgaria_declined_war }
+  has_capitulated = no
+ }
+}

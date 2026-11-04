@@ -3,16 +3,10 @@ italy_complete_libya_campaign = {
 		original_tag = ITA
 	}
 	enable = {
-		tag = ITA
-		has_start_date < 1936.1.1
-		date < 1936.1.1
-		has_global_flag = italo_turkish_war
-		has_war_with = TUR
+		IT1_ww1_libyan_campaign_active = yes
+		is_ai = yes
 	}
 	abort_when_not_enabled = yes
-	abort = {
-		has_global_flag = treaty_of_ouchy
-	}
 
 	# Keep Italy's available army in North Africa rather than encouraging
 	# broad naval invasions of Anatolia.
@@ -42,10 +36,79 @@ italy_complete_libya_campaign = {
 				state = 663 # Cyrenaica
 			}
 		}
-		ratio = 0.0
+		ratio = 0.9
 		priority = 100
 		ordertype = front
 		execution_type = balanced
 		execute_order = yes
 	}
+
+	# Supply the beachheads and make escort missions worthwhile during the war.
+	ai_strategy = {
+		type = unit_ratio
+		id = convoy
+		value = 30
+	}
+	ai_strategy = {
+		type = naval_mission_threshold
+		id = MISSION_CONVOY_ESCORT
+		value = -50
+	}
+}
+
+# The countrywide push ends as soon as Italy has secured the Libyan ports.
+italy_libyan_naval_landings = {
+	allowed = { original_tag = ITA }
+	enable = {
+		IT1_ww1_libyan_campaign_active = yes
+		is_ai = yes
+		has_tech = ww1_transport
+		TUR = {
+			OR = { controls_province = 1149 controls_province = 11954 controls_province = 1130 }
+		}
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = invade id = TUR value = 250 }
+	ai_strategy = { type = naval_invasion_focus value = 180 }
+	ai_strategy = { type = naval_invasion_support_priority id = 29 value = 220 } # Central Mediterranean
+	ai_strategy = { type = naval_invasion_support_priority id = 69 value = 200 } # Eastern Mediterranean, off Derna
+	ai_strategy = { type = naval_invasion_support_priority id = 169 value = 140 } # Tyrrhenian Sea, Italian approach
+}
+
+# Derna is the remaining Ottoman naval base after the scripted landings.
+italy_libyan_take_derna = {
+	allowed = { original_tag = ITA }
+	enable = {
+		IT1_ww1_libyan_campaign_active = yes
+		is_ai = yes
+		has_tech = ww1_transport
+		TUR = { controls_province = 1130 }
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = { type = invasion_unit_request state = 451 value = 200 }
+}
+
+italy_libyan_recover_tripoli = {
+	allowed = { original_tag = ITA }
+	enable = {
+		IT1_ww1_libyan_campaign_active = yes
+		is_ai = yes
+		has_tech = ww1_transport
+		TUR = { controls_province = 1149 }
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = { type = invasion_unit_request state = 448 value = 150 }
+}
+
+italy_libyan_recover_benghazi = {
+	allowed = { original_tag = ITA }
+	enable = {
+		IT1_ww1_libyan_campaign_active = yes
+		is_ai = yes
+		has_tech = ww1_transport
+		TUR = { controls_province = 11954 }
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = { type = invasion_unit_request state = 450 value = 150 }
 }
