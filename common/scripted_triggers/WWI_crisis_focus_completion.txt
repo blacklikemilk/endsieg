@@ -1,0 +1,75 @@
+# Event choices synchronize the diplomatic focuses they actually enact.
+# Later bookmarks keep their history completions; no wartime settlement is reopened.
+WW1_crisis_focus_window = {
+ has_global_flag = welcome_event_WW1_active
+ has_start_date < 1914.7.24
+ date > 1914.6.27
+ date < 1915.1.1
+ NOT = { has_global_flag = compiegne }
+ NOT = { has_global_flag = versailles }
+ NOT = { has_global_flag = central_powers_victory }
+}
+WW1_crisis_AUH_focus_allowed = {
+ WW1_crisis_focus_window = yes
+ tag = AUH has_focus_tree = austria_hungary_focus is_subject = no
+ country_exists = GER NOT = { has_war_with = GER }
+ GER = { GE1_ww1_may_choose_central_bloc = yes }
+ NOT = { has_country_flag = AUH_ww1_july_mediation }
+ NOT = { has_completed_focus = AUH_ww1_july_mediation }
+}
+WW1_crisis_GER_focus_allowed = {
+ WW1_crisis_focus_window = yes
+ tag = GER has_focus_tree = german_focus_ww1 is_subject = no
+ GE1_ww1_may_choose_central_bloc = yes
+ country_exists = AUH NOT = { has_war_with = AUH }
+ AUH = {
+  NOT = { has_country_flag = AUH_ww1_july_mediation }
+  NOT = { has_completed_focus = AUH_ww1_july_mediation }
+ }
+}
+WW1_crisis_german_escalation = {
+ WW1_crisis_GER_focus_allowed = yes
+ has_global_flag = GE1_gives_blank_cheque
+ has_global_flag = ultimatum_to_servia_sent
+ has_global_flag = ultimatum_rejected
+ NOT = { date < 1914.7.28 }
+ is_in_faction_with = AUH
+ AUH = { has_war_with = SER }
+ country_exists = FRA country_exists = RIE
+ FRA = { FR3_R_may_enter_entente = yes is_in_faction_with = RIE }
+ RIE = { RUS_ww1_may_be_historical_war_target = yes }
+ NOT = { is_in_faction_with = FRA }
+ NOT = { is_in_faction_with = RIE }
+ NOT = { has_non_aggression_pact_with = FRA }
+ NOT = { has_non_aggression_pact_with = RIE }
+}
+WW1_crisis_SER_focus_allowed = {
+ WW1_crisis_focus_window = yes
+ tag = SER has_focus_tree = generic_focus_ww1 is_subject = no
+ NOT = { has_completed_focus = shared_GEN_support_central_powers }
+ NOT = { has_completed_focus = shared_GEN_join_cp }
+ NOT = { has_completed_focus = shared_GEN_send_volunteers_2 }
+ NOT = { has_completed_focus = shared_GEN_neutrality_focus }
+ NOT = { has_idea = neutrality_idea }
+ NOT = { has_war_with = FRA }
+ OR = { is_in_faction = no WW1_is_balkan_league_member = yes is_in_faction_with = FRA }
+ FRA = { exists = yes is_faction_leader = yes FR3_R_may_enter_entente = yes }
+ FRA = { ROOT = { WW1_country_faction_path_allows_previous = yes } }
+}
+WW1_crisis_RIE_focus_allowed = {
+ WW1_crisis_focus_window = yes
+ tag = RIE has_focus_tree = russian_empire_focus is_subject = no
+ RUS_ww1_may_be_historical_war_target = yes
+ country_exists = FRA is_in_faction_with = FRA NOT = { has_war_with = FRA }
+ FRA = { FR3_R_may_enter_entente = yes }
+ GER = { GE1_ww1_may_choose_central_bloc = yes }
+}
+WW1_crisis_FRA_focus_allowed = {
+ WW1_crisis_focus_window = yes
+ tag = FRA has_focus_tree = french_focus_ww1 is_subject = no
+ FR3_R_may_enter_entente = yes
+ country_exists = RIE is_in_faction_with = RIE NOT = { has_war_with = RIE }
+ NOT = { has_global_flag = GE1_D_franco_russian_pending }
+ NOT = { has_global_flag = GE1_D_franco_russian_accepted }
+ GER = { GE1_ww1_may_choose_central_bloc = yes }
+}

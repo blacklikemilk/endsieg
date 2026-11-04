@@ -1,0 +1,360 @@
+# A signatory withdraws individually. Other Entente wars are never white-peaced here.
+WW1_CP_detach_current_signatory = {
+	save_event_target_as = WW1_CP_withdrawing_country
+	if = {
+		limit = { is_faction_leader = yes }
+		# A living Russia takes the alliance first; Britain is the next historical host.
+		if = { limit = { RIE = { exists = yes is_subject = no NOT = { has_capitulated = yes } NOT = { tag = PREV } is_in_faction_with = PREV } } RIE = { set_faction_leader = yes } }
+		else_if = { limit = { ENG = { exists = yes is_subject = no NOT = { has_capitulated = yes } NOT = { tag = PREV } is_in_faction_with = PREV } } ENG = { set_faction_leader = yes } }
+		else = { random_other_country = { limit = { is_in_faction_with = event_target:WW1_CP_withdrawing_country is_subject = no NOT = { has_capitulated = yes } } set_faction_leader = yes } }
+	}
+	if = { limit = { is_in_faction = yes is_faction_leader = no } leave_faction = yes }
+	else_if = { limit = { is_faction_leader = yes } dismantle_faction = yes }
+	every_country = {
+		limit = { OR = { tag = GER is_in_faction_with = GER } has_war_with = event_target:WW1_CP_withdrawing_country }
+		white_peace = event_target:WW1_CP_withdrawing_country
+	}
+}
+WW1_CP_accept_separate_armistice = {
+	if = {
+		limit = { WW1_CP_is_active_enemy = yes NOT = { has_country_flag = WW1_CP_separate_armistice_signed } }
+		set_country_flag = WW1_CP_separate_armistice_signed
+		set_country_flag = WW1_CP_fought_germany
+		save_event_target_as = WW1_CP_armistice_parent
+		WW1_CP_detach_current_signatory = yes
+		every_country = {
+			limit = { is_subject_of = event_target:WW1_CP_armistice_parent }
+			set_country_flag = WW1_CP_separate_armistice_signed
+			WW1_CP_detach_current_signatory = yes
+		}
+	}
+}
+WW1_CP_begin_negotiations = {
+	if = {
+		limit = { tag = GER has_global_flag = WW1_french_armistice_signed NOT = { has_global_flag = WW1_CP_negotiations_opened } }
+		set_global_flag = WW1_CP_negotiations_opened
+		every_country = { limit = { WW1_CP_is_active_enemy = yes } set_country_flag = WW1_CP_fought_germany }
+		if = { limit = { ENG = { WW1_CP_still_resisting = yes } } ENG = { country_event = { id = kaiserschlachtvictory.5 days = 1 } } }
+		if = { limit = { ITA = { WW1_CP_still_resisting = yes } } set_global_flag = italyentente ITA = { country_event = { id = kaiserschlachtvictory.8 days = 1 } } }
+		if = { limit = { USA = { WW1_CP_still_resisting = yes } } USA = { country_event = { id = kaiserschlachtvictory.11 days = 1 } } }
+		if = { limit = { JAP = { WW1_CP_still_resisting = yes } } JAP = { country_event = { id = kaiserschlachtvictory.14 days = 1 } } }
+		if = { limit = { RCH = { WW1_CP_still_resisting = yes } } RCH = { country_event = { id = kaiserschlachtvictory.17 days = 3 } } }
+		if = { limit = { QIN = { WW1_CP_still_resisting = yes } } QIN = { country_event = { id = kaiserschlachtvictory.17 days = 3 } } }
+		if = { limit = { RIE = { WW1_CP_still_resisting = yes } } RIE = { country_event = { id = kaiserschlachtvictory.25 hours = 1 } } }
+		if = { limit = { SOV = { WW1_CP_still_resisting = yes } } SOV = { country_event = { id = kaiserschlachtvictory.25 hours = 1 } } }
+	}
+}
+WW1_CP_sign_french_armistice = {
+	if = {
+		limit = { tag = FRA NOT = { has_global_flag = WW1_french_armistice_signed } WW1_CP_is_active_enemy = yes }
+		if = { limit = { WW1_CP_eastern_resistance_active = yes } set_global_flag = WW1_CP_france_fell_before_east }
+		set_global_flag = WW1_french_armistice_signed
+		every_country = { limit = { is_in_faction_with = FRA } set_country_flag = WW1_CP_was_entente_member }
+		WW1_CP_accept_separate_armistice = yes
+		GER = { WW1_CP_begin_negotiations = yes country_event = { id = kaiserschlachtvictory.4 hours = 1 } }
+	}
+}
+WW1_CP_anchor_russian_major = {
+	if = {
+		limit = { OR = { tag = RIE tag = SOV } exists = yes has_start_date < 1936.1.1 }
+		if = {
+			limit = { date < 1936.1.1 is_subject = no has_global_flag = welcome_event_WW1_active NOT = { has_global_flag = WW1_CP_final_settlement_signed } NOT = { has_global_flag = compiegne } NOT = { has_global_flag = versailles } OR = { WW1_CP_is_active_enemy = yes AND = { tag = RIE date < 1914.8.1 RUS_ww1_may_be_historical_war_target = yes } } NOT = { is_major = yes } }
+			set_country_flag = WW1_CP_russian_major_anchor
+			set_major = yes
+		}
+		if = {
+			limit = { has_country_flag = WW1_CP_russian_major_anchor OR = { date > 1935.12.31 is_subject = yes NOT = { has_global_flag = welcome_event_WW1_active } has_global_flag = WW1_CP_final_settlement_signed has_global_flag = compiegne has_global_flag = versailles has_country_flag = WW1_CP_separate_armistice_signed } }
+			clr_country_flag = WW1_CP_russian_major_anchor
+			set_major = no
+		}
+	}
+}
+WW1_CP_reconcile_peace = {
+	if = {
+		limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = welcome_event_WW1_active }
+		WW1_CP_queue_japanese_terms = yes
+		QIN = { WW1_CP_complete_chinese_counteroffer = yes }
+		RCH = { WW1_CP_complete_chinese_counteroffer = yes }
+
+		RIE = { WW1_CP_anchor_russian_major = yes }
+		SOV = { WW1_CP_anchor_russian_major = yes }
+		# An older French settlement could have published total victory prematurely.
+		if = {
+			limit = { has_global_flag = central_powers_victory WW1_CP_eastern_resistance_active = yes NOT = { has_global_flag = WW1_CP_final_settlement_signed } }
+			clr_global_flag = central_powers_victory
+			clr_global_flag = kaiserschlachtvictory
+			set_global_flag = WW1_french_armistice_signed
+		}
+		FRA = {
+			if = {
+				limit = {
+					WW1_CP_french_exile_offer_open = yes
+					NOT = { has_country_flag = WW1_CP_french_exile_offer_queued }
+					NOT = { has_country_flag = WW1_CP_french_exile_offer_delivered }
+				}
+				set_country_flag = { flag = WW1_CP_french_exile_offer_queued days = 7 }
+				country_event = { id = ww1_central_peace.3 hours = 1 }
+			}
+		}
+		if = {
+			limit = { WW1_CP_western_settlement_ready = yes NOT = { has_country_flag = WW1_CP_western_conference_queued } }
+			set_country_flag = { flag = WW1_CP_western_conference_queued days = 7 }
+			country_event = { id = ww1_central_peace.2 hours = 1 }
+		}
+		if = {
+			limit = { WW1_CP_settlement_ready = yes NOT = { has_country_flag = WW1_CP_final_conference_queued } }
+			set_country_flag = { flag = WW1_CP_final_conference_queued days = 7 }
+			country_event = { id = ww1_central_peace.1 hours = 1 }
+		}
+	}
+}
+WW1_CP_sign_western_settlement = {
+	if = {
+		limit = { WW1_CP_western_settlement_ready = yes }
+		set_global_flag = WW1_CP_western_settlement_signed
+		clr_country_flag = WW1_CP_western_conference_queued
+		ENG = {
+			if = {
+				limit = {
+					OR = {
+						has_country_flag = WW1_CP_separate_armistice_signed
+						AND = {
+							OR = { has_country_flag = WW1_CP_fought_germany has_country_flag = WW1_CP_was_entente_member }
+							has_capitulated = yes
+						}
+					}
+				}
+				set_country_flag = WW1_CP_british_war_concluded
+			}
+		}
+		if = {
+			limit = {
+				ITA = { is_in_faction_with = GER}
+			}
+			set_global_flag = italycp
+		}
+		if = {
+			limit = { SWI = { OR = { has_war_with = GER has_country_flag = WW1_CP_fought_germany } } }
+			set_global_flag = swiss_neutrality_violated #Could be used later.
+		}
+		if = {
+			limit = {
+				OR = {
+					BEL = { OR = { has_war_with = GER has_country_flag = WW1_CP_fought_germany } }
+					GER = { owns_state = 6 }
+					GER = { owns_state = 34 }
+				}
+			}
+			set_global_flag = belgium_neutrality_violated
+		}
+		if = {
+			limit = { LUX = { OR = { has_war_with = GER has_country_flag = WW1_CP_fought_germany } } }
+			GER = { annex_country = { target = LUX transfer_troops = no } } #RIP LUXEMBOURG
+		}
+		if = {
+			limit = {
+				OR = {
+					POR = { OR = { has_war_with = GER has_country_flag = WW1_CP_fought_germany } }
+					POM = { OR = { has_war_with = GER has_country_flag = WW1_CP_fought_germany } }
+				}
+			}
+			set_global_flag = portugal_participation_award
+		}
+		if = {
+			limit = { HOL = { OR = { has_war_with = GER has_country_flag = WW1_CP_fought_germany } } }
+			set_global_flag = dutch_neutrality_violated
+		}
+		if = {
+			limit = { GRE = { OR = { has_war_with = GER has_country_flag = WW1_CP_fought_germany } } }
+			set_global_flag = entente_greece_defeated
+			#		GRE = { country_event = { id = kaiserschlachtvictory.1 days = 3 } }
+		}
+		GER = {
+			if = {
+				limit = { ITA = { exists = yes is_in_faction_with = GER } 1 = { is_owned_by = FRA } }
+				country_event = { id = kaiserschlachtvictory.247 days = 15 }
+			}
+			country_event = { id = kaiserschlachtvictory.249 days = 10 } # Fate of French Indochina
+			if = {
+				limit = {has_global_flag = italyentente}
+				country_event = { id = kaiserschlachtvictory.246 days = 20 } #Italian lands
+			}
+
+			country_event = { id = kaiserschlachtvictory.245 days = 20 } #Balkans
+			country_event =  {id = kaiserschlachtvictory.242 days = 5 } #To frankfurt - German-French Border.
+
+			if = {
+				# A formal Anglo-German victory must not open the historical
+				# Belgium/colonial chain against Britain's ally. Other French,
+				# Russian, Italian and Balkan settlements remain queued above.
+				limit = {
+					has_global_flag = belgium_neutrality_violated
+					NOT = {
+						AND = {
+							has_global_flag = GE1_anglo_german_alliance
+							ENG = { is_in_faction_with = GER }
+						}
+					}
+				}
+				country_event = { id = kaiserschlachtvictory.123 days = 10 } #Treaty of Ghent
+			}
+			country_event = { id = kaiserschlachtvictory.257 days = 12 } # Africa and East Asia
+			if = {
+				limit = { WW1_CP_british_terms_available = yes 446 = { is_owned_by = ENG } }
+				country_event = { id = kaiserschlachtvictory.129 days = 17 } # Egypt and Suez
+			}
+			if = {
+				limit = { has_global_flag = swiss_neutrality_violated }
+				country_event = { id = kaiserschlachtvictory.255 days = 10 } #The Swiss Question
+			}
+
+			if = {
+				limit = {
+					TUR = { is_in_faction_with = GER }
+					WW1_CP_british_terms_available = yes
+					NOT = {
+						AND = {
+							has_global_flag = GE1_anglo_german_alliance
+							ENG = { is_in_faction_with = GER }
+						}
+					}
+					OR = {
+						ENG = { has_country_flag = WW1_CP_british_war_concluded }
+						656 = {
+							is_owned_by = ENG
+							NOT = { is_controlled_by = ENG }
+						}
+					}
+				}
+				country_event = { id = kaiserschlachtvictory.248 days = 10 } #Kuwait
+			}
+
+			if = {
+				limit = {
+					has_global_flag = entente_greece_defeated
+					BUL = { is_in_faction_with = GER }
+					TUR = { is_in_faction_with = GER }
+				}
+				country_event = { id = kaiserschlachtvictory.244 days = 25 } #Constantinople
+			}
+		}
+		1010 = { set_state_name = "Nanzig" }
+		set_province_name = { id = 11516 name = "Nanzig" }
+		set_province_name = { id = 1664 name = "Wirten" }
+		if = { limit = { GE1_D_may_attack_low_countries = yes 1009 = { owner = { has_country_flag = WW1_CP_fought_germany } } } transfer_state = 1009 }
+		if = { limit = { GE1_D_may_attack_low_countries = yes 8 = { owner = { has_country_flag = WW1_CP_fought_germany } } } transfer_state = 8 }
+
+		every_country = {
+			limit = {
+				NOT = {
+					OR = {
+						tag = RIE tag = SOV tag = JAP tag = RCH tag = QIN tag = CHI
+						is_subject_of = RIE is_subject_of = SOV is_subject_of = JAP
+					}
+				}
+				OR = { has_country_flag = WW1_CP_fought_germany has_country_flag = WW1_CP_was_entente_member }
+				WW1_CP_is_active_enemy = yes
+			}
+			WW1_CP_accept_separate_armistice = yes
+		}
+		WW1_CP_restore_french_overseas_administration = yes
+		ENG = {
+			if = {
+				limit = { has_country_flag = WW1_CP_british_armistice_territory_pending }
+				clr_country_flag = WW1_CP_british_armistice_territory_pending
+				WW1_CP_apply_british_armistice_terms = yes
+			}
+		}
+	}
+}
+
+WW1_CP_complete_settlement = {
+	if = {
+		limit = { WW1_CP_settlement_ready = yes }
+		set_global_flag = WW1_CP_final_settlement_signed
+		clr_country_flag = WW1_CP_final_conference_queued
+		RIE = { WW1_CP_accept_separate_armistice = yes }
+		SOV = { WW1_CP_accept_separate_armistice = yes }
+		JAP = { WW1_CP_accept_separate_armistice = yes }
+		RCH = { WW1_CP_accept_separate_armistice = yes }
+		QIN = { WW1_CP_accept_separate_armistice = yes }
+		CHI = { WW1_CP_accept_separate_armistice = yes }
+		set_global_flag = kaiserschlachtvictory
+		set_global_flag = central_powers_victory
+		news_event = { hours = 6 id = endsieg_news.104 }
+		country_event = { id = kaiserschlachtvictory.259 days = 60 }
+	}
+}
+
+WW1_CP_complete_chinese_counteroffer = {
+	if = {
+		limit = { has_country_flag = WW1_CP_chinese_counteroffer_pending owns_state = 743 }
+		clr_country_flag = WW1_CP_chinese_counteroffer_pending
+		clr_country_flag = WW1_CP_armistice_refused
+		WW1_CP_accept_separate_armistice = yes
+	}
+}
+
+WW1_CP_apply_british_armistice_terms = {
+	GER = {
+		if = { limit = { 541 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 541 } #sudwest
+		if = { limit = { 546 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 546 } #tanga
+		if = { limit = { 768 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 768 } #Rwanda
+		if = { limit = { 769 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 769 } #Burundi
+		if = { limit = { 777 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 777 } #togo
+		if = { limit = { 1073 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 1073 } #German Papua
+		if = { limit = { 726 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 726 } #German Samoa
+		if = { limit = { 737 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 737 } #Bismarck
+		if = { limit = { 1070 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 1070 } #German Solomon
+		if = { limit = { 1035 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 1035 } #West Cameroon
+	}
+	if = {
+		limit = {
+			SAF = { is_subject_of = ENG has_capitulated = yes }
+		}
+		ENG = {end_puppet = SAF}
+		GER = {puppet = SAF}
+	}
+	if = {
+		limit = { TUR = { is_in_faction_with = GER } EN3 = { is_subject_of = ENG } NOT = { has_global_flag = armistice_of_mudros } }
+		TUR = {
+			annex_country = { target = EN3 transfer_troops = no }
+		}
+	}
+	else_if = {
+		limit = { EN3 = { is_subject_of = ENG } has_global_flag = armistice_of_mudros }
+		ENG = {
+			annex_country = { target = EN3 transfer_troops = no }
+		}
+	}
+	PER = {
+		if = { limit = { 410 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 410 }
+		if = { limit = { 412 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 412 }
+		if = { limit = { 413 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 413 }
+		if = { limit = { 1058 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 1058 }
+	}
+	ENG = {
+		if = { limit = { 658 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 658 } #Trucial States
+		if = { limit = { 656 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 656 } #Kuwait
+		if = { limit = { 659 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 659 } #Aden
+		if = { limit = { 453 = { owner = { OR = { tag = ENG is_subject_of = ENG tag = GER } } OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER } } } transfer_state = 453 } #Sinai
+	}
+}
+
+WW1_CP_queue_japanese_terms = {
+	if = {
+		limit = {
+			has_global_flag = WW1_CP_western_settlement_signed
+			WW1_CP_western_terms_available = yes
+			NOT = { has_country_flag = WW1_CP_japanese_terms_queued }
+			JAP = {
+				WW1_CP_still_resisting = no
+				has_country_flag = WW1_CP_fought_germany
+				NOT = { is_in_faction_with = GER }
+				OR = { owns_state = 647 owns_state = 684 owns_state = 633 owns_state = 743 }
+			}
+		}
+		set_country_flag = WW1_CP_japanese_terms_queued
+		country_event = { id = kaiserschlachtvictory.250 days = 10 }
+	}
+}

@@ -11,10 +11,12 @@ WW1_RCH_raise_hubei_army = {
 			delete_units = { division_template = "Hubei New Army Division" disband = no }
 		}
 		transfer_state = 620
-		set_capital = { state = 620 }
+		set_capital = { state = 620 remember_old_capital = no }
 		rch_initialize_campaign = yes
 		load_oob = wuchang_uprising
 		add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 12000 producer = FRA }
+		# Requisition the coastal transport already provided to the 1914 Republic.
+		add_equipment_to_stockpile = { type = convoy_1 amount = 40 producer = RCH }
 		set_country_flag = WW1_RCH_hubei_army_raised
 		declare_war_on = { target = QIN type = annex_everything }
 	}
@@ -90,6 +92,48 @@ WW1_TUR_raise_libyan_levies = {
 			}
 			set_country_flag = WW1_TUR_cyrenaican_levy_raised
 			load_oob = WW1_TUR_Cyrenaican_levy
+		}
+	}
+}
+
+# The provisional Republic moves to the Nanjing rail/port cluster when it can
+# actually administer it. It must never move a capital into enemy-held territory.
+# The later Beijing move follows the existing Yuan-presidency event, not a timer
+# that could hand the capital to a still-fighting Qing or override a human's move.
+WW1_RCH_sync_revolution_capitals = {
+	if = {
+		limit = {
+			NOT = { has_country_flag = WW1_RCH_beijing_capital_established }
+			tag = RCH
+			has_start_date < 1912.1.1
+			date < 1914.1.1
+			has_global_flag = xinhai_revolution
+			NOT = { has_capitulated = yes }
+		}
+		if = {
+			limit = {
+				date > 1912.3.9
+				has_global_flag = yuan_president
+				owns_state = 608
+				controls_province = 11761
+				OR = { is_ai = yes 613 = { is_capital = yes } 620 = { is_capital = yes } 608 = { is_capital = yes } }
+			}
+			set_capital = { state = 608 remember_old_capital = no }
+			set_country_flag = WW1_RCH_beijing_capital_established
+		}
+		else_if = {
+			limit = {
+				date > 1911.12.31
+				NOT = { has_country_flag = WW1_RCH_nanjing_capital_established }
+				NOT = { has_global_flag = yuan_president }
+				has_war_with = QIN
+				QIN = { exists = yes }
+				owns_state = 613
+				controls_province = 11913
+				OR = { is_ai = yes 620 = { is_capital = yes } }
+			}
+			set_capital = { state = 613 remember_old_capital = no }
+			set_country_flag = WW1_RCH_nanjing_capital_established
 		}
 	}
 }

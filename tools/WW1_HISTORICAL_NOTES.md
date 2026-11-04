@@ -1,0 +1,13 @@
+# WW1 historical notes
+
+The gold `Historical` note marks the historical direction or episode. Focus descriptions start with the note; historical event options start with `[Historical]`. A historical episode may still offer alternative responses. The label does not change rewards, requirements, AI weights, availability or event outcomes.
+
+The classification manifest is `tools/ww1_historical_notes.json`: 355 country-specific focus descriptions, ten country-conditional shared focus descriptions, 546 event-description contexts and 89 option contexts across 557 events. Generic development remains neutral. Historical political direction, named programmes, events and documented outcomes are selected separately from AI filler priorities. Positive AI preferences support focus classification; they are not sufficient evidence that a particular event answer is historical.
+
+Shared focus notes use `common/scripted_localisation/WWI_historical_notes.txt`, with `original_tag` conditions and an empty fallback. For example, the generic Central Powers route is marked for Bulgaria, while its Entente counterpart is marked for the relevant Entente countries. Cosmetic tag changes do not alter that choice.
+
+Existing event localisation keys remain unchanged. Selected event `desc`/`text` and option `name` references use wrappers in `localisation/replace/english/endsieg_ww1_historical_notes_l_english.yml`. Each wrapper adds the gold note and refers back to the original text. This keeps a shared acknowledgement or refusal unmarked in fictional events using the same base key. Conditional historical descriptions are wrapped separately: the historical Serbian withdrawal and Bulgarian acceptance are marked; negotiated alternative withdrawals and Bulgarian refusal are not.
+
+Abdülhamid's restoration, the Enver executive directorate, the Anglo-German coalition, successful new Habsburg constitutional settlements and alternative war plans remain unmarked. The American associated-power option is marked instead of formal Allied alliance membership. The 1917 German Peace Resolution is a historical episode, but its invented civilian-cabinet outcome is not marked as a historical choice. A sole acknowledgement generally relies on its event-description note.
+
+The existing focus and event prose is preserved, except that a previously missing generic Central Powers focus description is supplied. Verification reverses the new text references/prefixes and compares the resulting event and localisation files byte-for-byte with their pre-edit copies. It also checks references, source parsing, UTF-8 colour codes/BOM, and negative cases involving shared keys and alternative outcomes. HOI4 was not launched; text placement still needs an in-game check.

@@ -1,0 +1,171 @@
+# Missing focuses receive their normal rewards once. Event choice remains authoritative.
+# A choice already enacted by the crisis is recorded without queuing its offer again.
+
+WW1_crisis_AUH_consultation = {
+ if = {
+  limit = { WW1_crisis_AUH_focus_allowed = yes }
+  if = { limit = { NOT = { has_completed_focus = AUH_diplomatic_effort } } complete_national_focus = AUH_diplomatic_effort }
+  if = { limit = { NOT = { has_completed_focus = AUH_pro_germany } } complete_national_focus = AUH_pro_germany }
+ }
+}
+
+WW1_crisis_AUH_backing = {
+ if = {
+  limit = { WW1_crisis_AUH_focus_allowed = yes }
+  WW1_crisis_AUH_consultation = yes
+  if = { limit = { NOT = { has_completed_focus = AUH_central_powers_diplomacy } } complete_national_focus = AUH_central_powers_diplomacy }
+ }
+}
+
+WW1_crisis_AUH_ultimatum = {
+ if = {
+  limit = { WW1_crisis_AUH_focus_allowed = yes }
+  WW1_crisis_AUH_backing = yes
+  # Bosnia was annexed in 1908. Record an omitted history marker without replaying that crisis.
+  if = { limit = { owns_state = 104 owns_state = 804 NOT = { has_completed_focus = AUH_annex_bosnia } } unlock_national_focus = AUH_annex_bosnia }
+  if = {
+   limit = { has_completed_focus = AUH_annex_bosnia }
+   if = { limit = { NOT = { has_completed_focus = AUH_anti_serb_rhetoric } }
+    # Delivering the ultimatum already chooses the firm position from ww1_kuk.2.a.
+    unlock_national_focus = AUH_anti_serb_rhetoric
+    if = { limit = { country_exists = SER } add_opinion_modifier = { target = SER modifier = serbia_enemy } }
+    add_war_support = 0.03
+   }
+   if = { limit = { NOT = { has_completed_focus = AUH_dominate_balkan_SOI } } complete_national_focus = AUH_dominate_balkan_SOI }
+  }
+ }
+}
+
+WW1_crisis_AUH_war = {
+ if = {
+  limit = { WW1_crisis_AUH_focus_allowed = yes }
+  WW1_crisis_AUH_ultimatum = yes
+  if = { limit = { has_completed_focus = AUH_dominate_balkan_SOI NOT = { has_completed_focus = AUH_prepare_for_war } } complete_national_focus = AUH_prepare_for_war }
+ }
+}
+
+WW1_crisis_GER_backing = {
+ if = {
+  limit = { WW1_crisis_GER_focus_allowed = yes }
+  if = { limit = { NOT = { has_completed_focus = GE1_D_foreign_office_reform } } complete_national_focus = GE1_D_foreign_office_reform }
+  # The Hoyos mission and blank cheque already settle the consultation with Vienna.
+  # Do not send another acceptance/refusal offer after that agreement.
+  if = { limit = { NOT = { has_completed_focus = GE1_D_vienna_consultation } }
+   unlock_national_focus = GE1_D_vienna_consultation
+   GW_D_reward_GE1_D_vienna_consultation = yes
+  }
+  if = { limit = { NOT = { has_completed_focus = GE1_D_support_austria } } complete_national_focus = GE1_D_support_austria }
+  if = { limit = { NOT = { has_completed_focus = GE1_R_blank_cheque } } complete_national_focus = GE1_R_blank_cheque }
+ }
+}
+
+WW1_crisis_GER_mobilization = {
+ if = {
+  limit = { WW1_crisis_german_escalation = yes }
+  WW1_crisis_GER_backing = yes
+  if = { limit = { NOT = { has_completed_focus = GE1_central_powers_coordination } } complete_national_focus = GE1_central_powers_coordination }
+  if = { limit = { NOT = { has_completed_focus = GE1_prepare_for_war } } complete_national_focus = GE1_prepare_for_war }
+ }
+}
+
+WW1_crisis_SER_rejection = {
+ if = {
+  limit = { WW1_crisis_SER_focus_allowed = yes }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_political_effort } } complete_national_focus = shared_GEN_political_effort }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_take_position } } complete_national_focus = shared_GEN_take_position }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_support_entente } } complete_national_focus = shared_GEN_support_entente }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_state_claims_2 } } complete_national_focus = shared_GEN_state_claims_2 }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_send_aid_2 } } complete_national_focus = shared_GEN_send_aid_2 }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_join_entente } } complete_national_focus = shared_GEN_join_entente }
+  # Retry after the final focus is recorded; the existing helper enforces the entry date.
+  WW1_complete_focus_faction_entry = yes
+ }
+}
+
+WW1_crisis_RIE_mobilization = {
+ if = {
+  limit = { WW1_crisis_RIE_focus_allowed = yes }
+  if = { limit = { NOT = { has_completed_focus = RUS_diplomatic_effort } } complete_national_focus = RUS_diplomatic_effort }
+  if = { limit = { NOT = { has_completed_focus = RUS_european_diplomacy } } complete_national_focus = RUS_european_diplomacy }
+  if = { limit = { NOT = { has_completed_focus = RUS_entente_diplomacy } } complete_national_focus = RUS_entente_diplomacy }
+  if = { limit = { NOT = { has_completed_focus = RUS_balkan_diplomacy } } complete_national_focus = RUS_balkan_diplomacy }
+  if = { limit = { NOT = { has_completed_focus = RUS_support_serbia } } complete_national_focus = RUS_support_serbia }
+  if = {
+   limit = { OR = { has_completed_focus = RUS_investments_from_west AND = { owns_state = 219 controls_state = 219 } } }
+   if = { limit = { NOT = { has_completed_focus = RUS_investments_from_west } } complete_national_focus = RUS_investments_from_west }
+   if = { limit = { NOT = { has_completed_focus = RUS_request_aid } } complete_national_focus = RUS_request_aid }
+   if = { limit = { NOT = { has_completed_focus = RUS_request_aid_2 } } complete_national_focus = RUS_request_aid_2 }
+   if = { limit = { NOT = { has_completed_focus = RUS_prepare_for_war } } complete_national_focus = RUS_prepare_for_war }
+  }
+ }
+}
+
+WW1_crisis_FRA_mobilization = {
+ if = {
+  limit = { WW1_crisis_FRA_focus_allowed = yes }
+  if = { limit = { NOT = { has_completed_focus = FR3_diplomatic_effort } } complete_national_focus = FR3_diplomatic_effort }
+  if = { limit = { NOT = { has_completed_focus = FR3_european_diplomacy } } complete_national_focus = FR3_european_diplomacy }
+  if = { limit = { NOT = { has_completed_focus = FR3_pro_russia } } complete_national_focus = FR3_pro_russia }
+  if = { limit = { NOT = { has_completed_focus = FR3_entente_diplomacy } } complete_national_focus = FR3_entente_diplomacy }
+  if = { limit = { NOT = { has_completed_focus = FR3_anti_german_propaganda } } complete_national_focus = FR3_anti_german_propaganda }
+  if = { limit = { NOT = { has_completed_focus = FR3_prepare_for_war } } complete_national_focus = FR3_prepare_for_war }
+ }
+}
+
+WW1_crisis_ENG_belgian_response = {
+ if = {
+  limit = { tag = ENG has_focus_tree = british_focus_ww1 has_country_flag = WW1_ENG_war_entry_accepted }
+  if = { limit = { NOT = { has_completed_focus = EN1_diplomatic_effort } } complete_national_focus = EN1_diplomatic_effort }
+  if = { limit = { NOT = { has_completed_focus = EN1_western_diplomacy } } complete_national_focus = EN1_western_diplomacy }
+  if = { limit = { NOT = { has_completed_focus = EN1_back_france } } complete_national_focus = EN1_back_france }
+  if = { limit = { NOT = { has_completed_focus = EN1_anti_german_sentiment } } complete_national_focus = EN1_anti_german_sentiment }
+  if = { limit = { NOT = { has_completed_focus = EN1_R_belgian_guarantee } } complete_national_focus = EN1_R_belgian_guarantee }
+  # Record the accepted entry focus without calling its queue wrapper recursively.
+  if = { limit = { NOT = { has_completed_focus = EN1_join_war } } unlock_national_focus = EN1_join_war }
+ }
+}
+
+# Bounded catch-up for early-start saves whose crisis choices were already made.
+# No focus is inferred from the calendar alone or from an unaccepted event.
+WW1_reconcile_crisis_focus_completion = {
+ if = {
+  limit = { WW1_crisis_focus_window = yes }
+  if = { limit = { tag = AUH WW1_crisis_AUH_focus_allowed = yes }
+   if = { limit = { has_global_flag = AUH_expecting_blank_cheque } WW1_crisis_AUH_consultation = yes }
+   if = { limit = { has_country_flag = AUH_ww1_ultimatum_prepared } WW1_crisis_AUH_backing = yes }
+   if = { limit = { has_global_flag = ultimatum_to_servia_sent } WW1_crisis_AUH_ultimatum = yes }
+   if = { limit = { has_global_flag = WW1_starts has_war_with = SER } WW1_crisis_AUH_war = yes }
+  }
+  if = { limit = { tag = GER has_global_flag = GE1_gives_blank_cheque }
+   WW1_crisis_GER_backing = yes
+   WW1_crisis_GER_mobilization = yes
+   # An already chosen plan can also have been recorded before its focus was completed.
+   if = { limit = { WW1_crisis_german_escalation = yes
+    NOT = { has_completed_focus = GE1_schlieffen_plan }
+    NOT = { has_completed_focus = GE1_kronprinz_plan }
+    NOT = { has_completed_focus = GE1_rupprecht_plan }
+   }
+    # The plan flags record an accepted choice. Its declaration callback is owned
+    # by the outbreak handler; completing the focus here would queue it a second time.
+    if = { limit = { has_global_flag = schlieffen_plan GE1_D_may_attack_low_countries = yes NOT = { has_global_flag = kronprinz_plan } NOT = { has_global_flag = rupprecht_plan } }
+     unlock_national_focus = GE1_schlieffen_plan
+     GW_D_reward_GE1_schlieffen_plan = yes
+    }
+    else_if = { limit = { has_global_flag = kronprinz_plan NOT = { has_global_flag = schlieffen_plan } NOT = { has_global_flag = rupprecht_plan } }
+     unlock_national_focus = GE1_kronprinz_plan
+     GW_D_reward_GE1_kronprinz_plan = yes
+    }
+    else_if = { limit = { has_global_flag = rupprecht_plan NOT = { has_global_flag = schlieffen_plan } NOT = { has_global_flag = kronprinz_plan } }
+     unlock_national_focus = GE1_rupprecht_plan
+     GW_D_reward_GE1_rupprecht_plan = yes
+    }
+   }
+  }
+  if = { limit = { tag = SER has_global_flag = ultimatum_rejected } WW1_crisis_SER_rejection = yes }
+  # Other players retain control of their diplomacy; historical AI reacts to the war.
+  if = { limit = { is_ai = yes is_historical_focus_on = yes has_global_flag = WW1_starts AUH = { has_war_with = SER } }
+   if = { limit = { tag = RIE } WW1_crisis_RIE_mobilization = yes }
+   if = { limit = { tag = FRA } WW1_crisis_FRA_mobilization = yes }
+  }
+ }
+}

@@ -1,0 +1,100 @@
+# Country scope: an opponent of Germany or one of its actual Central allies.
+WW1_CP_is_active_enemy = {
+ OR = {
+  has_war_with = GER
+  AUH = { is_in_faction_with = GER has_war_with = PREV }
+  TUR = { is_in_faction_with = GER has_war_with = PREV }
+  BUL = { is_in_faction_with = GER has_war_with = PREV }
+  ITA = { is_in_faction_with = GER has_war_with = PREV }
+ }
+}
+WW1_CP_still_resisting = {
+ exists = yes
+ NOT = { has_capitulated = yes }
+ NOT = { has_country_flag = WW1_CP_separate_armistice_signed }
+ WW1_CP_is_active_enemy = yes
+}
+WW1_CP_eastern_resistance_active = {
+ OR = { RIE = { WW1_CP_still_resisting = yes } SOV = { WW1_CP_still_resisting = yes } }
+}
+WW1_CP_treaty_context = {
+ GER = { exists = yes has_capitulated = no }
+ has_start_date < 1936.1.1 date < 1936.1.1
+ has_global_flag = welcome_event_WW1_active
+ has_global_flag = WW1_french_armistice_signed
+ NOT = { has_global_flag = player_wants_custom_peacedeals }
+ NOT = { has_global_flag = compiegne }
+ NOT = { has_global_flag = versailles }
+}
+WW1_CP_western_resistance_active = {
+ OR = {
+  ENG = { WW1_CP_still_resisting = yes }
+  ITA = { WW1_CP_still_resisting = yes }
+  USA = { WW1_CP_still_resisting = yes }
+ }
+}
+WW1_CP_far_east_resistance_active = {
+ OR = {
+  JAP = { WW1_CP_still_resisting = yes }
+  RCH = { WW1_CP_still_resisting = yes }
+  QIN = { WW1_CP_still_resisting = yes }
+  CHI = { WW1_CP_still_resisting = yes }
+ }
+}
+WW1_CP_western_settlement_ready = {
+ tag = GER
+ WW1_CP_treaty_context = yes
+ NOT = { has_global_flag = WW1_CP_western_settlement_signed }
+ NOT = { has_global_flag = WW1_CP_final_settlement_signed }
+ NOT = { has_global_flag = central_powers_victory }
+ WW1_CP_western_resistance_active = no
+}
+WW1_CP_western_terms_available = {
+ GER = { exists = yes has_capitulated = no }
+ NOT = { has_global_flag = compiegne }
+ NOT = { has_global_flag = versailles }
+ OR = {
+  AND = {
+   WW1_CP_treaty_context = yes
+   has_global_flag = WW1_CP_western_settlement_signed
+   WW1_CP_western_resistance_active = no
+  }
+  # Keep queued treaties in saves that already completed the former general conference.
+  AND = { has_global_flag = central_powers_victory WW1_CP_western_resistance_active = no WW1_CP_eastern_resistance_active = no }
+ }
+}
+WW1_CP_settlement_ready = {
+ tag = GER
+ WW1_CP_treaty_context = yes
+ has_global_flag = WW1_CP_western_settlement_signed
+ NOT = { has_global_flag = WW1_CP_final_settlement_signed }
+ WW1_CP_western_resistance_active = no
+ WW1_CP_eastern_resistance_active = no
+ WW1_CP_far_east_resistance_active = no
+}
+WW1_CP_british_terms_available = {
+ WW1_CP_western_terms_available = yes
+ ENG = {
+  OR = {
+   has_country_flag = WW1_CP_british_war_concluded
+   has_country_flag = WW1_CP_separate_armistice_signed
+   AND = {
+    OR = {
+     has_country_flag = WW1_CP_fought_germany
+     has_country_flag = WW1_CP_was_entente_member
+    }
+    has_capitulated = yes
+   }
+  }
+ }
+}
+WW1_CP_colonial_cession_owner = {
+ OR = { is_fully_controlled_by = OWNER is_fully_controlled_by = GER }
+ OR = {
+  is_owned_by = FRA
+  AND = {
+   GER = { WW1_CP_british_terms_available = yes }
+   owner = { OR = { tag = ENG is_subject_of = ENG } }
+  }
+ }
+}

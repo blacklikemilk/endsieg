@@ -1,0 +1,173 @@
+# Only discrete naval stations and their surrounding map states.
+WW1_CP_seize_french_naval_posts = {
+ FRA = {
+  every_owned_state = {
+   limit = {
+    is_fully_controlled_by = FRA
+    is_capital = no
+    OR = {
+     state = 557 # Dakar
+     state = 458 # Tunis and Bizerte
+     state = 268 # Djibouti
+     state = 708 # Comoros and Mayotte
+    }
+   }
+   set_state_flag = WW1_CP_british_naval_administration
+   transfer_state_to = ENG
+  }
+ }
+}
+WW1_CP_finish_british_refusal = {
+ set_global_flag = WW1_CP_french_exile_decided
+ WW1_CP_seize_french_naval_posts = yes
+ GER = { country_event = { id = kaiserschlachtvictory.7 hours = 1 } }
+}
+WW1_CP_create_french_exile = {
+ if = {
+  limit = {
+   OR = { WW1_CP_french_algiers_available = yes WW1_CP_french_dakar_available = yes }
+  }
+  create_dynamic_country = {
+   original_tag = FRA
+   save_global_event_target_as = WW1_CP_french_exile
+   set_cosmetic_tag = WW1_FRA_EXILE
+   set_country_flag = WW1_CP_french_exile_government
+   set_country_flag = WW1_CP_fought_germany
+   if = {
+    limit = { WW1_CP_french_algiers_available = yes }
+    459 = { event_target:WW1_CP_french_exile = { transfer_state = PREV } }
+    460 = { if = { limit = { is_owned_by = FRA is_fully_controlled_by = FRA } event_target:WW1_CP_french_exile = { transfer_state = PREV } } }
+    513 = { if = { limit = { is_owned_by = FRA is_fully_controlled_by = FRA } event_target:WW1_CP_french_exile = { transfer_state = PREV } } }
+    set_capital = { state = 459 }
+   }
+   else = {
+    557 = { event_target:WW1_CP_french_exile = { transfer_state = PREV } }
+    set_capital = { state = 557 }
+   }
+   load_focus_tree = { tree = generic_focus_ww1 }
+   set_popularities = { democratic = 75 neutrality = 25 }
+   set_politics = { ruling_party = democratic elections_allowed = no }
+   FRA = {
+    if = {
+     limit = { has_character = FR3_Raymond_Poincare }
+     FR3_Raymond_Poincare = { set_nationality = event_target:WW1_CP_french_exile }
+    }
+   }
+   if = {
+    limit = { has_character = FR3_Raymond_Poincare }
+    add_country_leader_role = {
+     character = FR3_Raymond_Poincare
+     promote_leader = yes
+     country_leader = { ideology = liberalism expire = "1934.10.15" }
+    }
+   }
+   else = {
+    create_country_leader = {
+     name = "Raymond Poincaré"
+     picture = "gfx/leaders/FRA/Portrait_France_Raymond_Poincare.dds"
+     ideology = liberalism
+     expire = "1934.10.15"
+    }
+   }
+   set_stability = 0.45
+   set_war_support = 0.55
+   add_manpower = 5000
+   set_technology = { early_infantry_weapons = 1 }
+   division_template = {
+    name = "Colonial Detachment"
+    regiments = { infantry = { x = 0 y = 0 } infantry = { x = 0 y = 1 } infantry = { x = 0 y = 2 } infantry = { x = 0 y = 3 } }
+   }
+   capital_scope = {
+    create_unit = {
+     division = "name = \"French Republican Detachment\" division_template = \"Colonial Detachment\" start_equipment_factor = 0.65"
+     owner = event_target:WW1_CP_french_exile
+    }
+   }
+   add_to_war = { targeted_alliance = ENG enemy = GER hostility_reason = asked_to_join single_target_only = yes }
+   if = {
+    limit = { AUH = { is_in_faction_with = GER has_war_with = ENG } }
+    add_to_war = { targeted_alliance = ENG enemy = AUH hostility_reason = asked_to_join single_target_only = yes }
+   }
+   if = {
+    limit = { TUR = { is_in_faction_with = GER has_war_with = ENG } }
+    add_to_war = { targeted_alliance = ENG enemy = TUR hostility_reason = asked_to_join single_target_only = yes }
+   }
+   if = {
+    limit = { BUL = { is_in_faction_with = GER has_war_with = ENG } }
+    add_to_war = { targeted_alliance = ENG enemy = BUL hostility_reason = asked_to_join single_target_only = yes }
+   }
+   if = {
+    limit = { ITA = { is_in_faction_with = GER has_war_with = ENG } }
+    add_to_war = { targeted_alliance = ENG enemy = ITA hostility_reason = asked_to_join single_target_only = yes }
+   }
+   ENG = {
+    if = {
+     limit = { is_in_faction = yes }
+     faction_leader = { add_to_faction = event_target:WW1_CP_french_exile }
+    }
+   }
+   if = { limit = { FRA = { is_ai = no } } change_tag_from = FRA }
+  }
+  set_global_flag = WW1_CP_french_exile_established
+  news_event = { id = ww1_central_peace.5 hours = 2 }
+ }
+ else = {
+  ENG = { set_country_flag = WW1_CP_london_french_committee }
+  news_event = { id = ww1_central_peace.6 hours = 2 }
+ }
+}
+WW1_CP_restore_french_overseas_administration = {
+ if = {
+  limit = { FRA = { exists = yes } }
+  ENG = {
+   every_owned_state = {
+    limit = { has_state_flag = WW1_CP_british_naval_administration is_fully_controlled_by = ENG }
+    clr_state_flag = WW1_CP_british_naval_administration
+    transfer_state_to = FRA
+   }
+   clr_country_flag = WW1_CP_london_french_committee
+  }
+  if = {
+   limit = { has_global_flag = WW1_CP_french_exile_established }
+   clr_global_flag = WW1_CP_french_exile_established
+   if = {
+    limit = { event_target:WW1_CP_french_exile = { exists = yes } }
+    event_target:WW1_CP_french_exile = {
+     if = {
+      limit = { has_character = FR3_Raymond_Poincare }
+      FR3_Raymond_Poincare = { set_nationality = FRA }
+     }
+     if = { limit = { is_ai = no } FRA = { change_tag_from = event_target:WW1_CP_french_exile } }
+    }
+    FRA = { annex_country = { target = event_target:WW1_CP_french_exile transfer_troops = yes } }
+   }
+   clear_global_event_target = WW1_CP_french_exile
+  }
+ }
+}
+WW1_CP_update_french_government = {
+ if = {
+  limit = { WW1_CP_bordeaux_available = yes NOT = { has_country_flag = WW1_CP_bordeaux_queued } }
+  set_country_flag = { flag = WW1_CP_bordeaux_queued days = 7 }
+  country_event = { id = ww1_central_peace.4 hours = 1 }
+ }
+ if = {
+  limit = {
+   has_country_flag = WW1_CP_bordeaux_relocated
+   16 = { is_owned_by = FRA is_fully_controlled_by = FRA }
+   OR = { surrender_progress < 0.15 has_global_flag = WW1_french_armistice_signed }
+  }
+  clr_country_flag = WW1_CP_bordeaux_relocated
+  set_capital = { state = 16 }
+ }
+ if = {
+  limit = {
+   has_start_date < 1936.1.1
+   has_global_flag = WW1_CP_french_exile_decided
+   NOT = { has_global_flag = WW1_CP_french_exile_victory_resolved }
+   OR = { has_global_flag = compiegne has_global_flag = versailles }
+  }
+  set_global_flag = WW1_CP_french_exile_victory_resolved
+  WW1_CP_restore_french_overseas_administration = yes
+ }
+}

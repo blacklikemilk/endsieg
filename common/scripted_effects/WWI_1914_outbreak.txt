@@ -1,0 +1,150 @@
+# Country-targeted from the existing GER daily hook. No world scan or repeating grants.
+WW1_1914_prepare_diplomatic_timing = {
+ if = {
+  limit = {
+   tag = GER is_historical_focus_on = yes
+   WW1_crisis_GER_focus_allowed = yes
+   has_global_flag = GE1_gives_blank_cheque
+   has_global_flag = ultimatum_rejected
+   NOT = { has_global_flag = WW1_1914_diplomatic_clock_set }
+  }
+  set_global_flag = WW1_1914_diplomatic_clock_set
+  GER = { if = { limit = { is_ai = yes } add_timed_idea = { idea = WW1_1914_final_diplomatic_exchanges days = 12 } } }
+  AUH = { if = { limit = { is_ai = yes } add_timed_idea = { idea = WW1_1914_final_diplomatic_exchanges days = 12 } } }
+  RIE = { if = { limit = { is_ai = yes } add_timed_idea = { idea = WW1_1914_final_diplomatic_exchanges days = 12 } } }
+  FRA = { if = { limit = { is_ai = yes } add_timed_idea = { idea = WW1_1914_final_diplomatic_exchanges days = 12 } } }
+  SER = { if = { limit = { is_ai = yes } add_timed_idea = { idea = WW1_1914_final_diplomatic_exchanges days = 12 } } }
+ }
+}
+
+WW1_1914_mobilize_germany = {
+ if = {
+  limit = { WW1_1914_german_mobilization_allowed = yes }
+  set_global_flag = german_mobilization_begins
+  load_oob = GER_1914_Mobilization
+  news_event = { id = endsieg_news.151 hours = 6 }
+ }
+}
+
+WW1_1914_mobilize_russia = {
+ if = {
+  limit = { WW1_1914_russian_mobilization_allowed = yes }
+  WW1_crisis_RIE_mobilization = yes
+  set_global_flag = russian_mobilization_begins
+  load_oob = RIE_mobilization
+ }
+}
+
+WW1_1914_mobilize_france = {
+ if = {
+  limit = { WW1_1914_french_mobilization_allowed = yes }
+  WW1_crisis_FRA_mobilization = yes
+  if = {
+   limit = {
+    NOT = { has_global_flag = french_mobilization_begins }
+    controls_province = 11420 controls_province = 13011 controls_province = 9490 controls_province = 11548 controls_province = 11516
+   }
+   set_global_flag = french_mobilization_begins
+   load_oob = FRA_1914_Mobilization
+  }
+  else_if = {
+   # In a late save, mobilize safely at Paris if a forward staging area was lost.
+   limit = { NOT = { has_global_flag = french_mobilization_begins } controls_province = 11506 }
+   set_global_flag = french_mobilization_begins
+   load_oob = WW1_FRA_1914_mobilization_rear
+  }
+  # Mobilized rifles and guns fill the active army's initial equipment deficit too.
+  if = {
+   limit = { NOT = { has_country_flag = WW1_FRA_1914_depot_stocks_issued } controls_province = 11506 }
+   set_country_flag = WW1_FRA_1914_depot_stocks_issued
+   if = { limit = { has_tech = early_infantry_weapons2 } add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 40000 producer = FRA } }
+   else = { add_equipment_to_stockpile = { type = early_infantry_equipment_0 amount = 40000 producer = FRA } }
+   add_equipment_to_stockpile = { type = ww1_artillery_0 amount = 1000 producer = FRA }
+  }
+  if = {
+   limit = { owns_state = 29 controls_province = 11483 NOT = { has_country_flag = WW1_FRA_1914_north_reserves } }
+   set_country_flag = WW1_FRA_1914_north_reserves
+   load_oob = WW1_FRA_1914_reserve_north
+  }
+  if = {
+   limit = { owns_state = 18 controls_province = 13011 NOT = { has_country_flag = WW1_FRA_1914_champagne_reserves } }
+   set_country_flag = WW1_FRA_1914_champagne_reserves
+   load_oob = WW1_FRA_1914_reserve_champagne
+  }
+  if = {
+   limit = { owns_state = 1011 controls_province = 5291 NOT = { has_country_flag = WW1_FRA_1914_meuse_reserves } }
+   set_country_flag = WW1_FRA_1914_meuse_reserves
+   load_oob = WW1_FRA_1914_reserve_meuse
+  }
+  if = {
+   limit = { owns_state = 1010 controls_province = 11516 NOT = { has_country_flag = WW1_FRA_1914_lorraine_reserves } }
+   set_country_flag = WW1_FRA_1914_lorraine_reserves
+   load_oob = WW1_FRA_1914_reserve_lorraine
+  }
+ }
+}
+
+WW1_1914_execute_schlieffen = {
+ if = {
+  limit = { WW1_1914_historical_sequence = yes has_global_flag = schlieffen_plan has_completed_focus = GE1_schlieffen_plan }
+  if = {
+   limit = { NOT = { date < 1914.8.1 } country_exists = RIE NOT = { has_war_with = RIE } }
+   declare_war_on = { target = RIE type = annex_everything }
+  }
+  if = {
+   limit = { NOT = { date < 1914.8.2 } country_exists = LUX GE1_D_may_attack_low_countries = yes NOT = { has_war_with = LUX } NOT = { is_in_faction_with = LUX } NOT = { has_non_aggression_pact_with = LUX } }
+   declare_war_on = { target = LUX type = annex_everything }
+  }
+  if = {
+   limit = { NOT = { date < 1914.8.3 } NOT = { has_war_with = FRA } }
+   declare_war_on = { target = FRA type = annex_everything }
+  }
+  if = {
+   limit = { NOT = { date < 1914.8.3 } has_war_with = FRA NOT = { has_country_flag = WW1_1914_western_plan_announced } }
+   set_country_flag = WW1_1914_western_plan_announced
+   news_event = { id = endsieg_news.133 hours = 6 }
+   FRA = { add_timed_idea = { idea = surprise_attack days = 14 } }
+  }
+  if = {
+   limit = { NOT = { date < 1914.8.4 } country_exists = BEL GE1_D_may_attack_low_countries = yes NOT = { has_war_with = BEL } NOT = { is_in_faction_with = BEL } NOT = { has_non_aggression_pact_with = BEL } }
+   declare_war_on = { target = BEL type = annex_everything }
+   BEL = { add_timed_idea = { idea = surprise_attack days = 30 } }
+  }
+ }
+}
+
+WW1_1914_outbreak_tick = {
+ if = {
+  limit = { WW1_1914_historical_sequence = yes }
+  WW1_1914_prepare_diplomatic_timing = yes
+  WW1_crisis_GER_mobilization = yes
+  if = { limit = { has_completed_focus = GE1_schlieffen_plan } set_global_flag = schlieffen_plan }
+  # AI selects its historical plan without waiting for an event-popup timer.
+  # A player is offered the existing plan event earlier and retains the alternatives.
+  if = {
+   limit = { is_ai = yes }
+   set_global_flag = schlieffen_plan
+   if = { limit = { NOT = { has_completed_focus = GE1_schlieffen_plan } } unlock_national_focus = GE1_schlieffen_plan }
+   GW_D_reward_GE1_schlieffen_plan = yes
+   set_country_flag = WW1_focus_action_ww1_germany_21_seen
+   clr_country_flag = WW1_focus_action_ww1_germany_21_queued
+  }
+  if = { limit = { NOT = { date < 1914.7.30 } } RIE = { WW1_1914_mobilize_russia = yes } }
+  if = { limit = { NOT = { date < 1914.8.1 } } WW1_1914_mobilize_germany = yes RIE = { remove_ideas = WW1_1914_final_diplomatic_exchanges } FRA = { WW1_1914_mobilize_france = yes } }
+  if = { limit = { NOT = { date < 1914.8.3 } } FRA = { remove_ideas = WW1_1914_final_diplomatic_exchanges } }
+  if = {
+   limit = { NOT = { date < 1914.8.6 } }
+   remove_ideas = WW1_1914_final_diplomatic_exchanges
+   AUH = { remove_ideas = WW1_1914_final_diplomatic_exchanges }
+   SER = { remove_ideas = WW1_1914_final_diplomatic_exchanges }
+  }
+  WW1_1914_execute_schlieffen = yes
+  if = {
+   limit = { NOT = { date < 1914.8.6 } has_global_flag = schlieffen_plan has_war_with = RIE }
+   if = { limit = { country_exists = SER } SER = { if = { limit = { NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER } } declare_war_on = { target = GER type = annex_everything } } } }
+   AUH = {
+    if = { limit = { NOT = { has_war_with = RIE } NOT = { is_in_faction_with = RIE } NOT = { has_non_aggression_pact_with = RIE } } declare_war_on = { target = RIE type = annex_everything } }
+   }
+  }
+ }
+}

@@ -1,0 +1,145 @@
+OT1_P_begin_restoration = {
+ if = {
+  limit = { OT1_P_may_seek_restoration = yes NOT = { has_country_flag = OT1_P_restoration_started } }
+  OT1_R_choose_palace = yes
+  OT1_R_initialize_administration = yes
+  set_country_flag = OT1_P_restoration_started
+  remove_ideas = OT1_R_said_halim_ministry
+  remove_ideas = OT1_R_talat_ministry
+  clr_country_flag = OT1_R_said_halim_cabinet
+  clr_country_flag = OT1_R_talat_cabinet
+  add_ideas = OT1_P_contested_restoration
+  add_stability = -0.03
+  add_popularity = { ideology = neutrality popularity = 0.05 }
+  country_event = { id = ww1_turkey.29 hours = 1 }
+ }
+}
+OT1_P_restore_sultan = {
+ if = {
+  limit = { OT1_P_may_restore = yes }
+  set_country_flag = OT1_P_hamid_restored
+  clr_country_flag = OT1_P_restoration_delayed
+  # Mehmed V withdraws his claim; he remains available for the 1918 succession.
+  if = { limit = { has_character = TUR_mehmed_v }
+   TUR_mehmed_v = { remove_country_leader_role = { ideology = despotism } }
+  }
+  add_country_leader_role = {
+   character = TUR_abdulhamid_ii
+   country_leader = { ideology = despotism traits = { OT1_P_old_sultan } expire = "1936.1.1.1" }
+  }
+  set_politics = { ruling_party = neutrality elections_allowed = no }
+  TUR_abdulhamid_ii = { promote_character = yes }
+  add_popularity = { ideology = neutrality popularity = 0.10 }
+  add_stability = 0.02
+  add_to_variable = { OT1_R_cabinet_authority = 5 }
+  add_to_variable = { OT1_R_officer_loyalty = -4 }
+  OT1_R_refresh_administration = yes
+  country_event = { id = ww1_ottoman_politics.2 hours = 1 }
+  country_event = { id = ww1_ottoman_politics.6 days = 90 }
+  news_event = { id = ww1_ottoman_politics.100 hours = 6 }
+ }
+ else_if = {
+  limit = { OT1_P_restoration_campaign = yes }
+  set_country_flag = OT1_P_restoration_delayed
+  country_event = { id = ww1_ottoman_politics.7 hours = 1 }
+ }
+}
+OT1_P_finish_hamid_life = {
+ if = {
+  limit = { NOT = { has_country_flag = OT1_P_hamid_dead } }
+  set_country_flag = OT1_P_hamid_dead
+  remove_ideas = OT1_P_contested_restoration
+  if = {
+   limit = { has_country_leader = { ruling_only = yes character = TUR_abdulhamid_ii } }
+   if = {
+    limit = { date < 1918.7.3 has_character = TUR_mehmed_v }
+    TUR_mehmed_v = {
+     add_country_leader_role = {
+      promote_leader = yes
+      country_leader = { ideology = despotism expire = "1936.1.1.1" traits = { cornered_fox } }
+     }
+    }
+   }
+   else = { endsieg_character_activate_tur_mehmed_vi_0177e887 = yes TUR_mehmed_vi = { promote_character = yes } }
+   retire_character = TUR_abdulhamid_ii
+  }
+  else_if = { limit = { has_character = TUR_abdulhamid_ii } retire_character = TUR_abdulhamid_ii }
+ }
+}
+OT1_P_clear_political_work = {
+ remove_decision = OT1_P_sound_out_officers
+ remove_decision = OT1_P_consult_the_ulema
+ remove_decision = OT1_P_notables_delegation
+ remove_decision = OT1_P_renew_the_invitation
+ remove_decision = OT1_P_imperial_scholarships
+ remove_decision = OT1_P_unionist_procurement
+ clr_country_flag = OT1_P_political_work
+ clr_country_flag = OT1_P_running_officers
+ clr_country_flag = OT1_P_running_ulema
+ clr_country_flag = OT1_P_running_notables
+ clr_country_flag = OT1_P_running_invitation
+ clr_country_flag = OT1_P_running_scholarships
+ clr_country_flag = OT1_P_running_procurement
+ clr_country_flag = OT1_P_reply_officers
+ clr_country_flag = OT1_P_reply_ulema
+ clr_country_flag = OT1_P_reply_notables
+}
+OT1_P_clear_political_spirits = {
+ remove_ideas = OT1_P_contested_restoration
+ remove_ideas = OT1_P_reserved_powers
+ remove_ideas = OT1_P_bound_crown
+ remove_ideas = OT1_P_renewed_imperial_service
+ remove_ideas = OT1_P_officer_mistrust
+ remove_ideas = OT1_P_cup_organisation
+ remove_ideas = OT1_P_national_credit
+ remove_ideas = OT1_P_civilian_committee
+ remove_ideas = OT1_P_officer_directorate
+ remove_ideas = OT1_P_unionist_state
+}
+OT1_P_update_politics = {
+ if = {
+  limit = { tag = TUR OR = { has_country_flag = OT1_P_reply_officers has_country_flag = OT1_P_reply_ulema has_country_flag = OT1_P_reply_notables } NOT = { OT1_P_restoration_campaign = yes } }
+  clr_country_flag = OT1_P_reply_officers clr_country_flag = OT1_P_reply_ulema clr_country_flag = OT1_P_reply_notables clr_country_flag = OT1_P_political_work
+ }
+
+ if = { limit = { tag = TUR has_country_flag = OT1_P_ai_officers NOT = { has_country_flag = OT1_P_military_cup } NOT = { date < 1922.8.4 } } clr_country_flag = OT1_P_ai_officers }
+
+ if = {
+  limit = { tag = TUR has_start_date < 1936.1.1 }
+  if = {
+   limit = { OT1_P_active = yes has_country_flag = OT1_R_palace_path has_completed_focus = TUR_anti_young_turk NOT = { has_country_flag = OT1_P_restoration_started } }
+   if = { limit = { OT1_P_may_seek_restoration = yes } OT1_P_begin_restoration = yes }
+   else_if = { limit = { NOT = { OT1_P_hamid_living = yes } } set_country_flag = OT1_P_restoration_started set_country_flag = OT1_P_restoration_lapsed }
+  }
+  if = {
+   limit = { OR = { has_country_flag = OT1_P_restoration_started has_character = TUR_abdulhamid_ii } NOT = { has_country_flag = OT1_P_hamid_dead } NOT = { date < 1918.2.10 } NOT = { has_country_flag = OT1_P_death_scheduled } }
+   set_country_flag = OT1_P_death_scheduled
+   if = { limit = { has_country_flag = OT1_P_hamid_restored } country_event = { id = ww1_ottoman_politics.9 hours = 1 } }
+   else_if = { limit = { OT1_P_active = yes has_country_flag = OT1_P_restoration_started } country_event = { id = ww1_ottoman_politics.8 hours = 1 } }
+   else = { OT1_P_finish_hamid_life = yes }
+  }
+  if = {
+   limit = { NOT = { OT1_P_active = yes } NOT = { has_country_flag = OT1_P_retired } OR = { has_country_flag = OT1_P_restoration_started has_country_flag = OT1_P_civilian_cup has_country_flag = OT1_P_military_cup } }
+   set_country_flag = OT1_P_retired
+   OT1_P_clear_political_work = yes OT1_P_clear_political_spirits = yes
+   # A peace settlement ends programmes, not the life of a reigning sovereign.
+  }
+ }
+}
+
+OT1_P_elevate_enver = {
+ if = {
+  limit = { OT1_P_ittihadist = yes has_character = TUR_Enver_Pasha date > 1914.1.2 date < 1922.8.4 }
+  set_country_flag = WW1_TUR_enver_ministry
+  set_politics = { ruling_party = neutrality elections_allowed = no }
+  TUR_Enver_Pasha = {
+   if = { limit = { has_ideology = despotism } remove_country_leader_role = { ideology = despotism } }
+   add_country_leader_role = {
+    promote_leader = yes
+    country_leader = { ideology = despotism expire = "1936.1.1.1" traits = { } }
+   }
+  }
+  add_popularity = { ideology = neutrality popularity = 0.05 }
+  WW1_consolidate_chosen_government = yes
+ }
+}

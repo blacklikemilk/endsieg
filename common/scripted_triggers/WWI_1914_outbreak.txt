@@ -1,0 +1,53 @@
+# The accepted July Crisis, rather than the calendar alone, authorizes this clock.
+WW1_1914_historical_sequence = {
+ tag = GER
+ is_historical_focus_on = yes
+ WW1_crisis_german_escalation = yes
+ NOT = { has_global_flag = kronprinz_plan }
+ NOT = { has_global_flag = rupprecht_plan }
+ NOT = { has_completed_focus = GE1_kronprinz_plan }
+ NOT = { has_completed_focus = GE1_rupprecht_plan }
+}
+
+# Explicit player escalation during an existing continental war remains available.
+# A failed historical-AI precondition alone never authorizes the fallback.
+WW1_1914_schlieffen_action_authorized = {
+ OR = {
+  WW1_1914_historical_sequence = yes
+  NOT = { is_historical_focus_on = yes }
+  AND = { is_ai = no has_global_flag = schlieffen_plan OR = { has_war_with = FRA has_war_with = RIE } }
+ }
+}
+
+WW1_1914_german_mobilization_allowed = {
+ tag = GER has_global_flag = welcome_event_WW1_active
+ has_start_date < 1914.7.18 date > 1914.6.27 date < 1915.1.1
+ NOT = { has_capitulated = yes }
+ NOT = { has_global_flag = german_mobilization_begins }
+ OR = {
+  has_war_with = FRA has_war_with = RIE
+  AND = { NOT = { date < 1914.8.1 } WW1_1914_historical_sequence = yes }
+  AND = { NOT = { is_historical_focus_on = yes } date > 1914.7.16 OR = { has_global_flag = schlieffen_plan has_global_flag = rupprecht_plan has_global_flag = kronprinz_plan } }
+ }
+}
+WW1_1914_russian_mobilization_allowed = {
+ tag = RIE has_global_flag = welcome_event_WW1_active
+ has_start_date < 1914.8.5 date > 1914.6.27 date < 1915.1.1
+ RUS_ww1_may_be_historical_war_target = yes
+ NOT = { has_capitulated = yes }
+ NOT = { has_global_flag = russian_mobilization_begins }
+ OR = {
+  has_war_with = GER has_war_with = AUH
+  AND = { NOT = { date < 1914.7.30 } GER = { WW1_1914_historical_sequence = yes } }
+  AND = { NOT = { is_historical_focus_on = yes } OR = { has_global_flag = schlieffen_plan has_global_flag = rupprecht_plan has_global_flag = kronprinz_plan } }
+ }
+}
+WW1_1914_french_mobilization_allowed = {
+ tag = FRA has_global_flag = welcome_event_WW1_active
+ has_start_date < 1914.8.5 date > 1914.6.27 date < 1915.1.1
+ NOT = { has_capitulated = yes }
+ OR = {
+  FR3_R_has_continental_war = yes
+  AND = { NOT = { date < 1914.8.1 } GER = { WW1_1914_historical_sequence = yes } }
+ }
+}

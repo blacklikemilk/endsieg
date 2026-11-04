@@ -1,0 +1,113 @@
+# One German country clock visits only the named diplomatic actors; no world scan.
+# Joining a coalition does not itself declare every member's wars.
+WW1_historical_declarations_tick = {
+ if = {
+  limit = {
+   tag = GER has_global_flag = welcome_event_WW1_active
+   has_start_date < 1936.1.1 date < 1919.1.1
+   NOT = { has_global_flag = compiegne }
+   NOT = { has_global_flag = central_powers_victory }
+  }
+  if = {
+   limit = { is_historical_focus_on = yes }
+   if = {
+    limit = { NOT = { date < 1914.8.11 } country_exists = AUH AUH = { is_in_faction_with = GER } }
+    FRA = {
+     if = {
+      limit = { exists = yes FR3_R_may_enter_entente = yes has_war_with = GER NOT = { has_war_with = AUH } NOT = { is_in_faction_with = AUH } NOT = { has_non_aggression_pact_with = AUH } }
+      declare_war_on = { target = AUH type = annex_everything }
+     }
+    }
+   }
+   if = {
+    limit = { NOT = { date < 1914.8.12 } country_exists = AUH AUH = { is_in_faction_with = GER } }
+    ENG = {
+     if = {
+      # A refused British entry is never overridden by the calendar.
+      limit = { exists = yes has_war_with = GER has_completed_focus = EN1_join_war OR = { is_in_faction_with = FRA is_in_faction_with = RIE has_country_flag = WW1_ENG_war_entry_accepted } NOT = { has_war_with = AUH } NOT = { is_in_faction_with = AUH } NOT = { has_non_aggression_pact_with = AUH } }
+      declare_war_on = { target = AUH type = annex_everything }
+     }
+    }
+   }
+   if = {
+    limit = { NOT = { date < 1914.8.28 } country_exists = BEL has_war_with = BEL GE1_ww1_may_choose_central_bloc = yes }
+    AUH = {
+     if = {
+      limit = { exists = yes is_in_faction_with = GER OR = { has_war_with = SER has_war_with = RIE has_war_with = FRA } NOT = { has_war_with = BEL } NOT = { is_in_faction_with = BEL } NOT = { has_non_aggression_pact_with = BEL } }
+      declare_war_on = { target = BEL type = annex_everything }
+     }
+    }
+   }
+   if = {
+    limit = { NOT = { date < 1917.12.7 } country_exists = AUH AUH = { is_in_faction_with = GER OR = { has_war_with = FRA has_war_with = ENG has_war_with = ITA } } }
+    USA = {
+     if = {
+      limit = {
+       exists = yes has_war_with = GER
+       has_completed_focus = US2_declare_war_on_germany
+       has_country_flag = US2_R_war_authorized US2_R_may_enter_entente_war = yes
+       OR = { is_in_faction_with = FRA is_in_faction_with = ENG is_in_faction_with = RIE }
+       NOT = { has_war_with = AUH } NOT = { is_in_faction_with = AUH } NOT = { has_non_aggression_pact_with = AUH }
+      }
+      declare_war_on = { target = AUH type = annex_everything }
+     }
+    }
+   }
+   if = {
+    limit = { NOT = { date < 1916.8.28 } }
+    ITA = {
+     if = {
+      limit = {
+       exists = yes has_completed_focus = IT1_join_war
+       has_country_flag = IT1_ww1_entente_alignment IT1_ww1_may_join_entente = yes
+       is_in_faction_with = FRA has_war_with = AUH FRA = { has_war_with = GER }
+       NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER }
+      }
+      declare_war_on = { target = GER type = annex_everything }
+     }
+    }
+   }
+   if = {
+    limit = { country_exists = TUR TUR = { WW1_ottoman_accepted_raid_path = yes } }
+    if = {
+     limit = { NOT = { date < 1914.11.2 } country_exists = RIE }
+     RIE = {
+      if = {
+       limit = { RUS_ww1_may_be_historical_war_target = yes has_war_with = GER NOT = { has_war_with = TUR } NOT = { is_in_faction_with = TUR } NOT = { has_non_aggression_pact_with = TUR } }
+       declare_war_on = { target = TUR type = annex_everything }
+      }
+     }
+    }
+    if = {
+     limit = { NOT = { date < 1914.11.5 } }
+     ENG = {
+      if = {
+       limit = { exists = yes has_war_with = GER has_completed_focus = EN1_join_war OR = { is_in_faction_with = FRA is_in_faction_with = RIE has_country_flag = WW1_ENG_war_entry_accepted } NOT = { has_war_with = TUR } NOT = { is_in_faction_with = TUR } NOT = { has_non_aggression_pact_with = TUR } }
+       declare_war_on = { target = TUR type = annex_everything }
+      }
+     }
+     FRA = {
+      if = {
+       limit = { exists = yes FR3_R_may_enter_entente = yes has_war_with = GER NOT = { has_war_with = TUR } NOT = { is_in_faction_with = TUR } NOT = { has_non_aggression_pact_with = TUR } }
+       declare_war_on = { target = TUR type = annex_everything }
+      }
+     }
+    }
+   }
+  }
+  else = {
+   # A nonhistorical Ottoman cabinet's accepted attack still functions, but
+   # cannot automatically bring a British cabinet that refused entry into war.
+   TUR = {
+    if = {
+     limit = { WW1_ottoman_accepted_raid_path = yes country_exists = RIE GER = { has_war_with = RIE } RIE = { RUS_ww1_may_be_historical_war_target = yes } NOT = { has_war_with = RIE } NOT = { is_in_faction_with = RIE } NOT = { has_non_aggression_pact_with = RIE } }
+     declare_war_on = { target = RIE type = annex_everything }
+    }
+    if = {
+     limit = { WW1_ottoman_accepted_raid_path = yes country_exists = SOV GER = { has_war_with = SOV } NOT = { has_war_with = SOV } NOT = { is_in_faction_with = SOV } NOT = { has_non_aggression_pact_with = SOV } }
+     declare_war_on = { target = SOV type = annex_everything }
+    }
+   }
+  }
+ }
+}
