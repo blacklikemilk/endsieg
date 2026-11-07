@@ -1,20 +1,24 @@
-# Country-scoped. A covering order never targets a current ally, pact partner or belligerent.
-WW1_border_can_prepare_against = {
- country_exists = $TARGET$
- $TARGET$ = { has_capitulated = no NOT = { is_subject_of = PREV } }
+# Evaluate in the potential opponent's scope. PREV is the country preparing.
+WW1_border_may_prepare_against_previous = {
+ exists = yes
  has_capitulated = no
+ PREV = {
+  exists = yes
+  has_capitulated = no
+  NOT = { is_subject_of = PREV }
+ }
  NOT = {
   OR = {
-   has_war_with = $TARGET$
-   is_in_faction_with = $TARGET$
-   is_subject_of = $TARGET$
-   has_non_aggression_pact_with = $TARGET$
+   has_war_with = PREV
+   is_in_faction_with = PREV
+   is_subject_of = PREV
+   has_non_aggression_pact_with = PREV
   }
  }
 }
-WW1_border_can_cover = {
- WW1_border_can_prepare_against = { TARGET = $TARGET$ }
- is_neighbor_of = $TARGET$
+WW1_border_may_cover_previous = {
+ WW1_border_may_prepare_against_previous = yes
+ is_neighbor_of = PREV
 }
 WW1_border_july_serbia = {
  WW1_crisis_focus_window = yes
@@ -51,7 +55,7 @@ WW1_border_libya = {
   has_completed_focus = IT1_claims_libya
   NOT = { has_country_flag = IT1_ww1_ottoman_accommodation }
   NOT = { has_completed_focus = IT1_ww1_ottoman_accommodation }
-  WW1_border_can_prepare_against = { TARGET = TUR }
+  TUR = { WW1_border_may_prepare_against_previous = yes }
  }
  OR = {
   448 = { is_owned_by = TUR is_claimed_by = ITA }
@@ -65,7 +69,7 @@ WW1_border_first_balkan = {
  NOT = { has_global_flag = first_balkan_war }
  NOT = { has_global_flag = treaty_of_london_1913 }
  NOT = { has_global_flag = let_go_balkans }
- SER = { WW1_is_balkan_league_member = yes WW1_border_can_cover = { TARGET = TUR } }
+ SER = { WW1_is_balkan_league_member = yes TUR = { WW1_border_may_cover_previous = yes } }
 }
 WW1_border_second_balkan = {
  has_global_flag = welcome_event_WW1_active

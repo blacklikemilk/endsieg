@@ -12,6 +12,7 @@ WW1_RCH_raise_hubei_army = {
 		}
 		transfer_state = 620
 		set_capital = { state = 620 remember_old_capital = no }
+		WW1_RCH_sync_revolution_leadership = yes
 		rch_initialize_campaign = yes
 		load_oob = wuchang_uprising
 		add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 12000 producer = FRA }
@@ -19,6 +20,10 @@ WW1_RCH_raise_hubei_army = {
 		add_equipment_to_stockpile = { type = convoy_1 amount = 40 producer = RCH }
 		set_country_flag = WW1_RCH_hubei_army_raised
 		declare_war_on = { target = QIN type = annex_everything }
+		QIN = { WW1_QIN_sync_xinhai_army_crisis = yes }
+		WW1_RCH_raise_revolution_reserves = yes
+		WW1_RCH_reinforce_xinhai_front = yes
+		WW1_RCH_issue_revolution_rations = yes
 	}
 }
 
@@ -135,5 +140,240 @@ WW1_RCH_sync_revolution_capitals = {
 			set_capital = { state = 613 remember_old_capital = no }
 			set_country_flag = WW1_RCH_nanjing_capital_established
 		}
+	}
+}
+
+
+# Hubei's military government precedes the Nanjing provisional presidency.
+# Receipts make both appointments one-time changes; later governments are untouched.
+WW1_RCH_sync_revolution_leadership = {
+	if = {
+		limit = {
+			tag = RCH
+			has_start_date < 1912.1.1
+			date < 1912.3.11
+			has_global_flag = xinhai_revolution
+			any_owned_state = { always = yes }
+			has_government = democratic
+			NOT = {
+				OR = {
+					has_global_flag = yuan_president
+					has_global_flag = yuan_emperor
+					has_global_flag = yuan_abdicates
+					has_global_flag = yuan_dead
+					has_country_flag = rch_route_beiyang
+					has_country_flag = rch_route_kmt
+					has_country_flag = rch_route_provincial
+				}
+			}
+		}
+		if = {
+			limit = {
+				date < 1912.1.1
+				NOT = { has_country_flag = WW1_RCH_revolution_leader_initialized }
+			}
+			if = {
+				limit = { NOT = { has_character = RCH_li_yuanhong } }
+				recruit_character = RCH_li_yuanhong
+			}
+			promote_character = { character = RCH_li_yuanhong ideology = conservatism }
+			set_country_flag = WW1_RCH_revolution_leader_initialized
+		}
+		else_if = {
+			limit = {
+				date > 1911.12.31
+				NOT = { has_country_flag = WW1_RCH_sun_presidency_established }
+				OR = {
+					NOT = { has_country_flag = WW1_RCH_revolution_leader_initialized }
+					has_country_leader = { character = RCH_li_yuanhong ruling_only = yes }
+				}
+			}
+			if = {
+				limit = { NOT = { has_character = RCH_sun_yatsen } }
+				recruit_character = RCH_sun_yatsen
+			}
+			promote_character = { character = RCH_sun_yatsen ideology = conservatism }
+			set_country_flag = WW1_RCH_revolution_leader_initialized
+			set_country_flag = WW1_RCH_sun_presidency_established
+		}
+	}
+}
+
+
+# The crisis is separate from the Qing campaign's standing army-spirit family.
+WW1_QIN_sync_xinhai_army_crisis = {
+	if = {
+		limit = {
+			tag = QIN
+			has_start_date < 1912.1.1
+			date < 1936.1.1
+			has_global_flag = xinhai_revolution
+			has_war_with = RCH
+			NOT = {
+				OR = {
+					has_global_flag = qing_xinhai_settled
+					has_global_flag = end_of_qing
+					has_country_flag = qing_collapsed
+				}
+			}
+			NOT = { has_idea = qing_divided_army_loyalties }
+		}
+		add_ideas = qing_divided_army_loyalties
+	}
+}
+
+
+# The first Hubei force is only a fraction of the army the provinces will raise.
+# Top up once, after ordinary initialization, rather than issue a recurring grant.
+WW1_RCH_issue_revolution_rations = {
+	if = {
+		limit = {
+			tag = RCH
+			has_start_date < 1912.1.1
+			date < 1914.1.1
+			has_global_flag = xinhai_revolution
+			has_war_with = QIN
+			NOT = { has_global_flag = qing_xinhai_settled }
+			NOT = { has_global_flag = end_of_qing }
+			NOT = { has_country_flag = endsieg_rations_disabled }
+			NOT = { has_country_flag = WW1_RCH_revolution_rations_issued }
+		}
+		endsieg_rations_initialize = yes
+		endsieg_rations_measure_demand = yes
+		endsieg_rations_refresh_display = yes
+		set_variable = { WW1_RCH_revolution_ration_grant = endsieg_ration_daily_use }
+		multiply_variable = { WW1_RCH_revolution_ration_grant = 365 }
+		clamp_variable = { var = WW1_RCH_revolution_ration_grant min = 12000 }
+		subtract_from_variable = { WW1_RCH_revolution_ration_grant = endsieg_ration_stockpile }
+		clamp_variable = { var = WW1_RCH_revolution_ration_grant min = 0 }
+		round_variable = WW1_RCH_revolution_ration_grant
+		if = {
+			limit = { check_variable = { WW1_RCH_revolution_ration_grant > 0 } }
+			add_equipment_to_stockpile = {
+				type = rations_1
+				amount = var:WW1_RCH_revolution_ration_grant
+				producer = RCH
+			}
+		}
+		clear_variable = WW1_RCH_revolution_ration_grant
+		set_country_flag = WW1_RCH_revolution_rations_issued
+		if = { limit = { has_idea = endsieg_low_rations } remove_ideas = endsieg_low_rations }
+		if = { limit = { has_idea = endsieg_no_rations } remove_ideas = endsieg_no_rations }
+		endsieg_rations_refresh_display = yes
+		endsieg_rations_update_ai_production = yes
+	}
+}
+
+
+# Eight additional six-battalion brigades support the first Hubei formations.
+# The native spawner prefers the requested province and falls back to friendly
+# positions if the front has moved. Enemy-controlled provinces are forbidden.
+WW1_RCH_raise_revolution_reserves = {
+	if = {
+		limit = {
+			tag = RCH
+			has_start_date < 1912.1.1
+			date < 1914.1.1
+			has_global_flag = xinhai_revolution
+			has_war_with = QIN
+			has_capitulated = no
+			any_owned_state = { is_controlled_by = RCH }
+			has_template = "Hubei Revolutionary Brigade"
+			NOT = { has_global_flag = qing_xinhai_settled }
+			NOT = { has_global_flag = end_of_qing }
+			NOT = { has_country_flag = WW1_RCH_revolution_reserves_raised }
+		}
+		add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 4800 producer = RCH }
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 0.9 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 4619
+			allow_spawning_on_enemy_provs = no
+		}
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 0.9 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 4631
+			allow_spawning_on_enemy_provs = no
+		}
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 0.9 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 7167
+			allow_spawning_on_enemy_provs = no
+		}
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 0.9 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 9934
+			allow_spawning_on_enemy_provs = no
+		}
+		set_country_flag = WW1_RCH_revolution_reserves_raised
+		if = {
+			limit = { NOT = { has_country_flag = endsieg_rations_disabled } }
+			endsieg_rations_measure_demand = yes
+			endsieg_rations_refresh_display = yes
+			endsieg_rations_update_ai_production = yes
+		}
+	}
+}
+
+
+# Additional provincial volunteers, once per revolt, including ongoing campaigns.
+# The Qing crisis ends with settlement; this must not support later Chinese wars.
+WW1_RCH_reinforce_xinhai_front = {
+	if = {
+		limit = {
+			tag = RCH
+			has_start_date < 1912.1.1
+			date < 1914.1.1
+			has_global_flag = xinhai_revolution
+			has_war_with = QIN
+			has_capitulated = no
+			any_owned_state = { is_controlled_by = RCH }
+			has_template = "Hubei Revolutionary Brigade"
+			has_country_flag = WW1_RCH_revolution_reserves_raised
+			NOT = { has_global_flag = qing_xinhai_settled }
+			NOT = { has_global_flag = end_of_qing }
+			NOT = { has_country_flag = WW1_RCH_xinhai_front_reinforced }
+		}
+		add_manpower = 60000
+		add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 18000 producer = RCH }
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 1.0 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 4619
+			allow_spawning_on_enemy_provs = no
+		}
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 1.0 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 4631
+			allow_spawning_on_enemy_provs = no
+		}
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 1.0 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 7167
+			allow_spawning_on_enemy_provs = no
+		}
+		create_unit = {
+			division = "division_template = \"Hubei Revolutionary Brigade\" start_experience_factor = 0.2 start_equipment_factor = 1.0 start_manpower_factor = 1.0"
+			owner = RCH
+			count = 2
+			prioritize_location = 9934
+			allow_spawning_on_enemy_provs = no
+		}
+		set_country_flag = WW1_RCH_xinhai_front_reinforced
+		# Recalculate against the larger army and top up once in existing saves too.
+		clr_country_flag = WW1_RCH_revolution_rations_issued
+		WW1_RCH_issue_revolution_rations = yes
 	}
 }
