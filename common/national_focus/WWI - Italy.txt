@@ -3,25 +3,1832 @@ focus_tree = {
 	id = italian_focus_ww1
 	country = { factor = 0 modifier = { add = 20000 date < 1936.1.1 has_start_date < 1936.1.1 OR = { tag = ITA tag = RSI tag = RDS } } }
 	default = no
-	initial_show_position = { focus = IT1_political_effort }
-	continuous_focus_position = { x = 0 y = 22 }
+	initial_show_position = { focus = IT1_national_opening }
+
+	# Branch navigation
+	shortcut = { name = WW1_layout_overview_shortcut target = IT1_national_opening scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_government_shortcut target = IT1_political_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_diplomacy_shortcut target = IT1_diplomatic_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_imperial_affairs_shortcut target = IT1_imperial_ambitions scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_industry_shortcut target = IT1_industrial_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_navy_shortcut target = IT1_naval_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_air_force_shortcut target = IT1_form_airforce scroll_wheel_factor = 0.60 }
+
+
+	continuous_focus_position = { x = 0 y = 2080 }
+
+	# Branch navigation
+
 
 	focus = {
+		id = IT1_national_opening
+		icon = GFX_goal_generic_political_pressure
+		x = 39
+		y = 0
+		cost = 3
+		bypass = { OR = { has_completed_focus = IT1_imperial_ambitions has_completed_focus = IT1_diplomatic_effort has_completed_focus = IT1_political_effort } }
+		ai_will_do = { factor = 50 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { add_stability = 0.02 }
+	}
+
+	focus = {
+		id = IT1_imperial_ambitions
+		icon = GFX_focus_generic_sympathetic_judges
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 25
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+
+			add_political_power = 50
+		}
+		prerequisite = { focus = IT1_national_opening }
+		relative_position_id = IT1_national_opening
+		x = 32
+		y = 1
+	}
+
+	focus = {
+		id = IT1_claims_libya
+		icon = GFX_focus_eng_global_defense
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 25
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.2 days = 1 }
+		}
+		prerequisite = { focus = IT1_imperial_ambitions }
+		mutually_exclusive = { focus = IT1_ww1_ottoman_accommodation }
+		relative_position_id = IT1_imperial_ambitions
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_ottoman_accommodation
+		icon = GFX_focus_SWI_neutrality_on_the_move
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = TUR has_war = no NOT = { has_global_flag = italo_turkish_war } }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.204 days = 1 }
+		}
+		prerequisite = { focus = IT1_imperial_ambitions }
+		mutually_exclusive = { focus = IT1_claims_libya }
+		relative_position_id = IT1_imperial_ambitions
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_eritrean_civil_service
+		icon = GFX_focus_SWI_dissolve_the_federal_council
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 owns_state = 550 controls_state = 550 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+
+			550 = { if = { limit = { is_owned_and_controlled_by = ROOT free_building_slots = { building = infrastructure size > 0 } } add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
+		}
+		prerequisite = { focus = IT1_imperial_ambitions }
+		relative_position_id = IT1_imperial_ambitions
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = IT1_italo_turkish_war
+		icon = GFX_focus_generic_government_in_exile
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { NOT = { is_in_faction_with = TUR }  date < 1936.1.1 date > 1911.9.28 country_exists = TUR NOT = { has_war_with = TUR } NOT = { has_global_flag = treaty_of_ouchy } NOT = { has_country_flag = IT1_ww1_ottoman_accommodation } }
+		ai_will_do = { factor = 80
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			set_technology = { ww1_transport = 1 }
+			country_event = { id = ww1_italy.1 days = 1 }
+		}
+		prerequisite = { focus = IT1_claims_libya }
+		relative_position_id = IT1_claims_libya
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_ottoman_trade_mission
+		icon = GFX_goal_generic_intelligence_exchange
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_country_flag = IT1_ww1_ottoman_accommodation }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			add_political_power = 25
+		}
+		prerequisite = { focus = IT1_ww1_ottoman_accommodation }
+		relative_position_id = IT1_ww1_ottoman_accommodation
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_colonial_sanitation
+		icon = GFX_focus_generic_bad_medical
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			add_political_power = -25
+			add_stability = 0.02
+		}
+		prerequisite = { focus = IT1_ww1_eritrean_civil_service }
+		relative_position_id = IT1_ww1_eritrean_civil_service
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_establish_italian_presence
+		icon = GFX_focus_NOR_restore_public_trust_in_the_storting
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_global_flag = treaty_of_ouchy owns_state = 448 controls_state = 448 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.3 days = 1 }
+		}
+		prerequisite = { focus = IT1_italo_turkish_war }
+		relative_position_id = IT1_italo_turkish_war
+		x = -5
+		y = 2
+	}
+
+	focus = {
+		id = IT1_roman_inheritance
+		icon = GFX_focus_ITA_king_vittorio
+		prerequisite = { focus = IT1_establish_italian_presence }
+		relative_position_id = IT1_establish_italian_presence
+		x = 6
+		y = 1
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			WW1_roman_campaign_available = yes
+			WW1_alt_development_open = yes
+			2 = { is_owned_and_controlled_by = ROOT }
+			448 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				OR = {
+					has_war = yes
+					NOT = { has_army_manpower = { size > 499999 } }
+					NOT = { has_navy_size = { size > 39 } }
+				}
+			}
+		}
+		completion_reward = {
+			add_war_support = 0.05
+			add_stability = -0.03
+		}
+	}
+
+	focus = {
+		id = IT1_roman_west
+		icon = GFX_focus_ITA_italian_irredentism
+		prerequisite = { focus = IT1_roman_inheritance }
+		relative_position_id = IT1_roman_inheritance
+		x = -9
+		y = 1
+		cost = 5
+		search_filters = { FOCUS_FILTER_ANNEXATION }
+		available = {
+			WW1_roman_campaign_available = yes
+		}
+		ai_will_do = { factor = 2 modifier = { factor = 0 has_war = yes } }
+		completion_reward = {
+			endsieg_fixed_effect_726170d3a0d657af = yes
+		}
+	}
+
+	focus = {
+		id = IT1_roman_africa
+		icon = GFX_focus_ITA_ministry_of_italian_africa
+		prerequisite = { focus = IT1_roman_inheritance }
+		relative_position_id = IT1_roman_inheritance
+		x = 0
+		y = 1
+		cost = 5
+		search_filters = { FOCUS_FILTER_ANNEXATION }
+		available = {
+			WW1_roman_campaign_available = yes
+		}
+		ai_will_do = { factor = 2 modifier = { factor = 0 has_war = yes } }
+		completion_reward = {
+			endsieg_fixed_effect_9b00d6f965a48351 = yes
+		}
+	}
+
+	focus = {
+		id = IT1_roman_east
+		icon = GFX_focus_ITA_italian_hegemony
+		prerequisite = { focus = IT1_roman_inheritance }
+		relative_position_id = IT1_roman_inheritance
+		x = 2
+		y = 1
+		cost = 5
+		search_filters = { FOCUS_FILTER_ANNEXATION }
+		available = {
+			WW1_roman_campaign_available = yes
+		}
+		ai_will_do = { factor = 2 modifier = { factor = 0 has_war = yes } }
+		completion_reward = {
+			endsieg_fixed_effect_226e0bee57a5195d = yes
+		}
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_roman_east }
+		prerequisite = { focus = IT1_roman_west }
+		prerequisite = { focus = IT1_roman_africa }
+		id = IT1_roman_proclamation
+		icon = GFX_focus_ITA_mare_nostrum
+		relative_position_id = IT1_roman_africa
+		x = -4
+		y = 2
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			WW1_roman_campaign_available = yes
+			2 = { is_owned_and_controlled_by = ROOT } # Rome
+			1 = { is_owned_and_controlled_by = ROOT } # Corsica
+			21 = { is_owned_and_controlled_by = ROOT } # Provence
+			165 = { is_owned_and_controlled_by = ROOT } # Catalonia
+			118 = { is_owned_and_controlled_by = ROOT } # Gibraltar
+			116 = { is_owned_and_controlled_by = ROOT } # Malta
+			448 = { is_owned_and_controlled_by = ROOT } # Tripoli
+			458 = { is_owned_and_controlled_by = ROOT } # Tunisia
+			460 = { is_owned_and_controlled_by = ROOT } # Eastern Algeria
+			447 = { is_owned_and_controlled_by = ROOT } # Alexandria
+			446 = { is_owned_and_controlled_by = ROOT } # Suez Canal
+			907 = { is_owned_and_controlled_by = ROOT } # Cairo
+			163 = { is_owned_and_controlled_by = ROOT } # Dalmatia
+			1005 = { is_owned_and_controlled_by = ROOT } # Athens
+			182 = { is_owned_and_controlled_by = ROOT } # Crete
+			341 = { is_owned_and_controlled_by = ROOT } # European shore of the Bosphorus
+			797 = { is_owned_and_controlled_by = ROOT } # Asian shore of the Bosphorus
+			339 = { is_owned_and_controlled_by = ROOT } # Smyrna
+			553 = { is_owned_and_controlled_by = ROOT } # Lebanon
+			has_completed_focus = IT1_roman_west
+			has_completed_focus = IT1_roman_east
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 25 }
+		completion_reward = {
+			set_cosmetic_tag = SPQR_UNIFIED
+			add_stability = 0.05
+			hidden_effect = { news_event = { id = ww1_italy.418 hours = 6 } }
+		}
+	}
+
+	focus = {
+		id = IT1_supress_senussi
+		icon = GFX_focus_SIA_the_midnight_meeting
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_global_flag = treaty_of_ouchy NOT = { has_country_flag = IT1_ww1_senussi_agreement } }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.4 days = 1 }
+		}
+		prerequisite = { focus = IT1_establish_italian_presence }
+		mutually_exclusive = { focus = IT1_ww1_senussi_accommodation }
+		relative_position_id = IT1_establish_italian_presence
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_senussi_accommodation
+		icon = GFX_focus_generic_commission
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.205 days = 1 }
+		}
+		prerequisite = { focus = IT1_establish_italian_presence }
+		mutually_exclusive = { focus = IT1_supress_senussi }
+		relative_position_id = IT1_establish_italian_presence
+		x = -6
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_dodecanese_administration
+		icon = GFX_focus_generic_vote
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 owns_state = 164 controls_state = 164 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			add_political_power = 25
+		}
+		prerequisite = { focus = IT1_establish_italian_presence }
+		relative_position_id = IT1_establish_italian_presence
+		x = 8
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_peaceful_colonial_order
+		icon = GFX_goal_generic_scientific_exchange
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			date < 1936.1.1
+			has_war = no
+			date > 1918.1.1
+			OR = {
+				has_completed_focus = IT1_ww1_colonial_autonomy_charters
+				has_completed_focus = IT1_ww1_colonial_sanitation
+				has_completed_focus = IT1_ww1_ottoman_trade_mission
+			}
+			OR = {
+				has_completed_focus = IT1_ww1_colonial_autonomy_charters
+				has_completed_focus = IT1_ww1_ottoman_trade_mission
+				has_completed_focus = IT1_ww1_colonial_sanitation
+			}
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+
+			add_stability = 0.03
+		}
+		prerequisite = { focus = IT1_establish_italian_presence focus = IT1_ww1_colonial_sanitation focus = IT1_ww1_eritrean_civil_service focus = IT1_ww1_ottoman_trade_mission }
+		relative_position_id = IT1_establish_italian_presence
+		x = 10
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_tripolitanian_road_services
+		icon = GFX_focus_PER_feat_of_engineering
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			448 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
+
+		}
+		prerequisite = { focus = IT1_supress_senussi focus = IT1_ww1_senussi_accommodation }
+		relative_position_id = IT1_supress_senussi
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_colonial_autonomy_charters
+		icon = GFX_focus_PER_constitutional_monarchy
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_local_charters } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_local_charters } add_stability = 0.02 }
+		}
+		prerequisite = { focus = IT1_ww1_tripolitanian_road_services }
+		relative_position_id = IT1_ww1_tripolitanian_road_services
+		x = -1
+		y = 2
+	}
+
+	focus = {
+		id = IT1_diplomatic_effort
+		icon = GFX_focus_POL_complete_april_constitution
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+
+			add_political_power = 50
+		}
+		prerequisite = { focus = IT1_national_opening }
+		relative_position_id = IT1_national_opening
+		x = -7
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_diplomatic_effort }
+		id = IT1_support_germany
+		icon = GFX_goal_generic_improve_relations
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = GER
+			has_completed_focus = IT1_diplomatic_effort
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.6 days = 1 }
+		}
+		relative_position_id = IT1_diplomatic_effort
+		x = 9
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_diplomatic_effort }
+		id = IT1_neutral_stance
+		icon = GFX_focus_generic_world_peace
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 date > 1914.7.31 NOT = { has_war_with = AUH }
+			has_completed_focus = IT1_diplomatic_effort
+		}
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.7 days = 1 }
+		}
+		relative_position_id = IT1_diplomatic_effort
+		x = 14
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_diplomatic_effort }
+		id = IT1_prepare_for_war
+		icon = GFX_goal_generic_military_sphere
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_diplomatic_effort
+		}
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.5 days = 1 }
+		}
+		relative_position_id = IT1_diplomatic_effort
+		x = -11
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_reform_implementation
+		icon = GFX_focus_generic_supply_line
+		prerequisite = { focus = IT1_prepare_for_war }
+		relative_position_id = IT1_prepare_for_war
+		x = 6
+		y = 1
+		cost = 5
+		available = { tag = ITA has_start_date < 1919.1.1 date < 1919.1.1 }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 8 }
+		completion_reward = {
+			if = { limit = { has_idea = italian_shit_military } swap_ideas = { remove_idea = italian_shit_military add_idea = IT1_ww1_army_transition } }
+		}
+	}
+
+	focus = {
+		id = IT1_ww1_reform_trials
+		icon = GFX_focus_generic_conference
+		prerequisite = { focus = IT1_ww1_reform_implementation }
+		relative_position_id = IT1_ww1_reform_implementation
+		x = 0
+		y = 2
+		cost = 5
+		available = { tag = ITA has_start_date < 1919.1.1 date < 1926.1.1 }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 10 }
+		completion_reward = {
+			remove_ideas = { italian_shit_military IT1_ww1_army_transition }
+			army_experience = 8
+		}
+	}
+
+
+	focus = {
+		id = IT1_honor_alliance
+		icon = GFX_goal_generic_military_deal
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = GER IT1_ww1_may_join_central = yes }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.12 days = 1 }
+		}
+		prerequisite = { focus = IT1_support_germany }
+		relative_position_id = IT1_support_germany
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = IT1_deal_with_france
+		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			OR = {
+				AND = { date < 1936.1.1 date > 1915.3.1 country_exists = FRA IT1_ww1_may_join_entente = yes }
+				AND = { WW1_historical_ai_preparation = yes NOT = { date < 1915.2.1 } country_exists = FRA IT1_ww1_may_join_entente = yes }
+			}
+		}
+		ai_will_do = { factor = 15
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.8 days = 1 }
+		}
+		prerequisite = { focus = IT1_neutral_stance }
+		relative_position_id = IT1_neutral_stance
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_continental_concert
+		icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 date > 1914.7.31 country_exists = FRA has_war = no is_in_faction = no NOT = { has_country_flag = IT1_ww1_armed_neutrality } }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.207 days = 1 }
+		}
+		prerequisite = { focus = IT1_prepare_for_war }
+		relative_position_id = IT1_prepare_for_war
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_cadorna_offensives
+		icon = GFX_goal_generic_major_war
+		cost = 8
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 6 }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_assault_corps } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_assault_corps } army_experience = 8 }
+			set_country_flag = IT1_ww1_offensive_army
+		}
+		prerequisite = { focus = IT1_prepare_for_war }
+		mutually_exclusive = { focus = IT1_ww1_early_command_reform }
+		relative_position_id = IT1_prepare_for_war
+		x = -6
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_early_command_reform
+		icon = GFX_focus_generic_military_academy
+		cost = 8
+		available = { date < 1936.1.1 }
+		ai_will_do = {
+			factor = 3
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			set_country_flag = IT1_ww1_reformed_army
+			if = {
+				limit = {
+					has_idea = italian_shit_military
+				}
+				swap_ideas = {
+					remove_idea = italian_shit_military
+					add_idea = IT1_ww1_army_transition
+				}
+			}
+		}
+		prerequisite = { focus = IT1_prepare_for_war }
+		mutually_exclusive = { focus = IT1_ww1_cadorna_offensives }
+		relative_position_id = IT1_prepare_for_war
+		x = -4
+		y = 1
+	}
+
+	focus = {
+		id = IT1_demand_tyrol
+		icon = GFX_focus_generic_military_mission
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = AUH NOT = { has_war_with = AUH } AUH = { owns_state = 850 owns_state = 39 } }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.13 days = 1 }
+		}
+		prerequisite = { focus = IT1_honor_alliance }
+		relative_position_id = IT1_honor_alliance
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = IT1_ww1_armed_neutrality
+		icon = GFX_goal_generic_neutrality_focus
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			date < 1936.1.1 has_war = no is_in_faction = no NOT = { has_country_flag = IT1_ww1_continental_bloc }
+			NOT = { has_completed_focus = IT1_honor_alliance_2 }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			set_country_flag = IT1_ww1_armed_neutrality
+			country_event = { id = ww1_italy.203 days = 1 }
+			add_ideas = IT1_ww1_armed_neutrality_spirit
+		}
+		prerequisite = { focus = IT1_neutral_stance }
+		mutually_exclusive = { focus = IT1_join_war }
+		relative_position_id = IT1_neutral_stance
+		x = -1
+		y = 3
+	}
+
+	focus = {
+		id = IT1_join_war
+		icon = GFX_focus_it1_join_war
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			OR = {
+				AND = { date < 1936.1.1 date > 1915.5.22 country_exists = AUH IT1_ww1_may_join_entente = yes has_country_flag = IT1_ww1_entente_offer_accepted }
+				AND = { WW1_historical_ai_preparation = yes NOT = { date < 1915.4.18 } country_exists = AUH IT1_ww1_may_join_entente = yes has_country_flag = IT1_ww1_entente_offer_accepted }
+			}
+		}
+		ai_will_do = { factor = 20
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.9 days = 1 }
+		}
+		prerequisite = { focus = IT1_deal_with_france }
+		mutually_exclusive = { focus = IT1_honor_alliance_2 }
+		mutually_exclusive = { focus = IT1_ww1_armed_neutrality }
+		relative_position_id = IT1_deal_with_france
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = IT1_honor_alliance_2
+		icon = GFX_goal_generic_major_alliance
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			date < 1936.1.1 has_country_flag = IT1_ww1_central_offer_accepted is_in_faction_with = GER GER = { OR = { has_war_with = FRA has_war_with = RIE } } NOT = { has_country_flag = IT1_ww1_armed_neutrality }
+			NOT = { has_completed_focus = IT1_ww1_armed_neutrality }
+			has_completed_focus = IT1_honor_alliance
+			has_completed_focus = IT1_honor_alliance
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.14 days = 1 }
+		}
+		mutually_exclusive = { focus = IT1_join_war }
+		relative_position_id = IT1_national_opening
+		x = 10
+		y = 5
+	}
+
+	focus = {
+		id = IT1_ww1_mediterranean_security
+		icon = GFX_focus_generic_improve_the_administration_2
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_country_flag = IT1_ww1_continental_bloc }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			add_ideas = IT1_ww1_mediterranean_council
+		}
+		prerequisite = { focus = IT1_ww1_continental_concert }
+		relative_position_id = IT1_ww1_continental_concert
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = IT1_entente_diplomacy
+		icon = GFX_focus_ww1_official_flag_ita_diplomacy
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1 OR = { is_in_faction_with = FRA is_in_faction_with = ENG } }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			army_experience = 5
+		}
+		prerequisite = { focus = IT1_join_war }
+		relative_position_id = IT1_join_war
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_adriatic_compact
+		icon = GFX_focus_generic_league_of_nations
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = AUH NOT = { has_war_with = AUH }
+			OR = { has_completed_focus = IT1_ww1_armed_neutrality has_completed_focus = IT1_ww1_continental_concert }
+			OR = { has_completed_focus = IT1_ww1_armed_neutrality has_completed_focus = IT1_ww1_continental_concert }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.206 days = 1 }
+		}
+		relative_position_id = IT1_national_opening
+		x = -29
+		y = 6
+	}
+
+	focus = {
+		id = IT1_claim_france
+		icon = GFX_goal_generic_more_territorial_claims
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = FRA is_in_faction_with = GER }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.15 days = 1 }
+		}
+		prerequisite = { focus = IT1_honor_alliance_2 }
+		relative_position_id = IT1_honor_alliance_2
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_caporetto_command_review
+		icon = GFX_focus_generic_advanced_military_studies
+		cost = 8
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = {
+			date < 1936.1.1
+			has_war = yes
+			date > 1917.10.24
+		}
+		ai_will_do = { factor = 7 }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			army_experience = 5
+		}
+		prerequisite = { focus = IT1_honor_alliance_2 focus = IT1_join_war }
+		relative_position_id = IT1_honor_alliance_2
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_request_allied_support
+		icon = GFX_focus_GER_philipp_holzmann
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = FRA is_in_faction_with = FRA has_war = yes }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.10 days = 1 }
+		}
+		prerequisite = { focus = IT1_entente_diplomacy }
+		relative_position_id = IT1_entente_diplomacy
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_albanian_guarantee
+		icon = GFX_goal_generic_alliance
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 country_exists = ALB ALB = { is_subject = no } NOT = { has_war_with = ALB } }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			diplomatic_relation = { country = ALB relation = guarantee active = yes }
+		}
+		prerequisite = { focus = IT1_ww1_adriatic_compact }
+		relative_position_id = IT1_ww1_adriatic_compact
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_mediation_conference
+		icon = GFX_goal_tripartite_pact
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = no has_country_flag = IT1_ww1_armed_neutrality }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.203 days = 1 }
+		}
+		prerequisite = { focus = IT1_ww1_adriatic_compact }
+		relative_position_id = IT1_ww1_adriatic_compact
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_western_campaign_plans
+		icon = GFX_SOV_no_time_for_peace_ccp_2d_sov_compatibility
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ARMY_XP }
+		available = {
+			date < 1936.1.1
+			has_war_with = FRA
+			is_in_faction_with = GER
+			country_exists = GER
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			army_experience = 10
+		}
+		prerequisite = { focus = IT1_claim_france }
+		relative_position_id = IT1_claim_france
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_diaz_reforms
+		icon = GFX_focus_chi_army_reform
+		cost = 10
+		available = { date < 1936.1.1 date > 1917.11.8 }
+		ai_will_do = { factor = 7 }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			set_country_flag = IT1_ww1_diaz_reforms
+			set_country_flag = IT1_ww1_diaz_command
+			hidden_effect = { country_event = { id = ww1_italy.210 hours = 1 } }
+			if = {
+				limit = {
+					has_idea = italian_shit_military
+				}
+				remove_ideas = italian_shit_military
+			}
+			if = {
+				limit = {
+					has_idea = IT1_ww1_army_transition
+				}
+				remove_ideas = IT1_ww1_army_transition
+			}
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_modernized_army } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_modernized_army } army_experience = 8 }
+			add_mastery_bonus = {
+				name = IT1_ww1_diaz_reforms_operations_programme
+				bonus = 0.2
+				days = 240
+				track = operations
+			}
+		}
+		prerequisite = { focus = IT1_ww1_caporetto_command_review }
+		mutually_exclusive = { focus = IT1_ww1_retain_old_command }
+		relative_position_id = IT1_ww1_caporetto_command_review
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_retain_old_command
+		icon = GFX_focus_AUS_bring_generals_out_of_retirement
+		cost = 8
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1 date > 1917.11.8 }
+		ai_will_do = {
+			factor = 2
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			army_experience = 10
+			set_country_flag = IT1_ww1_old_command_retained
+			add_mastery_bonus = {
+				name = IT1_ww1_retain_old_command_combat_support_programme
+				bonus = 0.2
+				days = 240
+				track = combat_support
+			}
+		}
+		prerequisite = { focus = IT1_ww1_caporetto_command_review }
+		mutually_exclusive = { focus = IT1_ww1_diaz_reforms }
+		relative_position_id = IT1_ww1_caporetto_command_review
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_request_allied_support focus = IT1_ww1_mediation_conference focus = IT1_ww1_mediterranean_security focus = IT1_ww1_western_campaign_plans }
+		id = IT1_ww1_postwar_diplomatic_settlement
+		icon = GFX_focus_generic_diplomatic_treaty
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1
+			OR = { has_completed_focus = IT1_request_allied_support has_completed_focus = IT1_ww1_mediation_conference has_completed_focus = IT1_ww1_mediterranean_security has_completed_focus = IT1_ww1_western_campaign_plans }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.208 days = 1 }
+		}
+		relative_position_id = IT1_request_allied_support
+		x = -8
+		y = 2
+	}
+
+	focus = {
+		id = IT1_ww1_independent_great_power
+		icon = GFX_focus_generic_blue_flags
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1 is_subject = no }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			add_political_power = 75
+			navy_experience = 10
+		}
+		prerequisite = { focus = IT1_ww1_postwar_diplomatic_settlement }
+		relative_position_id = IT1_ww1_postwar_diplomatic_settlement
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_political_effort
+		icon = GFX_focus_AUS_lawmaking_leniency
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+
+			add_political_power = 50
+		}
+		prerequisite = { focus = IT1_national_opening }
+		relative_position_id = IT1_national_opening
+		x = -32
+		y = 1
+	}
+
+	focus = {
+		id = IT1_democracy
+		icon = GFX_focus_usa_voter_registration_act
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_ideas = IT1_ww1_parliamentary_government
+			WW1_support_democratic_programme = yes
+		}
+		prerequisite = { focus = IT1_political_effort }
+		relative_position_id = IT1_political_effort
+		x = -2
+		y = 1
+	}
+
+	focus = {
+		id = IT1_patriotic_fervor
+		icon = GFX_focus_ITA_a_colonial_empire
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = yes }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.23 days = 1 }
+		}
+		prerequisite = { focus = IT1_political_effort }
+		relative_position_id = IT1_political_effort
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_free_speech
+		icon = GFX_focus_JAP_anti_militarist_speeches_in_the_diet
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt add_stability = 0.02 }
+		prerequisite = { focus = IT1_democracy }
+		relative_position_id = IT1_democracy
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_catholic_understanding
+		icon = GFX_focus_CHI_invoke_the_nine_powers
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_ideas = IT1_ww1_catholic_coalition
+
+		}
+		prerequisite = { focus = IT1_democracy }
+		relative_position_id = IT1_democracy
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_war_effort_part_1
+		icon = GFX_focus_generic_improve_the_administration
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = yes }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.16 days = 1 }
+		}
+		prerequisite = { focus = IT1_patriotic_fervor }
+		relative_position_id = IT1_patriotic_fervor
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_labor_pact
+		icon = GFX_focus_FIN_finnish_federation_of_trade_unions
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_timed_idea = { idea = IT1_ww1_strike_agreement days = 180 }
+
+		}
+		prerequisite = { focus = IT1_free_speech }
+		relative_position_id = IT1_free_speech
+		x = -2
+		y = 2
+	}
+
+	focus = {
+		id = IT1_homefront_focus_1
+		icon = GFX_focus_SWE_hygienic_housing
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = yes }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.20 days = 1 }
+		}
+		prerequisite = { focus = IT1_war_effort_part_1 }
+		relative_position_id = IT1_war_effort_part_1
+		x = -1
+		y = 2
+	}
+
+	focus = {
+		id = IT1_massive_war_effort
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = yes }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.11 days = 1 }
+		}
+		prerequisite = { focus = IT1_war_effort_part_1 }
+		relative_position_id = IT1_war_effort_part_1
+		x = 1
+		y = 2
+	}
+
+	focus = {
+		id = IT1_ww1_constitutional_settlement
+		icon = GFX_focus_generic_monarchy_1
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_ww1_catholic_understanding
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = ww1_italy.200 days = 1 }
+		}
+		prerequisite = { focus = IT1_ww1_labor_pact }
+		relative_position_id = IT1_ww1_labor_pact
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = IT1_homefront_focus_2
+		icon = GFX_focus_CHL_revise_the_social_classes
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = yes }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.21 days = 1 }
+		}
+		prerequisite = { focus = IT1_homefront_focus_1 }
+		relative_position_id = IT1_homefront_focus_1
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_liberal_cabinet
+		icon = GFX_focus_AST_a_democratic_bulwark
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			date < 1936.1.1
+			NOT = { has_completed_focus = IT1_ww1_republican_convention }
+			NOT = { has_completed_focus = IT1_ww1_socialist_congress }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		allow_branch = {
+			if = {
+				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
+				NOT = { OR = { has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_republican_convention has_completed_focus = IT1_ww1_socialist_congress } }
+			}
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_ideas = IT1_ww1_liberal_cabinet_spirit
+
+			set_country_flag = IT1_ww1_parliamentary_monarchy
+			clr_country_flag = IT1_ww1_royal_prerogative
+			if = { limit = { has_idea = IT1_ww1_parliamentary_government } remove_ideas = IT1_ww1_parliamentary_government }
+			mark_focus_tree_layout_dirty = yes
+
+			WW1_ITA_parliamentary_crown = yes
+			add_popularity = { ideology = democratic popularity = 0.10 }
+		}
+		prerequisite = { focus = IT1_ww1_constitutional_settlement }
+		mutually_exclusive = { focus = IT1_ww1_royal_cabinet }
+		relative_position_id = IT1_ww1_constitutional_settlement
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_royal_cabinet
+		icon = GFX_focus_NORDIC_mon_institution_1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			date < 1936.1.1
+			NOT = { has_completed_focus = IT1_ww1_socialist_congress }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		allow_branch = {
+			if = {
+				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
+				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_republican_convention has_completed_focus = IT1_ww1_socialist_congress } }
+			}
+		}
+		completion_reward = {
+			add_ideas = IT1_ww1_royal_cabinet_spirit
+
+			set_country_flag = IT1_ww1_royal_prerogative
+			clr_country_flag = IT1_ww1_parliamentary_monarchy
+			if = { limit = { has_idea = IT1_ww1_parliamentary_government } remove_ideas = IT1_ww1_parliamentary_government }
+			mark_focus_tree_layout_dirty = yes
+
+			set_politics = { ruling_party = neutrality elections_allowed = no }
+			add_popularity = { ideology = neutrality popularity = 0.10 }
+			WW1_consolidate_chosen_government = yes
+		}
+		prerequisite = { focus = IT1_ww1_constitutional_settlement }
+		mutually_exclusive = { focus = IT1_ww1_liberal_cabinet }
+		mutually_exclusive = { focus = IT1_ww1_republican_convention }
+		relative_position_id = IT1_ww1_constitutional_settlement
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_republican_convention
+		icon = GFX_focus_ETH_re-convene_the_parliament
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			date < 1936.1.1
+			NOT = { has_completed_focus = IT1_ww1_liberal_cabinet }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		allow_branch = {
+			if = {
+				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
+				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_socialist_congress } }
+			}
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.201 days = 1 }
+			mark_focus_tree_layout_dirty = yes
+		}
+		prerequisite = { focus = IT1_ww1_constitutional_settlement }
+		mutually_exclusive = { focus = IT1_ww1_royal_cabinet }
+		mutually_exclusive = { focus = IT1_ww1_socialist_congress }
+		relative_position_id = IT1_ww1_constitutional_settlement
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_constitutional_settlement }
+		prerequisite = { focus = IT1_ww1_labor_pact }
+		id = IT1_ww1_socialist_congress
+		icon = GFX_focus_por_workers_of_iberia
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = {
+			date < 1936.1.1 date > 1920.12.31
+			NOT = { has_completed_focus = IT1_ww1_liberal_cabinet }
+			NOT = { has_completed_focus = IT1_ww1_royal_cabinet }
+			has_completed_focus = IT1_ww1_constitutional_settlement
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		allow_branch = {
+			if = {
+				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
+				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_republican_convention } }
+			}
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.202 days = 1 }
+			mark_focus_tree_layout_dirty = yes
+		}
+		mutually_exclusive = { focus = IT1_ww1_republican_convention }
+		relative_position_id = IT1_ww1_constitutional_settlement
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = IT1_homefront_focus_3
+		icon = GFX_focus_generic_farmland
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = yes }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			country_event = { id = ww1_italy.22 days = 1 }
+		}
+		prerequisite = { focus = IT1_homefront_focus_2 }
+		relative_position_id = IT1_homefront_focus_2
+		x = -2
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_republican_guarantees
+		icon = GFX_focus_generic_court
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_country_flag = IT1_ww1_republican_constitution NOT = { has_country_flag = IT1_ww1_socialist_republic } }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		allow_branch = {
+			if = {
+				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
+				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_socialist_congress } }
+			}
+		}
+		completion_reward = {
+			add_ideas = IT1_ww1_republican_guarantees
+
+		}
+		prerequisite = { focus = IT1_ww1_republican_convention }
+		relative_position_id = IT1_ww1_republican_convention
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = IT1_ww1_workers_councils
+		icon = GFX_SOV_the_workers_dictatorship_ccp_2d_sov_compatibility
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_country_flag = IT1_ww1_socialist_republic }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		allow_branch = {
+			if = {
+				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
+				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_republican_convention } }
+			}
+		}
+		completion_reward = {
+			add_ideas = IT1_ww1_factory_councils
+
+		}
+		prerequisite = { focus = IT1_ww1_socialist_congress }
+		relative_position_id = IT1_ww1_socialist_congress
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_liberal_cabinet focus = IT1_ww1_republican_guarantees focus = IT1_ww1_royal_cabinet focus = IT1_ww1_workers_councils }
+		prerequisite = { focus = IT1_ww1_constitutional_settlement }
+		id = IT1_ww1_land_settlement_commission
+		icon = GFX_focus_generic_modernize_industry
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1
+			OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_republican_guarantees has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_workers_councils }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+
+			117 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
+		}
+		relative_position_id = IT1_ww1_republican_guarantees
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_constitutional_continuity
+		icon = GFX_focus_generic_treaty
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			set_country_flag = IT1_ww1_postwar_reform
+
+			add_political_power = 100
+		}
+		prerequisite = { focus = IT1_homefront_focus_3 focus = IT1_ww1_land_settlement_commission }
+		relative_position_id = IT1_ww1_land_settlement_commission
+		x = 6
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_national_opening }
 		id = IT1_industrial_effort
 		icon = GFX_focus_NORDIC_dem_civilian
-
 		cost = 5
 		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_national_opening
+		}
 		ai_will_do = { factor = 10 }
 		completion_reward = {
 			add_tech_bonus = { name = IT1_industrial_effort_programme_bonus bonus = 0.35 uses = 1 category = construction_tech }
 		}
-
-		x = 4
-		y = 0
+		relative_position_id = IT1_national_opening
+		x = -9
+		y = 1
 	}
 
+	focus = {
+		id = IT1_ww1_banking_committee
+		icon = GFX_focus_generic_central_planning
+		cost = 5
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 12 }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_tech_bonus = { name = IT1_ww1_procurement_bonus bonus = 0.35 uses = 1 category = industry }
+		}
+		prerequisite = { focus = IT1_industrial_effort }
+		relative_position_id = IT1_industrial_effort
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_precision_standardization
+		icon = GFX_focus_generic_industrial_experts
+		cost = 8
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
+		available = {
+			date < 1936.1.1
+			has_completed_focus = IT1_ww1_banking_committee
+			has_completed_focus = IT1_industrial_effort
+		}
+		ai_will_do = { factor = 5 }
+		completion_reward = {
+			add_tech_bonus = { name = IT1_ww1_precision_standardization_programme_bonus bonus = 0.5 uses = 1 category = industry }
+			add_tech_bonus = { name = IT1_ww1_precision_standardization_programme_bonus bonus = 0.35 uses = 1 category = support_tech }
+
+			if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = IT1_ww1_precision_standardization_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+		}
+		prerequisite = { focus = IT1_ww1_banking_committee }
+		relative_position_id = IT1_ww1_banking_committee
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_municipal_relief
+		icon = GFX_focus_generic_population_growth
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available = {
+			date < 1936.1.1
+		}
+		ai_will_do = { factor = 10 }
+		completion_reward = {
+			country_event = {
+				id = ww1_italy.211
+				days = 1
+			}
+			add_equipment_to_stockpile = {
+				type = convoy_1
+				amount = 10
+				producer = ROOT
+			}
+		}
+		prerequisite = { focus = IT1_ww1_banking_committee }
+		relative_position_id = IT1_ww1_banking_committee
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_industrial_effort }
+		id = IT1_naval_effort
+		icon = GFX_focus_JAP_assure_superior_naval_quality
+		cost = 5
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_industrial_effort
+		}
+		ai_will_do = { factor = 6 }
+		completion_reward = { navy_experience = 10 }
+		relative_position_id = IT1_industrial_effort
+		x = 34
+		y = 1
+	}
+
+	focus = {
+		id = IT1_dockyard_1
+		icon = GFX_focus_POL_develop_polish_shipbuilding
+		cost = 8
+		available = {
+			date < 1936.1.1
+			158 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = {
+					158 = { is_owned_and_controlled_by = ROOT }
+				}
+				158 = {
+					if = {
+						limit = {
+							is_owned_by = ROOT
+							is_fully_controlled_by = ROOT
+							is_core_of = ROOT
+							free_building_slots = { building = dockyard size > 0 include_locked = yes }
+						}
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = { type = dockyard level = 1 instant_build = yes }
+					}
+				}
+			}
+		}
+		prerequisite = { focus = IT1_naval_effort }
+		relative_position_id = IT1_naval_effort
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = IT1_form_airforce
+		icon = GFX_focus_CZE_military_aeronautical_institute
+		cost = 5
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 6 }
+		completion_reward = { air_experience = 10 }
+		prerequisite = { focus = IT1_industrial_effort }
+		relative_position_id = IT1_industrial_effort
+		x = -31
+		y = 1
+	}
+
+	focus = {
+		id = IT1_airfield_construction_1
+		icon = GFX_focus_NORDIC_dem_institution_2
+		cost = 5
+		available = {
+			date < 1936.1.1
+			2 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = {
+					2 = {
+						is_owned_and_controlled_by = ROOT
+						free_building_slots = { building = air_base size > 0 }
+					}
+				}
+				2 = {
+					if = {
+						limit = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT air_base < 10 }
+						add_building_construction = { type = air_base level = 1 instant_build = yes }
+					}
+				}
+			}
+		}
+		prerequisite = { focus = IT1_form_airforce }
+		relative_position_id = IT1_form_airforce
+		x = 1
+		y = 1
+	}
+
+	# Public administration and finance
+	focus = {
+		prerequisite = { focus = IT1_ww1_banking_committee }
+		id = IT1_ww1_budget_discipline
+		icon = GFX_focus_generic_monetary_union
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available = { date < 1936.1.1
+			OR = { has_completed_focus = IT1_ww1_audit_military_contracts has_completed_focus = IT1_ww1_banking_committee }
+		}
+		ai_will_do = { factor = 5 }
+		completion_reward = {
+			add_stability = 0.03
+		}
+		relative_position_id = IT1_national_opening
+		x = -20
+		y = 3
+	}
+
+	focus = {
+		id = IT1_ww1_veterans_pensions
+		icon = GFX_focus_generic_immigration
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
+		ai_will_do = {
+			factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			add_political_power = -25
+			add_stability = 0.03
+		}
+		relative_position_id = IT1_ww1_debt_conversion
+		x = 0
+		y = 1
+		prerequisite = { focus = IT1_ww1_debt_conversion }
+	}
+
+	focus = {
+		id = IT1_ww1_somali_coastal_services
+		icon = GFX_focus_NOR_drobak_coastal_fort
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 owns_state = 559 controls_state = 559 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			559 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
+
+		}
+		relative_position_id = IT1_ww1_eritrean_civil_service
+		x = 1
+		y = 1
+		prerequisite = { focus = IT1_ww1_eritrean_civil_service }
+	}
+
+	focus = {
+		id = IT1_ww1_permanent_colonial_budget
+		icon = GFX_focus_generic_anti_fascist_diplomacy
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = { add_stability = 0.01 }
+		relative_position_id = IT1_ww1_colonial_sanitation
+		x = 1
+		y = 2
+		prerequisite = { focus = IT1_ww1_colonial_sanitation }
+	}
+
+	focus = {
+		id = IT1_european_diplomacy
+		icon = GFX_focus_NORDIC_dem_institution_1
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_stability = 0.02
+
+
+		}
+		relative_position_id = IT1_diplomatic_effort
+		x = -15
+		y = 1
+		prerequisite = { focus = IT1_diplomatic_effort }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_catholic_understanding }
+		id = IT1_ww1_suffrage_implementation
+		icon = GFX_focus_generic_election
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_ww1_catholic_understanding
+		}
+		ai_will_do = { factor = 5
+		}
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt add_stability = 0.02 }
+		relative_position_id = IT1_national_opening
+		x = -33
+		y = 4
+	}
+
+	focus = {
+		id = IT1_ww1_royal_inspection_services
+		icon = GFX_focus_generic_monarchist_sentiment
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		allow_branch = {
+			if = {
+				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
+				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_republican_convention has_completed_focus = IT1_ww1_socialist_congress } }
+			}
+		}
+		completion_reward = {
+
+			 add_command_power = 10
+		}
+		relative_position_id = IT1_ww1_royal_cabinet
+		x = 0
+		y = 2
+		prerequisite = { focus = IT1_ww1_royal_cabinet }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_homefront_focus_3 focus = IT1_ww1_land_settlement_commission }
+		id = IT1_ww1_reintegration_of_veterans
+		icon = GFX_focus_eng_concessions_to_the_trade_unions
+		cost = 5
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1
+			OR = { has_completed_focus = IT1_homefront_focus_3 has_completed_focus = IT1_ww1_land_settlement_commission }
+			OR = { has_completed_focus = IT1_homefront_focus_3 has_completed_focus = IT1_ww1_land_settlement_commission }
+		}
+		ai_will_do = { factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = { add_stability = 0.01 }
+		relative_position_id = IT1_national_opening
+		x = -35
+		y = 13
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_army_effort }
+		id = IT1_ww1_rear_services
+		icon = GFX_goal_generic_construction2
+		cost = 5
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_army_effort
+		}
+		bypass = { has_tech = early_basic_train }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_tech_bonus = { name = IT1_ww1_rail_transport_bonus bonus = 0.35 uses = 1 technology = early_basic_train }
+		}
+		relative_position_id = IT1_national_opening
+		x = -16
+		y = 2
+	}
+
+	# Industry and infrastructure
 	focus = {
 		id = IT1_infrastructure_effort_1
 		icon = GFX_focus_SIA_night_time_training
@@ -42,11 +1849,10 @@ focus_tree = {
 				}
 			}
 		}
-
-		prerequisite = { focus = IT1_industrial_effort }
 		relative_position_id = IT1_industrial_effort
-		x = -3
+		x = -1
 		y = 1
+		prerequisite = { focus = IT1_industrial_effort }
 	}
 
 	focus = {
@@ -75,11 +1881,10 @@ focus_tree = {
 				}
 			}
 		}
-
-		prerequisite = { focus = IT1_industrial_effort }
 		relative_position_id = IT1_industrial_effort
-		x = -1
+		x = -17
 		y = 1
+		prerequisite = { focus = IT1_industrial_effort }
 	}
 
 	focus = {
@@ -108,21 +1913,23 @@ focus_tree = {
 				}
 			}
 		}
-
-		prerequisite = { focus = IT1_industrial_effort }
 		relative_position_id = IT1_industrial_effort
-		x = 1
+		x = 9
 		y = 1
+		prerequisite = { focus = IT1_industrial_effort }
 	}
 
 	focus = {
+		prerequisite = { focus = IT1_infrastructure_effort_1 }
 		id = IT1_infrastructure_effort_2
 		icon = GFX_goal_generic_construct_infrastructure
 
 		cost = 8
 
 		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_infrastructure_effort_1
+		}
 		ai_will_do = { factor = 5 }
 		completion_reward = {
 			117 = {
@@ -144,21 +1951,22 @@ focus_tree = {
 				}
 			}
 		}
-
-		prerequisite = { focus = IT1_infrastructure_effort_1 }
-		relative_position_id = IT1_infrastructure_effort_1
-		x = -1
-		y = 1
+		relative_position_id = IT1_national_opening
+		x = -43
+		y = 3
 	}
 
 	focus = {
+		prerequisite = { focus = IT1_construction_effort_1 }
 		id = IT1_construction_effort_2
 		icon = GFX_focus_NORDIC_dem_selector_civilian
 
 		cost = 8
 
 		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_construction_effort_1
+		}
 		ai_will_do = { factor = 5 }
 		completion_reward = {
 			158 = {
@@ -177,77 +1985,9 @@ focus_tree = {
 				}
 			}
 		}
-
-		prerequisite = { focus = IT1_construction_effort_1 }
-		relative_position_id = IT1_construction_effort_1
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_construction_effort_3
-		icon = GFX_focus_generic_industrialists
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5 }
-		completion_reward = {
-			162 = {
-				if = {
-					limit = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-						is_core_of = ROOT
-						free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
-					}
-					if = {
-						limit = { is_owned_and_controlled_by = ROOT }
-						add_extra_state_shared_building_slots = 1
-						add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
-					}
-				}
-			}
-		}
-
-		prerequisite = { focus = IT1_infrastructure_effort_2 focus = IT1_ww1_hydroelectric_consortium }
-		relative_position_id = IT1_ww1_hydroelectric_consortium
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_armament_effort_3
-		icon = GFX_focus_generic_military_industry
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5 }
-		completion_reward = {
-			161 = {
-				if = {
-					limit = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-						is_core_of = ROOT
-						free_building_slots = { building = arms_factory size > 0 include_locked = yes }
-					}
-					if = {
-						limit = { is_owned_and_controlled_by = ROOT }
-						add_extra_state_shared_building_slots = 1
-						add_building_construction = { type = arms_factory level = 1 instant_build = yes }
-					}
-				}
-			}
-		}
-
-		prerequisite = { focus = IT1_armament_effort_1 }
-		relative_position_id = IT1_armament_effort_1
-		x = -1
-		y = 1
+		relative_position_id = IT1_national_opening
+		x = -28
+		y = 3
 	}
 
 	focus = {
@@ -257,7 +1997,9 @@ focus_tree = {
 		cost = 8
 
 		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_construction_effort_2
+		}
 		ai_will_do = { factor = 5 }
 		completion_reward = {
 			add_tech_bonus = { name = IT1_ww1_hydroelectric_consortium_programme_bonus bonus = 0.5 uses = 1 category = industry }
@@ -271,39 +2013,22 @@ focus_tree = {
 				}
 			}
 		}
-
-		prerequisite = { focus = IT1_construction_effort_2 }
-		relative_position_id = IT1_construction_effort_2
-		x = 0
-		y = 1
+		relative_position_id = IT1_national_opening
+		x = -49
+		y = 3
 	}
 
 	focus = {
-		id = IT1_ww1_industrial_mobilization
-		icon = GFX_focus_AST_lithgow_small_arms_factory
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5 }
-		completion_reward = { add_ideas = IT1_ww1_industrial_mobilization_spirit }
-
-		prerequisite = { focus = IT1_armament_effort_3 }
-		prerequisite = { focus = IT1_ww1_audit_military_contracts }
-		relative_position_id = IT1_ww1_audit_military_contracts
-		x = -2
-		y = 1
-	}
-
-	focus = {
+		prerequisite = { focus = IT1_infrastructure_effort_2 focus = IT1_ww1_hydroelectric_consortium }
 		id = IT1_ww1_southern_development
 		icon = GFX_focus_generic_public_works
 
 		cost = 8
 
 		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 }
+		available = { date < 1936.1.1
+			OR = { has_completed_focus = IT1_infrastructure_effort_2 has_completed_focus = IT1_ww1_hydroelectric_consortium }
+		}
 		ai_will_do = {
 			factor = 5
 			modifier = { factor = 0 is_historical_focus_on = yes }
@@ -326,156 +2051,23 @@ focus_tree = {
 			}
 			add_tech_bonus = { name = IT1_ww1_southern_development_programme_bonus bonus = 0.35 uses = 1 category = construction_tech }
 		}
-
-		prerequisite = { focus = IT1_construction_effort_3 }
-		relative_position_id = IT1_construction_effort_3
-		x = 0
-		y = 1
+		relative_position_id = IT1_national_opening
+		x = -46
+		y = 4
 	}
 
 	focus = {
-
-		id = IT1_ww1_women_in_workshops
-		icon = GFX_focus_SOV_mobilization_plan
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 has_war = yes has_completed_focus = IT1_ww1_hydroelectric_consortium }
-		ai_will_do = { factor = 5 }
-		completion_reward = {
-			add_political_power = -25
-			add_stability = 0.03
-		}
-
-		prerequisite = { focus = IT1_ww1_hydroelectric_consortium }
-		prerequisite = { focus = IT1_ww1_private_consortia focus = IT1_ww1_state_arsenal_model }
-		relative_position_id = IT1_ww1_state_arsenal_model
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_state_arsenal_model
-		icon = GFX_focus_generic_steel
-
-		cost = 10
-
-		mutually_exclusive = { focus = IT1_ww1_private_consortia }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 }
-		ai_will_do = {
-			factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_ideas = IT1_ww1_state_arsenals
-			if = {
-				limit = {
-					158 = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-						free_building_slots = { building = arms_factory size > 0 include_locked = yes }
-					}
-				}
-				158 = {
-					if = {
-						limit = {
-							is_owned_by = ROOT
-							is_fully_controlled_by = ROOT
-							is_core_of = ROOT
-							free_building_slots = { building = arms_factory size > 0 include_locked = yes }
-						}
-						add_extra_state_shared_building_slots = 1
-						add_building_construction = { type = arms_factory level = 1 instant_build = yes }
-					}
-				}
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_industrial_mobilization }
-		relative_position_id = IT1_ww1_industrial_mobilization
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_private_consortia
-		icon = GFX_focus_GER_integrated_economies
-
-		cost = 10
-
-		mutually_exclusive = { focus = IT1_ww1_state_arsenal_model }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 }
-		ai_will_do = {
-			factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_ideas = IT1_ww1_private_consortia_spirit
-			if = {
-				limit = {
-					117 = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-						free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
-					}
-				}
-				117 = {
-					if = {
-						limit = {
-							is_owned_by = ROOT
-							is_fully_controlled_by = ROOT
-							is_core_of = ROOT
-							free_building_slots = { building = industrial_complex size > 0 include_locked = yes }
-						}
-						add_extra_state_shared_building_slots = 1
-						add_building_construction = { type = industrial_complex level = 1 instant_build = yes }
-					}
-				}
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_industrial_mobilization }
-		relative_position_id = IT1_ww1_industrial_mobilization
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_precision_standardization
-		icon = GFX_focus_generic_industrial_experts
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
-		available = {
-			date < 1936.1.1
-			has_completed_focus = IT1_ww1_banking_committee
-		}
-		ai_will_do = { factor = 5 }
-		completion_reward = {
-			add_tech_bonus = { name = IT1_ww1_precision_standardization_programme_bonus bonus = 0.5 uses = 1 category = industry }
-			add_tech_bonus = { name = IT1_ww1_precision_standardization_programme_bonus bonus = 0.35 uses = 1 category = support_tech }
-
-			if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = IT1_ww1_precision_standardization_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
-		}
-
-		prerequisite = { focus = IT1_ww1_women_in_workshops }
-		relative_position_id = IT1_ww1_women_in_workshops
-		x = 1
-		y = 1
-	}
-
-	focus = {
+		prerequisite = { focus = IT1_ww1_precision_standardization }
 		id = IT1_ww1_reconstruction_contracts
 		icon = GFX_focus_generic_steel_mill
 
 		cost = 10
 
 		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1
+			has_completed_focus = IT1_ww1_precision_standardization
+			has_completed_focus = IT1_ww1_southern_development
+		}
 		ai_will_do = {
 			factor = 5
 			modifier = { factor = 0 is_historical_focus_on = yes }
@@ -489,32 +2081,9 @@ focus_tree = {
 				category = construction_tech
 			}
 		}
-
-		prerequisite = { focus = IT1_ww1_precision_standardization }
-		prerequisite = { focus = IT1_ww1_southern_development }
-		relative_position_id = IT1_ww1_precision_standardization
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_banking_committee
-		icon = GFX_focus_generic_central_planning
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 12 }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_tech_bonus = { name = IT1_ww1_procurement_bonus bonus = 0.35 uses = 1 category = industry }
-		}
-
-		prerequisite = { focus = IT1_industrial_effort }
-		relative_position_id = IT1_industrial_effort
-		x = 3
-		y = 1
+		relative_position_id = IT1_national_opening
+		x = -16
+		y = 5
 	}
 
 	focus = {
@@ -533,11 +2102,10 @@ focus_tree = {
 				producer = ROOT
 			}
 		}
-
-		prerequisite = { focus = IT1_ww1_banking_committee }
 		relative_position_id = IT1_ww1_banking_committee
-		x = -1
+		x = 2
 		y = 1
+		prerequisite = { focus = IT1_ww1_banking_committee }
 	}
 
 	focus = {
@@ -563,11 +2131,10 @@ focus_tree = {
 				}
 			}
 		}
-
-		prerequisite = { focus = IT1_ww1_banking_committee }
 		relative_position_id = IT1_ww1_banking_committee
-		x = 1
+		x = 6
 		y = 1
+		prerequisite = { focus = IT1_ww1_banking_committee }
 	}
 
 	focus = {
@@ -579,17 +2146,11 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available = { date < 1936.1.1 }
 		ai_will_do = { factor = 5 }
-		completion_reward = {
-			add_timed_idea = {
-				idea = IT1_ww1_rationing
-				days = 180
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_grain_imports }
+		completion_reward = { add_tech_bonus = { name = IT1_ww1_national_food_commission bonus = 0.25 uses = 1 category = industry } }
 		relative_position_id = IT1_ww1_grain_imports
-		x = -1
-		y = 1
+		x = 0
+		y = 2
+		prerequisite = { focus = IT1_ww1_grain_imports }
 	}
 
 	focus = {
@@ -604,1966 +2165,52 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = 35
 		}
-
-		prerequisite = { focus = IT1_ww1_national_loan_market }
 		relative_position_id = IT1_ww1_national_loan_market
-		x = -1
-		y = 1
+		x = 0
+		y = 2
+		prerequisite = { focus = IT1_ww1_national_loan_market }
 	}
 
 	focus = {
-		id = IT1_ww1_municipal_relief
-		icon = GFX_focus_generic_population_growth
+		prerequisite = { focus = IT1_armament_effort_1 }
+		id = IT1_ww1_industrial_mobilization
+		icon = GFX_focus_AST_lithgow_small_arms_factory
 
-		cost = 10
+		cost = 8
 
 		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = {
-			date < 1936.1.1
+		available = { date < 1936.1.1 has_war = yes
+			has_completed_focus = IT1_armament_effort_1
+			has_completed_focus = IT1_ww1_audit_military_contracts
 		}
-		ai_will_do = { factor = 10 }
-		completion_reward = {
-			country_event = {
-				id = ww1_italy.211
-				days = 1
-			}
-			add_equipment_to_stockpile = {
-				type = convoy_1
-				amount = 10
-				producer = ROOT
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_national_food_commission }
-		relative_position_id = IT1_ww1_national_food_commission
-		x = 0
-		y = 1
+		ai_will_do = { factor = 5 }
+		completion_reward = { add_tech_bonus = { name = IT1_ww1_industrial_mobilization bonus = 0.25 uses = 1 category = industry } }
+		relative_position_id = IT1_national_opening
+		x = 4
+		y = 3
 	}
 
 	focus = {
-		id = IT1_ww1_budget_discipline
-		icon = GFX_focus_generic_monetary_union
+		prerequisite = { focus = IT1_ww1_hydroelectric_consortium }
+
+		id = IT1_ww1_women_in_workshops
+		icon = GFX_focus_SOV_mobilization_plan
 
 		cost = 5
 
 		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 }
+		available = { date < 1936.1.1 has_war = yes has_completed_focus = IT1_ww1_hydroelectric_consortium
+			has_completed_focus = IT1_ww1_hydroelectric_consortium
+			has_completed_focus = IT1_ww1_industrial_mobilization
+		}
 		ai_will_do = { factor = 5 }
 		completion_reward = {
-			add_stability = 0.03
-		}
-
-		prerequisite = { focus = IT1_ww1_audit_military_contracts focus = IT1_ww1_banking_committee }
-		relative_position_id = IT1_ww1_audit_military_contracts
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_debt_conversion
-		icon = GFX_goal_generic_construct_civ_factory
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
-		ai_will_do = {
-			factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_timed_idea = { idea = IT1_ww1_transition_economy days = 180 }
-			endsieg_ww1_update_war_industry = yes
-		}
-
-		prerequisite = { focus = IT1_ww1_budget_discipline focus = IT1_ww1_municipal_relief }
-		relative_position_id = IT1_ww1_municipal_relief
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_veterans_pensions
-		icon = GFX_focus_generic_immigration
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
-		ai_will_do = {
-			factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
 			add_political_power = -25
 			add_stability = 0.03
 		}
-
-		prerequisite = { focus = IT1_ww1_debt_conversion }
-		relative_position_id = IT1_ww1_debt_conversion
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_balanced_reconstruction
-		icon = GFX_goal_generic_construct_civilian
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
-		ai_will_do = {
-			factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_tech_bonus = {
-				name = IT1_ww1_balanced_reconstruction_programme_bonus
-				bonus = 0.5
-				uses = 1
-				category = industry
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_veterans_pensions }
-		prerequisite = { focus = IT1_ww1_reconstruction_contracts }
-		relative_position_id = IT1_ww1_reconstruction_contracts
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_imperial_ambitions
-		icon = GFX_focus_generic_sympathetic_judges
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 25
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-
-			add_political_power = 50
-		}
-
-		x = 16
-		y = 0
-	}
-
-	focus = {
-		id = IT1_claims_libya
-		icon = GFX_focus_eng_global_defense
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_ww1_ottoman_accommodation }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 25
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.2 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_imperial_ambitions }
-		relative_position_id = IT1_imperial_ambitions
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_ottoman_accommodation
-		icon = GFX_focus_SWI_neutrality_on_the_move
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_claims_libya }
-		available = { date < 1936.1.1 country_exists = TUR has_war = no NOT = { has_global_flag = italo_turkish_war } }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.204 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_imperial_ambitions }
-		relative_position_id = IT1_imperial_ambitions
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_eritrean_civil_service
-		icon = GFX_focus_SWI_dissolve_the_federal_council
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 owns_state = 550 controls_state = 550 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-
-			550 = { if = { limit = { is_owned_and_controlled_by = ROOT free_building_slots = { building = infrastructure size > 0 } } add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
-		}
-
-		prerequisite = { focus = IT1_imperial_ambitions }
-		relative_position_id = IT1_imperial_ambitions
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_italo_turkish_war
-		icon = GFX_focus_generic_government_in_exile
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { NOT = { is_in_faction_with = TUR }  date < 1936.1.1 date > 1911.9.28 country_exists = TUR NOT = { has_war_with = TUR } NOT = { has_global_flag = treaty_of_ouchy } NOT = { has_country_flag = IT1_ww1_ottoman_accommodation } }
-		ai_will_do = { factor = 80
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			set_technology = { ww1_transport = 1 }
-			country_event = { id = ww1_italy.1 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_claims_libya }
-		relative_position_id = IT1_claims_libya
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_ottoman_trade_mission
-		icon = GFX_goal_generic_intelligence_exchange
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_country_flag = IT1_ww1_ottoman_accommodation }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_political_power = 25
-		}
-
-		prerequisite = { focus = IT1_ww1_ottoman_accommodation }
-		relative_position_id = IT1_ww1_ottoman_accommodation
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_establish_italian_presence
-		icon = GFX_focus_NOR_restore_public_trust_in_the_storting
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_global_flag = treaty_of_ouchy owns_state = 448 controls_state = 448 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.3 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_italo_turkish_war }
-		relative_position_id = IT1_italo_turkish_war
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_supress_senussi
-		icon = GFX_focus_SIA_the_midnight_meeting
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_ww1_senussi_accommodation }
-		available = { date < 1936.1.1 has_global_flag = treaty_of_ouchy NOT = { has_country_flag = IT1_ww1_senussi_agreement } }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.4 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_establish_italian_presence }
-		relative_position_id = IT1_establish_italian_presence
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_senussi_accommodation
-		icon = GFX_focus_generic_commission
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_supress_senussi }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.205 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_establish_italian_presence }
-		relative_position_id = IT1_establish_italian_presence
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_colonial_sanitation
-		icon = GFX_focus_generic_bad_medical
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_political_power = -25
-			add_stability = 0.02
-		}
-
-		prerequisite = { focus = IT1_ww1_eritrean_civil_service }
-		relative_position_id = IT1_ww1_eritrean_civil_service
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_tripolitanian_road_services
-		icon = GFX_focus_PER_feat_of_engineering
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			448 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
-
-		}
-
-		prerequisite = { focus = IT1_supress_senussi focus = IT1_ww1_senussi_accommodation }
-		relative_position_id = IT1_ww1_senussi_accommodation
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_dodecanese_administration
-		icon = GFX_focus_generic_vote
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 owns_state = 164 controls_state = 164 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			add_political_power = 25
-		}
-
-		prerequisite = { focus = IT1_establish_italian_presence }
-		relative_position_id = IT1_establish_italian_presence
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_colonial_autonomy_charters
-		icon = GFX_focus_PER_constitutional_monarchy
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-
-			add_ideas = IT1_ww1_local_charters
-		}
-
-		prerequisite = { focus = IT1_ww1_tripolitanian_road_services }
-		relative_position_id = IT1_ww1_tripolitanian_road_services
-		x = 0
-		y = 1
-	}
-
-	focus = {
-
-		id = IT1_ww1_peaceful_colonial_order
-		icon = GFX_goal_generic_scientific_exchange
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = {
-			date < 1936.1.1
-			has_war = no
-			date > 1918.1.1
-			OR = {
-				has_completed_focus = IT1_ww1_colonial_autonomy_charters
-				has_completed_focus = IT1_ww1_colonial_sanitation
-				has_completed_focus = IT1_ww1_ottoman_trade_mission
-			}
-			OR = {
-				has_completed_focus = IT1_ww1_colonial_autonomy_charters
-				has_completed_focus = IT1_ww1_ottoman_trade_mission
-				has_completed_focus = IT1_ww1_colonial_sanitation
-			}
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-
-			add_stability = 0.03
-		}
-
-		prerequisite = { focus = IT1_establish_italian_presence focus = IT1_ww1_colonial_sanitation focus = IT1_ww1_eritrean_civil_service focus = IT1_ww1_ottoman_trade_mission }
-		relative_position_id = IT1_establish_italian_presence
-		x = 5
-		y = 1
-	}
-
-	focus = {
-		id = IT1_diplomatic_effort
-		icon = GFX_focus_POL_complete_april_constitution
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-
-			add_political_power = 50
-		}
-
-		x = 29
-		y = 0
-	}
-
-	focus = {
-		id = IT1_support_germany
-		icon = GFX_goal_generic_improve_relations
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 country_exists = GER }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.6 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_diplomatic_effort }
-		relative_position_id = IT1_diplomatic_effort
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_neutral_stance
-		icon = GFX_focus_generic_world_peace
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 date > 1914.7.31 NOT = { has_war_with = AUH } }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.7 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_diplomatic_effort }
-		relative_position_id = IT1_diplomatic_effort
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_prepare_for_war
-		icon = GFX_goal_generic_military_sphere
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.5 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_diplomatic_effort }
-		relative_position_id = IT1_diplomatic_effort
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_honor_alliance
-		icon = GFX_goal_generic_military_deal
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 country_exists = GER IT1_ww1_may_join_central = yes }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.12 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_support_germany }
-		relative_position_id = IT1_support_germany
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_deal_with_france
-		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = {
-			OR = {
-				AND = { date < 1936.1.1 date > 1915.3.1 country_exists = FRA IT1_ww1_may_join_entente = yes }
-				AND = { WW1_historical_ai_preparation = yes NOT = { date < 1915.2.1 } country_exists = FRA IT1_ww1_may_join_entente = yes }
-			}
-		}
-		ai_will_do = { factor = 15
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.8 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_neutral_stance }
-		relative_position_id = IT1_neutral_stance
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_continental_concert
-		icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 date > 1914.7.31 country_exists = FRA has_war = no is_in_faction = no NOT = { has_country_flag = IT1_ww1_armed_neutrality } }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.207 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_prepare_for_war }
-		relative_position_id = IT1_prepare_for_war
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_demand_tyrol
-		icon = GFX_focus_generic_military_mission
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 country_exists = AUH NOT = { has_war_with = AUH } AUH = { owns_state = 850 owns_state = 39 } }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.13 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_honor_alliance }
-		relative_position_id = IT1_honor_alliance
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_armed_neutrality
-		icon = GFX_goal_generic_neutrality_focus
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_join_war }
-		available = {
-			date < 1936.1.1 has_war = no is_in_faction = no NOT = { has_country_flag = IT1_ww1_continental_bloc }
-			NOT = { has_completed_focus = IT1_honor_alliance_2 }
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			set_country_flag = IT1_ww1_armed_neutrality
-			country_event = { id = ww1_italy.203 days = 1 }
-			add_ideas = IT1_ww1_armed_neutrality_spirit
-		}
-
-		prerequisite = { focus = IT1_neutral_stance }
-		relative_position_id = IT1_neutral_stance
-		x = -2
-		y = 2
-	}
-
-	focus = {
-		id = IT1_honor_alliance_2
-		icon = GFX_goal_generic_major_alliance
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_join_war }
-		available = {
-			date < 1936.1.1 has_country_flag = IT1_ww1_central_offer_accepted is_in_faction_with = GER GER = { OR = { has_war_with = FRA has_war_with = RIE } } NOT = { has_country_flag = IT1_ww1_armed_neutrality }
-			NOT = { has_completed_focus = IT1_ww1_armed_neutrality }
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.14 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_honor_alliance }
-		relative_position_id = IT1_honor_alliance
-		x = 6
-		y = 1
-	}
-
-	focus = {
-		id = IT1_join_war
-		icon = GFX_focus_it1_join_war
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_honor_alliance_2 focus = IT1_ww1_armed_neutrality }
-		available = {
-			OR = {
-				AND = { date < 1936.1.1 date > 1915.5.22 country_exists = AUH IT1_ww1_may_join_entente = yes has_country_flag = IT1_ww1_entente_offer_accepted }
-				AND = { WW1_historical_ai_preparation = yes NOT = { date < 1915.4.18 } country_exists = AUH IT1_ww1_may_join_entente = yes has_country_flag = IT1_ww1_entente_offer_accepted }
-			}
-		}
-		ai_will_do = { factor = 20
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.9 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_deal_with_france }
-		relative_position_id = IT1_deal_with_france
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_claim_france
-		icon = GFX_goal_generic_more_territorial_claims
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 country_exists = FRA is_in_faction_with = GER }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.15 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_honor_alliance_2 }
-		relative_position_id = IT1_honor_alliance_2
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_entente_diplomacy
-		icon = GFX_focus_ww1_official_flag_ita_diplomacy
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ARMY_XP }
-
-		available = { date < 1936.1.1 OR = { is_in_faction_with = FRA is_in_faction_with = ENG } }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			army_experience = 5
-		}
-
-		prerequisite = { focus = IT1_join_war }
-		relative_position_id = IT1_join_war
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_adriatic_compact
-		icon = GFX_focus_generic_league_of_nations
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 country_exists = AUH NOT = { has_war_with = AUH } }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.206 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_ww1_armed_neutrality focus = IT1_ww1_continental_concert }
-		relative_position_id = IT1_ww1_armed_neutrality
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_request_allied_support
-		icon = GFX_focus_GER_philipp_holzmann
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 country_exists = FRA is_in_faction_with = FRA has_war = yes }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.10 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_entente_diplomacy }
-		relative_position_id = IT1_entente_diplomacy
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_mediation_conference
-		icon = GFX_goal_tripartite_pact
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = no has_country_flag = IT1_ww1_armed_neutrality }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.203 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_ww1_adriatic_compact }
-		relative_position_id = IT1_ww1_adriatic_compact
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_albanian_guarantee
-		icon = GFX_goal_generic_alliance
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 country_exists = ALB ALB = { is_subject = no } NOT = { has_war_with = ALB } }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			diplomatic_relation = { country = ALB relation = guarantee active = yes }
-		}
-
-		prerequisite = { focus = IT1_ww1_adriatic_compact }
-		relative_position_id = IT1_ww1_adriatic_compact
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_mediterranean_security
-		icon = GFX_focus_generic_improve_the_administration_2
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_country_flag = IT1_ww1_continental_bloc }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_ideas = IT1_ww1_mediterranean_council
-		}
-
-		prerequisite = { focus = IT1_ww1_continental_concert }
-		relative_position_id = IT1_ww1_continental_concert
-		x = 4
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_western_campaign_plans
-		icon = GFX_SOV_no_time_for_peace_ccp_2d_sov_compatibility
-
-		cost = 10
-		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ARMY_XP }
-
-		available = {
-			date < 1936.1.1
-			has_war_with = FRA
-			is_in_faction_with = GER
-			country_exists = GER
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			army_experience = 10
-		}
-
-		prerequisite = { focus = IT1_claim_france }
-		relative_position_id = IT1_claim_france
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_postwar_diplomatic_settlement
-		icon = GFX_focus_generic_diplomatic_treaty
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.208 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_request_allied_support focus = IT1_ww1_mediation_conference focus = IT1_ww1_mediterranean_security focus = IT1_ww1_western_campaign_plans }
-		relative_position_id = IT1_request_allied_support
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_independent_great_power
-		icon = GFX_focus_generic_blue_flags
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_NAVY_XP }
-
-		available = { date < 1936.1.1 has_war = no date > 1918.1.1 is_subject = no }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			add_political_power = 75
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = IT1_ww1_postwar_diplomatic_settlement }
-		relative_position_id = IT1_ww1_postwar_diplomatic_settlement
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_political_effort
-		icon = GFX_focus_AUS_lawmaking_leniency
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-
-			add_political_power = 50
-		}
-
-		x = 43
-		y = 0
-	}
-
-	focus = {
-		id = IT1_democracy
-		icon = GFX_focus_usa_voter_registration_act
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_ideas = IT1_ww1_parliamentary_government
-			WW1_support_democratic_programme = yes
-		}
-
-		prerequisite = { focus = IT1_political_effort }
-		relative_position_id = IT1_political_effort
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_free_speech
-		icon = GFX_focus_JAP_anti_militarist_speeches_in_the_diet
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt add_stability = 0.02 }
-
-		prerequisite = { focus = IT1_democracy }
-		relative_position_id = IT1_democracy
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_catholic_understanding
-		icon = GFX_focus_CHI_invoke_the_nine_powers
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_ideas = IT1_ww1_catholic_coalition
-
-		}
-
-		prerequisite = { focus = IT1_democracy }
-		relative_position_id = IT1_democracy
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_patriotic_fervor
-		icon = GFX_focus_ITA_a_colonial_empire
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.23 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_political_effort }
-		relative_position_id = IT1_political_effort
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_labor_pact
-		icon = GFX_focus_FIN_finnish_federation_of_trade_unions
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_timed_idea = { idea = IT1_ww1_strike_agreement days = 180 }
-
-		}
-
-		prerequisite = { focus = IT1_free_speech }
-		relative_position_id = IT1_free_speech
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_constitutional_settlement
-		icon = GFX_focus_generic_monarchy_1
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.200 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_ww1_labor_pact }
-		prerequisite = { focus = IT1_ww1_catholic_understanding }
-		relative_position_id = IT1_ww1_labor_pact
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_liberal_cabinet
-		icon = GFX_focus_AST_a_democratic_bulwark
-
-		cost = 10
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_ww1_royal_cabinet }
-		available = {
-			date < 1936.1.1
-			NOT = { has_completed_focus = IT1_ww1_republican_convention }
-			NOT = { has_completed_focus = IT1_ww1_socialist_congress }
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		allow_branch = {
-			if = {
-				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
-				NOT = { OR = { has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_republican_convention has_completed_focus = IT1_ww1_socialist_congress } }
-			}
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_ideas = IT1_ww1_liberal_cabinet_spirit
-
-			set_country_flag = IT1_ww1_parliamentary_monarchy
-			clr_country_flag = IT1_ww1_royal_prerogative
-			if = { limit = { has_idea = IT1_ww1_parliamentary_government } remove_ideas = IT1_ww1_parliamentary_government }
-			mark_focus_tree_layout_dirty = yes
-
-			WW1_ITA_parliamentary_crown = yes
-			add_popularity = { ideology = democratic popularity = 0.10 }
-		}
-
-		prerequisite = { focus = IT1_ww1_constitutional_settlement }
-		relative_position_id = IT1_ww1_constitutional_settlement
-		x = -3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_royal_cabinet
-		icon = GFX_focus_NORDIC_mon_institution_1
-
-		cost = 10
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_ww1_liberal_cabinet focus = IT1_ww1_republican_convention }
-		available = {
-			date < 1936.1.1
-			NOT = { has_completed_focus = IT1_ww1_socialist_congress }
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		allow_branch = {
-			if = {
-				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
-				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_republican_convention has_completed_focus = IT1_ww1_socialist_congress } }
-			}
-		}
-		completion_reward = {
-			add_ideas = IT1_ww1_royal_cabinet_spirit
-
-			set_country_flag = IT1_ww1_royal_prerogative
-			clr_country_flag = IT1_ww1_parliamentary_monarchy
-			if = { limit = { has_idea = IT1_ww1_parliamentary_government } remove_ideas = IT1_ww1_parliamentary_government }
-			mark_focus_tree_layout_dirty = yes
-
-			set_politics = { ruling_party = neutrality elections_allowed = no }
-			add_popularity = { ideology = neutrality popularity = 0.10 }
-			WW1_consolidate_chosen_government = yes
-		}
-
-		prerequisite = { focus = IT1_ww1_constitutional_settlement }
-		relative_position_id = IT1_ww1_constitutional_settlement
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_republican_convention
-		icon = GFX_focus_ETH_re-convene_the_parliament
-
-		cost = 10
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_ww1_royal_cabinet focus = IT1_ww1_socialist_congress }
-		available = {
-			date < 1936.1.1
-			NOT = { has_completed_focus = IT1_ww1_liberal_cabinet }
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		allow_branch = {
-			if = {
-				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
-				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_socialist_congress } }
-			}
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.201 days = 1 }
-			mark_focus_tree_layout_dirty = yes
-		}
-
-		prerequisite = { focus = IT1_ww1_constitutional_settlement }
-		relative_position_id = IT1_ww1_constitutional_settlement
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_socialist_congress
-		icon = GFX_focus_por_workers_of_iberia
-
-		cost = 10
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		mutually_exclusive = { focus = IT1_ww1_republican_convention }
-		available = {
-			date < 1936.1.1 date > 1920.12.31
-			NOT = { has_completed_focus = IT1_ww1_liberal_cabinet }
-			NOT = { has_completed_focus = IT1_ww1_royal_cabinet }
-		}
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		allow_branch = {
-			if = {
-				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
-				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_republican_convention } }
-			}
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.202 days = 1 }
-			mark_focus_tree_layout_dirty = yes
-		}
-
-		prerequisite = { focus = IT1_ww1_constitutional_settlement }
-		relative_position_id = IT1_ww1_constitutional_settlement
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_war_effort_part_1
-		icon = GFX_focus_generic_improve_the_administration
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.16 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_patriotic_fervor }
-		relative_position_id = IT1_patriotic_fervor
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_homefront_focus_1
-		icon = GFX_focus_SWE_hygienic_housing
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.20 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_war_effort_part_1 }
-		relative_position_id = IT1_war_effort_part_1
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_republican_guarantees
-		icon = GFX_focus_generic_court
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_country_flag = IT1_ww1_republican_constitution NOT = { has_country_flag = IT1_ww1_socialist_republic } }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		allow_branch = {
-			if = {
-				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
-				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_socialist_congress } }
-			}
-		}
-		completion_reward = {
-			add_ideas = IT1_ww1_republican_guarantees
-
-		}
-
-		prerequisite = { focus = IT1_ww1_republican_convention }
-		relative_position_id = IT1_ww1_republican_convention
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_massive_war_effort
-		icon = GFX_goal_generic_occupy_states_ongoing_war
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = { id = ww1_italy.11 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_war_effort_part_1 }
-		relative_position_id = IT1_war_effort_part_1
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_homefront_focus_2
-		icon = GFX_focus_CHL_revise_the_social_classes
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.21 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_homefront_focus_1 }
-		relative_position_id = IT1_homefront_focus_1
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_workers_councils
-		icon = GFX_SOV_the_workers_dictatorship_ccp_2d_sov_compatibility
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_country_flag = IT1_ww1_socialist_republic }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		allow_branch = {
-			if = {
-				limit = { has_game_rule = { rule = obsolete_focus_branches_visibility option = HIDE } }
-				NOT = { OR = { has_completed_focus = IT1_ww1_liberal_cabinet has_completed_focus = IT1_ww1_royal_cabinet has_completed_focus = IT1_ww1_republican_convention } }
-			}
-		}
-		completion_reward = {
-			add_ideas = IT1_ww1_factory_councils
-
-		}
-
-		prerequisite = { focus = IT1_ww1_socialist_congress }
-		relative_position_id = IT1_ww1_socialist_congress
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_homefront_focus_3
-		icon = GFX_focus_generic_farmland
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = yes }
-		ai_will_do = { factor = 5
-		}
-		completion_reward = {
-			country_event = { id = ww1_italy.22 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_homefront_focus_2 }
-		relative_position_id = IT1_homefront_focus_2
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_land_settlement_commission
-		icon = GFX_focus_generic_modernize_industry
-
-		cost = 10
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-
-			117 = { if = { limit = { is_owned_and_controlled_by = ROOT } add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
-		}
-
-		prerequisite = { focus = IT1_ww1_liberal_cabinet focus = IT1_ww1_republican_guarantees focus = IT1_ww1_royal_cabinet focus = IT1_ww1_workers_councils }
-		relative_position_id = IT1_ww1_republican_guarantees
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_constitutional_continuity
-		icon = GFX_focus_generic_treaty
-
-		cost = 10
-		search_filters = { FOCUS_FILTER_POLITICAL }
-
-		available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
-		ai_will_do = { factor = 5
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			set_country_flag = IT1_ww1_postwar_reform
-
-			add_political_power = 100
-		}
-
-		prerequisite = { focus = IT1_homefront_focus_3 focus = IT1_ww1_land_settlement_commission }
-		relative_position_id = IT1_ww1_land_settlement_commission
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_cadorna_offensives
-		icon = GFX_goal_generic_major_war
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_early_command_reform }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 6 }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_timed_idea = {
-				idea = IT1_ww1_assault_corps
-				days = 120
-			}
-			set_country_flag = IT1_ww1_offensive_army
-		}
-
-		prerequisite = { focus = IT1_prepare_for_war }
-		relative_position_id = IT1_prepare_for_war
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_early_command_reform
-		icon = GFX_focus_generic_military_academy
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_cadorna_offensives }
-		available = { date < 1936.1.1 }
-		ai_will_do = {
-			factor = 3
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			set_country_flag = IT1_ww1_reformed_army
-			if = {
-				limit = {
-					has_idea = italian_shit_military
-				}
-				swap_ideas = {
-					remove_idea = italian_shit_military
-					add_idea = IT1_ww1_army_transition
-				}
-			}
-		}
-
-		prerequisite = { focus = IT1_prepare_for_war }
-		relative_position_id = IT1_prepare_for_war
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_caporetto_command_review
-		icon = GFX_focus_generic_advanced_military_studies
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_ARMY_XP }
-		available = {
-			date < 1936.1.1
-			has_war = yes
-			date > 1917.10.24
-		}
-		ai_will_do = { factor = 7 }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			army_experience = 5
-			country_event = { id = ww1_italy.210 days = 1 }
-		}
-
-		prerequisite = { focus = IT1_join_war focus = IT1_honor_alliance_2 }
-		relative_position_id = IT1_honor_alliance_2
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_diaz_reforms
-		icon = GFX_focus_chi_army_reform
-
-		cost = 10
-
-		mutually_exclusive = { focus = IT1_ww1_retain_old_command }
-		available = { date < 1936.1.1 date > 1917.11.8 }
-		ai_will_do = { factor = 7 }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			set_country_flag = IT1_ww1_diaz_reforms
-			if = {
-				limit = {
-					has_idea = italian_shit_military
-				}
-				remove_ideas = italian_shit_military
-			}
-			if = {
-				limit = {
-					has_idea = IT1_ww1_army_transition
-				}
-				remove_ideas = IT1_ww1_army_transition
-			}
-			add_ideas = IT1_ww1_modernized_army
-			add_mastery_bonus = {
-				name = IT1_ww1_diaz_reforms_operations_programme
-				bonus = 0.2
-				days = 240
-				track = operations
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_caporetto_command_review }
-		relative_position_id = IT1_ww1_caporetto_command_review
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_retain_old_command
-		icon = GFX_focus_AUS_bring_generals_out_of_retirement
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_diaz_reforms }
-		search_filters = { FOCUS_FILTER_ARMY_XP }
-		available = { date < 1936.1.1 date > 1917.11.8 }
-		ai_will_do = {
-			factor = 2
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			army_experience = 10
-			set_country_flag = IT1_ww1_old_command_retained
-			add_mastery_bonus = {
-				name = IT1_ww1_retain_old_command_combat_support_programme
-				bonus = 0.2
-				days = 240
-				track = combat_support
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_caporetto_command_review }
-		relative_position_id = IT1_ww1_caporetto_command_review
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_form_airforce
-		icon = GFX_focus_CZE_military_aeronautical_institute
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 6 }
-		completion_reward = { air_experience = 10 }
-
-		x = 55
-		y = 0
-	}
-
-	focus = {
-		id = IT1_bomber_focus
-		icon = GFX_focus_generic_multi_role_aircraft
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_light_bomb
-			}
-			else = { has_tech = light_bomb }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_air_bomb_trials_bonus bonus = 0.35 uses = 1 technology = early_light_bomb }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_air_bomb_trials_bonus bonus = 0.35 uses = 1 technology = light_bomb }
-			}
-		}
-
-		prerequisite = { focus = IT1_aviation_effort_1 }
-		relative_position_id = IT1_aviation_effort_1
-		x = -3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_tactical_bomber_1
-		icon = GFX_goal_generic_air_bomber
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_ww1_early_bomber
-			}
-			else = { has_tech = ww1_early_bomber }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_caproni_trimotor_bonus bonus = 0.35 uses = 1 technology = early_ww1_early_bomber }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_caproni_trimotor_bonus bonus = 0.35 uses = 1 technology = ww1_early_bomber }
-			}
-		}
-
-		prerequisite = { focus = IT1_bomber_focus }
-		relative_position_id = IT1_bomber_focus
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_tactical_bomber_2
-		icon = GFX_focus_SOV_flying_clubs
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_basic_bomber
-			}
-			else = { has_tech = basic_bomber }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_caproni_ca3_bonus bonus = 0.35 uses = 1 technology = early_basic_bomber }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_caproni_ca3_bonus bonus = 0.35 uses = 1 technology = basic_bomber }
-			}
-		}
-
-		prerequisite = { focus = IT1_tactical_bomber_1 }
-		relative_position_id = IT1_tactical_bomber_1
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_tactical_bomber_3
-		icon = GFX_goal_generic_air_naval_bomber
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 date > 1916.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_improved_bomber
-			}
-			else = { has_tech = improved_bomber }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_caproni_standardisation_bonus bonus = 0.35 uses = 1 technology = early_improved_bomber }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_caproni_standardisation_bonus bonus = 0.35 uses = 1 technology = improved_bomber }
-			}
-		}
-
-		prerequisite = { focus = IT1_tactical_bomber_2 }
-		relative_position_id = IT1_tactical_bomber_2
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_strategic_bomber_research_1
-		icon = GFX_focus_generic_copy_plane_designs
-
-		cost = 16
-
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = {
-			date < 1936.1.1
-			date > 1916.1.1
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = {
-				name = IT1_strategic_bomber_research_1_heavy_aircraft_programme
-				bonus = 0.15
-				days = 180
-				track = heavy_aircraft
-			}
-			add_mastery_bonus = { name = IT1_strat_bomber_1_heavy_aircraft_programme bonus = 0.15 days = 180 track = heavy_aircraft }
-		}
-
-		prerequisite = { focus = IT1_tactical_bomber_3 }
-		relative_position_id = IT1_tactical_bomber_3
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_aviation_effort_1
-		icon = GFX_focus_generic_pilot_training
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = { date < 1936.1.1 date > 1911.11.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_aviation_effort_1_medium_aircraft_programme bonus = 0.15 days = 180 track = medium_aircraft }
-		}
-
-		prerequisite = { focus = IT1_form_airforce }
-		relative_position_id = IT1_form_airforce
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_pilot_training_1
-		icon = GFX_focus_PRC_pilot_training
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_pilot_training_1_fighter_aircraft_programme bonus = 0.15 days = 180 track = fighter_aircraft }
-		}
-
-		prerequisite = { focus = IT1_aviation_effort_1 }
-		relative_position_id = IT1_aviation_effort_1
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_aviation_effort_2
-		icon = GFX_focus_BRA_air_force
-
-		cost = 5
-
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			air_experience = 10
-		}
-
-		prerequisite = { focus = IT1_pilot_training_1 }
-		relative_position_id = IT1_pilot_training_1
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_fighter_focus
-		icon = GFX_goal_generic_air_fighter
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_air_armaments
-			}
-			else = { has_tech = air_armaments }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_fighter_armament_bonus bonus = 0.35 uses = 1 technology = early_air_armaments }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_fighter_armament_bonus bonus = 0.35 uses = 1 technology = air_armaments }
-			}
-		}
-
-		prerequisite = { focus = IT1_aviation_effort_1 }
-		relative_position_id = IT1_aviation_effort_1
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_fighter_1
-		icon = GFX_goal_generic_air_production
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_prototype_fighter
-			}
-			else = { has_tech = prototype_fighter }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_macchi_nieuport_bonus bonus = 0.35 uses = 1 technology = early_prototype_fighter }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_macchi_nieuport_bonus bonus = 0.35 uses = 1 technology = prototype_fighter }
-			}
-		}
-
-		prerequisite = { focus = IT1_fighter_focus }
-		relative_position_id = IT1_fighter_focus
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_fighter_2
-		icon = GFX_goal_continuous_air_production
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 date > 1916.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_basic_fighter
-			}
-			else = { has_tech = basic_fighter }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_spad_bonus bonus = 0.35 uses = 1 technology = early_basic_fighter }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_spad_bonus bonus = 0.35 uses = 1 technology = basic_fighter }
-			}
-		}
-
-		prerequisite = { focus = IT1_fighter_1 }
-		relative_position_id = IT1_fighter_1
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_fighter_3
-		icon = GFX_SOV_an_adaptable_army_ccp_2d_sov_compatibility
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 date > 1916.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_improved_fighter
-			}
-			else = { has_tech = improved_fighter }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_ansaldo_sva_bonus bonus = 0.35 uses = 1 technology = early_improved_fighter }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_ansaldo_sva_bonus bonus = 0.35 uses = 1 technology = improved_fighter }
-			}
-		}
-
-		prerequisite = { focus = IT1_fighter_2 }
-		relative_position_id = IT1_fighter_2
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_improved_fighter_1
-		icon = GFX_focus_CHI_planned_economy
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
-		bypass = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				has_tech = early_air_armaments
-			}
-			else = { has_tech = air_armaments }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "By Blood Alone" }
-				add_tech_bonus = { name = IT1_ww1_synchronised_armament_bonus bonus = 0.35 uses = 1 technology = early_air_armaments }
-			}
-			else = {
-				add_tech_bonus = { name = IT1_ww1_synchronised_armament_bonus bonus = 0.35 uses = 1 technology = air_armaments }
-			}
-		}
-
-		prerequisite = { focus = IT1_fighter_2 }
-		relative_position_id = IT1_fighter_2
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_improved_fighter_2
-		icon = GFX_focus_generic_air_research_boost
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = { date < 1936.1.1 date > 1917.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_improved_fighter_2_fighter_aircraft_programme bonus = 0.15 days = 180 track = fighter_aircraft }
-		}
-
-		prerequisite = { focus = IT1_fighter_3 }
-		prerequisite = { focus = IT1_improved_fighter_1 }
-		relative_position_id = IT1_fighter_3
-		x = 1
-		y = 1
+		relative_position_id = IT1_national_opening
+		x = -51
+		y = 4
 	}
 
 	focus = {
@@ -2576,11 +2223,10 @@ focus_tree = {
 		available = { date < 1936.1.1 }
 		ai_will_do = { factor = 4 }
 		completion_reward = { air_experience = 5 army_experience = 5 }
-
-		prerequisite = { focus = IT1_fighter_3 focus = IT1_tactical_bomber_3 }
-		relative_position_id = IT1_fighter_3
+		relative_position_id = IT1_fighter_2
 		x = -1
-		y = 1
+		y = 2
+		prerequisite = { focus = IT1_fighter_2 focus = IT1_tactical_bomber_2 }
 	}
 
 	focus = {
@@ -2608,45 +2254,10 @@ focus_tree = {
 				add_tech_bonus = { name = IT1_ww1_contact_aircraft_bonus bonus = 0.35 uses = 1 technology = early_CAS }
 			}
 		}
-
-		prerequisite = { focus = IT1_cas_research }
 		relative_position_id = IT1_cas_research
-		x = 2
+		x = 0
 		y = 1
-	}
-
-	focus = {
-		id = IT1_airfield_construction_1
-		icon = GFX_focus_NORDIC_dem_institution_2
-
-		cost = 5
-
-		available = {
-			date < 1936.1.1
-			2 = { is_owned_and_controlled_by = ROOT }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = {
-					2 = {
-						is_owned_and_controlled_by = ROOT
-						free_building_slots = { building = air_base size > 0 }
-					}
-				}
-				2 = {
-					if = {
-						limit = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT air_base < 10 }
-						add_building_construction = { type = air_base level = 1 instant_build = yes }
-					}
-				}
-			}
-		}
-
-		prerequisite = { focus = IT1_aviation_effort_1 }
-		relative_position_id = IT1_aviation_effort_1
-		x = 3
-		y = 1
+		prerequisite = { focus = IT1_cas_research }
 	}
 
 	focus = {
@@ -2666,21 +2277,24 @@ focus_tree = {
 				track = medium_aircraft
 			}
 		}
-
-		prerequisite = { focus = IT1_aviation_effort_2 }
 		relative_position_id = IT1_aviation_effort_2
-		x = 0
+		x = -2
 		y = 1
+		prerequisite = { focus = IT1_aviation_effort_2 }
 	}
 
 	focus = {
+		prerequisite = { focus = IT1_ww1_photographic_reconnaissance }
 		id = IT1_ww1_fiat_aero_engines
 		icon = GFX_goal_generic_production2
 
 		cost = 8
 
 		search_filters = { FOCUS_FILTER_RESEARCH }
-		available = { date < 1936.1.1 }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_ww1_photographic_reconnaissance
+			has_completed_focus = IT1_airfield_construction_1
+		}
 		ai_will_do = { factor = 4 }
 		completion_reward = {
 			if = {
@@ -2691,704 +2305,9 @@ focus_tree = {
 				add_tech_bonus = { name = IT1_ww1_fiat_aero_engine_bonus bonus = 0.35 uses = 1 technology = engine }
 			}
 		}
-
-		prerequisite = { focus = IT1_ww1_photographic_reconnaissance }
-		prerequisite = { focus = IT1_airfield_construction_1 }
-		relative_position_id = IT1_ww1_photographic_reconnaissance
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_independent_bombing
-		icon = GFX_focus_generic_swooping_falcon
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_army_air_cooperation }
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = {
-			factor = 2
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			set_country_flag = IT1_ww1_independent_bombing
-			air_experience = 10
-			add_mastery_bonus = {
-				name = IT1_ww1_independent_bombing_heavy_aircraft_programme
-				bonus = 0.2
-				days = 240
-				track = heavy_aircraft
-			}
-		}
-
-		prerequisite = { focus = IT1_strategic_bomber_research_1 focus = IT1_tactical_bomber_3 }
-		relative_position_id = IT1_strategic_bomber_research_1
-		x = 1
-		y = 2
-	}
-
-	focus = {
-		id = IT1_ww1_army_air_cooperation
-		icon = GFX_SOV_raskovas_aviation_group_ccp_2d_sov_compatibility
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_independent_bombing }
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 6 }
-		completion_reward = {
-			air_experience = 5
-			set_country_flag = IT1_ww1_army_air_cooperation
-			add_mastery_bonus = {
-				name = IT1_ww1_army_air_cooperation_strike_aircraft_programme
-				bonus = 0.2
-				days = 240
-				track = strike_aircraft
-			}
-		}
-
-		prerequisite = { focus = IT1_cas_2 }
-		prerequisite = { focus = IT1_ww1_photographic_reconnaissance }
-		relative_position_id = IT1_cas_2
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_air_campaign_plan
-		icon = GFX_focus_generic_air_bases
-
-		cost = 10
-
-		search_filters = { FOCUS_FILTER_AIR_XP }
-		available = {
-			date < 1936.1.1
-			has_completed_focus = IT1_improved_fighter_2
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			air_experience = 10
-			add_command_power = 5
-			if = {
-				limit = {
-					has_completed_focus = IT1_ww1_independent_bombing
-				}
-				add_ideas = IT1_ww1_caproni_contracts
-			}
-			if = {
-				limit = {
-					has_completed_focus = IT1_ww1_army_air_cooperation
-				}
-				add_ideas = IT1_ww1_aviation_service
-			}
-			add_mastery_bonus = {
-				name = IT1_ww1_air_campaign_plan_medium_aircraft_programme
-				bonus = 0.15
-				days = 180
-				track = medium_aircraft
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_army_air_cooperation focus = IT1_ww1_independent_bombing }
-		prerequisite = { focus = IT1_ww1_fiat_aero_engines }
-		relative_position_id = IT1_ww1_independent_bombing
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_naval_effort
-		icon = GFX_focus_JAP_assure_superior_naval_quality
-
-		cost = 5
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 6 }
-		completion_reward = { navy_experience = 10 }
-
-		x = 68
-		y = 0
-	}
-
-	focus = {
-		id = IT1_dockyard_1
-		icon = GFX_focus_POL_develop_polish_shipbuilding
-
-		cost = 8
-
-		available = {
-			date < 1936.1.1
-			158 = { is_owned_and_controlled_by = ROOT }
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = {
-					158 = { is_owned_and_controlled_by = ROOT }
-				}
-				158 = {
-					if = {
-						limit = {
-							is_owned_by = ROOT
-							is_fully_controlled_by = ROOT
-							is_core_of = ROOT
-							free_building_slots = { building = dockyard size > 0 include_locked = yes }
-						}
-						add_extra_state_shared_building_slots = 1
-						add_building_construction = { type = dockyard level = 1 instant_build = yes }
-					}
-				}
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_naval_staff }
-		relative_position_id = IT1_ww1_naval_staff
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_dreadnought
-		icon = GFX_goal_generic_amphibious_assault
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = { name = IT1_ww1_dante_alighieri_bonus bonus = 0.35 uses = 1 technology = ww1_basic_ship_hull_heavy }
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_ww1_naval_staff }
-		relative_position_id = IT1_ww1_naval_staff
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_submarine_theory
-		icon = GFX_goal_generic_navy_submarine
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = { name = IT1_ww1_laurenti_bonus bonus = 0.35 uses = 1 technology = ww1_basic_ship_hull_submarine }
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_ww1_adriatic_observation }
-		relative_position_id = IT1_ww1_adriatic_observation
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_submarine_effort
-		icon = GFX_focus_generic_cruiser_submarines
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 date > 1915.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = { name = IT1_ww1_f_class_bonus bonus = 0.35 uses = 1 technology = ww1_improved_ship_hull_submarine }
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_submarine_theory }
-		relative_position_id = IT1_submarine_theory
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_destroyer_effort
-		icon = GFX_goal_generic_navy_anti_submarine
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = { name = IT1_ww1_indomito_pilo_bonus bonus = 0.35 uses = 1 technology = ww1_improved_ship_hull_light }
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_dreadnought }
-		relative_position_id = IT1_dreadnought
-		x = -3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_BB_effort
-		icon = GFX_focus_generic_large_navy
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = { name = IT1_ww1_cavour_duilio_bonus bonus = 0.35 uses = 1 technology = ww1_improved_ship_hull_heavy }
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_dreadnought }
-		relative_position_id = IT1_dreadnought
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_cruiser_effort
-		icon = GFX_goal_generic_navy_cruiser
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = { name = IT1_ww1_esploratori_bonus bonus = 0.35 uses = 1 technology = ww1_improved_ship_hull_cruiser }
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_destroyer_effort }
-		relative_position_id = IT1_destroyer_effort
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_battle_cruiser_effort
-		icon = GFX_focus_SMB_blue_water_fleet
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_battle_cruiser_effort_capital_ships_programme bonus = 0.15 days = 180 track = capital_ships }
-		}
-
-		prerequisite = { focus = IT1_BB_effort }
-		relative_position_id = IT1_BB_effort
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_adriatic_observation
-		icon = GFX_focus_BEL_antwerp_maritime_academy
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = IT1_ww1_naval_staff }
-		relative_position_id = IT1_ww1_naval_staff
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_naval_staff
-		icon = GFX_goal_generic_navy_doctrines_tactics
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = IT1_naval_effort }
-		relative_position_id = IT1_naval_effort
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_mas_flotillas
-		icon = GFX_focus_NORDIC_dem_selector_navy
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_ww1_mas_flotillas_screens_programme bonus = 0.15 days = 180 track = screens }
-		}
-
-		prerequisite = { focus = IT1_ww1_adriatic_observation }
-		relative_position_id = IT1_ww1_adriatic_observation
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_otranto_patrols
-		icon = GFX_focus_CHI_commemorate_labour_corp
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_merchant_convoys }
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = {
-			date < 1936.1.1
-			has_completed_focus = IT1_ww1_mas_flotillas
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = IT1_destroyer_effort }
-		relative_position_id = IT1_destroyer_effort
-		x = 5
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_adriatic_minefields
-		icon = GFX_focus_generic_mine_warfare
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = {
-					name = IT1_ww1_adriatic_mines_bonus
-					bonus = 0.35
-					uses = 1
-					technology = ww1_basic_naval_mines
-					technology = ww1_improved_naval_mines
-				}
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_ww1_merchant_convoys focus = IT1_ww1_otranto_patrols }
-		relative_position_id = IT1_ww1_otranto_patrols
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_port_approaches
-		icon = GFX_focus_JAP_expand_coal_islands
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_ww1_port_approaches_screens_programme bonus = 0.15 days = 180 track = screens }
-		}
-
-		prerequisite = { focus = IT1_ww1_adriatic_observation }
-		relative_position_id = IT1_ww1_adriatic_observation
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_merchant_convoys
-		icon = GFX_focus_ICE_modernizing_the_coast_guard
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_otranto_patrols }
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			navy_experience = 10
-			add_equipment_to_stockpile = {
-				type = convoy_1
-				amount = 15
-				producer = ROOT
-			}
-		}
-
-		prerequisite = { focus = IT1_ww1_port_approaches }
-		relative_position_id = IT1_ww1_port_approaches
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_antisubmarine_sections
-		icon = GFX_goal_generic_build_navy
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = {
-					name = IT1_ww1_escort_depth_charge_bonus
-					bonus = 0.35
-					uses = 1
-					technology = ww1_basic_depth_charges
-					technology = ww1_improved_depth_charges
-				}
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_ww1_merchant_convoys focus = IT1_ww1_otranto_patrols }
-		relative_position_id = IT1_ww1_otranto_patrols
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_macchi_patrol_aircraft
-		icon = GFX_focus_FIN_expand_air_force_academy
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_AIR_XP }
-		available = { date < 1936.1.1 }
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_ww1_macchi_patrol_aircraft_screens_programme bonus = 0.15 days = 180 track = screens }
-		}
-
-		prerequisite = { focus = IT1_ww1_antisubmarine_sections }
-		relative_position_id = IT1_ww1_antisubmarine_sections
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_decisive_battle_policy
-		icon = GFX_goal_generic_navy_battleship
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_revel_light_strategy }
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 has_completed_focus = IT1_ww1_naval_staff }
-		ai_will_do = {
-			factor = 2
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			set_country_flag = IT1_ww1_mediterranean_battle_fleet
-			navy_experience = 10
-			add_ideas = IT1_ww1_battlefleet_doctrine
-			add_mastery_bonus = {
-				name = IT1_ww1_decisive_battle_policy_capital_ships_programme
-				bonus = 0.2
-				days = 240
-				track = capital_ships
-			}
-		}
-
-		prerequisite = { focus = IT1_battle_cruiser_effort }
-		relative_position_id = IT1_battle_cruiser_effort
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_revel_light_strategy
-		icon = GFX_focus_GER_seeherrschaft
-
-		cost = 8
-
-		mutually_exclusive = { focus = IT1_ww1_decisive_battle_policy }
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = {
-			date < 1936.1.1
-			has_completed_focus = IT1_submarine_effort
-		}
-		ai_will_do = { factor = 7 }
-		completion_reward = {
-			set_country_flag = IT1_ww1_adriatic_light_strategy
-			navy_experience = 10
-			add_ideas = IT1_ww1_light_force_doctrine
-			add_mastery_bonus = {
-				name = IT1_ww1_revel_light_strategy_screens_programme
-				bonus = 0.2
-				days = 240
-				track = screens
-			}
-		}
-
-		prerequisite = { focus = IT1_cruiser_effort }
-		relative_position_id = IT1_cruiser_effort
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_caracciolo_priority
-		icon = GFX_goal_generic_occupy_states_coastal
-
-		cost = 10
-
-		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
-		available = { date < 1936.1.1 has_completed_focus = IT1_BB_effort }
-		ai_will_do = {
-			factor = 2
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			if = {
-				limit = { has_dlc = "Man the Guns" }
-				add_tech_bonus = { name = IT1_ww1_caracciolo_bonus bonus = 0.5 uses = 1 technology = ww1_advanced_ship_hull_heavy }
-			}
-			else = { navy_experience = 5 }
-		}
-
-		prerequisite = { focus = IT1_ww1_decisive_battle_policy }
-		relative_position_id = IT1_ww1_decisive_battle_policy
-		x = 0
-		y = 1
-	}
-
-	focus = {
-
-		id = IT1_ww1_mas_raid_schools
-		icon = GFX_focus_generic_naval_discipline
-
-		cost = 5
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = {
-			date < 1936.1.1
-			has_completed_focus = IT1_ww1_mas_flotillas
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_ww1_mas_raid_schools_screens_programme bonus = 0.15 days = 180 track = screens }
-		}
-
-		prerequisite = { focus = IT1_ww1_revel_light_strategy }
-		relative_position_id = IT1_ww1_revel_light_strategy
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = IT1_ww1_sicilian_fleet_support
-		icon = GFX_focus_generic_trade_interdiction
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = {
-			date < 1936.1.1
-			115 = {
-				is_owned_and_controlled_by = ROOT
-			}
-			has_completed_focus = IT1_dockyard_1
-		}
-		ai_will_do = {
-			factor = 3
-			modifier = { factor = 0 is_historical_focus_on = yes }
-		}
-		completion_reward = {
-			if = {
-				limit = {
-					115 = { is_owned_and_controlled_by = ROOT }
-				}
-				115 = {
-					if = {
-						limit = {
-							is_owned_by = ROOT
-							is_fully_controlled_by = ROOT
-							is_core_of = ROOT
-							free_building_slots = { building = dockyard size > 0 include_locked = yes }
-						}
-						add_extra_state_shared_building_slots = 1
-						add_building_construction = { type = dockyard level = 1 instant_build = yes }
-					}
-				}
-			}
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = IT1_ww1_caracciolo_priority }
-		prerequisite = { focus = IT1_ww1_arsenal_repair_network }
-		relative_position_id = IT1_ww1_caracciolo_priority
-		x = -1
-		y = 1
-	}
-
-	focus = {
-
-		id = IT1_ww1_premuda_reconnaissance
-		icon = GFX_focus_generic_navy_research_bonus
-
-		cost = 8
-
-		search_filters = { FOCUS_FILTER_NAVY_XP }
-		available = {
-			date < 1936.1.1
-			has_war = yes
-			date > 1918.3.1
-			has_completed_focus = IT1_ww1_adriatic_minefields
-		}
-		ai_will_do = { factor = 4 }
-		completion_reward = {
-			add_mastery_bonus = { name = IT1_ww1_premuda_reconnaissance_screens_programme bonus = 0.15 days = 180 track = screens }
-		}
-
-		prerequisite = { focus = IT1_ww1_mas_raid_schools }
-		prerequisite = { focus = IT1_ww1_macchi_patrol_aircraft }
-		relative_position_id = IT1_ww1_macchi_patrol_aircraft
-		x = -1
-		y = 1
+		relative_position_id = IT1_national_opening
+		x = -49
+		y = 8
 	}
 
 	focus = {
@@ -3421,13 +2340,13 @@ focus_tree = {
 			}
 			if = {
 				limit = {
-					has_completed_focus = IT1_ww1_otranto_patrols
+					OR = { has_completed_focus = IT1_ww1_mas_flotillas has_completed_focus = IT1_destroyer_effort }
 				}
 				navy_experience = 10
 			}
 			if = {
 				limit = {
-					has_completed_focus = IT1_ww1_merchant_convoys
+					has_completed_focus = IT1_ww1_port_approaches
 				}
 				navy_experience = 10
 			}
@@ -3438,11 +2357,1085 @@ focus_tree = {
 				track = screens
 			}
 		}
-
-		prerequisite = { focus = IT1_dockyard_1 }
 		relative_position_id = IT1_dockyard_1
+		x = 1
+		y = 2
+		prerequisite = { focus = IT1_dockyard_1 }
+	}
+
+	focus = {
+		id = IT1_ww1_adriatic_observation
+		icon = GFX_focus_BEL_antwerp_maritime_academy
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			navy_experience = 5
+		}
+		relative_position_id = IT1_ww1_naval_staff
+		x = -4
+		y = 2
+		prerequisite = { focus = IT1_ww1_naval_staff }
+	}
+
+	focus = {
+		id = IT1_ww1_mas_flotillas
+		icon = GFX_focus_NORDIC_dem_selector_navy
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_ww1_mas_flotillas_screens_programme bonus = 0.15 days = 180 track = screens }
+		}
+		relative_position_id = IT1_ww1_adriatic_observation
+		x = 1
+		y = 1
+		prerequisite = { focus = IT1_ww1_adriatic_observation }
+	}
+
+	focus = {
+		id = IT1_ww1_port_approaches
+		icon = GFX_focus_JAP_expand_coal_islands
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_ww1_port_approaches_screens_programme bonus = 0.15 days = 180 track = screens }
+		}
+		relative_position_id = IT1_ww1_adriatic_observation
+		x = 3
+		y = 1
+		prerequisite = { focus = IT1_ww1_adriatic_observation }
+	}
+
+	focus = {
+		id = IT1_ww1_adriatic_minefields
+		icon = GFX_focus_generic_mine_warfare
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = {
+					name = IT1_ww1_adriatic_mines_bonus
+					bonus = 0.35
+					uses = 1
+					technology = ww1_basic_naval_mines
+					technology = ww1_improved_naval_mines
+				}
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_ww1_port_approaches
+		x = 1
+		y = 1
+		prerequisite = { focus = IT1_ww1_port_approaches focus = IT1_ww1_mas_flotillas focus = IT1_destroyer_effort }
+	}
+
+	focus = {
+
+		id = IT1_ww1_mas_raid_schools
+		icon = GFX_focus_generic_naval_discipline
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = {
+			date < 1936.1.1
+			has_completed_focus = IT1_ww1_mas_flotillas
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_ww1_mas_raid_schools_screens_programme bonus = 0.15 days = 180 track = screens }
+		}
+		relative_position_id = IT1_cruiser_effort
+		x = -6
+		y = 2
+		prerequisite = { focus = IT1_cruiser_effort focus = IT1_submarine_effort }
+	}
+
+	focus = {
+		id = IT1_ww1_caracciolo_priority
+		icon = GFX_goal_generic_occupy_states_coastal
+
+		cost = 10
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 has_completed_focus = IT1_dreadnought }
+		ai_will_do = {
+			factor = 2
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = { name = IT1_ww1_caracciolo_bonus bonus = 0.5 uses = 1 technology = ww1_advanced_ship_hull_heavy }
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_battle_cruiser_effort
+		x = 0
+		y = 1
+		prerequisite = { focus = IT1_battle_cruiser_effort }
+	}
+
+	focus = {
+		id = IT1_ww1_debt_conversion
+		icon = GFX_goal_generic_construct_civ_factory
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1
+			OR = { has_completed_focus = IT1_ww1_budget_discipline has_completed_focus = IT1_ww1_municipal_relief }
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+
+			endsieg_ww1_update_war_industry = yes
+		}
+		relative_position_id = IT1_national_opening
+		x = -19
+		y = 4
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_reconstruction_contracts }
+		prerequisite = { focus = IT1_ww1_veterans_pensions }
+		id = IT1_ww1_balanced_reconstruction
+		icon = GFX_goal_generic_construct_civilian
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1
+			has_completed_focus = IT1_ww1_reconstruction_contracts
+			has_completed_focus = IT1_ww1_reconstruction_contracts
+			has_completed_focus = IT1_ww1_reconstruction_contracts
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			add_tech_bonus = {
+				name = IT1_ww1_balanced_reconstruction_programme_bonus
+				bonus = 0.5
+				uses = 1
+				category = industry
+			}
+		}
+		relative_position_id = IT1_ww1_veterans_pensions
+		x = 1
+		y = 1
+	}
+
+	# Army support and readiness
+	focus = {
+		id = IT1_army_effort
+		icon = GFX_focus_JAP_national_defense_brotherhood
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_prepare_for_war
+		}
+		ai_will_do = { factor = 8 }
+		completion_reward = { army_experience = 10 }
+		relative_position_id = IT1_national_opening
+		x = -11
+		y = 1
+	}
+
+	focus = {
+		id = IT1_trench_warfare
+		icon = GFX_focus_generic_home_defense
+		cost = 5
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		bypass = { has_tech = trench_warfare has_tech = wood_flooring }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_tech_bonus = { name = IT1_ww1_fieldworks_bonus bonus = 0.5 uses = 1 technology = trench_warfare technology = wood_flooring }
+			add_mastery_bonus = { name = IT1_trench_warfare_infantry_programme bonus = 0.15 days = 180 track = infantry }
+		}
+		relative_position_id = IT1_army_effort
+		x = -9
+		y = 1
+		prerequisite = { focus = IT1_army_effort }
+	}
+
+	focus = {
+		id = IT1_artillery_effort_1
+		icon = GFX_goal_generic_army_artillery2
+		cost = 8
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		bypass = { has_tech = early_artillery_1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_tech_bonus = { name = IT1_ww1_field_gun_bonus bonus = 0.35 uses = 1 technology = early_artillery_1 }
+		}
+		relative_position_id = IT1_army_effort
 		x = -3
 		y = 1
+		prerequisite = { focus = IT1_army_effort }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_artillery_effort_1 }
+		id = IT1_artillery_effort_2
+		icon = GFX_focus_generic_railway_gun
+		cost = 8
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_artillery_effort_1
+		}
+		bypass = { has_tech = early_artillery_2 has_tech = howitzer
+			has_completed_focus = IT1_artillery_effort_1
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_tech_bonus = {
+				name = IT1_ww1_heavy_howitzer_bonus
+				bonus = 0.35
+				uses = 1
+				technology = early_artillery_2
+				technology = howitzer
+			}
+		}
+		relative_position_id = IT1_artillery_effort_1
+		x = -4
+		y = 1
+	}
+
+	focus = {
+		id = IT1_artillery_effort_3
+		icon = GFX_goal_generic_army_artillery
+		cost = 8
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 date > 1915.1.1 }
+		bypass = { has_tech = howitzer2 has_tech = early_artillery_3 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_tech_bonus = { name = IT1_ww1_bombarde_bonus bonus = 0.35 uses = 1 technology = howitzer2 technology = early_artillery_3 }
+		}
+		relative_position_id = IT1_artillery_effort_1
+		x = 4
+		y = 1
+		prerequisite = { focus = IT1_artillery_effort_1 }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_artillery_effort_3 }
+		prerequisite = { focus = IT1_artillery_effort_2 }
+		id = IT1_artillery_effort_4
+		icon = GFX_focus_generic_little_entente
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_artillery_effort_3
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+
+			army_experience = 5
+			add_mastery_bonus = { name = IT1_artillery_effort_4 bonus = 0.25 days = 730 track = combat_support }
+			add_mastery_bonus = { name = IT1_artillery_effort_4_combat_support_programme bonus = 0.15 days = 180 track = combat_support }
+		}
+		relative_position_id = IT1_artillery_effort_2
+		x = 4
+		y = 2
+	}
+
+	focus = {
+		id = IT1_tactics_1
+		icon = GFX_focus_CHI_formalise_training_regime
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			army_experience = 10
+			add_mastery_bonus = { name = IT1_tactics_1 bonus = 0.25 days = 240 track = operations }
+			add_mastery_bonus = { name = IT1_tactics_1_operations_programme bonus = 0.15 days = 180 track = operations }
+		}
+		relative_position_id = IT1_army_effort
+		x = 3
+		y = 1
+		prerequisite = { focus = IT1_army_effort }
+	}
+
+	focus = {
+		id = IT1_tactics_2
+		icon = GFX_SOV_national_specialists_ccp_2d_sov_compatibility
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1 date > 1912.10.18 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			army_experience = 10
+			add_mastery_bonus = { name = IT1_tactics_2_operations_programme bonus = 0.15 days = 180 track = operations }
+		}
+		relative_position_id = IT1_tactics_1
+		x = 0
+		y = 1
+		prerequisite = { focus = IT1_tactics_1 }
+	}
+
+	focus = {
+		id = IT1_ww1_alpini_schools
+		icon = GFX_focus_PER_desert_training
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+
+			army_experience = 5
+		}
+		relative_position_id = IT1_army_effort
+		x = 9
+		y = 1
+		prerequisite = { focus = IT1_army_effort }
+	}
+
+	focus = {
+		id = IT1_ww1_mountain_guns
+		icon = GFX_goal_generic_construct_mil_factory
+		cost = 5
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 has_completed_focus = IT1_artillery_effort_2 }
+		bypass = { has_tech = howitzer2 has_tech = early_artillery_3 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_tech_bonus = { name = IT1_ww1_mountain_gun_bonus bonus = 0.35 uses = 1 technology = howitzer2 technology = early_artillery_3 }
+		}
+		relative_position_id = IT1_ww1_alpini_schools
+		x = 0
+		y = 1
+		prerequisite = { focus = IT1_ww1_alpini_schools }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_army_effort }
+
+		id = IT1_ww1_arditi
+		icon = GFX_goal_generic_axis_build_infantry
+		cost = 8
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1 date > 1917.7.28 OR = { has_completed_focus = IT1_artillery_effort_4 has_completed_focus = IT1_army_effort }
+			OR = { has_completed_focus = IT1_artillery_effort_4 has_completed_focus = IT1_army_effort }
+			has_completed_focus = IT1_army_effort
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+
+			army_experience = 5
+		}
+		relative_position_id = IT1_national_opening
+		x = -12
+		y = 2
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_artillery_effort_2 focus = IT1_ww1_cadorna_offensives }
+		id = IT1_ww1_officer_replacements
+		icon = GFX_focus_FIN_strengthen_military_administration
+		cost = 5
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1
+			OR = { has_completed_focus = IT1_artillery_effort_2 has_completed_focus = IT1_ww1_cadorna_offensives }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			army_experience = 10
+			add_command_power = 15
+			add_mastery_bonus = { name = IT1_ww1_officer_replacements_operations_programme bonus = 0.15 days = 180 track = operations }
+		}
+		relative_position_id = IT1_national_opening
+		x = -21
+		y = 4
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_rear_services }
+		id = IT1_ww1_field_hospitals
+		icon = GFX_focus_generic_field_hostpital
+		cost = 5
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_ww1_rear_services
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_tech_bonus = { name = IT1_ww1_field_hospitals_programme_bonus bonus = 0.5 uses = 1 technology = tech_field_hospital }
+		}
+		relative_position_id = IT1_national_opening
+		x = -16
+		y = 3
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_mountain_guns }
+		id = IT1_ww1_army_campaign_plan
+		icon = GFX_goal_generic_army_doctrines
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		available = { date < 1936.1.1 has_completed_focus = IT1_ww1_mountain_guns has_completed_focus = IT1_ww1_field_hospitals
+			OR = { has_completed_focus = IT1_ww1_diaz_reforms has_completed_focus = IT1_ww1_retain_old_command }
+			OR = { has_completed_focus = IT1_ww1_mountain_guns has_completed_focus = IT1_ww1_field_hospitals }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			army_experience = 15
+			add_command_power = 5
+
+			if = {
+				limit = { has_completed_focus = IT1_ww1_diaz_reforms }
+				add_mastery_bonus = { name = IT1_ww1_diaz_campaign_bonus bonus = 0.25 days = 180 track = operations }
+			}
+			if = {
+				limit = { has_completed_focus = IT1_ww1_retain_old_command }
+				add_mastery_bonus = { name = IT1_ww1_old_command_bonus bonus = 0.25 days = 180 track = combat_support }
+			}
+		}
+		relative_position_id = IT1_national_opening
+		x = -2
+		y = 4
+	}
+
+	# Naval programmes
+	focus = {
+		id = IT1_ww1_naval_staff
+		icon = GFX_goal_generic_navy_doctrines_tactics
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			navy_experience = 5
+		}
+		relative_position_id = IT1_naval_effort
+		x = -2
+		y = 1
+		prerequisite = { focus = IT1_naval_effort }
+	}
+
+	focus = {
+		id = IT1_dreadnought
+		icon = GFX_goal_generic_amphibious_assault
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = { name = IT1_ww1_dante_alighieri_bonus bonus = 0.35 uses = 1 technology = ww1_basic_ship_hull_heavy }
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_ww1_naval_staff
+		x = 3
+		y = 2
+		prerequisite = { focus = IT1_ww1_naval_staff }
+	}
+
+	focus = {
+		id = IT1_submarine_theory
+		icon = GFX_goal_generic_navy_submarine
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = { name = IT1_ww1_laurenti_bonus bonus = 0.35 uses = 1 technology = ww1_basic_ship_hull_submarine }
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_ww1_adriatic_observation
+		x = -5
+		y = 1
+		prerequisite = { focus = IT1_ww1_adriatic_observation }
+	}
+
+	focus = {
+		id = IT1_submarine_effort
+		icon = GFX_focus_generic_cruiser_submarines
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 date > 1915.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = { name = IT1_ww1_f_class_bonus bonus = 0.35 uses = 1 technology = ww1_improved_ship_hull_submarine }
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_submarine_theory
+		x = 0
+		y = 1
+		prerequisite = { focus = IT1_submarine_theory }
+	}
+
+	focus = {
+		id = IT1_destroyer_effort
+		icon = GFX_goal_generic_navy_anti_submarine
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = { name = IT1_ww1_indomito_pilo_bonus bonus = 0.35 uses = 1 technology = ww1_improved_ship_hull_light }
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_dreadnought
+		x = 0
+		y = 1
+		prerequisite = { focus = IT1_dreadnought }
+	}
+
+	focus = {
+		id = IT1_cruiser_effort
+		icon = GFX_goal_generic_navy_cruiser
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = { name = IT1_ww1_esploratori_bonus bonus = 0.35 uses = 1 technology = ww1_improved_ship_hull_cruiser }
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_destroyer_effort
+		x = 0
+		y = 1
+		prerequisite = { focus = IT1_destroyer_effort }
+	}
+
+	focus = {
+		id = IT1_battle_cruiser_effort
+		icon = GFX_focus_SMB_blue_water_fleet
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_battle_cruiser_effort_capital_ships_programme bonus = 0.15 days = 180 track = capital_ships }
+		}
+		relative_position_id = IT1_dreadnought
+		x = 2
+		y = 1
+		prerequisite = { focus = IT1_dreadnought }
+	}
+
+	focus = {
+		id = IT1_ww1_antisubmarine_sections
+		icon = GFX_goal_generic_build_navy
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = {
+					name = IT1_ww1_escort_depth_charge_bonus
+					bonus = 0.35
+					uses = 1
+					technology = ww1_basic_depth_charges
+					technology = ww1_improved_depth_charges
+				}
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_ww1_mas_flotillas
+		x = -1
+		y = 1
+		prerequisite = { focus = IT1_ww1_port_approaches focus = IT1_ww1_mas_flotillas focus = IT1_destroyer_effort }
+	}
+
+	focus = {
+		id = IT1_ww1_macchi_patrol_aircraft
+		icon = GFX_focus_FIN_expand_air_force_academy
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_AIR_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_ww1_macchi_patrol_aircraft_screens_programme bonus = 0.15 days = 180 track = screens }
+		}
+		relative_position_id = IT1_ww1_antisubmarine_sections
+		x = -1
+		y = 2
+		prerequisite = { focus = IT1_ww1_antisubmarine_sections }
+	}
+
+	focus = {
+		id = IT1_ww1_sicilian_fleet_support
+		icon = GFX_focus_generic_trade_interdiction
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = {
+			date < 1936.1.1
+			115 = {
+				is_owned_and_controlled_by = ROOT
+			}
+			has_completed_focus = IT1_dockyard_1
+			has_completed_focus = IT1_ww1_arsenal_repair_network
+		}
+		ai_will_do = {
+			factor = 3
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		completion_reward = {
+			if = {
+				limit = {
+					115 = { is_owned_and_controlled_by = ROOT }
+				}
+				115 = {
+					if = {
+						limit = {
+							is_owned_by = ROOT
+							is_fully_controlled_by = ROOT
+							is_core_of = ROOT
+							free_building_slots = { building = dockyard size > 0 include_locked = yes }
+						}
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = { type = dockyard level = 1 instant_build = yes }
+					}
+				}
+			}
+			navy_experience = 10
+		}
+		relative_position_id = IT1_ww1_caracciolo_priority
+		x = 0
+		y = 2
+		prerequisite = { focus = IT1_ww1_caracciolo_priority }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_mas_raid_schools }
+		prerequisite = { focus = IT1_ww1_macchi_patrol_aircraft }
+
+		id = IT1_ww1_premuda_reconnaissance
+		icon = GFX_focus_generic_navy_research_bonus
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		available = {
+			date < 1936.1.1
+			has_war = yes
+			date > 1918.3.1
+			has_completed_focus = IT1_ww1_adriatic_minefields
+			has_completed_focus = IT1_ww1_mas_raid_schools
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_ww1_premuda_reconnaissance_screens_programme bonus = 0.15 days = 180 track = screens }
+		}
+		relative_position_id = IT1_ww1_mas_raid_schools
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = IT1_ww1_torpedo_depots
+		icon = GFX_focus_JAP_expand_navy_technical_department
+		cost = 5
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "Man the Guns" }
+				add_tech_bonus = {
+					name = IT1_ww1_torpedo_depot_bonus
+					bonus = 0.35
+					uses = 1
+					technology = ww1_basic_torpedo
+					technology = ww1_improved_ship_torpedo_launcher
+				}
+			}
+			else = { navy_experience = 5 }
+		}
+		relative_position_id = IT1_ww1_adriatic_observation
+		x = 5
+		y = 1
+		prerequisite = { focus = IT1_ww1_adriatic_observation }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_ww1_municipal_relief }
+		id = IT1_ww1_shipping_insurance
+		icon = GFX_focus_ww1_pdx_native_it1_ww1_shipping_insurance
+		cost = 5
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available = { date < 1936.1.1
+			has_completed_focus = IT1_ww1_municipal_relief
+		}
+		ai_will_do = { factor = 5 }
+		completion_reward = {
+			add_equipment_to_stockpile = { type = convoy amount = 10 producer = ROOT }
+		}
+		relative_position_id = IT1_national_opening
+		x = -6
+		y = 4
+	}
+
+	# Aviation programmes
+	focus = {
+		id = IT1_aviation_effort_1
+		icon = GFX_focus_generic_pilot_training
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		available = { date < 1936.1.1 date > 1911.11.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_aviation_effort_1_medium_aircraft_programme bonus = 0.15 days = 180 track = medium_aircraft }
+		}
+		relative_position_id = IT1_form_airforce
+		x = -1
+		y = 1
+		prerequisite = { focus = IT1_form_airforce }
+	}
+
+	focus = {
+		id = IT1_bomber_focus
+		icon = GFX_focus_generic_multi_role_aircraft
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		bypass = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				has_tech = early_light_bomb
+			}
+			else = { has_tech = light_bomb }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				add_tech_bonus = { name = IT1_ww1_air_bomb_trials_bonus bonus = 0.35 uses = 1 technology = early_light_bomb }
+			}
+			else = {
+				add_tech_bonus = { name = IT1_ww1_air_bomb_trials_bonus bonus = 0.35 uses = 1 technology = light_bomb }
+			}
+		}
+		relative_position_id = IT1_aviation_effort_1
+		x = 0
+		y = 2
+		prerequisite = { focus = IT1_aviation_effort_1 }
+	}
+
+	focus = {
+		id = IT1_tactical_bomber_1
+		icon = GFX_goal_generic_air_bomber
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		bypass = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				has_tech = early_ww1_early_bomber
+			}
+			else = { has_tech = ww1_early_bomber }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				add_tech_bonus = { name = IT1_ww1_caproni_trimotor_bonus bonus = 0.35 uses = 1 technology = early_ww1_early_bomber }
+			}
+			else = {
+				add_tech_bonus = { name = IT1_ww1_caproni_trimotor_bonus bonus = 0.35 uses = 1 technology = ww1_early_bomber }
+			}
+		}
+		relative_position_id = IT1_bomber_focus
+		x = -4
+		y = 1
+		prerequisite = { focus = IT1_bomber_focus }
+	}
+
+	focus = {
+		id = IT1_tactical_bomber_2
+		icon = GFX_focus_SOV_flying_clubs
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		bypass = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				has_tech = early_basic_bomber
+			}
+			else = { has_tech = basic_bomber }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				add_tech_bonus = { name = IT1_ww1_caproni_ca3_bonus bonus = 0.35 uses = 1 technology = early_basic_bomber }
+			}
+			else = {
+				add_tech_bonus = { name = IT1_ww1_caproni_ca3_bonus bonus = 0.35 uses = 1 technology = basic_bomber }
+			}
+		}
+		relative_position_id = IT1_tactical_bomber_1
+		x = -2
+		y = 1
+		prerequisite = { focus = IT1_tactical_bomber_1 }
+	}
+
+	focus = {
+		id = IT1_strategic_bomber_research_1
+		icon = GFX_focus_generic_copy_plane_designs
+
+		cost = 16
+
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		available = {
+			date < 1936.1.1
+			date > 1916.1.1
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = {
+				name = IT1_strategic_bomber_research_1_heavy_aircraft_programme
+				bonus = 0.15
+				days = 180
+				track = heavy_aircraft
+			}
+			add_mastery_bonus = { name = IT1_strat_bomber_1_heavy_aircraft_programme bonus = 0.15 days = 180 track = heavy_aircraft }
+		}
+		relative_position_id = IT1_tactical_bomber_2
+		x = -1
+		y = 2
+		prerequisite = { focus = IT1_tactical_bomber_2 }
+	}
+
+	focus = {
+		id = IT1_pilot_training_1
+		icon = GFX_focus_PRC_pilot_training
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			add_mastery_bonus = { name = IT1_pilot_training_1_fighter_aircraft_programme bonus = 0.15 days = 180 track = fighter_aircraft }
+		}
+		relative_position_id = IT1_aviation_effort_1
+		x = -2
+		y = 2
+		prerequisite = { focus = IT1_aviation_effort_1 }
+	}
+
+	focus = {
+		id = IT1_aviation_effort_2
+		icon = GFX_focus_BRA_air_force
+
+		cost = 5
+
+		available = { date < 1936.1.1 }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			air_experience = 10
+		}
+		relative_position_id = IT1_pilot_training_1
+		x = -4
+		y = 1
+		prerequisite = { focus = IT1_pilot_training_1 }
+	}
+
+	focus = {
+		id = IT1_fighter_focus
+		icon = GFX_goal_generic_air_fighter
+
+		cost = 5
+
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		bypass = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				has_tech = early_air_armaments
+			}
+			else = { has_tech = air_armaments }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				add_tech_bonus = { name = IT1_ww1_fighter_armament_bonus bonus = 0.35 uses = 1 technology = early_air_armaments }
+			}
+			else = {
+				add_tech_bonus = { name = IT1_ww1_fighter_armament_bonus bonus = 0.35 uses = 1 technology = air_armaments }
+			}
+		}
+		relative_position_id = IT1_aviation_effort_1
+		x = 2
+		y = 2
+		prerequisite = { focus = IT1_aviation_effort_1 }
+	}
+
+	focus = {
+		id = IT1_fighter_1
+		icon = GFX_goal_generic_air_production
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 }
+		bypass = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				has_tech = early_prototype_fighter
+			}
+			else = { has_tech = prototype_fighter }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				add_tech_bonus = { name = IT1_ww1_macchi_nieuport_bonus bonus = 0.35 uses = 1 technology = early_prototype_fighter }
+			}
+			else = {
+				add_tech_bonus = { name = IT1_ww1_macchi_nieuport_bonus bonus = 0.35 uses = 1 technology = prototype_fighter }
+			}
+		}
+		relative_position_id = IT1_fighter_focus
+		x = -3
+		y = 1
+		prerequisite = { focus = IT1_fighter_focus }
+	}
+
+	focus = {
+		id = IT1_fighter_2
+		icon = GFX_goal_continuous_air_production
+
+		cost = 8
+
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available = { date < 1936.1.1 date > 1916.1.1 }
+		bypass = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				has_tech = early_basic_fighter
+			}
+			else = { has_tech = basic_fighter }
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			if = {
+				limit = { has_dlc = "By Blood Alone" }
+				add_tech_bonus = { name = IT1_ww1_spad_bonus bonus = 0.35 uses = 1 technology = early_basic_fighter }
+			}
+			else = {
+				add_tech_bonus = { name = IT1_ww1_spad_bonus bonus = 0.35 uses = 1 technology = basic_fighter }
+			}
+		}
+		relative_position_id = IT1_fighter_1
+		x = -3
+		y = 1
+		prerequisite = { focus = IT1_fighter_1 }
+	}
+
+	focus = {
+		prerequisite = { focus = IT1_fighter_2 }
+		id = IT1_ww1_air_campaign_plan
+		icon = GFX_focus_generic_air_bases
+
+		cost = 10
+
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		available = {
+			date < 1936.1.1
+			has_completed_focus = IT1_fighter_2
+
+			OR = { has_completed_focus = IT1_cas_2 has_completed_focus = IT1_ww1_photographic_reconnaissance has_completed_focus = IT1_strategic_bomber_research_1 has_completed_focus = IT1_tactical_bomber_2 }
+			has_completed_focus = IT1_ww1_fiat_aero_engines
+		}
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+			air_experience = 10
+			add_command_power = 5
+			if = {
+				limit = {
+					OR = { has_completed_focus = IT1_strategic_bomber_research_1 has_completed_focus = IT1_tactical_bomber_2 }
+				}
+				if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_caproni_contracts } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_caproni_contracts } air_experience = 8 }
+			}
+			if = {
+				limit = {
+					OR = { has_completed_focus = IT1_cas_2 has_completed_focus = IT1_ww1_photographic_reconnaissance }
+				}
+				if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_aviation_service } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_aviation_service } air_experience = 8 }
+			}
+			add_mastery_bonus = {
+				name = IT1_ww1_air_campaign_plan_medium_aircraft_programme
+				bonus = 0.15
+				days = 180
+				track = medium_aircraft
+			}
+		}
+		relative_position_id = IT1_national_opening
+		x = -44
+		y = 8
 	}
 
 }

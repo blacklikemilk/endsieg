@@ -1,0 +1,49 @@
+# Romanian historical AI follows its own Entente focuses before intervening.
+# Run only against an ongoing Great War and never undo a conflicting path.
+WW1_ROM_historical_entry = {
+ if = {
+  limit = {
+   tag = ROM is_ai = yes is_historical_focus_on = yes
+   has_focus_tree = generic_focus_ww1 has_start_date < 1919.1.1
+   NOT = { date < 1916.8.27 } date < 1919.1.1
+   has_global_flag = WW1_starts
+   NOT = { has_global_flag = compiegne }
+   NOT = { has_global_flag = versailles }
+   NOT = { has_global_flag = central_powers_victory }
+   NOT = { has_country_flag = WW1_ROM_historical_war_entry }
+   is_subject = no has_capitulated = no
+   country_exists = FRA country_exists = AUH country_exists = GER
+   FRA = { is_faction_leader = yes FR3_R_may_enter_entente = yes has_war_with = AUH has_war_with = GER }
+   OR = { is_in_faction = no WW1_is_balkan_league_member = yes is_in_faction_with = FRA }
+   NOT = { has_war_with = FRA }
+   NOT = { is_in_faction_with = AUH }
+   NOT = { is_in_faction_with = GER }
+   NOT = { has_non_aggression_pact_with = AUH }
+   NOT = { has_completed_focus = shared_GEN_support_central_powers }
+   NOT = { has_completed_focus = shared_GEN_join_cp }
+   NOT = { has_completed_focus = shared_GEN_send_volunteers_2 }
+   NOT = { has_completed_focus = shared_GEN_neutrality_focus }
+   NOT = { has_idea = neutrality_idea }
+   FRA = { ROOT = { WW1_country_faction_path_allows_previous = yes } }
+  }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_industrial_effort } } complete_national_focus = shared_GEN_industrial_effort }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_political_effort } } complete_national_focus = shared_GEN_political_effort }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_take_position } } complete_national_focus = shared_GEN_take_position }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_support_entente } } complete_national_focus = shared_GEN_support_entente }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_state_claims_2 } } complete_national_focus = shared_GEN_state_claims_2 }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_send_aid_2 } } complete_national_focus = shared_GEN_send_aid_2 }
+  if = { limit = { NOT = { has_completed_focus = shared_GEN_join_entente } } complete_national_focus = shared_GEN_join_entente }
+  # Focus rewards can be evaluated before completion is registered; retry the
+  # existing faction effect explicitly now and on subsequent days if needed.
+  if = { limit = { has_completed_focus = shared_GEN_join_entente NOT = { is_in_faction_with = FRA } } set_country_flag = WW1_focus_faction_entente_pending WW1_complete_focus_faction_entry = yes }
+  if = {
+   limit = { is_in_faction_with = FRA NOT = { has_war_with = AUH } }
+   declare_war_on = { target = AUH type = annex_everything }
+  }
+  if = {
+   limit = { is_in_faction_with = FRA has_war_with = AUH }
+   set_country_flag = WW1_ROM_historical_war_entry
+   if = { limit = { NOT = { has_global_flag = WW1_ROM_war_entry_announced } } set_global_flag = WW1_ROM_war_entry_announced news_event = { id = endsieg_news.191 hours = 6 } }
+  }
+ }
+}

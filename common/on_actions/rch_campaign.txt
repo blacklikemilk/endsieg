@@ -2,6 +2,34 @@
 on_actions = {
 	on_daily_RCH = {
 		effect = {
+			# Announce either the abdication settlement or a military defeat once.
+			# Control is sufficient during an unfinished peace conference; do not
+			# change ownership, end wars, or assume that other enemies have surrendered.
+			if = {
+				limit = {
+					has_start_date < 1912.1.1
+					date < 1936.1.1
+					has_global_flag = xinhai_revolution
+					NOT = { has_global_flag = WW1_xinhai_victory_news_sent }
+					OR = {
+						AND = { has_global_flag = end_of_qing NOT = { country_exists = QIN } }
+						AND = { NOT = { country_exists = QIN } owns_state = 608 }
+						AND = {
+							country_exists = QIN
+							has_war_with = QIN
+							QIN = { has_capitulated = yes }
+							608 = { is_controlled_by = RCH }
+						}
+					}
+				}
+				set_global_flag = WW1_xinhai_victory_news_sent
+				if = {
+					limit = { country_exists = QIN }
+					set_global_flag = WW1_xinhai_news_military_victory
+				}
+				news_event = { id = ww1_xinhai_news.1 hours = 1 }
+			}
+			WW1_RCH_repair_spawn_scope = yes
 			if = {
 				limit = {
 					has_start_date < 1912.1.1
@@ -14,10 +42,11 @@ on_actions = {
 				limit = {
 					has_start_date < 1912.1.1
 					date < 1914.1.1
-					NOT = { has_country_flag = WW1_RCH_xinhai_front_reinforced }
+					NOT = { has_country_flag = WW1_RCH_xinhai_front_expanded }
 				}
 				WW1_RCH_reinforce_xinhai_front = yes
 			}
+			WW1_RCH_mobilize_xinhai_provinces = yes
 			if = {
 				limit = {
 					has_start_date < 1912.1.1
@@ -31,6 +60,12 @@ on_actions = {
 				WW1_RCH_sync_revolution_leadership = yes
 			}
 			WW1_RCH_sync_revolution_capitals = yes
+			# Historical AI succession; a human or an alternative government keeps its chosen leader.
+			if = {
+				limit = { is_ai = yes is_historical_focus_on = yes date > 1917.8.5 date < 1918.10.10 has_government = democratic has_character = RCH_feng_guozhang has_country_leader = { name = "Li Yuanhong" ruling_only = yes } NOT = { country_exists = QIN } NOT = { has_country_flag = WW1_RCH_feng_succession_done } }
+				promote_character = { character = RCH_feng_guozhang ideology = conservatism }
+				set_country_flag = WW1_RCH_feng_succession_done
+			}
 			rch_campaign_tick = yes
 			# Reunification is tested from the Republic's own clock, which already exists and
 			# is bound to RCH. The test is guarded by the model's own presence, walks a

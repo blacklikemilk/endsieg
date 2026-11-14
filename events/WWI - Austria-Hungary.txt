@@ -81,7 +81,7 @@ country_event = {
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_kuk.4.a
-		if = { limit = { country_exists = GER } add_opinion_modifier = { target = GER modifier = germany_friend } }
+		if = { limit = { country_exists = GER } endsieg_fixed_effect_3f1db89b2f10fe6c = yes }
 		army_experience = 5
 	}
 }
@@ -97,7 +97,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.5.a
-		if = { limit = { country_exists = BUL } add_opinion_modifier = { target = BUL modifier = bulgaria_friend } }
+		if = { limit = { country_exists = BUL } endsieg_fixed_effect_0a1791020319e901 = yes }
 		add_political_power = 10
 	}
 }
@@ -113,7 +113,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.6.a
-		if = { limit = { country_exists = TUR } add_opinion_modifier = { target = TUR modifier = turkey_friend } }
+		if = { limit = { country_exists = TUR } endsieg_fixed_effect_1f43cf48c0e49622 = yes }
 		army_experience = 5
 	}
 }
@@ -280,7 +280,7 @@ country_event = {
 
 	option = {
 		name = ww1_kuk.13.a
-		if = { limit = { country_exists = ITA } add_opinion_modifier = { target = ITA modifier = italy_improved_relations } }
+		if = { limit = { country_exists = ITA } endsieg_fixed_effect_656038d38690ebbf = yes }
 		add_political_power = -10
 	}
 }
@@ -1073,7 +1073,7 @@ country_event = {
 	}
 }
 
-# Franz Ferdinand Assasinated
+# Sarajevo assassination
 country_event = {
 	id = ww1_kuk.44
 	title = ww1_kuk.44.t
@@ -1082,21 +1082,41 @@ country_event = {
 
 	fire_only_once = yes
 	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1914.6.29
-		tag = AUH
-		date > 1914.6.27
-		date < 1914.7.15
+		WW1_AUH_sarajevo_visit_pending = yes
+		country_exists = SER
+		WW1_AUH_sarajevo_route_prepared = no
 	}
 	mean_time_to_happen = { days = 1 }
+	immediate = { set_global_flag = franz_dead add_named_threat = { threat = 5 name = WW1_tension_sarajevo } }
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_kuk.44.a
-		set_global_flag = franz_dead
-		news_event = { hours = 6 id = endsieg_news.162 }
-		add_stability = -0.02
+		if = {
+			limit = { NOT = { has_global_flag = WW1_sarajevo_visit_safe } }
+			set_global_flag = franz_dead
+			news_event = { hours = 6 id = endsieg_news.162 }
+			add_stability = -0.02
+		}
 	}
+}
+
+# The Archduke's driver follows the revised route.
+country_event = {
+	id = ww1_kuk.441
+	title = ww1_kuk.441.t
+	desc = ww1_kuk.441.d
+	picture = GFX_report_event_bosnia
+
+	fire_only_once = yes
+	trigger = {
+		WW1_AUH_sarajevo_visit_pending = yes
+		WW1_AUH_sarajevo_route_prepared = yes
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { set_global_flag = WW1_sarajevo_visit_safe }
+
+	option = { name = ww1_kuk.441.a }
 }
 
 # German Support vs Serbia?
@@ -1164,6 +1184,7 @@ country_event = {
 		}
 		WW1_crisis_GER_backing = yes
 		set_global_flag = GE1_gives_blank_cheque
+		add_named_threat = { threat = 4 name = WW1_tension_blank_cheque }
 		AUH = { country_event = { id = ww1_kuk.46 days = 1 } }
 	}
 
@@ -1340,10 +1361,15 @@ country_event = {
 		}
 		WW1_crisis_AUH_war = yes
 		GER = { WW1_1914_prepare_diplomatic_timing = yes }
-		declare_war_on = { target = SER type = annex_everything }
+		if = {
+			limit = { is_historical_focus_on = yes }
+			declare_war_on = { target = SER type = ww1_great_war }
+		}
+		else = { declare_war_on = { target = SER type = annex_everything } }
 		if = { limit = { NOT = { is_historical_focus_on = yes } country_exists = GER has_global_flag = GE1_gives_blank_cheque is_in_faction_with = GER } GER = { add_to_war = { targeted_alliance = AUH enemy = SER hostility_reason = asked_to_join } } }
 		if = { limit = { country_exists = FRA SER = { is_in_faction = no } FRA = { is_faction_leader = yes } } FRA = { if = { limit = { SER = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = SER } } }
 		set_global_flag = WW1_starts
+		if = { limit = { has_war_with = SER } WW1_raise_outbreak_tension = yes }
 		GER = { WW1_1914_outbreak_tick = yes }
 	}
 

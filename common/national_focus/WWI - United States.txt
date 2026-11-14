@@ -3,18 +3,36 @@ focus_tree = {
 	id = usa_ww1_focus
 	country = { factor = 0 modifier = { add = 20000 has_start_date < 1936.1.1 date < 1936.1.1 tag = USA } }
 	default = no
-	continuous_focus_position = { x = 0 y = 32 }
-	initial_show_position = { focus = US2_political_effort }
-	shortcut = { name = US2_R_industry_shortcut target = US2_industrial_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = US2_R_territories_shortcut target = US2_R_territorial_program scroll_wheel_factor = 0.4 }
-	shortcut = { name = US2_R_politics_shortcut target = US2_political_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = US2_R_diplomacy_shortcut target = US2_diplomatic_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = US2_R_navy_shortcut target = US2_naval_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = US2_R_air_shortcut target = US2_form_airforce scroll_wheel_factor = 0.4 }
+	initial_show_position = { focus = US2_national_opening }
+
+	# Branch navigation
+	shortcut = { name = WW1_layout_overview_shortcut target = US2_national_opening scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_government_shortcut target = US2_political_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_diplomacy_shortcut target = US2_diplomatic_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_industry_shortcut target = US2_industrial_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_air_force_shortcut target = US2_form_airforce scroll_wheel_factor = 0.60 }
+
+
+	continuous_focus_position = { x = 0 y = 2730 }
+
+	# Branch navigation
+
+
+	focus = {
+		id = US2_national_opening
+		icon = GFX_goal_generic_political_pressure
+		x = 29
+		y = 0
+		cost = 3
+		bypass = { OR = { has_completed_focus = US2_political_effort has_completed_focus = US2_diplomatic_effort has_completed_focus = US2_R_territorial_program } }
+		ai_will_do = { factor = 50 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { add_stability = 0.02 }
+	}
+
 	focus = {
 		id = US2_political_effort
 		icon = GFX_focus_NORDIC_dem_capstone_civilian
-
 		cost = 5
 		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
 		cancel_if_invalid = yes
@@ -25,16 +43,16 @@ focus_tree = {
 
 			add_political_power = 50
 		}
-
-		x = 5
-		y = 0
+		prerequisite = { focus = US2_national_opening }
+		relative_position_id = US2_national_opening
+		x = -23
+		y = 1
 	}
+
 	focus = {
 		id = US2_democracy
 		icon = GFX_focus_generic_monarchist_sentiment
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 8 }
@@ -45,19 +63,16 @@ focus_tree = {
 			add_popularity = { ideology = democratic popularity = 0.05 }
 			WW1_support_democratic_programme = yes
 		}
-
 		prerequisite = { focus = US2_political_effort }
 		relative_position_id = US2_political_effort
-		x = 0
+		x = -2
 		y = 1
 	}
 
 	focus = {
 		id = US2_free_speech
 		icon = GFX_focus_generic_printing_press
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -68,18 +83,16 @@ focus_tree = {
 				popularity = 0.03
 			}
 		}
-
 		prerequisite = { focus = US2_democracy }
 		relative_position_id = US2_democracy
-		x = -1
-		y = 1
+		x = 1
+		y = 3
 	}
+
 	focus = {
 		id = US2_R_election_1912
 		icon = GFX_focus_generic_election
-
 		cost = 5
-
 		available = {
 			has_start_date < 1936.1.1
 			date > 1912.5.1
@@ -92,19 +105,16 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.200 days = 1 }
 		}
-
 		prerequisite = { focus = US2_democracy }
 		relative_position_id = US2_democracy
-		x = 1
-		y = 1
+		x = -1
+		y = 3
 	}
+
 	focus = {
 		id = US2_R_wilson_presidency
 		icon = GFX_focus_LAT_suspend_constitution_of_latvia
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_R_roosevelt_presidency }
 		available = {
 			has_start_date < 1936.1.1
 			date > 1912.5.1
@@ -124,19 +134,17 @@ focus_tree = {
 
 			set_country_flag = US2_R_wilson_elected country_event = { id = ww1_usa.201 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_election_1912 }
+		mutually_exclusive = { focus = US2_R_roosevelt_presidency }
 		relative_position_id = US2_R_election_1912
-		x = -2
+		x = -1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_roosevelt_presidency
 		icon = GFX_focus_ETH_re-convene_the_parliament
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_R_wilson_presidency focus = US2_R_taft_presidency }
 		available = {
 			has_start_date < 1936.1.1
 			date > 1912.5.1
@@ -152,19 +160,18 @@ focus_tree = {
 
 			set_country_flag = US2_R_roosevelt_elected country_event = { id = ww1_usa.201 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_election_1912 }
+		mutually_exclusive = { focus = US2_R_taft_presidency }
+		mutually_exclusive = { focus = US2_R_wilson_presidency }
 		relative_position_id = US2_R_election_1912
-		x = 0
+		x = 1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_taft_presidency
 		icon = GFX_focus_generic_improve_the_administration
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_R_roosevelt_presidency }
 		available = {
 			has_start_date < 1936.1.1
 			date > 1912.5.1
@@ -183,19 +190,17 @@ focus_tree = {
 
 			set_country_flag = US2_R_taft_elected country_event = { id = ww1_usa.201 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_election_1912 }
+		mutually_exclusive = { focus = US2_R_roosevelt_presidency }
 		relative_position_id = US2_R_election_1912
-		x = 2
+		x = 3
 		y = 1
 	}
 
 	focus = {
 		id = US2_R_underwood_tariff
 		icon = GFX_focus_GER_customs_union
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -204,18 +209,16 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			add_political_power = 35
 		}
-
 		prerequisite = { focus = US2_R_wilson_presidency }
 		relative_position_id = US2_R_wilson_presidency
-		x = -3
+		x = -2
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_reserve_legislation
 		icon = GFX_focus_PER_national_bank
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -226,19 +229,18 @@ focus_tree = {
 			set_country_flag = US2_R_reserve_act
 
 			add_stability = 0.03
+			country_event = { id = ww1_usa.31 hours = 1 }
 		}
-
 		prerequisite = { focus = US2_R_wilson_presidency }
 		relative_position_id = US2_R_wilson_presidency
-		x = -1
+		x = 0
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_clayton_act
 		icon = GFX_focus_AUS_lawmaking_leniency
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -250,19 +252,51 @@ focus_tree = {
 				popularity = 0.03
 			}
 		}
-
 		prerequisite = { focus = US2_R_wilson_presidency }
 		relative_position_id = US2_R_wilson_presidency
-		x = 1
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_new_nationalism
+		icon = GFX_focus_JAP_anti_militarist_speeches_in_the_diet
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_command_power = 10
+			add_war_support = 0.02
+		}
+		prerequisite = { focus = US2_R_roosevelt_presidency }
+		relative_position_id = US2_R_roosevelt_presidency
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_republican_continuity
+		icon = GFX_focus_PER_constitutional_monarchy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 35
+		}
+		prerequisite = { focus = US2_R_taft_presidency }
+		relative_position_id = US2_R_taft_presidency
+		x = 5
 		y = 1
 	}
 
 	focus = {
 		id = US2_R_rural_credits
 		icon = GFX_focus_generic_land_reclamation
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -272,18 +306,16 @@ focus_tree = {
 			add_political_power = -25
 			add_stability = 0.03
 		}
-
 		prerequisite = { focus = US2_R_underwood_tariff }
 		relative_position_id = US2_R_underwood_tariff
-		x = -1
+		x = 0
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_adamson_act
 		icon = GFX_focus_generic_road_investment
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -292,61 +324,34 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			add_stability = 0.03
 		}
-
 		prerequisite = { focus = US2_R_reserve_legislation }
 		relative_position_id = US2_R_reserve_legislation
-		x = -1
+		x = 0
 		y = 1
 	}
+
 	focus = {
-		id = US2_R_wilson_cabinet
-		icon = GFX_focus_CZE_coalition_building
-
+		id = US2_R_industrial_compensation
+		icon = GFX_focus_generic_modernize_industry
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			country_event = {
-				id = ww1_usa.202
-				days = 1
-			}
+			add_political_power = -25
+			add_stability = 0.03
 		}
-
-		prerequisite = { focus = US2_R_adamson_act }
-		relative_position_id = US2_R_adamson_act
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_new_nationalism
-		icon = GFX_focus_JAP_anti_militarist_speeches_in_the_diet
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_command_power = 10
-			add_war_support = 0.02
-		}
-
-		prerequisite = { focus = US2_R_roosevelt_presidency }
-		relative_position_id = US2_R_roosevelt_presidency
+		prerequisite = { focus = US2_R_new_nationalism }
+		relative_position_id = US2_R_new_nationalism
 		x = 1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_conservation_republic
 		icon = GFX_focus_generic_tungsten
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -359,90 +364,8 @@ focus_tree = {
 				category = industry
 			}
 		}
-
 		prerequisite = { focus = US2_R_new_nationalism }
 		relative_position_id = US2_R_new_nationalism
-		x = -3
-		y = 1
-	}
-	focus = {
-		id = US2_R_industrial_compensation
-		icon = GFX_focus_generic_modernize_industry
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = -25
-			add_stability = 0.03
-		}
-
-		prerequisite = { focus = US2_R_new_nationalism }
-		relative_position_id = US2_R_new_nationalism
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_progressive_cabinet
-		icon = GFX_focus_generic_government_in_exile
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = {
-				id = ww1_usa.202
-				days = 1
-			}
-		}
-
-		prerequisite = { focus = US2_R_conservation_republic }
-		relative_position_id = US2_R_conservation_republic
-		x = 7
-		y = 1
-	}
-	focus = {
-		id = US2_R_republican_continuity
-		icon = GFX_focus_PER_constitutional_monarchy
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 35
-		}
-
-		prerequisite = { focus = US2_R_taft_presidency }
-		relative_position_id = US2_R_taft_presidency
-		x = 1
-		y = 1
-	}
-	focus = {
-		id = US2_R_judicial_antitrust
-		icon = GFX_focus_generic_court
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 5
-		}
-
-		prerequisite = { focus = US2_R_republican_continuity }
-		relative_position_id = US2_R_republican_continuity
 		x = -1
 		y = 1
 	}
@@ -450,9 +373,7 @@ focus_tree = {
 	focus = {
 		id = US2_R_taft_cabinet
 		icon = GFX_focus_generic_improve_the_administration_2
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -463,18 +384,74 @@ focus_tree = {
 				days = 1
 			}
 		}
+		prerequisite = { focus = US2_R_republican_continuity }
+		relative_position_id = US2_R_republican_continuity
+		x = -1
+		y = 1
+	}
 
+	focus = {
+		id = US2_R_judicial_antitrust
+		icon = GFX_focus_generic_court
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 5
+		}
 		prerequisite = { focus = US2_R_republican_continuity }
 		relative_position_id = US2_R_republican_continuity
 		x = 1
 		y = 1
 	}
+
+	focus = {
+		id = US2_R_wilson_cabinet
+		icon = GFX_focus_CZE_coalition_building
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = {
+				id = ww1_usa.202
+				days = 1
+			}
+		}
+		prerequisite = { focus = US2_R_adamson_act }
+		relative_position_id = US2_R_adamson_act
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_progressive_cabinet
+		icon = GFX_focus_generic_government_in_exile
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = {
+				id = ww1_usa.202
+				days = 1
+			}
+		}
+		prerequisite = { focus = US2_R_conservation_republic }
+		relative_position_id = US2_R_conservation_republic
+		x = -1
+		y = 1
+	}
+
 	focus = {
 		id = US2_R_federal_mandate
 		icon = GFX_focus_generic_public_meetings
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -484,18 +461,16 @@ focus_tree = {
 
 			add_popularity = { ideology = democratic popularity = 0.05 }
 		}
-
 		prerequisite = { focus = US2_R_progressive_cabinet focus = US2_R_taft_cabinet focus = US2_R_wilson_cabinet }
-		relative_position_id = US2_R_wilson_cabinet
+		relative_position_id = US2_R_progressive_cabinet
 		x = 1
 		y = 1
 	}
+
 	focus = {
 		id = US2_neutrality_in_conflict
 		icon = GFX_focus_generic_sympathetic_judges
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -505,19 +480,16 @@ focus_tree = {
 
 			add_stability = 0.03
 		}
-
 		prerequisite = { focus = US2_R_federal_mandate }
 		relative_position_id = US2_R_federal_mandate
-		x = -2
+		x = -3
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_civil_liberties
 		icon = GFX_focus_generic_monarchy_1
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_R_information_committee }
 		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -525,19 +497,17 @@ focus_tree = {
 		completion_reward = {
 			add_stability = 0.02
 		}
-
 		prerequisite = { focus = US2_neutrality_in_conflict }
+		mutually_exclusive = { focus = US2_R_information_committee }
 		relative_position_id = US2_neutrality_in_conflict
 		x = -1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_information_committee
 		icon = GFX_goal_generic_propaganda
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_R_civil_liberties }
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_war_programmes_allowed = yes }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -546,20 +516,59 @@ focus_tree = {
 			add_war_support = 0.03
 			add_stability = -0.01
 		}
-
 		prerequisite = { focus = US2_neutrality_in_conflict }
+		mutually_exclusive = { focus = US2_R_civil_liberties }
 		relative_position_id = US2_neutrality_in_conflict
 		x = 1
 		y = 1
 	}
 
 	focus = {
+		id = US2_liberty_bonds
+		icon = GFX_focus_generic_american_investments
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_war_programmes_allowed = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_US2_R_loans_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_US2_R_loans_spirit } add_political_power = 25 } country_event = { id = ww1_usa.204 days = 1 }
+		}
+		prerequisite = { focus = US2_neutrality_in_conflict }
+		relative_position_id = US2_neutrality_in_conflict
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = US2_neutrality_in_conflict }
+		id = US2_denounce_communist_state
+		icon = GFX_focus_POL_complete_april_constitution
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = SOV
+			OR = { has_completed_focus = US2_R_civil_liberties has_completed_focus = US2_R_information_committee }
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.25 days = 1 }
+		}
+		relative_position_id = US2_R_civil_liberties
+		x = -2
+		y = 2
+	}
+
+	focus = {
+		prerequisite = { focus = US2_R_civil_liberties focus = US2_neutrality_in_conflict }
+		prerequisite = { focus = US2_neutrality_in_conflict }
 		id = US2_R_suffrage_petitions
 		icon = GFX_focus_generic_vote
-
 		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated
+			OR = { has_completed_focus = US2_R_civil_liberties has_completed_focus = US2_neutrality_in_conflict }
+		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
 		search_filters = { FOCUS_FILTER_POLITICAL }
@@ -567,38 +576,15 @@ focus_tree = {
 
 			add_popularity = { ideology = democratic popularity = 0.05 }
 		}
-
-		prerequisite = { focus = US2_R_civil_liberties focus = US2_neutrality_in_conflict }
 		relative_position_id = US2_R_civil_liberties
 		x = 1
 		y = 1
 	}
-	focus = {
-		id = US2_liberty_bonds
-		icon = GFX_focus_generic_american_investments
 
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_war_programmes_allowed = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_timed_idea = { idea = US2_R_loans_spirit days = 180 } country_event = { id = ww1_usa.204 days = 1 }
-		}
-
-		prerequisite = { focus = US2_neutrality_in_conflict }
-		relative_position_id = US2_neutrality_in_conflict
-		x = 4
-		y = 1
-	}
 	focus = {
 		id = US2_war_effort
 		icon = GFX_focus_generic_currency_reforms
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_war_programmes_allowed = yes }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -607,18 +593,33 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			add_timed_idea = { idea = US2_R_congress_spirit days = 180 }
 		}
-
 		prerequisite = { focus = US2_liberty_bonds }
 		relative_position_id = US2_liberty_bonds
+		x = 2
+		y = 2
+	}
+
+	focus = {
+		id = US2_red_scare
+		icon = GFX_focus_generic_national_security
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = SOV }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.27 days = 1 }
+		}
+		prerequisite = { focus = US2_denounce_communist_state }
+		relative_position_id = US2_denounce_communist_state
 		x = 0
 		y = 1
 	}
+
 	focus = {
 		id = US2_universal_military_service
 		icon = GFX_goal_generic_military_sphere
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_war_programmes_allowed = yes }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -627,18 +628,16 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.24 days = 1 }
 		}
-
 		prerequisite = { focus = US2_war_effort }
 		relative_position_id = US2_war_effort
-		x = -1
+		x = 1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_veterans_hospitals
 		icon = GFX_focus_generic_bad_medical
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_war_programmes_allowed = yes }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -647,7 +646,6 @@ focus_tree = {
 			add_political_power = -25
 			add_stability = 0.03
 		}
-
 		prerequisite = { focus = US2_universal_military_service }
 		relative_position_id = US2_universal_military_service
 		x = 0
@@ -655,49 +653,9 @@ focus_tree = {
 	}
 
 	focus = {
-		id = US2_denounce_communist_state
-		icon = GFX_focus_POL_complete_april_constitution
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = SOV }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.25 days = 1 }
-		}
-
-		prerequisite = { focus = US2_R_civil_liberties focus = US2_R_information_committee }
-		relative_position_id = US2_R_information_committee
-		x = 1
-		y = 1
-	}
-	focus = {
-		id = US2_red_scare
-		icon = GFX_focus_generic_national_security
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = SOV }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.27 days = 1 }
-		}
-
-		prerequisite = { focus = US2_denounce_communist_state }
-		relative_position_id = US2_denounce_communist_state
-		x = -1
-		y = 1
-	}
-	focus = {
 		id = US2_R_constitutional_limits
 		icon = GFX_focus_usa_voter_registration_act
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -706,18 +664,16 @@ focus_tree = {
 
 			add_stability = 0.03
 		}
-
 		prerequisite = { focus = US2_R_veterans_hospitals focus = US2_war_effort }
 		relative_position_id = US2_R_veterans_hospitals
 		x = -1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_demobilisation
 		icon = GFX_focus_eng_concessions_to_the_trade_unions
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -725,16 +681,15 @@ focus_tree = {
 		completion_reward = {
 			country_event = { id = ww1_usa.217 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_constitutional_limits }
 		relative_position_id = US2_R_constitutional_limits
 		x = 0
 		y = 1
 	}
+
 	focus = {
 		id = US2_diplomatic_effort
 		icon = GFX_focus_generic_concessions
-
 		cost = 5
 		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
 		cancel_if_invalid = yes
@@ -745,18 +700,20 @@ focus_tree = {
 
 			add_political_power = 50
 		}
-
-		x = 28
-		y = 0
+		prerequisite = { focus = US2_national_opening }
+		relative_position_id = US2_national_opening
+		x = 14
+		y = 1
 	}
 
 	focus = {
+		prerequisite = { focus = US2_diplomatic_effort }
 		id = US2_R_diplomatic_choice
 		icon = GFX_focus_generic_diplomatic_treaty
-
 		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes
+			has_completed_focus = US2_diplomatic_effort
+		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
 		search_filters = { FOCUS_FILTER_POLITICAL }
@@ -765,19 +722,82 @@ focus_tree = {
 
 			add_political_power = 50
 		}
-
-		prerequisite = { focus = US2_diplomatic_effort }
 		relative_position_id = US2_diplomatic_effort
-		x = -5
+		x = 27
 		y = 1
 	}
+
+	focus = {
+		prerequisite = { focus = US2_diplomatic_effort }
+		id = US2_mexican_revolution_actions
+		icon = GFX_focus_generic_support_the_left_right
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1
+			has_completed_focus = US2_diplomatic_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { army_experience = 10 }
+		relative_position_id = US2_diplomatic_effort
+		x = -13
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_general_staff
+		icon = GFX_focus_AUS_bring_generals_out_of_retirement
+		cost = 5
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			NOT = {
+				date < 1910.1.1
+			}
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			army_experience = 10
+			add_mastery_bonus = {
+				name = US2_R_general_staff
+				bonus = 0.10
+				days = 180
+				track = operations
+			}
+			country_event = {
+				id = ww1_usa.203
+				days = 1
+			}
+		}
+		prerequisite = { focus = US2_diplomatic_effort }
+		relative_position_id = US2_diplomatic_effort
+		x = -27
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_pacific_diplomacy
+		icon = GFX_focus_SIA_the_midnight_meeting
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 25
+		}
+		prerequisite = { focus = US2_diplomatic_effort }
+		relative_position_id = US2_diplomatic_effort
+		x = -17
+		y = 1
+	}
+
 	focus = {
 		id = US2_support_entente
 		icon = GFX_focus_generic_monetary_union
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_neutrality }
 		available = {
 			has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes  OR = { FRA = { has_war_with = GER } ENG = { has_war_with = GER } } NOT = { has_global_flag = GE1_anglo_german_alliance }
 			NOT = { has_completed_focus = US2_R_continental_alignment }
@@ -790,19 +810,17 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.1 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_diplomatic_choice }
+		mutually_exclusive = { focus = US2_neutrality }
 		relative_position_id = US2_R_diplomatic_choice
-		x = -4
-		y = 1
+		x = -3
+		y = 3
 	}
+
 	focus = {
 		id = US2_neutrality
 		icon = GFX_goal_generic_neutrality_focus
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_support_entente focus = US2_R_german_alignment }
 		available = {
 			has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes
 			NOT = { has_completed_focus = US2_R_continental_alignment }
@@ -813,19 +831,18 @@ focus_tree = {
 		completion_reward = {
 			US2_R_adopt_neutrality = yes
 		}
-
 		prerequisite = { focus = US2_R_diplomatic_choice }
+		mutually_exclusive = { focus = US2_R_german_alignment }
+		mutually_exclusive = { focus = US2_support_entente }
 		relative_position_id = US2_R_diplomatic_choice
-		x = -2
-		y = 1
+		x = -1
+		y = 3
 	}
+
 	focus = {
 		id = US2_R_german_alignment
 		icon = GFX_goal_generic_improve_relations
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_neutrality focus = US2_R_continental_alignment }
 		available = {
 			has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes country_exists = GER  is_in_faction = no
 			NOT = { has_completed_focus = US2_support_entente }
@@ -836,19 +853,18 @@ focus_tree = {
 		completion_reward = {
 			US2_R_request_german_alignment = yes
 		}
-
 		prerequisite = { focus = US2_R_diplomatic_choice }
+		mutually_exclusive = { focus = US2_R_continental_alignment }
+		mutually_exclusive = { focus = US2_neutrality }
 		relative_position_id = US2_R_diplomatic_choice
-		x = 0
-		y = 1
+		x = 1
+		y = 3
 	}
+
 	focus = {
 		id = US2_R_continental_alignment
 		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
-
 		cost = 5
-
-		mutually_exclusive = { focus = US2_R_german_alignment }
 		available = {
 			has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes has_global_flag = GE1_continental_alliance_active country_exists = FRA  is_in_faction = no
 			NOT = { has_completed_focus = US2_neutrality }
@@ -860,18 +876,71 @@ focus_tree = {
 		completion_reward = {
 			US2_R_request_continental_alignment = yes
 		}
-
 		prerequisite = { focus = US2_R_diplomatic_choice }
+		mutually_exclusive = { focus = US2_R_german_alignment }
 		relative_position_id = US2_R_diplomatic_choice
-		x = 2
-		y = 1
+		x = 3
+		y = 3
 	}
+
+	focus = {
+		id = US2_send_army_to_border
+		icon = GFX_focus_JAP_rely_on_infantry_charges
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = {
+				id = ww1_usa.12
+				days = 1
+			}
+		}
+		prerequisite = { focus = US2_mexican_revolution_actions }
+		relative_position_id = US2_mexican_revolution_actions
+		x = -9
+		y = 3
+	}
+
+	focus = {
+		id = US2_condemn_huerta
+		icon = GFX_goal_generic_intelligence_exchange
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { has_global_flag = huerta_takes_power has_global_flag = fall_of_huerta } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 20 is_historical_focus_on = yes has_global_flag = huerta_takes_power NOT = { has_global_flag = fall_of_huerta } date < 1914.5.1 } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.18 days = 1 }
+		}
+		prerequisite = { focus = US2_mexican_revolution_actions }
+		relative_position_id = US2_mexican_revolution_actions
+		x = 5
+		y = 3
+	}
+
+	focus = {
+		id = US2_R_open_door
+		icon = GFX_focus_hol_abandon_the_gold_standard
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 15
+		}
+		prerequisite = { focus = US2_R_pacific_diplomacy }
+		relative_position_id = US2_R_pacific_diplomacy
+		x = 1
+		y = 3
+	}
+
 	focus = {
 		id = US2_send_munitions_1
 		icon = GFX_focus_generic_railway_gun
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 FRA = { has_war_with = GER } }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -879,56 +948,16 @@ focus_tree = {
 		completion_reward = {
 			country_event = { id = ww1_usa.3 days = 1 }
 		}
-
 		prerequisite = { focus = US2_support_entente }
 		relative_position_id = US2_support_entente
-		x = -4
+		x = -8
 		y = 1
 	}
-	focus = {
-		id = US2_send_munitions_2
-		icon = GFX_focus_generic_little_entente
 
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 FRA = { has_war_with = GER } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.4 days = 1 }
-		}
-
-		prerequisite = { focus = US2_send_munitions_1 }
-		relative_position_id = US2_send_munitions_1
-		x = 6
-		y = 1
-	}
-	focus = {
-		id = US2_send_munitions_3
-		icon = GFX_focus_GER_factories_for_resources
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 FRA = { has_war_with = GER } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.5 days = 1 }
-		}
-
-		prerequisite = { focus = US2_send_munitions_2 }
-		relative_position_id = US2_send_munitions_2
-		x = 0
-		y = 1
-	}
 	focus = {
 		id = US2_lafayette_escadrille
 		icon = GFX_focus_SMB_tierra_del_fuego_training
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 date > 1916.4.19 FRA = { has_war_with = GER } }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -936,18 +965,16 @@ focus_tree = {
 		completion_reward = {
 			country_event = { id = ww1_usa.2 days = 1 }
 		}
-
 		prerequisite = { focus = US2_support_entente }
 		relative_position_id = US2_support_entente
-		x = -2
+		x = -4
 		y = 1
 	}
+
 	focus = {
 		id = US2_condemn_unrestricted_sub
 		icon = GFX_focus_generic_large_navy
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { has_global_flag = unrestricted_submarine_warfare has_global_flag = lusitania_sunk } }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -957,18 +984,262 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.6 days = 1 }
 		}
-
 		prerequisite = { focus = US2_support_entente }
 		relative_position_id = US2_support_entente
+		x = -2
+		y = 1
+	}
+
+	focus = {
+		id = US2_isolationism
+		icon = GFX_focus_generic_strike_at_democracy3
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			navy_experience = 10
+		}
+		prerequisite = { focus = US2_neutrality }
+		relative_position_id = US2_neutrality
 		x = 0
 		y = 1
 	}
+
+	focus = {
+		id = US2_R_berlin_guarantees
+		icon = GFX_focus_CHI_invoke_the_nine_powers
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_german_agreement }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 25
+		}
+		prerequisite = { focus = US2_R_german_alignment }
+		relative_position_id = US2_R_german_alignment
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_continental_guarantees
+		icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_continental_agreement }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 25
+		}
+		prerequisite = { focus = US2_R_continental_alignment }
+		relative_position_id = US2_R_continental_alignment
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_support_revolution
+		icon = GFX_focus_generic_blue_flags
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MDS NOT = { has_war_with = MDS } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.14 days = 1 }
+		}
+		prerequisite = { focus = US2_send_army_to_border }
+		relative_position_id = US2_send_army_to_border
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = US2_fortify_border
+		icon = GFX_focus_generic_provoke_border_clashes
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.15 days = 1 }
+		}
+		prerequisite = { focus = US2_send_army_to_border }
+		relative_position_id = US2_send_army_to_border
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_mexican_sovereignty
+		icon = GFX_goal_generic_scientific_exchange
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX NOT = { AND = { has_completed_focus = US2_occupy_veracruz NOT = { has_global_flag = veracruz_withdrawn } } } NOT = { has_war_with = MEX } }
+		cancel_if_invalid = yes
+		ai_will_do = {
+			factor = 4
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				has_start_date < 1914.4.21
+				date < 1914.4.28
+				MEX = { NOT = { has_country_flag = MEX_WW1_coup_prevented } }
+			}
+		}
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			set_country_flag = US2_R_mexican_sovereignty country_event = { id = ww1_usa.216 days = 1 }
+		}
+		prerequisite = { focus = US2_send_army_to_border }
+		mutually_exclusive = { focus = US2_intervention_in_mexico }
+		relative_position_id = US2_send_army_to_border
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = US2_intervention_in_mexico
+		icon = GFX_goal_generic_territory_or_war
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX NOT = { has_war_with = MEX } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.13 days = 1 }
+		}
+		prerequisite = { focus = US2_send_army_to_border }
+		mutually_exclusive = { focus = US2_R_mexican_sovereignty }
+		relative_position_id = US2_send_army_to_border
+		x = 4
+		y = 1
+	}
+
+	focus = {
+		id = US2_occupy_veracruz
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		cost = 1
+		prerequisite = { focus = US2_condemn_huerta }
+		relative_position_id = US2_condemn_huerta
+		x = -2
+		y = 1
+		available = { WW1_USA_can_occupy_veracruz = yes }
+		bypass = { OR = { has_global_flag = veracruz_occupied has_global_flag = veracruz_withdrawn } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 30 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			if = {
+				limit = { WW1_USA_can_occupy_veracruz = yes }
+				set_state_controller = 477
+				set_global_flag = veracruz_occupied
+				news_event = { id = endsieg_news.232 hours = 6 }
+				hidden_effect = { country_event = { id = ww1_usa.28 hours = 1 } }
+			}
+		}
+	}
+
+	focus = {
+		id = US2_withdraw_from_veracruz
+		icon = GFX_focus_BEL_government_resigns
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = veracruz_occupied NOT = { has_war_with = MEX } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		bypass = { has_global_flag = veracruz_withdrawn }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.17 days = 1 }
+		}
+		prerequisite = { focus = US2_occupy_veracruz }
+		relative_position_id = US2_occupy_veracruz
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_condemn_villa
+		icon = GFX_focus_generic_secret_service_agency
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = columbus_raid }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.20 days = 1 }
+		}
+		prerequisite = { focus = US2_condemn_huerta }
+		relative_position_id = US2_condemn_huerta
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_back_revolutionaries_2
+		icon = GFX_focus_AFG_parliamentary_democracy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = fall_of_huerta OR = { country_exists = CNT country_exists = VIL } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.19 days = 1 }
+		}
+		prerequisite = { focus = US2_condemn_huerta }
+		relative_position_id = US2_condemn_huerta
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_philippine_policy
+		icon = GFX_focus_generic_immigration
+		cost = 5
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			country_exists = PHI
+			PHI = {
+				is_subject_of = USA
+			}
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { if = { limit = { country_exists = PHI NOT = { has_war_with = PHI } } endsieg_fixed_effect_0fabd0ebce26941c = yes  } }
+		prerequisite = { focus = US2_R_open_door }
+		relative_position_id = US2_R_open_door
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_send_munitions_2
+		icon = GFX_focus_generic_little_entente
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 FRA = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.4 days = 1 }
+		}
+		prerequisite = { focus = US2_send_munitions_1 }
+		relative_position_id = US2_send_munitions_1
+		x = 0
+		y = 1
+	}
+
 	focus = {
 		id = US2_R_sussex_pledge
 		icon = GFX_focus_SWI_neutrality_on_the_move
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { has_global_flag = GE1_backs_down has_global_flag = GE1_continues_USW has_global_flag = GE1_resumes_USW } }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -978,18 +1249,139 @@ focus_tree = {
 
 			add_stability = 0.03
 		}
-
 		prerequisite = { focus = US2_condemn_unrestricted_sub }
 		relative_position_id = US2_condemn_unrestricted_sub
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_mediation_mission
+		icon = GFX_goal_tripartite_pact
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 25
+		}
+		prerequisite = { focus = US2_isolationism }
+		relative_position_id = US2_isolationism
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_ratify_german_alignment
+		icon = GFX_focus_generic_treaty
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes has_country_flag = US2_R_german_agreement GER = { is_in_faction = yes has_war_with = FRA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.211 days = 1 }
+		}
+		prerequisite = { focus = US2_R_berlin_guarantees }
+		relative_position_id = US2_R_berlin_guarantees
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_ratify_continental_alignment
+		icon = GFX_focus_renounce_the_treaty_of_trianon
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes has_country_flag = US2_R_continental_agreement has_global_flag = GE1_continental_alliance_active FRA = { has_war_with = GER is_in_faction = yes } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.214 days = 1 }
+		}
+		prerequisite = { focus = US2_R_continental_guarantees }
+		relative_position_id = US2_R_continental_guarantees
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_supply_revolutionaries
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { country_exists = CNT country_exists = VIL } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.16 days = 1 }
+		}
+		prerequisite = { focus = US2_support_revolution }
+		relative_position_id = US2_support_revolution
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_pershing_border_lessons
+		icon = GFX_focus_generic_approach_the_west
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			army_experience = 10
+			country_event = {
+				id = ww1_usa.216
+				days = 1
+			}
+		}
+		prerequisite = { focus = US2_condemn_villa }
+		relative_position_id = US2_condemn_villa
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_send_aid
+		icon = GFX_focus_NORDIC_dem_selector_civilian
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = WHR WHR = { has_war_with = SOV } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.26 days = 1 }
+		}
+		prerequisite = { focus = US2_R_philippine_policy }
+		relative_position_id = US2_R_philippine_policy
 		x = 4
 		y = 1
 	}
+
+	focus = {
+		id = US2_send_munitions_3
+		icon = GFX_focus_GER_factories_for_resources
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 FRA = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.5 days = 1 }
+		}
+		prerequisite = { focus = US2_send_munitions_2 }
+		relative_position_id = US2_send_munitions_2
+		x = 0
+		y = 1
+	}
+
 	focus = {
 		id = US2_condemn_zimmerman_telegram
 		icon = GFX_focus_generic_education
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 GER = { has_completed_focus = GE1_zimmerman } has_global_flag = zimmerman_telegram }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -999,18 +1391,16 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.7 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_sussex_pledge }
 		relative_position_id = US2_R_sussex_pledge
-		x = 1
+		x = -1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_armed_merchantmen
 		icon = GFX_focus_generic_refit_civilian_ships
-
 		cost = 4
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = GE1_resumes_USW }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -1019,18 +1409,85 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			navy_experience = 10
 		}
-
 		prerequisite = { focus = US2_R_sussex_pledge }
 		relative_position_id = US2_R_sussex_pledge
-		x = 3
+		x = 1
 		y = 1
 	}
+
+	focus = {
+		id = US2_R_neutral_ports
+		icon = GFX_focus_generic_coastal_fort
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_stability = 0.02
+		}
+		prerequisite = { focus = US2_R_mediation_mission }
+		relative_position_id = US2_R_mediation_mission
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_german_staff_liaison
+		icon = GFX_focus_generic_north_atlantic_fleet
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_german_bloc_member is_in_faction_with = GER }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			army_experience = 10
+			navy_experience = 10
+		}
+		prerequisite = { focus = US2_R_ratify_german_alignment }
+		relative_position_id = US2_R_ratify_german_alignment
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_continental_staff
+		icon = GFX_SOV_national_specialists_ccp_2d_sov_compatibility
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_continental_bloc_member is_in_faction_with = FRA }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			army_experience = 10
+		}
+		prerequisite = { focus = US2_R_ratify_continental_alignment }
+		relative_position_id = US2_R_ratify_continental_alignment
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_mexican_settlement
+		icon = GFX_goal_generic_alliance
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX NOT = { has_war_with = MEX } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			country_event = { id = ww1_usa.216 days = 1 }
+		}
+		prerequisite = { focus = US2_R_mexican_sovereignty focus = US2_R_pershing_border_lessons }
+		relative_position_id = US2_R_pershing_border_lessons
+		x = -6
+		y = 1
+	}
+
 	focus = {
 		id = US2_declare_war_on_germany
 		icon = GFX_focus_usa_recruit_the_free_corps
-
 		cost = 5
-
 		available = {
 			OR = {
 				AND = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_may_enter_entente_war = yes OR = { has_global_flag = USA_zimmerman_condemned has_global_flag = GE1_resumes_USW } }
@@ -1045,18 +1502,83 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.8 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_armed_merchantmen focus = US2_condemn_zimmerman_telegram }
 		relative_position_id = US2_R_armed_merchantmen
 		x = -1
 		y = 1
 	}
+
+	focus = {
+		id = US2_R_hemisphere_neutrality
+		icon = GFX_focus_generic_commission
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 20
+		}
+		prerequisite = { focus = US2_R_neutral_ports }
+		relative_position_id = US2_R_neutral_ports
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_caribbean_intervention
+		icon = GFX_goal_generic_navy_cruiser
+		cost = 5
+		prerequisite = { focus = US2_R_caribbean_stations }
+		mutually_exclusive = { focus = US2_R_caribbean_consultation }
+		relative_position_id = US2_R_caribbean_stations
+		x = -2
+		y = 1
+		available = {
+			tag = USA
+			has_start_date < 1916.5.5
+			date > 1915.5.1
+			date < 1920.1.1
+			is_subject = no
+			NOT = { has_country_flag = US2_R_caribbean_nonintervention }
+			OR = {
+				HAI = { exists = yes is_subject = no }
+				DOM = { exists = yes is_subject = no }
+			}
+		}
+		ai_will_do = { factor = 5 modifier = { factor = 10 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			custom_effect_tooltip = US2_R_caribbean_intervention_tt
+			add_war_support = 0.02
+			hidden_effect = { WW1_USA_dispatch_caribbean_interventions = yes }
+		}
+	}
+
+	focus = {
+		id = US2_R_caribbean_consultation
+		icon = GFX_focus_NORDIC_dem_institution_1
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes has_start_date < 1916.5.5 date < 1917.1.1 } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			set_country_flag = US2_R_caribbean_nonintervention
+			add_political_power = 25
+		}
+		prerequisite = { focus = US2_R_caribbean_stations }
+		mutually_exclusive = { focus = US2_R_caribbean_intervention }
+		relative_position_id = US2_R_caribbean_stations
+		x = 0
+		y = 1
+	}
+
 	focus = {
 		id = US2_send_expeditionary_force
 		icon = GFX_goal_generic_military_deal
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_war_with = GER is_in_faction_with = FRA }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -1065,18 +1587,33 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.9 days = 1 }
 		}
-
 		prerequisite = { focus = US2_declare_war_on_germany }
 		relative_position_id = US2_declare_war_on_germany
-		x = 2
+		x = -4
 		y = 1
 	}
+
+	focus = {
+		id = US2_R_pan_american_conference
+		icon = GFX_focus_generic_conference
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = 15
+		}
+		prerequisite = { focus = US2_R_caribbean_consultation }
+		relative_position_id = US2_R_caribbean_consultation
+		x = 0
+		y = 1
+	}
+
 	focus = {
 		id = US2_R_allied_staff
 		icon = GFX_focus_generic_military_mission
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_war_with = GER is_in_faction_with = FRA }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -1085,18 +1622,51 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.206 days = 1 }
 		}
-
 		prerequisite = { focus = US2_send_expeditionary_force }
 		relative_position_id = US2_send_expeditionary_force
-		x = 0
+		x = -2
 		y = 1
 	}
+
+	focus = {
+		id = US2_R_american_expeditionary_force
+		icon = GFX_focus_generic_hill_training
+		cost = 5
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			date > 1916.1.1
+			US2_R_war_programmes_allowed = yes
+			country_exists = FRA
+			NOT = {
+				has_war_with = FRA
+			}
+			is_in_faction_with = FRA
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_US2_R_american_expeditionary_force_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_US2_R_american_expeditionary_force_spirit } army_experience = 8 }
+			country_event = {
+				id = ww1_usa.206
+				days = 1
+			}
+			news_event = {
+				id = ww1_usa.222
+				hours = 6
+			}
+		}
+		prerequisite = { focus = US2_send_expeditionary_force }
+		relative_position_id = US2_send_expeditionary_force
+		x = 1
+		y = 1
+	}
+
 	focus = {
 		id = US2_R_fourteen_points
 		icon = GFX_focus_us2_r_fourteen_points
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 date > 1918.1.7 has_war_with = GER }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -1106,18 +1676,16 @@ focus_tree = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			country_event = { id = ww1_usa.205 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_allied_staff }
 		relative_position_id = US2_R_allied_staff
-		x = 0
+		x = -1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_austria_declaration
 		icon = GFX_goal_generic_major_war
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 date > 1917.12.6 country_exists = AUH AUH = { is_in_faction_with = GER } }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -1126,18 +1694,16 @@ focus_tree = {
 		completion_reward = {
 			country_event = { id = ww1_usa.215 days = 1 }
 		}
-
 		prerequisite = { focus = US2_R_allied_staff }
 		relative_position_id = US2_R_allied_staff
-		x = 2
+		x = 1
 		y = 1
 	}
+
 	focus = {
 		id = US2_R_peace_delegation
 		icon = GFX_goal_generic_major_alliance
-
 		cost = 5
-
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 date > 1918.1.7 }
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -1145,588 +1711,316 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = 35
 		}
-
 		prerequisite = { focus = US2_R_fourteen_points }
 		relative_position_id = US2_R_fourteen_points
 		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_isolationism
-		icon = GFX_focus_generic_strike_at_democracy3
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_neutrality }
-		relative_position_id = US2_neutrality
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_mediation_mission
-		icon = GFX_goal_tripartite_pact
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 25
-		}
-
-		prerequisite = { focus = US2_isolationism }
-		relative_position_id = US2_isolationism
-		x = 4
-		y = 1
-	}
-	focus = {
-		id = US2_R_neutral_ports
-		icon = GFX_focus_generic_coastal_fort
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_stability = 0.02
-		}
-
-		prerequisite = { focus = US2_R_mediation_mission }
-		relative_position_id = US2_R_mediation_mission
-		x = 3
-		y = 1
+		y = 2
 	}
 
 	focus = {
-		id = US2_R_hemisphere_neutrality
-		icon = GFX_focus_generic_commission
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 20
-		}
-
-		prerequisite = { focus = US2_R_neutral_ports }
-		relative_position_id = US2_R_neutral_ports
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_berlin_guarantees
-		icon = GFX_focus_CHI_invoke_the_nine_powers
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_german_agreement }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 25
-		}
-
-		prerequisite = { focus = US2_R_german_alignment }
-		relative_position_id = US2_R_german_alignment
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_ratify_german_alignment
-		icon = GFX_focus_generic_treaty
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes has_country_flag = US2_R_german_agreement GER = { is_in_faction = yes has_war_with = FRA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.211 days = 1 }
-		}
-
-		prerequisite = { focus = US2_R_berlin_guarantees }
-		relative_position_id = US2_R_berlin_guarantees
-		x = 4
-		y = 1
-	}
-	focus = {
-		id = US2_R_german_staff_liaison
-		icon = GFX_focus_generic_north_atlantic_fleet
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_german_bloc_member is_in_faction_with = GER }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			army_experience = 10
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_ratify_german_alignment }
-		relative_position_id = US2_R_ratify_german_alignment
-		x = 3
-		y = 1
-	}
-	focus = {
-		id = US2_R_continental_guarantees
-		icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_continental_agreement }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 25
-		}
-
-		prerequisite = { focus = US2_R_continental_alignment }
-		relative_position_id = US2_R_continental_alignment
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_ratify_continental_alignment
-		icon = GFX_focus_renounce_the_treaty_of_trianon
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 US2_R_no_great_war = yes has_country_flag = US2_R_continental_agreement has_global_flag = GE1_continental_alliance_active FRA = { has_war_with = GER is_in_faction = yes } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.214 days = 1 }
-		}
-
-		prerequisite = { focus = US2_R_continental_guarantees }
-		relative_position_id = US2_R_continental_guarantees
-		x = 4
-		y = 1
-	}
-	focus = {
-		id = US2_R_continental_staff
-		icon = GFX_SOV_national_specialists_ccp_2d_sov_compatibility
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = US2_R_continental_bloc_member is_in_faction_with = FRA }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			army_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_ratify_continental_alignment }
-		relative_position_id = US2_R_ratify_continental_alignment
-		x = 3
-		y = 1
-	}
-	focus = {
-		id = US2_mexican_revolution_actions
-		icon = GFX_focus_generic_support_the_left_right
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = { army_experience = 10 }
-
-		prerequisite = { focus = US2_diplomatic_effort }
-		relative_position_id = US2_diplomatic_effort
-		x = -1
-		y = 1
-	}
-	focus = {
-		id = US2_send_army_to_border
-		icon = GFX_focus_JAP_rely_on_infantry_charges
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = {
-				id = ww1_usa.12
-				days = 1
-			}
-		}
-
-		prerequisite = { focus = US2_mexican_revolution_actions }
-		relative_position_id = US2_mexican_revolution_actions
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_mexican_sovereignty
-		icon = GFX_goal_generic_scientific_exchange
-
-		cost = 5
-
-		mutually_exclusive = { focus = US2_intervention_in_mexico }
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX NOT = { has_war_with = MEX } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			set_country_flag = US2_R_mexican_sovereignty country_event = { id = ww1_usa.216 days = 1 }
-		}
-
-		prerequisite = { focus = US2_send_army_to_border }
-		relative_position_id = US2_send_army_to_border
-		x = -2
-		y = 1
-	}
-	focus = {
-		id = US2_intervention_in_mexico
-		icon = GFX_goal_generic_territory_or_war
-
-		cost = 5
-
-		mutually_exclusive = { focus = US2_R_mexican_sovereignty }
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX NOT = { has_war_with = MEX } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.13 days = 1 }
-		}
-
-		prerequisite = { focus = US2_send_army_to_border }
-		relative_position_id = US2_send_army_to_border
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_support_revolution
-		icon = GFX_focus_generic_blue_flags
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MDS NOT = { has_war_with = MDS } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.14 days = 1 }
-		}
-
-		prerequisite = { focus = US2_send_army_to_border }
-		relative_position_id = US2_send_army_to_border
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_supply_revolutionaries
-		icon = GFX_goal_generic_construct_civ_factory
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { country_exists = CNT country_exists = VIL } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.16 days = 1 }
-		}
-
-		prerequisite = { focus = US2_support_revolution }
-		relative_position_id = US2_support_revolution
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_fortify_border
-		icon = GFX_focus_generic_provoke_border_clashes
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.15 days = 1 }
-		}
-
-		prerequisite = { focus = US2_send_army_to_border }
-		relative_position_id = US2_send_army_to_border
-		x = 4
-		y = 1
-	}
-	focus = {
-		id = US2_condemn_huerta
-		icon = GFX_goal_generic_intelligence_exchange
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { has_global_flag = huerta_takes_power has_global_flag = fall_of_huerta } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.18 days = 1 }
-		}
-
-		prerequisite = { focus = US2_mexican_revolution_actions }
-		relative_position_id = US2_mexican_revolution_actions
-		x = 5
-		y = 1
-	}
-	focus = {
-		id = US2_withdraw_from_veracruz
-		icon = GFX_focus_BEL_government_resigns
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = veracruz_occupied NOT = { has_war_with = MEX } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		bypass = { has_global_flag = veracruz_withdrawn }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.17 days = 1 }
-		}
-
-		prerequisite = { focus = US2_condemn_huerta }
-		relative_position_id = US2_condemn_huerta
-		x = 3
-		y = 1
-	}
-	focus = {
-		id = US2_back_revolutionaries_2
-		icon = GFX_focus_AFG_parliamentary_democracy
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = fall_of_huerta OR = { country_exists = CNT country_exists = VIL } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.19 days = 1 }
-		}
-
-		prerequisite = { focus = US2_condemn_huerta }
-		relative_position_id = US2_condemn_huerta
-		x = 5
-		y = 1
-	}
-	focus = {
-		id = US2_condemn_villa
-		icon = GFX_focus_generic_secret_service_agency
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = columbus_raid }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.20 days = 1 }
-		}
-
-		prerequisite = { focus = US2_condemn_huerta }
-		relative_position_id = US2_condemn_huerta
-		x = 7
-		y = 1
-	}
-	focus = {
-		id = US2_R_pershing_border_lessons
-		icon = GFX_focus_generic_approach_the_west
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			army_experience = 10
-			country_event = {
-				id = ww1_usa.216
-				days = 1
-			}
-		}
-
-		prerequisite = { focus = US2_condemn_villa }
-		relative_position_id = US2_condemn_villa
-		x = -4
-		y = 1
-	}
-	focus = {
-		id = US2_R_mexican_settlement
-		icon = GFX_goal_generic_alliance
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = MEX NOT = { has_war_with = MEX } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.216 days = 1 }
-		}
-
-		prerequisite = { focus = US2_R_mexican_sovereignty focus = US2_R_pershing_border_lessons }
-		relative_position_id = US2_R_pershing_border_lessons
-		x = -1
-		y = 1
-	}
-	focus = {
-		id = US2_R_caribbean_consultation
-		icon = GFX_focus_NORDIC_dem_institution_1
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			set_country_flag = US2_R_caribbean_nonintervention
-			add_political_power = 25
-		}
-
-		prerequisite = { focus = US2_R_mexican_settlement }
-		relative_position_id = US2_R_mexican_settlement
-		x = -4
-		y = 1
-	}
-	focus = {
-		id = US2_R_pan_american_conference
-		icon = GFX_focus_generic_conference
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 15
-		}
-
-		prerequisite = { focus = US2_R_caribbean_consultation }
-		relative_position_id = US2_R_caribbean_consultation
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_pacific_diplomacy
-		icon = GFX_focus_SIA_the_midnight_meeting
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 25
-		}
-
-		prerequisite = { focus = US2_diplomatic_effort }
-		relative_position_id = US2_diplomatic_effort
-		x = 1
-		y = 1
-	}
-	focus = {
-		id = US2_R_open_door
-		icon = GFX_focus_hol_abandon_the_gold_standard
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			add_political_power = 15
-		}
-
-		prerequisite = { focus = US2_R_pacific_diplomacy }
-		relative_position_id = US2_R_pacific_diplomacy
-		x = 5
-		y = 1
-	}
-	focus = {
-		id = US2_R_philippine_policy
-		icon = GFX_focus_generic_immigration
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			country_exists = PHI
-			PHI = {
-				is_subject_of = USA
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = { if = { limit = { country_exists = PHI NOT = { has_war_with = PHI } } add_opinion_modifier = { target = PHI modifier = small_increase } PHI = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } }
-
-		prerequisite = { focus = US2_R_open_door }
-		relative_position_id = US2_R_open_door
-		x = 7
-		y = 1
-	}
-
-	focus = {
-		id = US2_send_aid
-		icon = GFX_focus_NORDIC_dem_selector_civilian
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = WHR WHR = { has_war_with = SOV } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_POLITICAL }
-		completion_reward = {
-			country_event = { id = ww1_usa.26 days = 1 }
-		}
-
-		prerequisite = { focus = US2_R_philippine_policy }
-		relative_position_id = US2_R_philippine_policy
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_industrial_effort
-		icon = GFX_focus_generic_industrialists
-
+		id = US2_R_territorial_program
+		icon = GFX_goal_generic_construction2
 		cost = 5
 		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = { add_tech_bonus = { name = US2_R_territorial_program_programme_bonus bonus = 0.35 uses = 1 category = logistics_tech } }
+		prerequisite = { focus = US2_national_opening }
+		relative_position_id = US2_national_opening
+		x = 11
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_hawaii_yards
+		icon = GFX_goal_generic_construct_naval_dockyard
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = {
+				limit = {
+					629 = {
+						is_owned_by = ROOT
+						is_fully_controlled_by = ROOT
+					}
+				}
+				629 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			add_tech_bonus = {
+				name = US2_R_hawaii_stations
+				bonus = 0.25
+				uses = 1
+				category = naval_equipment
+			}
+		}
+		prerequisite = { focus = US2_R_territorial_program }
+		relative_position_id = US2_R_territorial_program
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_panama_canal_works
+		icon = GFX_focus_generic_improve_roads
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			WW1_USA_open_panama_canal = yes
+			if = { limit = { 685 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } } 685 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_canal_works bonus = 0.25 uses = 1 category = construction_tech }
+		}
+		prerequisite = { focus = US2_R_territorial_program }
+		relative_position_id = US2_R_territorial_program
+		x = -4
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_alaska_communications
+		icon = GFX_focus_generic_radio_communication
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = { name = US2_R_alaska_communications bonus = 0.25 uses = 1 category = electronics }
+		}
+		prerequisite = { focus = US2_R_territorial_program }
+		relative_position_id = US2_R_territorial_program
+		x = 5
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_puerto_rico_works
+		icon = GFX_focus_GER_philipp_holzmann
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = {
+				limit = {
+					686 = {
+						is_owned_by = ROOT
+						is_fully_controlled_by = ROOT
+					}
+				}
+				686 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			add_tech_bonus = {
+				name = US2_R_puerto_rico_works
+				bonus = 0.25
+				uses = 1
+				category = construction_tech
+			}
+		}
+		prerequisite = { focus = US2_R_territorial_program }
+		relative_position_id = US2_R_territorial_program
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_philippine_administration
+		icon = GFX_focus_generic_price_controls
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } country_exists = PHI PHI = { is_subject_of = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			army_experience = 10
+		}
+		prerequisite = { focus = US2_R_territorial_program }
+		relative_position_id = US2_R_territorial_program
+		x = 9
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_pearl_harbor_logistics
+		icon = GFX_focus_JAP_expand_coal_islands
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_pearl_harbor_logistics
+				bonus = 0.25
+				uses = 1
+				category = naval_equipment
+			}
+		}
+		prerequisite = { focus = US2_R_hawaii_yards }
+		relative_position_id = US2_R_hawaii_yards
+		x = 0
+		y = 3
+	}
+
+	focus = {
+		id = US2_R_caribbean_stations
+		icon = GFX_focus_PHI_trucks_and_transport_requisition
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_caribbean_stations
+				bonus = 0.25
+				uses = 1
+				category = construction_tech
+			}
+		}
+		prerequisite = { focus = US2_R_panama_canal_works }
+		relative_position_id = US2_R_panama_canal_works
+		x = 5
+		y = 3
+	}
+
+	focus = {
+		id = US2_R_philippine_procurement
+		icon = GFX_focus_generic_industry_investment
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } country_exists = PHI PHI = { is_subject_of = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_philippine_workshops
+				bonus = 0.25
+				uses = 1
+				category = industry
+			}
+		}
+		prerequisite = { focus = US2_R_philippine_administration }
+		relative_position_id = US2_R_philippine_administration
+		x = 0
+		y = 3
+	}
+
+	focus = {
+		id = US2_R_pacific_fleet_support
+		icon = GFX_focus_CHI_fund_marine_corp
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_pacific_fleet_support
+				bonus = 0.25
+				uses = 1
+				category = naval_equipment
+			}
+		}
+		prerequisite = { focus = US2_R_pearl_harbor_logistics }
+		relative_position_id = US2_R_pearl_harbor_logistics
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = US2_R_caribbean_stations }
+		id = US2_R_territorial_roads
+		icon = GFX_goal_generic_construct_military
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_R_alaska_communications
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = { limit = { 463 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } } 463 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } if = { limit = { 685 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } } 685 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_territorial_roads bonus = 0.25 uses = 1 category = construction_tech }
+		}
+		relative_position_id = US2_R_caribbean_stations
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_philippine_constabulary
+		icon = GFX_focus_BUL_bulgarian_administration_of_the_balkans
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } country_exists = PHI PHI = { is_subject_of = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			army_experience = 10
+		}
+		prerequisite = { focus = US2_R_philippine_procurement }
+		relative_position_id = US2_R_philippine_procurement
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = US2_R_pacific_fleet_support }
+		prerequisite = { focus = US2_R_philippine_constabulary }
+		prerequisite = { focus = US2_R_territorial_roads }
+		id = US2_R_integrated_territorial_logistics
+		icon = GFX_focus_generic_central_planning
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_R_pacific_fleet_support
+			has_completed_focus = US2_R_philippine_constabulary
+			has_completed_focus = US2_R_puerto_rico_works
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_integrated_territorial_logistics
+				bonus = 0.25
+				uses = 1
+				category = construction_tech
+			}
+		}
+		relative_position_id = US2_R_territorial_roads
+		x = -4
+		y = 1
+	}
+
+
+
+
+	focus = {
+		prerequisite = { focus = US2_national_opening }
+		id = US2_industrial_effort
+		icon = GFX_focus_generic_industrialists
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_national_opening
+		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 10 }
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -1738,11 +2032,390 @@ focus_tree = {
 				category = construction_tech
 			}
 		}
-
-		x = 51
-		y = 0
+		relative_position_id = US2_national_opening
+		x = 22
+		y = 1
 	}
 
+	focus = {
+		id = US2_R_motor_rail
+		icon = GFX_focus_BEL_engine_of_the_economy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = { limit = { 396 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 396 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_motor_freight bonus = 0.25 uses = 1 category = construction_tech }
+		}
+		prerequisite = { focus = US2_industrial_effort }
+		relative_position_id = US2_industrial_effort
+		x = -32
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_interchangeable_parts
+		icon = GFX_focus_generic_industral_devlopment_bucket
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY  FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			add_tech_bonus = { name = US2_R_interchangeable_parts bonus = 0.25 uses = 1 category = industry }
+
+			if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = US2_R_interchangeable_parts_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+		}
+		prerequisite = { focus = US2_industrial_effort }
+		relative_position_id = US2_industrial_effort
+		x = -23
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_merchant_shipyards
+		icon = GFX_focus_generic_navy_research_bonus
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = {
+				limit = {
+					358 = {
+						is_owned_by = ROOT
+						is_fully_controlled_by = ROOT
+						is_core_of = ROOT
+					}
+				}
+				358 = {
+					add_extra_state_shared_building_slots = 1
+					add_building_construction = {
+						type = dockyard
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			add_tech_bonus = {
+				name = US2_R_merchant_yards
+				bonus = 0.25
+				uses = 1
+				category = naval_equipment
+			}
+		}
+		prerequisite = { focus = US2_industrial_effort }
+		relative_position_id = US2_industrial_effort
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_ordnance_contracts
+		icon = GFX_focus_generic_arms_trade
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 9 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_ordnance_contracts
+				bonus = 0.25
+				uses = 1
+				category = artillery
+			}
+		}
+		prerequisite = { focus = US2_industrial_effort }
+		relative_position_id = US2_industrial_effort
+		x = -4
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_industrial_mobilization
+		icon = GFX_goal_generic_allies_build_infantry
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } US2_R_war_programmes_allowed = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_US2_R_industrial_mobilization_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_US2_R_industrial_mobilization_spirit } add_tech_bonus = { name = US2_R_industrial_mobilization bonus = 0.25 uses = 1 category = industry } }
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = USA
+				}
+				set_temp_variable = {
+					endsieg_ww1_factories_to_add = 1
+				}
+				endsieg_ww1_expand_state_war_industry = yes
+			}
+			add_tech_bonus = {
+				name = US2_R_industrial_mobilization
+				bonus = 0.25
+				uses = 1
+				category = industry
+			}
+			news_event = {
+				id = ww1_usa.221
+				hours = 6
+			}
+		}
+		prerequisite = { focus = US2_industrial_effort }
+		relative_position_id = US2_industrial_effort
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_war_industries_board
+		icon = GFX_SOV_no_time_for_peace_ccp_2d_sov_compatibility
+		cost = 10
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA date > 1916.12.31 } NOT = { date < 1917.7.28 } US2_R_war_programmes_allowed = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_tech_bonus = {
+				name = US2_R_war_industries_board
+				bonus = 0.25
+				uses = 1
+				category = industry
+			}
+			news_event = {
+				id = ww1_usa.221
+				hours = 6
+			}
+			add_tech_bonus = {
+				name = US2_R_war_industries_board
+				bonus = 0.5
+				uses = 1
+				category = industry
+			}
+		}
+		prerequisite = { focus = US2_R_industrial_mobilization }
+		prerequisite = { focus = US2_R_ordnance_contracts }
+		relative_position_id = US2_R_industrial_mobilization
+		x = -2
+		y = 3
+	}
+
+	focus = {
+		id = US2_naval_effort
+		icon = GFX_focus_JAP_assure_superior_naval_quality
+		cost = 5
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			NOT = {
+				date < 1910.1.1
+			}
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			navy_experience = 10
+		}
+		prerequisite = { focus = US2_industrial_effort }
+		relative_position_id = US2_industrial_effort
+		x = 4
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_convoy_escorts
+		icon = GFX_focus_generic_mine_warfare
+		cost = 5
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			date > 1916.1.1
+			US2_R_war_programmes_allowed = yes
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			navy_experience = 5
+		}
+		prerequisite = { focus = US2_naval_effort }
+		relative_position_id = US2_naval_effort
+		x = 0
+		y = 3
+	}
+
+	focus = {
+		prerequisite = { focus = US2_industrial_effort }
+		id = US2_form_airforce
+		icon = GFX_goal_generic_build_airforce
+		cost = 5
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			NOT = {
+				date < 1910.1.1
+			}
+			has_completed_focus = US2_industrial_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			air_experience = 10
+		}
+		relative_position_id = US2_industrial_effort
+		x = 27
+		y = 1
+	}
+
+	focus = {
+		id = US2_R_airfields
+		icon = GFX_focus_generic_cas_aircraft
+		cost = 5
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			NOT = {
+				date < 1910.1.1
+			}
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 3 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			air_experience = 10
+		}
+		prerequisite = { focus = US2_form_airforce }
+		relative_position_id = US2_form_airforce
+		x = 2
+		y = 3
+	}
+
+	# Public administration and finance
+	focus = {
+		prerequisite = { focus = US2_industrial_effort }
+		id = US2_R_federal_procurement
+		icon = GFX_focus_INS_work_with_oil_barons
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA date > 1916.12.31 }
+			has_completed_focus = US2_industrial_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_federal_procurement
+				bonus = 0.25
+				uses = 1
+				category = industry
+			}
+		}
+		relative_position_id = US2_national_opening
+		x = 22
+		y = 2
+	}
+
+	focus = {
+		id = US2_R_federal_arsenals
+		icon = GFX_focus_AST_lithgow_small_arms_factory
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } US2_R_war_programmes_allowed = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = USA
+				}
+				set_temp_variable = {
+					endsieg_ww1_factories_to_add = 1
+				}
+				endsieg_ww1_expand_state_war_industry = yes
+			}
+			add_tech_bonus = {
+				name = US2_R_federal_arsenals
+				bonus = 0.25
+				uses = 1
+				category = infantry_weapons
+			}
+		}
+		relative_position_id = US2_R_artillery_expansion
+		x = -4
+		y = 1
+		prerequisite = { focus = US2_R_artillery_expansion }
+	}
+
+	focus = {
+		id = US2_R_federal_trade_commission
+		icon = GFX_focus_SWI_dissolve_the_federal_council
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.3.4 } has_country_flag = US2_R_inaugurated }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			 add_political_power = 10
+		}
+		relative_position_id = US2_R_clayton_act
+		x = 0
+		y = 1
+		prerequisite = { focus = US2_R_clayton_act }
+	}
+
+	focus = {
+		id = US2_european_diplomacy
+		icon = GFX_focus_ww1_official_flag_usa_diplomacy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_political_power = 10
+
+		}
+		relative_position_id = US2_diplomatic_effort
+		x = -19
+		y = 1
+		prerequisite = { focus = US2_diplomatic_effort }
+	}
+
+	focus = {
+		prerequisite = { focus = US2_industrial_effort }
+		id = US2_R_federal_reserve
+		icon = GFX_focus_generic_women_in_military
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } NOT = { date < 1913.12.23 }
+			has_completed_focus = US2_industrial_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			 add_tech_bonus = { name = US2_R_federal_credit bonus = 0.25 uses = 1 category = industry }
+		}
+		relative_position_id = US2_national_opening
+		x = 30
+		y = 2
+	}
+
+	# Industry and infrastructure
 	focus = {
 		id = US2_R_railroad_board
 		icon = GFX_focus_SIA_night_time_training
@@ -1784,12 +2457,12 @@ focus_tree = {
 				category = construction_tech
 			}
 		}
-
-		prerequisite = { focus = US2_industrial_effort }
 		relative_position_id = US2_industrial_effort
-		x = -5
+		x = 10
 		y = 1
+		prerequisite = { focus = US2_industrial_effort }
 	}
+
 	focus = {
 		id = US2_R_steel_districts
 		icon = GFX_focus_generic_steel_mill
@@ -1831,12 +2504,12 @@ focus_tree = {
 				category = industry
 			}
 		}
-
-		prerequisite = { focus = US2_industrial_effort }
 		relative_position_id = US2_industrial_effort
-		x = -3
+		x = 14
 		y = 1
+		prerequisite = { focus = US2_industrial_effort }
 	}
+
 	focus = {
 		id = US2_R_machine_tools
 		icon = GFX_goal_generic_production
@@ -1872,61 +2545,22 @@ focus_tree = {
 				category = industry
 			}
 		}
-
-		prerequisite = { focus = US2_industrial_effort }
 		relative_position_id = US2_industrial_effort
-		x = -1
+		x = 12
 		y = 1
+		prerequisite = { focus = US2_industrial_effort }
 	}
 
 	focus = {
-		id = US2_R_shipyards
-		icon = GFX_focus_PER_fund_imperial_excellency
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = {
-				limit = {
-					362 = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-						is_core_of = ROOT
-					}
-				}
-				362 = {
-					add_extra_state_shared_building_slots = 1
-					add_building_construction = {
-						type = dockyard
-						level = 1
-						instant_build = yes
-					}
-				}
-			}
-			add_tech_bonus = {
-				name = US2_R_shipyard_program
-				bonus = 0.25
-				uses = 1
-				category = naval_equipment
-			}
-		}
-
 		prerequisite = { focus = US2_industrial_effort }
-		relative_position_id = US2_industrial_effort
-		x = 1
-		y = 1
-	}
-	focus = {
 		id = US2_R_mining_bureau
 		icon = GFX_focus_generic_aluminum
 
 		cost = 5
 
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_industrial_effort
+		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 7 }
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -1938,11 +2572,9 @@ focus_tree = {
 				category = excavation_tech
 			}
 		}
-
-		prerequisite = { focus = US2_industrial_effort }
-		relative_position_id = US2_industrial_effort
-		x = 3
-		y = 1
+		relative_position_id = US2_national_opening
+		x = 28
+		y = 2
 	}
 
 	focus = {
@@ -1980,61 +2612,23 @@ focus_tree = {
 				category = industry
 			}
 		}
-
-		prerequisite = { focus = US2_R_steel_districts }
 		relative_position_id = US2_R_steel_districts
 		x = 0
-		y = 1
+		y = 3
+		prerequisite = { focus = US2_R_steel_districts }
 	}
 
 	focus = {
-		id = US2_R_merchant_shipyards
-		icon = GFX_focus_generic_navy_research_bonus
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = {
-				limit = {
-					358 = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-						is_core_of = ROOT
-					}
-				}
-				358 = {
-					add_extra_state_shared_building_slots = 1
-					add_building_construction = {
-						type = dockyard
-						level = 1
-						instant_build = yes
-					}
-				}
-			}
-			add_tech_bonus = {
-				name = US2_R_merchant_yards
-				bonus = 0.25
-				uses = 1
-				category = naval_equipment
-			}
-		}
-
-		prerequisite = { focus = US2_R_shipyards }
-		relative_position_id = US2_R_shipyards
-		x = 2
-		y = 1
-	}
-	focus = {
+		prerequisite = { focus = US2_R_steel_districts }
 		id = US2_R_coal_committee
 		icon = GFX_focus_generic_coal_mining
 
 		cost = 5
 
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_R_steel_districts
+			has_completed_focus = US2_industrial_effort
+		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 8 }
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -2046,157 +2640,11 @@ focus_tree = {
 				category = industry
 			}
 		}
-
-		prerequisite = { focus = US2_R_steel_districts }
-		prerequisite = { focus = US2_industrial_effort }
-		relative_position_id = US2_R_steel_districts
-		x = 2
-		y = 1
+		relative_position_id = US2_national_opening
+		x = 35
+		y = 3
 	}
 
-	focus = {
-		id = US2_R_motor_rail
-		icon = GFX_focus_BEL_engine_of_the_economy
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = { limit = { 396 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 396 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_motor_freight bonus = 0.25 uses = 1 category = construction_tech }
-		}
-
-		prerequisite = { focus = US2_R_railroad_board }
-		relative_position_id = US2_R_railroad_board
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_interchangeable_parts
-		icon = GFX_focus_generic_industral_devlopment_bucket
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY  FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			add_tech_bonus = { name = US2_R_interchangeable_parts bonus = 0.25 uses = 1 category = industry }
-
-			if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = US2_R_interchangeable_parts_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
-		}
-
-		prerequisite = { focus = US2_R_machine_tools }
-		relative_position_id = US2_R_machine_tools
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_navy_yards
-		icon = GFX_focus_JAP_expand_navy_technical_department
-
-		cost = 7
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = {
-				limit = {
-					361 = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-						is_core_of = ROOT
-					}
-				}
-				361 = {
-					add_extra_state_shared_building_slots = 1
-					add_building_construction = {
-						type = dockyard
-						level = 1
-						instant_build = yes
-					}
-				}
-			}
-			add_tech_bonus = {
-				name = US2_R_navy_yards
-				bonus = 0.25
-				uses = 1
-				category = naval_equipment
-			}
-		}
-
-		prerequisite = { focus = US2_R_merchant_shipyards }
-		relative_position_id = US2_R_merchant_shipyards
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_war_industries_board
-		icon = GFX_SOV_no_time_for_peace_ccp_2d_sov_compatibility
-
-		cost = 10
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA date > 1916.12.31 } NOT = { date < 1917.7.28 } US2_R_war_programmes_allowed = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 10 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_tech_bonus = {
-				name = US2_R_war_industries_board
-				bonus = 0.25
-				uses = 1
-				category = industry
-			}
-			news_event = {
-				id = ww1_usa.221
-				hours = 6
-			}
-			add_tech_bonus = {
-				name = US2_R_war_industries_board
-				bonus = 0.5
-				uses = 1
-				category = industry
-			}
-		}
-
-		prerequisite = { focus = US2_R_industrial_mobilization }
-		prerequisite = { focus = US2_R_federal_arsenals }
-		relative_position_id = US2_R_federal_arsenals
-		x = 1
-		y = 1
-	}
-	focus = {
-		id = US2_R_federal_procurement
-		icon = GFX_focus_INS_work_with_oil_barons
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA date > 1916.12.31 } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_federal_procurement
-				bonus = 0.25
-				uses = 1
-				category = industry
-			}
-		}
-
-		prerequisite = { focus = US2_industrial_effort }
-		relative_position_id = US2_industrial_effort
-		x = 5
-		y = 1
-	}
 	focus = {
 		id = US2_R_inland_waterway
 		icon = GFX_focus_INS_oweralwagen
@@ -2210,115 +2658,22 @@ focus_tree = {
 		completion_reward = {
 			if = { limit = { 375 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 375 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_inland_waterway bonus = 0.25 uses = 1 category = construction_tech }
 		}
-
-		prerequisite = { focus = US2_R_coal_committee }
 		relative_position_id = US2_R_coal_committee
 		x = 0
 		y = 1
+		prerequisite = { focus = US2_R_coal_committee }
 	}
+
 	focus = {
-		id = US2_R_ordnance_contracts
-		icon = GFX_focus_generic_arms_trade
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 9 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_ordnance_contracts
-				bonus = 0.25
-				uses = 1
-				category = artillery
-			}
-		}
-
-		prerequisite = { focus = US2_R_controlled_materials }
-		relative_position_id = US2_R_controlled_materials
-		x = 3
-		y = 1
-	}
-	focus = {
-		id = US2_R_aircraft_materials
-		icon = GFX_goal_generic_air_production
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_aircraft_materials
-				bonus = 0.25
-				uses = 1
-				category = industry
-			}
-		}
-
-		prerequisite = { focus = US2_R_interchangeable_parts }
-		relative_position_id = US2_R_interchangeable_parts
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_meatpacking_board
-		icon = GFX_focus_generic_modernizing_agriculture
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_meatpacking
-				bonus = 0.25
-				uses = 1
-				category = industry
-			}
-		}
-
-		prerequisite = { focus = US2_R_cold_storage }
-		relative_position_id = US2_R_cold_storage
-		x = 1
-		y = 1
-	}
-	focus = {
-		id = US2_R_emergency_shipbuilding
-		icon = GFX_focus_POL_develop_polish_shipbuilding
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA date > 1916.12.31 } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 9 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_emergency_shipbuilding
-				bonus = 0.25
-				uses = 1
-				category = naval_equipment
-			}
-		}
-
-		prerequisite = { focus = US2_R_merchant_shipyards }
-		relative_position_id = US2_R_merchant_shipyards
-		x = 2
-		y = 1
-	}
-	focus = {
+		prerequisite = { focus = US2_R_carnegie_steel }
 		id = US2_R_controlled_materials
 		icon = GFX_focus_generic_rubber_plantations
 
 		cost = 5
 
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_R_carnegie_steel
+		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 9 }
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -2330,92 +2685,21 @@ focus_tree = {
 				category = industry
 			}
 		}
-
-		prerequisite = { focus = US2_R_carnegie_steel }
-		relative_position_id = US2_R_carnegie_steel
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_liberty_loans
-		icon = GFX_focus_ETH_reform_the_currency
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_political_power = 50
-		}
-
-		prerequisite = { focus = US2_R_federal_procurement }
-		relative_position_id = US2_R_federal_procurement
-		x = 0
-		y = 1
+		relative_position_id = US2_national_opening
+		x = 38
+		y = 6
 	}
 
 	focus = {
-		id = US2_R_artillery_expansion
-		icon = GFX_goal_generic_army_artillery
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } US2_R_war_programmes_allowed = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 9 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
-					is_core_of = USA
-				}
-				set_temp_variable = {
-					endsieg_ww1_factories_to_add = 1
-				}
-				endsieg_ww1_expand_state_war_industry = yes
-			}
-			army_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_ordnance_contracts }
-		relative_position_id = US2_R_ordnance_contracts
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_airplane_contracts
-		icon = GFX_focus_generic_copy_plane_designs
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_airplane_contracts
-				bonus = 0.25
-				uses = 1
-				category = electronics
-			}
-		}
-
-		prerequisite = { focus = US2_R_aircraft_materials }
-		relative_position_id = US2_R_aircraft_materials
-		x = 1
-		y = 1
-	}
-	focus = {
+		prerequisite = { focus = US2_industrial_effort }
 		id = US2_R_cold_storage
 		icon = GFX_focus_generic_agricultural_subsidies
 
 		cost = 5
 
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_industrial_effort
+		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 7 }
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -2444,12 +2728,389 @@ focus_tree = {
 				category = construction_tech
 			}
 		}
+		relative_position_id = US2_national_opening
+		x = 53
+		y = 2
+	}
 
-		prerequisite = { focus = US2_industrial_effort }
-		relative_position_id = US2_industrial_effort
-		x = 7
+	focus = {
+		id = US2_R_meatpacking_board
+		icon = GFX_focus_generic_modernizing_agriculture
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_meatpacking
+				bonus = 0.25
+				uses = 1
+				category = industry
+			}
+		}
+		relative_position_id = US2_R_cold_storage
+		x = 0
+		y = 1
+		prerequisite = { focus = US2_R_cold_storage }
+	}
+
+	focus = {
+		prerequisite = { focus = US2_R_motor_rail }
+		id = US2_R_transcontinental_freight
+		icon = GFX_goal_generic_construct_infrastructure
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_R_motor_rail
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = { limit = { 385 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 385 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_transcontinental_freight bonus = 0.25 uses = 1 category = train_tech }
+		}
+		relative_position_id = US2_national_opening
+		x = -10
+		y = 3
+	}
+
+	focus = {
+		prerequisite = { focus = US2_form_airforce }
+		id = US2_R_aef_observation
+		icon = GFX_focus_PER_university_of_isfahan
+
+		cost = 5
+
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			NOT = {
+				date < 1910.1.1
+			}
+
+			has_completed_focus = US2_form_airforce
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			air_experience = 5
+		}
+		relative_position_id = US2_national_opening
+		x = 50
+		y = 3
+	}
+
+	focus = {
+		prerequisite = { focus = US2_R_standard_destroyers }
+		id = US2_R_escort_command
+		icon = GFX_focus_generic_atlantic_coast
+
+		cost = 5
+
+		available = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			date > 1916.1.1
+			US2_R_war_programmes_allowed = yes
+
+			has_completed_focus = US2_R_standard_destroyers
+			has_completed_focus = US2_R_convoy_escorts
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			add_mastery_bonus = {
+				name = US2_R_escort_mastery
+				bonus = 0.1
+				days = 180
+				track = screens
+			}
+			navy_experience = 10
+		}
+		relative_position_id = US2_national_opening
+		x = 25
+		y = 4
+	}
+
+	focus = {
+		id = US2_R_liberty_loans
+		icon = GFX_focus_ETH_reform_the_currency
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			add_political_power = 50
+		}
+		relative_position_id = US2_R_federal_procurement
+		x = 0
+		y = 1
+		prerequisite = { focus = US2_R_federal_procurement }
+	}
+
+	# Army support and readiness
+	focus = {
+		id = US2_R_artillery_expansion
+		icon = GFX_goal_generic_army_artillery
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } US2_R_war_programmes_allowed = yes
+			has_completed_focus = US2_R_ordnance_contracts
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 9 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					is_core_of = USA
+				}
+				set_temp_variable = {
+					endsieg_ww1_factories_to_add = 1
+				}
+				endsieg_ww1_expand_state_war_industry = yes
+			}
+			army_experience = 10
+		}
+		relative_position_id = US2_national_opening
+		x = 12
+		y = 3
+	}
+
+	focus = {
+		prerequisite = { focus = US2_R_ordnance_contracts }
+		prerequisite = { focus = US2_R_artillery_expansion }
+		id = US2_R_army_arsenals
+		icon = GFX_focus_generic_steel
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } US2_R_war_programmes_allowed = yes
+			has_completed_focus = US2_R_ordnance_contracts
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 9 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			random_owned_controlled_state = { limit = { is_core_of = USA } set_temp_variable = { endsieg_ww1_factories_to_add = 1 } endsieg_ww1_expand_state_war_industry = yes }   add_tech_bonus = { name = US2_R_army_arsenals bonus = 0.25 uses = 1 category = infantry_weapons }
+		}
+		relative_position_id = US2_R_artillery_expansion
+		x = 3
 		y = 1
 	}
+
+	focus = {
+		id = US2_R_springfield_rifles
+		icon = GFX_focus_generic_jungle_troops
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_start_date < 1936.1.1 NOT = { date < 1910.1.1 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			add_tech_bonus = { name = US2_R_springfield_rifles bonus = 0.25 uses = 1 category = infantry_weapons }
+		}
+		relative_position_id = US2_R_general_staff
+		x = 3
+		y = 3
+		prerequisite = { focus = US2_R_general_staff }
+	}
+
+	focus = {
+		id = US2_R_american_artillery
+		icon = GFX_goal_generic_army_artillery2
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_start_date < 1936.1.1 NOT = { date < 1910.1.1 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			add_tech_bonus = { name = US2_R_american_artillery bonus = 0.25 uses = 1 category = artillery }
+		}
+		relative_position_id = US2_R_general_staff
+		x = 1
+		y = 3
+		prerequisite = { focus = US2_R_general_staff }
+	}
+
+	focus = {
+		id = US2_R_trench_engineering
+		icon = GFX_focus_CZE_second_fortification_program
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_start_date < 1936.1.1 NOT = { date < 1910.1.1 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			army_experience = 12
+		}
+		relative_position_id = US2_R_general_staff
+		x = -1
+		y = 3
+		prerequisite = { focus = US2_R_general_staff }
+	}
+
+	focus = {
+		id = US2_R_army_medical
+		icon = GFX_focus_INS_expand_batavia_med_school
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_start_date < 1936.1.1 NOT = { date < 1910.1.1 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 3 }
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+			army_experience = 10
+		}
+		relative_position_id = US2_R_general_staff
+		x = -3
+		y = 3
+		prerequisite = { focus = US2_R_general_staff }
+	}
+
+	focus = {
+		id = US2_R_army_supply
+		icon = GFX_focus_generic_manpower
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			  army_experience = 10
+		}
+		relative_position_id = US2_R_meatpacking_board
+		x = 0
+		y = 3
+		prerequisite = { focus = US2_R_meatpacking_board }
+	}
+
+	# Naval programmes
+	focus = {
+		prerequisite = { focus = US2_industrial_effort }
+		id = US2_R_shipyards
+		icon = GFX_focus_PER_fund_imperial_excellency
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_industrial_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = {
+				limit = {
+					362 = {
+						is_owned_by = ROOT
+						is_fully_controlled_by = ROOT
+						is_core_of = ROOT
+					}
+				}
+				362 = {
+					add_extra_state_shared_building_slots = 1
+					add_building_construction = {
+						type = dockyard
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			add_tech_bonus = {
+				name = US2_R_shipyard_program
+				bonus = 0.25
+				uses = 1
+				category = naval_equipment
+			}
+		}
+		relative_position_id = US2_national_opening
+		x = 9
+		y = 2
+	}
+
+	focus = {
+		prerequisite = { focus = US2_R_merchant_shipyards }
+		id = US2_R_navy_yards
+		icon = GFX_focus_JAP_expand_navy_technical_department
+
+		cost = 7
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA }
+			has_completed_focus = US2_R_merchant_shipyards
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			if = {
+				limit = {
+					361 = {
+						is_owned_by = ROOT
+						is_fully_controlled_by = ROOT
+						is_core_of = ROOT
+					}
+				}
+				361 = {
+					add_extra_state_shared_building_slots = 1
+					add_building_construction = {
+						type = dockyard
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			add_tech_bonus = {
+				name = US2_R_navy_yards
+				bonus = 0.25
+				uses = 1
+				category = naval_equipment
+			}
+		}
+		relative_position_id = US2_national_opening
+		x = 14
+		y = 3
+	}
+
+	focus = {
+		prerequisite = { focus = US2_industrial_effort }
+		id = US2_R_emergency_shipbuilding
+		icon = GFX_focus_POL_develop_polish_shipbuilding
+
+		cost = 5
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA date > 1916.12.31 }
+			has_completed_focus = US2_R_merchant_shipyards
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 9 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_emergency_shipbuilding
+				bonus = 0.25
+				uses = 1
+				category = naval_equipment
+			}
+		}
+		relative_position_id = US2_national_opening
+		x = 46
+		y = 2
+	}
+
 	focus = {
 		id = US2_R_merchant_fleet
 		icon = GFX_focus_ICE_modernizing_the_coast_guard
@@ -2468,31 +3129,10 @@ focus_tree = {
 				category = naval_equipment
 			}
 		}
-
-		prerequisite = { focus = US2_R_emergency_shipbuilding }
 		relative_position_id = US2_R_emergency_shipbuilding
 		x = 0
 		y = 1
-	}
-
-	focus = {
-		id = US2_R_transcontinental_freight
-		icon = GFX_goal_generic_construct_infrastructure
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = { limit = { 385 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 385 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_transcontinental_freight bonus = 0.25 uses = 1 category = train_tech }
-		}
-
-		prerequisite = { focus = US2_R_motor_rail }
-		relative_position_id = US2_R_motor_rail
-		x = 0
-		y = 1
+		prerequisite = { focus = US2_R_emergency_shipbuilding }
 	}
 
 	focus = {
@@ -2513,724 +3153,14 @@ focus_tree = {
 				category = naval_equipment
 			}
 		}
-
-		prerequisite = { focus = US2_R_merchant_fleet }
 		relative_position_id = US2_R_merchant_fleet
-		x = 3
-		y = 1
-	}
-	focus = {
-		id = US2_R_industrial_mobilization
-		icon = GFX_goal_generic_allies_build_infantry
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } US2_R_war_programmes_allowed = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 10 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			add_timed_idea = {
-				idea = US2_R_industrial_mobilization_spirit
-				days = 180
-			}
-			random_owned_controlled_state = {
-				limit = {
-					is_core_of = USA
-				}
-				set_temp_variable = {
-					endsieg_ww1_factories_to_add = 1
-				}
-				endsieg_ww1_expand_state_war_industry = yes
-			}
-			add_tech_bonus = {
-				name = US2_R_industrial_mobilization
-				bonus = 0.25
-				uses = 1
-				category = industry
-			}
-			news_event = {
-				id = ww1_usa.221
-				hours = 6
-			}
-		}
-
-		prerequisite = { focus = US2_R_federal_procurement }
-		prerequisite = { focus = US2_R_liberty_loans }
-		relative_position_id = US2_R_liberty_loans
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_national_highways
-		icon = GFX_focus_PER_feat_of_engineering
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = { limit = { 378 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 378 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_national_highways bonus = 0.25 uses = 1 category = construction_tech }
-		}
-
-		prerequisite = { focus = US2_R_transcontinental_freight }
-		relative_position_id = US2_R_transcontinental_freight
 		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_federal_arsenals
-		icon = GFX_focus_AST_lithgow_small_arms_factory
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } US2_R_war_programmes_allowed = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
-					is_core_of = USA
-				}
-				set_temp_variable = {
-					endsieg_ww1_factories_to_add = 1
-				}
-				endsieg_ww1_expand_state_war_industry = yes
-			}
-			add_tech_bonus = {
-				name = US2_R_federal_arsenals
-				bonus = 0.25
-				uses = 1
-				category = infantry_weapons
-			}
-		}
-
-		prerequisite = { focus = US2_R_artillery_expansion }
-		relative_position_id = US2_R_artillery_expansion
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_postwar_merchant_conversion
-		icon = GFX_focus_generic_merchant_fleet
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA date > 1917.12.31 } US2_R_no_great_war = yes }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 6 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			every_owned_state = { limit = { has_state_flag = endsieg_ww1_industry_active } endsieg_ww1_demobilize_state_war_industry = yes } add_timed_idea = { idea = US2_R_merchant_conversion days = 180 } add_tech_bonus = { name = US2_R_postwar_merchant_conversion bonus = 0.25 uses = 1 category = naval_equipment }
-		}
-
-		prerequisite = { focus = US2_R_convoy_shipbuilding }
-		relative_position_id = US2_R_convoy_shipbuilding
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_territorial_program
-		icon = GFX_goal_generic_construction2
-
-		cost = 5
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 7 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = { add_tech_bonus = { name = US2_R_territorial_program_programme_bonus bonus = 0.35 uses = 1 category = logistics_tech } }
-
-		x = 67
-		y = 0
-	}
-	focus = {
-		id = US2_R_panama_canal_works
-		icon = GFX_focus_generic_improve_roads
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = { limit = { 685 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } } 685 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_canal_works bonus = 0.25 uses = 1 category = construction_tech }
-		}
-
-		prerequisite = { focus = US2_R_territorial_program }
-		relative_position_id = US2_R_territorial_program
-		x = -4
-		y = 1
+		y = 3
+		prerequisite = { focus = US2_R_merchant_fleet }
 	}
 
 	focus = {
-		id = US2_R_hawaii_yards
-		icon = GFX_goal_generic_construct_naval_dockyard
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = {
-				limit = {
-					629 = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-					}
-				}
-				629 = {
-					add_building_construction = {
-						type = infrastructure
-						level = 1
-						instant_build = yes
-					}
-				}
-			}
-			add_tech_bonus = {
-				name = US2_R_hawaii_stations
-				bonus = 0.25
-				uses = 1
-				category = naval_equipment
-			}
-		}
-
-		prerequisite = { focus = US2_R_territorial_program }
-		relative_position_id = US2_R_territorial_program
-		x = -2
-		y = 1
-	}
-	focus = {
-		id = US2_R_puerto_rico_works
-		icon = GFX_focus_GER_philipp_holzmann
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 6 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = {
-				limit = {
-					686 = {
-						is_owned_by = ROOT
-						is_fully_controlled_by = ROOT
-					}
-				}
-				686 = {
-					add_building_construction = {
-						type = infrastructure
-						level = 1
-						instant_build = yes
-					}
-				}
-			}
-			add_tech_bonus = {
-				name = US2_R_puerto_rico_works
-				bonus = 0.25
-				uses = 1
-				category = construction_tech
-			}
-		}
-
-		prerequisite = { focus = US2_R_territorial_program }
-		relative_position_id = US2_R_territorial_program
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_philippine_administration
-		icon = GFX_focus_generic_price_controls
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } country_exists = PHI PHI = { is_subject_of = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			army_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_territorial_program }
-		relative_position_id = US2_R_territorial_program
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_pearl_harbor_logistics
-		icon = GFX_focus_JAP_expand_coal_islands
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_pearl_harbor_logistics
-				bonus = 0.25
-				uses = 1
-				category = naval_equipment
-			}
-		}
-
-		prerequisite = { focus = US2_R_hawaii_yards }
-		relative_position_id = US2_R_hawaii_yards
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_philippine_procurement
-		icon = GFX_focus_generic_industry_investment
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } country_exists = PHI PHI = { is_subject_of = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 6 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_philippine_workshops
-				bonus = 0.25
-				uses = 1
-				category = industry
-			}
-		}
-
-		prerequisite = { focus = US2_R_philippine_administration }
-		relative_position_id = US2_R_philippine_administration
-		x = 3
-		y = 1
-	}
-	focus = {
-		id = US2_R_caribbean_stations
-		icon = GFX_focus_PHI_trucks_and_transport_requisition
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 6 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_caribbean_stations
-				bonus = 0.25
-				uses = 1
-				category = construction_tech
-			}
-		}
-
-		prerequisite = { focus = US2_R_panama_canal_works }
-		relative_position_id = US2_R_panama_canal_works
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_alaska_communications
-		icon = GFX_focus_generic_radio_communication
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = { name = US2_R_alaska_communications bonus = 0.25 uses = 1 category = electronics }
-		}
-
-		prerequisite = { focus = US2_R_territorial_program }
-		relative_position_id = US2_R_territorial_program
-		x = 4
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_philippine_constabulary
-		icon = GFX_focus_BUL_bulgarian_administration_of_the_balkans
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } country_exists = PHI PHI = { is_subject_of = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 6 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			army_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_philippine_procurement }
-		relative_position_id = US2_R_philippine_procurement
-		x = -3
-		y = 1
-	}
-	focus = {
-		id = US2_R_territorial_roads
-		icon = GFX_goal_generic_construct_military
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 6 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			if = { limit = { 463 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } } 463 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } if = { limit = { 685 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } } 685 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = US2_R_territorial_roads bonus = 0.25 uses = 1 category = construction_tech }
-		}
-
-		prerequisite = { focus = US2_R_caribbean_stations }
-		prerequisite = { focus = US2_R_alaska_communications }
-		relative_position_id = US2_R_caribbean_stations
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_pacific_fleet_support
-		icon = GFX_focus_CHI_fund_marine_corp
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_pacific_fleet_support
-				bonus = 0.25
-				uses = 1
-				category = naval_equipment
-			}
-		}
-
-		prerequisite = { focus = US2_R_pearl_harbor_logistics }
-		relative_position_id = US2_R_pearl_harbor_logistics
-		x = -3
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_integrated_territorial_logistics
-		icon = GFX_focus_generic_central_planning
-
-		cost = 5
-
-		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 8 }
-		search_filters = { FOCUS_FILTER_INDUSTRY }
-		completion_reward = {
-			add_tech_bonus = {
-				name = US2_R_integrated_territorial_logistics
-				bonus = 0.25
-				uses = 1
-				category = construction_tech
-			}
-		}
-
-		prerequisite = { focus = US2_R_territorial_roads }
-		prerequisite = { focus = US2_R_pacific_fleet_support }
-		prerequisite = { focus = US2_R_puerto_rico_works }
-		prerequisite = { focus = US2_R_philippine_constabulary }
-		relative_position_id = US2_R_territorial_roads
-		x = -1
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_general_staff
-		icon = GFX_focus_AUS_bring_generals_out_of_retirement
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			army_experience = 10
-			add_mastery_bonus = {
-				name = US2_R_general_staff
-				bonus = 0.10
-				days = 180
-				track = operations
-			}
-			country_event = {
-				id = ww1_usa.203
-				days = 1
-			}
-		}
-
-		prerequisite = { focus = US2_diplomatic_effort }
-		relative_position_id = US2_diplomatic_effort
-		x = 3
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_american_expeditionary_force
-		icon = GFX_focus_generic_hill_training
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-			country_exists = FRA
-			NOT = {
-				has_war_with = FRA
-			}
-			is_in_faction_with = FRA
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 6 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			add_timed_idea = {
-				idea = US2_R_american_expeditionary_force_spirit
-				days = 120
-			}
-			country_event = {
-				id = ww1_usa.206
-				days = 1
-			}
-			news_event = {
-				id = ww1_usa.222
-				hours = 6
-			}
-		}
-
-		prerequisite = { focus = US2_send_expeditionary_force }
-		relative_position_id = US2_send_expeditionary_force
-		x = 2
-		y = 1
-	}
-
-	focus = {
-		id = US2_naval_effort
-		icon = GFX_focus_JAP_assure_superior_naval_quality
-
-		cost = 5
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		x = 81
-		y = 0
-	}
-	focus = {
-		id = US2_R_1916_naval_programme
-		icon = GFX_focus_generic_naval_discipline
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-			NOT = {
-				date < 1916.8.29
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			custom_effect_tooltip = WW1_historical_focus_tt
-			navy_experience = 5
-		}
-
 		prerequisite = { focus = US2_naval_effort }
-		relative_position_id = US2_naval_effort
-		x = -4
-		y = 1
-	}
-	focus = {
-		id = US2_R_battleship_line
-		icon = GFX_focus_generic_trade_interdiction
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_naval_effort }
-		relative_position_id = US2_naval_effort
-		x = -2
-		y = 1
-	}
-	focus = {
-		id = US2_R_destroyer_squadrons
-		icon = GFX_goal_generic_navy_anti_submarine
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_naval_effort }
-		relative_position_id = US2_naval_effort
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_submarine_theory
-		icon = GFX_goal_generic_wolf_pack
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_naval_effort }
-		relative_position_id = US2_naval_effort
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_naval_aviation
-		icon = GFX_focus_FIN_expand_air_force_academy
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 3 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 10
-		}
-
-		prerequisite = { focus = US2_naval_effort }
-		relative_position_id = US2_naval_effort
-		x = 4
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_brooklyn_yards
-		icon = GFX_focus_NORDIC_dem_selector_navy
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 3 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_1916_naval_programme }
-		relative_position_id = US2_R_1916_naval_programme
-		x = 0
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_dreadnoughts
-		icon = GFX_goal_continuous_naval_production
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			add_tech_bonus = { name = US2_R_dreadnoughts bonus = 0.25 uses = 1 category = bb_tech }
-		}
-
-		prerequisite = { focus = US2_R_battleship_line }
-		relative_position_id = US2_R_battleship_line
-		x = 0
-		y = 1
-	}
-	focus = {
 		id = US2_R_standard_destroyers
 		icon = GFX_goal_generic_build_navy
 
@@ -3242,6 +3172,8 @@ focus_tree = {
 			NOT = {
 				date < 1910.1.1
 			}
+
+			has_completed_focus = US2_naval_effort
 		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -3249,314 +3181,13 @@ focus_tree = {
 		completion_reward = {
 			navy_experience = 5
 		}
-
-		prerequisite = { focus = US2_R_destroyer_squadrons }
-		relative_position_id = US2_R_destroyer_squadrons
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_convoy_escorts
-		icon = GFX_focus_generic_mine_warfare
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_standard_destroyers }
-		relative_position_id = US2_R_standard_destroyers
-		x = -1
-		y = 1
-	}
-	focus = {
-		id = US2_R_submarine_patrols
-		icon = GFX_goal_generic_navy_submarine
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_submarine_theory }
-		relative_position_id = US2_R_submarine_theory
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_curtiss_navy_aircraft
-		icon = GFX_focus_generic_long_range_aircraft
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_naval_aviation }
-		relative_position_id = US2_R_naval_aviation
-		x = 0
-		y = 1
+		relative_position_id = US2_national_opening
+		x = 25
+		y = 3
 	}
 
 	focus = {
-		id = US2_R_destroyer_bases
-		icon = GFX_focus_USA_fleet
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 3 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_standard_destroyers }
-		relative_position_id = US2_R_standard_destroyers
-		x = 1
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_atlantic_fleet
-		icon = GFX_focus_SMB_blue_water_fleet
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_battle_fleet_readiness }
-		relative_position_id = US2_R_battle_fleet_readiness
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_ocean_convoys
-		icon = GFX_goal_generic_amphibious_assault
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_escort_command }
-		relative_position_id = US2_R_escort_command
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_anti_submarine_warfare
-		icon = GFX_focus_generic_cruiser_submarines
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_submarine_patrols }
-		relative_position_id = US2_R_submarine_patrols
-		x = 1
-		y = 1
-	}
-	focus = {
-		id = US2_R_battle_fleet_readiness
-		icon = GFX_goal_generic_navy_battleship
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_dreadnoughts }
-		prerequisite = { focus = US2_R_battleship_line }
-		relative_position_id = US2_R_dreadnoughts
-		x = -1
-		y = 1
-	}
-	focus = {
-		id = US2_R_naval_repair
-		icon = GFX_goal_generic_construction
-
-		cost = 10
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-			NOT = { date < 1910.1.1 }
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_brooklyn_yards }
-		relative_position_id = US2_R_brooklyn_yards
-		x = -1
-		y = 1
-	}
-	focus = {
-		id = US2_R_azores_patrols
-		icon = GFX_SOV_raskovas_aviation_group_ccp_2d_sov_compatibility
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_anti_submarine_warfare }
-		relative_position_id = US2_R_anti_submarine_warfare
-		x = 0
-		y = 1
-	}
-	focus = {
-		id = US2_R_naval_air_patrol
-		icon = GFX_focus_generic_escort_efficiency
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_curtiss_navy_aircraft }
-		relative_position_id = US2_R_curtiss_navy_aircraft
-		x = 1
-		y = 1
-	}
-	focus = {
-		id = US2_R_escort_command
-		icon = GFX_focus_generic_atlantic_coast
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			add_mastery_bonus = {
-				name = US2_R_escort_mastery
-				bonus = 0.1
-				days = 180
-				track = screens
-			}
-			navy_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_destroyer_bases }
-		prerequisite = { focus = US2_R_convoy_escorts }
-		relative_position_id = US2_R_destroyer_bases
-		x = 0
-		y = 1
-	}
-	focus = {
+		prerequisite = { focus = US2_naval_effort }
 		id = US2_R_battleship_logistics
 		icon = GFX_focus_INS_guided_economy
 
@@ -3567,6 +3198,8 @@ focus_tree = {
 			date < 1936.1.1
 			date > 1916.1.1
 			US2_R_war_programmes_allowed = yes
+
+			has_completed_focus = US2_naval_effort
 		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -3574,59 +3207,60 @@ focus_tree = {
 		completion_reward = {
 			navy_experience = 10
 		}
-
-		prerequisite = { focus = US2_R_atlantic_fleet }
-		relative_position_id = US2_R_atlantic_fleet
-		x = 0
-		y = 1
+		relative_position_id = US2_national_opening
+		x = 27
+		y = 3
 	}
+
+	# Aviation programmes
 	focus = {
-		id = US2_R_hampton_roads_output
-		icon = GFX_focus_PER_shiraz_university
+		id = US2_R_aircraft_materials
+		icon = GFX_goal_generic_air_production
 
 		cost = 5
 
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_aircraft_materials
+				bonus = 0.25
+				uses = 1
+				category = industry
 			}
 		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			navy_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_naval_repair }
-		relative_position_id = US2_R_naval_repair
-		x = 0
-		y = 1
+		relative_position_id = US2_R_interchangeable_parts
+		x = 1
+		y = 3
+		prerequisite = { focus = US2_R_interchangeable_parts }
 	}
+
 	focus = {
-		id = US2_form_airforce
-		icon = GFX_goal_generic_build_airforce
+		id = US2_R_airplane_contracts
+		icon = GFX_focus_generic_copy_plane_designs
 
 		cost = 5
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
+
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = USA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_tech_bonus = {
+				name = US2_R_airplane_contracts
+				bonus = 0.25
+				uses = 1
+				category = electronics
 			}
 		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 10
-		}
-
-		x = 94
-		y = 0
+		relative_position_id = US2_R_aircraft_materials
+		x = 0
+		y = 1
+		prerequisite = { focus = US2_R_aircraft_materials }
 	}
+
 	focus = {
 		id = US2_R_air_service_act
 		icon = GFX_focus_generic_pilot_training
@@ -3649,37 +3283,12 @@ focus_tree = {
 		completion_reward = {
 			air_experience = 5
 		}
-
-		prerequisite = { focus = US2_form_airforce }
 		relative_position_id = US2_form_airforce
-		x = -3
-		y = 1
-	}
-	focus = {
-		id = US2_R_curtiss_jn4
-		icon = GFX_focus_SOV_flying_clubs
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 5
-		}
-
+		x = 0
+		y = 3
 		prerequisite = { focus = US2_form_airforce }
-		relative_position_id = US2_form_airforce
-		x = -1
-		y = 1
 	}
+
 	focus = {
 		id = US2_R_air_observation
 		icon = GFX_focus_BRA_air_force
@@ -3699,13 +3308,14 @@ focus_tree = {
 		completion_reward = {
 			air_experience = 5
 		}
-
-		prerequisite = { focus = US2_form_airforce }
 		relative_position_id = US2_form_airforce
-		x = 1
-		y = 1
+		x = -2
+		y = 3
+		prerequisite = { focus = US2_form_airforce }
 	}
+
 	focus = {
+		prerequisite = { focus = US2_form_airforce }
 		id = US2_R_pilot_training
 		icon = GFX_focus_generic_flight_instructors
 
@@ -3717,6 +3327,9 @@ focus_tree = {
 			NOT = {
 				date < 1910.1.1
 			}
+
+			has_completed_focus = US2_form_airforce
+			has_completed_focus = US2_R_air_service_act
 		}
 		cancel_if_invalid = yes
 		ai_will_do = { factor = 4 }
@@ -3724,188 +3337,11 @@ focus_tree = {
 		completion_reward = {
 			air_experience = 10
 		}
-
-		prerequisite = { focus = US2_form_airforce }
-		prerequisite = { focus = US2_R_air_service_act }
-		relative_position_id = US2_R_air_service_act
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_fighter_experiments
-		icon = GFX_focus_generic_air_research_boost
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			add_tech_bonus = { name = US2_R_fighter_experiments bonus = 0.25 uses = 1 category = air_equipment }
-		}
-
-		prerequisite = { focus = US2_form_airforce }
-		relative_position_id = US2_form_airforce
-		x = 3
-		y = 1
-	}
-	focus = {
-		id = US2_R_bomber_experiments
-		icon = GFX_goal_generic_air_bomber
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 3 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 5
-		}
-
-		prerequisite = { focus = US2_form_airforce }
-		relative_position_id = US2_form_airforce
-		x = 5
-		y = 1
-	}
-	focus = {
-		id = US2_R_airfields
-		icon = GFX_focus_generic_cas_aircraft
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 3 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_air_service_act }
-		relative_position_id = US2_R_air_service_act
-		x = 0
-		y = 1
+		relative_position_id = US2_national_opening
+		x = 48
+		y = 3
 	}
 
-	focus = {
-		id = US2_R_aef_observation
-		icon = GFX_focus_PER_university_of_isfahan
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_curtiss_jn4 }
-		relative_position_id = US2_R_curtiss_jn4
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_aef_fighters
-		icon = GFX_focus_generic_swooping_falcon
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_air_observation }
-		relative_position_id = US2_R_air_observation
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_aef_bombers
-		icon = GFX_goal_generic_occupy_start_war
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_close_support }
-		relative_position_id = US2_R_close_support
-		x = -2
-		y = 1
-	}
-
-	focus = {
-		id = US2_R_aircraft_production
-		icon = GFX_focus_generic_aircraft_production
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			add_tech_bonus = { name = US2_R_aircraft_production bonus = 0.25 uses = 1 category = air_equipment }
-		}
-
-		prerequisite = { focus = US2_R_aef_bombers }
-		relative_position_id = US2_R_aef_bombers
-		x = 0
-		y = 1
-	}
 	focus = {
 		id = US2_R_air_service_logistics
 		icon = GFX_goal_generic_air_fighter
@@ -3925,94 +3361,10 @@ focus_tree = {
 		completion_reward = {
 			air_experience = 5
 		}
-
-		prerequisite = { focus = US2_R_airfields }
 		relative_position_id = US2_R_airfields
-		x = 2
-		y = 1
-	}
-	focus = {
-		id = US2_R_interception_doctrine
-		icon = GFX_SOV_an_adaptable_army_ccp_2d_sov_compatibility
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 10
-		}
-
-		prerequisite = { focus = US2_R_aef_fighters }
-		relative_position_id = US2_R_aef_fighters
-		x = -2
-		y = 1
-	}
-	focus = {
-		id = US2_R_close_support
-		icon = GFX_focus_generic_air_partners
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			date > 1916.1.1
-			US2_R_war_programmes_allowed = yes
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 4 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 5
-		}
-
-		prerequisite = { focus = US2_R_bomber_experiments }
-		relative_position_id = US2_R_bomber_experiments
 		x = 0
 		y = 1
-	}
-
-	focus = {
-		id = US2_R_air_service_reorganisation
-		icon = GFX_focus_AFG_education_reform
-
-		cost = 5
-
-		available = {
-			has_start_date < 1936.1.1
-			date < 1936.1.1
-			NOT = {
-				date < 1910.1.1
-			}
-			NOT = {
-				date < 1918.5.24
-			}
-		}
-		cancel_if_invalid = yes
-		ai_will_do = { factor = 5 }
-		search_filters = { FOCUS_FILTER_RESEARCH }
-		completion_reward = {
-			air_experience = 10
-			add_mastery_bonus = {
-				name = US2_R_air_service_mastery
-				bonus = 0.1
-				days = 180
-				track = operations
-			}
-		}
-
-		prerequisite = { focus = US2_R_air_service_logistics }
-		relative_position_id = US2_R_air_service_logistics
-		x = 0
-		y = 1
+		prerequisite = { focus = US2_R_airfields }
 	}
 
 }

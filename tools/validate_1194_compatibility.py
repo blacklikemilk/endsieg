@@ -1,4 +1,4 @@
-"""Check known 1.19.4 compatibility regressions without starting HOI4.
+"""Check known Endsieg compatibility regressions without starting HOI4.
 
 This structural checker is not a replacement for the game parser or a campaign test.
 Run with Python 3; no external packages are required.
@@ -13,6 +13,7 @@ import re
 import sys
 
 TOKEN = re.compile(r'"(?:\\.|[^"\\])*"|\#[^\r\n]*|\?=|!=|<=|>=|[{}=<>]|[^\s{}=<>#!]+')
+SUPPORTED_VERSION = '1.19.5'
 OPS = {'=', '?=', '!=', '<', '>', '<=', '>='}
 DYNAMIC_ALLOWED = {'has_start_date', 'has_focus_tree', 'date'}
 RUNTIME_ADVISOR_FIELDS = {'allowed', 'visible', 'available', 'on_add', 'on_remove', 'on_fire'}
@@ -105,12 +106,12 @@ def inspect(nodes, rel):
             if isinstance(n.value, list):
                 problems.append((n, 'Scripted effect arguments must be passed through native scopes or variables'))
     if rel.startswith('history/countries/'):
-        for date in nodes:
-            if not re.fullmatch(r'\d{1,4}\.\d{1,2}\.\d{1,2}(?:\.\d{1,2})?', date.key):
-                continue
-            for child in date.children:
-                if child.key in {'else', 'else_if'}:
-                    problems.append((child, 'Dated history branch must use the native nested history conditional'))
+        history_blocks = [nodes]
+        history_blocks.extend(n.children for n in nodes if re.fullmatch(r'\d{1,4}\.\d{1,2}\.\d{1,2}(?:\.\d{1,2})?', n.key))
+        for block in history_blocks:
+            for child in block:
+                if child.key.lower() in {'else', 'else_if'}:
+                    problems.append((child, 'Country history branch must use the native nested history conditional'))
     return problems
 
 
@@ -154,13 +155,15 @@ def main():
     if missing:
         errors.append({'file': 'history/countries/MEX - Mexico.txt', 'message': 'Missing identity registration: ' + ', '.join(missing)})
     descriptor = (repo / 'descriptor.mod').read_text(encoding='utf-8-sig')
-    if not re.search(r'(?m)^supported_version\s*=\s*"1\.19\.4"\s*$', descriptor):
-        errors.append({'file': 'descriptor.mod', 'message': 'Expected supported_version="1.19.4"'})
+    supported_pattern = re.escape(SUPPORTED_VERSION)
+    if not re.search(rf'(?m)^supported_version\s*=\s*"{supported_pattern}"\s*$', descriptor):
+        errors.append({'file': 'descriptor.mod', 'message': f'Expected supported_version="{SUPPORTED_VERSION}"'})
     native = None
     if args.game:
         native = json.loads((args.game / 'launcher-settings.json').read_text(encoding='utf-8-sig'))
-        if native.get('rawVersion') != '1.19.4.1':
-            errors.append({'file': 'launcher-settings.json', 'message': 'Expected installed 1.19.4.1'})
+        raw_version = native.get('rawVersion', '')
+        if not re.fullmatch(rf'{supported_pattern}(?:\.\d+)?', raw_version):
+            errors.append({'file': 'launcher-settings.json', 'message': f'Expected an installed {SUPPORTED_VERSION} build, found {raw_version or "no version"}'})
     result = {'result': 'FAIL' if errors else 'PASS', 'parsed_script_files': parsed,
               'registered_mexican_identities': len(MEX_CHARACTERS - set(missing)),
               'native_version': native.get('version') if native else None,

@@ -111,8 +111,6 @@ RUS_ww1_initialize_october_government = {
 
             add_core_of = SOV
         }
-        give_military_access = GER
-        give_military_access = AUH
         if = {
             limit = { NOT = { has_global_flag = october_revolution } }
             news_event = { id = endsieg_news.222 hours = 6 }
@@ -127,6 +125,49 @@ RUS_ww1_initialize_october_government = {
     }
 }
 
+# Join only the predecessor's existing Central Powers wars before annexation.
+# Native China's national-leadership succession uses this same ordering.
+RUS_ww1_preserve_october_central_wars = {
+    if = {
+        limit = {
+            tag = SOV
+            exists = yes
+            is_subject = no
+            has_start_date < 1918.1.1
+            date < 1936.1.1
+            country_exists = RIE
+            country_exists = GER
+            NOT = { has_global_flag = treaty_of_brest_litovsk }
+            NOT = { has_global_flag = player_wants_custom_peacedeals }
+            NOT = { is_in_faction_with = GER }
+            RIE = {
+                NOT = { has_war_with = SOV }
+                NOT = { is_in_faction_with = GER }
+            }
+        }
+        RIE = {
+            every_enemy_country = {
+                limit = {
+                    RUS_ww1_brest_coalition_member = yes
+                    NOT = { tag = SOV }
+                    NOT = { has_war_with = SOV }
+                    NOT = { is_in_faction_with = SOV }
+                    NOT = { is_subject_of = SOV }
+                    SOV = { NOT = { is_subject_of = PREV } }
+                }
+                SOV = {
+                    add_to_war = {
+                        targeted_alliance = RIE
+                        enemy = PREV
+                        hostility_reason = asked_to_join
+                        single_target_only = yes
+                    }
+                }
+            }
+        }
+    }
+}
+
 RUS_ww1_execute_october_transition = {
     if = {
         limit = {
@@ -134,23 +175,98 @@ RUS_ww1_execute_october_transition = {
             NOT = { country_exists = SOV }
             any_owned_state = { is_capital = yes }
         }
-        # Preserve evidence of the Russian-German war before annexation ends it.
+        # Mark the handoff before releasing the capital. Re-enter from SOV's
+        # own daily scope: the old RIE event scope can become invalid on release.
         if = { limit = { has_war_with = GER } set_global_flag = RUS_ww1_brest_negotiations }
+        set_global_flag = RUS_ww1_october_takeover_pending
         capital_scope = { add_core_of = SOV }
-        release = SOV
-        set_autonomy = { target = SOV autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+        # Transfer only owned core states; enemy province controllers stay put.
+        release_autonomy = {
+            target = SOV
+            autonomy_state = autonomy_puppet
+            release_non_owned_controlled = no
+            force_change_controller_for_non_ally_controlled = no
+        }
         if = {
             limit = { country_exists = SOV }
-            SOV = {
-                inherit_technology = RIE
-                change_tag_from = RIE
-                annex_country = { target = RIE transfer_troops = no }
+            set_autonomy = { target = SOV autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+            # Join synchronously, before a daily tick can invalidate occupation.
+            SOV = { RUS_ww1_preserve_october_central_wars = yes }
+        }
+    }
+}
+
+# Called from SOV's own country scope, never from an RIE event that the
+# annexation destroys. The second condition recovers the previously broken
+# October handoff in existing pre-civil-war saves.
+RUS_ww1_finish_october_takeover = {
+    if = {
+        limit = {
+            tag = SOV exists = yes has_start_date < 1918.1.1 date < 1936.1.1
+            NOT = { has_global_flag = russian_civil_war }
+            NOT = { has_global_flag = RUS_CW_Over }
+            OR = {
+                has_global_flag = RUS_ww1_october_takeover_pending
+                AND = { has_global_flag = october_revolution has_global_flag = RUS_ww1_brest_negotiations has_country_flag = RUS_ww1_october_initialized country_exists = RIE RIE = { NOT = { has_war_with = SOV } } OR = { is_ai = yes RIE = { is_ai = yes } } }
             }
-            # Resolve SOV again after ownership changes; never continue a dead RIE scope.
-            SOV = {
-                transfer_state = 722
-                RUS_ww1_initialize_october_government = yes
+        }
+        if = {
+            limit = { country_exists = RIE RIE = { NOT = { has_war_with = SOV } } OR = { is_ai = yes RIE = { is_ai = yes } } }
+            if = { limit = { is_subject_of = RIE } RIE = { set_autonomy = { target = SOV autonomy_state = autonomy_free end_wars = no end_civil_wars = no } } }
+            # Retry safely if the handoff resumed from an older pending save.
+            RUS_ww1_preserve_october_central_wars = yes
+            WW1_CP_anchor_russian_major = yes
+            inherit_technology = RIE
+            if = { limit = { is_ai = yes RIE = { is_ai = no } } change_tag_from = RIE }
+            annex_country = { target = RIE transfer_troops = yes }
+        }
+        if = {
+            limit = { NOT = { country_exists = RIE } }
+            clr_global_flag = RUS_ww1_october_takeover_pending
+            RUS_ww1_initialize_october_government = yes
+        }
+    }
+}
+
+# Ends only Germany's coalition's wars against this Russian signatory.
+RUS_ww1_enforce_brest_peace = {
+    # Resolve coalition members before Germany so a peace callback cannot
+    # change the alliance membership used to identify the remaining enemies.
+    every_enemy_country = {
+        limit = { NOT = { tag = GER } RUS_ww1_brest_coalition_member = yes }
+        white_peace = PREV
+    }
+    if = { limit = { country_exists = GER has_war_with = GER } white_peace = GER }
+}
+
+# The negotiations leave the existing war and province controllers in place.
+RUS_ww1_advance_brest_talks = {
+    if = {
+        limit = { RUS_ww1_brest_historical_talks = yes has_capitulated = no }
+        if = {
+            limit = {
+                NOT = { date < 1917.12.15 }
+                date < 1918.2.10
+                NOT = { has_global_flag = RUS_ww1_brest_armistice_reported }
             }
+            country_event = { id = ww1_brest.1 }
+        }
+        if = {
+            limit = {
+                NOT = { date < 1918.2.10 }
+                date < 1918.3.3
+                NOT = { has_global_flag = RUS_ww1_brest_declaration_delivered }
+            }
+            country_event = { id = ww1_brest.2 }
+        }
+        if = {
+            limit = {
+                NOT = { date < 1918.2.18 }
+                date < 1918.3.3
+                has_global_flag = RUS_ww1_brest_neither_war_nor_peace
+                NOT = { has_global_flag = RUS_ww1_brest_german_advance_reported }
+            }
+            GER = { country_event = { id = ww1_brest.3 } }
         }
     }
 }
@@ -174,6 +290,7 @@ RUS_ww1_seed_white_government = {
 # Called after history initialization and daily for RIE/SOV. No date-only coup.
 # Queued flags suppress duplicate notifications; the stage flags suppress replays.
 RUS_ww1_repair_revolution_chain = {
+    RUS_ww1_repair_finnish_borders = yes
     if = {
         limit = { tag = RIE exists = yes }
         if = {
@@ -225,7 +342,14 @@ RUS_ww1_repair_revolution_chain = {
             if = { limit = { NOT = { RUS_ww1_october_ready = yes } } clr_country_flag = RUS_ww1_october_queued }
             # Preserve the existing capitulated-imperial-Russia treaty route.
             if = {
-                limit = { RUS_ww1_brest_ready = yes NOT = { has_country_flag = RUS_ww1_brest_queued } }
+                limit = {
+                    RUS_ww1_brest_ready = yes
+                    OR = {
+                        NOT = { has_country_flag = RUS_ww1_brest_queued }
+                        has_country_flag = { flag = RUS_ww1_brest_queued days > 30 }
+                    }
+                }
+                clr_country_flag = RUS_ww1_brest_queued
                 set_country_flag = RUS_ww1_brest_queued
                 country_event = { id = ww1_russia.43 hours = 1 }
             }
@@ -234,9 +358,75 @@ RUS_ww1_repair_revolution_chain = {
     }
     else_if = {
         limit = { tag = SOV exists = yes has_start_date < 1918.1.1 date < 1936.1.1 }
+        # Older saves can reach a Soviet takeover outside the scripted handoff.
+        # Recover its diplomatic clock from the surviving Russian state and war.
+        if = {
+            limit = {
+                has_global_flag = welcome_event_WW1_active
+                date > 1917.1.1
+                has_government = communism
+                is_subject = no
+                NOT = { country_exists = RIE }
+                NOT = { has_global_flag = october_revolution }
+                NOT = { has_global_flag = russian_civil_war }
+                NOT = { has_global_flag = treaty_of_brest_litovsk }
+                NOT = { has_global_flag = RUS_CW_Over }
+                NOT = { has_global_flag = player_wants_custom_peacedeals }
+                has_war_with = GER
+                OR = { owns_state = 195 owns_state = 219 }
+            }
+            set_global_flag = october_revolution
+            set_global_flag = RUS_ww1_brest_negotiations
+            # This is already an established government. Restore only the
+            # missing chronology, preserving its existing leader and politics.
+            set_country_flag = RUS_ww1_october_initialized
+            set_country_flag = RUS_ww1_october_leader_selected
+        }
+        RUS_ww1_finish_october_takeover = yes
+        # Reconcile only once after an actually signed treaty, including saves
+        # where the predecessor remained at war because the handoff failed.
+        if = {
+            limit = { has_global_flag = treaty_of_brest_litovsk has_global_flag = RUS_ww1_brest_negotiations has_global_flag = october_revolution NOT = { has_global_flag = russian_civil_war } NOT = { country_exists = RIE } NOT = { has_country_flag = RUS_ww1_brest_peace_reconciled } }
+            RUS_ww1_enforce_brest_peace = yes
+            set_country_flag = RUS_ww1_brest_peace_reconciled
+        }
         if = {
             limit = { has_global_flag = october_revolution NOT = { has_global_flag = russian_civil_war } NOT = { has_country_flag = RUS_ww1_october_initialized } }
             RUS_ww1_initialize_october_government = yes
+        }
+        # February may have queued the election on a tag that disappeared in
+        # the October takeover. Retry it once on the successor government.
+        if = {
+            limit = {
+                has_global_flag = february_revolution1 NOT = { has_global_flag = { flag = february_revolution1 days < 180 } }
+                has_global_flag = october_revolution
+                NOT = { has_global_flag = constituent_assembly_held }
+                NOT = { has_country_flag = RUS_ww1_assembly_election_queued }
+                has_government = communism
+            }
+            set_country_flag = RUS_ww1_assembly_election_queued
+            country_event = { id = ww1_russia.35 hours = 1 }
+        }
+        # The Soviet government, not the Provisional Government, can dissolve it.
+        if = {
+            limit = {
+                has_global_flag = constituent_assembly_held
+                has_global_flag = october_revolution
+                has_global_flag = RUS_ww1_assembly_rework_started
+                NOT = { has_global_flag = RUS_ww1_constituent_assembly_dissolved }
+                NOT = { has_country_flag = RUS_ww1_assembly_dissolution_queued }
+                has_government = communism
+            }
+            set_country_flag = RUS_ww1_assembly_dissolution_queued
+            country_event = { id = ww1_russia.36 days = 10 }
+        }
+        if = {
+            limit = { has_country_flag = RUS_ww1_assembly_election_queued OR = { NOT = { has_government = communism } has_global_flag = constituent_assembly_held } }
+            clr_country_flag = RUS_ww1_assembly_election_queued
+        }
+        if = {
+            limit = { has_country_flag = RUS_ww1_assembly_dissolution_queued OR = { NOT = { has_government = communism } has_global_flag = RUS_ww1_constituent_assembly_dissolved } }
+            clr_country_flag = RUS_ww1_assembly_dissolution_queued
         }
         # Migrate only the erroneous Lenin choice made by the previous helper.
         if = {
@@ -248,8 +438,16 @@ RUS_ww1_repair_revolution_chain = {
             }
             RUS_ww1_select_october_leader = yes
         }
+        RUS_ww1_advance_brest_talks = yes
         if = {
-            limit = { RUS_ww1_brest_ready = yes NOT = { has_country_flag = RUS_ww1_brest_queued } }
+            limit = {
+                RUS_ww1_brest_ready = yes
+                OR = {
+                    NOT = { has_country_flag = RUS_ww1_brest_queued }
+                    has_country_flag = { flag = RUS_ww1_brest_queued days > 30 }
+                }
+            }
+            clr_country_flag = RUS_ww1_brest_queued
             set_country_flag = RUS_ww1_brest_queued
             country_event = { id = ww1_russia.43 hours = 1 }
         }

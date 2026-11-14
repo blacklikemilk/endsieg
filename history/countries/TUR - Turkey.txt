@@ -25,9 +25,23 @@ TUR_mustafa_kemal_ataturk = { set_character_flag = endsieg_character_managed }
 ######################## 1910
 
 1910.1.1 = {
+	if = {
+		limit = { has_start_date < 1936.1.1 }
+		set_technology = { trench_warfare = 1 }
+	}
+
 capital = 797
 
 oob = "TUR_1910"
+
+# Early-start conscription and reserves; later bookmarks use their own mobilisation history.
+if = {
+	limit = { has_start_date < 1911.1.1 }
+	add_ideas = limited_conscription
+	add_equipment_to_stockpile = { type = early_infantry_equipment_0 amount = 8000 producer = TUR }
+	add_equipment_to_stockpile = { type = ww1_artillery_0 amount = 240 producer = TUR }
+	set_country_flag = WW1_TUR_recruitment_setup_revised
+}
 
 set_research_slots = 4
 set_convoys = 100
@@ -127,11 +141,11 @@ if = {
 create_equipment_variant = {
 	name = "Resadiye Class"	
 	type = ww1_ship_hull_heavy_1
-	name_group = ENG_BB_HISTORICAL
+	name_group = TUR_WW1_BATTLESHIPS
 	parent_version = 0
 	modules = {
 		fixed_ship_battery_slot = ww1_ship_heavy_battery_1
-		fixed_ship_anti_air_slot = empty
+		fixed_ship_light_gun_slot = empty
 		fixed_ship_fire_control_system_slot = ww1_ship_fire_control_system_0
 		fixed_ship_engine_slot = ww1_heavy_ship_engine_1
 		fixed_ship_secondaries_slot = ww1_ship_secondaries_1
@@ -147,11 +161,11 @@ create_equipment_variant = {
 create_equipment_variant = {
 	name = "Hamidieh Class"				
 	type = ww1_ship_hull_cruiser_1
-	name_group = ENG_CL_HISTORICAL
+	name_group = TUR_WW1_ARMORED_CRUISERS
 	parent_version = 0
 	modules = {
 		fixed_ship_battery_slot = ww1_ship_medium_battery_1
-		fixed_ship_anti_air_slot = empty
+		fixed_ship_light_gun_slot = empty
 		fixed_ship_fire_control_system_slot = ww1_ship_fire_control_system_0
 		fixed_ship_radar_slot = empty
 		fixed_ship_engine_slot = ww1_cruiser_ship_engine_1
@@ -168,11 +182,11 @@ create_equipment_variant = {
 create_equipment_variant = {
 	name = "Medjidieh Class"
 	type = ww1_ship_hull_cruiser_1
-	name_group = ENG_CA_HISTORICAL
+	name_group = TUR_WW1_LIGHT_CRUISERS
 	parent_version = 0
 	modules = {
 		fixed_ship_battery_slot = ww1_ship_light_medium_battery_1
-		fixed_ship_anti_air_slot = empty
+		fixed_ship_light_gun_slot = empty
 		fixed_ship_fire_control_system_slot = ww1_ship_fire_control_system_0
 		fixed_ship_radar_slot = empty
 		fixed_ship_engine_slot = ww1_cruiser_ship_engine_1
@@ -187,11 +201,11 @@ create_equipment_variant = {
 create_equipment_variant = {
 	name = "Yarhishar Class"	
 	type = ww1_ship_hull_light_1
-	name_group = ENG_DD_HISTORICAL
+	name_group = TUR_WW1_DESTROYERS
 	parent_version = 0
 	modules = {
 		fixed_ship_battery_slot = ww1_ship_light_battery_1
-		fixed_ship_anti_air_slot = empty
+		fixed_ship_light_gun_slot = empty
 		fixed_ship_fire_control_system_slot = ww1_ship_fire_control_system_0
 		fixed_ship_radar_slot = empty
 		fixed_ship_engine_slot = ww1_light_ship_engine_1
@@ -205,7 +219,7 @@ create_equipment_variant = {
 create_equipment_variant = {
 	name = "Müstecip Class"				
 	type = ww1_ship_hull_submarine_1
-	name_group = ENG_SS_HISTORICAL
+	name_group = TUR_WW1_SUBMARINES
 	parent_version = 0
 	modules = {
 		fixed_ship_torpedo_slot = ww1_ship_torpedo_sub_1
@@ -286,8 +300,6 @@ set_cosmetic_tag = TUR_ottoman_empire
 
 
 		complete_national_focus = OT1_R_san_stefano_aviation
-		complete_national_focus = OT1_R_air_mechanics
-		complete_national_focus = TUR_airfield_construction_1
 
 
 
@@ -328,6 +340,12 @@ set_cosmetic_tag = TUR_ottoman_empire
 	set_stability = 0.6
 	set_war_support = 0.35
 	oob = "TUR_1914"
+
+if = {
+	limit = { has_start_date > 1913.12.31 has_start_date < 1916.1.1 }
+	add_equipment_to_stockpile = { type = early_infantry_equipment_0 amount = 8000 producer = TUR }
+	add_equipment_to_stockpile = { type = ww1_artillery_0 amount = 240 producer = TUR }
+}
 
 	if = {
 		limit = { date > 1914.10.28 country_exists = RIE }
@@ -435,7 +453,6 @@ complete_national_focus = OT1_R_said_halim_cabinet
 complete_national_focus = OT1_R_school_inspectorates
 complete_national_focus = OT1_R_unionist_secretariat
 complete_national_focus = TUR_1913_coup
-complete_national_focus = TUR_airfield_construction_1
 complete_national_focus = TUR_back_senussi
 complete_national_focus = TUR_balkans
 complete_national_focus = TUR_befriend_germany
@@ -609,21 +626,6 @@ complete_national_focus = TUR_strike_russian_port
 
 
 
-
-
-
-		complete_national_focus = TUR_fighter_focus
-
-
-		complete_national_focus = TUR_airfield_construction_2
-
-
-
-
-
-
-
-
 		complete_national_focus = TUR_strike_russian_port
 
 		complete_national_focus = TUR_fortify_dardanelles
@@ -772,7 +774,6 @@ if = {
 
 # Silent WW1 snapshot: no focus rewards or past event announcements are replayed.
 if = { limit = { has_start_date < 1936.1.1 }
-complete_national_focus = OT1_R_air_mechanics
 
 
 
@@ -785,9 +786,6 @@ complete_national_focus = OT1_R_talat_cabinet
 
 
 complete_national_focus = OT1_R_san_stefano_aviation
-complete_national_focus = TUR_airfield_construction_2
-complete_national_focus = OT1_R_pilot_training
-complete_national_focus = TUR_fighter_focus
 }
 }
 

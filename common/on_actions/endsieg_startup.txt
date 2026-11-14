@@ -176,22 +176,7 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
                     QIN = {
                         country_event = { id = ww1_china.1 days = 35 }
                         country_event = { id = ww1_china.2 days = 115 }
-                        country_event = { id = ww1_china.3 days = 646 }
-                        country_event = { id = ww1_china.4 days = 658 }
-                        country_event = { id = ww1_china.5 days = 658 }
-                        country_event = { id = ww1_china.6 days = 659 }
-                        country_event = { id = ww1_china.7 days = 665 }
-                        country_event = { id = ww1_china.8 days = 666 }
-                        country_event = { id = ww1_china.9 days = 742 }
-                        country_event = { id = ww1_china.10 days = 670 }
-                        country_event = { id = ww1_china.11 days = 671 }
-                        country_event = { id = ww1_china.12 days = 672 }
-                        country_event = { id = ww1_china.13 days = 674 }
-                        country_event = { id = ww1_china.14 days = 678 }
-                        country_event = { id = ww1_china.15 days = 676 }
-                        country_event = { id = ww1_china.16 days = 678 }
-                        country_event = { id = ww1_china.17 days = 684 }
-                        country_event = { id = ww1_china.18 days = 689 }
+
                     }
 
                     FRA = {
@@ -254,7 +239,6 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
 
                     ETH = { country_event = { id = ww1_ethiopia.1 days = 1442 } }
                     BRA = { country_event = { id = ww1_brazil.1 days = 60 } }
-                    ENG = { country_event = { id = ww1_britain.43 days = 125 } }
                     GRE = { country_event = { id = ww1_greece.1 days = 1172 } }
                 }
 
@@ -291,7 +275,7 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
                         country_event = { id = welcome.19 }
                         country_event = { id = ww1_germany.69 days = 2 }
                         if = { limit = { has_start_date < 1918.4.21 } country_event = { id = ww1_germany.60 days = 31 } }
-                        GER = { add_ideas = blockade }
+                        # The weekly blockade controller applies the penalty only while British sea control holds.
                     }
 
                     ENG = {
@@ -313,8 +297,8 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
 						FNN = { declare_war_on = { target = FNR type = annex_everything } }
 					}
                     GER = {
-                    	declare_war_on = { target = FRA type = annex_everything }
-                        if = { limit = { NOT = { is_in_faction_with = ENG } NOT = { has_global_flag = GE1_anglo_german_alliance } } declare_war_on = { target = ENG type = annex_everything } }
+                    	declare_war_on = { target = FRA type = ww1_great_war }
+                        if = { limit = { NOT = { is_in_faction_with = ENG } NOT = { has_global_flag = GE1_anglo_german_alliance } } declare_war_on = { target = ENG type = ww1_great_war } }
                     }
 
                 	every_country = {
@@ -332,7 +316,7 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
                 			enemy = FRA
                 		}
                 	}
-                	AUH = { declare_war_on = { target = ITA type = annex_everything } }
+                	AUH = { declare_war_on = { target = ITA type = ww1_great_war } }
                 }
 
                 #1919 events
@@ -558,6 +542,13 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
                         date < 1943.12.30
                     }
                     GER = {
+                        if = {
+                            limit = {
+                                country_exists = USA
+                                NOT = { has_war_with = USA }
+                            }
+                            declare_war_on = { target = USA type = annex_everything }
+                        }
                         country_event = { id = welcome.4 }
                     }
                     GER = { add_to_faction = ITA }
@@ -698,6 +689,29 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
 
                 }
 
+                # The 1942 and July 1943 starts require Italy in Germany's war against the USA.
+                if = {
+                    limit = {
+                        date > 1941.12.10
+                        date < 1943.9.8
+                        country_exists = GER
+                        country_exists = USA
+                        country_exists = ITA
+                        GER = { has_war_with = USA }
+                        ITA = {
+                            is_in_faction_with = GER
+                            NOT = { has_war_with = USA }
+                        }
+                    }
+                    ITA = {
+                        add_to_war = {
+                            targeted_alliance = GER
+                            enemy = USA
+                            single_target_only = yes
+                        }
+                    }
+                }
+
                 # Clear inherited Finnish wars after the scenario war setup.
                 if = {
                     limit = {
@@ -733,6 +747,8 @@ else = { create_faction = UKRANIAN_INDEPENDENCE_MOVEMENT }
                         }
                     }
                 }
+
+                WW1_initialize_starting_balance = yes
 
                 # Seed temporary WWI factories after war relations are initialized.
                 every_country = {

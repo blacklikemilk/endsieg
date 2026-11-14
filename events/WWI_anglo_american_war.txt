@@ -1,0 +1,67 @@
+add_namespace = ww1_anglo_american_war
+
+country_event = {
+	id = ww1_anglo_american_war.1
+	title = ww1_anglo_american_war.1.t
+	desc = ww1_anglo_american_war.1.d
+	picture = GFX_report_event_british_mission
+	is_triggered_only = yes
+	trigger = { WW1_alt_mexico_has_live_british_offer = yes }
+
+	option = {
+		name = ww1_anglo_american_war.1.a
+		trigger = { WW1_alt_mexico_has_live_british_offer = yes }
+		ai_chance = {
+			factor = 35
+			modifier = { factor = 0 OR = { has_war = yes has_stability < 0.40 } }
+			modifier = { factor = 2 strength_ratio = { tag = USA ratio > 0.6 } }
+		}
+		if = {
+			limit = { WW1_alt_mexico_has_live_british_offer = yes }
+			add_to_war = {
+				targeted_alliance = ENG
+				enemy = USA
+				hostility_reason = asked_to_join
+				single_target_only = yes
+			}
+			if = {
+				limit = { has_war_with = USA }
+				if = { limit = { 375 = { is_owned_by = USA } } add_state_claim = 375 }
+				if = { limit = { 376 = { is_owned_by = USA } } add_state_claim = 376 }
+				if = { limit = { 377 = { is_owned_by = USA } } add_state_claim = 377 }
+				ENG = { set_country_flag = WW1_alt_mexican_offer_accepted }
+			}
+			else = { ENG = { set_country_flag = WW1_alt_mexican_offer_failed } }
+			ENG = { country_event = { id = ww1_anglo_american_war.2 hours = 6 } }
+		}
+	}
+
+	option = {
+		name = ww1_anglo_american_war.1.b
+		ai_chance = { factor = 65 }
+		ENG = { country_event = { id = ww1_anglo_american_war.2 hours = 6 } }
+	}
+}
+
+country_event = {
+	id = ww1_anglo_american_war.2
+	title = ww1_anglo_american_war.2.t
+	desc = { text = ww1_anglo_american_war.2.accepted trigger = { has_country_flag = WW1_alt_mexican_offer_accepted } }
+	desc = { text = ww1_anglo_american_war.2.failed trigger = { has_country_flag = WW1_alt_mexican_offer_failed NOT = { has_country_flag = WW1_alt_mexican_offer_accepted } } }
+	desc = { text = ww1_anglo_american_war.2.refused trigger = { NOT = { has_country_flag = WW1_alt_mexican_offer_accepted } NOT = { has_country_flag = WW1_alt_mexican_offer_failed } } }
+	picture = GFX_report_event_british_mission
+	is_triggered_only = yes
+	trigger = { tag = ENG }
+	option = {
+		name = ww1_anglo_american_war.2.a
+		trigger = { has_country_flag = WW1_alt_mexican_offer_accepted }
+	}
+	option = {
+		name = ww1_anglo_american_war.2.b
+		trigger = { NOT = { has_country_flag = WW1_alt_mexican_offer_accepted } NOT = { has_country_flag = WW1_alt_mexican_offer_failed } }
+	}
+	option = {
+		name = ww1_anglo_american_war.2.c
+		trigger = { has_country_flag = WW1_alt_mexican_offer_failed NOT = { has_country_flag = WW1_alt_mexican_offer_accepted } }
+	}
+}

@@ -1,0 +1,24 @@
+# GER scope: queue once and retry if the event was cancelled or the war starts later.
+WW1_BUL_queue_german_war_entry = {
+ if = {
+  limit = { WW1_BUL_german_war_entry_available = yes NOT = { has_country_flag = WW1_BUL_german_war_entry_queued } }
+  set_country_flag = { flag = WW1_BUL_german_war_entry_queued days = 7 }
+  country_event = { id = ww1_germany.29 hours = 1 }
+ }
+}
+
+# GER scope: join only wars Germany is already fighting; never attack neutrals.
+WW1_BUL_join_german_wars = {
+ every_enemy_country = {
+  if = {
+   limit = {
+    BUL = {
+     NOT = { has_war_with = PREV }
+     NOT = { is_in_faction_with = PREV }
+     NOT = { has_non_aggression_pact_with = PREV }
+    }
+   }
+   BUL = { add_to_war = { targeted_alliance = GER enemy = PREV hostility_reason = asked_to_join } }
+  }
+ }
+}

@@ -1,0 +1,196 @@
+WW1_western_plan_initialize_christmas_deadline = {
+	if = {
+		limit = { NOT = { has_variable = WW1_western_plan_bonus_deadline_year } }
+		set_variable = { WW1_western_plan_bonus_deadline_year = global.year }
+		if = {
+			limit = { has_global_flag = { flag = WW1_world_tension_outbreak_recorded days > 180 } }
+			# Recover the missing timetable without awarding a new opening offensive years later.
+			set_variable = { WW1_western_plan_bonus_deadline_year = 0 }
+		}
+	}
+}
+
+WW1_western_plan_begin = {
+	if = {
+		limit = {
+			WW1_western_plan_can_continue = yes
+			NOT = { has_country_flag = WW1_western_plan_started }
+			NOT = { WW1_western_plan_controls_paris = yes }
+		}
+		WW1_western_plan_open_selected_offensive = yes
+	}
+}
+
+WW1_western_plan_open_selected_offensive = {
+	if = {
+		limit = {
+			has_completed_focus = GE1_schlieffen_plan
+			has_global_flag = schlieffen_plan
+			OR = {
+				has_war_with = BEL
+				has_global_flag = WW1_belgian_neutrality_violated
+				WW1_western_plan_controls_brussels = yes
+			}
+		}
+		set_country_flag = WW1_western_plan_started
+		set_country_flag = WW1_western_plan_in_progress
+		WW1_western_plan_start_schlieffen_meuse = yes
+		country_event = { id = ww1_western_plans.1 }
+	}
+	else_if = {
+		limit = {
+			has_completed_focus = GE1_rupprecht_plan
+			has_global_flag = rupprecht_plan
+			OR = { has_war_with = SWI WW1_western_plan_controls_bern = yes }
+		}
+		set_country_flag = WW1_western_plan_started
+		set_country_flag = WW1_western_plan_in_progress
+		WW1_western_plan_start_rupprecht_switzerland = yes
+		country_event = { id = ww1_western_plans.2 }
+	}
+	else_if = {
+		limit = { has_completed_focus = GE1_kronprinz_plan has_global_flag = kronprinz_plan }
+		set_country_flag = WW1_western_plan_started
+		set_country_flag = WW1_western_plan_in_progress
+		if = {
+			limit = { OR = { NOR = { has_war_with = RIE has_war_with = SOV } WW1_western_plan_controls_warsaw = yes WW1_western_plan_controls_lodz = yes } }
+			WW1_western_plan_start_kronprinz_lorraine = yes
+		}
+		else = { WW1_western_plan_start_kronprinz_warsaw = yes }
+		country_event = { id = ww1_western_plans.3 }
+	}
+}
+
+WW1_western_plan_paris_secured = {
+	clr_country_flag = WW1_western_plan_in_progress
+	set_country_flag = WW1_western_plan_paris_secured
+	army_experience = 25
+	add_war_support = 0.03
+	country_event = { id = ww1_western_plans.4 }
+}
+
+WW1_western_plan_missed_deadline = {
+	clr_country_flag = WW1_western_plan_in_progress
+	set_country_flag = WW1_western_plan_missed_deadline
+	country_event = { id = ww1_western_plans.5 }
+}
+
+WW1_western_plan_start_schlieffen_meuse = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		8 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 35 } }
+		34 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 35 } }
+		6 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 35 } }
+	}
+	activate_mission = WW1_western_plan_schlieffen_meuse
+}
+
+WW1_western_plan_clear_schlieffen_meuse = {
+	8 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+	34 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+	6 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+}
+
+WW1_western_plan_start_schlieffen_somme = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		29 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 45 } }
+		785 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 45 } }
+	}
+	activate_mission = WW1_western_plan_schlieffen_somme
+}
+
+WW1_western_plan_clear_schlieffen_somme = {
+	29 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER } }
+	785 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER } }
+}
+
+WW1_western_plan_start_rupprecht_switzerland = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		3 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 60 } }
+		151 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 60 } }
+		847 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 60 } }
+	}
+	activate_mission = WW1_western_plan_rupprecht_switzerland
+}
+
+WW1_western_plan_clear_rupprecht_switzerland = {
+	3 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+	151 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+	847 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+}
+
+WW1_western_plan_start_rupprecht_jura = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		17 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 50 } }
+		27 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 50 } }
+	}
+	activate_mission = WW1_western_plan_rupprecht_jura
+}
+
+WW1_western_plan_clear_rupprecht_jura = {
+	17 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER } }
+	27 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER } }
+}
+
+WW1_western_plan_start_kronprinz_warsaw = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		87 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 135 } }
+		10 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 135 } }
+	}
+	activate_mission = WW1_western_plan_kronprinz_warsaw
+}
+
+WW1_western_plan_clear_kronprinz_warsaw = {
+	87 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+	10 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+}
+
+WW1_western_plan_start_kronprinz_lorraine = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		1010 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 55 } }
+		1011 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 55 } }
+	}
+	activate_mission = WW1_western_plan_kronprinz_lorraine
+}
+
+WW1_western_plan_clear_kronprinz_lorraine = {
+	1010 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+	1011 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER } }
+}
+
+WW1_western_plan_start_kronprinz_champagne = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		18 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 40 } }
+	}
+	activate_mission = WW1_western_plan_kronprinz_champagne
+}
+
+WW1_western_plan_clear_kronprinz_champagne = {
+	18 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER } }
+}
+
+WW1_western_plan_start_paris = {
+	WW1_western_plan_initialize_christmas_deadline = yes
+	if = {
+		limit = { WW1_western_plan_attack_window_open = yes }
+		16 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_final scope = GER days = 45 } }
+	}
+	activate_mission = WW1_western_plan_paris
+}
+
+WW1_western_plan_clear_paris = {
+	16 = { remove_dynamic_modifier = { modifier = WW1_western_plan_attack_final scope = GER } }
+}

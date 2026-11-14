@@ -1,0 +1,75 @@
+WW1_agadir_record_deployment = {
+	clr_country_flag = WW1_agadir_expedition_ordered
+	set_global_flag = agadir_crisis
+	set_global_flag = WW1_agadir_squadron_arrived
+	add_named_threat = { threat = 3 name = WW1_tension_agadir }
+	if = {
+		limit = { NOT = { has_global_flag = GE1_agadir_news_sent } }
+		set_global_flag = GE1_agadir_news_sent
+		news_event = { id = endsieg_news.129 hours = 6 }
+	}
+}
+
+# Country scope: Germany. The fleet must arrive before an ultimatum is delivered.
+WW1_agadir_escalate_crisis = {
+	if = {
+		limit = {
+			WW1_agadir_pending = yes
+			has_global_flag = WW1_agadir_squadron_arrived
+			NOT = { has_global_flag = WW1_agadir_escalation_started }
+		}
+		set_global_flag = WW1_agadir_escalation_started
+		set_global_flag = WW1_agadir_ultimatum_pending
+		add_named_threat = { threat = 3 name = WW1_tension_agadir_ultimatum }
+		FRA = { country_event = { id = ww1_agadir.4 days = 2 } }
+		news_event = { id = ww1_agadir.7 hours = 6 }
+	}
+}
+
+WW1_agadir_present_demands = {
+	if = {
+		limit = { WW1_agadir_pending = yes }
+		if = {
+			limit = { has_global_flag = WW1_agadir_hardline_policy }
+			WW1_agadir_escalate_crisis = yes
+		}
+		else = { FRA = { country_event = { id = ww1_germany.260 days = 2 } } }
+	}
+}
+
+# Country scope: Germany. Keep the warning and signature on their historical
+# dates if the earlier stages finish in time.
+WW1_agadir_advance_negotiations = {
+	if = {
+		limit = {
+			WW1_agadir_pending = yes
+			has_global_flag = WW1_agadir_squadron_arrived
+			NOT = { has_global_flag = WW1_agadir_british_stage_queued }
+			OR = { date > 1911.7.20 is_historical_focus_on = no }
+		}
+		set_global_flag = WW1_agadir_british_stage_queued
+		if = {
+			limit = { WW1_agadir_britain_can_intervene = yes }
+			ENG = { country_event = { id = ww1_agadir.1 } }
+		}
+		else = { WW1_agadir_present_demands = yes }
+	}
+	if = {
+		limit = {
+			WW1_agadir_pending = yes
+			has_global_flag = GE1_agadir_treaty_confirmed
+			OR = { date > 1911.11.3 is_historical_focus_on = no }
+		}
+		country_event = { id = ww1_germany.263 }
+	}
+	if = {
+		limit = {
+			has_global_flag = GE1_agadir_crisis_pending
+			NOT = { WW1_agadir_can_negotiate = yes }
+		}
+		clr_global_flag = GE1_agadir_crisis_pending
+		clr_global_flag = WW1_agadir_ultimatum_pending
+		clr_global_flag = WW1_agadir_final_reply_pending
+		set_global_flag = GE1_agadir_settlement_resolved
+	}
+}

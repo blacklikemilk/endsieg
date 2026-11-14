@@ -122,7 +122,14 @@ country_event = {
 country_event = {
 	id = kaiserschlachtvictory.4
 	title = kaiserschlachtvictory.4.t
-	desc = kaiserschlachtvictory.4.d
+	desc = {
+		text = kaiserschlachtvictory.4.east.d
+		trigger = { WW1_CP_eastern_resistance_active = yes }
+	}
+	desc = {
+		text = kaiserschlachtvictory.4.d
+		trigger = { NOT = { WW1_CP_eastern_resistance_active = yes } }
+	}
 	picture = GFX_report_event_ceasefire
 
 	is_triggered_only = yes
@@ -167,14 +174,21 @@ country_event = {
 country_event = {
 	id = kaiserschlachtvictory.5
 	title = kaiserschlachtvictory.5.t
-	desc = kaiserschlachtvictory.5.d
+	desc = {
+		text = kaiserschlachtvictory.5.east.d
+		trigger = { WW1_CP_eastern_resistance_active = yes }
+	}
+	desc = {
+		text = kaiserschlachtvictory.5.d
+		trigger = { NOT = { WW1_CP_eastern_resistance_active = yes } }
+	}
 	picture = GFX_report_event_ceasefire
 
 	is_triggered_only = yes
 
 	option = {
 		name = kaiserschlachtvictory.5.a
-		ai_chance = {factor = 100}
+		ai_chance = { factor = 100 modifier = { factor = 0.25 WW1_CP_eastern_resistance_active = yes } }
 		if = { limit = { WW1_CP_is_active_enemy = yes NOT = { has_country_flag = WW1_CP_armistice_choice_made } }
 			set_country_flag = WW1_CP_armistice_choice_made
 			WW1_CP_accept_separate_armistice = yes
@@ -189,6 +203,7 @@ country_event = {
 		name = kaiserschlachtvictory.5.b
 		ai_chance = {
 			base = 0
+			modifier = { add = 100 WW1_CP_eastern_resistance_active = yes }
 			modifier = {
 				add = 35
 				is_historical_focus_on = no
@@ -281,13 +296,21 @@ country_event = {
 country_event = {
 	id = kaiserschlachtvictory.8
 	title = kaiserschlachtvictory.8.t
-	desc = kaiserschlachtvictory.8.d
+	desc = {
+		text = kaiserschlachtvictory.8.east.d
+		trigger = { WW1_CP_eastern_resistance_active = yes }
+	}
+	desc = {
+		text = kaiserschlachtvictory.8.d
+		trigger = { NOT = { WW1_CP_eastern_resistance_active = yes } }
+	}
 	picture = GFX_report_event_ceasefire
 
 	is_triggered_only = yes
 
 	option = {
 		name = kaiserschlachtvictory.8.a
+		ai_chance = { factor = 100 modifier = { factor = 0.25 WW1_CP_eastern_resistance_active = yes } }
 		if = { limit = { WW1_CP_is_active_enemy = yes NOT = { has_country_flag = WW1_CP_armistice_choice_made } }
 			set_country_flag = WW1_CP_armistice_choice_made
 			WW1_CP_accept_separate_armistice = yes
@@ -311,7 +334,7 @@ country_event = {
 	}
 	option = {
 		name = kaiserschlachtvictory.8.b
-		ai_chance = {factor = 0}
+		ai_chance = { base = 0 modifier = { add = 100 WW1_CP_eastern_resistance_active = yes } }
 		if = { limit = { WW1_CP_is_active_enemy = yes NOT = { has_country_flag = WW1_CP_armistice_choice_made } }
 			set_country_flag = WW1_CP_armistice_choice_made
 			set_country_flag = WW1_CP_armistice_refused
@@ -810,9 +833,11 @@ country_event = {
 
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
+		has_global_flag = chinaqingdaowar
+		has_country_flag = qingdaotarget
 		OR = {
-			QIN = {controls_state = 743}
-			RCH = {controls_state = 743} #Qingdao
+			AND = { has_war_with = QIN QIN = { controls_state = 743 } }
+			AND = { has_war_with = RCH RCH = { controls_state = 743 } }
 		}
 	}
 	mean_time_to_happen = { days = 60 }
@@ -856,6 +881,9 @@ country_event = {
 
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
+		has_global_flag = chinaqingdaowar
+		OR = { tag = QIN tag = RCH }
+		any_country = { has_country_flag = qingdaotarget has_war_with = ROOT }
 		NOT = {
 			OR = {
 				QIN = {controls_state = 597}
@@ -863,6 +891,7 @@ country_event = {
 			}
 		}
 	}
+	mean_time_to_happen = { days = 60 }
 	option = {
 		name = kaiserschlachtvictory.23.a
 		ai_chance = {factor = 100}
@@ -1933,28 +1962,20 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			GER = { add_state_core = 8 }
-			# The Second Treaty of Frankfurt ends the remaining wartime spirits.
+			# Keep wartime spirits while a country remains at war; the peace hook
+			# removes each one only after that country has left its last war.
 			every_country = {
-				if = {
-					limit = { has_idea = unrestricted_sub_warfare }
-					remove_ideas = unrestricted_sub_warfare
+				limit = {
+					OR = {
+						has_idea = unrestricted_sub_warfare
+						has_idea = shorter_training_GE1
+						has_idea = shadow_kaiser
+						has_idea = desertion
+						has_idea = americans_are_here
+					}
 				}
-				if = {
-					limit = { has_idea = shorter_training_GE1 }
-					remove_ideas = shorter_training_GE1
-				}
-				if = {
-					limit = { has_idea = shadow_kaiser }
-					remove_ideas = shadow_kaiser
-				}
-				if = {
-					limit = { has_idea = desertion }
-					remove_ideas = desertion
-				}
-				if = {
-					limit = { has_idea = americans_are_here }
-					remove_ideas = americans_are_here
-				}
+				set_country_flag = WW1_CP_legacy_spirits_cleanup_pending
+				WW1_CP_cleanup_legacy_wartime_spirits = yes
 			}
 		}
 	}

@@ -1,0 +1,29 @@
+on_actions = {
+ on_weekly_GER = { effect = {
+  WW1_update_north_sea_blockade = yes
+  # Migrate active four-year reviews from existing saves once. New six-year
+  # missions have more than 1460 days remaining at this first weekly check.
+  if = {
+   limit = { has_active_mission = WW1_german_fleet_review NOT = { has_country_flag = WW1_naval_review_six_year_migrated } }
+   if = {
+    limit = { check_variable = { var = days_mission_timeout@WW1_german_fleet_review value = 1460 compare = less_than_or_equals } }
+    add_days_mission_timeout = { mission = WW1_german_fleet_review days = 730 }
+   }
+   set_country_flag = WW1_naval_review_six_year_migrated
+  }
+ } }
+ # Once Britain is at war with Germany, AI Britain issues the blockade order.
+ on_weekly_ENG = {
+  effect = {
+   if = {
+    limit = { is_ai = yes has_start_date < 1919.1.1 date < 1936.1.1 country_exists = GER has_war_with = GER NOT = { is_in_faction_with = GER } NOT = { has_global_flag = WW1_blockade_authorized } NOT = { has_country_flag = WW1_historical_blockade_order_sent } }
+    set_country_flag = WW1_historical_blockade_order_sent
+    country_event = { id = ww1_britain.6 hours = 1 }
+   }
+   if = {
+    limit = { has_country_flag = WW1_historical_blockade_order_sent NOT = { has_war_with = GER } }
+    clr_country_flag = WW1_historical_blockade_order_sent
+   }
+  }
+ }
+}

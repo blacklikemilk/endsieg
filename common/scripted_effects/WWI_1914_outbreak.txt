@@ -25,7 +25,7 @@ WW1_1914_mobilize_germany = {
    limit = { NOT = { has_war_with = FRA } NOT = { has_war_with = RIE } }
    add_named_threat = { threat = 2 name = WW1_border_threat_german_mobilization }
   }
-  load_oob = GER_1914_Mobilization
+  add_timed_idea = { idea = WW1_1914_mobilisation_training days = 180 }
   news_event = { id = endsieg_news.151 hours = 6 }
  }
 }
@@ -39,7 +39,21 @@ WW1_1914_mobilize_russia = {
    limit = { NOT = { has_war_with = GER } NOT = { has_war_with = AUH } }
    add_named_threat = { threat = 2 name = WW1_border_threat_russian_mobilization }
   }
-  load_oob = RIE_mobilization
+  add_timed_idea = { idea = WW1_1914_russian_mobilisation_training days = 180 }
+ }
+}
+
+WW1_1914_migrate_russian_mobilization = {
+ if = {
+  limit = {
+   has_global_flag = russian_mobilization_begins
+   has_idea = WW1_1914_mobilisation_training
+  }
+  # Inherit the old spirit's remaining duration when a campaign is reloaded.
+  swap_ideas = {
+   remove_idea = WW1_1914_mobilisation_training
+   add_idea = WW1_1914_russian_mobilisation_training
+  }
  }
 }
 
@@ -48,26 +62,13 @@ WW1_1914_mobilize_france = {
   limit = { WW1_1914_french_mobilization_allowed = yes }
   WW1_crisis_FRA_mobilization = yes
   if = {
-   limit = {
-    NOT = { has_global_flag = french_mobilization_begins }
-    controls_province = 11420 controls_province = 13011 controls_province = 9490 controls_province = 11548 controls_province = 11516
-   }
+   limit = { NOT = { has_global_flag = french_mobilization_begins } }
    set_global_flag = french_mobilization_begins
    if = {
     limit = { NOT = { has_war_with = GER } }
     add_named_threat = { threat = 1 name = WW1_border_threat_french_mobilization }
    }
-   load_oob = FRA_1914_Mobilization
-  }
-  else_if = {
-   # In a late save, mobilize safely at Paris if a forward staging area was lost.
-   limit = { NOT = { has_global_flag = french_mobilization_begins } controls_province = 11506 }
-   set_global_flag = french_mobilization_begins
-   if = {
-    limit = { NOT = { has_war_with = GER } }
-    add_named_threat = { threat = 1 name = WW1_border_threat_french_mobilization }
-   }
-   load_oob = WW1_FRA_1914_mobilization_rear
+   add_timed_idea = { idea = WW1_1914_mobilisation_training days = 180 }
   }
   # Mobilized rifles and guns fill the active army's initial equipment deficit too.
   if = {
@@ -77,26 +78,6 @@ WW1_1914_mobilize_france = {
    else = { add_equipment_to_stockpile = { type = early_infantry_equipment_0 amount = 40000 producer = FRA } }
    add_equipment_to_stockpile = { type = ww1_artillery_0 amount = 1000 producer = FRA }
   }
-  if = {
-   limit = { owns_state = 29 controls_province = 11483 NOT = { has_country_flag = WW1_FRA_1914_north_reserves } }
-   set_country_flag = WW1_FRA_1914_north_reserves
-   load_oob = WW1_FRA_1914_reserve_north
-  }
-  if = {
-   limit = { owns_state = 18 controls_province = 13011 NOT = { has_country_flag = WW1_FRA_1914_champagne_reserves } }
-   set_country_flag = WW1_FRA_1914_champagne_reserves
-   load_oob = WW1_FRA_1914_reserve_champagne
-  }
-  if = {
-   limit = { owns_state = 1011 controls_province = 5291 NOT = { has_country_flag = WW1_FRA_1914_meuse_reserves } }
-   set_country_flag = WW1_FRA_1914_meuse_reserves
-   load_oob = WW1_FRA_1914_reserve_meuse
-  }
-  if = {
-   limit = { owns_state = 1010 controls_province = 11516 NOT = { has_country_flag = WW1_FRA_1914_lorraine_reserves } }
-   set_country_flag = WW1_FRA_1914_lorraine_reserves
-   load_oob = WW1_FRA_1914_reserve_lorraine
-  }
  }
 }
 
@@ -105,15 +86,15 @@ WW1_1914_execute_schlieffen = {
   limit = { WW1_1914_historical_sequence = yes has_global_flag = schlieffen_plan has_completed_focus = GE1_schlieffen_plan }
   if = {
    limit = { NOT = { date < 1914.8.1 } country_exists = RIE NOT = { has_war_with = RIE } }
-   declare_war_on = { target = RIE type = annex_everything }
+   declare_war_on = { target = RIE type = ww1_great_war }
   }
   if = {
    limit = { NOT = { date < 1914.8.2 } country_exists = LUX GE1_D_may_attack_low_countries = yes NOT = { has_war_with = LUX } NOT = { is_in_faction_with = LUX } NOT = { has_non_aggression_pact_with = LUX } }
-   declare_war_on = { target = LUX type = annex_everything }
+   declare_war_on = { target = LUX type = ww1_great_war }
   }
   if = {
    limit = { NOT = { date < 1914.8.3 } NOT = { has_war_with = FRA } }
-   declare_war_on = { target = FRA type = annex_everything }
+   declare_war_on = { target = FRA type = ww1_great_war }
   }
   if = {
    limit = { NOT = { date < 1914.8.3 } has_war_with = FRA NOT = { has_country_flag = WW1_1914_western_plan_announced } }
@@ -123,9 +104,10 @@ WW1_1914_execute_schlieffen = {
   }
   if = {
    limit = { NOT = { date < 1914.8.4 } country_exists = BEL GE1_D_may_attack_low_countries = yes NOT = { has_war_with = BEL } NOT = { is_in_faction_with = BEL } NOT = { has_non_aggression_pact_with = BEL } }
-   declare_war_on = { target = BEL type = annex_everything }
+   declare_war_on = { target = BEL type = ww1_great_war }
    BEL = { add_timed_idea = { idea = surprise_attack days = 30 } }
   }
+  WW1_western_plan_begin = yes
  }
 }
 
@@ -157,9 +139,9 @@ WW1_1914_outbreak_tick = {
   WW1_1914_execute_schlieffen = yes
   if = {
    limit = { NOT = { date < 1914.8.6 } has_global_flag = schlieffen_plan has_war_with = RIE }
-   if = { limit = { country_exists = SER } SER = { if = { limit = { NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER } } declare_war_on = { target = GER type = annex_everything } } } }
+   if = { limit = { country_exists = SER } SER = { if = { limit = { NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER } } declare_war_on = { target = GER type = ww1_great_war } } } }
    AUH = {
-    if = { limit = { NOT = { has_war_with = RIE } NOT = { is_in_faction_with = RIE } NOT = { has_non_aggression_pact_with = RIE } } declare_war_on = { target = RIE type = annex_everything } }
+    if = { limit = { NOT = { has_war_with = RIE } NOT = { is_in_faction_with = RIE } NOT = { has_non_aggression_pact_with = RIE } } declare_war_on = { target = RIE type = ww1_great_war } }
    }
   }
  }

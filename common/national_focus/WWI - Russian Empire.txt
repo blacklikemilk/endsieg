@@ -3,99 +3,1544 @@ focus_tree = {
 	id = russian_empire_focus
 	country = { factor = 0 modifier = { add = 20000 tag = RIE date < 1936.1.1 has_start_date < 1936.1.1 } }
 	default = no
-	initial_show_position = { focus = RUS_industrial_effort }
-	continuous_focus_position = { x = 2484 y = 6000 }
-	shortcut = { name = RUS_ww1_industry_shortcut target = RUS_industrial_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = RUS_ww1_politics_shortcut target = RUS_political_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = RUS_ww1_diplomacy_shortcut target = RUS_diplomatic_effort scroll_wheel_factor = 0.4 }
+	initial_show_position = { focus = RUS_national_opening }
 
-	shortcut = { name = RUS_ww1_air_shortcut target = RUS_establish_airforce scroll_wheel_factor = 0.4 }
-	shortcut = { name = RUS_ww1_navy_shortcut target = RUS_naval_effort scroll_wheel_factor = 0.4 }
+	# Branch navigation
+	shortcut = { name = WW1_layout_overview_shortcut target = RUS_national_opening scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_government_shortcut target = RUS_political_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_diplomacy_shortcut target = RUS_diplomatic_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_industry_shortcut target = RUS_industrial_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_navy_shortcut target = RUS_naval_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_air_force_shortcut target = RUS_establish_airforce scroll_wheel_factor = 0.60 }
+
+
+	continuous_focus_position = { x = 0 y = 1560 }
+
+	# Branch navigation
+
 
 	focus = {
-  id = RUS_diplomatic_effort
-  icon = GFX_focus_POL_complete_april_constitution
-  x = 54
-  y = 0
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
+		id = RUS_national_opening
+		icon = GFX_focus_generic_worker_administration
+		x = 43
+		y = 0
+		cost = 3
+		bypass = { OR = { has_completed_focus = RUS_political_effort has_completed_focus = RUS_diplomatic_effort } }
+		ai_will_do = { factor = 50 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { add_stability = 0.02 }
+	}
+
+	focus = {
+		id = RUS_political_effort
+		icon = GFX_focus_AUS_lawmaking_leniency
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
             custom_effect_tooltip = WW1_historical_focus_tt
             add_political_power = 80
         }
- }
+		prerequisite = { focus = RUS_national_opening }
+		relative_position_id = RUS_national_opening
+		x = -26
+		y = 1
+	}
 
 	focus = {
-  id = RUS_political_effort
-  icon = GFX_focus_AUS_lawmaking_leniency
-  x = 27
-  y = 0
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
+		id = RUS_ww1_council_of_ministers
+		icon = GFX_focus_generic_improve_the_administration_2
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            add_ideas = RUS_ww1_state_council add_political_power = 25
+        }
+		prerequisite = { focus = RUS_political_effort }
+		relative_position_id = RUS_political_effort
+		x = -15
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_political_effort }
+		id = RUS_ww1_historical_counsel
+		icon = GFX_focus_SOV_zemsky_sobor
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_political_effort
+		}
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 12 modifier = { factor = 0 is_historical_focus_on = no } }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            set_country_flag = RUS_ww1_historical_programme
+
+            add_war_support = 0.03
+        }
+		relative_position_id = RUS_political_effort
+		x = 15
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_duma_business
+		icon = GFX_focus_AST_a_democratic_bulwark
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+
+            add_stability = 0.03
+        }
+		prerequisite = { focus = RUS_ww1_council_of_ministers }
+		relative_position_id = RUS_ww1_council_of_ministers
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_nationalities_commission
+		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            country_event = { id = ww1_russia.207 days = 1 }
+        }
+		prerequisite = { focus = RUS_ww1_council_of_ministers }
+		relative_position_id = RUS_ww1_council_of_ministers
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = RUS_nicholas_on_front
+		icon = GFX_focus_generic_advanced_military_studies
+		cost = 5
+		available = { date < 1936.1.1 date > 1915.8.31 NOT = { has_global_flag = february_revolution1 } }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            country_event = { id = ww1_russia.27 days = 1 } add_command_power = 10
+        }
+		prerequisite = { focus = RUS_ww1_historical_counsel }
+		relative_position_id = RUS_ww1_historical_counsel
+		x = -6
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_renew_autocracy
+		icon = GFX_focus_generic_monarchist_sentiment
+		cost = 10
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1
+            NOT = { has_completed_focus = RUS_ww1_constituent_republic }
+            NOT = { has_completed_focus = RUS_ww1_dual_power }
+            NOT = { has_completed_focus = RUS_ww1_labour_peasant_convention }
+            NOT = { has_completed_focus = RUS_ww1_national_defence_council }
+        }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = {
+            add_ideas = RUS_ww1_imperial_cabinet country_event = { id = ww1_russia.200 days = 1 }
+            WW1_support_neutrality_programme = yes
+        }
+		prerequisite = { focus = RUS_ww1_historical_counsel }
+		mutually_exclusive = { focus = RUS_ww1_responsible_government }
+		relative_position_id = RUS_ww1_historical_counsel
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_responsible_government
+		icon = GFX_focus_CZE_coalition_building
+		cost = 10
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1
+            NOT = { has_completed_focus = RUS_ww1_dual_power }
+            NOT = { has_completed_focus = RUS_ww1_labour_peasant_convention }
+            NOT = { has_completed_focus = RUS_ww1_national_defence_council }
+        }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = {
+            add_ideas = RUS_ww1_responsible_ministry country_event = { id = ww1_russia.201 days = 1 }
+            WW1_support_democratic_programme = yes
+        }
+		prerequisite = { focus = RUS_ww1_historical_counsel }
+		mutually_exclusive = { focus = RUS_ww1_constituent_republic }
+		mutually_exclusive = { focus = RUS_ww1_renew_autocracy }
+		relative_position_id = RUS_ww1_historical_counsel
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_constituent_republic
+		icon = GFX_focus_JAP_anti_militarist_speeches_in_the_diet
+		cost = 10
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1
+            NOT = { has_completed_focus = RUS_ww1_dual_power }
+            NOT = { has_completed_focus = RUS_ww1_national_defence_council }
+            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
+        }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = {
+            add_ideas = RUS_ww1_republican_institutions add_political_power = 25
+            WW1_support_democratic_programme = yes
+        }
+		prerequisite = { focus = RUS_ww1_historical_counsel }
+		mutually_exclusive = { focus = RUS_ww1_labour_peasant_convention }
+		mutually_exclusive = { focus = RUS_ww1_responsible_government }
+		relative_position_id = RUS_ww1_historical_counsel
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_labour_peasant_convention
+		icon = GFX_focus_generic_agricultural_subsidies
+		cost = 10
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1
+            NOT = { has_completed_focus = RUS_ww1_dual_power }
+            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
+            NOT = { has_completed_focus = RUS_ww1_responsible_government }
+        }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = {
+            add_ideas = RUS_ww1_social_coalition add_political_power = 35
+            WW1_support_democratic_programme = yes
+        }
+		prerequisite = { focus = RUS_ww1_historical_counsel }
+		mutually_exclusive = { focus = RUS_ww1_constituent_republic }
+		mutually_exclusive = { focus = RUS_ww1_national_defence_council }
+		relative_position_id = RUS_ww1_historical_counsel
+		x = 5
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_national_defence_council
+		icon = GFX_focus_SIA_the_midnight_meeting
+		cost = 10
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1 date > 1914.8.1 has_war = yes
+            NOT = { has_completed_focus = RUS_ww1_constituent_republic }
+            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
+            NOT = { has_completed_focus = RUS_ww1_responsible_government }
+        }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = { add_command_power = 15 army_experience = 10
+            WW1_support_neutrality_programme = yes
+        }
+		prerequisite = { focus = RUS_ww1_historical_counsel }
+		mutually_exclusive = { focus = RUS_ww1_dual_power }
+		mutually_exclusive = { focus = RUS_ww1_labour_peasant_convention }
+		relative_position_id = RUS_ww1_historical_counsel
+		x = 7
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_dual_power
+		icon = GFX_focus_NOR_restore_public_trust_in_the_storting
+		cost = 5
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1 has_global_flag = february_revolution1
+            RUS_ww1_historical_revolution_allowed = yes
+            NOT = { has_completed_focus = RUS_ww1_constituent_republic }
+            NOT = { has_completed_focus = RUS_ww1_labour_peasant_convention }
+            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
+            NOT = { has_completed_focus = RUS_ww1_responsible_government }
+        }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 12 modifier = { factor = 0 is_historical_focus_on = no } }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+
+            add_stability = 0.03
+        }
+		prerequisite = { focus = RUS_ww1_historical_counsel }
+		mutually_exclusive = { focus = RUS_ww1_national_defence_council }
+		relative_position_id = RUS_ww1_historical_counsel
+		x = 9
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_continue_stolypin
+		icon = GFX_focus_generic_modernizing_agriculture
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_land_bank } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_land_bank } add_tech_bonus = { name = RUS_ww1_continue_stolypin bonus = 0.25 uses = 1 category = industry } } add_political_power = 25
+        }
+		prerequisite = { focus = RUS_ww1_duma_business }
+		relative_position_id = RUS_ww1_duma_business
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_federal_service_union
+		icon = GFX_focus_generic_improve_the_administration
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = { country_event = { id = ww1_russia.208 days = 1 } }
+		prerequisite = { focus = RUS_ww1_nationalities_commission }
+		mutually_exclusive = { focus = RUS_ww1_unitary_state_charter }
+		relative_position_id = RUS_ww1_nationalities_commission
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_unitary_state_charter
+		icon = GFX_focus_PER_constitutional_monarchy
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_unitary_administration } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_unitary_administration } add_political_power = 25 } add_political_power = 50
+        }
+		prerequisite = { focus = RUS_ww1_nationalities_commission }
+		mutually_exclusive = { focus = RUS_ww1_federal_service_union }
+		relative_position_id = RUS_ww1_nationalities_commission
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_reinforce_tsars_authority
+		icon = GFX_focus_SOV_the_true_tsars
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_unitary_administration } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_unitary_administration } add_political_power = 25 } add_political_power = 50
+        }
+		prerequisite = { focus = RUS_ww1_renew_autocracy }
+		relative_position_id = RUS_ww1_renew_autocracy
+		x = -5
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_constitutional_monarchy
+		icon = GFX_focus_generic_monarchy_1
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_common_market } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_common_market } add_tech_bonus = { name = RUS_ww1_constitutional_monarchy bonus = 0.25 uses = 1 category = industry } } add_political_power = 50
+        }
+		prerequisite = { focus = RUS_ww1_responsible_government }
+		relative_position_id = RUS_ww1_responsible_government
+		x = -5
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_lvov_republic
+		icon = GFX_focus_generic_vote
+		cost = 5
+		available = { date < 1936.1.1 }
+		available_if_capitulated = no
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = { country_event = { id = ww1_russia.202 days = 1 } }
+		prerequisite = { focus = RUS_ww1_constituent_republic }
+		relative_position_id = RUS_ww1_constituent_republic
+		x = -5
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_kerensky_social_republic
+		icon = GFX_focus_LAT_suspend_constitution_of_latvia
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            country_event = { id = ww1_russia.203 days = 1 } add_stability = 0.05
+        }
+		prerequisite = { focus = RUS_ww1_labour_peasant_convention }
+		relative_position_id = RUS_ww1_labour_peasant_convention
+		x = -5
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_alekseev_directorate
+		icon = GFX_focus_generic_jungle_training
+		cost = 5
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1
+            NOT = { has_completed_focus = RUS_ww1_kolchak_government }
+        }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = { country_event = { id = ww1_russia.204 days = 1 } }
+		prerequisite = { focus = RUS_ww1_national_defence_council }
+		mutually_exclusive = { focus = RUS_ww1_kornilov_order }
+		relative_position_id = RUS_ww1_national_defence_council
+		x = -5
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_kornilov_order
+		icon = GFX_focus_SIA_sideline_disloyal_officers
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = { country_event = { id = ww1_russia.205 days = 1 } }
+		prerequisite = { focus = RUS_ww1_national_defence_council }
+		mutually_exclusive = { focus = RUS_ww1_alekseev_directorate }
+		mutually_exclusive = { focus = RUS_ww1_kolchak_government }
+		relative_position_id = RUS_ww1_national_defence_council
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_kolchak_government
+		icon = GFX_focus_generic_government_in_exile
+		cost = 5
+		available_if_capitulated = no
+		available = {
+            date < 1936.1.1
+            NOT = { has_completed_focus = RUS_ww1_alekseev_directorate }
+        }
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = { country_event = { id = ww1_russia.206 days = 1 } }
+		prerequisite = { focus = RUS_ww1_national_defence_council }
+		mutually_exclusive = { focus = RUS_ww1_kornilov_order }
+		relative_position_id = RUS_ww1_national_defence_council
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_historical_coalition
+		icon = GFX_focus_generic_coal_mining
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 12 modifier = { factor = 0 is_historical_focus_on = no } }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            set_country_flag = RUS_ww1_historical_transition
+
+            add_stability = 0.03
+        }
+		prerequisite = { focus = RUS_ww1_dual_power }
+		mutually_exclusive = { focus = RUS_ww1_assembly_in_time }
+		relative_position_id = RUS_ww1_dual_power
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_assembly_in_time
+		icon = GFX_focus_ETH_re-convene_the_parliament
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = {
+            country_event = { id = ww1_russia.202 days = 1 }
+        }
+		prerequisite = { focus = RUS_ww1_dual_power }
+		mutually_exclusive = { focus = RUS_ww1_historical_coalition }
+		relative_position_id = RUS_ww1_dual_power
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_zemstvo_schools
+		icon = GFX_focus_NORDIC_dem_institution_2
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_INDUSTRY  FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            add_ideas = RUS_ww1_zemstvo_services add_political_power = 25
+
+            if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = RUS_ww1_zemstvo_schools_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+        }
+		prerequisite = { focus = RUS_ww1_continue_stolypin }
+		relative_position_id = RUS_ww1_continue_stolypin
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_return_civil_authority
+		icon = GFX_focus_SWI_dissolve_the_federal_council
+		cost = 5
+		available = { date < 1936.1.1 date > 1918.1.1 has_war = no }
+		available_if_capitulated = no
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = { country_event = { id = ww1_russia.202 days = 1 } }
+		prerequisite = { focus = RUS_ww1_alekseev_directorate focus = RUS_ww1_kolchak_government focus = RUS_ww1_kornilov_order }
+		relative_position_id = RUS_ww1_kornilov_order
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_april_programme
+		icon = GFX_SOV_the_workers_dictatorship_ccp_2d_sov_compatibility
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 has_global_flag = lenin_in_russia }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            add_ideas = RUS_ww1_republican_institutions add_political_power = 25
+        }
+		prerequisite = { focus = RUS_ww1_historical_coalition }
+		relative_position_id = RUS_ww1_historical_coalition
+		x = -6
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_worker_insurance
+		icon = GFX_focus_generic_population_growth
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            add_ideas = RUS_ww1_workers_insurance add_political_power = 25
+        }
+		prerequisite = { focus = RUS_ww1_zemstvo_schools }
+		relative_position_id = RUS_ww1_zemstvo_schools
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_summer_crisis
+		icon = GFX_focus_NORDIC_mon_institution_1
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 date > 1917.7.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            add_command_power = 10
+        }
+		prerequisite = { focus = RUS_ww1_april_programme }
+		relative_position_id = RUS_ww1_april_programme
+		x = -17
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_defend_winter_palace
+		icon = GFX_focus_ARG_defense_and_democracy
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            country_event = { id = ww1_russia.203 days = 1 }
+        }
+		prerequisite = { focus = RUS_ww1_summer_crisis }
+		mutually_exclusive = { focus = RUS_ww1_soviet_transfer }
+		relative_position_id = RUS_ww1_summer_crisis
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_soviet_transfer
+		icon = GFX_focus_generic_soviet_politics
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1919.1.1 has_global_flag = lenin_in_russia has_global_flag = lenin_returned_100_days_ago date > 1917.10.24 NOT = { has_global_flag = october_revolution } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_russia.34 days = 1 }
+        }
+		prerequisite = { focus = RUS_ww1_summer_crisis }
+		mutually_exclusive = { focus = RUS_ww1_defend_winter_palace }
+		relative_position_id = RUS_ww1_summer_crisis
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_postwar_constitution
+		icon = GFX_focus_generic_sympathetic_judges
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1 has_war = no date > 1918.1.1
+			OR = { has_completed_focus = RUS_reinforce_tsars_authority has_completed_focus = RUS_ww1_alekseev_directorate has_completed_focus = RUS_ww1_constitutional_monarchy has_completed_focus = RUS_ww1_defend_winter_palace has_completed_focus = RUS_ww1_federal_service_union has_completed_focus = RUS_ww1_kerensky_social_republic has_completed_focus = RUS_ww1_kolchak_government has_completed_focus = RUS_ww1_kornilov_order has_completed_focus = RUS_ww1_lvov_republic has_completed_focus = RUS_ww1_return_civil_authority has_completed_focus = RUS_ww1_unitary_state_charter }
+			OR = { has_completed_focus = RUS_reinforce_tsars_authority has_completed_focus = RUS_ww1_alekseev_directorate has_completed_focus = RUS_ww1_constitutional_monarchy has_completed_focus = RUS_ww1_defend_winter_palace has_completed_focus = RUS_ww1_federal_service_union has_completed_focus = RUS_ww1_kerensky_social_republic has_completed_focus = RUS_ww1_kolchak_government has_completed_focus = RUS_ww1_kornilov_order has_completed_focus = RUS_ww1_lvov_republic has_completed_focus = RUS_ww1_return_civil_authority has_completed_focus = RUS_ww1_unitary_state_charter }
+		}
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            add_ideas = RUS_ww1_reconstruction add_political_power = 75
+        }
+		relative_position_id = RUS_national_opening
+		x = -28
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_political_effort }
+		prerequisite = { focus = RUS_ww1_postwar_constitution }
+		id = RUS_ww1_civilian_workshops
+		icon = GFX_goal_generic_production
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 219 controls_state = 219
+			has_completed_focus = RUS_political_effort
+		}
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
+        }
+		relative_position_id = RUS_ww1_postwar_constitution
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_national_opening }
+		id = RUS_diplomatic_effort
+		icon = GFX_focus_POL_complete_april_constitution
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_national_opening
+		}
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
             custom_effect_tooltip = WW1_historical_focus_tt
             add_political_power = 80
         }
- }
+		relative_position_id = RUS_national_opening
+		x = -10
+		y = 1
+	}
 
 	focus = {
-  id = RUS_establish_airforce
-  icon = GFX_focus_FIN_expand_air_force_academy
-  x = 87
-  y = 0
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            air_experience = 25
+		prerequisite = { focus = RUS_diplomatic_effort }
+		id = RUS_balkan_diplomacy
+		icon = GFX_focus_SWI_neutrality_on_the_move
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_diplomatic_effort
+		}
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_balkan_liaison } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_balkan_liaison } army_experience = 8 } add_political_power = 25
         }
- }
+		relative_position_id = RUS_diplomatic_effort
+		x = 15
+		y = 1
+	}
 
 	focus = {
-  id = RUS_naval_effort
-  icon = GFX_focus_BEL_antwerp_maritime_academy
-  x = 73
-  y = 0
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            navy_experience = 25
+		prerequisite = { focus = RUS_diplomatic_effort }
+		id = RUS_asian_diplomacy
+		icon = GFX_goal_generic_demand_territory
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_diplomatic_effort
+			has_completed_focus = RUS_diplomatic_effort
+		}
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_far_eastern_commerce } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_far_eastern_commerce } navy_experience = 8 } add_political_power = 25
         }
- }
+		relative_position_id = RUS_national_opening
+		x = 1
+		y = 4
+	}
 
 	focus = {
-  id = RUS_industrial_effort
-  icon = GFX_goal_generic_construct_civ_factory
-  x = 4
-  y = 0
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
-  completion_reward = {
+		id = RUS_european_diplomacy
+		icon = GFX_goal_generic_major_alliance
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_diplomatic_corps } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_diplomatic_corps } add_political_power = 25 } add_political_power = 25
+        }
+		prerequisite = { focus = RUS_diplomatic_effort }
+		relative_position_id = RUS_diplomatic_effort
+		x = -9
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_independent_diplomacy
+		icon = GFX_focus_generic_commission
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_diplomatic_corps } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_diplomatic_corps } add_political_power = 25 } add_political_power = 25
+        }
+		prerequisite = { focus = RUS_diplomatic_effort }
+		relative_position_id = RUS_diplomatic_effort
+		x = -7
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_rebuild_under_nicholas
+		icon = GFX_goal_generic_political_pressure
+		cost = 7
+		available = {
+			WW1_alt_diplomacy_open = yes
+			RUS_ww1_nicholas_restored_order = yes
+			has_stability > 0.549
+			has_completed_focus = RUS_diplomatic_effort
+			has_completed_focus = RUS_diplomatic_effort
+		}
+		available_if_capitulated = no
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+			add_political_power = -25
+			add_stability = 0.03
+			if = {
+				limit = { 409 = { is_owned_by = RIE is_controlled_by = RIE infrastructure < 5 } }
+				409 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } }
+			}
+		}
+		relative_position_id = RUS_national_opening
+		x = -47
+		y = 0
+	}
+
+	focus = {
+		id = RUS_slavic_brotherhood
+		icon = GFX_focus_generic_league_of_nations
+		cost = 5
+		available = { date < 1936.1.1  }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            country_event = { id = ww1_russia.2 days = 1 }
+        }
+		prerequisite = { focus = RUS_balkan_diplomacy }
+		relative_position_id = RUS_balkan_diplomacy
+		x = -2
+		y = 1
+	}
+
+	focus = {
+		id = RUS_support_serbia
+		icon = GFX_focus_generic_world_peace
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_balkan_liaison } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_balkan_liaison } army_experience = 8 } add_war_support = 0.05
+        }
+		prerequisite = { focus = RUS_balkan_diplomacy }
+		relative_position_id = RUS_balkan_diplomacy
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = RUS_befriend_romania
+		icon = GFX_focus_generic_conference
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = { if = { limit = { country_exists = ROM NOT = { has_war_with = ROM } } endsieg_fixed_effect_32ca26ff21e1feff = yes  } }
+		prerequisite = { focus = RUS_balkan_diplomacy }
+		relative_position_id = RUS_balkan_diplomacy
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = RUS_mongolian_bufferstate
+		icon = GFX_focus_generic_treaty
+		cost = 5
+		available = { date < 1936.1.1 country_exists = MON }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            country_event = { id = ww1_russia.17 days = 1 }
+        }
+		prerequisite = { focus = RUS_asian_diplomacy }
+		relative_position_id = RUS_asian_diplomacy
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = RUS_railway_construction
+		icon = GFX_focus_GER_kriegslokomotive
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+  add_political_power = -20
+   if = { limit = { 408 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT infrastructure < 5 } }
+   408 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
+  }
+		prerequisite = { focus = RUS_asian_diplomacy }
+		relative_position_id = RUS_asian_diplomacy
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_reform_implementation
+		icon = GFX_focus_generic_supply_line
+		prerequisite = { focus = RUS_railway_construction }
+		relative_position_id = RUS_railway_construction
+		x = -2
+		y = 1
+		cost = 5
+		available = { tag = RIE has_start_date < 1919.1.1 date < 1919.1.1 }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 8 }
+		completion_reward = {
+			set_country_flag = RUS_ww1_four_year_plan_started
+			add_political_power = -20
+			custom_effect_tooltip = WW1_four_year_plan_begin_tt
+		}
+	}
+
+	focus = {
+		id = RUS_ww1_reform_trials
+		icon = GFX_goal_generic_construct_civilian
+		prerequisite = { focus = RUS_ww1_reform_implementation }
+		relative_position_id = RUS_ww1_reform_implementation
+		x = 0
+		y = 1
+		cost = 5
+		available = { tag = RIE has_start_date < 1919.1.1 date < 1926.1.1 has_country_flag = RUS_ww1_four_year_plan_midpoint custom_trigger_tooltip = { tooltip = WW1_four_year_plan_finish_tt has_country_flag = { flag = RUS_ww1_four_year_plan_started days > 1425 } } }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 10 }
+		completion_reward = {
+			remove_ideas = { russia_sucks RUS_ww1_reorganised_districts russo_jap_defeat }
+			army_experience = 8
+		}
+	}
+
+
+	focus = {
+		id = RUS_ww1_japanese_rapprochement
+		icon = GFX_focus_renounce_the_treaty_of_trianon
+		cost = 5
+		available = { NOT = { has_completed_focus = RUS_take_manchuria } date < 1936.1.1 country_exists = JAP NOT = { has_war_with = JAP } }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            country_event = { id = ww1_russia.211 days = 1 }
+        }
+		prerequisite = { focus = RUS_asian_diplomacy }
+		relative_position_id = RUS_asian_diplomacy
+		x = 4
+		y = 1
+	}
+
+	focus = {
+		id = RUS_entente_diplomacy
+		icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1  RUS_ww1_may_be_historical_war_target = yes }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_allied_purchasing } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_allied_purchasing } add_tech_bonus = { name = RUS_entente_diplomacy bonus = 0.25 uses = 1 category = industry } } add_political_power = 25
+        }
+		prerequisite = { focus = RUS_european_diplomacy }
+		mutually_exclusive = { focus = RUS_ww1_armed_neutrality }
+		relative_position_id = RUS_european_diplomacy
+		x = -13
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_armed_neutrality
+		icon = GFX_goal_generic_neutrality_focus
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_neutral_diplomacy } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_neutral_diplomacy } army_experience = 8 } add_command_power = 10
+            set_country_flag = RUS_ww1_armed_neutrality country_event = { id = ww1_russia.212 days = 1 } }
+		prerequisite = { focus = RUS_ww1_independent_diplomacy }
+		mutually_exclusive = { focus = RUS_entente_diplomacy }
+		relative_position_id = RUS_ww1_independent_diplomacy
+		x = -12
+		y = 1
+	}
+
+	focus = {
+		id = RUS_take_manchuria
+		icon = GFX_focus_generic_diplomatic_treaty
+		cost = 5
+		available = { WW1_alt_diplomacy_open = yes RUS_ww1_nicholas_restored_order = yes has_completed_focus = RUS_ww1_rebuild_under_nicholas WW1_alt_portsmouth_target = yes NOT = { has_completed_focus = RUS_ww1_japanese_rapprochement } NOT = { has_country_flag = RUS_ww1_japanese_agreement } }
+		available_if_capitulated = no
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_political_power = -25
+			add_war_support = 0.03
+		}
+		prerequisite = { focus = RUS_ww1_rebuild_under_nicholas }
+		relative_position_id = RUS_ww1_rebuild_under_nicholas
+		x = 11
+		y = 1
+	}
+
+	focus = {
+		id = RUS_form_polish_legion
+		icon = GFX_focus_generic_infiltration
+		cost = 5
+		available = { date < 1936.1.1 has_war = yes controls_state = 195 date > 1914.8.1 controls_province = 3151 }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            country_event = { id = ww1_russia.26 days = 1 }
+        }
+		prerequisite = { focus = RUS_slavic_brotherhood }
+		relative_position_id = RUS_slavic_brotherhood
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = RUS_pan_slavism
+		icon = GFX_goal_generic_military_deal
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            add_ideas = RUS_ww1_national_compact add_war_support = 0.05
+        }
+		prerequisite = { focus = RUS_befriend_romania focus = RUS_support_serbia }
+		relative_position_id = RUS_befriend_romania
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_investments_from_west
+		icon = GFX_focus_NORDIC_mon_civilian
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
+        }
+		prerequisite = { focus = RUS_entente_diplomacy }
+		relative_position_id = RUS_entente_diplomacy
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = RUS_prepare_for_war
+		icon = GFX_focus_rus_prepare_for_war
+		cost = 5
+		available = { date < 1936.1.1  }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_russia.8 days = 1 }
+        }
+		prerequisite = { focus = RUS_entente_diplomacy }
+		relative_position_id = RUS_entente_diplomacy
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = RUS_ww1_german_rapprochement
+		icon = GFX_goal_generic_intelligence_exchange
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 has_war = no  GER = { GE1_ww1_may_choose_russian_bloc = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_diplomatic_corps } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_diplomatic_corps } add_political_power = 25 } country_event = { id = ww1_russia.210 days = 1 }
+        }
+		prerequisite = { focus = RUS_ww1_armed_neutrality }
+		relative_position_id = RUS_ww1_armed_neutrality
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_diplomatic_effort }
+		prerequisite = { focus = RUS_take_manchuria }
+		id = RUS_amur_staff
+		icon = GFX_focus_generic_military_mission
+		cost = 5
+		available = { WW1_alt_diplomacy_open = yes RUS_ww1_nicholas_restored_order = yes has_completed_focus = RUS_ww1_rebuild_under_nicholas WW1_alt_portsmouth_target = yes
+			has_completed_focus = RUS_diplomatic_effort
+		}
+		available_if_capitulated = no
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			army_experience = 10
+			add_command_power = 10
+		}
+		relative_position_id = RUS_take_manchuria
+		x = 13
+		y = 1
+	}
+
+	focus = {
+		id = RUS_pacific_station
+		icon = GFX_goal_generic_construct_naval_dockyard
+		cost = 5
+		available = { WW1_alt_diplomacy_open = yes RUS_ww1_nicholas_restored_order = yes has_completed_focus = RUS_ww1_rebuild_under_nicholas WW1_alt_portsmouth_target = yes }
+		available_if_capitulated = no
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			navy_experience = 8
+			if = { limit = { 408 = { is_owned_by = RIE is_controlled_by = RIE } } 408 = { add_building_construction = { type = naval_base level = 1 province = 957 instant_build = yes } } }
+		}
+		prerequisite = { focus = RUS_take_manchuria }
+		relative_position_id = RUS_take_manchuria
+		x = -11
+		y = 1
+	}
+
+	focus = {
+		id = RUS_request_aid
+		icon = GFX_focus_GER_integrated_economies
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_allied_purchasing } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_allied_purchasing } add_tech_bonus = { name = RUS_request_aid bonus = 0.25 uses = 1 category = industry } } add_equipment_to_stockpile = { type = infantry_equipment_0 amount = 1000 producer = ROOT }
+        }
+		prerequisite = { focus = RUS_investments_from_west }
+		relative_position_id = RUS_investments_from_west
+		x = 8
+		y = 1
+	}
+
+	focus = {
+		id = RUS_brusilov_offensive
+		icon = GFX_focus_rus_brusilov_offensive
+		cost = 5
+		available = { date < 1936.1.1 has_war = yes date > 1916.4.30 }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            country_event = { id = ww1_russia.13 days = 1 }
+        }
+		prerequisite = { focus = RUS_prepare_for_war }
+		relative_position_id = RUS_prepare_for_war
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_pacific_station }
+		prerequisite = { focus = RUS_amur_staff }
+		id = RUS_portsmouth_ultimatum
+		icon = GFX_goal_generic_more_territorial_claims
+		cost = 7
+		available = { WW1_alt_diplomacy_open = yes RUS_ww1_nicholas_restored_order = yes has_completed_focus = RUS_ww1_rebuild_under_nicholas WW1_alt_portsmouth_target = yes
+			has_completed_focus = RUS_pacific_station
+		}
+		available_if_capitulated = no
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			set_country_flag = WW1_alt_portsmouth_pending
+			JAP = { country_event = { id = ww1_alt_wars.30 days = 1 } }
+		}
+		relative_position_id = RUS_amur_staff
+		x = -25
+		y = 1
+	}
+
+	focus = {
+		id = RUS_request_aid_2
+		icon = GFX_focus_ww1_official_flag_rie_diplomacy
+		cost = 5
+		available = { date < 1936.1.1  }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_russia.16 days = 1 }
+        }
+		prerequisite = { focus = RUS_request_aid }
+		relative_position_id = RUS_request_aid
+		x = -13
+		y = 1
+	}
+
+	focus = {
+		id = RUS_war_front_1
+		icon = GFX_focus_generic_army_doctrines_2
+		cost = 10
+		available_if_capitulated = no
+		available = {
+			NOT = { has_completed_focus = RUS_home_front_1 }
+			date < 1936.1.1 date > 1914.1.1 has_global_flag = franz_dead }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            add_timed_idea = { idea = RUS_ww1_front_coordination days = 180 } country_event = { id = ww1_russia.10 days = 1 }
+        }
+		prerequisite = { focus = RUS_prepare_for_war }
+		relative_position_id = RUS_prepare_for_war
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_transbaikal_command
+		icon = GFX_goal_generic_fortify_city
+		cost = 5
+		available = { WW1_alt_development_open = yes has_war_with = JAP }
+		available_if_capitulated = no
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { army_experience = 12 navy_experience = 8 }
+		prerequisite = { focus = RUS_portsmouth_ultimatum }
+		relative_position_id = RUS_portsmouth_ultimatum
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_restore_the_lease
+		icon = GFX_focus_generic_concessions
+		cost = 5
+		available = { WW1_alt_development_open = yes NOT = { has_war_with = JAP } OR = { 745 = { is_owned_by = RIE is_controlled_by = RIE } 537 = { is_owned_by = RIE is_controlled_by = RIE } } }
+		available_if_capitulated = no
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { add_political_power = -20 if = { limit = { 745 = { is_owned_by = RIE is_controlled_by = RIE } } 745 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } if = { limit = { 537 = { is_owned_by = RIE is_controlled_by = RIE } } 537 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } }
+		prerequisite = { focus = RUS_portsmouth_ultimatum }
+		relative_position_id = RUS_portsmouth_ultimatum
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = RUS_petrograd_defense
+		icon = GFX_focus_JAP_national_defense_brotherhood
+		cost = 5
+		available = { date < 1936.1.1 controls_state = 195 }
+		available_if_capitulated = no
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            country_event = { id = ww1_russia.4 days = 1 }
+        }
+		prerequisite = { focus = RUS_war_front_1 }
+		relative_position_id = RUS_war_front_1
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_national_opening }
+		id = RUS_industrial_effort
+		icon = GFX_goal_generic_construct_civ_factory
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 219 controls_state = 219
+			has_completed_focus = RUS_national_opening
+		}
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
+		completion_reward = {
             if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_political_power = 25
         }
- }
+		relative_position_id = RUS_national_opening
+		x = 26
+		y = 1
+	}
+
+	focus = {
+		id = RUS_production_reserves
+		icon = GFX_focus_AUS_raid_military_storages
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_industrial_effort
+		}
+		search_filters = { FOCUS_FILTER_INDUSTRY  FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_idea_ural_steel_trust } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_idea_ural_steel_trust } add_tech_bonus = { name = RUS_production_reserves bonus = 0.25 uses = 1 category = industry } }
+
+            if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = RUS_production_reserves_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+        }
+		relative_position_id = RUS_national_opening
+		x = 14
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_industrial_effort }
+		prerequisite = { focus = RUS_production_reserves }
+		id = RUS_home_front_1
+		icon = GFX_focus_generic_price_controls
+		cost = 10
+		available_if_capitulated = no
+		available = {
+			NOT = { has_completed_focus = RUS_war_front_1 }
+			date < 1936.1.1 date > 1914.1.1 has_global_flag = franz_dead
+			has_completed_focus = RUS_industrial_effort
+		}
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_RUS_ww1_zemgor } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_RUS_ww1_zemgor } add_tech_bonus = { name = RUS_home_front_1 bonus = 0.25 uses = 1 category = industry } } add_stability = 0.03
+        }
+		relative_position_id = RUS_production_reserves
+		x = 5
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_industrial_effort }
+		id = RUS_naval_effort
+		icon = GFX_focus_BEL_antwerp_maritime_academy
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_industrial_effort
+			has_completed_focus = RUS_industrial_effort
+		}
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            navy_experience = 25
+        }
+		relative_position_id = RUS_national_opening
+		x = 41
+		y = 4
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_naval_effort }
+		id = RUS_dockyard_2
+		icon = GFX_focus_generic_refit_civilian_ships
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 197 controls_state = 197
+			has_completed_focus = RUS_naval_effort
+		}
+		search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { 197 = { is_owned_and_controlled_by = ROOT } } 197 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = dockyard level = 1 instant_build = yes } } }
+        }
+		relative_position_id = RUS_national_opening
+		x = 34
+		y = 5
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_industrial_effort }
+		id = RUS_establish_airforce
+		icon = GFX_focus_FIN_expand_air_force_academy
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_industrial_effort
+		}
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            air_experience = 25
+        }
+		relative_position_id = RUS_industrial_effort
+		x = 5
+		y = 1
+	}
+
+	focus = {
+		id = RUS_airfield_construction_1
+		icon = GFX_goal_generic_build_airforce
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
+		search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+            if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } }
+        }
+		prerequisite = { focus = RUS_establish_airforce }
+		relative_position_id = RUS_establish_airforce
+		x = -1
+		y = 1
+	}
+
+	# Public administration and finance
+	focus = { id = RUS_ww1_expansion_special_defence_council cost = 5  available = { date < 1926.1.1 has_war = yes } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_tech_bonus = { name = RUS_ww1_expansion_special_defence_council bonus = 0.3 uses = 1 category = industry } }
+		icon = GFX_focus_generic_freedom_council
+		relative_position_id = RUS_ww1_expansion_war_industry_committees
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_ww1_expansion_war_industry_committees }
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_officer_academy }
+		id = RUS_general_staff_reform
+		icon = GFX_focus_SWE_radiotjanst
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_officer_academy
+		}
+		search_filters = { FOCUS_FILTER_ARMY_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
+		completion_reward = {
+			add_mastery_bonus = { name = RUS_general_staff_reform_research bonus = 0.5 days = 240 track = operations } army_experience = 10
+		}
+		relative_position_id = RUS_officer_academy
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = RUS_cossack_reforms
+		icon = GFX_focus_SIA_steel_arteries
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_cavalry_screen
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_cavalry_screen }
+	}
+
+	focus = {
+		id = RUS_ww1_court_and_cabinet
+		icon = GFX_focus_generic_court
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = { add_stability = 0.01 }
+		relative_position_id = RUS_ww1_duma_business
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_ww1_duma_business }
+	}
+
+	# Industry and infrastructure
+	focus = { id = RUS_ww1_expansion_depot_siding_schedule cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_equipment_to_stockpile = { type = early_train_equipment_1 amount = 8 producer = RIE } }
+		icon = GFX_focus_generic_worker_expansion
+		relative_position_id = RUS_railway_construction
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_railway_construction }
+	}
+
+	focus = { id = RUS_ww1_expansion_war_industry_committees cost = 5  available = { date < 1926.1.1 date > 1915.5.1 has_war = yes } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_equipment_to_stockpile = { type = early_infantry_equipment_1 amount = 750 producer = RIE } }
+		icon = GFX_focus_generic_communist_industry
+		relative_position_id = RUS_production_reserves
+		x = -5
+		y = 1
+		prerequisite = { focus = RUS_production_reserves }
+	}
+
+	focus = { id = RUS_ww1_expansion_zemstvo_hospital_trains cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_tech_bonus = { name = RUS_ww1_expansion_zemstvo_hospital_trains bonus = 0.35 uses = 1 technology = tech_field_hospital } }
+		icon = GFX_focus_generic_africa_factory
+		relative_position_id = RUS_prepare_for_war
+		x = -3
+		y = 1
+		prerequisite = { focus = RUS_prepare_for_war }
+	}
+
+	focus = { id = RUS_ww1_expansion_coastal_repair_tenders cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_equipment_to_stockpile = { type = convoy_1 amount = 10 producer = RIE } }
+		icon = GFX_focus_generic_coastal_fort
+		relative_position_id = RUS_naval_effort
+		x = -5
+		y = 1
+		prerequisite = { focus = RUS_naval_effort }
+	}
+
+	focus = { id = RUS_ww1_expansion_reserve_instructor_courses cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { army_experience = 8 }
+		icon = GFX_focus_generic_africa_infrastructure
+		relative_position_id = RUS_prepare_for_war
+		x = 3
+		y = 1
+		prerequisite = { focus = RUS_prepare_for_war }
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_naval_effort } id = RUS_ww1_expansion_black_sea_mine_schools cost = 5  available = { date < 1926.1.1
+			has_completed_focus = RUS_naval_effort
+		} ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { navy_experience = 8 }
+		icon = GFX_focus_generic_black_sea_focus
+		relative_position_id = RUS_national_opening
+		x = 40
+		y = 5
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_establish_airforce } id = RUS_ww1_expansion_frontier_flying_stations cost = 5  available = { date < 1926.1.1
+			has_completed_focus = RUS_establish_airforce
+		} ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { air_experience = 8 }
+		icon = GFX_focus_generic_africa_production
+		relative_position_id = RUS_national_opening
+		x = 34
+		y = 3
+	}
+
+	focus = { id = RUS_ww1_expansion_district_remount_depots cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { army_experience = 7 }
+		icon = GFX_focus_generic_arms_trade
+		relative_position_id = RUS_prepare_for_war
+		x = -5
+		y = 1
+		prerequisite = { focus = RUS_prepare_for_war }
+	}
+
+	focus = { id = RUS_ww1_expansion_frontier_loading_trials cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { army_experience = 8 }
+		icon = GFX_focus_generic_british_trade
+		relative_position_id = RUS_ww1_expansion_depot_siding_schedule
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_ww1_expansion_depot_siding_schedule }
+	}
+
+	focus = { id = RUS_ww1_expansion_observer_map_sections cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_tech_bonus = { name = RUS_ww1_expansion_observer_map_sections bonus = 0.25 uses = 1 category = electronics } }
+		icon = GFX_focus_generic_german_trade
+		relative_position_id = RUS_ww1_expansion_frontier_flying_stations
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_ww1_expansion_frontier_flying_stations }
+	}
+
+	focus = { id = RUS_ww1_expansion_depot_tool_contracts cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_tech_bonus = { name = RUS_ww1_expansion_depot_tool_contracts bonus = 0.25 uses = 1 category = industry } }
+		icon = GFX_focus_generic_industrial_experts
+		relative_position_id = RUS_industrial_effort
+		x = -15
+		y = 1
+		prerequisite = { focus = RUS_industrial_effort }
+	}
 
 	focus = {
   id = RUS_infrastructure_effort_1
   icon = GFX_focus_generic_improve_roads
-  relative_position_id = RUS_industrial_effort
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_industrial_effort }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
@@ -104,15 +1549,15 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_industrial_effort
+		x = -13
+		y = 1
+		prerequisite = { focus = RUS_industrial_effort }
+	}
 
 	focus = {
   id = RUS_construction_effort_1
   icon = GFX_focus_GER_customs_union
-  relative_position_id = RUS_infrastructure_effort_1
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_infrastructure_effort_1 }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
@@ -121,15 +1566,15 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_infrastructure_effort_1
+		x = 1
+		y = 1
+		prerequisite = { focus = RUS_infrastructure_effort_1 }
+	}
 
 	focus = {
   id = RUS_armament_effort_1
   icon = GFX_focus_SOV_mobilization_plan
-  relative_position_id = RUS_infrastructure_effort_1
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_infrastructure_effort_1 }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 195 controls_state = 195 }
@@ -138,32 +1583,35 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 195 = { is_owned_and_controlled_by = ROOT } } 195 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_infrastructure_effort_1
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_infrastructure_effort_1 }
+	}
 
 	focus = {
+		prerequisite = { focus = RUS_armament_effort_1 focus = RUS_construction_effort_1 }
+		prerequisite = { focus = RUS_infrastructure_effort_1 }
   id = RUS_infrastructure_effort_2
   icon = GFX_goal_generic_construction2
-  relative_position_id = RUS_construction_effort_1
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_armament_effort_1 focus = RUS_construction_effort_1 }
   cost = 5
   available_if_capitulated = no
-  available = { date < 1936.1.1 owns_state = 408 controls_state = 408 }
+  available = { date < 1936.1.1 owns_state = 408 controls_state = 408
+			OR = { has_completed_focus = RUS_armament_effort_1 has_completed_focus = RUS_construction_effort_1 }
+		}
   search_filters = { FOCUS_FILTER_INDUSTRY }
   ai_will_do = { factor = 2 }
   completion_reward = {
             if = { limit = { 408 = { is_owned_and_controlled_by = ROOT } } 408 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_armament_effort_1
+		x = 1
+		y = 1
+	}
 
 	focus = {
   id = RUS_construction_effort_2
   icon = GFX_focus_CHI_planned_economy
-  relative_position_id = RUS_infrastructure_effort_2
-  x = 2
-  y = 1
-  prerequisite = { focus = RUS_infrastructure_effort_2 }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
@@ -172,15 +1620,15 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_infrastructure_effort_2
+		x = 1
+		y = 1
+		prerequisite = { focus = RUS_infrastructure_effort_2 }
+	}
 
 	focus = {
   id = RUS_armament_effort_2
   icon = GFX_focus_generic_military_industry
-  relative_position_id = RUS_infrastructure_effort_2
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_infrastructure_effort_2 }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 223 controls_state = 223 }
@@ -189,15 +1637,15 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 223 = { is_owned_and_controlled_by = ROOT } } 223 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_infrastructure_effort_2
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_infrastructure_effort_2 }
+	}
 
 	focus = {
   id = RUS_steel_commission
   icon = GFX_focus_generic_mining_industry
-  relative_position_id = RUS_industrial_effort
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_industrial_effort }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 399 controls_state = 399 }
@@ -206,15 +1654,15 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 399 = { is_owned_and_controlled_by = ROOT } } 399 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_industrial_effort
+		x = -5
+		y = 1
+		prerequisite = { focus = RUS_industrial_effort }
+	}
 
 	focus = {
   id = RUS_moscow_machineworks
   icon = GFX_focus_FIN_finnish_federation_of_trade_unions
-  relative_position_id = RUS_steel_commission
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_steel_commission }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
@@ -223,15 +1671,15 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_steel_commission
+		x = 1
+		y = 1
+		prerequisite = { focus = RUS_steel_commission }
+	}
 
 	focus = {
   id = RUS_ural_metallurgy
   icon = GFX_focus_generic_steel
-  relative_position_id = RUS_steel_commission
-  x = 3
-  y = 1
-  prerequisite = { focus = RUS_steel_commission }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 398 controls_state = 398 }
@@ -240,15 +1688,15 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 398 = { is_owned_and_controlled_by = ROOT } } 398 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_steel_commission
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_steel_commission }
+	}
 
 	focus = {
   id = RUS_caucasus_oil_refineries
   icon = GFX_goal_generic_oil_refinery
-  relative_position_id = RUS_steel_commission
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_steel_commission }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 1016 controls_state = 1016 }
@@ -257,32 +1705,38 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 1016 = { is_owned_and_controlled_by = ROOT } } 1016 = { add_building_construction = { type = refinery level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_steel_commission
+		x = 3
+		y = 1
+		prerequisite = { focus = RUS_steel_commission }
+	}
+
+	focus = { id = RUS_ww1_expansion_caucasus_fuel_reserve cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_fuel = 5000 }
+		icon = GFX_focus_generic_stockpile_fuel
+		relative_position_id = RUS_caucasus_oil_refineries
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_caucasus_oil_refineries }
+	}
 
 	focus = {
   id = RUS_railway_rolling_stock
   icon = GFX_focus_PER_feat_of_engineering
-  relative_position_id = RUS_moscow_machineworks
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_moscow_machineworks }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
   ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
-  completion_reward = {
-            add_ideas = RUS_idea_railway_corps
-        }
- }
+  completion_reward = { add_tech_bonus = { name = RUS_railway_rolling_stock bonus = 0.25 uses = 1 category = industry } }
+		relative_position_id = RUS_moscow_machineworks
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_moscow_machineworks }
+	}
 
 	focus = {
   id = RUS_railway_mobilization
   icon = GFX_focus_generic_reinforcing_the_supply_network
-  relative_position_id = RUS_railway_rolling_stock
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_railway_rolling_stock }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 owns_state = 578 controls_state = 578 }
@@ -291,88 +1745,667 @@ focus_tree = {
   completion_reward = {
             if = { limit = { 578 = { is_owned_and_controlled_by = ROOT } } 578 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
         }
- }
+		relative_position_id = RUS_railway_rolling_stock
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_railway_rolling_stock }
+	}
 
 	focus = {
-  id = RUS_production_reserves
-  icon = GFX_focus_AUS_raid_military_storages
-  relative_position_id = RUS_ural_metallurgy
-  x = 0
-  y = 2
-  prerequisite = { focus = RUS_railway_rolling_stock focus = RUS_ural_metallurgy }
+		id = RUS_dnieper_foundries
+		icon = GFX_focus_generic_central_planning
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 227 controls_state = 227 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			if = { limit = { 227 = { is_owned_and_controlled_by = ROOT } } 227 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }
+		}
+		relative_position_id = RUS_steel_commission
+		x = -3
+		y = 1
+		prerequisite = { focus = RUS_steel_commission }
+	}
+
+
+	focus = {
+		id = RUS_staff_maps
+		icon = GFX_goal_generic_military_sphere
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_mastery_bonus = { name = RUS_staff_maps_research bonus = 0.5 days = 240 track = operations }
+		}
+		relative_position_id = RUS_officer_academy
+		x = 6
+		y = 1
+		prerequisite = { focus = RUS_officer_academy }
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_army_effort }
+		id = RUS_engineer_corps
+		icon = GFX_goal_generic_construct_military
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_army_effort
+		}
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_army_effort
+		x = 15
+		y = 1
+	}
+
+	focus = {
+		id = RUS_communications_corps
+		icon = GFX_focus_generic_radio_communication
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_tech_bonus = { name = RUS_communications_corps_research bonus = 0.5 uses = 1 technology = radio } army_experience = 10
+		}
+		relative_position_id = RUS_engineer_corps
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_engineer_corps }
+	}
+
+	focus = {
+		id = RUS_medical_service
+		icon = GFX_focus_generic_field_hostpital
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_engineer_corps
+		x = 1
+		y = 1
+		prerequisite = { focus = RUS_engineer_corps }
+	}
+
+
+	focus = {
+		id = RUS_home_front_2
+		icon = GFX_focus_generic_immigration
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 add_political_power = 25
+		}
+		relative_position_id = RUS_home_front_1
+		x = -3
+		y = 1
+		prerequisite = { focus = RUS_home_front_1 }
+	}
+
+	focus = {
+		id = RUS_home_front_3
+		icon = GFX_focus_INS_work_with_oil_barons
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 add_stability = 0.03
+		}
+		relative_position_id = RUS_home_front_2
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_home_front_2 }
+	}
+
+	focus = {
+		id = RUS_send_troops_france
+		icon = GFX_focus_NORDIC_dem_institution_1
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_request_aid
+		x = 3
+		y = 1
+		prerequisite = { focus = RUS_request_aid }
+	}
+
+	focus = {
+		id = RUS_railway_construction_2
+		icon = GFX_focus_SIA_night_time_training
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 407 controls_state = 407 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			if = { limit = { 407 = { is_owned_and_controlled_by = ROOT } } 407 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
+		}
+		relative_position_id = RUS_railway_construction
+		x = 2
+		y = 1
+		prerequisite = { focus = RUS_railway_construction }
+	}
+
+	focus = {
+		id = RUS_ww1_independent_security
+		icon = GFX_focus_generic_national_security
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 add_command_power = 15
+		}
+		relative_position_id = RUS_ww1_armed_neutrality
+		x = 1
+		y = 1
+		prerequisite = { focus = RUS_ww1_armed_neutrality }
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_naval_effort }
+  id = RUS_better_weaponry
+  icon = GFX_focus_generic_battleship_guns
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_INDUSTRY  FOCUS_FILTER_RESEARCH }
+  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
   ai_will_do = { factor = 2 }
   completion_reward = {
-            add_ideas = RUS_idea_ural_steel_trust
-
-            if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = RUS_production_reserves_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+            add_tech_bonus = { name = RUS_better_weaponry_research bonus = 0.5 uses = 1 category = naval_equipment } navy_experience = 10
         }
- }
+		relative_position_id = RUS_dreadnought
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_dreadnought }
+	}
 
 	focus = {
-  id = RUS_war_front_1
-  icon = GFX_focus_generic_army_doctrines_2
-  relative_position_id = RUS_prepare_for_war
-  x = 0
-  y = 2
-  prerequisite = { focus = RUS_prepare_for_war }
-  mutually_exclusive = { focus = RUS_home_front_1 }
-  cost = 10
+  id = RUS_coastal_defence
+  icon = GFX_goal_generic_occupy_states_coastal
+  cost = 5
   available_if_capitulated = no
-  available = { date < 1936.1.1 date > 1914.1.1 has_global_flag = franz_dead }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
+  available = { date < 1936.1.1 }
+  search_filters = { FOCUS_FILTER_NAVY_XP }
   ai_will_do = { factor = 2 }
   completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_timed_idea = { idea = RUS_ww1_front_coordination days = 180 } country_event = { id = ww1_russia.10 days = 1 }
+             navy_experience = 10
         }
- }
+		relative_position_id = RUS_baltic_fleet_reform
+		x = 1
+		y = 1
+		prerequisite = { focus = RUS_baltic_fleet_reform focus = RUS_black_sea_shipyards }
+	}
+
+	focus = { id = RUS_ww1_expansion_armaments_returns cost = 5  available = { date < 1926.1.1 has_war = yes } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_equipment_to_stockpile = { type = support_equipment_1 amount = 150 producer = RIE } }
+		icon = GFX_focus_generic_industry_1
+		relative_position_id = RUS_ww1_expansion_special_defence_council
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_ww1_expansion_special_defence_council }
+	}
 
 	focus = {
-  id = RUS_home_front_1
-  icon = GFX_focus_generic_price_controls
-  relative_position_id = RUS_production_reserves
-  x = 52
-  y = 1
-  prerequisite = { focus = RUS_production_reserves }
-  mutually_exclusive = { focus = RUS_war_front_1 }
-  cost = 10
+		prerequisite = { focus = RUS_staff_maps }
+		prerequisite = { focus = RUS_general_staff_reform }
+		id = RUS_combined_arms_staff
+		icon = GFX_focus_generic_little_entente
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1
+			has_completed_focus = RUS_staff_maps
+		}
+		search_filters = { FOCUS_FILTER_ARMY_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_tech_bonus = { name = RUS_combined_arms_staff_research bonus = 0.5 uses = 1 technology = radio } army_experience = 10
+		}
+		relative_position_id = RUS_general_staff_reform
+		x = 3
+		y = 1
+	}
+
+	# Army support and readiness
+	focus = {
+		id = RUS_army_effort
+		icon = GFX_focus_chi_army_reform
+		cost = 10
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			army_experience = 25
+		}
+		relative_position_id = RUS_prepare_for_war
+		x = 8
+		y = 1
+		prerequisite = { focus = RUS_prepare_for_war }
+	}
+
+	focus = {
+		id = RUS_officer_academy
+		icon = GFX_focus_CHI_formalise_training_regime
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_army_effort
+		x = -5
+		y = 1
+		prerequisite = { focus = RUS_army_effort }
+	}
+
+	focus = {
+		id = RUS_trench_warfare
+		icon = GFX_goal_generic_defence
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_army_effort
+		x = -7
+		y = 1
+		prerequisite = { focus = RUS_army_effort }
+	}
+
+	focus = {
+		id = RUS_artillery_effort_1
+		icon = GFX_focus_generic_railway_gun
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_army_effort
+		x = -14
+		y = 1
+		prerequisite = { focus = RUS_army_effort }
+	}
+
+	focus = {
+		id = RUS_artillery_effort_2
+		icon = GFX_goal_generic_army_artillery2
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_tech_bonus = { name = RUS_artillery_effort_2_research bonus = 0.5 uses = 1 category = artillery } army_experience = 10
+		}
+		relative_position_id = RUS_artillery_effort_1
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_artillery_effort_1 }
+	}
+
+	focus = {
+		id = RUS_artillery_effort_3
+		icon = GFX_goal_generic_position_armies
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_tech_bonus = { name = RUS_artillery_effort_3_research bonus = 0.5 uses = 1 technology = artillery2 } army_experience = 10
+		}
+		relative_position_id = RUS_artillery_effort_2
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_artillery_effort_2 }
+	}
+
+	focus = {
+		id = RUS_artillery_effort_4
+		icon = GFX_focus_BUL_bulgarian_administration_of_the_balkans
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_artillery_effort_3
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_artillery_effort_3 }
+	}
+
+	focus = {
+		id = RUS_tactics_1
+		icon = GFX_focus_generic_mountain_training
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			army_experience = 15
+		}
+		relative_position_id = RUS_officer_academy
+		x = -8
+		y = 1
+		prerequisite = { focus = RUS_officer_academy }
+	}
+
+	focus = {
+		id = RUS_tactics_2
+		icon = GFX_focus_generic_military_dictatorship
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_mastery_bonus = { name = RUS_tactics_2_research bonus = 0.5 days = 240 track = infantry } army_experience = 15
+		}
+		relative_position_id = RUS_tactics_1
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_tactics_1 }
+	}
+
+	focus = {
+		id = RUS_tactics_3
+		icon = GFX_focus_generic_desert_training
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 15
+		}
+		relative_position_id = RUS_tactics_2
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_tactics_2 }
+	}
+
+	focus = {
+		id = RUS_cavalry_screen
+		icon = GFX_focus_AUS_frontmiliz_focus
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 army_experience = 10
+		}
+		relative_position_id = RUS_army_effort
+		x = 3
+		y = 1
+		prerequisite = { focus = RUS_army_effort }
+	}
+
+	# Naval programmes
+	focus = { id = RUS_ww1_expansion_fleet_merchant_signals cost = 5  available = { date < 1926.1.1  } ai_will_do = { factor = 5 } search_filters = { FOCUS_FILTER_POLITICAL } completion_reward = { add_equipment_to_stockpile = { type = convoy_1 amount = 12 producer = RIE } }
+		icon = GFX_focus_generic_merchant_fleet
+		relative_position_id = RUS_ww1_expansion_black_sea_mine_schools
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_ww1_expansion_black_sea_mine_schools }
+	}
+
+	focus = {
+  id = RUS_naval_aviation
+  icon = GFX_focus_generic_escort_efficiency
+  cost = 5
   available_if_capitulated = no
-  available = { date < 1936.1.1 date > 1914.1.1 has_global_flag = franz_dead }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
+  available = { date < 1936.1.1 }
+  search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_NAVY_XP }
   ai_will_do = { factor = 2 }
   completion_reward = {
-            add_ideas = RUS_ww1_zemgor add_stability = 0.03
+             navy_experience = 10 air_experience = 10
         }
- }
+		relative_position_id = RUS_air_observation_service
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_air_observation_service }
+	}
 
+	focus = {
+		prerequisite = { focus = RUS_naval_effort }
+  id = RUS_dockyard_1
+  icon = GFX_focus_POL_develop_polish_shipbuilding
+  cost = 5
+  available_if_capitulated = no
+  available = { date < 1936.1.1 owns_state = 195 controls_state = 195
+			has_completed_focus = RUS_naval_effort
+		}
+  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_INDUSTRY }
+  ai_will_do = { factor = 2 }
+  completion_reward = {
+            if = { limit = { 195 = { is_owned_and_controlled_by = ROOT } } 195 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = dockyard level = 1 instant_build = yes } } }
+        }
+		relative_position_id = RUS_national_opening
+		x = 42
+		y = 5
+	}
+
+	focus = {
+  id = RUS_dreadnought
+  icon = GFX_goal_generic_navy_battleship
+  cost = 5
+  available_if_capitulated = no
+  available = { date < 1936.1.1
+			has_completed_focus = RUS_naval_effort
+		}
+  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
+  ai_will_do = { factor = 2 }
+  completion_reward = {
+            add_tech_bonus = { name = RUS_dreadnought_research bonus = 0.5 uses = 1 category = bb_tech } navy_experience = 10
+        }
+		relative_position_id = RUS_national_opening
+		x = 38
+		y = 4
+	}
+
+	focus = {
+  id = RUS_submarine_theory
+  icon = GFX_focus_generic_cruiser_submarines
+  cost = 5
+  available_if_capitulated = no
+  available = { date < 1936.1.1
+			has_completed_focus = RUS_naval_effort
+		}
+  search_filters = { FOCUS_FILTER_NAVY_XP }
+  ai_will_do = { factor = 2 }
+  completion_reward = {
+             navy_experience = 10
+        }
+		relative_position_id = RUS_national_opening
+		x = 46
+		y = 4
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_naval_effort }
+		prerequisite = { focus = RUS_submarine_theory }
+  id = RUS_submarine_effort
+  icon = GFX_goal_generic_navy_submarine
+  cost = 5
+  available_if_capitulated = no
+  available = { date < 1936.1.1
+			has_completed_focus = RUS_naval_effort
+		}
+  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
+  ai_will_do = { factor = 2 }
+  completion_reward = {
+            add_tech_bonus = { name = RUS_submarine_effort_research bonus = 0.5 uses = 1 category = ss_tech } navy_experience = 10
+        }
+		relative_position_id = RUS_submarine_theory
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_naval_effort }
+  id = RUS_destroyer_effort
+  icon = GFX_focus_generic_mine_warfare
+  cost = 5
+  available_if_capitulated = no
+  available = { date < 1936.1.1
+			has_completed_focus = RUS_naval_effort
+		}
+  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
+  ai_will_do = { factor = 2 }
+  completion_reward = {
+            add_tech_bonus = { name = RUS_destroyer_effort_research bonus = 0.5 uses = 1 category = dd_tech } navy_experience = 10
+        }
+		relative_position_id = RUS_national_opening
+		x = 44
+		y = 5
+	}
+
+	focus = {
+		prerequisite = { focus = RUS_naval_effort }
+  id = RUS_baltic_fleet_reform
+  icon = GFX_focus_JAP_assure_superior_naval_quality
+  cost = 5
+  available_if_capitulated = no
+  available = { date < 1936.1.1
+			OR = { has_completed_focus = RUS_better_weaponry has_completed_focus = RUS_destroyer_effort }
+		}
+  search_filters = { FOCUS_FILTER_NAVY_XP }
+  ai_will_do = { factor = 2 }
+  completion_reward = {
+             navy_experience = 15
+        }
+		relative_position_id = RUS_better_weaponry
+		x = 10
+		y = 0
+	}
+
+	focus = {
+  id = RUS_black_sea_shipyards
+  icon = GFX_focus_INS_guided_economy
+  cost = 5
+  available_if_capitulated = no
+  available = { date < 1936.1.1
+			OR = { has_completed_focus = RUS_dockyard_2 has_completed_focus = RUS_submarine_effort }
+		}
+  search_filters = { FOCUS_FILTER_NAVY_XP }
+  ai_will_do = { factor = 2 }
+  completion_reward = {
+             navy_experience = 15
+        }
+		relative_position_id = RUS_national_opening
+		x = 49
+		y = 3
+	}
+
+	focus = {
+		id = RUS_dockyard_3
+		icon = GFX_goal_generic_navy_anti_submarine
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 408 controls_state = 408 }
+		search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			if = { limit = { 408 = { is_owned_and_controlled_by = ROOT } } 408 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = dockyard level = 1 instant_build = yes } } }
+		}
+		relative_position_id = RUS_dockyard_2
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_dockyard_2 }
+	}
+
+	focus = {
+		id = RUS_fleet_logistics
+		icon = GFX_focus_generic_naval_discipline
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			 navy_experience = 10 add_political_power = 25
+		}
+		relative_position_id = RUS_coastal_defence
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_coastal_defence }
+	}
+
+	focus = {
+		id = RUS_airship_reconnaissance
+		icon = GFX_focus_ww1_pdx_native_rus_airship_reconnaissance
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			air_experience = 15
+		}
+		relative_position_id = RUS_air_observation_service
+		x = 2
+		y = 1
+		prerequisite = { focus = RUS_air_observation_service }
+	}
+
+	# Aviation programmes
 	focus = {
   id = RUS_aviation_effort_1
   icon = GFX_focus_CZE_military_aeronautical_institute
-  relative_position_id = RUS_establish_airforce
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_establish_airforce }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 }
   search_filters = { FOCUS_FILTER_AIR_XP }
   ai_will_do = { factor = 2 }
   completion_reward = {
-            add_ideas = RUS_idea_air_observation air_experience = 10
+             air_experience = 10
         }
- }
+		relative_position_id = RUS_establish_airforce
+		x = -3
+		y = 1
+		prerequisite = { focus = RUS_establish_airforce }
+	}
 
 	focus = {
   id = RUS_fighter_focus
   icon = GFX_goal_generic_air_fighter
-  relative_position_id = RUS_aviation_effort_1
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_aviation_effort_1 }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 }
@@ -381,15 +2414,15 @@ focus_tree = {
   completion_reward = {
             add_tech_bonus = { name = RUS_fighter_focus_research bonus = 0.5 uses = 1 category = air_equipment } air_experience = 10
         }
- }
+		relative_position_id = RUS_aviation_effort_1
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_aviation_effort_1 }
+	}
 
 	focus = {
   id = RUS_fighter_1
   icon = GFX_focus_generic_air_research_boost
-  relative_position_id = RUS_fighter_focus
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_fighter_focus }
   cost = 10
   available_if_capitulated = no
   available = {
@@ -400,49 +2433,49 @@ focus_tree = {
   completion_reward = {
   add_tech_bonus = { name = RUS_fighter_1_research bonus = 0.5 uses = 1 category = light_fighter } air_experience = 10
   }
- }
+		relative_position_id = RUS_fighter_focus
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_fighter_focus }
+	}
 
 	focus = {
   id = RUS_improved_fighter_1
   icon = GFX_focus_generic_aircraft_production
-  relative_position_id = RUS_fighter_1
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_fighter_1 }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 }
   search_filters = { FOCUS_FILTER_AIR_XP }
   ai_will_do = { factor = 2 }
   completion_reward = {
-            add_ideas = RUS_idea_fighter_school air_experience = 10
+             air_experience = 10
         }
- }
+		relative_position_id = RUS_fighter_1
+		x = 1
+		y = 1
+		prerequisite = { focus = RUS_fighter_1 }
+	}
 
 	focus = {
   id = RUS_bomber_focus
   icon = GFX_focus_generic_flight_instructors
-  relative_position_id = RUS_aviation_effort_1
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_aviation_effort_1 }
   cost = 5
   available_if_capitulated = no
   available = { date < 1936.1.1 }
   search_filters = { FOCUS_FILTER_AIR_XP }
   ai_will_do = { factor = 2 }
   completion_reward = {
-            add_ideas = RUS_idea_bomber_command air_experience = 10
+             air_experience = 10
         }
- }
+		relative_position_id = RUS_aviation_effort_1
+		x = -2
+		y = 1
+		prerequisite = { focus = RUS_aviation_effort_1 }
+	}
 
 	focus = {
   id = RUS_tactical_bomber_1
   icon = GFX_goal_continuous_air_production
-  relative_position_id = RUS_bomber_focus
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_bomber_focus }
   cost = 10
   available_if_capitulated = no
   available = {
@@ -453,15 +2486,15 @@ focus_tree = {
   completion_reward = {
   add_tech_bonus = { name = RUS_tactical_bomber_1_research bonus = 0.5 uses = 1 category = tactical_bomber } air_experience = 10
   }
- }
+		relative_position_id = RUS_bomber_focus
+		x = -2
+		y = 1
+		prerequisite = { focus = RUS_bomber_focus }
+	}
 
 	focus = {
   id = RUS_air_observation_service
   icon = GFX_focus_PRC_pilot_training
-  relative_position_id = RUS_aviation_effort_1
-  x = 3
-  y = 1
-  prerequisite = { focus = RUS_aviation_effort_1 }
   cost = 10
   available_if_capitulated = no
   available = {
@@ -470,1555 +2503,63 @@ focus_tree = {
   search_filters = { FOCUS_FILTER_AIR_XP }
   ai_will_do = { factor = 2 }
   completion_reward = {
-  add_ideas = RUS_idea_air_observation air_experience = 10
+   air_experience = 10
   }
- }
-
-	focus = {
-  id = RUS_naval_aviation
-  icon = GFX_focus_generic_escort_efficiency
-  relative_position_id = RUS_air_observation_service
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_air_observation_service }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_NAVY_XP }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_idea_air_observation navy_experience = 10 air_experience = 10
-        }
- }
-
-	focus = {
-  id = RUS_airfield_construction_1
-  icon = GFX_goal_generic_build_airforce
-  relative_position_id = RUS_aviation_effort_1
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_aviation_effort_1 }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
-  search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_INDUSTRY }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } }
-        }
- }
-
-	focus = {
-  id = RUS_dockyard_1
-  icon = GFX_focus_POL_develop_polish_shipbuilding
-  relative_position_id = RUS_naval_effort
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_naval_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 owns_state = 195 controls_state = 195 }
-  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_INDUSTRY }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            if = { limit = { 195 = { is_owned_and_controlled_by = ROOT } } 195 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = dockyard level = 1 instant_build = yes } } }
-        }
- }
-
-	focus = {
-  id = RUS_dockyard_2
-  icon = GFX_focus_generic_refit_civilian_ships
-  relative_position_id = RUS_dockyard_1
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_dockyard_1 }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 owns_state = 197 controls_state = 197 }
-  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_INDUSTRY }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            if = { limit = { 197 = { is_owned_and_controlled_by = ROOT } } 197 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = dockyard level = 1 instant_build = yes } } }
-        }
- }
-
-	focus = {
-  id = RUS_dreadnought
-  icon = GFX_goal_generic_navy_battleship
-  relative_position_id = RUS_naval_effort
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_naval_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_tech_bonus = { name = RUS_dreadnought_research bonus = 0.5 uses = 1 category = bb_tech } navy_experience = 10
-        }
- }
-
-	focus = {
-  id = RUS_better_weaponry
-  icon = GFX_focus_generic_battleship_guns
-  relative_position_id = RUS_dreadnought
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_dreadnought }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_tech_bonus = { name = RUS_better_weaponry_research bonus = 0.5 uses = 1 category = naval_equipment } navy_experience = 10
-        }
- }
-
-	focus = {
-  id = RUS_submarine_theory
-  icon = GFX_focus_generic_cruiser_submarines
-  relative_position_id = RUS_naval_effort
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_naval_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_idea_submarine_bureau navy_experience = 10
-        }
- }
-
-	focus = {
-  id = RUS_submarine_effort
-  icon = GFX_goal_generic_navy_submarine
-  relative_position_id = RUS_submarine_theory
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_submarine_theory }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_tech_bonus = { name = RUS_submarine_effort_research bonus = 0.5 uses = 1 category = ss_tech } navy_experience = 10
-        }
- }
-
-	focus = {
-  id = RUS_destroyer_effort
-  icon = GFX_focus_generic_mine_warfare
-  relative_position_id = RUS_naval_effort
-  x = 3
-  y = 1
-  prerequisite = { focus = RUS_naval_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP FOCUS_FILTER_RESEARCH }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_tech_bonus = { name = RUS_destroyer_effort_research bonus = 0.5 uses = 1 category = dd_tech } navy_experience = 10
-        }
- }
-
-	focus = {
-  id = RUS_baltic_fleet_reform
-  icon = GFX_focus_JAP_assure_superior_naval_quality
-  relative_position_id = RUS_better_weaponry
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_better_weaponry focus = RUS_destroyer_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_idea_baltic_fleet navy_experience = 15
-        }
- }
-
-	focus = {
-  id = RUS_black_sea_shipyards
-  icon = GFX_focus_INS_guided_economy
-  relative_position_id = RUS_dockyard_2
-  x = 2
-  y = 1
-  prerequisite = { focus = RUS_dockyard_2 focus = RUS_submarine_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_idea_black_sea_shipyards navy_experience = 15
-        }
- }
-
-	focus = {
-  id = RUS_coastal_defence
-  icon = GFX_focus_generic_coastal_fort
-  relative_position_id = RUS_baltic_fleet_reform
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_baltic_fleet_reform focus = RUS_black_sea_shipyards }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_idea_coastal_defence navy_experience = 10
-        }
- }
-
-	focus = {
-  id = RUS_european_diplomacy
-  icon = GFX_goal_generic_major_alliance
-  relative_position_id = RUS_diplomatic_effort
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_diplomatic_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_ideas = RUS_ww1_diplomatic_corps add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_entente_diplomacy
-  icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
-  relative_position_id = RUS_european_diplomacy
-  x = 5
-  y = 1
-  prerequisite = { focus = RUS_european_diplomacy }
-  mutually_exclusive = { focus = RUS_ww1_armed_neutrality }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1  RUS_ww1_may_be_historical_war_target = yes }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_ideas = RUS_ww1_allied_purchasing add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_investments_from_west
-  icon = GFX_focus_NORDIC_mon_civilian
-  relative_position_id = RUS_entente_diplomacy
-  x = -5
-  y = 1
-  prerequisite = { focus = RUS_entente_diplomacy }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
-  search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
-        }
- }
-
-	focus = {
-  id = RUS_request_aid
-  icon = GFX_focus_GER_integrated_economies
-  relative_position_id = RUS_investments_from_west
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_investments_from_west }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_ideas = RUS_ww1_allied_purchasing add_equipment_to_stockpile = { type = infantry_equipment_0 amount = 1000 producer = ROOT }
-        }
- }
-
-	focus = {
-  id = RUS_balkan_diplomacy
-  icon = GFX_focus_SWI_neutrality_on_the_move
-  relative_position_id = RUS_diplomatic_effort
-  x = -5
-  y = 1
-  prerequisite = { focus = RUS_diplomatic_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_ideas = RUS_ww1_balkan_liaison add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_support_serbia
-  icon = GFX_focus_generic_world_peace
-  relative_position_id = RUS_balkan_diplomacy
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_balkan_diplomacy }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 modifier = { factor = 2 is_historical_focus_on = yes } }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_ideas = RUS_ww1_balkan_liaison add_war_support = 0.05
-        }
- }
-
-	focus = {
-  id = RUS_befriend_romania
-  icon = GFX_focus_generic_conference
-  relative_position_id = RUS_balkan_diplomacy
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_balkan_diplomacy }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = { if = { limit = { country_exists = ROM NOT = { has_war_with = ROM } } add_opinion_modifier = { target = ROM modifier = small_increase } ROM = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } }
- }
-
-	focus = {
-  id = RUS_pan_slavism
-  icon = GFX_goal_generic_military_deal
-  relative_position_id = RUS_befriend_romania
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_befriend_romania focus = RUS_support_serbia }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_national_compact add_war_support = 0.05
-        }
- }
-
-	focus = {
-  id = RUS_asian_diplomacy
-  icon = GFX_goal_generic_demand_territory
-  relative_position_id = RUS_diplomatic_effort
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_diplomatic_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_ideas = RUS_ww1_far_eastern_commerce add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_occupy_northern_persia
-  icon = GFX_focus_eng_global_defense
-  relative_position_id = RUS_asian_diplomacy
-  x = 3
-  y = 1
-  prerequisite = { focus = RUS_asian_diplomacy }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_state_claim = 419 add_state_claim = 420 add_state_claim = 266
-        }
- }
-
-	focus = {
-  id = RUS_railway_construction
-  icon = GFX_focus_GER_kriegslokomotive
-  relative_position_id = RUS_asian_diplomacy
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_asian_diplomacy }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-  add_political_power = -20
-   if = { limit = { 408 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT infrastructure < 5 } }
-   408 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }
-  }
- }
-
-	focus = {
-  id = RUS_ww1_independent_diplomacy
-  icon = GFX_focus_generic_commission
-  relative_position_id = RUS_diplomatic_effort
-  x = 3
-  y = 1
-  prerequisite = { focus = RUS_diplomatic_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = {
-            add_ideas = RUS_ww1_diplomatic_corps add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_ww1_armed_neutrality
-  icon = GFX_goal_generic_neutrality_focus
-  relative_position_id = RUS_ww1_independent_diplomacy
-  x = 5
-  y = 1
-  prerequisite = { focus = RUS_ww1_independent_diplomacy }
-  mutually_exclusive = { focus = RUS_entente_diplomacy }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_neutral_diplomacy add_command_power = 10
-            set_country_flag = RUS_ww1_armed_neutrality country_event = { id = ww1_russia.212 days = 1 } }
- }
-
-	focus = {
-  id = RUS_ww1_german_rapprochement
-  icon = GFX_goal_generic_intelligence_exchange
-  relative_position_id = RUS_ww1_armed_neutrality
-  x = -2
-  y = 1
-  prerequisite = { focus = RUS_ww1_armed_neutrality }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 has_war = no  GER = { GE1_ww1_may_choose_russian_bloc = yes } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = {
-            add_ideas = RUS_ww1_diplomatic_corps country_event = { id = ww1_russia.210 days = 1 }
-        }
- }
-
-	focus = {
-  id = RUS_ww1_independent_security
-  icon = GFX_focus_generic_national_security
-  relative_position_id = RUS_ww1_armed_neutrality
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_ww1_armed_neutrality }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_neutral_diplomacy add_command_power = 15
-        }
- }
-
-	focus = {
-  id = RUS_ww1_council_of_ministers
-  icon = GFX_focus_generic_improve_the_administration_2
-  relative_position_id = RUS_political_effort
-  x = -6
-  y = 1
-  prerequisite = { focus = RUS_political_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_state_council add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_ww1_duma_business
-  icon = GFX_focus_AST_a_democratic_bulwark
-  relative_position_id = RUS_ww1_council_of_ministers
-  x = -2
-  y = 1
-  prerequisite = { focus = RUS_ww1_council_of_ministers }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-
-            add_stability = 0.03
-        }
- }
-
-	focus = {
-  id = RUS_ww1_continue_stolypin
-  icon = GFX_focus_generic_modernizing_agriculture
-  relative_position_id = RUS_ww1_duma_business
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_duma_business }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_land_bank add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_ww1_zemstvo_schools
-  icon = GFX_focus_NORDIC_dem_institution_2
-  relative_position_id = RUS_ww1_continue_stolypin
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_ww1_continue_stolypin }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_INDUSTRY  FOCUS_FILTER_RESEARCH }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_zemstvo_services add_political_power = 25
-
-            if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = RUS_ww1_zemstvo_schools_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
-        }
- }
-
-	focus = {
-  id = RUS_ww1_worker_insurance
-  icon = GFX_focus_generic_population_growth
-  relative_position_id = RUS_ww1_zemstvo_schools
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_ww1_zemstvo_schools }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_workers_insurance add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_ww1_historical_counsel
-  icon = GFX_focus_SOV_zemsky_sobor
-  relative_position_id = RUS_political_effort
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_political_effort }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 12 modifier = { factor = 0 is_historical_focus_on = no } }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            set_country_flag = RUS_ww1_historical_programme
-
-            add_war_support = 0.03
-        }
- }
-
-	focus = {
-  id = RUS_ww1_renew_autocracy
-  icon = GFX_focus_generic_monarchist_sentiment
-  relative_position_id = RUS_ww1_historical_counsel
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_counsel }
-  mutually_exclusive = { focus = RUS_ww1_responsible_government }
-  cost = 10
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1
-            NOT = { has_completed_focus = RUS_ww1_constituent_republic }
-            NOT = { has_completed_focus = RUS_ww1_dual_power }
-            NOT = { has_completed_focus = RUS_ww1_labour_peasant_convention }
-            NOT = { has_completed_focus = RUS_ww1_national_defence_council }
-        }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = {
-            add_ideas = RUS_ww1_imperial_cabinet country_event = { id = ww1_russia.200 days = 1 }
-            WW1_support_neutrality_programme = yes
-        }
- }
-
-	focus = {
-  id = RUS_reinforce_tsars_authority
-  icon = GFX_focus_SOV_the_true_tsars
-  relative_position_id = RUS_ww1_renew_autocracy
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_renew_autocracy }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_unitary_administration add_political_power = 50
-        }
- }
-
-	focus = {
-  id = RUS_ww1_responsible_government
-  icon = GFX_focus_CZE_coalition_building
-  relative_position_id = RUS_ww1_historical_counsel
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_counsel }
-  mutually_exclusive = { focus = RUS_ww1_constituent_republic focus = RUS_ww1_renew_autocracy }
-  cost = 10
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1
-            NOT = { has_completed_focus = RUS_ww1_dual_power }
-            NOT = { has_completed_focus = RUS_ww1_labour_peasant_convention }
-            NOT = { has_completed_focus = RUS_ww1_national_defence_council }
-        }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = {
-            add_ideas = RUS_ww1_responsible_ministry country_event = { id = ww1_russia.201 days = 1 }
-            WW1_support_democratic_programme = yes
-        }
- }
-
-	focus = {
-  id = RUS_ww1_constitutional_monarchy
-  icon = GFX_focus_generic_monarchy_1
-  relative_position_id = RUS_ww1_responsible_government
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_responsible_government }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_common_market add_political_power = 50
-        }
- }
-
-	focus = {
-  id = RUS_ww1_constituent_republic
-  icon = GFX_focus_JAP_anti_militarist_speeches_in_the_diet
-  relative_position_id = RUS_ww1_historical_counsel
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_counsel }
-  mutually_exclusive = { focus = RUS_ww1_labour_peasant_convention focus = RUS_ww1_responsible_government }
-  cost = 10
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1
-            NOT = { has_completed_focus = RUS_ww1_dual_power }
-            NOT = { has_completed_focus = RUS_ww1_national_defence_council }
-            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
-        }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = {
-            add_ideas = RUS_ww1_republican_institutions add_political_power = 25
-            WW1_support_democratic_programme = yes
-        }
- }
-
-	focus = {
-  id = RUS_ww1_dual_power
-  icon = GFX_focus_NOR_restore_public_trust_in_the_storting
-  relative_position_id = RUS_ww1_historical_counsel
-  x = 7
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_counsel }
-  mutually_exclusive = { focus = RUS_ww1_national_defence_council }
-  cost = 5
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1 has_global_flag = february_revolution1
-            RUS_ww1_historical_revolution_allowed = yes
-            NOT = { has_completed_focus = RUS_ww1_constituent_republic }
-            NOT = { has_completed_focus = RUS_ww1_labour_peasant_convention }
-            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
-            NOT = { has_completed_focus = RUS_ww1_responsible_government }
-        }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 12 modifier = { factor = 0 is_historical_focus_on = no } }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-
-            add_stability = 0.03
-        }
- }
-
-	focus = {
-  id = RUS_ww1_historical_coalition
-  icon = GFX_focus_generic_coal_mining
-  relative_position_id = RUS_ww1_dual_power
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_ww1_dual_power }
-  mutually_exclusive = { focus = RUS_ww1_assembly_in_time }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 12 modifier = { factor = 0 is_historical_focus_on = no } }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            set_country_flag = RUS_ww1_historical_transition
-
-            add_stability = 0.03
-        }
- }
-
-	focus = {
-  id = RUS_ww1_assembly_in_time
-  icon = GFX_focus_ETH_re-convene_the_parliament
-  relative_position_id = RUS_ww1_dual_power
-  x = 3
-  y = 1
-  prerequisite = { focus = RUS_ww1_dual_power }
-  mutually_exclusive = { focus = RUS_ww1_historical_coalition }
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = {
-            country_event = { id = ww1_russia.202 days = 1 }
-        }
- }
-
-	focus = {
-  id = RUS_ww1_april_programme
-  icon = GFX_SOV_the_workers_dictatorship_ccp_2d_sov_compatibility
-  relative_position_id = RUS_ww1_historical_coalition
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_coalition }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 has_global_flag = lenin_in_russia }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_ideas = RUS_ww1_republican_institutions add_political_power = 25
-        }
- }
-
-	focus = {
-  id = RUS_ww1_summer_crisis
-  icon = GFX_focus_NORDIC_mon_institution_1
-  relative_position_id = RUS_ww1_april_programme
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_ww1_april_programme }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 date > 1917.7.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_command_power = 10
-        }
- }
-
-	focus = {
-  id = RUS_ww1_defend_winter_palace
-  icon = GFX_focus_ARG_defense_and_democracy
-  relative_position_id = RUS_ww1_summer_crisis
-  x = -2
-  y = 1
-  prerequisite = { focus = RUS_ww1_summer_crisis }
-  mutually_exclusive = { focus = RUS_ww1_soviet_transfer }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            country_event = { id = ww1_russia.203 days = 1 }
-        }
- }
-
-	focus = {
-  id = RUS_ww1_soviet_transfer
-  icon = GFX_focus_generic_soviet_politics
-  relative_position_id = RUS_ww1_summer_crisis
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_ww1_summer_crisis }
-  mutually_exclusive = { focus = RUS_ww1_defend_winter_palace }
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1919.1.1 has_global_flag = lenin_in_russia has_global_flag = lenin_returned_100_days_ago date > 1917.10.24 NOT = { has_global_flag = october_revolution } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_russia.34 days = 1 }
-        }
- }
-
-	focus = {
-  id = RUS_ww1_labour_peasant_convention
-  icon = GFX_focus_generic_agricultural_subsidies
-  relative_position_id = RUS_ww1_historical_counsel
-  x = 3
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_counsel }
-  mutually_exclusive = { focus = RUS_ww1_constituent_republic focus = RUS_ww1_national_defence_council }
-  cost = 10
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1
-            NOT = { has_completed_focus = RUS_ww1_dual_power }
-            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
-            NOT = { has_completed_focus = RUS_ww1_responsible_government }
-        }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = {
-            add_ideas = RUS_ww1_social_coalition add_political_power = 35
-            WW1_support_democratic_programme = yes
-        }
- }
-
-	focus = {
-  id = RUS_ww1_kerensky_social_republic
-  icon = GFX_focus_LAT_suspend_constitution_of_latvia
-  relative_position_id = RUS_ww1_labour_peasant_convention
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_labour_peasant_convention }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            country_event = { id = ww1_russia.203 days = 1 } add_stability = 0.05
-        }
- }
-
-	focus = {
-  id = RUS_ww1_national_defence_council
-  icon = GFX_focus_SIA_the_midnight_meeting
-  relative_position_id = RUS_ww1_historical_counsel
-  x = 5
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_counsel }
-  mutually_exclusive = { focus = RUS_ww1_dual_power focus = RUS_ww1_labour_peasant_convention }
-  cost = 10
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1 date > 1914.8.1 has_war = yes
-            NOT = { has_completed_focus = RUS_ww1_constituent_republic }
-            NOT = { has_completed_focus = RUS_ww1_renew_autocracy }
-            NOT = { has_completed_focus = RUS_ww1_responsible_government }
-        }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  ai_will_do = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = { add_command_power = 15 army_experience = 10
-            WW1_support_neutrality_programme = yes
-        }
- }
-
-	focus = {
-  id = RUS_ww1_alekseev_directorate
-  icon = GFX_focus_generic_jungle_training
-  relative_position_id = RUS_ww1_national_defence_council
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_national_defence_council }
-  mutually_exclusive = { focus = RUS_ww1_kornilov_order }
-  cost = 5
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1
-            NOT = { has_completed_focus = RUS_ww1_kolchak_government }
-        }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = { country_event = { id = ww1_russia.204 days = 1 } }
- }
-
-	focus = {
-  id = RUS_ww1_kornilov_order
-  icon = GFX_focus_SIA_sideline_disloyal_officers
-  relative_position_id = RUS_ww1_national_defence_council
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_ww1_national_defence_council }
-  mutually_exclusive = { focus = RUS_ww1_alekseev_directorate focus = RUS_ww1_kolchak_government }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = { country_event = { id = ww1_russia.205 days = 1 } }
- }
-
-	focus = {
-  id = RUS_ww1_kolchak_government
-  icon = GFX_focus_generic_government_in_exile
-  relative_position_id = RUS_ww1_national_defence_council
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_ww1_national_defence_council }
-  mutually_exclusive = { focus = RUS_ww1_kornilov_order }
-  cost = 5
-  available_if_capitulated = no
-  available = {
-            date < 1936.1.1
-            NOT = { has_completed_focus = RUS_ww1_alekseev_directorate }
-        }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = { country_event = { id = ww1_russia.206 days = 1 } }
- }
-
-	focus = {
-  id = RUS_ww1_nationalities_commission
-  icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
-  relative_position_id = RUS_ww1_council_of_ministers
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_ww1_council_of_ministers }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            country_event = { id = ww1_russia.207 days = 1 }
-        }
- }
-
-	focus = {
-  id = RUS_ww1_federal_service_union
-  icon = GFX_focus_generic_improve_the_administration
-  relative_position_id = RUS_ww1_nationalities_commission
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_nationalities_commission }
-  mutually_exclusive = { focus = RUS_ww1_unitary_state_charter }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = { country_event = { id = ww1_russia.208 days = 1 } }
- }
-
-	focus = {
-  id = RUS_ww1_unitary_state_charter
-  icon = GFX_focus_PER_constitutional_monarchy
-  relative_position_id = RUS_ww1_nationalities_commission
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_ww1_nationalities_commission }
-  mutually_exclusive = { focus = RUS_ww1_federal_service_union }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_unitary_administration add_political_power = 50
-        }
- }
-
-	focus = {
-  id = RUS_ww1_postwar_constitution
-  icon = GFX_focus_generic_sympathetic_judges
-  relative_position_id = RUS_ww1_return_civil_authority
-  x = -4
-  y = 3
-  prerequisite = { focus = RUS_reinforce_tsars_authority focus = RUS_ww1_alekseev_directorate focus = RUS_ww1_constitutional_monarchy focus = RUS_ww1_defend_winter_palace focus = RUS_ww1_federal_service_union focus = RUS_ww1_kerensky_social_republic focus = RUS_ww1_kolchak_government focus = RUS_ww1_kornilov_order focus = RUS_ww1_lvov_republic focus = RUS_ww1_return_civil_authority focus = RUS_ww1_unitary_state_charter }
-  cost = 10
-  available_if_capitulated = no
-  available = { date < 1936.1.1 has_war = no date > 1918.1.1 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            add_ideas = RUS_ww1_reconstruction add_political_power = 75
-        }
- }
-
-	focus = {
-  id = RUS_ww1_civilian_workshops
-  icon = GFX_goal_generic_production
-  relative_position_id = RUS_ww1_postwar_constitution
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_ww1_postwar_constitution }
-  cost = 5
-  available_if_capitulated = no
-  available = { date < 1936.1.1 owns_state = 219 controls_state = 219 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  ai_will_do = { factor = 2 }
-  completion_reward = {
-            if = { limit = { 219 = { is_owned_and_controlled_by = ROOT } } 219 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_brusilov_offensive
-  icon = GFX_focus_rus_brusilov_offensive
-  relative_position_id = RUS_prepare_for_war
-  x = -2
-  y = 1
-  prerequisite = { focus = RUS_prepare_for_war }
-  cost = 5
-  available = { date < 1936.1.1 has_war = yes date > 1916.4.30 }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.13 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_form_polish_legion
-  icon = GFX_focus_generic_infiltration
-  relative_position_id = RUS_slavic_brotherhood
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_slavic_brotherhood }
-  cost = 5
-  available = { date < 1936.1.1 has_war = yes controls_state = 195 date > 1914.8.1 controls_province = 3151 }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.26 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_mongolian_bufferstate
-  icon = GFX_focus_generic_treaty
-  relative_position_id = RUS_asian_diplomacy
-  x = -1
-  y = 1
-  prerequisite = { focus = RUS_asian_diplomacy }
-  cost = 5
-  available = { date < 1936.1.1 country_exists = MON }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.17 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_nicholas_on_front
-  icon = GFX_focus_generic_advanced_military_studies
-  relative_position_id = RUS_ww1_historical_counsel
-  x = -5
-  y = 1
-  prerequisite = { focus = RUS_ww1_historical_counsel }
-  cost = 5
-  available = { date < 1936.1.1 date > 1915.8.31 NOT = { has_global_flag = february_revolution1 } }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.27 days = 1 } add_command_power = 10
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_petrograd_defense
-  icon = GFX_focus_JAP_national_defense_brotherhood
-  relative_position_id = RUS_war_front_1
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_war_front_1 }
-  cost = 5
-  available = { date < 1936.1.1 controls_state = 195 }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.4 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_prepare_for_war
-  icon = GFX_focus_rus_prepare_for_war
-  relative_position_id = RUS_entente_diplomacy
-  x = -2
-  y = 1
-  prerequisite = { focus = RUS_entente_diplomacy }
-  cost = 5
-  available = { date < 1936.1.1  }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_russia.8 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_request_aid_2
-  icon = GFX_focus_ww1_official_flag_rie_diplomacy
-  relative_position_id = RUS_request_aid
-  x = 0
-  y = 1
-  prerequisite = { focus = RUS_request_aid }
-  cost = 5
-  available = { date < 1936.1.1  }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_russia.16 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_slavic_brotherhood
-  icon = GFX_focus_generic_league_of_nations
-  relative_position_id = RUS_balkan_diplomacy
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_balkan_diplomacy }
-  cost = 5
-  available = { date < 1936.1.1  }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.2 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_take_manchuria
-  icon = GFX_focus_SIA_asian_democratic_compact
-  relative_position_id = RUS_ww1_japanese_rapprochement
-  x = -5
-  y = 1
-  prerequisite = { focus = RUS_ww1_japanese_rapprochement }
-  cost = 5
-  available = { date < 1936.1.1  }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.19 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_ww1_japanese_rapprochement
-  icon = GFX_focus_renounce_the_treaty_of_trianon
-  relative_position_id = RUS_asian_diplomacy
-  x = 5
-  y = 1
-  prerequisite = { focus = RUS_asian_diplomacy }
-  cost = 5
-  available = { date < 1936.1.1 country_exists = JAP NOT = { has_war_with = JAP } }
-  available_if_capitulated = no
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            country_event = { id = ww1_russia.211 days = 1 }
-        }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_ww1_lvov_republic
-  icon = GFX_focus_generic_vote
-  relative_position_id = RUS_ww1_constituent_republic
-  x = -3
-  y = 1
-  prerequisite = { focus = RUS_ww1_constituent_republic }
-  cost = 5
-  available = { date < 1936.1.1 }
-  available_if_capitulated = no
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = { country_event = { id = ww1_russia.202 days = 1 } }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-	focus = {
-  id = RUS_ww1_return_civil_authority
-  icon = GFX_focus_SWI_dissolve_the_federal_council
-  relative_position_id = RUS_ww1_alekseev_directorate
-  x = 1
-  y = 1
-  prerequisite = { focus = RUS_ww1_alekseev_directorate focus = RUS_ww1_kolchak_government focus = RUS_ww1_kornilov_order }
-  cost = 5
-  available = { date < 1936.1.1 date > 1918.1.1 has_war = no }
-  available_if_capitulated = no
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
-  completion_reward = { country_event = { id = ww1_russia.202 days = 1 } }
- }
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
-
-	# Non-selectable legacy ID; save history and event contracts remain valid.
+		relative_position_id = RUS_aviation_effort_1
+		x = 2
+		y = 1
+		prerequisite = { focus = RUS_aviation_effort_1 }
+	}
+
+	focus = {
+		id = RUS_airfield_construction_2
+		icon = GFX_focus_generic_air_bases
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 owns_state = 206 controls_state = 206 }
+		search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			if = { limit = { 206 = { is_owned_and_controlled_by = ROOT } } 206 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } }
+		}
+		relative_position_id = RUS_airfield_construction_1
+		x = 2
+		y = 1
+		prerequisite = { focus = RUS_airfield_construction_1 }
+	}
+
+	focus = {
+		id = RUS_fighter_2
+		icon = GFX_focus_ww1_pdx_native_rus_fighter_2
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_tech_bonus = { name = RUS_fighter_2_research bonus = 0.5 uses = 1 category = light_fighter } air_experience = 10
+		}
+		relative_position_id = RUS_fighter_1
+		x = -1
+		y = 1
+		prerequisite = { focus = RUS_fighter_1 }
+	}
+
+	focus = {
+		id = RUS_tactical_bomber_2
+		icon = GFX_focus_ww1_pdx_native_rus_tactical_bomber_2
+		cost = 5
+		available_if_capitulated = no
+		available = { date < 1936.1.1 }
+		search_filters = { FOCUS_FILTER_AIR_XP FOCUS_FILTER_RESEARCH }
+		ai_will_do = { factor = 2 }
+		completion_reward = {
+			add_tech_bonus = { name = RUS_tactical_bomber_2_research bonus = 0.5 uses = 1 category = tactical_bomber } air_experience = 10
+		}
+		relative_position_id = RUS_tactical_bomber_1
+		x = 0
+		y = 1
+		prerequisite = { focus = RUS_tactical_bomber_1 }
+	}
 
 }

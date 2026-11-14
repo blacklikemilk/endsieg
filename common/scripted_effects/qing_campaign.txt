@@ -140,7 +140,7 @@ qing_initialize_campaign = {
 		# holds no states in 1914 and later bookmarks. Keep the guard anyway so a
 		# hand-made late start does not begin with an anachronistic regency.
 		if = {
-			limit = { date > 1911.10.9 }
+			limit = { has_start_date > 1911.10.9 }
 			set_variable = { qing_reform = constant:qing_story.reform_interwar }
 			set_variable = { qing_legitimacy = constant:qing_story.legitimacy_interwar }
 			set_variable = { qing_army_loyalty = constant:qing_story.army_interwar }
@@ -312,6 +312,25 @@ qing_campaign_tick = {
 			set_country_flag = qing_railway_crisis_seen
 			country_event = { id = qing_campaign.10 days = 1 }
 		}
+		# The Sichuan railway dispute follows a decision to nationalise the line;
+		# do not invent unrest after the provinces obtained their own settlement.
+		if = {
+			limit = { has_start_date < 1911.10.1 date < 1911.10.10 has_country_flag = qing_railway_nationalised has_country_flag = { flag = qing_railway_crisis_seen days > 30 } 605 = { is_owned_by = QIN } NOT = { has_war_with = RCH } NOT = { has_country_flag = qing_sichuan_unrest_seen } }
+			set_country_flag = qing_sichuan_unrest_seen
+			country_event = { id = qing_campaign.11 hours = 1 }
+		}
+		# A dynasty that actually negotiated a settlement still has to govern it.
+		if = {
+			limit = { date < 1919.1.1 has_country_flag = { flag = qing_regime_settled days > 60 } NOT = { has_war_with = RCH } NOT = { has_country_flag = qing_budget_debate_seen } }
+			set_country_flag = qing_budget_debate_seen
+			country_event = { id = qing_campaign.28 hours = 1 }
+		}
+		if = {
+			limit = { date < 1919.1.1 has_country_flag = { flag = qing_regime_settled days > 180 } NOT = { has_war_with = RCH } NOT = { has_country_flag = qing_officer_petition_seen } }
+			set_country_flag = qing_officer_petition_seen
+			country_event = { id = qing_campaign.29 hours = 1 }
+		}
+
 		# The revolution window. Wuchang opens the war, and the war opens a short
 		# armistice the powers broker before the fighting spreads. Nothing can be
 		# settled before the garrison rises, and nothing after the armistice lapses:
@@ -353,7 +372,7 @@ qing_campaign_tick = {
 			country_event = { id = qing_campaign.23 days = 2 }
 		}
 		if = {
-			limit = { date > 1914.8.1 NOT = { has_country_flag = qing_great_war_seen } }
+			limit = { date > 1914.8.1 date < 1919.1.1 country_exists = GER GER = { OR = { has_war_with = ENG has_war_with = FRA } } NOT = { has_country_flag = qing_great_war_seen } }
 			set_country_flag = qing_great_war_seen
 			country_event = { id = qing_campaign.50 days = 1 }
 		}
@@ -365,43 +384,88 @@ qing_campaign_tick = {
 			}
 			qing_open_chapter_two = yes
 		}
+		# Interwar political disputes arise after the new chapter has opened,
+		# rather than all at once on a later bookmark.
+		if = {
+			limit = { has_start_date < 1928.1.1 date < 1930.1.1 has_country_flag = { flag = qing_chapter_two days > 90 } NOT = { has_country_flag = qing_provincial_commanders_seen } }
+			set_country_flag = qing_provincial_commanders_seen
+			country_event = { id = qing_campaign.31 hours = 1 }
+		}
+		if = {
+			limit = { has_start_date < 1928.1.1 date < 1930.1.1 has_country_flag = { flag = qing_chapter_two days > 180 } NOT = { has_country_flag = qing_nationalist_movement_seen } }
+			set_country_flag = qing_nationalist_movement_seen
+			country_event = { id = qing_campaign.32 hours = 1 }
+		}
+
 		if = {
 			limit = { date > 1925.6.1 NOT = { has_country_flag = qing_succession_seen } }
 			set_country_flag = qing_succession_seen
 			country_event = { id = qing_campaign.33 days = 1 }
 		}
 		if = {
-			limit = { date > 1931.9.15 NOT = { has_country_flag = qing_manchurian_crisis_seen } }
+			limit = { date > 1931.9.15 date < 1937.1.1 country_exists = JAP NOT = { is_in_faction_with = JAP } NOT = { is_subject_of = JAP } JAP = { NOT = { is_subject_of = ROOT } } NOT = { has_country_flag = qing_manchurian_crisis_seen } }
 			set_country_flag = qing_manchurian_crisis_seen
 			country_event = { id = qing_campaign.35 days = 1 }
 		}
+		# A rival Manchurian government is only announced if Japan has actually
+		# established one. Negotiations over the north require the same presence.
+		if = {
+			limit = { date > 1931.9.15 country_exists = JAP country_exists = MAN MAN = { is_subject_of = JAP } NOT = { is_in_faction_with = JAP } NOT = { has_country_flag = qing_manchurian_rival_seen } }
+			set_country_flag = qing_manchurian_rival_seen
+			country_event = { id = qing_campaign.36 hours = 1 }
+		}
+		if = {
+			limit = { date > 1933.1.1 country_exists = JAP country_exists = MAN MAN = { is_subject_of = JAP } controls_state = 608 NOT = { has_war_with = JAP } NOT = { is_in_faction_with = JAP } has_country_flag = { flag = qing_manchurian_rival_seen days > 120 } NOT = { has_country_flag = qing_northern_terms_seen } }
+			set_country_flag = qing_northern_terms_seen
+			country_event = { id = qing_campaign.37 hours = 1 }
+		}
+
 		if = {
 			limit = { date > 1936.1.1 NOT = { has_country_flag = qing_chapter_three } }
 			qing_open_chapter_three = yes
 		}
+		# A Japanese alliance, a pre-existing war, or Japan's absence must not be
+		# converted into an automatic 1937 declaration.
 		if = {
-			limit = { date > 1937.7.7 NOT = { has_country_flag = qing_marco_polo_seen } }
+			limit = { date > 1937.7.7 date < 1941.1.1 country_exists = JAP NOT = { has_war_with = JAP } NOT = { is_in_faction_with = JAP } NOT = { is_subject_of = JAP } JAP = { NOT = { is_subject_of = ROOT } } NOT = { has_country_flag = qing_marco_polo_seen } }
 			set_country_flag = qing_marco_polo_seen
 			country_event = { id = qing_campaign.41 days = 1 }
 		}
-		# If the incident was settled locally, Tokyo escalates within the month.
+		# The government considers emergency administration only in an actual war.
 		if = {
-			limit = { date > 1937.8.15 NOT = { has_country_flag = qing_war_with_japan } }
+			limit = { date > 1937.8.15 country_exists = JAP has_war_with = JAP NOT = { has_country_flag = qing_emergency_administration_seen } }
+			set_country_flag = qing_emergency_administration_seen
 			set_country_flag = qing_war_with_japan
-			if = {
-				limit = { NOT = { has_war_with = JAP } country_exists = JAP }
-				declare_war_on = { target = JAP type = annex_everything }
-			}
 			qing_refresh_mechanics = yes
 			country_event = { id = qing_campaign.42 days = 1 }
 		}
+		# Wartime burdens depend on a real, sustained war, not a fixed date.
 		if = {
-			limit = { date > 1941.12.7 NOT = { has_country_flag = qing_pacific_war_seen } }
+			limit = { country_exists = JAP has_war_with = JAP controls_state = 608 has_country_flag = { flag = qing_war_with_japan days > 30 } NOT = { has_country_flag = qing_war_burden_seen } }
+			set_country_flag = qing_war_burden_seen
+			country_event = { id = qing_campaign.43 hours = 1 }
+		}
+		if = {
+			limit = { country_exists = JAP has_war_with = JAP has_country_flag = { flag = qing_war_with_japan days > 120 } NOT = { has_country_flag = qing_army_strain_seen } }
+			set_country_flag = qing_army_strain_seen
+			country_event = { id = qing_campaign.45 hours = 1 }
+		}
+		# The Paris settlement is only discussed after it actually exists and
+		# the court chose to cooperate with the Entente.
+		if = {
+			limit = { date < 1921.1.1 has_global_flag = versailles has_country_flag = qing_entente_belligerent NOT = { has_war_with = GER } NOT = { has_country_flag = qing_peace_terms_seen } }
+			set_country_flag = qing_peace_terms_seen
+			country_event = { id = qing_campaign.53 hours = 1 }
+		}
+
+		if = {
+			limit = { date > 1941.12.7 country_exists = JAP has_war_with = JAP JAP = { OR = { has_war_with = USA has_war_with = ENG } } NOT = { has_country_flag = qing_pacific_war_seen } }
 			set_country_flag = qing_pacific_war_seen
 			country_event = { id = qing_campaign.44 days = 1 }
 		}
+		# Victory is tied to Japan's capitulation or disappearance, not the calendar.
 		if = {
-			limit = { date > 1945.8.15 NOT = { has_country_flag = qing_victory_seen } has_country_flag = qing_war_with_japan }
+			limit = { has_country_flag = qing_war_with_japan NOT = { has_country_flag = qing_victory_seen } OR = { NOT = { country_exists = JAP } JAP = { has_capitulated = yes } } }
 			set_country_flag = qing_victory_seen
 			country_event = { id = qing_campaign.46 days = 1 }
 		}

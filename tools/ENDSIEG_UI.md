@@ -2,7 +2,7 @@
 
 The decisions sidebar is the finish reference for the shared controls and
 frontend: warm metal frames, brown-black Bakelite keys, recessed counter
-windows, dark enamel label plates and restrained amber selection rims.
+windows, vanilla window backgrounds and restrained amber selection rims.
 
 The game supplies the text, values, flags, symbols, progress fills and input
 bindings. The physical component art frames those live controls. The scenario
@@ -104,9 +104,11 @@ unchanged. Shipping files use standard BGRA DDS without a DX10-only header.
 Python and Pillow are required:
 
 ```powershell
-python tools/build_endsieg_ui.py
+python tools/build_endsieg_ui.py --game "C:/Program Files (x86)/Steam/steamapps/common/Hearts of Iron IV"
 python tools/build_endsieg_ui.py --validate --game "C:/Program Files (x86)/Steam/steamapps/common/Hearts of Iron IV"
 ```
+
+Window interiors use installed vanilla textures while retaining Endsieg frames, controls, scenario art and newsprint. The scenario selection window has no matching vanilla texture, so its empty area uses the vanilla window tile. The builder restores these fills after rebuilding the frames.
 
 Validation checks source hashes, all 128 output dimensions, exact alpha masks,
 sprite-state separation, deterministic composition, native references and DDS

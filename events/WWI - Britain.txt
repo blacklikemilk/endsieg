@@ -134,7 +134,7 @@ country_event = {
 
 # North Sea Blockade
 country_event = {
-trigger = { tag = ENG has_start_date < 1936.1.1 date < 1936.1.1 has_war_with = GER NOT = { is_in_faction_with = GER } }
+trigger = { tag = ENG has_start_date < 1919.1.1 date < 1936.1.1 has_war_with = GER NOT = { is_in_faction_with = GER } }
 
 	id = ww1_britain.6
 	title = ww1_britain.6.t
@@ -146,11 +146,12 @@ trigger = { tag = ENG has_start_date < 1936.1.1 date < 1936.1.1 has_war_with = G
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_britain.6.a
-		news_event = { hours = 6 id = endsieg_news.176 }
-		GER = {
-			add_ideas = blockade
+		if = {
+			limit = { date < 1936.1.1 country_exists = GER has_war_with = GER NOT = { is_in_faction_with = GER } NOT = { has_global_flag = WW1_blockade_authorized } }
+			news_event = { hours = 6 id = endsieg_news.176 }
+			set_global_flag = WW1_blockade_authorized
+			GER = { WW1_update_north_sea_blockade = yes }
 		}
-		set_global_flag = north_sea_blockade
 	}
 }
 
@@ -237,7 +238,7 @@ country_event = {
 	is_triggered_only = yes
 
 	option = {
-		name = ww1_britain.9.a
+		name = ww1_britain.1010.a
 		add_political_power = -50
 	}
 }
@@ -323,7 +324,7 @@ country_event = {
 		name = ww1_britain.12.a
 
 		BUL = { country_event = { id = ww1_britain.1201 days = 1 } }
-		ENG = { add_opinion_modifier = { target = BUL modifier = bulgarian_negotiations } }
+		ENG = { endsieg_fixed_effect_e65b720fabbb3452 = yes }
 	}
 }
 
@@ -537,7 +538,7 @@ trigger = { tag = ENG has_start_date < 1936.1.1 date < 1936.1.1 has_war_with = T
 			parent_version = 0
 			modules = {
 				fixed_ship_battery_slot = ww1_ship_heavy_battery_1
-				fixed_ship_anti_air_slot = empty
+				fixed_ship_light_gun_slot = empty
 				fixed_ship_fire_control_system_slot = ww1_ship_fire_control_system_0
 				fixed_ship_engine_slot = ww1_heavy_ship_engine_1
 				fixed_ship_secondaries_slot = ww1_ship_secondaries_1
@@ -555,7 +556,7 @@ trigger = { tag = ENG has_start_date < 1936.1.1 date < 1936.1.1 has_war_with = T
 			parent_version = 0
 			modules = {
 				fixed_ship_battery_slot = ww1_ship_heavy_battery_1
-				fixed_ship_anti_air_slot = empty
+				fixed_ship_light_gun_slot = empty
 				fixed_ship_fire_control_system_slot = ww1_ship_fire_control_system_0
 				fixed_ship_engine_slot = ww1_heavy_ship_engine_1
 				fixed_ship_secondaries_slot = ww1_ship_secondaries_1
@@ -1226,7 +1227,8 @@ country_event = {
 country_event = {
 	id = ww1_britain.43
 	title = ww1_britain.43.t
-	desc = ww1_britain.43.d
+	desc = { text = ww1_britain.43.d trigger = { has_war_with = GER country_exists = RIE RIE = { has_war_with = GER } } }
+	desc = { text = ww1_britain.43.alternate.d trigger = { NOT = { has_war_with = GER country_exists = RIE RIE = { has_war_with = GER } } } }
 	picture = GFX_report_event_lord_kitchener
 
 	fire_only_once = yes
@@ -1235,17 +1237,27 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		has_start_date < 1916.6.7
 		tag = ENG
+		has_war = yes
+		OR = { has_character = ENG_lord_kitchener has_character = EN1_Lord_Kitchener has_character = EN1_Lord_Kitchener_2 }
 		date > 1916.6.5
 		NOT = { date > 1917.1.1 }
 	}
 
 	mean_time_to_happen = { days = 1 }
 
+	immediate = {
+		if = {
+			limit = { has_war = yes }
+			if = { limit = { has_character = ENG_lord_kitchener } retire_character = ENG_lord_kitchener }
+			if = { limit = { has_character = EN1_Lord_Kitchener } retire_character = EN1_Lord_Kitchener }
+			if = { limit = { has_character = EN1_Lord_Kitchener_2 } retire_character = EN1_Lord_Kitchener_2 }
+			news_event = { hours = 6 id = endsieg_news.185 }
+		}
+	}
+
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_britain.43.a
-		news_event = { hours = 6 id = endsieg_news.185 }
-		remove_unit_leader = 6111
 	}
 }
 
@@ -1369,12 +1381,12 @@ option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_britain.2
 country_event = { id = ww1_britain.203 title = ww1_britain.203.t desc = ww1_britain.203.d picture = GFX_report_event_ww1_westminster is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = ENG EN1_R_has_continental_war = yes date > 1915.5.24 NOT = { has_country_flag = EN1_R_event_203 } } immediate = { set_country_flag = EN1_R_event_203 }
 option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_britain.203.a set_country_flag = EN1_R_coalition_formed add_timed_idea = { idea = EN1_R_unionist_compact days = 180 } news_event = { id = ww1_britain.213 days = 1 } }
 }
-country_event = { id = ww1_britain.204 title = ww1_britain.204.t desc = ww1_britain.204.d picture = GFX_report_event_ww1_westminster is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = ENG NOT = { has_country_flag = EN1_R_event_204 }
+country_event = { id = ww1_britain.204 title = ww1_britain.204.t desc = ww1_britain.204.d picture = GFX_report_event_ww1_westminster is_triggered_only = yes trigger = { NOT = { has_country_flag = WW1_alt_royal_rule } has_start_date < 1936.1.1 date < 1936.1.1 tag = ENG NOT = { has_country_flag = EN1_R_event_204 }
  NOT = { has_country_flag = WW1_ENG_labour_ministry }
 } immediate = { set_country_flag = EN1_R_event_204 }
 option = { name = ww1_britain.204.a set_country_flag = EN1_R_asquith_government endsieg_character_activate_eng_hh_asquith_fdf5f164 = yes promote_character = ENG_hh_asquith add_timed_idea = { idea = EN1_R_cabinet_continuity days = 180 } }
 }
-country_event = { id = ww1_britain.205 title = ww1_britain.205.t desc = ww1_britain.205.d picture = GFX_report_event_ww1_westminster is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = ENG date > 1916.12.5 NOT = { has_country_flag = EN1_R_event_205 }
+country_event = { id = ww1_britain.205 title = ww1_britain.205.t desc = ww1_britain.205.d picture = GFX_report_event_ww1_westminster is_triggered_only = yes trigger = { NOT = { has_country_flag = WW1_alt_royal_rule } has_start_date < 1936.1.1 date < 1936.1.1 tag = ENG date > 1916.12.5 NOT = { has_country_flag = EN1_R_event_205 }
  NOT = { has_country_flag = WW1_ENG_labour_ministry }
 } immediate = { set_country_flag = EN1_R_event_205 }
 option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_britain.205.a set_country_flag = EN1_R_lloyd_government  promote_character = EN1_David_Lloyd_George add_timed_idea = { idea = EN1_R_small_war_cabinet days = 180 } news_event = { id = ww1_britain.212 days = 1 } }
@@ -1383,7 +1395,7 @@ country_event = { id = ww1_britain.206 title = ww1_britain.206.t desc = ww1_brit
 option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_britain.206.a set_country_flag = EN1_R_service_act if = { limit = { has_idea = volunteer_only } remove_ideas = volunteer_only add_ideas = limited_conscription } add_timed_idea = { idea = EN1_R_service_administration days = 180 } }
 }
 country_event = { id = ww1_britain.207 title = ww1_britain.207.t desc = ww1_britain.207.d picture = GFX_report_event_ww1_westminster is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = GER country_exists = ENG NOT = { has_war_with = ENG } date < 1914.7.1 NOT = { has_country_flag = EN1_R_event_207 } } immediate = { set_country_flag = EN1_R_event_207 }
-option = { name = ww1_britain.207.a ai_chance = { factor = 35 modifier = { factor = 0 is_historical_focus_on = yes } } set_country_flag = EN1_R_british_approach ENG = { add_opinion_modifier = { target = GER modifier = britain_friend } } }
+option = { name = ww1_britain.207.a ai_chance = { factor = 35 modifier = { factor = 0 is_historical_focus_on = yes } } set_country_flag = EN1_R_british_approach ENG = { endsieg_fixed_effect_7599bba7f7de42e4 = yes } }
 option = { name = ww1_britain.207.b ai_chance = { factor = 65 } ENG = { set_country_flag = EN1_R_german_approach_refused } }
 }
 country_event = { id = ww1_britain.208 title = ww1_britain.208.t desc = ww1_britain.208.d picture = GFX_report_event_ww1_westminster is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = ENG EN1_R_no_continental_war = yes has_country_flag = EN1_R_neutral_policy NOT = { has_country_flag = EN1_R_event_208 } } immediate = { set_country_flag = EN1_R_event_208 }

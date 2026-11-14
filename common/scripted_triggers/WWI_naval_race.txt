@@ -1,0 +1,60 @@
+# Country scope: Germany or Britain. A ratified agreement ends the rivalry.
+WW1_naval_race_open = {
+ has_start_date < 1919.1.1 date < 1919.1.1
+ OR = { tag = GER tag = ENG }
+ country_exists = GER country_exists = ENG
+ GER = { NOT = { has_capitulated = yes } NOT = { has_war_with = ENG } NOT = { is_in_faction_with = ENG } NOT = { GE1_D_naval_convention_in_force = yes } }
+ ENG = { NOT = { has_capitulated = yes } }
+ NOT = { has_global_flag = GE1_anglo_german_alliance }
+ NOT = { has_global_flag = WW1_naval_rivalry_war_seen }
+ ENG = { NOT = { has_country_flag = WW1_CP_british_war_concluded } }
+}
+WW1_naval_arms_race_spirits_active = {
+ OR = { WW1_naval_race_open = yes WW1_naval_war_open = yes }
+}
+WW1_naval_race_focus_ready = {
+ OR = { AND = { tag = GER has_completed_focus = GE1_N_naval_staff } AND = { tag = ENG has_completed_focus = EN1_naval_effort } }
+}
+# Compare commissioned battle fleets, including early and modern cruisers.
+WW1_naval_race_germany_over_six_tenths = {
+ country_exists = GER country_exists = ENG
+ set_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@early_hc }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@early_bc }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@dreadnought }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@battleship }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@battle_cruiser }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@early_heavy_cruiser }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@early_light_cruiser }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@heavy_cruiser }
+ add_to_temp_variable = { WW1_race_ger_count = GER.num_ships_with_type@light_cruiser }
+ set_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@early_hc }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@early_bc }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@dreadnought }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@battleship }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@battle_cruiser }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@early_heavy_cruiser }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@early_light_cruiser }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@heavy_cruiser }
+ add_to_temp_variable = { WW1_race_eng_count = ENG.num_ships_with_type@light_cruiser }
+ multiply_temp_variable = { WW1_race_ger_count = 5 }
+ multiply_temp_variable = { WW1_race_eng_count = 3 }
+ # If Britain has no counted ships, any counted German ship suffices.
+ check_variable = { WW1_race_ger_count > WW1_race_eng_count }
+}
+WW1_naval_race_coastal_yard_available = {
+ any_owned_state = { is_core_of = ROOT is_controlled_by = ROOT is_coastal = yes free_building_slots = { building = dockyard size > 0 include_locked = yes } }
+}
+
+# The wartime phase is independent of the peacetime convention or review result.
+WW1_naval_war_open = {
+ has_start_date < 1919.1.1 date < 1936.1.1
+ OR = { tag = GER tag = ENG }
+ country_exists = GER country_exists = ENG
+ GER = { has_war_with = ENG NOT = { has_capitulated = yes } }
+ ENG = { NOT = { has_capitulated = yes } }
+}
+WW1_naval_war_german_control = {
+ GER = { OR = { has_naval_control = 16 has_naval_control = 173 } }
+ NOT = { has_global_flag = north_sea_blockade }
+}
+WW1_naval_war_british_control = { has_global_flag = north_sea_blockade }

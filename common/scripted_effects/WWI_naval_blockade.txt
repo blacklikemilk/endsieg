@@ -1,0 +1,29 @@
+# Runs in GER scope, weekly and when the policy is announced.
+WW1_update_north_sea_blockade = {
+ if = {
+  limit = { tag = GER has_start_date < 1919.1.1 date < 1936.1.1 }
+  # Once-only migration for older saves and the existing 1918 bookmark.
+  if = {
+   limit = { NOT = { has_country_flag = WW1_blockade_migration_done } }
+   set_country_flag = WW1_blockade_migration_done
+   if = { limit = { country_exists = ENG has_war_with = ENG OR = { has_global_flag = north_sea_blockade has_idea = blockade ENG = { has_completed_focus = EN1_north_sea_blockade } has_start_date > 1914.8.3 } } set_global_flag = WW1_blockade_authorized }
+  }
+  if = {
+   limit = { has_global_flag = WW1_blockade_authorized country_exists = ENG has_war_with = ENG NOT = { is_in_faction_with = ENG } ENG = { OR = { has_naval_control = 16 has_naval_control = 173 } } }
+   set_global_flag = north_sea_blockade
+   if = { limit = { NOT = { has_idea = blockade } } add_ideas = blockade }
+  }
+  else = {
+   if = { limit = { has_global_flag = north_sea_blockade } clr_global_flag = north_sea_blockade }
+   if = { limit = { has_idea = blockade } remove_ideas = blockade }
+   if = { limit = { OR = { NOT = { country_exists = ENG } NOT = { has_war_with = ENG } is_in_faction_with = ENG } } clr_global_flag = WW1_blockade_authorized }
+  }
+ } else = {
+  if = {
+   limit = { tag = GER }
+   clr_global_flag = WW1_blockade_authorized
+   clr_global_flag = north_sea_blockade
+   if = { limit = { has_idea = blockade } remove_ideas = blockade }
+  }
+ }
+}

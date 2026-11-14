@@ -33,9 +33,9 @@ country_event = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_russia.2.a
 		add_political_power = 50
-		add_opinion_modifier = { target = SER modifier = serbia_friend }
-		add_opinion_modifier = { target = MNT modifier = montenegro_friend }
-		add_opinion_modifier = { target = BUL modifier = bulgaria_friend }
+		endsieg_fixed_effect_573ea76fbaf6a959 = yes
+		endsieg_fixed_effect_19d96baddf4fa2a8 = yes
+		endsieg_fixed_effect_0a1791020319e901 = yes
 	}
 }
 
@@ -314,7 +314,7 @@ country_event = {
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_russia.17.a
-		if = { limit = { country_exists = MON } add_opinion_modifier = { target = MON modifier = russia_friend } if = { limit = { MON = { is_subject = no } } diplomatic_relation = { country = MON relation = guarantee active = yes } } }
+		if = { limit = { country_exists = MON } endsieg_fixed_effect_6adaee494bd31392 = yes if = { limit = { MON = { is_subject = no } } diplomatic_relation = { country = MON relation = guarantee active = yes } } }
 	}
 }
 
@@ -347,13 +347,6 @@ country_event = {
 		add_ideas = RUS_ww1_far_eastern_commerce
 	}
 
-    option = {
-        name = ww1_russia.19.b
-        trigger = { NOT = { owns_state = 717 } }
-        ai_chance = { factor = 20 modifier = { factor = 0 is_historical_focus_on = yes } }
-        add_state_claim = 717
-        717 = { owner = { ROOT = { create_wargoal = { type = take_state_focus target = PREV generator = { 717 } } } } }
-    }
 }
 
 # Supress Revolutionaries
@@ -715,7 +708,15 @@ country_event = {
 # Constituent Assembly Elections
 country_event = {
 	id = ww1_russia.35
-	trigger = { RUS_ww1_historical_revolution_allowed = yes }
+	trigger = {
+        RUS_ww1_historical_revolution_allowed = yes
+        has_global_flag = february_revolution1
+        NOT = { has_global_flag = constituent_assembly_held }
+        OR = {
+            tag = RIE
+            AND = { tag = SOV has_government = communism has_global_flag = october_revolution }
+        }
+    }
 	title = ww1_russia.35.t
 	desc = ww1_russia.35.d
 	picture = GFX_report_event_elections_SOV
@@ -729,9 +730,8 @@ country_event = {
 			limit = { RUS_ww1_historical_revolution_allowed = yes }
 add_political_power = -300
 			set_global_flag = constituent_assembly_held
-			hidden_effect = {
-				country_event = { id = ww1_russia.36 days = 10 }
-			}
+			set_global_flag = RUS_ww1_assembly_rework_started
+			clr_country_flag = RUS_ww1_assembly_election_queued
 		}
 	}
 }
@@ -739,7 +739,14 @@ add_political_power = -300
 # Constituent Assembly Dissolved
 country_event = {
 	id = ww1_russia.36
-	trigger = { RUS_ww1_historical_revolution_allowed = yes }
+	trigger = {
+        tag = SOV
+        has_government = communism
+        has_global_flag = october_revolution
+        has_global_flag = constituent_assembly_held
+        has_global_flag = RUS_ww1_assembly_rework_started
+        NOT = { has_global_flag = RUS_ww1_constituent_assembly_dissolved }
+    }
 	title = ww1_russia.36.t
 	desc = ww1_russia.36.d
 	picture = GFX_report_event_constituent_assembly
@@ -750,8 +757,10 @@ country_event = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_russia.36.a
 		if = {
-			limit = { RUS_ww1_historical_revolution_allowed = yes }
-add_political_power = 150
+			limit = { tag = SOV has_government = communism has_global_flag = october_revolution has_global_flag = constituent_assembly_held has_global_flag = RUS_ww1_assembly_rework_started NOT = { has_global_flag = RUS_ww1_constituent_assembly_dissolved } }
+			set_global_flag = RUS_ww1_constituent_assembly_dissolved
+			clr_country_flag = RUS_ww1_assembly_dissolution_queued
+			add_political_power = 150
 		}
 	}
 }
@@ -760,7 +769,14 @@ add_political_power = 150
 country_event = {
 	id = ww1_russia.37
 	title = ww1_russia.37.t
-	desc = ww1_russia.37.d
+	desc = {
+		text = ww1_russia.37.d
+		trigger = { tag = RIE }
+	}
+	desc = {
+		text = ww1_russia.37.soviet.d
+		trigger = { tag = SOV }
+	}
 	picture = GFX_report_event_lenin_train
 
 	fire_only_once = yes
@@ -841,7 +857,14 @@ country_event = {
 	id = ww1_russia.39
 	trigger = { RUS_ww1_historical_revolution_allowed = yes }
 	title = ww1_russia.39.t
-	desc = ww1_russia.39.d
+	desc = {
+		text = ww1_russia.39.d
+		trigger = { has_war = yes }
+	}
+	desc = {
+		text = ww1_russia.39.peace.d
+		trigger = { has_war = no }
+	}
 	picture = GFX_report_event_milyukov
 
 	is_triggered_only = yes
@@ -909,8 +932,6 @@ country_event = {
 
 # Russian Civil War
 country_event = {
-	immediate = { RUS_ww1_seed_white_government = yes }
-
 	id = ww1_russia.42
 	title = ww1_russia.42.t
 	desc = ww1_russia.42.d
@@ -924,14 +945,17 @@ country_event = {
 
 	option = {
 		name = ww1_russia.42.a
+		ai_chance = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes } }
 		if = {
 			limit = { RUS_ww1_civil_war_ready = yes }
+
+			RUS_ww1_seed_white_government = yes
 
 		news_event = { hours = 6 id = endsieg_news.224 }
 		set_global_flag = russian_civil_war
 		KUB = {
-			transfer_state = 245
-			transfer_state = 218
+			if = { limit = { 245 = { is_owned_by = ROOT } } transfer_state = 245 }
+			if = { limit = { 218 = { is_owned_by = ROOT } } transfer_state = 218 }
 			load_oob = KUB_1918
 			add_manpower = 300000
 		}
@@ -952,64 +976,64 @@ country_event = {
 			endsieg_character_activate_whr_stanislav_cecek_c513d485 = yes
 			endsieg_character_activate_whr_vladimir_kappel_ed08a3fb = yes
 			endsieg_character_activate_whr_anatoly_pepelyayev_070fe69e = yes
-			transfer_state = 251
-			transfer_state = 590
-			transfer_state = 215
-			transfer_state = 585
-			transfer_state = 652
-			transfer_state = 403
-			transfer_state = 213
-			transfer_state = 584
-			transfer_state = 407
-			transfer_state = 582
-			transfer_state = 580
-			transfer_state = 722
-			transfer_state = 402
-			transfer_state = 406
-			transfer_state = 583
-			transfer_state = 579
-			transfer_state = 587
-			transfer_state = 405
-			transfer_state = 742
-			transfer_state = 589
-			transfer_state = 40
-			transfer_state = 329
-			transfer_state = 565
-			transfer_state = 561
-			transfer_state = 732
-			transfer_state = 588
-			transfer_state = 570
-			transfer_state = 568
-			transfer_state = 564
-			transfer_state = 562
-			transfer_state = 586
-			transfer_state = 571
-			transfer_state = 578
-			transfer_state = 567
-			transfer_state = 563
-			transfer_state = 637
-			transfer_state = 404
-			transfer_state = 654
-			transfer_state = 569
-			transfer_state = 566
-			transfer_state = 574
-			transfer_state = 560
-			transfer_state = 657
-			transfer_state = 409
-			transfer_state = 408
-			transfer_state = 655
-			transfer_state = 644
-			transfer_state = 575
-			transfer_state = 577
-			transfer_state = 516
-			transfer_state = 576
-			transfer_state = 822
-			transfer_state = 824
-			transfer_state = 832
-			transfer_state = 823
-			transfer_state = 831
-			transfer_state = 830
-			transfer_state = 1055
+			if = { limit = { 251 = { is_owned_by = ROOT } } transfer_state = 251 }
+			if = { limit = { 590 = { is_owned_by = ROOT } } transfer_state = 590 }
+			if = { limit = { 215 = { is_owned_by = ROOT } } transfer_state = 215 }
+			if = { limit = { 585 = { is_owned_by = ROOT } } transfer_state = 585 }
+			if = { limit = { 652 = { is_owned_by = ROOT } } transfer_state = 652 }
+			if = { limit = { 403 = { is_owned_by = ROOT } } transfer_state = 403 }
+			if = { limit = { 213 = { is_owned_by = ROOT } } transfer_state = 213 }
+			if = { limit = { 584 = { is_owned_by = ROOT } } transfer_state = 584 }
+			if = { limit = { 407 = { is_owned_by = ROOT } } transfer_state = 407 }
+			if = { limit = { 582 = { is_owned_by = ROOT } } transfer_state = 582 }
+			if = { limit = { 580 = { is_owned_by = ROOT } } transfer_state = 580 }
+			if = { limit = { 722 = { is_owned_by = ROOT } } transfer_state = 722 }
+			if = { limit = { 402 = { is_owned_by = ROOT } } transfer_state = 402 }
+			if = { limit = { 406 = { is_owned_by = ROOT } } transfer_state = 406 }
+			if = { limit = { 583 = { is_owned_by = ROOT } } transfer_state = 583 }
+			if = { limit = { 579 = { is_owned_by = ROOT } } transfer_state = 579 }
+			if = { limit = { 587 = { is_owned_by = ROOT } } transfer_state = 587 }
+			if = { limit = { 405 = { is_owned_by = ROOT } } transfer_state = 405 }
+			if = { limit = { 742 = { is_owned_by = ROOT } } transfer_state = 742 }
+			if = { limit = { 589 = { is_owned_by = ROOT } } transfer_state = 589 }
+			if = { limit = { 40 = { is_owned_by = ROOT } } transfer_state = 40 }
+			if = { limit = { 329 = { is_owned_by = ROOT } } transfer_state = 329 }
+			if = { limit = { 565 = { is_owned_by = ROOT } } transfer_state = 565 }
+			if = { limit = { 561 = { is_owned_by = ROOT } } transfer_state = 561 }
+			if = { limit = { 732 = { is_owned_by = ROOT } } transfer_state = 732 }
+			if = { limit = { 588 = { is_owned_by = ROOT } } transfer_state = 588 }
+			if = { limit = { 570 = { is_owned_by = ROOT } } transfer_state = 570 }
+			if = { limit = { 568 = { is_owned_by = ROOT } } transfer_state = 568 }
+			if = { limit = { 564 = { is_owned_by = ROOT } } transfer_state = 564 }
+			if = { limit = { 562 = { is_owned_by = ROOT } } transfer_state = 562 }
+			if = { limit = { 586 = { is_owned_by = ROOT } } transfer_state = 586 }
+			if = { limit = { 571 = { is_owned_by = ROOT } } transfer_state = 571 }
+			if = { limit = { 578 = { is_owned_by = ROOT } } transfer_state = 578 }
+			if = { limit = { 567 = { is_owned_by = ROOT } } transfer_state = 567 }
+			if = { limit = { 563 = { is_owned_by = ROOT } } transfer_state = 563 }
+			if = { limit = { 637 = { is_owned_by = ROOT } } transfer_state = 637 }
+			if = { limit = { 404 = { is_owned_by = ROOT } } transfer_state = 404 }
+			if = { limit = { 654 = { is_owned_by = ROOT } } transfer_state = 654 }
+			if = { limit = { 569 = { is_owned_by = ROOT } } transfer_state = 569 }
+			if = { limit = { 566 = { is_owned_by = ROOT } } transfer_state = 566 }
+			if = { limit = { 574 = { is_owned_by = ROOT } } transfer_state = 574 }
+			if = { limit = { 560 = { is_owned_by = ROOT } } transfer_state = 560 }
+			if = { limit = { 657 = { is_owned_by = ROOT } } transfer_state = 657 }
+			if = { limit = { 409 = { is_owned_by = ROOT } } transfer_state = 409 }
+			if = { limit = { 408 = { is_owned_by = ROOT } } transfer_state = 408 }
+			if = { limit = { 655 = { is_owned_by = ROOT } } transfer_state = 655 }
+			if = { limit = { 644 = { is_owned_by = ROOT } } transfer_state = 644 }
+			if = { limit = { 575 = { is_owned_by = ROOT } } transfer_state = 575 }
+			if = { limit = { 577 = { is_owned_by = ROOT } } transfer_state = 577 }
+			if = { limit = { 516 = { is_owned_by = ROOT } } transfer_state = 516 }
+			if = { limit = { 576 = { is_owned_by = ROOT } } transfer_state = 576 }
+			if = { limit = { 822 = { is_owned_by = ROOT } } transfer_state = 822 }
+			if = { limit = { 824 = { is_owned_by = ROOT } } transfer_state = 824 }
+			if = { limit = { 832 = { is_owned_by = ROOT } } transfer_state = 832 }
+			if = { limit = { 823 = { is_owned_by = ROOT } } transfer_state = 823 }
+			if = { limit = { 831 = { is_owned_by = ROOT } } transfer_state = 831 }
+			if = { limit = { 830 = { is_owned_by = ROOT } } transfer_state = 830 }
+			if = { limit = { 1055 = { is_owned_by = ROOT } } transfer_state = 1055 }
 			declare_war_on = { target = SOV type = annex_everything }
 			change_tag_from = SOV
 			puppet = KUB
@@ -1037,14 +1061,17 @@ country_event = {
 	}
 	option = {
 		name = ww1_russia.42.b
+		ai_chance = { factor = 1 modifier = { factor = 100 is_historical_focus_on = yes } }
 		if = {
 			limit = { RUS_ww1_civil_war_ready = yes }
+
+			RUS_ww1_seed_white_government = yes
 
 		news_event = { hours = 6 id = endsieg_news.224 }
 		set_global_flag = russian_civil_war
 		KUB = {
-			transfer_state = 245
-			transfer_state = 218
+			if = { limit = { 245 = { is_owned_by = ROOT } } transfer_state = 245 }
+			if = { limit = { 218 = { is_owned_by = ROOT } } transfer_state = 218 }
 			load_oob = KUB_1918
 		}
 		WHR = {
@@ -1064,64 +1091,64 @@ country_event = {
 			endsieg_character_activate_whr_stanislav_cecek_c513d485 = yes
 			endsieg_character_activate_whr_vladimir_kappel_ed08a3fb = yes
 			endsieg_character_activate_whr_anatoly_pepelyayev_070fe69e = yes
-			transfer_state = 251
-			transfer_state = 590
-			transfer_state = 215
-			transfer_state = 585
-			transfer_state = 652
-			transfer_state = 403
-			transfer_state = 213
-			transfer_state = 584
-			transfer_state = 407
-			transfer_state = 582
-			transfer_state = 580
-			transfer_state = 722
-			transfer_state = 402
-			transfer_state = 406
-			transfer_state = 583
-			transfer_state = 579
-			transfer_state = 587
-			transfer_state = 405
-			transfer_state = 742
-			transfer_state = 589
-			transfer_state = 40
-			transfer_state = 329
-			transfer_state = 565
-			transfer_state = 561
-			transfer_state = 732
-			transfer_state = 588
-			transfer_state = 570
-			transfer_state = 568
-			transfer_state = 564
-			transfer_state = 562
-			transfer_state = 586
-			transfer_state = 571
-			transfer_state = 578
-			transfer_state = 567
-			transfer_state = 563
-			transfer_state = 637
-			transfer_state = 404
-			transfer_state = 654
-			transfer_state = 569
-			transfer_state = 566
-			transfer_state = 574
-			transfer_state = 560
-			transfer_state = 657
-			transfer_state = 409
-			transfer_state = 408
-			transfer_state = 655
-			transfer_state = 644
-			transfer_state = 575
-			transfer_state = 577
-			transfer_state = 516
-			transfer_state = 576
-			transfer_state = 822
-			transfer_state = 824
-			transfer_state = 832
-			transfer_state = 823
-			transfer_state = 831
-			transfer_state = 830
-			transfer_state = 1055
+			if = { limit = { 251 = { is_owned_by = ROOT } } transfer_state = 251 }
+			if = { limit = { 590 = { is_owned_by = ROOT } } transfer_state = 590 }
+			if = { limit = { 215 = { is_owned_by = ROOT } } transfer_state = 215 }
+			if = { limit = { 585 = { is_owned_by = ROOT } } transfer_state = 585 }
+			if = { limit = { 652 = { is_owned_by = ROOT } } transfer_state = 652 }
+			if = { limit = { 403 = { is_owned_by = ROOT } } transfer_state = 403 }
+			if = { limit = { 213 = { is_owned_by = ROOT } } transfer_state = 213 }
+			if = { limit = { 584 = { is_owned_by = ROOT } } transfer_state = 584 }
+			if = { limit = { 407 = { is_owned_by = ROOT } } transfer_state = 407 }
+			if = { limit = { 582 = { is_owned_by = ROOT } } transfer_state = 582 }
+			if = { limit = { 580 = { is_owned_by = ROOT } } transfer_state = 580 }
+			if = { limit = { 722 = { is_owned_by = ROOT } } transfer_state = 722 }
+			if = { limit = { 402 = { is_owned_by = ROOT } } transfer_state = 402 }
+			if = { limit = { 406 = { is_owned_by = ROOT } } transfer_state = 406 }
+			if = { limit = { 583 = { is_owned_by = ROOT } } transfer_state = 583 }
+			if = { limit = { 579 = { is_owned_by = ROOT } } transfer_state = 579 }
+			if = { limit = { 587 = { is_owned_by = ROOT } } transfer_state = 587 }
+			if = { limit = { 405 = { is_owned_by = ROOT } } transfer_state = 405 }
+			if = { limit = { 742 = { is_owned_by = ROOT } } transfer_state = 742 }
+			if = { limit = { 589 = { is_owned_by = ROOT } } transfer_state = 589 }
+			if = { limit = { 40 = { is_owned_by = ROOT } } transfer_state = 40 }
+			if = { limit = { 329 = { is_owned_by = ROOT } } transfer_state = 329 }
+			if = { limit = { 565 = { is_owned_by = ROOT } } transfer_state = 565 }
+			if = { limit = { 561 = { is_owned_by = ROOT } } transfer_state = 561 }
+			if = { limit = { 732 = { is_owned_by = ROOT } } transfer_state = 732 }
+			if = { limit = { 588 = { is_owned_by = ROOT } } transfer_state = 588 }
+			if = { limit = { 570 = { is_owned_by = ROOT } } transfer_state = 570 }
+			if = { limit = { 568 = { is_owned_by = ROOT } } transfer_state = 568 }
+			if = { limit = { 564 = { is_owned_by = ROOT } } transfer_state = 564 }
+			if = { limit = { 562 = { is_owned_by = ROOT } } transfer_state = 562 }
+			if = { limit = { 586 = { is_owned_by = ROOT } } transfer_state = 586 }
+			if = { limit = { 571 = { is_owned_by = ROOT } } transfer_state = 571 }
+			if = { limit = { 578 = { is_owned_by = ROOT } } transfer_state = 578 }
+			if = { limit = { 567 = { is_owned_by = ROOT } } transfer_state = 567 }
+			if = { limit = { 563 = { is_owned_by = ROOT } } transfer_state = 563 }
+			if = { limit = { 637 = { is_owned_by = ROOT } } transfer_state = 637 }
+			if = { limit = { 404 = { is_owned_by = ROOT } } transfer_state = 404 }
+			if = { limit = { 654 = { is_owned_by = ROOT } } transfer_state = 654 }
+			if = { limit = { 569 = { is_owned_by = ROOT } } transfer_state = 569 }
+			if = { limit = { 566 = { is_owned_by = ROOT } } transfer_state = 566 }
+			if = { limit = { 574 = { is_owned_by = ROOT } } transfer_state = 574 }
+			if = { limit = { 560 = { is_owned_by = ROOT } } transfer_state = 560 }
+			if = { limit = { 657 = { is_owned_by = ROOT } } transfer_state = 657 }
+			if = { limit = { 409 = { is_owned_by = ROOT } } transfer_state = 409 }
+			if = { limit = { 408 = { is_owned_by = ROOT } } transfer_state = 408 }
+			if = { limit = { 655 = { is_owned_by = ROOT } } transfer_state = 655 }
+			if = { limit = { 644 = { is_owned_by = ROOT } } transfer_state = 644 }
+			if = { limit = { 575 = { is_owned_by = ROOT } } transfer_state = 575 }
+			if = { limit = { 577 = { is_owned_by = ROOT } } transfer_state = 577 }
+			if = { limit = { 516 = { is_owned_by = ROOT } } transfer_state = 516 }
+			if = { limit = { 576 = { is_owned_by = ROOT } } transfer_state = 576 }
+			if = { limit = { 822 = { is_owned_by = ROOT } } transfer_state = 822 }
+			if = { limit = { 824 = { is_owned_by = ROOT } } transfer_state = 824 }
+			if = { limit = { 832 = { is_owned_by = ROOT } } transfer_state = 832 }
+			if = { limit = { 823 = { is_owned_by = ROOT } } transfer_state = 823 }
+			if = { limit = { 831 = { is_owned_by = ROOT } } transfer_state = 831 }
+			if = { limit = { 830 = { is_owned_by = ROOT } } transfer_state = 830 }
+			if = { limit = { 1055 = { is_owned_by = ROOT } } transfer_state = 1055 }
 			hidden_effect = {
 				load_oob = WHR_1918
 				every_state = {
@@ -1142,30 +1169,30 @@ country_event = {
 			SOV = {
 				load_oob = SOV_1918
 				INT_SOV_civil_war_support = yes
-				set_province_controller = 9391
-				set_province_controller = 9243
-				set_province_controller = 9365
-				set_province_controller = 6275
-				set_province_controller = 339
-				set_province_controller = 6404
-				set_province_controller = 9271
-				set_province_controller = 9299
-				set_province_controller = 298
-				set_province_controller = 11256
-				set_province_controller = 11281
-				set_province_controller = 227
-				set_province_controller = 3265
-				set_province_controller = 4324
-				set_province_controller = 7343
-				set_province_controller = 1350
-				set_province_controller = 12242
-				set_province_controller = 12270
-				set_province_controller = 11457
-				set_province_controller = 6525
-				set_province_controller = 545
-				set_province_controller = 11538
-				set_province_controller = 3406
-				set_province_controller = 4791
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 9391 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 9243 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 9365 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 6275 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 339 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 6404 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 9271 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 9299 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 298 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 11256 }
+				if = { limit = { 251 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 11281 }
+				if = { limit = { 652 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 227 }
+				if = { limit = { 652 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 3265 }
+				if = { limit = { 652 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 4324 }
+				if = { limit = { 652 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 7343 }
+				if = { limit = { 652 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 1350 }
+				if = { limit = { 652 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 12242 }
+				if = { limit = { 652 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 12270 }
+				if = { limit = { 407 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 11457 }
+				if = { limit = { 407 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 6525 }
+				if = { limit = { 407 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 545 }
+				if = { limit = { 407 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 11538 }
+				if = { limit = { 407 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 3406 }
+				if = { limit = { 517 = { OR = { is_owned_by = SOV is_owned_by = WHR is_owned_by = KUB } } } set_province_controller = 4791 }
 			}
 		}
 		SOV = { load_focus_tree = { tree = Soviet_Russia keep_completed = yes } }
@@ -1180,7 +1207,14 @@ country_event = {
 country_event = {
 	id = ww1_russia.43
 	title = ww1_russia.43.t
-	desc = ww1_russia.43.d
+	desc = {
+		text = ww1_russia.43.d
+		trigger = { tag = SOV }
+	}
+	desc = {
+		text = ww1_russia.43.imperial.d
+		trigger = { tag = RIE }
+	}
 	picture = GFX_report_event_treaty_of_brest_litovsk
 
 	# Completion flags make replays safe while allowing a cancelled pending event to retry.
@@ -1195,161 +1229,140 @@ country_event = {
 		if = {
 			limit = { RUS_ww1_brest_ready = yes }
 
+            # Record the pre-treaty status: do not impose new governments on
+            # countries that were already independent of this signatory.
+            if = { limit = { OR = { NOT = { country_exists = UBD } UBD = { is_subject_of = ROOT } } } set_country_flag = RUS_ww1_brest_manage_UBD }
+            if = { limit = { OR = { NOT = { country_exists = LIT } LIT = { is_subject_of = ROOT } } } set_country_flag = RUS_ww1_brest_manage_LIT }
+            if = { limit = { OR = { NOT = { country_exists = BLR } BLR = { is_subject_of = ROOT } } } set_country_flag = RUS_ww1_brest_manage_BLR }
+            if = { limit = { OR = { NOT = { country_exists = UKR } UKR = { is_subject_of = ROOT } } } set_country_flag = RUS_ww1_brest_manage_UKR }
+            if = { limit = { OR = { NOT = { country_exists = POL } POL = { is_subject_of = ROOT } } } set_country_flag = RUS_ww1_brest_manage_POL }
+            if = {
+                limit = {
+                    NOT = { country_exists = FNN }
+                    NOT = { country_exists = FNR }
+                    OR = { 111 = { is_owned_and_controlled_by = ROOT } 145 = { is_owned_and_controlled_by = ROOT } 146 = { is_owned_and_controlled_by = ROOT } 147 = { is_owned_and_controlled_by = ROOT } 148 = { is_owned_and_controlled_by = ROOT } 149 = { is_owned_and_controlled_by = ROOT } 150 = { is_owned_and_controlled_by = ROOT } 926 = { is_owned_and_controlled_by = ROOT } 927 = { is_owned_and_controlled_by = ROOT } 928 = { is_owned_and_controlled_by = ROOT } 929 = { is_owned_and_controlled_by = ROOT } 930 = { is_owned_and_controlled_by = ROOT } 986 = { is_owned_and_controlled_by = ROOT } 1017 = { is_owned_and_controlled_by = ROOT } }
+                }
+                set_country_flag = RUS_ww1_brest_create_finnish_pair
+            }
+
         # Withdraw only the Russian signatory from its former alliance and war.
-        if = { limit = { is_in_faction = yes } leave_faction = yes }
-        every_enemy_country = {
-            limit = { OR = { tag = GER is_in_faction_with = GER is_subject_of = GER } }
-            ROOT = { white_peace = PREV }
+        set_global_flag = treaty_of_brest_litovsk
+        if = {
+            limit = { has_idea = RUS_ww1_brest_demobilising_army }
+            remove_ideas = RUS_ww1_brest_demobilising_army
         }
+        if = { limit = { is_in_faction = yes } leave_faction = yes }
+        RUS_ww1_enforce_brest_peace = yes
 
 		news_event = { hours = 6 id = endsieg_news.225 }
-		set_global_flag = treaty_of_brest_litovsk
 		hidden_effect = {
 			UBD = {
 			#Estonia
-			transfer_state = 13
-			transfer_state = 191
-			transfer_state = 811
-			transfer_state = 812
-			transfer_state = 813
-			13 = { add_core_of = ROOT }
-			191 = { add_core_of = ROOT }
-			811 = { add_core_of = ROOT }
-			812 = { add_core_of = ROOT }
-			813 = { add_core_of = ROOT }
+			if = { limit = { 13 = { is_owned_by = ROOT } } transfer_state = 13 }
+			if = { limit = { 191 = { is_owned_by = ROOT } } transfer_state = 191 }
+			if = { limit = { 811 = { is_owned_by = ROOT } } transfer_state = 811 }
+			if = { limit = { 812 = { is_owned_by = ROOT } } transfer_state = 812 }
+			if = { limit = { 813 = { is_owned_by = ROOT } } transfer_state = 813 }
+			13 = { add_core_of = UBD }
+			191 = { add_core_of = UBD }
+			811 = { add_core_of = UBD }
+			812 = { add_core_of = UBD }
+			813 = { add_core_of = UBD }
 			#Latvia
-			transfer_state = 12
-			transfer_state = 190
-			transfer_state = 808
-			transfer_state = 809
-			transfer_state = 810
-			12 = { add_core_of = ROOT }
-			190 = { add_core_of = ROOT }
-			808 = { add_core_of = ROOT }
-			809 = { add_core_of = ROOT }
-			810 = { add_core_of = ROOT }
+			if = { limit = { 12 = { is_owned_by = ROOT } } transfer_state = 12 }
+			if = { limit = { 190 = { is_owned_by = ROOT } } transfer_state = 190 }
+			if = { limit = { 808 = { is_owned_by = ROOT } } transfer_state = 808 }
+			if = { limit = { 809 = { is_owned_by = ROOT } } transfer_state = 809 }
+			if = { limit = { 810 = { is_owned_by = ROOT } } transfer_state = 810 }
+			12 = { add_core_of = UBD }
+			190 = { add_core_of = UBD }
+			808 = { add_core_of = UBD }
+			809 = { add_core_of = UBD }
+			810 = { add_core_of = UBD }
 			}
 
 			LIT = {
-			transfer_state = 11
-			transfer_state = 189
-			transfer_state = 814
-			transfer_state = 815
-			transfer_state = 1029
-			11 = { add_core_of = ROOT }
-			189 = { add_core_of = ROOT }
-			814 = { add_core_of = ROOT }
-			815 = { add_core_of = ROOT }
-			1029 = { add_core_of = ROOT }
+			if = { limit = { 11 = { is_owned_by = ROOT } } transfer_state = 11 }
+			if = { limit = { 189 = { is_owned_by = ROOT } } transfer_state = 189 }
+			if = { limit = { 814 = { is_owned_by = ROOT } } transfer_state = 814 }
+			if = { limit = { 815 = { is_owned_by = ROOT } } transfer_state = 815 }
+			if = { limit = { 1029 = { is_owned_by = ROOT } } transfer_state = 1029 }
+			11 = { add_core_of = LIT }
+			189 = { add_core_of = LIT }
+			814 = { add_core_of = LIT }
+			815 = { add_core_of = LIT }
+			1029 = { add_core_of = LIT }
 			}
 
 			BLR = {
-			transfer_state = 94
-			transfer_state = 95
-			transfer_state = 96
-			transfer_state = 784
-			transfer_state = 194
-			transfer_state = 204
-			transfer_state = 206
-			transfer_state = 207
-			transfer_state = 241
-			94 = { add_core_of = ROOT }
-			95 = { add_core_of = ROOT }
-			96 = { add_core_of = ROOT }
-			784 = { add_core_of = ROOT }
-			194 = { add_core_of = ROOT }
-			204 = { add_core_of = ROOT }
-			206 = { add_core_of = ROOT }
-			207 = { add_core_of = ROOT }
-			241 = { add_core_of = ROOT }
+			if = { limit = { 94 = { is_owned_by = ROOT } } transfer_state = 94 }
+			if = { limit = { 95 = { is_owned_by = ROOT } } transfer_state = 95 }
+			if = { limit = { 96 = { is_owned_by = ROOT } } transfer_state = 96 }
+			if = { limit = { 784 = { is_owned_by = ROOT } } transfer_state = 784 }
+			if = { limit = { 194 = { is_owned_by = ROOT } } transfer_state = 194 }
+			if = { limit = { 204 = { is_owned_by = ROOT } } transfer_state = 204 }
+			if = { limit = { 206 = { is_owned_by = ROOT } } transfer_state = 206 }
+			if = { limit = { 207 = { is_owned_by = ROOT } } transfer_state = 207 }
+			if = { limit = { 241 = { is_owned_by = ROOT } } transfer_state = 241 }
+			94 = { add_core_of = BLR }
+			95 = { add_core_of = BLR }
+			96 = { add_core_of = BLR }
+			784 = { add_core_of = BLR }
+			194 = { add_core_of = BLR }
+			204 = { add_core_of = BLR }
+			206 = { add_core_of = BLR }
+			207 = { add_core_of = BLR }
+			241 = { add_core_of = BLR }
 			}
 
 			UKR = {
-			transfer_state = 93
-			transfer_state = 199
-			transfer_state = 201
-			transfer_state = 198
-			transfer_state = 989
-			transfer_state = 834
-			transfer_state = 192
-			transfer_state = 197
-			transfer_state = 203
-			transfer_state = 202
-			transfer_state = 193
-			transfer_state = 225
-			transfer_state = 259
-			transfer_state = 226
-			transfer_state = 196
-			transfer_state = 200
-			transfer_state = 227
-			transfer_state = 221
-			transfer_state = 228
-			transfer_state = 218
-			93 = { add_core_of = ROOT }
-			199 = { add_core_of = ROOT }
-			201 = { add_core_of = ROOT }
-			198 = { add_core_of = ROOT }
-			989 = { add_core_of = ROOT }
-			834 = { add_core_of = ROOT }
-			192 = { add_core_of = ROOT }
-			197 = { add_core_of = ROOT }
-			203 = { add_core_of = ROOT }
-			202 = { add_core_of = ROOT }
-			193 = { add_core_of = ROOT }
-			225 = { add_core_of = ROOT }
-			259 = { add_core_of = ROOT }
-			226 = { add_core_of = ROOT }
-			196 = { add_core_of = ROOT }
-			200 = { add_core_of = ROOT }
-			227 = { add_core_of = ROOT }
-			221 = { add_core_of = ROOT }
-			228 = { add_core_of = ROOT }
-			218 = { add_core_of = ROOT }
+			if = { limit = { 93 = { is_owned_by = ROOT } } transfer_state = 93 }
+			if = { limit = { 199 = { is_owned_by = ROOT } } transfer_state = 199 }
+			if = { limit = { 201 = { is_owned_by = ROOT } } transfer_state = 201 }
+			if = { limit = { 198 = { is_owned_by = ROOT } } transfer_state = 198 }
+			if = { limit = { 989 = { is_owned_by = ROOT } } transfer_state = 989 }
+			if = { limit = { 834 = { is_owned_by = ROOT } } transfer_state = 834 }
+			if = { limit = { 192 = { is_owned_by = ROOT } } transfer_state = 192 }
+			if = { limit = { 197 = { is_owned_by = ROOT } } transfer_state = 197 }
+			if = { limit = { 203 = { is_owned_by = ROOT } } transfer_state = 203 }
+			if = { limit = { 202 = { is_owned_by = ROOT } } transfer_state = 202 }
+			if = { limit = { 193 = { is_owned_by = ROOT } } transfer_state = 193 }
+			if = { limit = { 225 = { is_owned_by = ROOT } } transfer_state = 225 }
+			if = { limit = { 259 = { is_owned_by = ROOT } } transfer_state = 259 }
+			if = { limit = { 226 = { is_owned_by = ROOT } } transfer_state = 226 }
+			if = { limit = { 196 = { is_owned_by = ROOT } } transfer_state = 196 }
+			if = { limit = { 200 = { is_owned_by = ROOT } } transfer_state = 200 }
+			if = { limit = { 227 = { is_owned_by = ROOT } } transfer_state = 227 }
+			if = { limit = { 221 = { is_owned_by = ROOT } } transfer_state = 221 }
+			if = { limit = { 228 = { is_owned_by = ROOT } } transfer_state = 228 }
+			if = { limit = { 218 = { is_owned_by = ROOT } } transfer_state = 218 }
+			93 = { add_core_of = UKR }
+			199 = { add_core_of = UKR }
+			201 = { add_core_of = UKR }
+			198 = { add_core_of = UKR }
+			989 = { add_core_of = UKR }
+			834 = { add_core_of = UKR }
+			192 = { add_core_of = UKR }
+			197 = { add_core_of = UKR }
+			203 = { add_core_of = UKR }
+			202 = { add_core_of = UKR }
+			193 = { add_core_of = UKR }
+			225 = { add_core_of = UKR }
+			259 = { add_core_of = UKR }
+			226 = { add_core_of = UKR }
+			196 = { add_core_of = UKR }
+			200 = { add_core_of = UKR }
+			227 = { add_core_of = UKR }
+			221 = { add_core_of = UKR }
+			228 = { add_core_of = UKR }
+			218 = { add_core_of = UKR }
 			}
 
-			# Recreate the exact 1918 Finnish Civil War front. The earlier
-			# independence events use the pre-custom-state layout, so normalize
-			# ownership here when Russia signs Brest-Litovsk.
 			if = {
-				limit = { NOT = { country_exists = FNN } }
-				release = FNN
+				limit = { has_country_flag = RUS_ww1_brest_create_finnish_pair }
+				RUS_ww1_establish_finland = yes
+				RUS_ww1_start_finnish_civil_war = yes
 			}
-			if = {
-				limit = { NOT = { country_exists = FNR } }
-				release = FNR
-			}
-			FNN = {
-				transfer_state = 145
-				transfer_state = 146
-				transfer_state = 147
-				transfer_state = 148
-				transfer_state = 149
-				transfer_state = 150
-				transfer_state = 929
-				every_owned_state = { remove_core_of = RIE }
-			}
-			FNR = {
-				transfer_state = 111
-				transfer_state = 926
-				transfer_state = 927
-				transfer_state = 928
-				transfer_state = 930
-				transfer_state = 986
-				transfer_state = 1017
-				set_state_controller = 146
-				every_owned_state = { remove_core_of = RIE }
-			}
-			# The two Finnish governments must remain separate countries after
-			# the settlement, otherwise the civil-war declaration is discarded.
-			if = {
-				limit = {
-					country_exists = FNN
-					country_exists = FNR
-					NOT = { FNN = { has_war_with = FNR } }
-				}
-				FNR = { declare_war_on = { target = FNN type = annex_everything } }
-			}
-			WHR = { transfer_state = 722 }
 
 			# The Transcaucasian Republic uses the Endsieg tag TRC. TRA is the
 			# current vanilla Transylvania tag and must not be used here.
@@ -1358,15 +1371,15 @@ country_event = {
 				release = TRC
 			}
 			TRC = {
-				transfer_state = 229
-				transfer_state = 230
-				transfer_state = 231
-				transfer_state = 990
-				transfer_state = 1016
+				if = { limit = { 229 = { is_owned_by = ROOT } } transfer_state = 229 }
+				if = { limit = { 230 = { is_owned_by = ROOT } } transfer_state = 230 }
+				if = { limit = { 231 = { is_owned_by = ROOT } } transfer_state = 231 }
+				if = { limit = { 990 = { is_owned_by = ROOT } } transfer_state = 990 }
+				if = { limit = { 1016 = { is_owned_by = ROOT } } transfer_state = 1016 }
 			}
-			SOV = { transfer_state = 999 }
+			SOV = { if = { limit = { 999 = { is_owned_by = ROOT } } transfer_state = 999 } }
 
-			GER = {transfer_state = 137} #Crimea
+			GER = { if = { limit = { 137 = { is_owned_by = ROOT } } transfer_state = 137 } } #Crimea
 			if = {
 				limit = {
 					NOT = {
@@ -1380,7 +1393,7 @@ country_event = {
 			# Poland's later German-puppet status.
 			if = {
 				limit = { country_exists = POL }
-				POL = { transfer_state = 97 }
+				POL = { if = { limit = { 97 = { is_owned_by = ROOT } } transfer_state = 97 } }
 			}
 			every_state = {
 				limit = {
@@ -1397,33 +1410,25 @@ country_event = {
 
 		}
 		GER = {
-			puppet = UBD
-			puppet = LIT
-			puppet = BLR
-			puppet = UKR
-			if = {
-				limit = {
-					country_exists = POL
-				}
-				if = {
-					limit = { POL = { is_puppet = no } }
-					puppet = POL
-				}
-			}
-			if = { limit = { UBD = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = UBD }
-			if = { limit = { LIT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = LIT }
-			if = { limit = { BLR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = BLR }
-			if = { limit = { UKR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = UKR }
-			if = { limit = { POL = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = POL }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UBD } country_exists = UBD } puppet = UBD }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_LIT } country_exists = LIT } puppet = LIT }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_BLR } country_exists = BLR } puppet = BLR }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UKR } country_exists = UKR } puppet = UKR }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_POL } POL = { exists = yes is_puppet = no } } puppet = POL }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UBD } UBD = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = UBD }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_LIT } LIT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = LIT }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_BLR } BLR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = BLR }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UKR } UKR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = UKR }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_POL } POL = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = POL }
 		}
 		if = {
 			limit = {
 				TUR = { is_in_faction_with = GER }
 			}
-			TUR = { transfer_state = 1033 } #Kars
+			TUR = { if = { limit = { 1033 = { is_owned_by = ROOT } } transfer_state = 1033 } } #Kars
 		}
 		else = {
-			TRC = { transfer_state = 1033}
+			TRC = { if = { limit = { 1033 = { is_owned_by = ROOT } } transfer_state = 1033 } }
 			TRC = { add_state_core = 1033}
 		}
 		hidden_effect = {
@@ -1431,6 +1436,7 @@ country_event = {
 			# political leaders immediately. Their dated country history does not
 			# reliably promote a leader when the country is released mid-campaign.
 			LIT = {
+                if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_LIT } }
 				set_cosmetic_tag = LIT_KOL
 				set_politics = {
 					ruling_party = neutrality
@@ -1441,8 +1447,11 @@ country_event = {
 				retire_country_leader = yes
 				endsieg_character_activate_lit_wilhelm_karl_e828230e = yes
 				LIT_wilhelm_karl = { promote_character = yes }
+
+                }
 			}
 			BLR = {
+                if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_BLR } }
 				set_cosmetic_tag = BLR_BNR
 				set_politics = {
 					ruling_party = neutrality
@@ -1453,8 +1462,11 @@ country_event = {
 				retire_country_leader = yes
 				endsieg_character_activate_blr_jan_sierada_1a7f72e6 = yes
 				BLR_Jan_Sierada = { promote_character = yes }
+
+                }
 			}
 			UKR = {
+                if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UKR } }
 				set_cosmetic_tag = UKR_HET
 				set_politics = {
 					ruling_party = neutrality
@@ -1471,13 +1483,23 @@ country_event = {
 				retire_country_leader = yes
 				endsieg_character_activate_ukr_pavlo_skoropadsky_3aea4adf = yes
 				UKR_pavlo_skoropadsky = { promote_character = yes }
+
+                }
 			}
-			LIT = { load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } }
+			LIT = { if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_LIT } } load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } } }
 			if = {
-				limit = { country_exists = POL }
+				limit = { country_exists = POL ROOT = { has_country_flag = RUS_ww1_brest_manage_POL } }
 				POL = { load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } }
 			}
 		}
+
+		clr_country_flag = RUS_ww1_brest_manage_UBD
+		clr_country_flag = RUS_ww1_brest_manage_LIT
+		clr_country_flag = RUS_ww1_brest_manage_BLR
+		clr_country_flag = RUS_ww1_brest_manage_UKR
+		clr_country_flag = RUS_ww1_brest_manage_POL
+		clr_country_flag = RUS_ww1_brest_create_finnish_pair
+		clr_country_flag = RUS_ww1_brest_queued
 
 		}
 	}
@@ -1512,133 +1534,45 @@ country_event = {
 
 # Finland Declares Independence
 country_event = {
-	id = ww1_russia.45
-	title = ww1_russia.45.t
-	desc = ww1_russia.45.d
-	picture = GFX_report_event_finland_declaration
-
-	is_triggered_only = yes
-
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = ww1_russia.45.a
-		FNN = {
-			transfer_state = 145
-			transfer_state = 146
-			transfer_state = 147
-			transfer_state = 148
-			transfer_state = 149
-			transfer_state = 150
-			transfer_state = 111
-		}
-		hidden_effect = {
-			country_event = { id = ww1_russia.46 days = 26 }
-		}
-	}
+ id = ww1_russia.45
+ title = ww1_russia.45.t
+ desc = ww1_russia.45.d
+ picture = GFX_report_event_finland_declaration
+ is_triggered_only = yes
+ trigger = { NOT = { country_exists = FNN } NOT = { country_exists = FNR } }
+ option = {
+  custom_effect_tooltip = WW1_historical_option_tt
+  name = ww1_russia.45.a
+  RUS_ww1_establish_finland = yes
+  if = {
+   limit = { FNN = { exists = yes has_country_flag = RUS_ww1_finland_created_by_revolution } }
+   country_event = { id = ww1_russia.46 days = 26 }
+  }
+ }
 }
 
 # Finnish Civil War Begins
 country_event = {
-	id = ww1_russia.46
-	title = ww1_russia.46.t
-	desc = ww1_russia.46.d
-	picture = GFX_report_event_fcw
-
-	is_triggered_only = yes
-
-	option = {
-		name = ww1_russia.46.a
-		FNN = {
-			transfer_state = 145
-			transfer_state = 146
-			transfer_state = 147
-			transfer_state = 148
-			transfer_state = 149
-			transfer_state = 150
-			load_oob = FNN_1918
-			every_owned_state = {
-				add_core_of = FNN
-			}
-			every_owned_state = {
-				add_core_of = FNR
-				remove_core_of = RIE
-			}
-		}
-		FNR = {
-			transfer_state = 111
-			load_oob = FNR_1918
-			declare_war_on = { target = FNN type = annex_everything }
-			set_province_controller = 3060
-			set_province_controller = 9100
-			set_province_controller = 9206
-			every_owned_state = {
-				add_core_of = FNR
-			}
-			every_owned_state = {
-				add_core_of = FNN
-				remove_core_of = RIE
-			}
-		}
-		FNN = {
-			set_province_controller = 3137
-			set_province_controller = 3025
-			set_province_controller = 3009
-			set_province_controller = 3117
-			set_province_controller = 6163
-			set_province_controller = 6047
-			set_province_controller = 9160
-			set_province_controller = 13107
-			set_province_controller = 13106
-			set_province_controller = 13103
-		}
-	}
-	option = {
-		name = ww1_russia.46.b
-		FNN = {
-			transfer_state = 145
-			transfer_state = 146
-			transfer_state = 147
-			transfer_state = 148
-			transfer_state = 149
-			transfer_state = 150
-			load_oob = FNN_1918
-		}
-		FNR = {
-			transfer_state = 111
-			load_oob = FNR_1918
-			declare_war_on = { target = FNN type = annex_everything }
-			set_province_controller = 3060
-			set_province_controller = 9100
-			set_province_controller = 9206
-		}
-		FNN = {
-			set_province_controller = 3137
-			set_province_controller = 3025
-			set_province_controller = 3009
-			set_province_controller = 3117
-			set_province_controller = 6163
-			set_province_controller = 6047
-			set_province_controller = 9160
-			set_province_controller = 13107
-			set_province_controller = 13106
-			set_province_controller = 13103
-		}
-		FNN = {
-			every_owned_state = {
-				add_core_of = FNN
-				add_core_of = FNR
-				remove_core_of = RIE
-			}
-		}
-		FNR = {
-			every_owned_state = {
-				add_core_of = FNR
-				add_core_of = FNN
-				remove_core_of = RIE
-			}
-		}
-	}
+ id = ww1_russia.46
+ title = ww1_russia.46.t
+ desc = ww1_russia.46.d
+ picture = GFX_report_event_fcw
+ is_triggered_only = yes
+ trigger = {
+  FNN = { exists = yes has_country_flag = RUS_ww1_finland_created_by_revolution }
+  NOT = { country_exists = FNR }
+  111 = { OR = { AND = { is_owned_by = ROOT is_fully_controlled_by = ROOT } AND = { is_owned_by = FNN is_fully_controlled_by = FNN } } }
+ }
+ option = {
+  name = ww1_russia.46.a
+  RUS_ww1_start_finnish_civil_war = yes
+ }
+ option = {
+  name = ww1_russia.46.b
+  RUS_ww1_start_finnish_civil_war = yes
+ }
 }
+
 
 # Prevent the October Revolution from firing until Lenin has been back in
 # Russia for a full 100 days. This is scheduled by ww1_russia.37.

@@ -45,28 +45,49 @@ WW1_CP_create_french_exile = {
     set_capital = { state = 557 }
    }
    load_focus_tree = { tree = generic_focus_ww1 }
-   set_popularities = { democratic = 75 neutrality = 25 }
-   set_politics = { ruling_party = democratic elections_allowed = no }
-   FRA = {
-    if = {
-     limit = { has_character = FR3_Raymond_Poincare }
-     FR3_Raymond_Poincare = { set_nationality = event_target:WW1_CP_french_exile }
-    }
-   }
+   # Preserve the actual sovereign when a restored Bourbon or Bonapartist
+   # government chooses to continue the fight overseas. Other governments can
+   # form the existing republican opposition led by Poincare.
    if = {
-    limit = { has_character = FR3_Raymond_Poincare }
-    add_country_leader_role = {
-     character = FR3_Raymond_Poincare
-     promote_leader = yes
-     country_leader = { ideology = liberalism expire = "1934.10.15" }
-    }
+    limit = { FRA = { has_government = neutrality has_country_leader = { character = FR3_royal_jacques ruling_only = yes } has_character = FR3_royal_jacques } }
+    set_country_flag = WW1_CP_exile_bourbon
+    set_popularities = { neutrality = 75 democratic = 25 }
+    set_politics = { ruling_party = neutrality elections_allowed = no }
+    FRA = { FR3_royal_jacques = { set_nationality = event_target:WW1_CP_french_exile } }
+    promote_character = { character = FR3_royal_jacques ideology = despotism }
+   }
+   else_if = {
+    limit = { FRA = { has_government = neutrality has_country_leader = { character = FR3_royal_victor ruling_only = yes } has_character = FR3_royal_victor } }
+    set_country_flag = WW1_CP_exile_bonaparte
+    set_popularities = { neutrality = 75 democratic = 25 }
+    set_politics = { ruling_party = neutrality elections_allowed = no }
+    FRA = { FR3_royal_victor = { set_nationality = event_target:WW1_CP_french_exile } }
+    promote_character = { character = FR3_royal_victor ideology = despotism }
    }
    else = {
-    create_country_leader = {
-     name = "Raymond Poincaré"
-     picture = "gfx/leaders/FRA/Portrait_France_Raymond_Poincare.dds"
-     ideology = liberalism
-     expire = "1934.10.15"
+    set_popularities = { democratic = 75 neutrality = 25 }
+    set_politics = { ruling_party = democratic elections_allowed = no }
+    FRA = {
+     if = {
+      limit = { has_character = FR3_Raymond_Poincare }
+      FR3_Raymond_Poincare = { set_nationality = event_target:WW1_CP_french_exile }
+     }
+    }
+    if = {
+     limit = { has_character = FR3_Raymond_Poincare }
+     add_country_leader_role = {
+      character = FR3_Raymond_Poincare
+      promote_leader = yes
+      country_leader = { ideology = liberalism expire = "1934.10.15" }
+     }
+    }
+    else = {
+     create_country_leader = {
+      name = "Raymond Poincaré"
+      picture = "gfx/leaders/FRA/Portrait_France_Raymond_Poincare.dds"
+      ideology = liberalism
+      expire = "1934.10.15"
+     }
     }
    }
    set_stability = 0.45
@@ -79,7 +100,7 @@ WW1_CP_create_french_exile = {
    }
    capital_scope = {
     create_unit = {
-     division = "name = \"French Republican Detachment\" division_template = \"Colonial Detachment\" start_equipment_factor = 0.65"
+     division = "name = \"French Overseas Detachment\" division_template = \"Colonial Detachment\" start_equipment_factor = 0.65"
      owner = event_target:WW1_CP_french_exile
     }
    }
@@ -136,6 +157,16 @@ WW1_CP_restore_french_overseas_administration = {
      if = {
       limit = { has_character = FR3_Raymond_Poincare }
       FR3_Raymond_Poincare = { set_nationality = FRA }
+     }
+     if = {
+      limit = { has_country_flag = WW1_CP_exile_bourbon has_character = FR3_royal_jacques }
+      FR3_royal_jacques = { set_nationality = FRA }
+      FRA = { if = { limit = { has_government = neutrality } promote_character = { character = FR3_royal_jacques ideology = despotism } } }
+     }
+     if = {
+      limit = { has_country_flag = WW1_CP_exile_bonaparte has_character = FR3_royal_victor }
+      FR3_royal_victor = { set_nationality = FRA }
+      FRA = { if = { limit = { has_government = neutrality } promote_character = { character = FR3_royal_victor ideology = despotism } } }
      }
      if = { limit = { is_ai = no } FRA = { change_tag_from = event_target:WW1_CP_french_exile } }
     }

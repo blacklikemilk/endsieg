@@ -1,0 +1,73 @@
+on_actions = {
+	on_monthly = {
+		effect = {
+			if = {
+				limit = {
+					has_start_date < 1919.1.1
+					date < 1920.1.1
+					is_ai = yes
+					has_war = yes
+					has_capitulated = no
+					has_tech = trench_warfare
+					num_of_civilian_factories_available_for_projects > 0
+					NOT = { has_country_flag = WW1_ai_trench_construction_cooldown }
+				}
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						is_demilitarized_zone = no
+						NOT = { has_state_flag = WW1_ai_trench_construction_pending }
+						ROOT = { divisions_in_state = { state = PREV size > 0 } }
+						any_neighbor_state = {
+							controller = { has_war_with = ROOT }
+							PREV = {
+								any_province_building_level = {
+									province = {
+										all_provinces = yes
+										limit_to_border = yes
+									}
+									building = trench
+									level < 1
+								}
+							}
+						}
+					}
+					random_neighbor_state = {
+						limit = {
+							controller = { has_war_with = ROOT }
+							PREV = {
+								any_province_building_level = {
+									province = {
+										all_provinces = yes
+										limit_to_border = yes
+									}
+									building = trench
+									level < 1
+								}
+							}
+						}
+						# PREV is our front state. Inside it, PREV.controller
+						# identifies the enemy controlling the neighboring state.
+						PREV = {
+							add_building_construction = {
+								type = trench
+								level = 1
+								instant_build = no
+								province = {
+									all_provinces = yes
+									limit_to_border = yes
+									limit_to_border_country = PREV.controller
+									level < 1
+								}
+							}
+							set_state_flag = { flag = WW1_ai_trench_construction_pending days = 180 }
+							ROOT = {
+								set_country_flag = { flag = WW1_ai_trench_construction_cooldown days = 60 }
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

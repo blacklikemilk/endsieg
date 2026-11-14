@@ -1,0 +1,116 @@
+WW1_balkan_form_league = {
+	if = {
+		limit = { WW1_balkan_can_form_league = yes }
+		set_rule = { can_create_factions = yes }
+		create_faction_from_template = { template = faction_template_ww1_balkan_league name = BALKAN_LEAGUE }
+		set_country_flag = WW1_balkan_league
+		if = {
+			limit = { ROM = { WW1_may_join_balkan_league = yes } }
+			ROM = { country_event = { id = ww1_serbia.102 hours = 3 } }
+		}
+	}
+}
+
+# Evaluated in each potential ally's own scope.
+WW1_balkan_enter_first_war = {
+	if = {
+		limit = {
+			WW1_is_balkan_league_member = yes
+			is_subject = no
+			TUR = { WW1_border_may_prepare_against_previous = yes }
+		}
+		declare_war_on = { target = TUR type = annex_everything }
+	}
+	if = {
+		limit = { WW1_is_balkan_league_member = yes has_war_with = TUR }
+		set_country_flag = WW1_balkan_first_war_participant
+		if = {
+			limit = { OR = { tag = BUL tag = GRE } }
+			add_timed_idea = { idea = patriotic_fervor days = 240 }
+		}
+	}
+}
+
+WW1_balkan_start_first_war = {
+	if = {
+		limit = { WW1_balkan_can_start_first_war = yes }
+		declare_war_on = { target = TUR type = annex_everything }
+		if = {
+			limit = { has_war_with = TUR }
+			set_global_flag = first_balkan_war
+			set_global_flag = WW1_balkan_focus_first_war_started
+			if = {
+				limit = { has_global_flag = WW1_border_first_balkan_reported }
+				add_named_threat = { threat = 3 name = WW1_border_threat_first_balkan_war }
+			}
+			else = { add_named_threat = { threat = 5 name = WW1_border_threat_first_balkan_war } }
+			BUL = { WW1_balkan_enter_first_war = yes }
+			GRE = { WW1_balkan_enter_first_war = yes }
+			MNT = { WW1_balkan_enter_first_war = yes }
+			TUR = {
+				TUR_stab_ensure_initialized = yes
+				add_timed_idea = { idea = surprise_attack days = 240 }
+			}
+			add_timed_idea = { idea = patriotic_fervor days = 240 }
+			hidden_effect = { country_event = { id = ww1_serbia.2 hours = 1 } }
+		}
+	}
+}
+
+WW1_balkan_start_second_war = {
+	if = {
+		limit = { WW1_balkan_can_start_second_war = yes }
+		SER = {
+			if = {
+				limit = { is_in_faction = no is_subject = no has_completed_focus = shared_GEN_balkan_league }
+				set_rule = { can_create_factions = yes }
+				create_faction_from_template = { template = faction_template_ww1_balkan_league name = BALKAN_LEAGUE }
+				set_country_flag = WW1_balkan_league
+				if = {
+					limit = { GRE = { exists = yes is_in_faction = no is_subject = no has_completed_focus = shared_GEN_join_balkan_league } }
+					add_to_faction = GRE
+				}
+				if = {
+					limit = { MNT = { exists = yes is_in_faction = no is_subject = no has_completed_focus = shared_GEN_join_balkan_league } }
+					add_to_faction = MNT
+				}
+			}
+		}
+		declare_war_on = { target = SER type = annex_everything }
+		if = {
+			limit = { has_war_with = SER }
+			add_war_support = 0.20
+			set_global_flag = second_balkan_war
+			clr_global_flag = second_balkan_war_romania_joined
+			clr_global_flag = second_balkan_war_ottomans_joined
+			news_event = { id = endsieg_news.188 hours = 6 }
+			if = {
+				limit = { GRE = { WW1_border_may_prepare_against_previous = yes } }
+				declare_war_on = { target = GRE type = annex_everything }
+			}
+			if = {
+				limit = { MNT = { WW1_border_may_prepare_against_previous = yes } }
+				declare_war_on = { target = MNT type = annex_everything }
+			}
+			hidden_effect = {
+				ROM = { if = { limit = { exists = yes } country_event = { id = ww1_bulgaria.101 days = 5 } } }
+				TUR = { if = { limit = { exists = yes } country_event = { id = ww1_bulgaria.102 days = 15 } } }
+			}
+		}
+	}
+}
+
+WW1_balkan_historical_join = {
+	if = {
+		limit = {
+			is_ai = yes
+			WW1_balkan_can_join_league = yes
+			NOT = { has_completed_focus = shared_GEN_join_balkan_league }
+		}
+		if = {
+			limit = { NOT = { has_completed_focus = shared_GEN_political_effort } }
+			complete_national_focus = shared_GEN_political_effort
+		}
+		complete_national_focus = shared_GEN_join_balkan_league
+	}
+}

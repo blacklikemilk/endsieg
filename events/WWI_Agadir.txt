@@ -1,0 +1,243 @@
+add_namespace = ww1_agadir
+
+country_event = {
+	id = ww1_agadir.1
+	title = ww1_agadir.1.t
+	desc = ww1_agadir.1.d
+	picture = GFX_report_event_agadir_crisis
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = { tag = ENG WW1_agadir_pending = yes }
+
+	option = {
+		name = ww1_agadir.1.a
+		custom_effect_tooltip = WW1_historical_option_tt
+		ai_chance = { factor = 85 }
+		if = {
+			limit = { WW1_agadir_pending = yes WW1_agadir_britain_can_intervene = yes }
+			add_named_threat = { threat = 1 name = WW1_tension_agadir }
+			set_global_flag = WW1_agadir_british_warning
+			GER = { WW1_agadir_present_demands = yes }
+		}
+	}
+	option = {
+		name = ww1_agadir.1.b
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 0 is_historical_focus_on = yes }
+		}
+		if = {
+			limit = { WW1_agadir_pending = yes }
+			GER = { WW1_agadir_present_demands = yes }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_agadir.2
+	title = ww1_agadir.2.t
+	desc = ww1_agadir.2.d
+	picture = GFX_report_event_agadir_crisis
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = { tag = FRA WW1_agadir_fez_available = yes }
+
+	option = {
+		name = ww1_agadir.2.a
+		custom_effect_tooltip = WW1_historical_option_tt
+		ai_chance = { factor = 100 }
+		if = {
+			limit = { WW1_agadir_fez_available = yes }
+			transfer_state = 461
+			transfer_state = 462
+			if = { limit = { 1000 = { is_owned_and_controlled_by = MOR } } transfer_state = 1000 }
+			set_global_flag = WW1_agadir_treaty_of_fez_signed
+		}
+	}
+	option = {
+		name = ww1_agadir.2.b
+		ai_chance = { factor = 0 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ww1_agadir.3
+	title = ww1_agadir.3.t
+	desc = ww1_agadir.3.d
+	picture = GFX_report_event_agadir_crisis
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = { tag = SPR NOT = { has_war_with = FRA } 1000 = { is_owned_and_controlled_by = FRA } }
+	option = {
+		name = ww1_agadir.3.a
+		if = {
+			limit = { NOT = { has_war_with = FRA } 1000 = { is_owned_and_controlled_by = FRA } }
+			transfer_state = 1000
+		}
+	}
+}
+
+country_event = {
+	id = ww1_agadir.4
+	title = ww1_agadir.4.t
+	desc = ww1_agadir.4.d
+	picture = GFX_report_event_agadir_crisis
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = { tag = FRA WW1_agadir_pending = yes has_global_flag = WW1_agadir_ultimatum_pending }
+
+	option = {
+		name = ww1_agadir.4.a
+		trigger = { OR = { 1082 = { is_owned_and_controlled_by = FRA } 1084 = { is_owned_and_controlled_by = FRA } } }
+		ai_chance = { factor = 25 modifier = { factor = 0 has_global_flag = WW1_agadir_british_warning } }
+		if = {
+			limit = {
+				WW1_agadir_pending = yes
+				has_global_flag = WW1_agadir_ultimatum_pending
+				OR = { 1082 = { is_owned_and_controlled_by = FRA } 1084 = { is_owned_and_controlled_by = FRA } }
+			}
+			clr_global_flag = WW1_agadir_ultimatum_pending
+			clr_global_flag = GE1_agadir_french_refused
+			set_country_flag = GE1_agadir_french_response
+			set_global_flag = GE1_agadir_french_accepted
+			add_stability = -0.03
+			GER = { country_event = { id = ww1_germany.261 days = 1 } }
+		}
+	}
+	option = {
+		name = ww1_agadir.4.b
+		ai_chance = { factor = 75 }
+		if = {
+			limit = { WW1_agadir_pending = yes has_global_flag = WW1_agadir_ultimatum_pending }
+			clr_global_flag = WW1_agadir_ultimatum_pending
+			set_country_flag = GE1_agadir_french_response
+			set_global_flag = GE1_agadir_french_refused
+			set_global_flag = WW1_agadir_final_reply_pending
+			GER = { country_event = { id = ww1_agadir.5 days = 1 } }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_agadir.5
+	title = ww1_agadir.5.t
+	desc = ww1_agadir.5.d
+	picture = GFX_report_event_agadir_crisis
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = { tag = GER WW1_agadir_pending = yes has_global_flag = WW1_agadir_final_reply_pending }
+
+	option = {
+		name = ww1_agadir.5.a
+		ai_chance = { factor = 90 }
+		if = {
+			limit = { WW1_agadir_pending = yes has_global_flag = WW1_agadir_final_reply_pending }
+			clr_global_flag = WW1_agadir_final_reply_pending
+			set_global_flag = GE1_agadir_german_withdrawal
+			add_political_power = -25
+			add_war_support = -0.03
+			country_event = { id = ww1_germany.264 days = 1 }
+		}
+	}
+	option = {
+		name = ww1_agadir.5.b
+		trigger = { OR = { 1082 = { is_owned_and_controlled_by = FRA } 1084 = { is_owned_and_controlled_by = FRA } } }
+		ai_chance = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes } }
+		if = {
+			limit = {
+				WW1_agadir_pending = yes
+				has_global_flag = WW1_agadir_final_reply_pending
+				OR = { 1082 = { is_owned_and_controlled_by = FRA } 1084 = { is_owned_and_controlled_by = FRA } }
+			}
+			clr_global_flag = WW1_agadir_final_reply_pending
+			clr_global_flag = GE1_agadir_crisis_pending
+			set_global_flag = GE1_agadir_settlement_resolved
+			set_global_flag = WW1_agadir_colonial_war
+			add_stability = -0.03
+			add_named_threat = { threat = 8 name = WW1_tension_agadir_war }
+			if = {
+				limit = { 1082 = { is_owned_and_controlled_by = FRA } 1084 = { is_owned_and_controlled_by = FRA } }
+				create_wargoal = { type = take_state_focus target = FRA generator = { 1082 1084 } }
+			}
+			else_if = {
+				limit = { 1082 = { is_owned_and_controlled_by = FRA } }
+				create_wargoal = { type = take_state_focus target = FRA generator = { 1082 } }
+			}
+			else = {
+				create_wargoal = { type = take_state_focus target = FRA generator = { 1084 } }
+			}
+			declare_war_on = { target = FRA type = take_state_focus }
+			news_event = { id = ww1_agadir.8 hours = 6 }
+			if = {
+				limit = { WW1_agadir_britain_can_intervene = yes ENG = { NOT = { has_war_with = GER } } }
+				ENG = { country_event = { id = ww1_agadir.6 days = 1 } }
+			}
+		}
+	}
+}
+
+country_event = {
+	id = ww1_agadir.6
+	title = ww1_agadir.6.t
+	desc = ww1_agadir.6.d
+	picture = GFX_report_event_agadir_crisis
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		tag = ENG
+		has_global_flag = WW1_agadir_colonial_war
+		WW1_agadir_britain_can_intervene = yes
+		NOT = { has_war_with = GER }
+		GER = { has_war_with = FRA }
+	}
+
+	option = {
+		name = ww1_agadir.6.a
+		ai_chance = { factor = 75 }
+		if = {
+			limit = {
+				has_global_flag = WW1_agadir_colonial_war
+				WW1_agadir_britain_can_intervene = yes
+				NOT = { has_war_with = GER }
+				GER = { has_war_with = FRA }
+			}
+			declare_war_on = { target = GER type = annex_everything }
+		}
+	}
+	option = {
+		name = ww1_agadir.6.b
+		ai_chance = { factor = 25 }
+		if = {
+			limit = {
+				has_global_flag = WW1_agadir_colonial_war
+				WW1_agadir_britain_can_intervene = yes
+				NOT = { has_war_with = GER }
+				GER = { has_war_with = FRA }
+			}
+			add_political_power = -15
+		}
+	}
+}
+
+news_event = {
+	id = ww1_agadir.7
+	title = ww1_agadir.7.t
+	desc = ww1_agadir.7.d
+	picture = GFX_news_event_agadir_crisis
+	major = yes
+	is_triggered_only = yes
+	trigger = { WW1_agadir_pending = yes has_global_flag = WW1_agadir_ultimatum_pending }
+	option = { name = ww1_agadir.7.a }
+}
+
+news_event = {
+	id = ww1_agadir.8
+	title = ww1_agadir.8.t
+	desc = ww1_agadir.8.d
+	picture = GFX_news_event_agadir_crisis
+	major = yes
+	is_triggered_only = yes
+	trigger = { has_global_flag = WW1_agadir_colonial_war GER = { has_war_with = FRA } }
+	option = { name = ww1_agadir.8.a }
+}

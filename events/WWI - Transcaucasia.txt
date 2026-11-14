@@ -19,7 +19,8 @@ country_event = {
 		NOT = { date > 1932.12.1 }
 		tag = TRC
 		date > 1918.5.25
-		NOT = { TRC = { owns_state = 1016 } }  #Doesn't control Baku
+		owns_state = 231
+		controls_state = 231
 	}
 
 	mean_time_to_happen = {
@@ -32,10 +33,12 @@ country_event = {
 		ai_chance = { factor = 100}
 		GEO = {
 			transfer_state = 231
+			set_country_flag = transcauc_georgia_separated
 		}
 	}
 	option = {
 		name = transcauc.1.b
+		trigger = { NOT = { country_exists = GEO } }
 		ai_chance = { factor = 0}
 		GEO = {
 			transfer_state = 231 #Georgia
@@ -44,8 +47,9 @@ country_event = {
 	}
 	option = {
 		name = transcauc.1.c
+		trigger = { NOT = { country_exists = GEO } }
 		ai_chance = { factor = 0}
-		GEO = { transfer_state = 231 change_tag_from = TRC }
+		GEO = { transfer_state = 231 change_tag_from = TRC set_country_flag = transcauc_georgia_separated }
 	}
 }
 
@@ -65,11 +69,8 @@ country_event = {
 		tag = TRC
 		date > 1918.5.27
 		is_ai = no
-		NOT = { TRC = { controls_state = 1016} } #Baku is controlled by a player, temporary.
-		OR = {
-			NOT = { has_war_with = GEO } #Fighting the Georgians
-			NOT = { owns_state = 231 } #Owns Georgia
-		}
+		OR = { AND = { NOT = { country_exists = ARM } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } } AND = { NOT = { country_exists = AZR } NOT = { country_exists = ARM } 229 = { is_owned_by = TRC is_controlled_by = TRC } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } } }
+		NOT = { has_war_with = GEO }
 	}
 
 	mean_time_to_happen = {
@@ -78,29 +79,24 @@ country_event = {
 
 	option = {
 		name = transcauc.2.a # For Armenia!
+		trigger = { NOT = { country_exists = ARM } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } }
 		ai_chance = {factor = 50}
-		GEO = { transfer_state = 231 }
-		BAK = { transfer_state = 1016 }
+		GEO = { if = { limit = { 231 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 231 } }
 		AZR = {
-			transfer_state = 229
-			load_oob = BAK_1918
-			if = {
-				limit = {
-					TRC = { controls_state = 1016}
-				}
-				transfer_state = 1016 #Controls Baku yet this event still pops up somehow? Meant for TRC rework
-			}
+			if = { limit = { 229 = { is_owned_by = TRC is_controlled_by = TRC } NOT = { country_exists = AZR } } transfer_state = 229 load_oob = AZR_1918_independence }
+			else_if = { limit = { 229 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 229 }
 		}
 		ARM = {
 			# Continue as Armenia instead of annexing the Transcaucasian
 			# Republic. The remaining states are transferred below.
 			change_tag_from = TRC
-			transfer_state = 230
-			transfer_state = 990
-			load_oob = "ARM_1918"
+			if = { limit = { 230 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 230 }
+			if = { limit = { 990 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 990 }
+			if = { limit = { 230 = { is_owned_by = ARM is_controlled_by = ARM } } load_oob = "ARM_1918" }
 			if = {
 				limit = {
 					country_exists = BAK
+					NOT = { has_war_with = BAK }
 				}
 				declare_war_on = {
 					target = BAK
@@ -108,6 +104,7 @@ country_event = {
 				}
 			}
 		}
+		if = { limit = { country_exists = AZR country_exists = ARM AZR = { NOT = { has_war_with = ARM } } }
 		AZR = {
 			declare_war_on = {
 				target = ARM
@@ -117,26 +114,26 @@ country_event = {
 			if = {
 				limit = {
 					country_exists = BAK
+					NOT = { has_war_with = BAK }
 				}
 				declare_war_on = {
 					target = BAK
 					type = annex_everything
 				}
 			}
-		}
+		} }
 	}
 	option = {
 		ai_chance = { factor = 50 }
 		name = transcauc.2.b # For Azerbaijan!
-		GEO = { transfer_state = 231 }
-		BAK = { transfer_state = 1016 }
+		trigger = { NOT = { country_exists = AZR } NOT = { country_exists = ARM } 229 = { is_owned_by = TRC is_controlled_by = TRC } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } }
+		GEO = { if = { limit = { 231 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 231 } }
 		ARM = {
-			transfer_state = 230
-			transfer_state = 990
-			load_oob = "ARM_1918"
+			if = { limit = { 230 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 230 }
+			if = { limit = { 990 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 990 }
+			if = { limit = { 230 = { is_owned_by = ARM is_controlled_by = ARM } } load_oob = "ARM_1918" }
 		}
 		AZR = {
-			transfer_state = 229
 			if = {
 				limit = {
 					ROOT = {is_ai = no}
@@ -144,6 +141,7 @@ country_event = {
 				change_tag_from = TRC
 			}
 		}
+		if = { limit = { country_exists = AZR country_exists = ARM AZR = { NOT = { has_war_with = ARM } } }
 		AZR = {
 			declare_war_on = {
 				target = ARM
@@ -153,13 +151,14 @@ country_event = {
 			if = {
 				limit = {
 					country_exists = BAK
+					NOT = { has_war_with = BAK }
 				}
 				declare_war_on = {
 					target = BAK
 					type = annex_everything
 				}
 			}
-		}
+		} }
 	}
 }
 
@@ -178,14 +177,14 @@ country_event = {
 		tag = GEO
 		NOT = { has_war_with = TRC } #Transcaucasian player refuses to allow independence. AI will always do so.
 		date > 1918.5.27
-		AND = {
-			tag = GER
-			tag = AUH
-			tag = TUR
-			tag = ARM
-			tag = AZR
-			tag = SOV
-		}
+		date < 1919.1.1
+		OR = { has_country_flag = transcauc_georgia_separated AND = { NOT = { has_start_date < 1918.5.26 } has_start_date < 1918.5.29 } }
+		is_in_faction = no
+		country_exists = GER
+		is_subject = no
+		NOT = { has_war_with = GER }
+		owns_state = 231
+		controls_state = 231
 	}
 
 	mean_time_to_happen = {
@@ -194,9 +193,14 @@ country_event = {
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = transcauc.3.a
+		ai_chance = { factor = 100 }
 		GER = {
 			puppet = GEO
 		}
+	}
+	option = {
+		name = transcauc.3.b
+		ai_chance = { factor = 50 modifier = { factor = 0 is_historical_focus_on = yes } }
 	}
 }
 
@@ -216,6 +220,8 @@ country_event = {
 		tag = TRC
 		date > 1918.4.13
 		NOT = { country_exists = BAK }
+		owns_state = 1016
+		controls_state = 1016
 	}
 
 	mean_time_to_happen = {
@@ -250,7 +256,8 @@ country_event = {
 country_event = {
 	id = transcauc.5
 	title = transcauc.5.t
-	desc = transcauc.5.d
+	desc = { trigger = { NOT = { has_capitulated = yes } } text = transcauc.5.held }
+	desc = { trigger = { has_capitulated = yes } text = transcauc.5.fallen }
 	picture = GFX_report_event_26commisars
 
 	fire_only_once = yes
@@ -261,12 +268,9 @@ country_event = {
 		NOT = { date > 1932.12.1 }
 		tag = BAK
 		date > 1918.7.26
-		OR = {
-			BAK = {
-				controls_state = 1016
-			}
-		has_capitulated = yes
-		}
+		owns_state = 1016
+		controls_state = 1016
+		NOT = { has_capitulated = yes }
 	}
 
 	mean_time_to_happen = {
@@ -296,9 +300,6 @@ country_event = {
 			traits = {
 				dictator
 			}
-		}
-		BAK = {
-			load_oob = "BAK_1918"
 		}
 	}
 }
@@ -345,7 +346,8 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		NOT = { date > 1932.12.1 }
 		date > 1920.2.9
-		tag = ROOT
+		tag = NOR
+		is_subject = no
 	}
 
 	mean_time_to_happen = { days = 1
@@ -373,7 +375,10 @@ country_event = {
 		NOT = { has_global_flag = central_powers_victory }
 		NOT = { date > 1932.12.1 }
 		date > 1921.5.23
-		tag = ROOT
+		tag = GER
+		has_global_flag = compiegne
+		has_war = no
+		has_government = democratic
 	}
 
 	mean_time_to_happen = { days = 1
@@ -401,7 +406,10 @@ country_event = {
 		NOT = { has_global_flag = central_powers_victory }
 		NOT = { date > 1932.12.1 }
 		date > 1920.1.23
-		tag = ROOT
+		tag = HOL
+		has_global_flag = compiegne
+		has_war = no
+		GER = { exists = yes has_government = democratic }
 	}
 
 	mean_time_to_happen = { days = 1
@@ -429,6 +437,8 @@ country_event = {
 		tag = TRC
 		date > 1918.5.28
 		is_ai = yes
+		NOT = { owns_state = 231 }
+		OR = { owns_state = 229 owns_state = 230 owns_state = 990 }
 	}
 
 	mean_time_to_happen = {
@@ -438,8 +448,13 @@ country_event = {
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = transcauc.10.a
-		release = AZR
-		release = ARM
+		if = { limit = { NOT = { country_exists = AZR } } release = AZR }
+		else = { AZR = { if = { limit = { 229 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 229 } } }
+		if = { limit = { NOT = { country_exists = ARM } } release = ARM }
+		else = { ARM = {
+			if = { limit = { 230 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 230 }
+			if = { limit = { 990 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 990 }
+		} }
 		every_state = {
 			limit = { is_core_of = TRC }
 			remove_core_of = TRC

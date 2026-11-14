@@ -12,6 +12,8 @@ import base64
 from functools import lru_cache
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 import zlib
 
@@ -337,6 +339,11 @@ def validate(game=None):
     errors, total = [], 0
     for name in SPEC['artwork']:
         master(name)
+    for relative in SPEC['native_inherited']:
+        if (ROOT / relative).exists():
+            errors.append(relative + ': a mod texture shadows the inherited vanilla asset')
+        if game and not (game / relative).is_file():
+            errors.append(relative + ': inherited vanilla texture is missing')
     for a in SPEC['assets']:
         p = ROOT/a['path']
         try:
@@ -349,7 +356,11 @@ def validate(game=None):
             errors.append(a['path']+': native dimensions changed')
         if digest(im.getchannel('A').tobytes()) != a['alpha_sha256']:
             errors.append(a['path']+': original alpha/click silhouette changed')
-        if im.tobytes() != build_asset(a).tobytes():
+        expected = a.get('vanilla_background_pixel_sha256')
+        if expected:
+            if digest(im.tobytes()) != expected:
+                errors.append(a['path']+': restored vanilla background or frame differs')
+        elif im.tobytes() != build_asset(a).tobytes():
             errors.append(a['path']+': does not match source component composition')
         fw = im.width//a['frames']
         states = {digest(im.crop((j*fw, 0, (j+1)*fw, im.height)).tobytes()) for j in range(a['frames'])}
@@ -378,10 +389,14 @@ def main():
     ap.add_argument('--report', type=Path)
     args = ap.parse_args()
     if not args.validate:
+        if not args.game:
+            ap.error('a vanilla game directory is required to rebuild backgrounds; supply --game')
         for a in SPEC['assets']:
             p = ROOT/a['path']
             p.parent.mkdir(parents=True, exist_ok=True)
             build_asset(a).save(p, format='DDS')
+        subprocess.run([sys.executable, str(ROOT/'tools/restore_vanilla_ui_backgrounds.py'),
+                        str(args.game), '--backup', str(ROOT/'work/endsieg_ui_before_vanilla_fill')], check=True)
     report = validate(args.game)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)

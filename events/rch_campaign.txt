@@ -29,17 +29,22 @@ country_event = {
 
 	option = {
 		name = rch_campaign.3.a
-		ai_chance = { factor = 3 }
+		ai_chance = { factor = 3 modifier = { factor = 0 is_historical_focus_on = yes } }
 		rch_settle_parliamentary = yes
 	}
 	option = {
 		name = rch_campaign.3.b
 		ai_chance = { factor = 4 }
-		rch_settle_beiyang = yes
+		if = {
+			limit = { has_country_leader = { name = "Yuan Shikai" ruling_only = yes } }
+			rch_settle_beiyang = yes
+			WW1_RCH_promote_yuan_emperor = yes
+		}
+		else = { rch_settle_beiyang = yes }
 	}
 	option = {
 		name = rch_campaign.3.c
-		ai_chance = { factor = 2 }
+		ai_chance = { factor = 2 modifier = { factor = 0 is_historical_focus_on = yes } }
 		rch_settle_kmt = yes
 	}
 }
@@ -48,7 +53,8 @@ country_event = {
 country_event = {
 	id = rch_campaign.4
 	title = rch_campaign.4.t
-	desc = rch_campaign.4.d
+	desc = { text = rch_campaign.4.friendly.d trigger = { is_in_faction_with = JAP } }
+	desc = { text = rch_campaign.4.d trigger = { NOT = { is_in_faction_with = JAP } } }
 	picture = GFX_report_event_shandong_uprising
 
 	is_triggered_only = yes
@@ -86,7 +92,8 @@ country_event = {
 country_event = {
 	id = rch_campaign.5
 	title = rch_campaign.5.t
-	desc = rch_campaign.5.d
+	desc = { text = rch_campaign.5.d trigger = { has_country_flag = rch_succession_yuan_died NOT = { has_country_leader = { name = "Yuan Shikai" ruling_only = yes } } } }
+	desc = { text = rch_campaign.5.alternative.d trigger = { OR = { NOT = { has_country_flag = rch_succession_yuan_died } has_country_leader = { name = "Yuan Shikai" ruling_only = yes } } } }
 	picture = GFX_report_event_yuan_shikai_dead
 
 	is_triggered_only = yes
@@ -121,7 +128,8 @@ country_event = {
 country_event = {
 	id = rch_campaign.6
 	title = rch_campaign.6.t
-	desc = rch_campaign.6.d
+	desc = { text = rch_campaign.6.d trigger = { has_government = democratic NOT = { country_exists = QIN } } }
+	desc = { text = rch_campaign.6.alternative.d trigger = { OR = { NOT = { has_government = democratic } country_exists = QIN } } }
 	picture = GFX_report_event_monarchy_revival
 
 	is_triggered_only = yes
@@ -160,7 +168,8 @@ country_event = {
 country_event = {
 	id = rch_campaign.8
 	title = rch_campaign.8.t
-	desc = rch_campaign.8.d
+	desc = { text = rch_campaign.8.d trigger = { country_exists = JAP 597 = { is_controlled_by = JAP } } }
+	desc = { text = rch_campaign.8.alternative.d trigger = { NOT = { AND = { country_exists = JAP 597 = { is_controlled_by = JAP } } } } }
 	picture = GFX_report_event_monarchy_revival
 
 	is_triggered_only = yes
@@ -253,6 +262,7 @@ country_event = {
 
 	option = {
 		name = rch_campaign.23.a
+		trigger = { country_exists = SOV NOT = { has_war_with = SOV } }
 		ai_chance = { factor = 3 }
 		add_to_variable = { rch_nationalist_support = constant:rch_story.nationalist_major_gain }
 		add_opinion_modifier = { target = SOV modifier = rch_soviet_understanding }
@@ -326,7 +336,8 @@ country_event = {
 country_event = {
 	id = rch_campaign.33
 	title = rch_campaign.33.t
-	desc = rch_campaign.33.d
+	desc = { text = rch_campaign.33.friendly.d trigger = { is_in_faction_with = JAP } }
+	desc = { text = rch_campaign.33.d trigger = { NOT = { is_in_faction_with = JAP } } }
 	picture = GFX_report_event_shandong_uprising
 
 	is_triggered_only = yes
@@ -393,21 +404,33 @@ country_event = {
 country_event = {
 	id = rch_campaign.42
 	title = rch_campaign.42.t
-	desc = rch_campaign.42.d
+	desc = { text = rch_campaign.42.already.d trigger = { has_global_flag = yuan_emperor } }
+	desc = { text = rch_campaign.42.d trigger = { NOT = { has_global_flag = yuan_emperor } } }
 	picture = GFX_report_event_monarchy_revival
 
 	is_triggered_only = yes
 
 	option = {
 		name = rch_campaign.42.b
-		ai_chance = { factor = 4 }
+		trigger = { NOT = { has_global_flag = yuan_emperor } WW1_RCH_can_proclaim_yuan_emperor = yes }
+		ai_chance = { factor = 4 modifier = { factor = 100 is_historical_focus_on = yes } }
+		if = { limit = { WW1_RCH_can_proclaim_yuan_emperor = yes } WW1_RCH_install_yuan_emperor = yes }
+		add_to_variable = { rch_legitimacy = constant:rch_story.throne_legitimacy_loss }
+		add_to_variable = { rch_military_influence = constant:rch_story.throne_military_step }
+		set_country_flag = rch_hongxian
+	}
+	option = {
+		name = rch_campaign.42.c
+		trigger = { has_global_flag = yuan_emperor }
+		ai_chance = { factor = 1 }
 		add_to_variable = { rch_legitimacy = constant:rch_story.throne_legitimacy_loss }
 		add_to_variable = { rch_military_influence = constant:rch_story.throne_military_step }
 		set_country_flag = rch_hongxian
 	}
 	option = {
 		name = rch_campaign.42.a
-		ai_chance = { factor = 1 }
+		trigger = { NOT = { has_global_flag = yuan_emperor } }
+		ai_chance = { factor = 1 modifier = { factor = 0 is_historical_focus_on = yes WW1_RCH_can_proclaim_yuan_emperor = yes } }
 		add_to_variable = { rch_legitimacy = constant:rch_story.throne_legitimacy_gain }
 		add_to_variable = { rch_nationalist_support = constant:rch_story.throne_nationalist_gain }
 		clr_country_flag = rch_gate_throne_refused

@@ -3,26 +3,293 @@ focus_tree = {
 	id = turkish_focus_ww1
 	country = { factor = 0 modifier = { add = 20000 tag = TUR date < 1936.1.1 has_start_date < 1936.1.1 } }
 	default = no
-	initial_show_position = { focus = TUR_industrial_effort }
-	continuous_focus_position = { x = 1500 y = 6000 }
-	shortcut = { name = OT1_R_industry_shortcut target = TUR_industrial_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = OT1_R_provinces_shortcut target = OT1_R_provincial_program scroll_wheel_factor = 0.4 }
-	shortcut = { name = OT1_R_politics_shortcut target = TUR_political_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = OT1_R_diplomacy_shortcut target = TUR_diplomatic_effort scroll_wheel_factor = 0.4 }
+	initial_show_position = { focus = OT1_national_opening }
 
-	shortcut = { name = OT1_R_navy_shortcut target = TUR_naval_effort scroll_wheel_factor = 0.4 }
-	shortcut = { name = OT1_R_air_shortcut target = TUR_form_airforce scroll_wheel_factor = 0.4 }
+	# Branch navigation
+	shortcut = { name = WW1_layout_overview_shortcut target = OT1_national_opening scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_government_shortcut target = TUR_political_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_diplomacy_shortcut target = TUR_diplomatic_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_imperial_affairs_shortcut target = OT1_R_provincial_program scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_industry_shortcut target = TUR_industrial_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_navy_shortcut target = TUR_naval_effort scroll_wheel_factor = 0.60 }
+shortcut = { name = WW1_layout_air_force_shortcut target = TUR_form_airforce scroll_wheel_factor = 0.60 }
+
+
+	continuous_focus_position = { x = 0 y = 2860 }
+
+	# Branch navigation
+
+
 	focus = {
-  id = TUR_political_effort
-  icon = GFX_focus_generic_monarchy_1
-  x = 40
-  y = 0
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 10 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_national_opening
+		icon = GFX_focus_generic_worker_administration
+		x = 29
+		y = 0
+		cost = 3
+		bypass = { OR = { has_completed_focus = OT1_R_provincial_program has_completed_focus = TUR_political_effort has_completed_focus = TUR_diplomatic_effort } }
+		ai_will_do = { factor = 50 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { add_political_power = 20 }
+	}
+
+	focus = {
+		prerequisite = { focus = OT1_national_opening }
+		id = OT1_R_provincial_program
+		icon = GFX_goal_generic_construct_civilian
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes }
+			has_completed_focus = OT1_national_opening
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            add_tech_bonus = { name = OT1_R_provincial_program bonus = 0.25 uses = 1 category = construction_tech }
+
+            custom_effect_tooltip = TUR_stab_unlock_services_tt
+        }
+		relative_position_id = OT1_national_opening
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_meso_provincial
+		icon = GFX_goal_generic_construct_infrastructure
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 291 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 291 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_meso_provincial bonus = 0.25 uses = 1 category = construction_tech }
+        }
+		prerequisite = { focus = OT1_R_provincial_program }
+		relative_position_id = OT1_R_provincial_program
+		x = -9
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_istanbul_municipal
+		icon = GFX_focus_BEL_engine_of_the_economy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 797 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 797 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_istanbul_municipal bonus = 0.25 uses = 1 category = construction_tech }
+        }
+		prerequisite = { focus = OT1_R_provincial_program }
+		relative_position_id = OT1_R_provincial_program
+		x = -2
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_hejaz_stations
+		icon = GFX_focus_generic_modernize_industry
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 679 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 679 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 679 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 679 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_hejaz_stations bonus = 0.25 uses = 1 category = construction_tech }
+
+            custom_effect_tooltip = TUR_stab_unlock_food_tt
+        }
+		prerequisite = { focus = OT1_R_provincial_program }
+		relative_position_id = OT1_R_provincial_program
+		x = 6
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_prov_anatolian_roads
+		icon = GFX_focus_generic_improve_roads
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 49 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_prov_anatolian_roads bonus = 0.25 uses = 1 category = construction_tech }
+        }
+		prerequisite = { focus = OT1_R_provincial_program }
+		relative_position_id = OT1_R_provincial_program
+		x = 4
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_syria_depots
+		icon = GFX_focus_generic_reinforcing_the_supply_network
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 677 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 677 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 677 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 677 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_syria_depots bonus = 0.25 uses = 1 category = industry }
+        }
+		prerequisite = { focus = OT1_R_provincial_program }
+		relative_position_id = OT1_R_provincial_program
+		x = 8
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_mosul_service
+		icon = GFX_goal_generic_oil_refinery
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 676 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 676 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 676 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 676 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_mosul_service bonus = 0.25 uses = 1 category = industry }
+        }
+		prerequisite = { focus = OT1_R_meso_provincial }
+		relative_position_id = OT1_R_meso_provincial
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_basra_landing
+		icon = GFX_focus_JAP_rely_on_infantry_charges
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 291 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 291 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_basra_landing bonus = 0.25 uses = 1 category = industry }
+        }
+		prerequisite = { focus = OT1_R_meso_provincial }
+		relative_position_id = OT1_R_meso_provincial
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_erzurum_roads
+		icon = GFX_goal_generic_construction2
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 353 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 353 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 353 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 353 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_erzurum_roads bonus = 0.25 uses = 1 category = construction_tech }
+        }
+		prerequisite = { focus = OT1_R_hejaz_stations }
+		relative_position_id = OT1_R_hejaz_stations
+		x = -8
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_konya_grain
+		icon = GFX_focus_generic_agricultural_subsidies
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 346 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 346 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 346 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 346 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_konya_grain bonus = 0.25 uses = 1 category = industry }
+
+            custom_effect_tooltip = TUR_stab_unlock_food_tt
+        }
+		prerequisite = { focus = OT1_R_prov_anatolian_roads }
+		relative_position_id = OT1_R_prov_anatolian_roads
+		x = -2
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_prov_ankara
+		icon = GFX_goal_generic_production2
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 49 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_prov_ankara bonus = 0.25 uses = 1 category = industry }
+        }
+		prerequisite = { focus = OT1_R_prov_anatolian_roads }
+		relative_position_id = OT1_R_prov_anatolian_roads
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_damascus_rail
+		icon = GFX_focus_SIA_night_time_training
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 554 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 554 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 554 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 554 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_damascus_rail bonus = 0.25 uses = 1 category = construction_tech }
+        }
+		prerequisite = { focus = OT1_R_syria_depots }
+		relative_position_id = OT1_R_syria_depots
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = OT1_R_konya_grain }
+		prerequisite = { focus = OT1_R_erzurum_roads }
+		id = OT1_R_samsun_coast
+		icon = GFX_focus_INS_guided_economy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 355 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 355 }
+			has_completed_focus = OT1_R_konya_grain
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 355 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 355 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_samsun_coast bonus = 0.25 uses = 1 category = industry }
+        }
+		relative_position_id = OT1_R_erzurum_roads
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_adana_cotton
+		icon = GFX_goal_generic_construct_mil_factory
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 344 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 344 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 344 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 344 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_adana_cotton bonus = 0.25 uses = 1 category = industry }
+        }
+		prerequisite = { focus = OT1_R_prov_ankara }
+		relative_position_id = OT1_R_prov_ankara
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = TUR_political_effort
+		icon = GFX_focus_generic_monarchy_1
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             custom_effect_tooltip = WW1_historical_focus_tt
             OT1_R_initialize_administration = yes
 
@@ -31,632 +298,827 @@ focus_tree = {
   custom_effect_tooltip = TUR_stab_unlock_budgets_tt custom_effect_tooltip = TUR_stab_unlock_registers_tt
   OT1_R_reconcile_army_reform = yes
   }
- }
+		prerequisite = { focus = OT1_national_opening }
+		relative_position_id = OT1_national_opening
+		x = -22
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_constitutional_procedures
-  icon = GFX_focus_renounce_the_treaty_of_trianon
-  relative_position_id = TUR_political_effort
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_political_effort }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_constitutional_procedures
+		icon = GFX_focus_renounce_the_treaty_of_trianon
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             custom_effect_tooltip = WW1_historical_focus_tt
             add_timed_idea = { idea = OT1_R_constitutional_council_spirit days = 180 } add_to_variable = { OT1_R_cabinet_authority = 4 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
 
             custom_effect_tooltip = TUR_stab_unlock_consult_tt
         }
- }
+		prerequisite = { focus = TUR_political_effort }
+		relative_position_id = TUR_political_effort
+		x = 1
+		y = 2
+	}
 
 	focus = {
-  id = TUR_pro_young_turk
-  icon = GFX_goal_generic_propaganda
-  relative_position_id = OT1_R_constitutional_procedures
-  x = -3
-  y = 1
-  prerequisite = { focus = OT1_R_constitutional_procedures }
-  mutually_exclusive = { focus = OT1_R_liberal_government }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = OT1_R_liberal_government } NOT = { has_completed_focus = TUR_anti_young_turk } NOT = { has_completed_focus = TUR_ottoman_identity } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 9 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = TUR_pro_young_turk
+		icon = GFX_goal_generic_propaganda
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = OT1_R_liberal_government } NOT = { has_completed_focus = TUR_anti_young_turk } NOT = { has_completed_focus = TUR_ottoman_identity } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 9 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             custom_effect_tooltip = WW1_historical_focus_tt OT1_R_initialize_administration = yes OT1_R_choose_unionists = yes add_popularity = { ideology = neutrality popularity = 0.05 } WW1_support_neutrality_programme = yes country_event = { id = ww1_turkey.34 hours = 1 } }
- }
+		prerequisite = { focus = OT1_R_constitutional_procedures }
+		mutually_exclusive = { focus = OT1_R_liberal_government }
+		relative_position_id = OT1_R_constitutional_procedures
+		x = -5
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_liberal_government
-  icon = GFX_focus_generic_coal_mining
-  relative_position_id = OT1_R_constitutional_procedures
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_constitutional_procedures }
-  mutually_exclusive = { focus = TUR_anti_young_turk focus = TUR_pro_young_turk }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = TUR_pro_young_turk } NOT = { has_completed_focus = TUR_anti_young_turk } NOT = { has_completed_focus = TUR_ottoman_identity } NOT = { date < 1911.11.21 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_liberal_government
+		icon = GFX_focus_generic_coal_mining
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = TUR_pro_young_turk } NOT = { has_completed_focus = TUR_anti_young_turk } NOT = { has_completed_focus = TUR_ottoman_identity } NOT = { date < 1911.11.21 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             OT1_R_choose_liberals = yes country_event = { id = ww1_turkey.300 days = 1 }
 
             add_popularity = { ideology = democratic popularity = 0.05 }
             WW1_support_democratic_programme = yes
         }
- }
+		prerequisite = { focus = OT1_R_constitutional_procedures }
+		mutually_exclusive = { focus = TUR_anti_young_turk }
+		mutually_exclusive = { focus = TUR_pro_young_turk }
+		relative_position_id = OT1_R_constitutional_procedures
+		x = -3
+		y = 1
+	}
+
 	focus = {
-  id = TUR_anti_young_turk
-  icon = GFX_focus_generic_monarchist_sentiment
-  relative_position_id = OT1_R_constitutional_procedures
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_constitutional_procedures }
-  mutually_exclusive = { focus = OT1_R_liberal_government focus = TUR_ottoman_identity }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = TUR_pro_young_turk } NOT = { has_completed_focus = OT1_R_liberal_government } NOT = { has_completed_focus = TUR_ottoman_identity } OT1_P_may_seek_restoration = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = { OT1_P_begin_restoration = yes }
- }
+		id = TUR_anti_young_turk
+		icon = GFX_focus_generic_monarchist_sentiment
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = TUR_pro_young_turk } NOT = { has_completed_focus = OT1_R_liberal_government } NOT = { has_completed_focus = TUR_ottoman_identity } OT1_P_may_seek_restoration = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { OT1_P_begin_restoration = yes }
+		prerequisite = { focus = OT1_R_constitutional_procedures }
+		mutually_exclusive = { focus = OT1_R_liberal_government }
+		mutually_exclusive = { focus = TUR_ottoman_identity }
+		relative_position_id = OT1_R_constitutional_procedures
+		x = -1
+		y = 1
+	}
+
 	focus = {
-  id = TUR_ottoman_identity
-  icon = GFX_focus_SWI_dissolve_the_federal_council
-  relative_position_id = OT1_R_constitutional_procedures
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_constitutional_procedures }
-  mutually_exclusive = { focus = TUR_anti_young_turk }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = TUR_pro_young_turk } NOT = { has_completed_focus = OT1_R_liberal_government } NOT = { has_completed_focus = TUR_anti_young_turk } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = TUR_ottoman_identity
+		icon = GFX_focus_SWI_dissolve_the_federal_council
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_completed_focus = TUR_pro_young_turk } NOT = { has_completed_focus = OT1_R_liberal_government } NOT = { has_completed_focus = TUR_anti_young_turk } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             OT1_R_choose_federalists = yes country_event = { id = ww1_turkey.40 days = 1 }
 
             add_popularity = { ideology = democratic popularity = 0.05 }
         }
- }
-	focus = {
-  id = TUR_1913_coup
-  icon = GFX_goal_generic_political_pressure
-  relative_position_id = OT1_P_committee_clubs
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_P_committee_clubs }
-  prerequisite = { focus = OT1_P_officer_cadres }
-  cost = 5
-  available = { OT1_P_ittihadist = yes NOT = { date < 1913.1.23 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_turkey.35 days = 1 }
-        }
-  bypass = { has_country_flag = OT1_R_coup_resolved }
- }
-	focus = {
-  id = OT1_R_unionist_secretariat
-  icon = GFX_focus_generic_self_management
-  relative_position_id = TUR_1913_coup
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_1913_coup }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt add_ideas = OT1_P_cup_organisation add_to_variable = { OT1_R_cabinet_authority = 5 } add_to_variable = { OT1_R_officer_loyalty = 2 } OT1_R_refresh_administration = yes country_event = { id = ww1_ottoman_politics.10 hours = 1 } country_event = { id = ww1_ottoman_politics.13 days = 120 } }
- }
-	focus = {
-  id = OT1_R_said_halim_cabinet
-  icon = GFX_focus_generic_government_in_exile
-  relative_position_id = TUR_1913_coup
-  x = -2
-  y = 1
-  prerequisite = { focus = TUR_1913_coup }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.6.12 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_turkey.301 days = 1 }
-        }
-  bypass = { has_country_flag = OT1_R_said_halim_served }
- }
-	focus = {
-  id = TUR_reforms_1
-  icon = GFX_focus_CZE_coalition_building
-  relative_position_id = OT1_R_unionist_secretariat
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_unionist_secretariat }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_turkey.36 days = 1 }
-        }
- }
-	focus = {
-  id = OT1_R_school_inspectorates
-  icon = GFX_focus_NORDIC_dem_institution_2
-  relative_position_id = TUR_reforms_1
-  x = 1
-  y = 1
-  prerequisite = { focus = TUR_reforms_1 }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL  FOCUS_FILTER_RESEARCH }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
+		prerequisite = { focus = OT1_R_constitutional_procedures }
+		mutually_exclusive = { focus = TUR_anti_young_turk }
+		relative_position_id = OT1_R_constitutional_procedures
+		x = 1
+		y = 1
+	}
 
-            if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = OT1_R_school_inspectorates_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+	focus = {
+		id = OT1_P_committee_clubs
+		icon = GFX_focus_generic_workers
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt add_political_power = 20 add_to_variable = { OT1_R_cabinet_authority = 3 } OT1_R_refresh_administration = yes }
+		bypass = { has_country_flag = OT1_R_coup_resolved }
+		prerequisite = { focus = TUR_pro_young_turk }
+		relative_position_id = TUR_pro_young_turk
+		x = -1
+		y = 2
+	}
 
-            custom_effect_tooltip = TUR_stab_unlock_services_tt
-        }
- }
 	focus = {
-  id = TUR_turkish_nationalism
-  icon = GFX_focus_generic_happy_cheer
-  relative_position_id = OT1_R_school_inspectorates
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_P_national_credit_focus }
-  prerequisite = { focus = OT1_R_school_inspectorates }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_turkey.39 days = 1 }
-        }
- }
+		id = OT1_P_officer_cadres
+		icon = GFX_focus_generic_support_the_left_right
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt army_experience = 10 add_to_variable = { OT1_R_officer_loyalty = 3 } OT1_R_refresh_administration = yes }
+		bypass = { has_country_flag = OT1_R_coup_resolved }
+		prerequisite = { focus = TUR_pro_young_turk }
+		relative_position_id = TUR_pro_young_turk
+		x = 1
+		y = 2
+	}
+
 	focus = {
-  id = OT1_R_wartime_directorate
-  icon = GFX_focus_generic_vote
-  relative_position_id = OT1_R_said_halim_cabinet
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_R_said_halim_cabinet }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 OT1_R_war_programmes_allowed = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_timed_idea = { idea = OT1_R_wartime_cabinet_spirit days = 180 } add_to_variable = { OT1_R_cabinet_authority = 4 }  add_to_variable = { OT1_R_officer_loyalty = 3 } OT1_R_refresh_administration = yes
-        }
- }
-	focus = {
-  id = OT1_R_talat_cabinet
-  icon = GFX_focus_NOR_restore_public_trust_in_the_storting
-  relative_position_id = OT1_R_wartime_directorate
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_wartime_directorate }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1917.2.4 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = { id = ww1_turkey.302 days = 1 }
-        }
-  bypass = { has_country_flag = OT1_R_talat_cabinet }
- }
-	focus = {
-  id = OT1_R_ministerial_review
-  icon = GFX_focus_eng_concessions_to_the_trade_unions
-  relative_position_id = TUR_turkish_nationalism
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_turkish_nationalism }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            add_to_variable = { OT1_R_cabinet_authority = -4 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes add_political_power = 20
-        }
- }
-	focus = {
-  id = OT1_R_unionist_responsibility
-  icon = GFX_goal_generic_national_unity
-  relative_position_id = OT1_P_municipal_organisations
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_P_municipal_organisations focus = OT1_P_unified_war_ministry }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt add_to_variable = { OT1_R_cabinet_authority = 3 } add_to_variable = { OT1_R_officer_loyalty = 2 } OT1_R_refresh_administration = yes add_stability = 0.01 }
- }
-	focus = {
-  id = OT1_R_parliamentary_ministry
-  icon = GFX_focus_generic_reduce_unneccessary_expenditure
-  relative_position_id = OT1_R_liberal_government
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_liberal_government }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_parliamentary_ministry
+		icon = GFX_focus_generic_reduce_unneccessary_expenditure
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             add_timed_idea = { idea = OT1_R_parliamentary_ministry_spirit days = 180 } add_to_variable = { OT1_R_cabinet_authority = 4 }  add_to_variable = { OT1_R_officer_loyalty = -3 } OT1_R_refresh_administration = yes
 
   custom_effect_tooltip = TUR_stab_unlock_budgets_tt
   }
- }
-	focus = {
-  id = OT1_R_provincial_elections
-  icon = GFX_focus_generic_election
-  relative_position_id = OT1_R_parliamentary_ministry
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_parliamentary_ministry }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            add_to_variable = { OT1_R_cabinet_authority = -5 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
-        }
- }
+		prerequisite = { focus = OT1_R_liberal_government }
+		relative_position_id = OT1_R_liberal_government
+		x = 1
+		y = 2
+	}
 
 	focus = {
-  id = OT1_R_civilian_oversight
-  icon = GFX_goal_generic_defence
-  relative_position_id = OT1_R_parliamentary_ministry
-  x = -3
-  y = 1
-  prerequisite = { focus = OT1_R_parliamentary_ministry }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = TUR_anti_YT_coup
+		icon = GFX_focus_generic_home_defense
+		cost = 5
+		available = { OT1_P_active = yes has_country_flag = OT1_R_palace_path OR = { OT1_P_hamid_living = yes has_country_flag = OT1_P_restoration_lapsed } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = { id = ww1_turkey.30 days = 1 }
+        }
+		bypass = { has_country_flag = OT1_P_restoration_lapsed }
+		prerequisite = { focus = TUR_anti_young_turk }
+		relative_position_id = TUR_anti_young_turk
+		x = 2
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_equal_protection
+		icon = GFX_focus_FIN_finnish_federation_of_trade_unions
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_OT1_R_equal_citizenship_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_OT1_R_equal_citizenship_spirit } add_stability = 0.02 } add_to_variable = { OT1_R_cabinet_authority = -3 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
+        }
+		prerequisite = { focus = TUR_ottoman_identity }
+		relative_position_id = TUR_ottoman_identity
+		x = 4
+		y = 2
+	}
+
+	focus = {
+		id = TUR_1913_coup
+		icon = GFX_goal_generic_political_pressure
+		cost = 5
+		available = { OT1_P_ittihadist = yes NOT = { date < 1913.1.23 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_turkey.35 days = 1 }
+        }
+		bypass = { has_country_flag = OT1_R_coup_resolved }
+		prerequisite = { focus = OT1_P_committee_clubs }
+		prerequisite = { focus = OT1_P_officer_cadres }
+		relative_position_id = OT1_P_committee_clubs
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_civilian_oversight
+		icon = GFX_goal_generic_defence
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
              add_to_variable = { OT1_R_cabinet_authority = 3 }  add_to_variable = { OT1_R_officer_loyalty = -5 } OT1_R_refresh_administration = yes
 
   add_stability = 0.03
   }
- }
+		prerequisite = { focus = OT1_R_parliamentary_ministry }
+		relative_position_id = OT1_R_parliamentary_ministry
+		x = -2
+		y = 1
+	}
 
 	focus = {
-  id = OT1_R_civil_service_pact
-  icon = GFX_focus_ARG_defense_and_democracy
-  relative_position_id = OT1_R_civilian_oversight
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_civilian_oversight }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_provincial_elections
+		icon = GFX_focus_generic_election
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            add_to_variable = { OT1_R_cabinet_authority = -5 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
+        }
+		prerequisite = { focus = OT1_R_parliamentary_ministry }
+		relative_position_id = OT1_R_parliamentary_ministry
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_P_revisit_deposition
+		icon = GFX_focus_generic_treaty
+		cost = 5
+		available = { OT1_P_restoration_campaign = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = { country_event = { id = ww1_ottoman_politics.1 hours = 1 } custom_effect_tooltip = OT1_P_notables_unlocked_tt }
+		bypass = { has_country_flag = OT1_P_restoration_lapsed }
+		prerequisite = { focus = TUR_anti_YT_coup }
+		relative_position_id = TUR_anti_YT_coup
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_provincial_charters
+		icon = GFX_focus_ETH_re-convene_the_parliament
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+             add_to_variable = { OT1_R_cabinet_authority = -5 }  add_to_variable = { OT1_R_officer_loyalty = -3 } OT1_R_refresh_administration = yes
+
+  add_stability = 0.03
+  }
+		prerequisite = { focus = OT1_R_equal_protection }
+		relative_position_id = OT1_R_equal_protection
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_millet_consultation
+		icon = GFX_focus_POL_complete_april_constitution
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            add_to_variable = { OT1_R_cabinet_authority = -3 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
+
+            custom_effect_tooltip = TUR_stab_unlock_consult_tt
+        }
+		prerequisite = { focus = OT1_R_equal_protection }
+		relative_position_id = OT1_R_equal_protection
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_said_halim_cabinet
+		icon = GFX_focus_generic_government_in_exile
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1913.6.12 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_turkey.301 days = 1 }
+        }
+		bypass = { has_country_flag = OT1_R_said_halim_served }
+		prerequisite = { focus = TUR_1913_coup }
+		relative_position_id = TUR_1913_coup
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_unionist_secretariat
+		icon = GFX_focus_generic_self_management
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt add_ideas = OT1_P_cup_organisation add_to_variable = { OT1_R_cabinet_authority = 5 } add_to_variable = { OT1_R_officer_loyalty = 2 } OT1_R_refresh_administration = yes country_event = { id = ww1_ottoman_politics.10 hours = 1 } country_event = { id = ww1_ottoman_politics.13 days = 120 } }
+		prerequisite = { focus = TUR_1913_coup }
+		relative_position_id = TUR_1913_coup
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_civil_service_pact
+		icon = GFX_focus_ARG_defense_and_democracy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
              add_to_variable = { OT1_R_cabinet_authority = 4 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
 
             custom_effect_tooltip = TUR_stab_unlock_registers_tt
 
   add_stability = 0.02
   }
- }
+		prerequisite = { focus = OT1_R_civilian_oversight }
+		relative_position_id = OT1_R_civilian_oversight
+		x = 0
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_constitutional_coalition
-  icon = GFX_focus_PER_constitutional_monarchy
-  relative_position_id = OT1_R_provincial_elections
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_provincial_elections }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_cabinet_authority > 39 } check_variable = { OT1_R_provincial_confidence > 39 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_constitutional_coalition
+		icon = GFX_focus_PER_constitutional_monarchy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_cabinet_authority > 39 } check_variable = { OT1_R_provincial_confidence > 39 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
              country_event = { id = ww1_turkey.303 days = 1 }
 
             custom_effect_tooltip = TUR_stab_unlock_compact_tt
 
   add_stability = 0.03
   }
- }
-	focus = {
-  id = TUR_anti_YT_coup
-  icon = GFX_focus_generic_home_defense
-  relative_position_id = TUR_anti_young_turk
-  x = 1
-  y = 1
-  prerequisite = { focus = TUR_anti_young_turk }
-  cost = 5
-  available = { OT1_P_active = yes has_country_flag = OT1_R_palace_path OR = { OT1_P_hamid_living = yes has_country_flag = OT1_P_restoration_lapsed } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = { id = ww1_turkey.30 days = 1 }
-        }
-  bypass = { has_country_flag = OT1_P_restoration_lapsed }
- }
+		prerequisite = { focus = OT1_R_provincial_elections }
+		relative_position_id = OT1_R_provincial_elections
+		x = 1
+		y = 1
+	}
 
 	focus = {
-  id = TUR_abolish_constitution
-  icon = GFX_focus_generic_monarchist_workers
-  relative_position_id = OT1_P_return_to_yildiz
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_P_return_to_yildiz }
-  mutually_exclusive = { focus = OT1_R_constitutional_crown }
-  cost = 5
-  available = { OT1_P_palace_settled = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_P_return_to_yildiz
+		icon = GFX_focus_generic_monarchy_2
+		cost = 5
+		available = { custom_trigger_tooltip = { tooltip = OT1_P_accession_ready_tt OT1_P_may_restore = yes } }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = { OT1_P_restore_sultan = yes }
+		bypass = { has_country_flag = OT1_P_restoration_lapsed }
+		prerequisite = { focus = OT1_P_revisit_deposition }
+		relative_position_id = OT1_P_revisit_deposition
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_arab_councils
+		icon = GFX_goal_support_democracy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_provincial_confidence > 54 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = { id = ww1_turkey.304 days = 1 }
+
+  custom_effect_tooltip = TUR_stab_unlock_budgets_tt
+  }
+		prerequisite = { focus = OT1_R_provincial_charters }
+		relative_position_id = OT1_R_provincial_charters
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_armenian_reform_commission
+		icon = GFX_focus_generic_commission
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { owns_state = 352 owns_state = 353 owns_state = 354 owns_state = 1033 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = { id = ww1_turkey.306 days = 1 }
+        }
+		prerequisite = { focus = OT1_R_millet_consultation }
+		relative_position_id = OT1_R_millet_consultation
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_albanian_councils
+		icon = GFX_focus_generic_improve_the_administration
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { owns_state = 44 owns_state = 934 owns_state = 1037 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = { id = ww1_turkey.305 days = 1 }
+        }
+		prerequisite = { focus = OT1_R_millet_consultation }
+		relative_position_id = OT1_R_millet_consultation
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_wartime_directorate
+		icon = GFX_focus_generic_vote
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 OT1_R_war_programmes_allowed = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            add_timed_idea = { idea = OT1_R_wartime_cabinet_spirit days = 180 } add_to_variable = { OT1_R_cabinet_authority = 4 }  add_to_variable = { OT1_R_officer_loyalty = 3 } OT1_R_refresh_administration = yes
+        }
+		prerequisite = { focus = OT1_R_said_halim_cabinet }
+		relative_position_id = OT1_R_said_halim_cabinet
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = TUR_reforms_1
+		icon = GFX_focus_CZE_coalition_building
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_turkey.36 days = 1 }
+        }
+		prerequisite = { focus = OT1_R_unionist_secretariat }
+		relative_position_id = OT1_R_unionist_secretariat
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = TUR_abolish_constitution
+		icon = GFX_focus_generic_monarchist_workers
+		cost = 5
+		available = { OT1_P_palace_settled = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             country_event = { id = ww1_turkey.31 days = 1 }
         }
- }
+		prerequisite = { focus = OT1_P_return_to_yildiz }
+		mutually_exclusive = { focus = OT1_R_constitutional_crown }
+		relative_position_id = OT1_P_return_to_yildiz
+		x = 0
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_constitutional_crown
-  icon = GFX_focus_generic_sympathetic_judges
-  relative_position_id = OT1_P_return_to_yildiz
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_P_return_to_yildiz }
-  mutually_exclusive = { focus = TUR_abolish_constitution }
-  cost = 5
-  available = { OT1_P_palace_settled = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = { remove_ideas = OT1_P_reserved_powers add_ideas = OT1_P_bound_crown add_to_variable = { OT1_R_cabinet_authority = -3 } add_to_variable = { OT1_R_provincial_confidence = 5 } OT1_R_refresh_administration = yes add_popularity = { ideology = neutrality popularity = 0.03 } }
- }
+		id = OT1_R_constitutional_crown
+		icon = GFX_focus_generic_sympathetic_judges
+		cost = 5
+		available = { OT1_P_palace_settled = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { remove_ideas = OT1_P_reserved_powers add_ideas = OT1_P_bound_crown add_to_variable = { OT1_R_cabinet_authority = -3 } add_to_variable = { OT1_R_provincial_confidence = 5 } OT1_R_refresh_administration = yes add_popularity = { ideology = neutrality popularity = 0.03 } }
+		prerequisite = { focus = OT1_P_return_to_yildiz }
+		mutually_exclusive = { focus = TUR_abolish_constitution }
+		relative_position_id = OT1_P_return_to_yildiz
+		x = 2
+		y = 1
+	}
+
 	focus = {
-  id = TUR_restore_caliphate
-  icon = GFX_focus_generic_islamic_propaganda
-  relative_position_id = TUR_abolish_constitution
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_abolish_constitution }
-  cost = 5
-  available = { OT1_P_palace_settled = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_federal_convention
+		icon = GFX_focus_generic_world_peace
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_cabinet_authority > 44 } check_variable = { OT1_R_provincial_confidence > 59 } check_variable = { OT1_R_officer_loyalty > 39 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = { id = ww1_turkey.307 days = 1 }
+        }
+		prerequisite = { focus = OT1_R_armenian_reform_commission }
+		relative_position_id = OT1_R_armenian_reform_commission
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_talat_cabinet
+		icon = GFX_focus_NOR_restore_public_trust_in_the_storting
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1917.2.4 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_turkey.302 days = 1 }
+        }
+		bypass = { has_country_flag = OT1_R_talat_cabinet }
+		prerequisite = { focus = OT1_R_wartime_directorate }
+		relative_position_id = OT1_R_wartime_directorate
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_P_national_credit_focus
+		icon = GFX_focus_CHI_promote_national_currency
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt add_ideas = OT1_P_national_credit custom_effect_tooltip = OT1_P_procurement_unlocked_tt }
+		prerequisite = { focus = TUR_reforms_1 }
+		relative_position_id = TUR_reforms_1
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_school_inspectorates
+		icon = GFX_focus_NORDIC_dem_institution_2
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL  FOCUS_FILTER_RESEARCH }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+
+            if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = OT1_R_school_inspectorates_research_capacity_bonus bonus = 0.5 uses = 1 category = industry } }
+
+            custom_effect_tooltip = TUR_stab_unlock_services_tt
+        }
+		prerequisite = { focus = TUR_reforms_1 }
+		relative_position_id = TUR_reforms_1
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = TUR_restore_caliphate
+		icon = GFX_focus_generic_islamic_propaganda
+		cost = 5
+		available = { OT1_P_palace_settled = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             country_event = { id = ww1_turkey.33 days = 1 }
         }
- }
+		prerequisite = { focus = TUR_abolish_constitution }
+		relative_position_id = TUR_abolish_constitution
+		x = 0
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_religious_services
-  icon = GFX_focus_generic_welfare
-  relative_position_id = OT1_R_constitutional_crown
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_constitutional_crown }
-  cost = 5
-  available = { OT1_P_palace_settled = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_religious_services
+		icon = GFX_focus_generic_welfare
+		cost = 5
+		available = { OT1_P_palace_settled = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
 
             custom_effect_tooltip = TUR_stab_unlock_relief_tt
 
   add_stability = 0.02
   }
- }
-	focus = {
-  id = OT1_R_crown_porte_council
-  icon = GFX_focus_TUR_pivot_to_the_past
-  relative_position_id = TUR_restore_caliphate
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_religious_services focus = TUR_restore_caliphate }
-  cost = 5
-  available = { OT1_P_palace_settled = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = { add_to_variable = { OT1_R_cabinet_authority = 4 } add_to_variable = { OT1_R_officer_loyalty = 2 } OT1_R_refresh_administration = yes remove_ideas = OT1_P_contested_restoration
-  custom_effect_tooltip = TUR_stab_unlock_registers_tt
-  }
- }
-	focus = {
-  id = OT1_R_imperial_arbitration
-  icon = GFX_focus_generic_industry_2
-  relative_position_id = OT1_R_crown_porte_council
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_crown_porte_council }
-  cost = 8
-  available = { OT1_P_palace_settled = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = { add_ideas = OT1_P_renewed_imperial_service if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = OT1_P_imperial_arbitration_bonus bonus = 0.5 uses = 1 category = industry } } add_to_variable = { OT1_R_provincial_confidence = 3 } OT1_R_refresh_administration = yes }
- }
-	focus = {
-  id = OT1_R_equal_protection
-  icon = GFX_focus_FIN_finnish_federation_of_trade_unions
-  relative_position_id = TUR_ottoman_identity
-  x = 1
-  y = 1
-  prerequisite = { focus = TUR_ottoman_identity }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            add_timed_idea = { idea = OT1_R_equal_citizenship_spirit days = 180 } add_to_variable = { OT1_R_cabinet_authority = -3 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
-        }
- }
-	focus = {
-  id = OT1_R_provincial_charters
-  icon = GFX_focus_ETH_re-convene_the_parliament
-  relative_position_id = OT1_R_equal_protection
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_equal_protection }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-             add_to_variable = { OT1_R_cabinet_authority = -5 }  add_to_variable = { OT1_R_officer_loyalty = -3 } OT1_R_refresh_administration = yes
-
-  add_stability = 0.03
-  }
- }
-	focus = {
-  id = OT1_R_millet_consultation
-  icon = GFX_focus_POL_complete_april_constitution
-  relative_position_id = OT1_R_equal_protection
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_equal_protection }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            add_to_variable = { OT1_R_cabinet_authority = -3 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes
-
-            custom_effect_tooltip = TUR_stab_unlock_consult_tt
-        }
- }
-	focus = {
-  id = OT1_R_arab_councils
-  icon = GFX_goal_support_democracy
-  relative_position_id = OT1_R_provincial_charters
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_provincial_charters }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_provincial_confidence > 54 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = { id = ww1_turkey.304 days = 1 }
-
-  custom_effect_tooltip = TUR_stab_unlock_budgets_tt
-  }
- }
-	focus = {
-  id = OT1_R_albanian_councils
-  icon = GFX_focus_generic_improve_the_administration
-  relative_position_id = OT1_R_millet_consultation
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_R_millet_consultation }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { owns_state = 44 owns_state = 934 owns_state = 1037 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = { id = ww1_turkey.305 days = 1 }
-        }
- }
-	focus = {
-  id = OT1_R_armenian_reform_commission
-  icon = GFX_focus_generic_commission
-  relative_position_id = OT1_R_millet_consultation
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_millet_consultation }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 OR = { owns_state = 352 owns_state = 353 owns_state = 354 owns_state = 1033 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = { id = ww1_turkey.306 days = 1 }
-        }
- }
+		prerequisite = { focus = OT1_R_constitutional_crown }
+		relative_position_id = OT1_R_constitutional_crown
+		x = 0
+		y = 1
+	}
 
 	focus = {
-  id = OT1_R_federal_convention
-  icon = GFX_focus_generic_world_peace
-  relative_position_id = OT1_R_armenian_reform_commission
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_armenian_reform_commission }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_cabinet_authority > 44 } check_variable = { OT1_R_provincial_confidence > 59 } check_variable = { OT1_R_officer_loyalty > 39 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = { id = ww1_turkey.307 days = 1 }
-        }
- }
-	focus = {
-  id = OT1_R_imperial_federation
-  icon = GFX_focus_SIA_defenders_of_constitutional_liberty
-  relative_position_id = OT1_R_federal_convention
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_federal_convention }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_federal_convention_agreed }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_imperial_federation
+		icon = GFX_focus_SIA_defenders_of_constitutional_liberty
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_federal_convention_agreed }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             set_country_flag = OT1_R_federation_ratified add_timed_idea = { idea = OT1_R_federal_convention_spirit days = 180 } add_to_variable = { OT1_R_cabinet_authority = -3 }  add_to_variable = { OT1_R_officer_loyalty = 3 } OT1_R_refresh_administration = yes
 
             add_popularity = { ideology = democratic popularity = 0.10 }
 
             custom_effect_tooltip = TUR_stab_unlock_compact_tt
         }
- }
+		prerequisite = { focus = OT1_R_federal_convention }
+		relative_position_id = OT1_R_federal_convention
+		x = 0
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_imperial_public_services
-  icon = GFX_focus_generic_immigration
-  relative_position_id = OT1_P_union_and_progress
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_P_union_and_progress focus = OT1_R_constitutional_coalition focus = OT1_R_imperial_arbitration focus = OT1_R_imperial_federation }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = TUR_turkish_nationalism
+		icon = GFX_focus_generic_happy_cheer
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = { id = ww1_turkey.39 days = 1 }
+        }
+		prerequisite = { focus = OT1_P_national_credit_focus }
+		prerequisite = { focus = OT1_R_school_inspectorates }
+		relative_position_id = OT1_P_national_credit_focus
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_crown_porte_council
+		icon = GFX_focus_TUR_pivot_to_the_past
+		cost = 5
+		available = { OT1_P_palace_settled = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { add_to_variable = { OT1_R_cabinet_authority = 4 } add_to_variable = { OT1_R_officer_loyalty = 2 } OT1_R_refresh_administration = yes remove_ideas = OT1_P_contested_restoration
+  custom_effect_tooltip = TUR_stab_unlock_registers_tt
+  }
+		prerequisite = { focus = OT1_R_religious_services focus = TUR_restore_caliphate }
+		relative_position_id = OT1_R_religious_services
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_ministerial_review
+		icon = GFX_focus_eng_concessions_to_the_trade_unions
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            add_to_variable = { OT1_R_cabinet_authority = -4 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes add_political_power = 20
+        }
+		prerequisite = { focus = TUR_turkish_nationalism }
+		relative_position_id = TUR_turkish_nationalism
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_imperial_arbitration
+		icon = GFX_focus_generic_industry_2
+		cost = 8
+		available = { OT1_P_palace_settled = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = { add_ideas = OT1_P_renewed_imperial_service if = { limit = { amount_research_slots < 5 } add_research_slot = 1 } else = { add_tech_bonus = { name = OT1_P_imperial_arbitration_bonus bonus = 0.5 uses = 1 category = industry } } add_to_variable = { OT1_R_provincial_confidence = 3 } OT1_R_refresh_administration = yes }
+		prerequisite = { focus = OT1_R_crown_porte_council }
+		relative_position_id = OT1_R_crown_porte_council
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_P_civilian_committee_focus
+		icon = GFX_focus_generic_advisors
+		cost = 5
+		available = { OT1_P_ittihadist = yes NOT = { AND = { is_ai = yes has_country_flag = OT1_P_ai_officers } } }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 8 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt set_country_flag = OT1_P_civilian_cup add_ideas = OT1_P_civilian_committee add_to_variable = { OT1_R_cabinet_authority = 5 } add_to_variable = { OT1_R_officer_loyalty = -4 } OT1_R_refresh_administration = yes country_event = { id = ww1_ottoman_politics.11 hours = 1 } }
+		prerequisite = { focus = OT1_R_ministerial_review }
+		mutually_exclusive = { focus = OT1_P_officer_directorate_focus }
+		relative_position_id = OT1_R_ministerial_review
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_P_officer_directorate_focus
+		icon = GFX_focus_LAT_suspend_constitution_of_latvia
+		cost = 5
+		available = {  OT1_P_ittihadist = yes NOT = { date < 1914.1.3 } date < 1922.8.4 OR = { is_ai = no is_historical_focus_on = no }  has_character = TUR_Enver_Pasha }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = {  set_country_flag = OT1_P_military_cup add_ideas = OT1_P_officer_directorate OT1_P_elevate_enver = yes add_to_variable = { OT1_R_officer_loyalty = 5 } add_to_variable = { OT1_R_provincial_confidence = -5 } OT1_R_refresh_administration = yes country_event = { id = ww1_ottoman_politics.12 hours = 1 }  }
+		prerequisite = { focus = OT1_R_ministerial_review }
+		mutually_exclusive = { focus = OT1_P_civilian_committee_focus }
+		relative_position_id = OT1_R_ministerial_review
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = OT1_P_municipal_organisations
+		icon = GFX_focus_generic_full_employment
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt add_stability = 0.02 add_to_variable = { OT1_R_provincial_confidence = 4 } OT1_R_refresh_administration = yes custom_effect_tooltip = TUR_stab_unlock_budgets_tt }
+		prerequisite = { focus = OT1_P_civilian_committee_focus }
+		relative_position_id = OT1_P_civilian_committee_focus
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_P_unified_war_ministry
+		icon = GFX_focus_generic_army_attack
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = { army_experience = 15 add_mastery_bonus = { name = OT1_P_unified_war_ministry_bonus bonus = 0.15 days = 180 track = operations } add_to_variable = { TUR_stab_food_security = -3 } }
+		prerequisite = { focus = OT1_P_officer_directorate_focus }
+		relative_position_id = OT1_P_officer_directorate_focus
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_unionist_responsibility
+		icon = GFX_goal_generic_national_unity
+		cost = 5
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt add_to_variable = { OT1_R_cabinet_authority = 3 } add_to_variable = { OT1_R_officer_loyalty = 2 } OT1_R_refresh_administration = yes add_stability = 0.01 }
+		prerequisite = { focus = OT1_P_municipal_organisations focus = OT1_P_unified_war_ministry }
+		relative_position_id = OT1_P_municipal_organisations
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_P_union_and_progress
+		icon = GFX_focus_generic_economic_recovery
+		cost = 8
+		available = { OT1_P_ittihadist = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		ai_will_do = { factor = 4 }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt remove_ideas = OT1_P_cup_organisation add_ideas = OT1_P_unionist_state add_popularity = { ideology = neutrality popularity = 0.05 } WW1_consolidate_chosen_government = yes country_event = { id = ww1_ottoman_politics.14 hours = 1 } }
+		prerequisite = { focus = OT1_R_unionist_responsibility }
+		relative_position_id = OT1_R_unionist_responsibility
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_imperial_public_services
+		icon = GFX_focus_generic_immigration
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
              add_to_variable = { OT1_R_cabinet_authority = 3 }  add_to_variable = { OT1_R_officer_loyalty = 1 } OT1_R_refresh_administration = yes
 
             custom_effect_tooltip = TUR_stab_unlock_services_tt
@@ -664,93 +1126,986 @@ focus_tree = {
   add_stability = 0.02
   custom_effect_tooltip = TUR_stab_unlock_relief_tt
   }
- }
+		prerequisite = { focus = OT1_P_union_and_progress focus = OT1_R_constitutional_coalition focus = OT1_R_imperial_arbitration focus = OT1_R_imperial_federation }
+		relative_position_id = OT1_P_union_and_progress
+		x = 1
+		y = 1
+	}
 
 	focus = {
-  id = OT1_R_government_settlement
-  icon = GFX_focus_BEL_government_resigns
-  relative_position_id = OT1_R_imperial_public_services
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_imperial_public_services }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_cabinet_authority > 39 } check_variable = { OT1_R_provincial_confidence > 39 } check_variable = { OT1_R_officer_loyalty > 39 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_government_settlement
+		icon = GFX_focus_BEL_government_resigns
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 check_variable = { OT1_R_cabinet_authority > 39 } check_variable = { OT1_R_provincial_confidence > 39 } check_variable = { OT1_R_officer_loyalty > 39 } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
             country_event = { id = ww1_turkey.308 days = 1 }
 
             custom_effect_tooltip = TUR_stab_unlock_compact_tt
         }
- }
+		prerequisite = { focus = OT1_R_imperial_public_services }
+		relative_position_id = OT1_R_imperial_public_services
+		x = 0
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_postwar_commission
-  icon = GFX_focus_generic_secret_service_agency
-  relative_position_id = OT1_R_government_settlement
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_government_settlement }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 OT1_R_no_great_war = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
+		id = OT1_R_postwar_commission
+		icon = GFX_focus_generic_secret_service_agency
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 OT1_R_no_great_war = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
              OT1_R_clear_war_programmes = yes
 
             custom_effect_tooltip = TUR_stab_unlock_reconstruction_tt
 
   add_stability = 0.03
   }
- }
+		prerequisite = { focus = OT1_R_government_settlement }
+		relative_position_id = OT1_R_government_settlement
+		x = 0
+		y = 1
+	}
+
 	focus = {
-  id = TUR_industrial_effort
-  icon = GFX_focus_generic_industrial_experts
-  x = 4
-  y = 0
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 10 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {  add_tech_bonus = { name = TUR_industrial_effort bonus = 0.25 uses = 1 category = construction_tech } }
- }
+		id = TUR_diplomatic_effort
+		icon = GFX_focus_INS_work_with_oil_barons
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+
+            add_political_power = 50
+        }
+		prerequisite = { focus = OT1_national_opening }
+		relative_position_id = OT1_national_opening
+		x = 5
+		y = 1
+	}
+
 	focus = {
-  id = OT1_R_industry_survey
-  icon = GFX_focus_NORDIC_dem_selector_civilian
-  relative_position_id = TUR_industrial_effort
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_industrial_effort }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { add_tech_bonus = { name = OT1_R_industry_survey bonus = 0.35 uses = 1 category = industry } }
- }
+		prerequisite = { focus = TUR_diplomatic_effort }
+		id = TUR_european
+		icon = GFX_goal_generic_improve_relations
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1
+			has_completed_focus = TUR_diplomatic_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+
+            if = { limit = { country_exists = GER NOT = { has_war_with = GER } } endsieg_fixed_effect_29ef5558fbbcdd63 = yes }
+            if = { limit = { country_exists = ENG NOT = { has_war_with = ENG } } endsieg_fixed_effect_2cb75522b4e19be0 = yes }
+            if = { limit = { country_exists = FRA NOT = { has_war_with = FRA } } endsieg_fixed_effect_651f600d64dee101 = yes }
+        }
+		relative_position_id = TUR_diplomatic_effort
+		x = 9
+		y = 2
+	}
+
 	focus = {
-  id = OT1_R_anatolian_rail
-  icon = GFX_focus_GER_kriegslokomotive
-  relative_position_id = OT1_R_customs_reform
-  x = -2
-  y = 1
-  prerequisite = { focus = OT1_R_customs_reform }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }  }
- }
+		prerequisite = { focus = TUR_diplomatic_effort }
+		id = OT1_R_stability_council
+		icon = GFX_focus_generic_improve_the_administration_2
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1
+			has_completed_focus = TUR_diplomatic_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+  add_stability = 0.02
+  }
+		relative_position_id = TUR_diplomatic_effort
+		x = -3
+		y = 2
+	}
+
+	focus = {
+		prerequisite = { focus = TUR_diplomatic_effort }
+		id = TUR_balkans
+		icon = GFX_goal_generic_intelligence_exchange
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1
+			has_completed_focus = TUR_diplomatic_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+
+  if = { limit = { country_exists = BUL NOT = { has_war_with = BUL } } endsieg_fixed_effect_72319b164c9e33fc = yes }
+   if = { limit = { country_exists = GRE NOT = { has_war_with = GRE } } endsieg_fixed_effect_722ef2a57a8d5ef4 = yes }
+  }
+		relative_position_id = TUR_diplomatic_effort
+		x = 17
+		y = 2
+	}
+
+	focus = {
+		id = TUR_middle_east
+		icon = GFX_focus_ww1_official_flag_tur_diplomacy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+            if = { limit = { country_exists = PER NOT = { has_war_with = PER } } endsieg_fixed_effect_82bbfd59c2236859 = yes }
+            if = { limit = { country_exists = SHA NOT = { has_war_with = SHA } } endsieg_fixed_effect_7a6ff972551a9900 = yes }
+            if = { limit = { country_exists = HEJ NOT = { has_war_with = HEJ } } endsieg_fixed_effect_55dbdcd39dd7dd64 = yes }
+        }
+		prerequisite = { focus = TUR_diplomatic_effort }
+		relative_position_id = TUR_diplomatic_effort
+		x = -18
+		y = 2
+	}
+
+	focus = {
+		id = TUR_befriend_britain
+		icon = GFX_focus_BEL_antwerp_maritime_academy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = ENG } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = ww1_turkey.7
+        }
+		prerequisite = { focus = TUR_european }
+		relative_position_id = TUR_european
+		x = -2
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_neutral_conference
+		icon = GFX_focus_generic_public_meetings
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = GER } NOT = { has_war_with = ENG } NOT = { has_war_with = FRA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+  add_stability = 0.03
+  }
+		prerequisite = { focus = TUR_european }
+		relative_position_id = TUR_european
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = TUR_befriend_germany
+		icon = GFX_focus_generic_military_mission
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = ww1_turkey.1
+        }
+		prerequisite = { focus = TUR_european }
+		relative_position_id = TUR_european
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_constitutional_balance
+		icon = GFX_focus_AFG_parliamentary_democracy
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            add_political_power = 25
+
+            custom_effect_tooltip = TUR_stab_unlock_compact_tt
+
+  add_stability = 0.02
+  }
+		prerequisite = { focus = OT1_R_stability_council }
+		relative_position_id = OT1_R_stability_council
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = TUR_hold_on_to_land
+		icon = GFX_focus_BEL_better_than_maginot
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_global_flag = first_balkan_war } NOT = { has_global_flag = second_balkan_war } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = ww1_turkey.3
+        }
+		prerequisite = { focus = TUR_balkans }
+		mutually_exclusive = { focus = TUR_let_go_of_land }
+		relative_position_id = TUR_balkans
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = TUR_let_go_of_land
+		icon = GFX_focus_generic_diplomatic_treaty
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_global_flag = first_balkan_war } NOT = { has_global_flag = second_balkan_war } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 2 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = ww1_turkey.4
+        }
+		prerequisite = { focus = TUR_balkans }
+		mutually_exclusive = { focus = TUR_hold_on_to_land }
+		relative_position_id = TUR_balkans
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = TUR_libya_work_locals
+		icon = GFX_focus_JAP_national_spiritual_mobilization_movement
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_global_flag = treaty_of_ouchy } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = ww1_turkey.27
+        }
+		prerequisite = { focus = TUR_middle_east }
+		relative_position_id = TUR_middle_east
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_persian_frontier
+		icon = GFX_focus_FIN_strengthen_military_administration
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = PER NOT = { has_war_with = PER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+  if = { limit = { country_exists = PER NOT = { has_war_with = PER } } endsieg_fixed_effect_82bbfd59c2236859 = yes  }
+  }
+		prerequisite = { focus = TUR_middle_east }
+		relative_position_id = TUR_middle_east
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_british_guarantees
+		icon = GFX_focus_CHI_invoke_the_nine_powers
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = ENG NOT = { has_war_with = ENG } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            set_country_flag = OT1_R_entente_liaison if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_OT1_R_entente_liaison_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_OT1_R_entente_liaison_spirit } army_experience = 8 }
+        }
+		prerequisite = { focus = TUR_befriend_britain }
+		relative_position_id = TUR_befriend_britain
+		x = -2
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_german_liaison
+		icon = GFX_focus_NORDIC_dem_institution_1
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = GER NOT = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            set_country_flag = OT1_R_german_liaison if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_OT1_R_german_liaison_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_OT1_R_german_liaison_spirit } army_experience = 8 }
+        }
+		prerequisite = { focus = TUR_befriend_germany }
+		relative_position_id = TUR_befriend_germany
+		x = 3
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_dardanelles_watch
+		icon = GFX_focus_SMB_blue_water_fleet
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+  navy_experience = 10
+  }
+		prerequisite = { focus = OT1_R_constitutional_balance }
+		relative_position_id = OT1_R_constitutional_balance
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_balkan_settlement
+		icon = GFX_goal_generic_scientific_exchange
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = BUL } NOT = { has_war_with = GRE } NOT = { has_war_with = SER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+  add_stability = 0.03
+  }
+		prerequisite = { focus = TUR_hold_on_to_land focus = TUR_let_go_of_land }
+		relative_position_id = TUR_hold_on_to_land
+		x = 1
+		y = 2
+	}
+
+	focus = {
+		id = TUR_back_senussi
+		icon = GFX_focus_generic_blue_flags
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 date > 1914.1.1 has_global_flag = treaty_of_ouchy }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 9 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            country_event = ww1_turkey.28
+        }
+		prerequisite = { focus = TUR_libya_work_locals }
+		relative_position_id = TUR_libya_work_locals
+		x = 0
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_strait_guarantees
+		icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
+		cost = 5
+		available = { country_exists = RIE  has_start_date < 1936.1.1 date < 1936.1.1 country_exists = ENG country_exists = FRA NOT = { has_war_with = ENG } NOT = { has_war_with = FRA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            OT1_R_request_straits_guarantees = yes
+        }
+		prerequisite = { focus = OT1_R_british_guarantees }
+		relative_position_id = OT1_R_british_guarantees
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_french_mission_1909
+		icon = GFX_focus_generic_soldier_salute
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR date > 1909.1.1 NOT = { has_war_with = FRA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = { set_country_flag = OT1_R_french_agreement add_tech_bonus = { name = OT1_R_french_mission_1909 bonus = 0.4 uses = 1 category = support_weapons } army_experience = 10 }
+		prerequisite = { focus = TUR_befriend_britain }
+		mutually_exclusive = { focus = TUR_german_reform }
+		relative_position_id = TUR_befriend_britain
+		x = 0
+		y = 3
+	}
+
+	focus = {
+		id = TUR_german_reform
+		icon = GFX_focus_generic_commonwealth_build_infantry
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR date > 1913.12.13 NOT = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt set_country_flag = OT1_R_german_liaison add_mastery_bonus = { name = TUR_german_reform bonus = 0.1 days = 240 track = infantry } army_experience = 10
+
+  set_country_flag = OT1_R_german_agreement
+  }
+		prerequisite = { focus = OT1_R_german_liaison }
+		mutually_exclusive = { focus = OT1_R_french_mission_1909 }
+		relative_position_id = OT1_R_german_liaison
+		x = -3
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_secret_alliance
+		icon = GFX_goal_generic_alliance
+		cost = 5
+		available = {
+            OR = {
+                AND = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1914.8.2 }  country_exists = GER NOT = { has_war_with = GER }  }
+                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.4.2 } has_start_date < 1936.1.1 country_exists = GER NOT = { has_war_with = GER } }
+            }
+        }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+
+  add_command_power = 10
+  }
+		prerequisite = { focus = OT1_R_german_liaison }
+		relative_position_id = OT1_R_german_liaison
+		x = 3
+		y = 1
+	}
+
+	focus = {
+		id = TUR_fortify_dardanelles
+		icon = GFX_goal_generic_major_war
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = { if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_OT1_R_dardanelles_defence_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_OT1_R_dardanelles_defence_spirit } army_experience = 8 } country_event = { id = ww1_turkey.15 days = 1 } }
+		prerequisite = { focus = OT1_R_dardanelles_watch }
+		relative_position_id = OT1_R_dardanelles_watch
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_wartime_neutrality_review
+		icon = GFX_goal_generic_neutrality_focus
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_entente_agreement } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+  add_war_support = -0.02 add_stability = 0.02
+  }
+		prerequisite = { focus = OT1_R_dardanelles_watch }
+		relative_position_id = OT1_R_dardanelles_watch
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_italian_accommodation
+		icon = GFX_focus_GER_integrated_economies
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = ITA NOT = { has_war_with = ITA } OT1_R_no_great_war = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            OT1_R_request_italian_accommodation = yes
+        }
+		prerequisite = { focus = OT1_R_balkan_settlement }
+		relative_position_id = OT1_R_balkan_settlement
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_red_sea_consultation
+		icon = GFX_focus_generic_merchant_fleet
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = ENG } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            navy_experience = 5
+        }
+		prerequisite = { focus = TUR_back_senussi focus = TUR_libya_work_locals }
+		relative_position_id = TUR_back_senussi
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_ottoman_reorganisation_1914
+		icon = GFX_goal_generic_army_doctrines
+		cost = 7
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR date > 1914.5.11 }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = { add_mastery_bonus = { name = OT1_R_ottoman_reorganisation_1914 bonus = 0.12 days = 240 track = operations } OT1_R_reconcile_army_reform = yes }
+		prerequisite = { focus = OT1_R_french_mission_1909 focus = TUR_german_reform }
+		relative_position_id = OT1_R_french_mission_1909
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		id = TUR_fortify_gallipoli
+		icon = GFX_focus_CZE_second_fortification_program
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_start_date < 1936.1.1 date > 1914.1.1 OT1_R_has_great_war = yes has_war_with = ENG }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = {  country_event = { id = ww1_turkey.16 days = 1 } }
+		prerequisite = { focus = TUR_fortify_dardanelles }
+		relative_position_id = TUR_fortify_dardanelles
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_thrace_settlement
+		icon = GFX_focus_generic_concessions
+		cost = 5
+		available = { country_exists = BUL country_exists = SER country_exists = GRE  has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = BUL } NOT = { has_war_with = GRE } NOT = { has_war_with = SER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            OT1_R_request_balkan_settlement = yes
+        }
+		prerequisite = { focus = OT1_R_italian_accommodation }
+		relative_position_id = OT1_R_italian_accommodation
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = OT1_R_strait_guarantees }
+		id = OT1_R_entente_alignment
+		icon = GFX_goal_molotov_ribbentrop_pact
+		cost = 5
+		available = {
+            has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_entente_liaison has_country_flag = OT1_R_strait_guarantees_accepted country_exists = RIE NOT = { has_war_with = RIE } NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_neutral_policy }  country_exists = FRA FRA = { FR3_R_may_enter_entente = yes }
+            NOT = { has_completed_focus = OT1_R_german_alignment }
+            NOT = { has_completed_focus = OT1_R_regional_alignment }
+			has_completed_focus = OT1_R_strait_guarantees
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            OT1_R_request_entente_alignment = yes
+        }
+		mutually_exclusive = { focus = OT1_R_neutral_alignment }
+		relative_position_id = OT1_national_opening
+		x = 12
+		y = 9
+	}
+
+	focus = {
+		id = OT1_R_neutral_alignment
+		icon = GFX_focus_SWI_neutrality_on_the_move
+		cost = 5
+		available = {
+            has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_entente_agreement }
+            NOT = { has_completed_focus = OT1_R_regional_alignment }
+			has_completed_focus = OT1_R_neutral_conference
+			has_completed_focus = OT1_R_neutral_conference
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            OT1_R_adopt_neutrality = yes
+        }
+		mutually_exclusive = { focus = OT1_R_entente_alignment }
+		mutually_exclusive = { focus = OT1_R_german_alignment }
+		relative_position_id = OT1_national_opening
+		x = 14
+		y = 9
+	}
+
+	focus = {
+		id = OT1_R_german_alignment
+		icon = GFX_goal_tripartite_pact
+		cost = 5
+		available = {
+            has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_german_liaison NOT = { has_country_flag = OT1_R_entente_agreement } NOT = { has_country_flag = OT1_R_neutral_policy }  country_exists = GER GER = { GE1_ww1_may_choose_central_bloc = yes }
+            NOT = { has_completed_focus = OT1_R_entente_alignment }
+        }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            OT1_R_request_german_alignment = yes
+        }
+		prerequisite = { focus = OT1_R_secret_alliance }
+		mutually_exclusive = { focus = OT1_R_neutral_alignment }
+		mutually_exclusive = { focus = OT1_R_regional_alignment }
+		relative_position_id = OT1_R_secret_alliance
+		x = -4
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_regional_alignment
+		icon = GFX_focus_generic_league_of_nations
+		cost = 5
+		available = {
+            has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_balkan_settlement NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_entente_agreement } NOT = { has_country_flag = OT1_R_neutral_policy } OT1_R_no_great_war = yes
+            NOT = { has_completed_focus = OT1_R_entente_alignment }
+            NOT = { has_completed_focus = OT1_R_neutral_alignment }
+        }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            set_country_flag = OT1_R_regional_agreement
+
+  add_command_power = 10
+  }
+		prerequisite = { focus = OT1_R_thrace_settlement }
+		mutually_exclusive = { focus = OT1_R_german_alignment }
+		relative_position_id = OT1_R_thrace_settlement
+		x = -4
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_entente_war
+		icon = GFX_focus_generic_full_social_mobilization
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_entente_agreement country_exists = FRA country_exists = ENG FRA = { has_war_with = GER } ENG = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            OT1_R_join_entente_war = yes
+        }
+		prerequisite = { focus = OT1_R_entente_alignment }
+		relative_position_id = OT1_R_entente_alignment
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_neutral_ports
+		icon = GFX_focus_ICE_modernizing_the_coast_guard
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_neutral_policy NOT = { has_war_with = ENG } NOT = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_OT1_R_neutral_ports_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_OT1_R_neutral_ports_spirit } navy_experience = 8 }
+        }
+		prerequisite = { focus = OT1_R_neutral_alignment }
+		relative_position_id = OT1_R_neutral_alignment
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_german_agreement_review
+		icon = GFX_focus_SIA_the_midnight_meeting
+		cost = 5
+		available = {
+            OR = {
+                AND = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_german_agreement country_exists = GER NOT = { has_war_with = GER } }
+                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.6.11 } has_start_date < 1936.1.1 country_exists = GER NOT = { has_war_with = GER } }
+            }
+        }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+
+  army_experience = 10
+  }
+		prerequisite = { focus = OT1_R_german_alignment }
+		relative_position_id = OT1_R_german_alignment
+		x = 4
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_regional_defence
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_regional_agreement }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+
+  add_command_power = 10
+  }
+		prerequisite = { focus = OT1_R_regional_alignment }
+		relative_position_id = OT1_R_regional_alignment
+		x = 4
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_neutral_mediation
+		icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_neutral_policy NOT = { has_war_with = GER } NOT = { has_war_with = FRA } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 5 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+             add_political_power = 20
+
+  add_war_support = -0.02 add_stability = 0.02
+  }
+		prerequisite = { focus = OT1_R_neutral_ports }
+		relative_position_id = OT1_R_neutral_ports
+		x = 0
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_central_war
+		icon = GFX_goal_generic_major_alliance
+		cost = 5
+		available = {
+            OR = {
+                AND = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_german_agreement OR = { GER = { has_war_with = RIE } GER = { has_war_with = SOV } }  country_exists = GER GER = { GE1_ww1_may_choose_central_bloc = yes } }
+                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.8.20 } has_start_date < 1936.1.1 country_exists = GER GER = { GE1_ww1_may_choose_central_bloc = yes } }
+            }
+        }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            OT1_R_join_central_war = yes
+        }
+		prerequisite = { focus = OT1_R_german_agreement_review }
+		relative_position_id = OT1_R_german_agreement_review
+		x = -1
+		y = 1
+	}
+
+	focus = {
+		id = TUR_strike_russian_port
+		icon = GFX_goal_generic_occupy_states_coastal
+		cost = 5
+		available = {
+            OR = {
+                AND = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1914.10.29 } has_country_flag = OT1_R_german_agreement OR = { GER = { has_war_with = RIE } GER = { has_war_with = SOV } } }
+                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.9.24 } has_start_date < 1936.1.1 has_country_flag = OT1_R_german_agreement OR = { GER = { has_war_with = RIE } GER = { has_war_with = SOV } } }
+            }
+        }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 8 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+            custom_effect_tooltip = WW1_historical_focus_tt
+            country_event = ww1_turkey.2
+        }
+		prerequisite = { focus = OT1_R_german_agreement_review }
+		relative_position_id = OT1_R_german_agreement_review
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = OT1_national_opening }
+		id = TUR_industrial_effort
+		icon = GFX_focus_generic_industrial_experts
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = OT1_national_opening
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            if = { limit = { 340 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 340 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }
+            add_tech_bonus = { name = TUR_industrial_effort bonus = 0.25 uses = 1 category = construction_tech }
+        }
+		relative_position_id = OT1_national_opening
+		x = 22
+		y = 1
+	}
+
+	focus = {
+		id = OT1_R_central_supply
+		icon = GFX_focus_generic_supply_line
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = {
+            custom_effect_tooltip = TUR_stab_unlock_food_tt
+
+  add_tech_bonus = { name = OT1_R_central_supply_logistics bonus = 0.35 uses = 1 category = logistics_tech }
+  }
+		prerequisite = { focus = TUR_industrial_effort }
+		relative_position_id = TUR_industrial_effort
+		x = 6
+		y = 2
+	}
+
+	focus = {
+		id = OT1_ww1_reform_implementation
+		icon = GFX_focus_generic_advanced_military_studies
+		prerequisite = { focus = OT1_R_central_supply }
+		relative_position_id = OT1_R_central_supply
+		x = 0
+		y = 1
+		cost = 5
+		available = { tag = TUR has_start_date < 1919.1.1 date < 1919.1.1 TUR_stab_active = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 8 }
+		completion_reward = {
+			set_country_flag = OT1_ww1_four_year_plan_started
+			add_political_power = -20
+			custom_effect_tooltip = WW1_four_year_plan_begin_tt
+		}
+	}
+
+	focus = {
+		id = OT1_ww1_reform_trials
+		icon = GFX_focus_generic_conference
+		prerequisite = { focus = OT1_ww1_reform_implementation }
+		relative_position_id = OT1_ww1_reform_implementation
+		x = 0
+		y = 2
+		cost = 5
+		available = { tag = TUR has_start_date < 1919.1.1 date < 1926.1.1 has_country_flag = OT1_ww1_four_year_plan_midpoint custom_trigger_tooltip = { tooltip = WW1_four_year_plan_finish_tt has_country_flag = { flag = OT1_ww1_four_year_plan_started days > 1425 } } TUR_stab_active = yes }
+		cancel_if_invalid = yes
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		ai_will_do = { factor = 10 }
+		completion_reward = {
+			custom_effect_tooltip = OT1_ww1_reform_step_2_tt
+			hidden_effect = {
+				add_to_variable = { TUR_stab_food_security = 7 }
+				if = { limit = { TUR_stab_controls_central_anatolia = yes } add_to_variable = { TUR_stab_discontent_central_anatolia = -4 } }
+				if = { limit = { TUR_stab_controls_syria = yes } add_to_variable = { TUR_stab_discontent_syria = -4 } }
+				if = { limit = { TUR_stab_controls_mesopotamia = yes } add_to_variable = { TUR_stab_discontent_mesopotamia = -4 } }
+				TUR_stab_refresh = yes
+			}
+		}
+	}
+
+
+	focus = {
+		prerequisite = { focus = TUR_industrial_effort }
+		prerequisite = { focus = OT1_R_central_supply }
+		id = OT1_R_postwar_conversion
+		icon = GFX_focus_GER_integration_of_puppet_economies
+		cost = 7
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes date > 1918.10.30
+			has_completed_focus = TUR_industrial_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		completion_reward = { if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_OT1_R_postwar_conversion_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_OT1_R_postwar_conversion_spirit } add_tech_bonus = { name = OT1_R_postwar_conversion bonus = 0.25 uses = 1 category = industry } } endsieg_ww1_demobilize_state_war_industry = yes add_tech_bonus = { name = OT1_R_postwar_conversion bonus = 0.4 uses = 1 category = industry }
+            custom_effect_tooltip = TUR_stab_unlock_reconstruction_tt
+        }
+		relative_position_id = OT1_R_central_supply
+		x = 2
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = TUR_industrial_effort }
+		id = TUR_naval_effort
+		icon = GFX_focus_JAP_assure_superior_naval_quality
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = TUR_industrial_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		completion_reward = { navy_experience = 10 }
+		relative_position_id = TUR_industrial_effort
+		x = -27
+		y = 2
+	}
+
+	focus = {
+		id = TUR_destroyer_effort
+		icon = GFX_goal_generic_navy_anti_submarine
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_NAVY_XP }
+		completion_reward = { add_tech_bonus = { name = TUR_destroyer_effort bonus = 0.5 uses = 1 category = dd_tech } }
+		prerequisite = { focus = TUR_naval_effort }
+		relative_position_id = TUR_naval_effort
+		x = 1
+		y = 1
+	}
+
+	focus = {
+		prerequisite = { focus = TUR_industrial_effort }
+		id = TUR_form_airforce
+		icon = GFX_goal_generic_build_airforce
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = TUR_industrial_effort
+		}
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 10 }
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		completion_reward = { air_experience = 10 }
+		relative_position_id = TUR_industrial_effort
+		x = 9
+		y = 2
+	}
+
+	focus = {
+		id = OT1_R_san_stefano_aviation
+		icon = GFX_focus_SOV_flying_clubs
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_AIR_XP }
+		completion_reward = { if = { limit = { 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 797 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } }  }
+		prerequisite = { focus = TUR_form_airforce }
+		relative_position_id = TUR_form_airforce
+		x = 1
+		y = 1
+	}
+
+	# Public administration and finance
 	focus = {
   id = OT1_R_customs_reform
   icon = GFX_focus_ETH_reform_the_currency
-  relative_position_id = OT1_R_industry_survey
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_industry_survey }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
@@ -759,145 +2114,301 @@ focus_tree = {
   completion_reward = {
   add_tech_bonus = { name = OT1_R_customs_reform_industry bonus = 0.35 uses = 1 category = industry }
   }
- }
+		relative_position_id = OT1_R_industry_survey
+		x = -3
+		y = 1
+		prerequisite = { focus = OT1_R_industry_survey }
+	}
+
+	focus = {
+		id = OT1_R_cabinet_accounts
+		icon = GFX_focus_generic_currency_reforms
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_to_variable = { OT1_R_cabinet_authority = -3 }  add_to_variable = { OT1_R_officer_loyalty = 1 } OT1_R_refresh_administration = yes add_political_power = 15
+
+			custom_effect_tooltip = TUR_stab_unlock_budgets_tt
+		}
+		relative_position_id = TUR_political_effort
+		x = -1
+		y = 2
+		prerequisite = { focus = TUR_political_effort }
+	}
+
+	focus = {
+		id = OT1_R_coalition_budget
+		icon = GFX_focus_PER_national_bank
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1  }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 4 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			add_to_variable = { OT1_R_cabinet_authority = 7 }  add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes add_political_power = 20
+
+			custom_effect_tooltip = TUR_stab_unlock_budgets_tt
+		}
+		relative_position_id = OT1_R_provincial_elections
+		x = -1
+		y = 1
+		prerequisite = { focus = OT1_R_provincial_elections }
+	}
+
+	focus = {
+		id = OT1_R_transport_reform
+		icon = GFX_focus_generic_public_works
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = { add_tech_bonus = { name = OT1_R_transport_reform bonus = 0.5 uses = 1 category = logistics_tech } add_mastery_bonus = { name = OT1_R_transport_reform bonus = 0.08 days = 240 track = operations } }
+		relative_position_id = OT1_R_field_medicine
+		x = 0
+		y = 1
+		prerequisite = { focus = OT1_R_field_medicine }
+	}
+
+	focus = {
+		id = OT1_R_military_diplomacy
+		icon = GFX_focus_CHI_formalise_training_regime
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = GER NOT = { has_war_with = GER } }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 7 }
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			army_experience = 5
+
+		}
+		relative_position_id = OT1_R_german_liaison
+		x = 0
+		y = 1
+		prerequisite = { focus = OT1_R_german_liaison }
+	}
+
+	# Industry and infrastructure
+	focus = {
+  id = OT1_R_industry_survey
+  icon = GFX_focus_NORDIC_dem_selector_civilian
+  cost = 5
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = TUR_industrial_effort
+		}
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_INDUSTRY }
+  completion_reward = { add_tech_bonus = { name = OT1_R_industry_survey bonus = 0.35 uses = 1 category = industry } }
+		relative_position_id = OT1_national_opening
+		x = 40
+		y = 0
+	}
+
 	focus = {
   id = OT1_R_zonguldak_coal
   icon = GFX_focus_ot1_r_zonguldak_coal
-  relative_position_id = OT1_R_industry_survey
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_industry_survey }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
   completion_reward = { add_tech_bonus = { name = OT1_R_zonguldak_coal bonus = 0.35 uses = 1 category = excavation_tech }   }
- }
+		relative_position_id = OT1_R_industry_survey
+		x = 0
+		y = 1
+		prerequisite = { focus = OT1_R_industry_survey }
+	}
+
 	focus = {
-  id = OT1_R_tophane_procurement
-  icon = GFX_focus_generic_arms_trade
-  relative_position_id = OT1_R_industry_survey
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_industry_survey }
-  mutually_exclusive = { focus = OT1_R_anatolian_textiles }
+  id = OT1_R_istanbul_arsenal
+  icon = GFX_focus_generic_industrialists
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { if = { limit = { 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 797 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }  }
- }
+  completion_reward = {
+            if = { limit = { 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 797 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }
+            add_tech_bonus = { name = OT1_R_istanbul_arsenal bonus = 0.5 uses = 1 category = artillery }
+        }
+		relative_position_id = OT1_R_ordnance_gauges
+		x = -1
+		y = 1
+		prerequisite = { focus = OT1_R_ordnance_gauges }
+	}
+
 	focus = {
-  id = OT1_R_anatolian_textiles
-  icon = GFX_goal_generic_production
-  relative_position_id = OT1_R_industry_survey
-  x = -3
-  y = 1
-  prerequisite = { focus = OT1_R_industry_survey }
-  mutually_exclusive = { focus = OT1_R_tophane_procurement }
-  cost = 5
+		prerequisite = { focus = OT1_R_central_supply }
+  id = OT1_R_industrial_mobilization
+  icon = GFX_focus_AST_lithgow_small_arms_factory
+  cost = 7
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = OT1_R_central_supply
+			OR = { has_completed_focus = OT1_R_industry_survey has_completed_focus = OT1_R_istanbul_arsenal }
+		}
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_INDUSTRY }
+  completion_reward = {
+            if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = arms_factory level = 1 instant_build = yes } } }
+            add_tech_bonus = { name = OT1_R_industrial_mobilization bonus = 0.35 uses = 1 category = industry }
+        }
+		relative_position_id = OT1_national_opening
+		x = 26
+		y = 4
+	}
+
+	focus = {
+  id = OT1_R_national_workshops
+  icon = GFX_focus_AFG_education_reform
+  cost = 7
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { if = { limit = { 340 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 340 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } }  }
- }
+  completion_reward = { if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_national_workshops bonus = 0.35 uses = 1 category = industry }  }
+		relative_position_id = OT1_R_industrial_mobilization
+		x = 0
+		y = 2
+		prerequisite = { focus = OT1_R_industrial_mobilization }
+	}
+
+	focus = {
+  id = OT1_R_mine_barriers
+  icon = GFX_focus_generic_mine_warfare
+  cost = 5
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_NAVY_XP }
+  completion_reward = {
+  add_tech_bonus = { name = OT1_R_mine_barriers_mines bonus = 0.35 uses = 1 category = naval_mines }
+  }
+		relative_position_id = OT1_R_ottoman_navy_reform
+		x = -7
+		y = 2
+		prerequisite = { focus = OT1_R_ottoman_navy_reform }
+	}
+
+	focus = {
+		prerequisite = { focus = TUR_naval_effort }
+		prerequisite = { focus = OT1_R_mine_barriers }
+  id = OT1_R_dardanelles_mines
+  icon = GFX_focus_PHI_war_for_the_oceans
+  cost = 5
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_has_great_war = yes
+			has_completed_focus = TUR_naval_effort
+		}
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_NAVY_XP }
+  completion_reward = {  navy_experience = 10 }
+		relative_position_id = OT1_R_mine_barriers
+		x = 0
+		y = 1
+	}
+
+	focus = {
+  id = OT1_R_strait_defence
+  icon = GFX_focus_generic_military_academy
+  cost = 7
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_has_great_war = yes }
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_NAVY_XP }
+  completion_reward = {  add_mastery_bonus = { name = OT1_R_strait_defence bonus = 0.1 days = 240 track = screens }    }
+		relative_position_id = OT1_R_dardanelles_mines
+		x = 0
+		y = 2
+		prerequisite = { focus = OT1_R_dardanelles_mines }
+	}
+
+	focus = {
+		prerequisite = { focus = TUR_industrial_effort }
+		prerequisite = { focus = OT1_R_customs_reform }
+  id = OT1_R_anatolian_rail
+  icon = GFX_focus_GER_kriegslokomotive
+  cost = 5
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = TUR_industrial_effort
+		}
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_INDUSTRY }
+  completion_reward = { if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } }  }
+		relative_position_id = OT1_R_customs_reform
+		x = 2
+		y = 1
+	}
+
 	focus = {
   id = OT1_R_istanbul_ports
   icon = GFX_focus_generic_large_navy
-  relative_position_id = OT1_R_customs_reform
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_customs_reform }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
   completion_reward = { if = { limit = { 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 797 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = dockyard level = 1 instant_build = yes } } } }
- }
+		relative_position_id = OT1_R_customs_reform
+		x = -1
+		y = 1
+		prerequisite = { focus = OT1_R_customs_reform }
+	}
+
 	focus = {
   id = OT1_R_baghdad_railway
   icon = GFX_goal_generic_construction
-  relative_position_id = OT1_R_anatolian_rail
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_anatolian_rail }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
   completion_reward = { add_tech_bonus = { name = OT1_R_baghdad_railway bonus = 0.5 uses = 1 category = logistics_tech }    }
- }
+		relative_position_id = OT1_R_anatolian_rail
+		x = 1
+		y = 2
+		prerequisite = { focus = OT1_R_anatolian_rail }
+	}
 
-	focus = {
-  id = OT1_R_ordnance_gauges
-  icon = GFX_focus_generic_military_industry
-  relative_position_id = OT1_R_tophane_procurement
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_tophane_procurement }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { add_tech_bonus = { name = OT1_R_ordnance_gauges bonus = 0.5 uses = 1 category = infantry_weapons }  }
- }
-
-	focus = {
-  id = OT1_R_istanbul_arsenal
-  icon = GFX_focus_generic_industrialists
-  relative_position_id = OT1_R_ordnance_gauges
-  x = -2
-  y = 1
-  prerequisite = { focus = OT1_R_ordnance_gauges }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { add_tech_bonus = { name = OT1_R_istanbul_arsenal bonus = 0.5 uses = 1 category = artillery } }
- }
 	focus = {
   id = OT1_R_anatolian_roads
   icon = GFX_focus_generic_railroad
-  relative_position_id = OT1_R_anatolian_rail
-  x = -2
-  y = 1
-  prerequisite = { focus = OT1_R_anatolian_rail }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
   completion_reward = { if = { limit = { 340 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 340 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_anatolian_roads bonus = 0.3 uses = 1 category = construction_tech } }
- }
+		relative_position_id = OT1_R_anatolian_rail
+		x = -1
+		y = 2
+		prerequisite = { focus = OT1_R_anatolian_rail }
+	}
+
 	focus = {
   id = OT1_R_hejaz_railway
   icon = GFX_focus_CHI_planned_economy
-  relative_position_id = OT1_R_baghdad_railway
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_baghdad_railway }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
   completion_reward = {  add_tech_bonus = { name = OT1_R_hejaz_railway bonus = 0.3 uses = 1 category = logistics_tech } }
- }
+		relative_position_id = OT1_R_baghdad_railway
+		x = 2
+		y = 1
+		prerequisite = { focus = OT1_R_baghdad_railway }
+	}
 
 	focus = {
   id = OT1_R_baghdad_logistics
   icon = GFX_focus_AUS_raid_military_storages
-  relative_position_id = OT1_R_baghdad_railway
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_R_baghdad_railway }
   cost = 10
   available = {
             has_start_date < 1936.1.1
@@ -911,655 +2422,234 @@ focus_tree = {
 
              add_tech_bonus = { name = OT1_R_baghdad_logistics bonus = 0.35 uses = 1 category = logistics_tech }
         }
- }
+		relative_position_id = OT1_R_baghdad_railway
+		x = 0
+		y = 1
+		prerequisite = { focus = OT1_R_baghdad_railway }
+	}
+
+	# Army support and readiness
+	focus = {
+		id = OT1_R_army_command
+		icon = GFX_goal_generic_army_artillery
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+
+		completion_reward = { add_mastery_bonus = { name = OT1_R_army_command bonus = 0.1 days = 240 track = operations } OT1_R_reconcile_army_reform = yes    }
+		relative_position_id = TUR_industrial_effort
+		x = 2
+		y = 2
+		prerequisite = { focus = TUR_industrial_effort }
+	}
 
 	focus = {
-  id = OT1_R_artillery_lines
-  icon = GFX_focus_generic_railway_gun
-  relative_position_id = OT1_R_istanbul_arsenal
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_istanbul_arsenal }
-  prerequisite = { focus = OT1_R_ordnance_gauges }
+		id = OT1_R_artillery_foundry
+		icon = GFX_focus_NORDIC_mon_selector_materiel
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = { add_tech_bonus = { name = OT1_R_artillery_foundry bonus = 0.5 uses = 1 category = artillery } }
+		relative_position_id = TUR_industrial_effort
+		x = 4
+		y = 2
+		prerequisite = { focus = TUR_industrial_effort }
+	}
+
+	focus = {
+		id = OT1_R_field_medicine
+		icon = GFX_focus_generic_field_hostpital
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = {  add_tech_bonus = { name = OT1_R_field_medicine bonus = 0.35 uses = 1 category = support_weapons } }
+		relative_position_id = TUR_industrial_effort
+		x = 12
+		y = 2
+		prerequisite = { focus = TUR_industrial_effort }
+	}
+
+	focus = {
+		id = OT1_R_gallipoli_artillery
+		icon = GFX_goal_generic_army_artillery2
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_has_great_war = yes }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_ARMY_XP }
+		completion_reward = { add_tech_bonus = { name = OT1_R_gallipoli_artillery bonus = 0.35 uses = 1 category = artillery }  }
+		relative_position_id = TUR_fortify_dardanelles
+		x = 1
+		y = 1
+		prerequisite = { focus = TUR_fortify_dardanelles }
+	}
+
+	focus = {
+  id = OT1_R_ordnance_gauges
+  icon = GFX_focus_generic_military_industry
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_INDUSTRY }
+  completion_reward = { add_tech_bonus = { name = OT1_R_ordnance_gauges bonus = 0.5 uses = 1 category = infantry_weapons }  }
+		relative_position_id = OT1_R_industry_survey
+		x = 2
+		y = 1
+		prerequisite = { focus = OT1_R_industry_survey }
+	}
+
+	focus = {
+		id = OT1_R_army_arsenals
+		icon = GFX_focus_BUL_bulgarian_administration_of_the_balkans
+		cost = 5
+		available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+		cancel_if_invalid = yes
+		ai_will_do = { factor = 6 }
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+
+		completion_reward = {  add_tech_bonus = { name = OT1_R_army_arsenals bonus = 0.35 uses = 1 category = support_weapons }     }
+		relative_position_id = OT1_R_ordnance_gauges
+		x = 1
+		y = 1
+		prerequisite = { focus = OT1_R_ordnance_gauges }
+	}
+
+	focus = {
+		prerequisite = { focus = OT1_R_istanbul_arsenal }
+  id = OT1_R_artillery_lines
+  icon = GFX_focus_generic_railway_gun
+  cost = 5
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = OT1_R_istanbul_arsenal
+			has_completed_focus = OT1_R_ordnance_gauges
+		}
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_INDUSTRY }
   completion_reward = { add_tech_bonus = { name = OT1_R_artillery_lines bonus = 0.35 uses = 1 category = artillery }  }
- }
+		relative_position_id = OT1_national_opening
+		x = 41
+		y = 3
+	}
 
-	focus = {
-  id = OT1_R_merchant_shipping
-  icon = GFX_focus_ITA_modernize_ansaldo_facilities
-  relative_position_id = OT1_R_istanbul_ports
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_istanbul_ports }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { add_equipment_to_stockpile = { type = convoy amount = 15 }  }
- }
-	focus = {
-  id = OT1_R_central_supply
-  icon = GFX_focus_generic_supply_line
-  relative_position_id = OT1_R_anatolian_roads
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_anatolian_roads }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            custom_effect_tooltip = TUR_stab_unlock_food_tt
-
-  add_tech_bonus = { name = OT1_R_central_supply_logistics bonus = 0.35 uses = 1 category = logistics_tech }
-  }
- }
-
-	focus = {
-  id = OT1_R_industrial_mobilization
-  icon = GFX_focus_AST_lithgow_small_arms_factory
-  relative_position_id = OT1_R_central_supply
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_central_supply }
-  prerequisite = { focus = OT1_R_anatolian_textiles focus = OT1_R_istanbul_arsenal }
-  cost = 7
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { add_timed_idea = { idea = OT1_R_industrial_mobilization_spirit days = 300 } add_tech_bonus = { name = OT1_R_industrial_mobilization bonus = 0.35 uses = 1 category = industry } }
- }
-
-	focus = {
-  id = OT1_R_national_workshops
-  icon = GFX_focus_AFG_education_reform
-  relative_position_id = OT1_R_industrial_mobilization
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_industrial_mobilization }
-  cost = 7
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_national_workshops bonus = 0.35 uses = 1 category = industry }  }
- }
-	focus = {
-  id = OT1_R_postwar_conversion
-  icon = GFX_focus_GER_integration_of_puppet_economies
-  relative_position_id = OT1_R_industrial_mobilization
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_R_industrial_mobilization }
-  cost = 7
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes date > 1918.10.30 }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = { add_timed_idea = { idea = OT1_R_postwar_conversion_spirit days = 365 } endsieg_ww1_demobilize_state_war_industry = yes add_tech_bonus = { name = OT1_R_postwar_conversion bonus = 0.4 uses = 1 category = industry }
-            custom_effect_tooltip = TUR_stab_unlock_reconstruction_tt
-        }
- }
-	focus = {
-  id = OT1_R_provincial_program
-  icon = GFX_goal_generic_construct_civilian
-  x = 20
-  y = 0
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            add_tech_bonus = { name = OT1_R_provincial_program bonus = 0.25 uses = 1 category = construction_tech }
-
-            custom_effect_tooltip = TUR_stab_unlock_services_tt
-        }
- }
-	focus = {
-  id = OT1_R_istanbul_municipal
-  icon = GFX_focus_BEL_engine_of_the_economy
-  relative_position_id = OT1_R_provincial_program
-  x = -2
-  y = 1
-  prerequisite = { focus = OT1_R_provincial_program }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 797 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 797 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_istanbul_municipal bonus = 0.25 uses = 1 category = construction_tech }
-        }
- }
-	focus = {
-  id = OT1_R_prov_anatolian_roads
-  icon = GFX_focus_generic_improve_roads
-  relative_position_id = OT1_R_provincial_program
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_R_provincial_program }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 49 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_prov_anatolian_roads bonus = 0.25 uses = 1 category = construction_tech }
-        }
- }
-	focus = {
-  id = OT1_R_hejaz_stations
-  icon = GFX_focus_generic_modernize_industry
-  relative_position_id = OT1_R_provincial_program
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_provincial_program }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 679 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 679 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 679 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 679 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_hejaz_stations bonus = 0.25 uses = 1 category = construction_tech }
-
-            custom_effect_tooltip = TUR_stab_unlock_food_tt
-        }
- }
-	focus = {
-  id = OT1_R_syria_depots
-  icon = GFX_focus_generic_reinforcing_the_supply_network
-  relative_position_id = OT1_R_provincial_program
-  x = 4
-  y = 1
-  prerequisite = { focus = OT1_R_provincial_program }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 677 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 677 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 677 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 677 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_syria_depots bonus = 0.25 uses = 1 category = industry }
-        }
- }
-	focus = {
-  id = OT1_R_meso_provincial
-  icon = GFX_goal_generic_construct_infrastructure
-  relative_position_id = OT1_R_provincial_program
-  x = -4
-  y = 1
-  prerequisite = { focus = OT1_R_provincial_program }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 291 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 291 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_meso_provincial bonus = 0.25 uses = 1 category = construction_tech }
-        }
- }
-
-	focus = {
-  id = OT1_R_prov_ankara
-  icon = GFX_goal_generic_production2
-  relative_position_id = OT1_R_prov_anatolian_roads
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_prov_anatolian_roads }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 49 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_prov_ankara bonus = 0.25 uses = 1 category = industry }
-        }
- }
-
-	focus = {
-  id = OT1_R_mosul_service
-  icon = GFX_goal_generic_oil_refinery
-  relative_position_id = OT1_R_meso_provincial
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_meso_provincial }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 676 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 676 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 676 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 676 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_mosul_service bonus = 0.25 uses = 1 category = industry }
-        }
- }
-	focus = {
-  id = OT1_R_basra_landing
-  icon = GFX_focus_JAP_rely_on_infantry_charges
-  relative_position_id = OT1_R_meso_provincial
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_meso_provincial }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 291 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 291 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 291 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_basra_landing bonus = 0.25 uses = 1 category = industry }
-        }
- }
-	focus = {
-  id = OT1_R_adana_cotton
-  icon = GFX_goal_generic_construct_mil_factory
-  relative_position_id = OT1_R_prov_ankara
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_prov_ankara }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 344 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 344 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 344 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 344 = { add_extra_state_shared_building_slots = 1 add_building_construction = { type = industrial_complex level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_adana_cotton bonus = 0.25 uses = 1 category = industry }
-        }
- }
-	focus = {
-  id = OT1_R_konya_grain
-  icon = GFX_focus_generic_agricultural_subsidies
-  relative_position_id = OT1_R_prov_anatolian_roads
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_prov_anatolian_roads }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 346 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 346 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 346 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 346 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_konya_grain bonus = 0.25 uses = 1 category = industry }
-
-            custom_effect_tooltip = TUR_stab_unlock_food_tt
-        }
- }
-	focus = {
-  id = OT1_R_erzurum_roads
-  icon = GFX_goal_generic_construction2
-  relative_position_id = OT1_R_hejaz_stations
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_hejaz_stations }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 353 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 353 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 353 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 353 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_erzurum_roads bonus = 0.25 uses = 1 category = construction_tech }
-        }
- }
-	focus = {
-  id = OT1_R_damascus_rail
-  icon = GFX_focus_SIA_night_time_training
-  relative_position_id = OT1_R_syria_depots
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_syria_depots }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 554 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 554 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 554 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 554 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_damascus_rail bonus = 0.25 uses = 1 category = construction_tech }
-        }
- }
-
-	focus = {
-  id = OT1_R_samsun_coast
-  icon = GFX_focus_INS_guided_economy
-  relative_position_id = OT1_R_erzurum_roads
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_erzurum_roads }
-  prerequisite = { focus = OT1_R_konya_grain }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 AND = { date < 1936.1.1 has_start_date < 1936.1.1 tag = TUR OT1_R_no_great_war = yes } 355 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } OR = { owns_state = 355 } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_INDUSTRY }
-  completion_reward = {
-            if = { limit = { 355 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 355 = { add_building_construction = { type = infrastructure level = 1 instant_build = yes } } } add_tech_bonus = { name = OT1_R_samsun_coast bonus = 0.25 uses = 1 category = industry }
-        }
- }
-
-	focus = {
-  id = OT1_R_french_mission_1909
-  icon = GFX_focus_generic_soldier_salute
-  relative_position_id = TUR_befriend_britain
-  x = -1
-  y = 2
-  prerequisite = { focus = TUR_befriend_britain }
-  mutually_exclusive = { focus = TUR_german_reform }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR date > 1909.1.1 NOT = { has_war_with = FRA } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  completion_reward = { set_country_flag = OT1_R_french_agreement add_tech_bonus = { name = OT1_R_french_mission_1909 bonus = 0.4 uses = 1 category = support_weapons } army_experience = 10 }
- }
-
-	focus = {
-  id = OT1_R_ottoman_reorganisation_1914
-  icon = GFX_goal_generic_army_doctrines
-  relative_position_id = TUR_german_reform
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_german_reform focus = OT1_R_french_mission_1909 }
-  cost = 7
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR date > 1914.5.11 }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  completion_reward = { add_mastery_bonus = { name = OT1_R_ottoman_reorganisation_1914 bonus = 0.12 days = 240 track = operations } OT1_R_reconcile_army_reform = yes }
- }
-	focus = {
-  id = TUR_german_reform
-  icon = GFX_focus_generic_commonwealth_build_infantry
-  relative_position_id = OT1_R_german_liaison
-  x = -4
-  y = 1
-  prerequisite = { focus = OT1_R_german_liaison }
-  mutually_exclusive = { focus = OT1_R_french_mission_1909 }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR date > 1913.12.13 NOT = { has_war_with = GER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt set_country_flag = OT1_R_german_liaison add_mastery_bonus = { name = TUR_german_reform bonus = 0.1 days = 240 track = infantry } army_experience = 10
-
-  set_country_flag = OT1_R_german_agreement
-  }
- }
-
-	focus = {
-  id = TUR_fortify_dardanelles
-  icon = GFX_goal_generic_major_war
-  relative_position_id = OT1_R_dardanelles_watch
-  x = -3
-  y = 1
-  prerequisite = { focus = OT1_R_dardanelles_watch }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  completion_reward = { add_timed_idea = { idea = OT1_R_dardanelles_defence_spirit days = 240 } country_event = { id = ww1_turkey.15 days = 1 } }
- }
-	focus = {
-  id = TUR_fortify_gallipoli
-  icon = GFX_focus_CZE_second_fortification_program
-  relative_position_id = TUR_fortify_dardanelles
-  x = -1
-  y = 1
-  prerequisite = { focus = TUR_fortify_dardanelles }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 has_start_date < 1936.1.1 date > 1914.1.1 OT1_R_has_great_war = yes has_war_with = ENG }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_ARMY_XP }
-  completion_reward = {  country_event = { id = ww1_turkey.16 days = 1 } }
- }
-
-	focus = {
-  id = TUR_naval_effort
-  icon = GFX_focus_JAP_assure_superior_naval_quality
-  x = 81
-  y = 0
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 10 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = { navy_experience = 10 }
- }
+	# Naval programmes
 	focus = {
   id = OT1_R_ottoman_navy_reform
   icon = GFX_focus_generic_naval_discipline
-  relative_position_id = TUR_naval_effort
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_naval_effort }
   cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = TUR_naval_effort
+		}
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_NAVY_XP }
   completion_reward = { add_mastery_bonus = { name = OT1_R_ottoman_navy_reform bonus = 0.08 days = 240 track = screens } navy_experience = 10 }
- }
-	focus = {
-  id = OT1_R_coastal_defence_programme
-  icon = GFX_focus_generic_coastal_fort
-  relative_position_id = OT1_R_ottoman_navy_reform
-  x = -4
-  y = 1
-  prerequisite = { focus = OT1_R_ottoman_navy_reform }
-  mutually_exclusive = { focus = TUR_dreadnought }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = {
-  navy_experience = 10
-  }
- }
-	focus = {
-  id = TUR_dreadnought
-  icon = GFX_focus_generic_trade_interdiction
-  relative_position_id = OT1_R_ottoman_navy_reform
-  x = -2
-  y = 1
-  prerequisite = { focus = OT1_R_ottoman_navy_reform }
-  mutually_exclusive = { focus = OT1_R_coastal_defence_programme }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = { add_tech_bonus = { name = TUR_dreadnought bonus = 0.5 uses = 1 category = bb_tech }  }
- }
-	focus = {
-  id = TUR_destroyer_effort
-  icon = GFX_goal_generic_navy_anti_submarine
-  relative_position_id = OT1_R_ottoman_navy_reform
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_R_ottoman_navy_reform }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = { add_tech_bonus = { name = TUR_destroyer_effort bonus = 0.5 uses = 1 category = dd_tech } }
- }
+		relative_position_id = OT1_national_opening
+		x = -3
+		y = 1
+	}
+
 	focus = {
   id = TUR_submarine_theory
   icon = GFX_focus_generic_cruiser_submarines
-  relative_position_id = OT1_R_ottoman_navy_reform
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_ottoman_navy_reform }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_NAVY_XP }
   completion_reward = { add_tech_bonus = { name = TUR_submarine_theory bonus = 0.4 uses = 1 category = ss_tech } }
- }
+		relative_position_id = OT1_R_ottoman_navy_reform
+		x = 1
+		y = 2
+		prerequisite = { focus = OT1_R_ottoman_navy_reform }
+	}
+
 	focus = {
   id = OT1_R_naval_aviation
   icon = GFX_focus_CZE_military_aeronautical_institute
-  relative_position_id = OT1_R_ottoman_navy_reform
-  x = 4
-  y = 1
-  prerequisite = { focus = OT1_R_ottoman_navy_reform }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_NAVY_XP }
   completion_reward = { add_tech_bonus = { name = OT1_R_naval_aviation bonus = 0.3 uses = 1 category = air_equipment } air_experience = 5 }
- }
-
-	focus = {
-  id = OT1_R_mine_barriers
-  icon = GFX_focus_generic_mine_warfare
-  relative_position_id = OT1_R_coastal_defence_programme
-  x = 2
-  y = 1
-  prerequisite = { focus = OT1_R_coastal_defence_programme }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = {
-  add_tech_bonus = { name = OT1_R_mine_barriers_mines bonus = 0.35 uses = 1 category = naval_mines }
-  }
- }
+		relative_position_id = OT1_R_ottoman_navy_reform
+		x = 7
+		y = 2
+		prerequisite = { focus = OT1_R_ottoman_navy_reform }
+	}
 
 	focus = {
   id = OT1_R_destroyer_escorts
   icon = GFX_focus_GER_seeherrschaft
-  relative_position_id = TUR_destroyer_effort
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_destroyer_effort }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_NAVY_XP }
   completion_reward = { add_mastery_bonus = { name = OT1_R_destroyer_escorts bonus = 0.1 days = 240 track = screens }  }
- }
+		relative_position_id = TUR_destroyer_effort
+		x = 0
+		y = 2
+		prerequisite = { focus = TUR_destroyer_effort }
+	}
+
 	focus = {
   id = OT1_R_convoy_escorts
   icon = GFX_goal_generic_navy_cruiser
-  relative_position_id = OT1_R_destroyer_escorts
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_destroyer_escorts }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_NAVY_XP }
   completion_reward = { add_equipment_to_stockpile = { type = convoy amount = 15 }  }
- }
+		relative_position_id = OT1_R_destroyer_escorts
+		x = 0
+		y = 1
+		prerequisite = { focus = OT1_R_destroyer_escorts }
+	}
 
 	focus = {
-  id = OT1_R_dardanelles_mines
-  icon = GFX_focus_PHI_war_for_the_oceans
-  relative_position_id = OT1_R_mine_barriers
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_mine_barriers }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_has_great_war = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = {  navy_experience = 10 }
- }
-
-	focus = {
-  id = OT1_R_strait_defence
-  icon = GFX_focus_generic_military_academy
-  relative_position_id = OT1_R_dardanelles_mines
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_dardanelles_mines }
-  cost = 7
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_has_great_war = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = { add_timed_idea = { idea = OT1_R_strait_defence_spirit days = 300 } add_mastery_bonus = { name = OT1_R_strait_defence bonus = 0.1 days = 240 track = screens }    }
- }
-
-	focus = {
-  id = OT1_R_modest_battlefleet
-  icon = GFX_goal_generic_amphibious_assault
-  relative_position_id = TUR_dreadnought
-  x = 2
-  y = 1
-  prerequisite = { focus = TUR_dreadnought }
-  cost = 7
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR OT1_R_has_great_war = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_NAVY_XP }
-  completion_reward = {  navy_experience = 15  }
- }
-
-	focus = {
-  id = TUR_form_airforce
-  icon = GFX_goal_generic_build_airforce
-  x = 96
-  y = 0
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 10 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { air_experience = 10 }
- }
-	focus = {
-  id = OT1_R_san_stefano_aviation
-  icon = GFX_focus_SOV_flying_clubs
-  relative_position_id = TUR_form_airforce
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_form_airforce }
+  id = OT1_R_merchant_shipping
+  icon = GFX_focus_ITA_modernize_ansaldo_facilities
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { if = { limit = { 797 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 797 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } }  }
- }
+  search_filters = { FOCUS_FILTER_INDUSTRY }
+  completion_reward = { add_equipment_to_stockpile = { type = convoy amount = 15 }  }
+		relative_position_id = OT1_R_istanbul_ports
+		x = 0
+		y = 2
+		prerequisite = { focus = OT1_R_istanbul_ports }
+	}
 
+	# Aviation programmes
 	focus = {
   id = OT1_R_pilot_training
   icon = GFX_focus_PRC_pilot_training
-  relative_position_id = OT1_R_san_stefano_aviation
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_san_stefano_aviation }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_AIR_XP }
   completion_reward = {  air_experience = 5 }
- }
+		relative_position_id = OT1_R_san_stefano_aviation
+		x = -1
+		y = 2
+		prerequisite = { focus = OT1_R_san_stefano_aviation }
+	}
+
 	focus = {
   id = OT1_R_air_observation
   icon = GFX_focus_generic_pilot_training
-  relative_position_id = OT1_R_pilot_training
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_pilot_training }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
@@ -1568,923 +2658,58 @@ focus_tree = {
   completion_reward = {
   air_experience = 10
   }
- }
-	focus = {
-  id = TUR_fighter_focus
-  icon = GFX_focus_generic_swooping_falcon
-  relative_position_id = OT1_R_pilot_training
-  x = -4
-  y = 1
-  prerequisite = { focus = OT1_R_pilot_training }
-  mutually_exclusive = { focus = TUR_bomber_focus }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { add_tech_bonus = { name = TUR_fighter_focus bonus = 0.5 uses = 1 category = light_air } }
- }
-	focus = {
-  id = TUR_bomber_focus
-  icon = GFX_goal_generic_air_bomber
-  relative_position_id = OT1_R_pilot_training
-  x = -2
-  y = 1
-  prerequisite = { focus = OT1_R_pilot_training }
-  mutually_exclusive = { focus = TUR_fighter_focus }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { add_tech_bonus = { name = TUR_bomber_focus bonus = 0.5 uses = 1 category = medium_air }  }
- }
-	focus = {
-  id = TUR_airfield_construction_1
-  icon = GFX_focus_generic_air_bases
-  relative_position_id = OT1_R_air_mechanics
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_air_mechanics }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } } }
- }
+		relative_position_id = OT1_R_pilot_training
+		x = 0
+		y = 1
+		prerequisite = { focus = OT1_R_pilot_training }
+	}
+
 	focus = {
   id = OT1_R_air_mechanics
   icon = GFX_focus_generic_copy_plane_designs
-  relative_position_id = OT1_R_san_stefano_aviation
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_san_stefano_aviation }
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_AIR_XP }
   completion_reward = { add_tech_bonus = { name = OT1_R_air_mechanics bonus = 0.35 uses = 1 category = air_equipment } }
- }
+		relative_position_id = OT1_R_san_stefano_aviation
+		x = 2
+		y = 2
+		prerequisite = { focus = OT1_R_san_stefano_aviation }
+	}
+
 	focus = {
-  id = OT1_R_french_air_mission
-  icon = GFX_focus_generic_air_research_boost
-  relative_position_id = OT1_R_san_stefano_aviation
-  x = -3
-  y = 1
-  prerequisite = { focus = OT1_R_san_stefano_aviation }
-  mutually_exclusive = { focus = OT1_R_german_air_mission }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR NOT = { has_war_with = FRA } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { set_country_flag = OT1_R_french_agreement add_tech_bonus = { name = OT1_R_french_air_mission bonus = 0.5 uses = 1 category = air_equipment }  }
- }
-	focus = {
-  id = OT1_R_german_air_mission
-  icon = GFX_focus_FIN_expand_air_force_academy
-  relative_position_id = OT1_R_san_stefano_aviation
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_san_stefano_aviation }
-  mutually_exclusive = { focus = OT1_R_french_air_mission }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR date > 1913.12.13 NOT = { has_war_with = GER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { set_country_flag = OT1_R_german_liaison add_tech_bonus = { name = OT1_R_german_air_mission bonus = 0.5 uses = 1 category = air_equipment } }
- }
-	focus = {
-  id = OT1_R_escadrille_tables
-  icon = GFX_focus_SOV_mobilization_plan
-  relative_position_id = OT1_R_air_observation
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_air_observation }
-  prerequisite = { focus = TUR_airfield_construction_1 }
+  id = TUR_airfield_construction_1
+  icon = GFX_focus_generic_air_bases
   cost = 5
   available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
+  cancel_if_invalid = yes
+  ai_will_do = { factor = 6 }
+  search_filters = { FOCUS_FILTER_AIR_XP }
+  completion_reward = { if = { limit = { 49 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 49 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } } }
+		relative_position_id = OT1_R_air_mechanics
+		x = 0
+		y = 1
+		prerequisite = { focus = OT1_R_air_mechanics }
+	}
+
+	focus = {
+		prerequisite = { focus = OT1_R_air_observation }
+		prerequisite = { focus = TUR_airfield_construction_1 }
+  id = OT1_R_escadrille_tables
+  icon = GFX_focus_SOV_mobilization_plan
+  cost = 5
+  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR
+			has_completed_focus = OT1_R_air_observation
+		}
   cancel_if_invalid = yes
   ai_will_do = { factor = 6 }
   search_filters = { FOCUS_FILTER_AIR_XP }
   completion_reward = { add_mastery_bonus = { name = OT1_R_escadrille_tables bonus = 0.1 days = 240 track = medium_aircraft } air_experience = 10 }
- }
-
-	focus = {
-  id = TUR_airfield_construction_2
-  icon = GFX_goal_generic_air_production
-  relative_position_id = TUR_airfield_construction_1
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_airfield_construction_1 }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_AIR_XP }
-  completion_reward = { if = { limit = { 340 = { is_owned_by = ROOT is_fully_controlled_by = ROOT is_core_of = ROOT } } 340 = { add_building_construction = { type = air_base level = 1 instant_build = yes } } } add_tech_bonus = { name = TUR_airfield_construction_2 bonus = 0.3 uses = 1 category = construction_tech } }
- }
-
-	focus = {
-  id = TUR_diplomatic_effort
-  icon = GFX_focus_INS_work_with_oil_barons
-  x = 62
-  y = 0
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 10 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-
-            add_political_power = 50
-        }
- }
-	focus = {
-  id = TUR_european
-  icon = GFX_goal_generic_improve_relations
-  relative_position_id = TUR_diplomatic_effort
-  x = -3
-  y = 1
-  prerequisite = { focus = TUR_diplomatic_effort }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-
-            if = { limit = { country_exists = GER NOT = { has_war_with = GER } } add_opinion_modifier = { target = GER modifier = small_increase } }
-            if = { limit = { country_exists = ENG NOT = { has_war_with = ENG } } add_opinion_modifier = { target = ENG modifier = small_increase } }
-            if = { limit = { country_exists = FRA NOT = { has_war_with = FRA } } add_opinion_modifier = { target = FRA modifier = small_increase } }
-        }
- }
-	focus = {
-  id = TUR_balkans
-  icon = GFX_goal_generic_intelligence_exchange
-  relative_position_id = TUR_diplomatic_effort
-  x = 2
-  y = 1
-  prerequisite = { focus = TUR_diplomatic_effort }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-
-  if = { limit = { country_exists = BUL NOT = { has_war_with = BUL } } add_opinion_modifier = { target = BUL modifier = small_increase } }
-   if = { limit = { country_exists = GRE NOT = { has_war_with = GRE } } add_opinion_modifier = { target = GRE modifier = small_increase } }
-  }
- }
-	focus = {
-  id = TUR_middle_east
-  icon = GFX_focus_ww1_official_flag_tur_diplomacy
-  relative_position_id = TUR_diplomatic_effort
-  x = 5
-  y = 1
-  prerequisite = { focus = TUR_diplomatic_effort }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-            if = { limit = { country_exists = PER NOT = { has_war_with = PER } } add_opinion_modifier = { target = PER modifier = small_increase } }
-            if = { limit = { country_exists = SHA NOT = { has_war_with = SHA } } add_opinion_modifier = { target = SHA modifier = small_increase } }
-            if = { limit = { country_exists = HEJ NOT = { has_war_with = HEJ } } add_opinion_modifier = { target = HEJ modifier = small_increase } }
-        }
- }
-	focus = {
-  id = TUR_befriend_germany
-  icon = GFX_focus_generic_military_mission
-  relative_position_id = TUR_european
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_european }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = GER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 10 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = ww1_turkey.1
-        }
- }
-	focus = {
-  id = TUR_befriend_britain
-  icon = GFX_focus_BEL_antwerp_maritime_academy
-  relative_position_id = TUR_european
-  x = -4
-  y = 1
-  prerequisite = { focus = TUR_european }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = ENG } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 5 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = ww1_turkey.7
-        }
- }
-	focus = {
-  id = TUR_hold_on_to_land
-  icon = GFX_focus_BEL_better_than_maginot
-  relative_position_id = TUR_balkans
-  x = -1
-  y = 1
-  prerequisite = { focus = TUR_balkans }
-  mutually_exclusive = { focus = TUR_let_go_of_land }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_global_flag = first_balkan_war } NOT = { has_global_flag = second_balkan_war } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = ww1_turkey.3
-        }
- }
-	focus = {
-  id = TUR_let_go_of_land
-  icon = GFX_focus_generic_diplomatic_treaty
-  relative_position_id = TUR_balkans
-  x = 1
-  y = 1
-  prerequisite = { focus = TUR_balkans }
-  mutually_exclusive = { focus = TUR_hold_on_to_land }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_global_flag = first_balkan_war } NOT = { has_global_flag = second_balkan_war } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 2 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = ww1_turkey.4
-        }
- }
-	focus = {
-  id = TUR_libya_work_locals
-  icon = GFX_focus_JAP_national_spiritual_mobilization_movement
-  relative_position_id = TUR_middle_east
-  x = 0
-  y = 1
-  prerequisite = { focus = TUR_middle_east }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_global_flag = treaty_of_ouchy } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = ww1_turkey.27
-        }
- }
-	focus = {
-  id = TUR_back_senussi
-  icon = GFX_focus_generic_blue_flags
-  relative_position_id = TUR_libya_work_locals
-  x = -1
-  y = 1
-  prerequisite = { focus = TUR_libya_work_locals }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 date > 1914.1.1 has_global_flag = treaty_of_ouchy }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 9 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            country_event = ww1_turkey.28
-        }
- }
-	focus = {
-  id = TUR_strike_russian_port
-  icon = GFX_goal_generic_occupy_states_coastal
-  relative_position_id = OT1_R_german_agreement_review
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_german_agreement_review }
-  cost = 5
-  available = {
-            OR = {
-                AND = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1914.10.29 } has_country_flag = OT1_R_german_agreement OR = { GER = { has_war_with = RIE } GER = { has_war_with = SOV } } }
-                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.9.24 } has_start_date < 1936.1.1 has_country_flag = OT1_R_german_agreement OR = { GER = { has_war_with = RIE } GER = { has_war_with = SOV } } }
-            }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            country_event = ww1_turkey.2
-        }
- }
-	focus = {
-  id = OT1_R_german_liaison
-  icon = GFX_focus_NORDIC_dem_institution_1
-  relative_position_id = TUR_befriend_germany
-  x = 1
-  y = 1
-  prerequisite = { focus = TUR_befriend_germany }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = GER NOT = { has_war_with = GER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            set_country_flag = OT1_R_german_liaison add_timed_idea = { idea = OT1_R_german_liaison_spirit days = 180 }
-        }
- }
-
-	focus = {
-  id = OT1_R_secret_alliance
-  icon = GFX_goal_generic_alliance
-  relative_position_id = OT1_R_german_liaison
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_german_liaison }
-  cost = 5
-  available = {
-            OR = {
-                AND = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1914.8.2 }  country_exists = GER NOT = { has_war_with = GER }  }
-                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.4.2 } has_start_date < 1936.1.1 country_exists = GER NOT = { has_war_with = GER } }
-            }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-
-  add_command_power = 10
-  }
- }
-	focus = {
-  id = OT1_R_german_alignment
-  icon = GFX_goal_tripartite_pact
-  relative_position_id = OT1_R_secret_alliance
-  x = 0
-  y = 2
-  prerequisite = { focus = OT1_R_secret_alliance }
-  mutually_exclusive = { focus = OT1_R_neutral_alignment focus = OT1_R_regional_alignment }
-  cost = 5
-  available = {
-            has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_german_liaison NOT = { has_country_flag = OT1_R_entente_agreement } NOT = { has_country_flag = OT1_R_neutral_policy }  country_exists = GER GER = { GE1_ww1_may_choose_central_bloc = yes }
-            NOT = { has_completed_focus = OT1_R_entente_alignment }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 10 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            OT1_R_request_german_alignment = yes
-        }
- }
-	focus = {
-  id = OT1_R_german_agreement_review
-  icon = GFX_focus_SIA_the_midnight_meeting
-  relative_position_id = OT1_R_german_alignment
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_german_alignment }
-  cost = 5
-  available = {
-            OR = {
-                AND = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_german_agreement country_exists = GER NOT = { has_war_with = GER } }
-                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.6.11 } has_start_date < 1936.1.1 country_exists = GER NOT = { has_war_with = GER } }
-            }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-
-  army_experience = 10
-  }
- }
-
-	focus = {
-  id = OT1_R_central_war
-  icon = GFX_goal_generic_major_alliance
-  relative_position_id = OT1_R_german_agreement_review
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_german_agreement_review }
-  cost = 5
-  available = {
-            OR = {
-                AND = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_german_agreement OR = { GER = { has_war_with = RIE } GER = { has_war_with = SOV } }  country_exists = GER GER = { GE1_ww1_may_choose_central_bloc = yes } }
-                AND = { WW1_historical_ai_preparation = yes NOT = { date < 1914.8.20 } has_start_date < 1936.1.1 country_exists = GER GER = { GE1_ww1_may_choose_central_bloc = yes } }
-            }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 8 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt
-            OT1_R_join_central_war = yes
-        }
- }
-	focus = {
-  id = OT1_R_british_guarantees
-  icon = GFX_focus_CHI_invoke_the_nine_powers
-  relative_position_id = TUR_befriend_britain
-  x = 3
-  y = 1
-  prerequisite = { focus = TUR_befriend_britain }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = ENG NOT = { has_war_with = ENG } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            set_country_flag = OT1_R_entente_liaison add_timed_idea = { idea = OT1_R_entente_liaison_spirit days = 180 }
-        }
- }
-	focus = {
-  id = OT1_R_strait_guarantees
-  icon = GFX_focus_CHI_negotiate_the_nine_powers_treaty
-  relative_position_id = OT1_R_british_guarantees
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_british_guarantees }
-  cost = 5
-  available = { country_exists = RIE  has_start_date < 1936.1.1 date < 1936.1.1 country_exists = ENG country_exists = FRA NOT = { has_war_with = ENG } NOT = { has_war_with = FRA } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            OT1_R_request_straits_guarantees = yes
-        }
- }
-	focus = {
-  id = OT1_R_entente_alignment
-  icon = GFX_goal_molotov_ribbentrop_pact
-  relative_position_id = OT1_R_strait_guarantees
-  x = -2
-  y = 2
-  prerequisite = { focus = OT1_R_strait_guarantees }
-  mutually_exclusive = { focus = OT1_R_neutral_alignment }
-  cost = 5
-  available = {
-            has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_entente_liaison has_country_flag = OT1_R_strait_guarantees_accepted country_exists = RIE NOT = { has_war_with = RIE } NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_neutral_policy }  country_exists = FRA FRA = { FR3_R_may_enter_entente = yes }
-            NOT = { has_completed_focus = OT1_R_german_alignment }
-            NOT = { has_completed_focus = OT1_R_regional_alignment }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            OT1_R_request_entente_alignment = yes
-        }
- }
-
-	focus = {
-  id = OT1_R_entente_war
-  icon = GFX_focus_generic_full_social_mobilization
-  relative_position_id = OT1_R_entente_alignment
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_entente_alignment }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_entente_agreement country_exists = FRA country_exists = ENG FRA = { has_war_with = GER } ENG = { has_war_with = GER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            OT1_R_join_entente_war = yes
-        }
- }
-
-	focus = {
-  id = OT1_R_neutral_conference
-  icon = GFX_focus_generic_public_meetings
-  relative_position_id = TUR_european
-  x = -2
-  y = 1
-  prerequisite = { focus = TUR_european }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = GER } NOT = { has_war_with = ENG } NOT = { has_war_with = FRA } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-  add_stability = 0.03
-  }
- }
-	focus = {
-  id = OT1_R_neutral_alignment
-  icon = GFX_focus_SWI_neutrality_on_the_move
-  relative_position_id = OT1_R_neutral_conference
-  x = 4
-  y = 4
-  prerequisite = { focus = OT1_R_neutral_conference }
-  mutually_exclusive = { focus = OT1_R_entente_alignment focus = OT1_R_german_alignment }
-  cost = 5
-  available = {
-            has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_entente_agreement }
-            NOT = { has_completed_focus = OT1_R_regional_alignment }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            OT1_R_adopt_neutrality = yes
-        }
- }
-
-	focus = {
-  id = OT1_R_neutral_ports
-  icon = GFX_focus_ICE_modernizing_the_coast_guard
-  relative_position_id = OT1_R_neutral_alignment
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_neutral_alignment }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_neutral_policy NOT = { has_war_with = ENG } NOT = { has_war_with = GER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 5 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            add_timed_idea = { idea = OT1_R_neutral_ports_spirit days = 180 }
-        }
- }
-
-	focus = {
-  id = OT1_R_neutral_mediation
-  icon = GFX_SOV_policy_of_collective_security_ccp_2d_sov_compatibility
-  relative_position_id = OT1_R_neutral_ports
-  x = -1
-  y = 1
-  prerequisite = { focus = OT1_R_neutral_ports }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_neutral_policy NOT = { has_war_with = GER } NOT = { has_war_with = FRA } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 5 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-             add_political_power = 20
-
-  add_war_support = -0.02 add_stability = 0.02
-  }
- }
-
-	focus = {
-  id = OT1_R_balkan_settlement
-  icon = GFX_goal_generic_scientific_exchange
-  relative_position_id = TUR_hold_on_to_land
-  x = 1
-  y = 1
-  prerequisite = { focus = TUR_hold_on_to_land focus = TUR_let_go_of_land }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = BUL } NOT = { has_war_with = GRE } NOT = { has_war_with = SER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-  add_stability = 0.03
-  }
- }
-	focus = {
-  id = OT1_R_italian_accommodation
-  icon = GFX_focus_GER_integrated_economies
-  relative_position_id = OT1_R_balkan_settlement
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_balkan_settlement }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = ITA NOT = { has_war_with = ITA } OT1_R_no_great_war = yes }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            OT1_R_request_italian_accommodation = yes
-        }
- }
-	focus = {
-  id = OT1_R_thrace_settlement
-  icon = GFX_focus_generic_concessions
-  relative_position_id = OT1_R_italian_accommodation
-  x = -2
-  y = 1
-  prerequisite = { focus = OT1_R_italian_accommodation }
-  cost = 5
-  available = { country_exists = BUL country_exists = SER country_exists = GRE  has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = BUL } NOT = { has_war_with = GRE } NOT = { has_war_with = SER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            OT1_R_request_balkan_settlement = yes
-        }
- }
-	focus = {
-  id = OT1_R_regional_alignment
-  icon = GFX_focus_generic_league_of_nations
-  relative_position_id = OT1_R_thrace_settlement
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_thrace_settlement }
-  mutually_exclusive = { focus = OT1_R_german_alignment }
-  cost = 5
-  available = {
-            has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_balkan_settlement NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_entente_agreement } NOT = { has_country_flag = OT1_R_neutral_policy } OT1_R_no_great_war = yes
-            NOT = { has_completed_focus = OT1_R_entente_alignment }
-            NOT = { has_completed_focus = OT1_R_neutral_alignment }
-        }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 4 modifier = { factor = 0 is_historical_focus_on = yes } }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            set_country_flag = OT1_R_regional_agreement
-
-  add_command_power = 10
-  }
- }
-	focus = {
-  id = OT1_R_regional_defence
-  icon = GFX_goal_generic_occupy_states_ongoing_war
-  relative_position_id = OT1_R_regional_alignment
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_regional_alignment }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = OT1_R_regional_agreement }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-  add_command_power = 10
-  }
- }
-
-	focus = {
-  id = OT1_R_persian_frontier
-  icon = GFX_focus_FIN_strengthen_military_administration
-  relative_position_id = TUR_middle_east
-  x = 2
-  y = 1
-  prerequisite = { focus = TUR_middle_east }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 country_exists = PER NOT = { has_war_with = PER } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-  if = { limit = { country_exists = PER NOT = { has_war_with = PER } } add_opinion_modifier = { target = PER modifier = small_increase } PER = { add_opinion_modifier = { target = ROOT modifier = small_increase } } }
-  }
- }
-
-	focus = {
-  id = OT1_R_red_sea_consultation
-  icon = GFX_focus_generic_merchant_fleet
-  relative_position_id = TUR_libya_work_locals
-  x = 2
-  y = 2
-  prerequisite = { focus = TUR_back_senussi focus = TUR_libya_work_locals }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_war_with = ENG } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 5 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            navy_experience = 5
-        }
- }
-	focus = {
-  id = OT1_R_stability_council
-  icon = GFX_focus_generic_improve_the_administration_2
-  relative_position_id = TUR_diplomatic_effort
-  x = -1
-  y = 1
-  prerequisite = { focus = TUR_diplomatic_effort }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 7 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-  add_stability = 0.02
-  }
- }
-	focus = {
-  id = OT1_R_constitutional_balance
-  icon = GFX_focus_AFG_parliamentary_democracy
-  relative_position_id = OT1_R_stability_council
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_stability_council }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-            add_political_power = 25
-
-            custom_effect_tooltip = TUR_stab_unlock_compact_tt
-
-  add_stability = 0.02
-  }
- }
-
-	focus = {
-  id = OT1_R_dardanelles_watch
-  icon = GFX_focus_SMB_blue_water_fleet
-  relative_position_id = OT1_R_constitutional_balance
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_constitutional_balance }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1  }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 6 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-  navy_experience = 10
-  }
- }
-	focus = {
-  id = OT1_R_wartime_neutrality_review
-  icon = GFX_goal_generic_neutrality_focus
-  relative_position_id = OT1_R_dardanelles_watch
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_dardanelles_watch }
-  cost = 5
-  available = { has_start_date < 1936.1.1 date < 1936.1.1 NOT = { has_country_flag = OT1_R_german_agreement } NOT = { has_country_flag = OT1_R_entente_agreement } }
-  cancel_if_invalid = yes
-  ai_will_do = { factor = 5 }
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  completion_reward = {
-
-  add_war_support = -0.02 add_stability = 0.02
-  }
- }
-
-	focus = {
-  id = OT1_P_committee_clubs
-  icon = GFX_focus_generic_workers
-  relative_position_id = TUR_pro_young_turk
-  x = -1
-  y = 1
-  prerequisite = { focus = TUR_pro_young_turk }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt add_political_power = 20 add_to_variable = { OT1_R_cabinet_authority = 3 } OT1_R_refresh_administration = yes }
-  bypass = { has_country_flag = OT1_R_coup_resolved }
- }
-	focus = {
-  id = OT1_P_officer_cadres
-  icon = GFX_focus_generic_support_the_left_right
-  relative_position_id = TUR_pro_young_turk
-  x = 1
-  y = 1
-  prerequisite = { focus = TUR_pro_young_turk }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt army_experience = 10 add_to_variable = { OT1_R_officer_loyalty = 3 } OT1_R_refresh_administration = yes }
-  bypass = { has_country_flag = OT1_R_coup_resolved }
- }
-	focus = {
-  id = OT1_P_national_credit_focus
-  icon = GFX_focus_CHI_promote_national_currency
-  relative_position_id = TUR_reforms_1
-  x = -1
-  y = 1
-  prerequisite = { focus = TUR_reforms_1 }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt add_ideas = OT1_P_national_credit custom_effect_tooltip = OT1_P_procurement_unlocked_tt }
- }
-	focus = {
-  id = OT1_P_civilian_committee_focus
-  icon = GFX_focus_generic_advisors
-  relative_position_id = OT1_R_ministerial_review
-  x = 1
-  y = 1
-  prerequisite = { focus = OT1_R_ministerial_review }
-  mutually_exclusive = { focus = OT1_P_officer_directorate_focus }
-  cost = 5
-  available = { OT1_P_ittihadist = yes NOT = { AND = { is_ai = yes has_country_flag = OT1_P_ai_officers } } }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 8 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt set_country_flag = OT1_P_civilian_cup add_ideas = OT1_P_civilian_committee add_to_variable = { OT1_R_cabinet_authority = 5 } add_to_variable = { OT1_R_officer_loyalty = -4 } OT1_R_refresh_administration = yes country_event = { id = ww1_ottoman_politics.11 hours = 1 } }
- }
-	focus = {
-  id = OT1_P_officer_directorate_focus
-  icon = GFX_focus_LAT_suspend_constitution_of_latvia
-  relative_position_id = OT1_R_ministerial_review
-  x = 3
-  y = 1
-  prerequisite = { focus = OT1_R_ministerial_review }
-  mutually_exclusive = { focus = OT1_P_civilian_committee_focus }
-  cost = 5
-  available = {  OT1_P_ittihadist = yes NOT = { date < 1914.1.3 } date < 1922.8.4 OR = { is_ai = no is_historical_focus_on = no }  has_character = TUR_Enver_Pasha }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = {  set_country_flag = OT1_P_military_cup add_ideas = OT1_P_officer_directorate OT1_P_elevate_enver = yes add_to_variable = { OT1_R_officer_loyalty = 5 } add_to_variable = { OT1_R_provincial_confidence = -5 } OT1_R_refresh_administration = yes country_event = { id = ww1_ottoman_politics.12 hours = 1 }  }
- }
-	focus = {
-  id = OT1_P_municipal_organisations
-  icon = GFX_focus_generic_full_employment
-  relative_position_id = OT1_P_civilian_committee_focus
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_P_civilian_committee_focus }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt add_stability = 0.02 add_to_variable = { OT1_R_provincial_confidence = 4 } OT1_R_refresh_administration = yes custom_effect_tooltip = TUR_stab_unlock_budgets_tt }
- }
-	focus = {
-  id = OT1_P_unified_war_ministry
-  icon = GFX_focus_generic_army_attack
-  relative_position_id = OT1_P_officer_directorate_focus
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_P_officer_directorate_focus }
-  cost = 5
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = { army_experience = 15 add_mastery_bonus = { name = OT1_P_unified_war_ministry_bonus bonus = 0.15 days = 180 track = operations } add_to_variable = { TUR_stab_food_security = -3 } }
- }
-	focus = {
-  id = OT1_P_union_and_progress
-  icon = GFX_focus_generic_economic_recovery
-  relative_position_id = OT1_R_unionist_responsibility
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_R_unionist_responsibility }
-  cost = 8
-  available = { OT1_P_ittihadist = yes }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = {
-            custom_effect_tooltip = WW1_historical_focus_tt remove_ideas = OT1_P_cup_organisation add_ideas = OT1_P_unionist_state add_popularity = { ideology = neutrality popularity = 0.05 } WW1_consolidate_chosen_government = yes country_event = { id = ww1_ottoman_politics.14 hours = 1 } }
- }
-	focus = {
-  id = OT1_P_revisit_deposition
-  icon = GFX_focus_generic_treaty
-  relative_position_id = TUR_anti_YT_coup
-  x = -1
-  y = 1
-  prerequisite = { focus = TUR_anti_YT_coup }
-  cost = 5
-  available = { OT1_P_restoration_campaign = yes }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = { country_event = { id = ww1_ottoman_politics.1 hours = 1 } custom_effect_tooltip = OT1_P_notables_unlocked_tt }
-  bypass = { has_country_flag = OT1_P_restoration_lapsed }
- }
-	focus = {
-  id = OT1_P_return_to_yildiz
-  icon = GFX_focus_generic_monarchy_2
-  relative_position_id = OT1_P_revisit_deposition
-  x = 0
-  y = 1
-  prerequisite = { focus = OT1_P_revisit_deposition }
-  cost = 5
-  available = { custom_trigger_tooltip = { tooltip = OT1_P_accession_ready_tt OT1_P_may_restore = yes } }
-  cancel_if_invalid = yes
-  search_filters = { FOCUS_FILTER_POLITICAL }
-  ai_will_do = { factor = 4 }
-  completion_reward = { OT1_P_restore_sultan = yes }
-  bypass = { has_country_flag = OT1_P_restoration_lapsed }
- }
+		relative_position_id = TUR_airfield_construction_1
+		x = -1
+		y = 1
+	}
 
 }

@@ -2,19 +2,19 @@
 shared_focus = {
 	id = shared_GEN_balkan_league
 	icon = GFX_focus_generic_balkan_diplomacy
-	cost = 5 relative_position_id = shared_GEN_political_effort
-	x = 0 y = 1
 	prerequisite = { focus = shared_GEN_political_effort }
-
+	relative_position_id = shared_GEN_political_effort
+	x = 0
+	y = 1
+	cost = 5
 	allow_branch = { tag = SER }
-	available = { tag = SER has_start_date < 1936.1.1 date < 1936.1.1 NOT = { date < 1912.2.7 } is_subject = no OR = { is_in_faction = no WW1_is_balkan_league_member = yes } }
-	cancel_if_invalid = yes
-	ai_will_do = { factor = 100 modifier = { factor = 10 is_historical_focus_on = yes } }
+	available = { WW1_balkan_can_form_league = yes }
+	ai_will_do = { factor = 20 }
 	search_filters = { FOCUS_FILTER_POLITICAL }
 	completion_reward = {
-		custom_effect_tooltip = WW1_historical_focus_shared_3_tt country_event = { id = ww1_serbia.1 days = 1 } }
-	# Scoped WW1 native layout: thematic groups and compact chains.
-
+		custom_effect_tooltip = WW1_historical_focus_shared_3_tt
+		WW1_balkan_form_league = yes
+	}
 }
 shared_focus = {
 	id = shared_GEN_revolutionary_cooperation
@@ -32,4 +32,70 @@ shared_focus = {
 		custom_effect_tooltip = WW1_historical_focus_shared_4_tt endsieg_ww1_anti_huerta_coalition = yes }
 	# Scoped WW1 native layout: thematic groups and compact chains.
 
+}
+
+shared_focus = {
+	id = shared_GEN_join_balkan_league
+	icon = GFX_focus_generic_balkan_diplomacy
+	prerequisite = { focus = shared_GEN_political_effort }
+	relative_position_id = shared_GEN_political_effort
+	x = 0
+	y = 1
+	cost = 3
+	allow_branch = { OR = { tag = BUL tag = GRE tag = MNT tag = ROM } }
+	available = { WW1_balkan_can_join_league = yes }
+	bypass = {
+		OR = {
+			WW1_is_balkan_league_member = yes
+			AND = {
+				tag = BUL
+				has_global_flag = treaty_of_london_1913
+				NOT = { has_global_flag = WW1_balkan_focus_first_war_started }
+				owns_state = 1021
+			}
+		}
+	}
+	ai_will_do = { factor = 20 modifier = { factor = 0 tag = ROM } }
+	search_filters = { FOCUS_FILTER_POLITICAL }
+	completion_reward = {
+		SER = { add_to_faction = ROOT }
+	}
+}
+
+shared_focus = {
+	id = shared_GEN_first_balkan_war
+	icon = GFX_focus_generic_full_social_mobilization
+	prerequisite = { focus = shared_GEN_balkan_league }
+	relative_position_id = shared_GEN_balkan_league
+	x = 0
+	y = 1
+	cost = 1
+	allow_branch = { tag = SER }
+	available = { WW1_balkan_can_start_first_war = yes }
+	bypass = { OR = { has_global_flag = first_balkan_war has_global_flag = treaty_of_london_1913 } }
+	ai_will_do = { factor = 30 }
+	search_filters = { FOCUS_FILTER_ANNEXATION }
+	completion_reward = {
+		custom_effect_tooltip = WW1_historical_focus_tt
+		WW1_balkan_start_first_war = yes
+	}
+}
+
+shared_focus = {
+	id = shared_GEN_second_balkan_war
+	icon = GFX_goal_generic_territory_or_war
+	prerequisite = { focus = shared_GEN_join_balkan_league }
+	relative_position_id = shared_GEN_join_balkan_league
+	x = 0
+	y = 1
+	cost = 1
+	allow_branch = { tag = BUL }
+	available = { WW1_balkan_can_start_second_war = yes }
+	bypass = { OR = { has_global_flag = second_balkan_war has_global_flag = treaty_of_bucharest_1913 } }
+	ai_will_do = { factor = 30 }
+	search_filters = { FOCUS_FILTER_ANNEXATION }
+	completion_reward = {
+		custom_effect_tooltip = WW1_historical_focus_tt
+		WW1_balkan_start_second_war = yes
+	}
 }

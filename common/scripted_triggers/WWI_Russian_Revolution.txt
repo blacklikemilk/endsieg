@@ -18,6 +18,19 @@ RUS_ww1_october_ready = {
     any_owned_state = { is_capital = yes }
 }
 
+# Country scope: a Central Powers belligerent in Russia's eastern war.
+RUS_ww1_brest_coalition_member = {
+    OR = {
+        tag = GER
+        is_in_faction_with = GER
+        is_subject_of = GER
+        AND = {
+            OR = { tag = AUH tag = BUL tag = TUR }
+            has_war_together_with = GER
+        }
+    }
+}
+
 # A recorded German war survives the source country's annexation. It remains
 # pending only while a German treaty is still a coherent diplomatic outcome.
 RUS_ww1_brest_pending = {
@@ -29,6 +42,22 @@ RUS_ww1_brest_pending = {
     NOT = { has_global_flag = central_powers_victory }
     NOT = { has_global_flag = compiegne }
     OR = { has_global_flag = RUS_ww1_brest_negotiations has_war_with = GER }
+}
+
+RUS_ww1_brest_historical_talks = {
+    tag = SOV
+    exists = yes
+    has_government = communism
+    is_subject = no
+    is_historical_focus_on = yes
+    has_start_date < 1918.1.1
+    has_global_flag = welcome_event_WW1_active
+    has_global_flag = october_revolution
+    NOT = { has_global_flag = { flag = october_revolution days < 7 } }
+    NOT = { has_global_flag = treaty_of_brest_litovsk }
+    NOT = { has_global_flag = WW1_CP_final_settlement_signed }
+    has_war_with = GER
+    RUS_ww1_brest_pending = yes
 }
 
 RUS_ww1_brest_ready = {
@@ -48,9 +77,22 @@ RUS_ww1_brest_ready = {
         AND = {
             tag = SOV
             has_government = communism
-            has_capitulated = no
-            has_global_flag = { flag = october_revolution days > 45 }
             OR = { has_global_flag = RUS_ww1_brest_negotiations has_war_with = GER }
+            OR = {
+                AND = {
+                    has_capitulated = no
+                    has_global_flag = { flag = october_revolution days > 45 }
+                    OR = {
+                        RUS_ww1_brest_historical_talks = no
+                        has_global_flag = RUS_ww1_brest_early_terms_accepted
+                        NOT = { date < 1918.3.3 }
+                    }
+                }
+                AND = {
+                    has_capitulated = yes
+                    has_war_with = GER
+                }
+            }
         }
         AND = {
             tag = RIE

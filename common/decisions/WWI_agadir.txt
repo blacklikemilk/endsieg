@@ -1,0 +1,50 @@
+WW1_agadir_crisis = {
+	WW1_agadir_send_squadron = {
+		icon = generic_naval
+		activation = { always = no }
+		visible = { has_country_flag = WW1_agadir_expedition_ordered }
+		available = {
+			WW1_agadir_pending = yes
+			OR = {
+				date > 1911.6.30
+				is_historical_focus_on = no
+			}
+			custom_trigger_tooltip = {
+				tooltip = WW1_agadir_surface_ship_off_morocco_tt
+				OR = {
+					WW1_agadir_surface_ship_off_morocco = yes
+					AND = {
+						is_ai = yes
+						is_historical_focus_on = yes
+						NOT = { has_country_flag = WW1_agadir_expedition_sailing }
+						OR = {
+							has_navy_size = { type = screen_ship size > 0 }
+							has_navy_size = { type = capital_ship size > 0 }
+						}
+					}
+				}
+			}
+		}
+		selectable_mission = yes
+		fire_only_once = yes
+		is_good = no
+		cost = 0
+		days_mission_timeout = 90
+		cancel_trigger = { NOT = { WW1_agadir_pending = yes } }
+		cancel_effect = { clr_country_flag = WW1_agadir_expedition_ordered }
+		complete_effect = {
+			custom_effect_tooltip = WW1_agadir_deployment_tt
+			hidden_effect = { WW1_agadir_record_deployment = yes }
+		}
+		timeout_effect = {
+			clr_country_flag = WW1_agadir_expedition_ordered
+			if = {
+				limit = { WW1_agadir_pending = yes }
+				add_political_power = -15
+				set_global_flag = GE1_agadir_german_withdrawal
+				country_event = { id = ww1_germany.264 }
+			}
+		}
+		ai_will_do = { factor = 100 }
+	}
+}

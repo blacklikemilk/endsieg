@@ -1,0 +1,314 @@
+add_namespace = ww1_baghdad
+
+country_event = {
+	id = ww1_baghdad.1
+	title = ww1_baghdad.1.t
+	desc = {
+		text = ww1_baghdad.1.d
+		trigger = { NOT = { OR = { has_war_with = GER has_war_with = TUR } } }
+	}
+	desc = {
+		text = ww1_baghdad.1.wartime.d
+		trigger = { OR = { has_war_with = GER has_war_with = TUR } }
+	}
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	trigger = {
+		tag = ENG
+		has_start_date < 1936.1.1
+		date < 1936.1.1
+		GER = {
+			has_completed_focus = GE1_berlin_baghdad_1
+			has_country_flag = GE1_baghdad_railway_announced
+			NOT = { has_country_flag = GE1_baghdad_railway_british_response_received }
+		}
+	}
+	option = {
+		name = ww1_baghdad.1.a
+		ai_chance = { factor = 80 }
+		if = {
+			limit = { has_start_date < 1936.1.1 date < 1936.1.1 GER = { has_completed_focus = GE1_berlin_baghdad_1 has_country_flag = GE1_baghdad_railway_announced NOT = { has_country_flag = GE1_baghdad_railway_british_response_received } } }
+			if = {
+				limit = { NOT = { OR = { has_war_with = GER has_war_with = TUR } } }
+				endsieg_fixed_effect_414e13638fbbf09b = yes
+				GER = { set_country_flag = GE1_baghdad_railway_british_accommodation }
+			}
+			else = {
+				GER = {
+					set_country_flag = GE1_baghdad_railway_british_wartime_opposition
+					set_country_flag = GE1_baghdad_railway_british_protest
+				}
+			}
+			GER = {
+				set_country_flag = GE1_baghdad_railway_british_response_received
+				GE1_baghdad_railway_reconcile_british_response = yes
+			}
+		}
+	}
+	option = {
+		name = ww1_baghdad.1.b
+		trigger = { GE1_baghdad_railway_britain_can_declare_war = yes }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 0 is_historical_focus_on = yes }
+			modifier = { factor = 0 has_war = yes }
+			modifier = { factor = 0 NOT = { has_war_support > 0.40 } }
+		}
+		if = {
+			limit = { GE1_baghdad_railway_britain_can_declare_war = yes }
+			declare_war_on = { target = GER type = annex_everything }
+			if = {
+				limit = { has_war_with = GER }
+				GER = {
+					set_country_flag = GE1_baghdad_railway_british_protest
+					set_country_flag = GE1_baghdad_railway_british_war_response
+					set_country_flag = GE1_baghdad_railway_british_response_received
+					GE1_baghdad_railway_reconcile_british_response = yes
+					custom_effect_tooltip = GE1_baghdad_railway_bond_required_tt
+				}
+			}
+		}
+	}
+}
+
+country_event = {
+	id = ww1_baghdad.2
+	title = ww1_baghdad.2.t
+	desc = { text = ww1_baghdad.2.accommodation.d trigger = { has_country_flag = GE1_baghdad_railway_british_accommodation } }
+	desc = { text = ww1_baghdad.2.war.d trigger = { has_country_flag = GE1_baghdad_railway_british_war_response } }
+	desc = { text = ww1_baghdad.2.wartime.d trigger = { has_country_flag = GE1_baghdad_railway_british_wartime_opposition } }
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_country_flag = GE1_baghdad_railway_british_response_received
+		NOT = { has_country_flag = GE1_baghdad_railway_british_response_notified }
+	}
+	immediate = {
+		set_country_flag = GE1_baghdad_railway_british_response_notified
+		clr_country_flag = GE1_baghdad_railway_british_reply_pending
+	}
+	option = {
+		name = ww1_baghdad.2.a
+		GE1_baghdad_railway_tick = yes
+	}
+}
+
+country_event = {
+	id = ww1_baghdad.3
+	title = ww1_baghdad.3.t
+	desc = ww1_baghdad.3.d
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_country_flag = GE1_baghdad_railway_event_pending
+		NOT = { has_country_flag = GE1_baghdad_railway_anatolian_approaches_done }
+	}
+	option = {
+		name = ww1_baghdad.3.a
+		trigger = {
+			GE1_baghdad_railway_anatolian_approaches_secured = yes
+			GE1_baghdad_railway_anatolian_approaches_can_fund = yes
+		}
+		ai_chance = { factor = 100 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_anatolian_approaches_done } NOT = { has_country_flag = GE1_baghdad_railway_anatolian_approaches_building } GE1_baghdad_railway_anatolian_approaches_secured = yes GE1_baghdad_railway_anatolian_approaches_can_fund = yes }
+			if = {
+				limit = { NOT = { has_country_flag = GE1_baghdad_railway_anatolian_approaches_funded } }
+				add_political_power = -35
+				set_country_flag = GE1_baghdad_railway_anatolian_approaches_funded
+			}
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = GE1_baghdad_railway_anatolian_approaches_building
+			add_timed_idea = { idea = GE1_baghdad_railway_works_1 days = 90 }
+		}
+	}
+	option = {
+		name = ww1_baghdad.3.b
+		ai_chance = { factor = 0 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_anatolian_approaches_done } NOT = { has_country_flag = GE1_baghdad_railway_anatolian_approaches_building } }
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = { flag = GE1_baghdad_railway_event_deferred days = 30 }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_baghdad.4
+	title = ww1_baghdad.4.t
+	desc = ww1_baghdad.4.d
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_country_flag = GE1_baghdad_railway_event_pending
+		NOT = { has_country_flag = GE1_baghdad_railway_mountain_sections_done }
+	}
+	option = {
+		name = ww1_baghdad.4.a
+		trigger = {
+			GE1_baghdad_railway_mountain_sections_secured = yes
+			GE1_baghdad_railway_mountain_sections_can_fund = yes
+		}
+		ai_chance = { factor = 100 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_mountain_sections_done } NOT = { has_country_flag = GE1_baghdad_railway_mountain_sections_building } has_country_flag = GE1_baghdad_railway_anatolian_approaches_done GE1_baghdad_railway_mountain_sections_secured = yes GE1_baghdad_railway_mountain_sections_can_fund = yes }
+			if = {
+				limit = { NOT = { has_country_flag = GE1_baghdad_railway_mountain_sections_funded } }
+				add_political_power = -45
+				set_country_flag = GE1_baghdad_railway_mountain_sections_funded
+			}
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = GE1_baghdad_railway_mountain_sections_building
+			add_timed_idea = { idea = GE1_baghdad_railway_works_2 days = 180 }
+		}
+	}
+	option = {
+		name = ww1_baghdad.4.b
+		ai_chance = { factor = 0 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_mountain_sections_done } NOT = { has_country_flag = GE1_baghdad_railway_mountain_sections_building } has_country_flag = GE1_baghdad_railway_anatolian_approaches_done }
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = { flag = GE1_baghdad_railway_event_deferred days = 30 }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_baghdad.5
+	title = ww1_baghdad.5.t
+	desc = ww1_baghdad.5.d
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_country_flag = GE1_baghdad_railway_event_pending
+		NOT = { has_country_flag = GE1_baghdad_railway_mesopotamian_sections_done }
+	}
+	option = {
+		name = ww1_baghdad.5.a
+		trigger = {
+			GE1_baghdad_railway_mesopotamian_sections_secured = yes
+			GE1_baghdad_railway_mesopotamian_sections_can_fund = yes
+		}
+		ai_chance = { factor = 100 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_mesopotamian_sections_done } NOT = { has_country_flag = GE1_baghdad_railway_mesopotamian_sections_building } has_country_flag = GE1_baghdad_railway_mountain_sections_done GE1_baghdad_railway_mesopotamian_sections_secured = yes GE1_baghdad_railway_mesopotamian_sections_can_fund = yes }
+			if = {
+				limit = { NOT = { has_country_flag = GE1_baghdad_railway_mesopotamian_sections_funded } }
+				add_political_power = -35
+				set_country_flag = GE1_baghdad_railway_mesopotamian_sections_funded
+			}
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = GE1_baghdad_railway_mesopotamian_sections_building
+			add_timed_idea = { idea = GE1_baghdad_railway_works_1 days = 135 }
+		}
+	}
+	option = {
+		name = ww1_baghdad.5.b
+		ai_chance = { factor = 0 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_mesopotamian_sections_done } NOT = { has_country_flag = GE1_baghdad_railway_mesopotamian_sections_building } has_country_flag = GE1_baghdad_railway_mountain_sections_done }
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = { flag = GE1_baghdad_railway_event_deferred days = 30 }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_baghdad.6
+	title = ww1_baghdad.6.t
+	desc = ww1_baghdad.6.d
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_country_flag = GE1_baghdad_railway_event_pending
+		NOT = { has_country_flag = GE1_baghdad_railway_tigris_section_done }
+	}
+	option = {
+		name = ww1_baghdad.6.a
+		trigger = {
+			GE1_baghdad_railway_tigris_section_secured = yes
+			GE1_baghdad_railway_tigris_section_can_fund = yes
+		}
+		ai_chance = { factor = 100 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_tigris_section_done } NOT = { has_country_flag = GE1_baghdad_railway_tigris_section_building } has_country_flag = GE1_baghdad_railway_mesopotamian_sections_done GE1_baghdad_railway_tigris_section_secured = yes GE1_baghdad_railway_tigris_section_can_fund = yes }
+			if = {
+				limit = { NOT = { has_country_flag = GE1_baghdad_railway_tigris_section_funded } }
+				add_political_power = -20
+				set_country_flag = GE1_baghdad_railway_tigris_section_funded
+			}
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = GE1_baghdad_railway_tigris_section_building
+			add_timed_idea = { idea = GE1_baghdad_railway_works_1 days = 55 }
+		}
+	}
+	option = {
+		name = ww1_baghdad.6.b
+		ai_chance = { factor = 0 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_tigris_section_done } NOT = { has_country_flag = GE1_baghdad_railway_tigris_section_building } has_country_flag = GE1_baghdad_railway_mesopotamian_sections_done }
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = { flag = GE1_baghdad_railway_event_deferred days = 30 }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_baghdad.7
+	title = ww1_baghdad.7.t
+	desc = ww1_baghdad.7.d
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		has_country_flag = GE1_baghdad_railway_event_pending
+		NOT = { has_country_flag = GE1_baghdad_railway_baghdad_terminal_done }
+	}
+	option = {
+		name = ww1_baghdad.7.a
+		trigger = {
+			GE1_baghdad_railway_baghdad_terminal_secured = yes
+			GE1_baghdad_railway_baghdad_terminal_can_fund = yes
+		}
+		ai_chance = { factor = 100 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_baghdad_terminal_done } NOT = { has_country_flag = GE1_baghdad_railway_baghdad_terminal_building } has_country_flag = GE1_baghdad_railway_tigris_section_done GE1_baghdad_railway_baghdad_terminal_secured = yes GE1_baghdad_railway_baghdad_terminal_can_fund = yes }
+			if = {
+				limit = { NOT = { has_country_flag = GE1_baghdad_railway_baghdad_terminal_funded } }
+				add_political_power = -10
+				if = {
+					limit = { has_country_flag = GE1_baghdad_railway_british_protest NOT = { has_country_flag = GE1_baghdad_railway_bond_done } }
+					add_political_power = -25
+					set_country_flag = GE1_baghdad_railway_bond_done
+				}
+				set_country_flag = GE1_baghdad_railway_baghdad_terminal_funded
+			}
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = GE1_baghdad_railway_baghdad_terminal_building
+			add_timed_idea = { idea = GE1_baghdad_railway_works_1 days = 35 }
+		}
+	}
+	option = {
+		name = ww1_baghdad.7.b
+		ai_chance = { factor = 0 }
+		if = {
+			limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_country_flag = GE1_baghdad_railway_event_pending NOT = { has_country_flag = GE1_baghdad_railway_baghdad_terminal_done } NOT = { has_country_flag = GE1_baghdad_railway_baghdad_terminal_building } has_country_flag = GE1_baghdad_railway_tigris_section_done }
+			clr_country_flag = GE1_baghdad_railway_event_pending
+			set_country_flag = { flag = GE1_baghdad_railway_event_deferred days = 30 }
+		}
+	}
+}
+
+country_event = {
+	id = ww1_baghdad.8
+	title = ww1_baghdad.8.t
+	desc = ww1_baghdad.8.d
+	picture = GFX_report_event_berlin_baghdad_railway
+	is_triggered_only = yes
+	option = { name = ww1_baghdad.8.a }
+}

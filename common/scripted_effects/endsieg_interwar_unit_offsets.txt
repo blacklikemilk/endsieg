@@ -924,7 +924,38 @@ endsieg_interwar_post_gw_prerequisite_offsets = {
 	}
 }
 
+# Old saved offsets used -0.05. Versioned receipts distinguish them from
+# new -0.02 offsets and make repeated reconciliation safe.
+endsieg_interwar_migrate_trench_recovery_offsets = {
+	if = {
+		limit = { has_country_flag = endsieg_interwar_offset_wood_flooring NOT = { has_country_flag = endsieg_interwar_offset_wood_flooring_v2 } }
+		if = {
+			limit = { has_tech = interwars_infantry_equip2 has_tech = wood_flooring }
+			add_unit_bonus = { infantry = { default_morale = 0.03 } }
+			set_country_flag = endsieg_interwar_offset_wood_flooring_v2
+		}
+		else = {
+			add_unit_bonus = { infantry = { default_morale = 0.05 } }
+			clr_country_flag = endsieg_interwar_offset_wood_flooring
+		}
+	}
+	if = {
+		limit = { has_country_flag = endsieg_interwar_offset_better_trench_conditions NOT = { has_country_flag = endsieg_interwar_offset_better_trench_conditions_v2 } }
+		if = {
+			limit = { has_tech = interwars_infantry_equip2 has_tech = better_trench_conditions }
+			add_unit_bonus = { infantry = { default_morale = 0.03 } }
+			set_country_flag = endsieg_interwar_offset_better_trench_conditions_v2
+		}
+		else = {
+			add_unit_bonus = { infantry = { default_morale = 0.05 } }
+			clr_country_flag = endsieg_interwar_offset_better_trench_conditions
+		}
+	}
+}
+
 endsieg_interwar_interwars_infantry_equip2_offsets = {
+	endsieg_interwar_migrate_trench_recovery_offsets = yes
+
 	if = {
 		limit = { has_tech = interwars_infantry_equip2 has_tech = gas_mask NOT = { has_country_flag = endsieg_interwar_offset_gas_mask } }
 		add_unit_bonus = {
@@ -1055,40 +1086,44 @@ endsieg_interwar_interwars_infantry_equip2_offsets = {
 		limit = { has_tech = interwars_infantry_equip2 has_tech = wood_flooring NOT = { has_country_flag = endsieg_interwar_offset_wood_flooring } }
 		add_unit_bonus = {
 			infantry = {
-				default_morale = -0.05
+				default_morale = -0.02
 			}
 		}
 		set_country_flag = endsieg_interwar_offset_wood_flooring
+		set_country_flag = endsieg_interwar_offset_wood_flooring_v2
 	}
 	else_if = {
 		limit = { has_country_flag = endsieg_interwar_offset_wood_flooring OR = { NOT = { has_tech = interwars_infantry_equip2 } NOT = { has_tech = wood_flooring } } }
 		add_unit_bonus = {
 			infantry = {
-				default_morale = 0.05
+				default_morale = 0.02
 			}
 		}
 		clr_country_flag = endsieg_interwar_offset_wood_flooring
+		clr_country_flag = endsieg_interwar_offset_wood_flooring_v2
 	}
 	if = {
 		limit = { has_tech = interwars_infantry_equip2 has_tech = better_trench_conditions NOT = { has_country_flag = endsieg_interwar_offset_better_trench_conditions } }
 		add_unit_bonus = {
 			infantry = {
-				default_morale = -0.05
+				default_morale = -0.02
 			}
 		}
 		set_country_flag = endsieg_interwar_offset_better_trench_conditions
+		set_country_flag = endsieg_interwar_offset_better_trench_conditions_v2
 	}
 	else_if = {
 		limit = { has_country_flag = endsieg_interwar_offset_better_trench_conditions OR = { NOT = { has_tech = interwars_infantry_equip2 } NOT = { has_tech = better_trench_conditions } } }
 		add_unit_bonus = {
 			infantry = {
-				default_morale = 0.05
+				default_morale = 0.02
 			}
 		}
 		clr_country_flag = endsieg_interwar_offset_better_trench_conditions
+		clr_country_flag = endsieg_interwar_offset_better_trench_conditions_v2
 	}
 	if = {
-		limit = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers2 NOT = { has_country_flag = endsieg_interwar_offset_tech_engineers2 } }
+		limit = { OR = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers5 has_tech = tech_engineers6 has_tech = tech_engineers7 has_tech = tech_engineers8 has_tech = tech_engineers_a has_tech = tech_engineers_b has_tech = tech_engineers_c } has_tech = tech_engineers2 NOT = { has_country_flag = endsieg_interwar_offset_tech_engineers2 } }
 		add_unit_bonus = {
 			engineer = {
 				entrenchment = -4
@@ -1101,7 +1136,7 @@ endsieg_interwar_interwars_infantry_equip2_offsets = {
 		set_country_flag = endsieg_interwar_offset_tech_engineers2
 	}
 	else_if = {
-		limit = { has_country_flag = endsieg_interwar_offset_tech_engineers2 OR = { NOT = { has_tech = interwars_infantry_equip2 } NOT = { has_tech = tech_engineers2 } } }
+		limit = { has_country_flag = endsieg_interwar_offset_tech_engineers2 OR = { NOT = { OR = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers5 has_tech = tech_engineers6 has_tech = tech_engineers7 has_tech = tech_engineers8 has_tech = tech_engineers_a has_tech = tech_engineers_b has_tech = tech_engineers_c } } NOT = { has_tech = tech_engineers2 } } }
 		add_unit_bonus = {
 			engineer = {
 				entrenchment = 4
@@ -1114,7 +1149,7 @@ endsieg_interwar_interwars_infantry_equip2_offsets = {
 		clr_country_flag = endsieg_interwar_offset_tech_engineers2
 	}
 	if = {
-		limit = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers3 NOT = { has_country_flag = endsieg_interwar_offset_tech_engineers3 } }
+		limit = { OR = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers5 has_tech = tech_engineers6 has_tech = tech_engineers7 has_tech = tech_engineers8 has_tech = tech_engineers_a has_tech = tech_engineers_b has_tech = tech_engineers_c } has_tech = tech_engineers3 NOT = { has_country_flag = endsieg_interwar_offset_tech_engineers3 } }
 		add_unit_bonus = {
 			engineer = {
 				entrenchment = -4
@@ -1127,7 +1162,7 @@ endsieg_interwar_interwars_infantry_equip2_offsets = {
 		set_country_flag = endsieg_interwar_offset_tech_engineers3
 	}
 	else_if = {
-		limit = { has_country_flag = endsieg_interwar_offset_tech_engineers3 OR = { NOT = { has_tech = interwars_infantry_equip2 } NOT = { has_tech = tech_engineers3 } } }
+		limit = { has_country_flag = endsieg_interwar_offset_tech_engineers3 OR = { NOT = { OR = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers5 has_tech = tech_engineers6 has_tech = tech_engineers7 has_tech = tech_engineers8 has_tech = tech_engineers_a has_tech = tech_engineers_b has_tech = tech_engineers_c } } NOT = { has_tech = tech_engineers3 } } }
 		add_unit_bonus = {
 			engineer = {
 				entrenchment = 4
@@ -1140,7 +1175,7 @@ endsieg_interwar_interwars_infantry_equip2_offsets = {
 		clr_country_flag = endsieg_interwar_offset_tech_engineers3
 	}
 	if = {
-		limit = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers4 NOT = { has_country_flag = endsieg_interwar_offset_tech_engineers4 } }
+		limit = { OR = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers5 has_tech = tech_engineers6 has_tech = tech_engineers7 has_tech = tech_engineers8 has_tech = tech_engineers_a has_tech = tech_engineers_b has_tech = tech_engineers_c } has_tech = tech_engineers4 NOT = { has_country_flag = endsieg_interwar_offset_tech_engineers4 } }
 		add_unit_bonus = {
 			engineer = {
 				entrenchment = -4
@@ -1153,7 +1188,7 @@ endsieg_interwar_interwars_infantry_equip2_offsets = {
 		set_country_flag = endsieg_interwar_offset_tech_engineers4
 	}
 	else_if = {
-		limit = { has_country_flag = endsieg_interwar_offset_tech_engineers4 OR = { NOT = { has_tech = interwars_infantry_equip2 } NOT = { has_tech = tech_engineers4 } } }
+		limit = { has_country_flag = endsieg_interwar_offset_tech_engineers4 OR = { NOT = { OR = { has_tech = interwars_infantry_equip2 has_tech = tech_engineers5 has_tech = tech_engineers6 has_tech = tech_engineers7 has_tech = tech_engineers8 has_tech = tech_engineers_a has_tech = tech_engineers_b has_tech = tech_engineers_c } } NOT = { has_tech = tech_engineers4 } } }
 		add_unit_bonus = {
 			engineer = {
 				entrenchment = 4
@@ -1223,7 +1258,7 @@ endsieg_interwar_interwars_infantry_equip2_offsets = {
 
 endsieg_interwar_howitzer6_offsets = {
 	if = {
-		limit = { has_tech = howitzer6 has_tech = anti_air3 NOT = { has_country_flag = endsieg_interwar_offset_anti_air3 } }
+		limit = { OR = { has_tech = howitzer6 has_tech = interwar_antiair has_tech = antiair1 has_tech = antiair2 has_tech = antiair3 has_tech = antiair4 has_tech = antiair5 has_tech = antiair_a has_tech = antiair_b has_tech = antiair_c has_tech = antiair_d has_tech = antiair_e } has_tech = anti_air3 NOT = { has_country_flag = endsieg_interwar_offset_anti_air3 } }
 		add_unit_bonus = {
 			anti_air = {
 				air_attack = -0.065
@@ -1235,7 +1270,7 @@ endsieg_interwar_howitzer6_offsets = {
 		set_country_flag = endsieg_interwar_offset_anti_air3
 	}
 	else_if = {
-		limit = { has_country_flag = endsieg_interwar_offset_anti_air3 OR = { NOT = { has_tech = howitzer6 } NOT = { has_tech = anti_air3 } } }
+		limit = { has_country_flag = endsieg_interwar_offset_anti_air3 OR = { NOT = { OR = { has_tech = howitzer6 has_tech = interwar_antiair has_tech = antiair1 has_tech = antiair2 has_tech = antiair3 has_tech = antiair4 has_tech = antiair5 has_tech = antiair_a has_tech = antiair_b has_tech = antiair_c has_tech = antiair_d has_tech = antiair_e } } NOT = { has_tech = anti_air3 } } }
 		add_unit_bonus = {
 			anti_air = {
 				air_attack = 0.065
@@ -1511,4 +1546,5 @@ endsieg_interwar_finalize_unit_offsets = {
 	endsieg_interwar_howitzer6_offsets = yes
 	endsieg_interwar_post_gw_offsets = yes
 	endsieg_interwar_doctrine_country_offsets = yes
+	endsieg_interwar_support_endpoint_offsets = yes
 }

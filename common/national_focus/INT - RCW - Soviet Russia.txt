@@ -1,6 +1,14 @@
 # Endsieg early-scenario tree; vanilla WW2 files remain unchanged.
 focus_tree = {
 	id = Soviet_Russia
+	initial_show_position = { focus = SO2_civil_war_opening }
+	shortcut = { name = WW1_layout_overview_shortcut target = SO2_civil_war_opening scroll_wheel_factor = 0.60 }
+	shortcut = { name = WW1_layout_government_shortcut target = SO2_political_effort scroll_wheel_factor = 0.60 }
+	shortcut = { name = WW1_layout_diplomacy_shortcut target = SO2_diplomatic_effort scroll_wheel_factor = 0.60 }
+	shortcut = { name = WW1_layout_industry_shortcut target = SO2_industrial_effort scroll_wheel_factor = 0.60 }
+	shortcut = { name = WW1_layout_army_shortcut target = SO2_army_effort scroll_wheel_factor = 0.60 }
+	shortcut = { name = WW1_layout_navy_shortcut target = SO2_naval_effort scroll_wheel_factor = 0.60 }
+	shortcut = { name = WW1_layout_air_force_shortcut target = SO2_form_airforce scroll_wheel_factor = 0.60 }
 	country = {
 		factor = 0
 		modifier = {
@@ -19,14 +27,31 @@ focus_tree = {
 	#shared_focus = SOV_permanent_revolution
 
 	default = no
-	continuous_focus_position = { x = 1500 y = 6000 }
+	continuous_focus_position = { x = 1500 y = 3120 }
 
+		# Common entry for the civil-war programme.
 	focus = {
+		id = SO2_civil_war_opening
+		icon = GFX_focus_generic_military_mission
+		x = 28
+		y = 0
+		cost = 1
+		ai_will_do = { factor = 100 }
+		search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_WAR_SUPPORT }
+		completion_reward = {
+			add_political_power = 10
+			if = { limit = { has_war = yes } add_war_support = 0.03 }
+		}
+	}
+
+focus = {
 		id = SO2_diplomatic_effort
 		icon = GFX_goal_generic_neutrality_focus
 		cost = 10.00
-		x = 12
-		y = 0
+		x = 19
+		y = 1
+		prerequisite = { focus = SO2_civil_war_opening }
+		relative_position_id = SO2_civil_war_opening
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available_if_capitulated = yes
 			completion_reward = {
@@ -37,14 +62,15 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_political_effort
 		icon = GFX_focus_generic_communist
 		cost = 10.00
-		x = 30
-		y = 0
+		x = 0
+		y = 1
+		prerequisite = { focus = SO2_civil_war_opening }
+		relative_position_id = SO2_civil_war_opening
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available_if_capitulated = yes
 			completion_reward = {
@@ -53,50 +79,54 @@ focus_tree = {
  }
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 17 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_army_effort
 		icon = GFX_focus_generic_advanced_military_studies
 		cost = 10.00
-		x = 10
-		y = 20
+		x = 7
+		y = 1
+		prerequisite = { focus = SO2_civil_war_opening }
+		relative_position_id = SO2_civil_war_opening
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = { army_experience=50 }
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 36 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_form_airforce
 		icon = GFX_goal_generic_build_airforce
 		cost = 10.00
-		x = 50
-		y = 0
+		x = -17
+		y = 1
+		prerequisite = { focus = SO2_civil_war_opening }
+		relative_position_id = SO2_civil_war_opening
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = { air_experience=50 }
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -39 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_naval_effort
 		icon = GFX_focus_BEL_antwerp_maritime_academy
 		cost = 10.00
-		x = 74
-		y = 0
+		x = -6
+		y = 1
+		prerequisite = { focus = SO2_civil_war_opening }
+		relative_position_id = SO2_civil_war_opening
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = { navy_experience=50 }
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -50 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_industrial_effort
 		icon = GFX_goal_generic_construct_civ_factory
 		cost = 10.00
-		x = 62
-		y = 0
+		x = -8
+		y = 1
+		prerequisite = { focus = SO2_civil_war_opening }
+		relative_position_id = SO2_civil_war_opening
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			ai_will_do = {
 					factor = 9
@@ -179,7 +209,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -42 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_european_diplomacy
@@ -188,14 +217,15 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_diplomatic_effort
 		}
-		x = 10
+		x = 0
 		y = 1
+		relative_position_id = SO2_diplomatic_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available_if_capitulated = yes
 			completion_reward = {
 
 
-			every_other_country = { limit = { capital_scope = { is_on_continent = europe } has_government = communism NOT = { has_war_with = ROOT } } add_opinion_modifier = { target = ROOT modifier = long_term_trade_partner } }
+			every_other_country = { limit = { capital_scope = { is_on_continent = europe } has_government = communism NOT = { has_war_with = ROOT } } endsieg_fixed_effect_b9f2408fce76c069 = yes }
 			add_political_power = 50
 		}
 				ai_will_do = {
@@ -203,7 +233,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 61 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_treaty_of_tartu
@@ -212,8 +241,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_european_diplomacy
 		}
-		x = 2
-		y = 2
+		x = -4
+		y = 1
+		relative_position_id = SO2_european_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -228,7 +258,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 66 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_send_supplies_HNN
@@ -237,8 +266,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_european_diplomacy
 		}
-		x = 4
-		y = 2
+		x = -2
+		y = 1
+		relative_position_id = SO2_european_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -250,7 +280,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 62 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_intervene_in_hungary
@@ -259,8 +288,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_send_supplies_HNN
 		}
-		x = 6
-		y = 3
+		x = 0
+		y = 2
+		relative_position_id = SO2_send_supplies_HNN
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -277,7 +307,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 60 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_puppet_hungarian_sr
@@ -286,8 +315,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_intervene_in_hungary
 		}
-		x = 5
-		y = 4
+		x = 0
+		y = 1
+		relative_position_id = SO2_intervene_in_hungary
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1918.1.1
@@ -312,7 +342,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 59 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_establish_rumanian_sr
@@ -321,8 +350,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_intervene_in_hungary
 		}
-		x = 7
-		y = 4
+		x = 2
+		y = 1
+		relative_position_id = SO2_intervene_in_hungary
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -338,7 +368,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 59 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_send_supplies_FNR
@@ -347,8 +376,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_european_diplomacy
 		}
-		x = 6
-		y = 2
+		x = 0
+		y = 1
+		relative_position_id = SO2_european_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1918.1.1
@@ -359,7 +389,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_intervene_finland
@@ -368,8 +397,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_send_supplies_FNR
 		}
-		x = 8
-		y = 3
+		x = 2
+		y = 2
+		relative_position_id = SO2_send_supplies_FNR
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1918.1.1
@@ -381,7 +411,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 62 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_puppet_fnr
@@ -393,8 +422,9 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = SO2_integrate_FNR
 		}
-		x = 9
-		y = 4
+		x = 0
+		y = 1
+		relative_position_id = SO2_intervene_finland
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -408,7 +438,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 59 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_integrate_FNR
@@ -420,8 +449,9 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = SO2_puppet_fnr
 		}
-		x = 11
-		y = 4
+		x = 2
+		y = 1
+		relative_position_id = SO2_intervene_finland
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -435,7 +465,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 59 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_reconquista
@@ -444,8 +473,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_european_diplomacy
 		}
-		x = 10
-		y = 2
+		x = 3
+		y = 1
+		relative_position_id = SO2_european_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available_if_capitulated = yes
 			available = {
@@ -464,7 +494,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_westward_offensive
@@ -473,8 +502,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_reconquista
 		}
-		x = 12
-		y = 3
+		x = 1
+		y = 2
+		relative_position_id = SO2_reconquista
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 		available = {
 			date > 1918.11.1
@@ -500,7 +530,6 @@ focus_tree = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 62 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
@@ -510,8 +539,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_reconquista
 		}
-		x = 14
-		y = 3
+		x = 3
+		y = 2
+		relative_position_id = SO2_reconquista
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 		available = {
 			date > 1920.1.1
@@ -526,7 +556,6 @@ focus_tree = {
 		will_lead_to_war_with = GEO
 		ai_will_do = { factor = 20 }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 62 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
@@ -536,8 +565,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_diplomatic_effort
 		}
-		x = 12
+		x = 8
 		y = 1
+		relative_position_id = SO2_diplomatic_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -551,7 +581,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_asian_diplomacy
@@ -560,19 +589,19 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_diplomatic_effort
 		}
-		x = 14
+		x = 10
 		y = 1
+		relative_position_id = SO2_diplomatic_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available_if_capitulated = yes
 			completion_reward = {
 
 
-			every_other_country = { limit = { capital_scope = { is_on_continent = asia } has_government = communism NOT = { has_war_with = ROOT } } add_opinion_modifier = { target = ROOT modifier = long_term_trade_partner } }
+			every_other_country = { limit = { capital_scope = { is_on_continent = asia } has_government = communism NOT = { has_war_with = ROOT } } endsieg_fixed_effect_b9f2408fce76c069 = yes }
 			add_political_power = 50
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 67 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_intervene_PSSR
@@ -584,8 +613,9 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = SO2_supply_PSSR
 		}
-		x = 14
-		y = 2
+		x = -1
+		y = 1
+		relative_position_id = SO2_asian_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -596,7 +626,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_supply_PSSR
@@ -608,8 +637,9 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = SO2_intervene_PSSR
 		}
-		x = 16
-		y = 2
+		x = -3
+		y = 1
+		relative_position_id = SO2_asian_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1919.1.1
@@ -620,7 +650,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_demand_jap_evac
@@ -629,8 +658,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_asian_diplomacy
 		}
-		x = 18
-		y = 2
+		x = 1
+		y = 1
+		relative_position_id = SO2_asian_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1920.1.1
@@ -642,7 +672,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_reintegrate_FAR
@@ -651,8 +680,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_demand_jap_evac
 		}
-		x = 18
-		y = 3
+		x = -1
+		y = 2
+		relative_position_id = SO2_demand_jap_evac
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1920.1.1
@@ -664,7 +694,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 65 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_SO2_JAP_convention
@@ -673,8 +702,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_reintegrate_FAR
 		}
-		x = 19
-		y = 4
+		x = 4
+		y = 1
+		relative_position_id = SO2_reintegrate_FAR
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1925.1.1
@@ -685,7 +715,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_invade_mongolia
@@ -694,8 +723,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_asian_diplomacy
 		}
-		x = 20
-		y = 2
+		x = 3
+		y = 1
+		relative_position_id = SO2_asian_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1918.1.1
@@ -707,7 +737,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_create_tanu_tuva
@@ -716,8 +745,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_asian_diplomacy
 		}
-		x = 22
-		y = 2
+		x = 5
+		y = 1
+		relative_position_id = SO2_asian_diplomacy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1921.1.1
@@ -734,7 +764,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_war_communism
@@ -746,8 +775,9 @@ focus_tree = {
 		ai_will_do = {
 			factor = 5
 		}
-		x = 29
+		x = 0
 		y = 1
+		relative_position_id = SO2_political_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 		available = {
 			OR = {
@@ -761,7 +791,6 @@ focus_tree = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 16 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_decossackization
@@ -770,8 +799,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_war_communism
 		}
-		x = 29
-		y = 2
+		x = 0
+		y = 1
+		relative_position_id = SO2_war_communism
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1917.1.1
@@ -785,7 +815,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 16 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_cheka
@@ -794,8 +823,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_war_communism
 		}
-		x = 31
-		y = 2
+		x = -2
+		y = 1
+		relative_position_id = SO2_war_communism
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 				OR = {
@@ -809,7 +839,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 12 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_red_terror
@@ -818,8 +847,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_cheka
 		}
-		x = 30
-		y = 3
+		x = -1
+		y = 2
+		relative_position_id = SO2_cheka
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1918.1.1
@@ -833,7 +863,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 12 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_new_economic_policy
@@ -842,8 +871,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_red_terror
 		}
-		x = 29
-		y = 4
+		x = 1
+		y = 1
+		relative_position_id = SO2_red_terror
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1918.1.1
@@ -857,7 +887,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 10 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_treaty_of_creation_ussr
@@ -866,8 +895,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_new_economic_policy
 		}
-		x = 27
-		y = 5
+		x = -2
+		y = 2
+		relative_position_id = SO2_new_economic_policy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1922.1.1
@@ -882,7 +912,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_GOELRO
@@ -891,8 +920,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_new_economic_policy
 		}
-		x = 29
-		y = 5
+		x = 2
+		y = 2
+		relative_position_id = SO2_new_economic_policy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1920.1.1
@@ -907,7 +937,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_employ_tsarist_officers
@@ -916,8 +945,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_political_effort
 		}
-		x = 31
+		x = -2
 		y = 1
+		relative_position_id = SO2_political_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 		completion_reward = {
 			custom_effect_tooltip = WW1_historical_focus_tt
@@ -928,7 +958,6 @@ focus_tree = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 16 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_confiscate_grain
@@ -937,8 +966,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_red_terror
 		}
-		x = 31
-		y = 4
+		x = -1
+		y = 1
+		relative_position_id = SO2_red_terror
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1918.1.1
@@ -955,7 +985,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 11 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_gulags
@@ -964,8 +993,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_new_economic_policy
 		}
-		x = 31
-		y = 5
+		x = 0
+		y = 2
+		relative_position_id = SO2_new_economic_policy
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
 					date > 1923.1.1
@@ -979,7 +1009,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_armored_vehicles_1
@@ -988,8 +1017,9 @@ focus_tree = {
 		prerequisite = {
 			focus = SO2_army_effort
 		}
-		x = 7
-		y = 21
+		x = 2
+		y = 1
+		relative_position_id = SO2_army_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1001,7 +1031,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_armored_vehicles_2
@@ -1014,8 +1043,9 @@ focus_tree = {
 			focus = SO2_equipment_effort_1
 		}
 
-		x = 7
-		y = 22
+		x = 0
+		y = 1
+		relative_position_id = SO2_equipment_effort_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1027,7 +1057,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_armored_vehicles_3
@@ -1040,8 +1069,9 @@ focus_tree = {
 			focus = SO2_tactics_2
 		}
 
-		x = 7
-		y = 23
+		x = 4
+		y = 2
+		relative_position_id = SO2_tactics_2
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1053,7 +1083,6 @@ focus_tree = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_armored_vehicles_4
@@ -1066,8 +1095,9 @@ focus_tree = {
 			focus = SO2_artillery_effort_3
 		}
 
-		x = 7
-		y = 24
+		x = 0
+		y = 1
+		relative_position_id = SO2_armored_vehicles_3
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_mastery_bonus = {
@@ -1080,7 +1110,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_equipment_effort_1
@@ -1089,8 +1118,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_army_effort
 		}
-		x = 9
-		y = 21
+		x = 0
+		y = 1
+		relative_position_id = SO2_army_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1102,7 +1132,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_equipment_effort_2
@@ -1115,8 +1144,9 @@ completion_reward = {
 			focus = SO2_tactics_1
 		}
 
-		x = 9
-		y = 22
+		x = 0
+		y = 1
+		relative_position_id = SO2_tactics_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1128,7 +1158,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 39 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_equipment_effort_3
@@ -1141,8 +1170,9 @@ completion_reward = {
 			focus = SO2_artillery_effort_2
 		}
 
-		x = 9
-		y = 23
+		x = 0
+		y = 2
+		relative_position_id = SO2_artillery_effort_2
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1154,7 +1184,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 39 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_equipment_effort_4
@@ -1167,8 +1196,9 @@ completion_reward = {
 			focus = SO2_armored_vehicles_3
 		}
 
-		x = 9
-		y = 24
+		x = 0
+		y = 1
+		relative_position_id = SO2_equipment_effort_3
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_timed_idea = { idea = INT_SOV_equipment_drive days = 730 }
@@ -1182,7 +1212,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 39 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_artillery_effort_1
@@ -1191,8 +1220,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_army_effort
 		}
-		x = 11
-		y = 21
+		x = 4
+		y = 1
+		relative_position_id = SO2_army_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1204,7 +1234,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_artillery_effort_2
@@ -1217,8 +1246,9 @@ completion_reward = {
 			focus = SO2_equipment_effort_1
 		}
 
-		x = 11
-		y = 22
+		x = 0
+		y = 1
+		relative_position_id = SO2_artillery_effort_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1230,7 +1260,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_artillery_effort_3
@@ -1243,8 +1272,9 @@ completion_reward = {
 			focus = SO2_tactics_2
 		}
 
-		x = 11
-		y = 23
+		x = 4
+		y = 2
+		relative_position_id = SO2_artillery_effort_2
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1256,7 +1286,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 33 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_artillery_effort_4
@@ -1269,8 +1298,9 @@ completion_reward = {
 			focus = SO2_armored_vehicles_3
 		}
 
-		x = 11
-		y = 24
+		x = 0
+		y = 1
+		relative_position_id = SO2_artillery_effort_3
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_mastery_bonus = {
@@ -1283,7 +1313,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 33 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_tactics_1
@@ -1292,8 +1321,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_army_effort
 		}
-		x = 13
-		y = 21
+		x = -2
+		y = 1
+		relative_position_id = SO2_army_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 				add_mastery_bonus = {
@@ -1305,7 +1335,6 @@ completion_reward = {
 			}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_tactics_2
@@ -1318,8 +1347,9 @@ completion_reward = {
 			focus = SO2_armored_vehicles_1
 		}
 
-		x = 13
-		y = 22
+		x = 0
+		y = 1
+		relative_position_id = SO2_armored_vehicles_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 				add_mastery_bonus = {
@@ -1331,7 +1361,6 @@ completion_reward = {
 			}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 31 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_tactics_3
@@ -1344,8 +1373,9 @@ completion_reward = {
 			focus = SO2_equipment_effort_2
 		}
 
-		x = 13
-		y = 23
+		x = 0
+		y = 2
+		relative_position_id = SO2_tactics_2
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 				add_mastery_bonus = {
@@ -1357,7 +1387,6 @@ completion_reward = {
 			}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 33 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_tactics_4
@@ -1370,8 +1399,9 @@ completion_reward = {
 			focus = SO2_artillery_effort_3
 		}
 
-		x = 13
-		y = 24
+		x = 0
+		y = 1
+		relative_position_id = SO2_tactics_3
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_timed_idea = { idea = INT_SOV_army_reorganization days = 730 }
@@ -1385,7 +1415,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 33 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_bomber_focus
@@ -1397,8 +1426,9 @@ completion_reward = {
 		mutually_exclusive = {
 			focus = SO2_fighter_focus
 		}
-		x = 50
+		x = 0
 		y = 1
+		relative_position_id = SO2_form_airforce
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 add_mastery_bonus = {
@@ -1410,7 +1440,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -42 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_tactical_bomber_1
@@ -1419,8 +1448,9 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_bomber_focus
 		}
-		x = 47
-		y = 2
+		x = -5
+		y = 1
+		relative_position_id = SO2_bomber_focus
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1433,7 +1463,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -44 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_tactical_bomber_2
@@ -1442,13 +1471,13 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_tactical_bomber_1
 		}
-		prerequisite = {
-			focus = SO2_aviation_effort_1
-		}
 
-		x = 47
-		y = 3
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		x = -2
+		y = 2
+		relative_position_id = SO2_tactical_bomber_1
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_aviation_effort_1
+		}
 			completion_reward = {
 					add_tech_bonus = {
 							name = air_bonus_1
@@ -1459,7 +1488,7 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 4 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_aviation_effort_1 }
 	}
 	focus = {
 		id = SO2_tactical_bomber_3
@@ -1472,8 +1501,9 @@ add_mastery_bonus = {
 			focus = SO2_pilot_training_1
 		}
 
-		x = 47
-		y = 4
+		x = -2
+		y = 3
+		relative_position_id = SO2_pilot_training_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1485,7 +1515,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -40 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_strategic_bomber_research_1
@@ -1494,13 +1523,13 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_tactical_bomber_3
 		}
-		prerequisite = {
-			focus = SO2_airfield_construction_2
-		}
 
-		x = 44
-		y = 5
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		x = 2
+		y = 2
+		relative_position_id = SO2_tactical_bomber_3
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_airfield_construction_2
+		}
 completion_reward = {
 			add_mastery_bonus = {
 				name = SO2_strategic_bomber_research_1
@@ -1512,7 +1541,7 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -35 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_airfield_construction_2 }
 	}
 	focus = {
 		id = SO2_improved_tac_1
@@ -1521,13 +1550,13 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_tactical_bomber_3
 		}
-		prerequisite = {
-			focus = SO2_aviation_effort_2
-		}
 
-		x = 46
-		y = 5
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		x = -2
+		y = 2
+		relative_position_id = SO2_tactical_bomber_3
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_aviation_effort_2
+		}
 			completion_reward = {
 					add_tech_bonus = {
 							name = air_bonus_1
@@ -1538,7 +1567,7 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -39 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_aviation_effort_2 }
 	}
 	focus = {
 		id = SO2_improved_tac_2
@@ -1547,13 +1576,13 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_improved_tac_1
 		}
-		prerequisite = {
-			focus = SO2_pilot_training_2
-		}
 
-		x = 48
-		y = 6
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		x = 0
+		y = 1
+		relative_position_id = SO2_improved_tac_1
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_pilot_training_2
+		}
 completion_reward = {
 			add_timed_idea = { idea = INT_SOV_air_interdiction days = 730 }
 			add_mastery_bonus = {
@@ -1566,7 +1595,7 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -38 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_pilot_training_2 }
 	}
 	focus = {
 		id = SO2_aviation_effort_1
@@ -1575,8 +1604,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_form_airforce
 		}
-		x = 48
+		x = -5
 		y = 1
+		relative_position_id = SO2_form_airforce
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 add_mastery_bonus = {
@@ -1588,7 +1618,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -36 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_pilot_training_1
@@ -1601,8 +1630,9 @@ add_mastery_bonus = {
 			focus = SO2_airfield_construction_1
 		}
 
-		x = 49
-		y = 2
+		x = -2
+		y = 1
+		relative_position_id = SO2_aviation_effort_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 add_mastery_bonus = {
@@ -1614,7 +1644,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -36 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_aviation_effort_2
@@ -1623,8 +1652,9 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_pilot_training_1
 		}
-		x = 49
-		y = 3
+		x = 2
+		y = 2
+		relative_position_id = SO2_pilot_training_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 add_mastery_bonus = {
@@ -1636,7 +1666,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -36 y = 4 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_pilot_training_2
@@ -1649,8 +1678,9 @@ add_mastery_bonus = {
 			focus = SO2_airfield_construction_2
 		}
 
-		x = 49
-		y = 4
+		x = 1
+		y = 1
+		relative_position_id = SO2_aviation_effort_2
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 			add_mastery_bonus = {
@@ -1668,7 +1698,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -38 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_fighter_focus
@@ -1680,8 +1709,9 @@ add_mastery_bonus = {
 		mutually_exclusive = {
 			focus = SO2_bomber_focus
 		}
-		x = 52
+		x = -3
 		y = 1
+		relative_position_id = SO2_form_airforce
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 add_mastery_bonus = {
@@ -1693,7 +1723,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -42 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_fighter_1
@@ -1702,8 +1731,9 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_fighter_focus
 		}
-		x = 51
-		y = 2
+		x = -8
+		y = 1
+		relative_position_id = SO2_fighter_focus
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -1716,7 +1746,6 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -46 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_fighter_2
@@ -1725,13 +1754,13 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_fighter_1
 		}
-		prerequisite = {
-			focus = SO2_aviation_effort_1
-		}
 
-		x = 51
-		y = 3
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		x = 1
+		y = 2
+		relative_position_id = SO2_fighter_1
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_aviation_effort_1
+		}
 			completion_reward = {
 					add_tech_bonus = {
 							name = air_bonus_1
@@ -1742,7 +1771,7 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 4 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_aviation_effort_1 }
 	}
 	focus = {
 		id = SO2_fighter_3
@@ -1751,13 +1780,13 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_fighter_2
 		}
-		prerequisite = {
-			focus = SO2_pilot_training_1
-		}
 
-		x = 51
-		y = 4
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		x = -1
+		y = 1
+		relative_position_id = SO2_fighter_2
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_pilot_training_1
+		}
 			completion_reward = {
 					add_tech_bonus = {
 							name = air_bonus_1
@@ -1768,22 +1797,22 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -36 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_pilot_training_1 }
 	}
 	focus = {
 		id = SO2_improved_fighter_1
 		icon = GFX_focus_generic_multi_role_aircraft
 		cost = 10.00
 		prerequisite = {
-			focus = SO2_fighter_3
-		}
-		prerequisite = {
 			focus = SO2_airfield_construction_2
 		}
 
-		x = 50
+		x = -1
 		y = 5
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		relative_position_id = SO2_airfield_construction_2
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_fighter_3
+		}
 			completion_reward = {
 					add_tech_bonus = {
 							name = air_bonus_1
@@ -1794,7 +1823,7 @@ add_mastery_bonus = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -34 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_fighter_3 }
 	}
 	focus = {
 		id = SO2_cas_research
@@ -1807,13 +1836,13 @@ add_mastery_bonus = {
 			focus = SO2_aviation_effort_2
 		}
 
-		x = 54
-		y = 5
+		x = 2
+		y = 2
+		relative_position_id = SO2_fighter_3
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = { air_experience=50 }
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_cas_2
@@ -1822,13 +1851,13 @@ add_mastery_bonus = {
 		prerequisite = {
 			focus = SO2_cas_research
 		}
-		prerequisite = {
-			focus = SO2_airfield_construction_2
-		}
 
-		x = 54
-		y = 6
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		x = 6
+		y = 1
+		relative_position_id = SO2_cas_research
+		bypass = { OR = { has_global_flag = welcome_event_INT }
+			has_completed_focus = SO2_airfield_construction_2
+		}
 completion_reward = {
 			add_mastery_bonus = {
 				name = SO2_cas_2
@@ -1840,7 +1869,7 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -40 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_airfield_construction_2 }
 	}
 	focus = {
 		id = SO2_airfield_construction_1
@@ -1850,8 +1879,9 @@ completion_reward = {
 			focus = SO2_form_airforce
 			focus = SO2_industrial_effort
 		}
-		x = 54
+		x = 2
 		y = 1
+		relative_position_id = SO2_form_airforce
 			ai_will_do = {
 					factor = 10
 				}
@@ -1912,7 +1942,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -39 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_airfield_construction_2
@@ -1925,8 +1954,9 @@ completion_reward = {
 			focus = SO2_infrastructure_effort_1
 		}
 
-		x = 54
-		y = 2
+		x = -2
+		y = 1
+		relative_position_id = SO2_airfield_construction_1
 			ai_will_do = {
 					factor = 10
 				}
@@ -1987,7 +2017,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -39 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_airfield_construction_3
@@ -1996,12 +2025,10 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_airfield_construction_2
 		}
-		prerequisite = {
-			focus = SO2_aviation_effort_2
-		}
 
-		x = 53
-		y = 4
+		x = 0
+		y = 3
+		relative_position_id = SO2_airfield_construction_2
 			ai_will_do = {
 					factor = 10
 				}
@@ -2018,7 +2045,8 @@ completion_reward = {
 								}
 						}
 				}
-			}
+			has_completed_focus = SO2_aviation_effort_2
+		}
 			completion_reward = {
 					random_owned_state = {
 							limit = {
@@ -2062,7 +2090,7 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -36 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_aviation_effort_2 }
 	}
 	focus = {
 		id = SO2_airfield_construction_4
@@ -2075,8 +2103,9 @@ completion_reward = {
 			focus = SO2_infrastructure_effort_2
 		}
 
-		x = 52
-		y = 5
+		x = -1
+		y = 3
+		relative_position_id = SO2_infrastructure_effort_2
 			ai_will_do = {
 					factor = 10
 				}
@@ -2137,7 +2166,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -33 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_infrastructure_effort_1
@@ -2146,8 +2174,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_industrial_effort
 		}
-		x = 62
+		x = -4
 		y = 1
+		relative_position_id = SO2_industrial_effort
 			available_if_capitulated = yes
 			bypass = {
 			    OR = {
@@ -2233,7 +2262,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -42 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_construction_effort_1
@@ -2242,8 +2270,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_infrastructure_effort_1
 		}
-		x = 61
-		y = 2
+		x = -2
+		y = 1
+		relative_position_id = SO2_infrastructure_effort_1
 			available_if_capitulated = yes
 			ai_will_do = {
 					factor = 2
@@ -2305,7 +2334,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_armament_effort_1
@@ -2314,8 +2342,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_infrastructure_effort_1
 		}
-		x = 63
-		y = 2
+		x = 0
+		y = 1
+		relative_position_id = SO2_infrastructure_effort_1
 			available_if_capitulated = yes
 			ai_will_do = {
 					factor = 2
@@ -2377,7 +2406,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_infrastructure_effort_2
@@ -2389,8 +2417,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_armament_effort_1
 		}
-		x = 62
-		y = 3
+		x = 0
+		y = 2
+		relative_position_id = SO2_construction_effort_1
 			available_if_capitulated = yes
 			bypass = {
 			    OR = {
@@ -2476,7 +2505,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 4 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_construction_effort_2
@@ -2489,8 +2517,9 @@ completion_reward = {
 			focus = SO2_construction_effort_1
 		}
 
-		x = 61
-		y = 4
+		x = -1
+		y = 3
+		relative_position_id = SO2_construction_effort_1
 			available_if_capitulated = yes
 			ai_will_do = {
 					factor = 2
@@ -2553,7 +2582,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -42 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_armament_effort_2
@@ -2566,8 +2594,9 @@ completion_reward = {
 			focus = SO2_armament_effort_1
 		}
 
-		x = 63
-		y = 4
+		x = 0
+		y = 3
+		relative_position_id = SO2_armament_effort_1
 			available_if_capitulated = yes
 			ai_will_do = {
 					factor = 2
@@ -2636,7 +2665,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_infrastructure_effort_3
@@ -2648,8 +2676,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_armament_effort_2
 		}
-		x = 62
-		y = 5
+		x = -1
+		y = 2
+		relative_position_id = SO2_armament_effort_2
 			available_if_capitulated = yes
 			bypass = {
 			    OR = {
@@ -2735,7 +2764,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -40 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_armament_effort_3
@@ -2751,8 +2779,9 @@ completion_reward = {
 		mutually_exclusive = {
 			focus = SO2_construction_effort_3
 		}
-		x = 63
-		y = 6
+		x = 0
+		y = 3
+		relative_position_id = SO2_armament_effort_2
 			available_if_capitulated = yes
 			ai_will_do = {
 					factor = 2
@@ -2815,7 +2844,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -40 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_dockyard_1
@@ -2825,8 +2853,9 @@ completion_reward = {
 			focus = SO2_naval_effort
 			focus = SO2_industrial_effort
 		}
-		x = 73
+		x = 0
 		y = 1
+		relative_position_id = SO2_industrial_effort
 			ai_will_do = {
 					factor = 10
 				}
@@ -2877,7 +2906,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -49 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_dockyard_2
@@ -2890,8 +2918,9 @@ completion_reward = {
 			focus = SO2_infrastructure_effort_1
 		}
 
-		x = 72
-		y = 2
+		x = -1
+		y = 1
+		relative_position_id = SO2_dockyard_1
 			ai_will_do = {
 					factor = 10
 				}
@@ -2942,7 +2971,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_dockyard_3
@@ -2955,8 +2983,9 @@ completion_reward = {
 			focus = SO2_armament_effort_1
 		}
 
-		x = 71
-		y = 3
+		x = 1
+		y = 2
+		relative_position_id = SO2_armament_effort_1
 			ai_will_do = {
 					factor = 10
 				}
@@ -3007,7 +3036,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -47 y = 4 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_dockyard_4
@@ -3016,12 +3044,10 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_dockyard_3
 		}
-		prerequisite = {
-			focus = SO2_infrastructure_effort_2
-		}
 
-		x = 71
-		y = 4
+		x = 3
+		y = 1
+		relative_position_id = SO2_dockyard_3
 			ai_will_do = {
 					factor = 10
 				}
@@ -3041,7 +3067,8 @@ completion_reward = {
 								}
 						}
 				}
-			}
+			has_completed_focus = SO2_infrastructure_effort_2
+		}
 			complete_tooltip = {
 					random_state = {
 							add_extra_state_shared_building_slots = 2
@@ -3072,7 +3099,7 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -46 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { has_completed_focus = SO2_infrastructure_effort_2 }
 	}
 	focus = {
 		id = SO2_dreadnought
@@ -3081,8 +3108,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_naval_effort
 		}
-		x = 71
+		x = 0
 		y = 1
+		relative_position_id = SO2_naval_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -3095,7 +3123,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -45 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_better_weaponry
@@ -3108,8 +3135,9 @@ completion_reward = {
 			focus = SO2_dockyard_1
 		}
 
-		x = 74
-		y = 2
+		x = 1
+		y = 1
+		relative_position_id = SO2_dockyard_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 			add_mastery_bonus = {
@@ -3127,7 +3155,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 2 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_submarine_theory
@@ -3141,8 +3168,9 @@ completion_reward = {
 		}
 
 		mutually_exclusive = { focus = SO2_BB_effort }
-		x = 73
-		y = 3
+		x = 0
+		y = 2
+		relative_position_id = SO2_dockyard_2
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_mastery_bonus = {
@@ -3156,7 +3184,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -47 y = 4 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_strat_bomber_1
@@ -3165,8 +3192,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_strategic_bomber_research_1
 		}
-		x = 46
-		y = 6
+		x = 0
+		y = 1
+		relative_position_id = SO2_strategic_bomber_research_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -3178,7 +3206,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -38 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_submarine_effort
@@ -3191,8 +3218,9 @@ completion_reward = {
 			focus = SO2_dockyard_3
 		}
 
-		x = 73
-		y = 4
+		x = 1
+		y = 1
+		relative_position_id = SO2_dockyard_3
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			completion_reward = {
 					add_tech_bonus = {
@@ -3205,7 +3233,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -46 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_BB_effort
@@ -3221,8 +3248,9 @@ completion_reward = {
 			focus = SO2_submarine_theory
 		}
 
-		x = 75
-		y = 3
+		x = 0
+		y = 2
+		relative_position_id = SO2_better_weaponry
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_mastery_bonus = {
@@ -3236,7 +3264,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -47 y = 4 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_destroyer_effort
@@ -3249,8 +3276,9 @@ completion_reward = {
 			focus = SO2_dockyard_4
 		}
 
-		x = 73
-		y = 5
+		x = 0
+		y = 2
+		relative_position_id = SO2_submarine_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_mastery_bonus = {
@@ -3263,7 +3291,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_cruiser_effort
@@ -3274,8 +3301,9 @@ completion_reward = {
 
 
 
-		x = 75
-		y = 4
+		x = 1
+		y = 1
+		relative_position_id = SO2_BB_effort
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_mastery_bonus = {
@@ -3288,7 +3316,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -46 y = 5 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_battle_cruiser_effort
@@ -3301,8 +3328,9 @@ completion_reward = {
 			focus = SO2_dockyard_4
 		}
 
-		x = 75
-		y = 5
+		x = 0
+		y = 2
+		relative_position_id = SO2_dockyard_4
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_mastery_bonus = {
@@ -3316,7 +3344,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_improved_fighter_2
@@ -3325,8 +3352,9 @@ completion_reward = {
 		prerequisite = {
 			focus = SO2_improved_fighter_1
 		}
-		x = 52
-		y = 6
+		x = 0
+		y = 1
+		relative_position_id = SO2_improved_fighter_1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 completion_reward = {
 			add_timed_idea = { idea = INT_SOV_air_superiority days = 730 }
@@ -3340,7 +3368,6 @@ completion_reward = {
 		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -36 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_construction_effort_3
@@ -3356,8 +3383,9 @@ completion_reward = {
 		mutually_exclusive = {
 			focus = SO2_armament_effort_3
 		}
-		x = 61
-		y = 6
+		x = 1
+		y = 3
+		relative_position_id = SO2_construction_effort_2
 			available_if_capitulated = yes
 			ai_will_do = {
 					factor = 2
@@ -3426,7 +3454,6 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -40 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_treaty_of_kars
@@ -3436,7 +3463,7 @@ completion_reward = {
 			focus = SO2_southern_expansion
 		}
 		relative_position_id = SO2_southern_expansion
-		x = 3
+		x = 0
 		y = 1
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
@@ -3448,14 +3475,14 @@ completion_reward = {
 				}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -3 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 	focus = {
 		id = SO2_INT_republics_council
 		icon = GFX_focus_generic_government_in_exile
 		cost = 10
-		x = 26
-		y = 6
+		x = 0
+		y = 1
+		relative_position_id = SO2_treaty_of_creation_ussr
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_treaty_of_creation_ussr }
 		ai_will_do = { factor = 8 }
@@ -3465,15 +3492,15 @@ completion_reward = {
 			add_stability = 0.03
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_party_secretariat
 		icon = GFX_focus_SWI_dissolve_the_federal_council
 		cost = 10
-		x = 28
-		y = 6
+		x = -2
+		y = 1
+		relative_position_id = SO2_treaty_of_creation_ussr
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_treaty_of_creation_ussr }
 		ai_will_do = { factor = 8 }
@@ -3485,15 +3512,15 @@ completion_reward = {
  WW1_support_communism_programme = yes
  }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_electrify_villages
 		icon = GFX_focus_generic_electrification
 		cost = 10
-		x = 30
-		y = 6
+		x = -1
+		y = 1
+		relative_position_id = SO2_GOELRO
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_GOELRO }
 		ai_will_do = { factor = 8 }
@@ -3501,29 +3528,29 @@ completion_reward = {
 			add_tech_bonus = { name = SO2_INT_rural_power_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_nep_market_towns
 		icon = GFX_focus_INS_work_with_oil_barons
 		cost = 10
-		x = 33
-		y = 5
+		x = 4
+		y = 2
+		relative_position_id = SO2_new_economic_policy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_new_economic_policy }
 		ai_will_do = { factor = 8 }
 		completion_reward = { add_tech_bonus = { name = SO2_INT_nep_market_towns_programme_bonus bonus = 0.35 uses = 1 category = industry } }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_union_constitution
 		icon = GFX_focus_generic_social_democracy
 		cost = 10
-		x = 28
-		y = 7
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_republics_council
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_republics_council }
 		available = { date > 1924.1.1 }
@@ -3535,15 +3562,15 @@ completion_reward = {
 			add_stability = 0.03
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_lenins_legacy
 		icon = GFX_focus_SOV_organization_centralization_discipline
 		cost = 10
-		x = 30
-		y = 7
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_party_secretariat
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_party_secretariat }
 		available = { date > 1924.1.20 }
@@ -3555,15 +3582,15 @@ completion_reward = {
 			add_political_power = 100
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_cooperative_credit
 		icon = GFX_focus_generic_economic_recovery
 		cost = 10
-		x = 32
-		y = 6
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_nep_market_towns
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_nep_market_towns }
 		ai_will_do = { factor = 8 }
@@ -3571,18 +3598,18 @@ completion_reward = {
 			add_tech_bonus = { name = SO2_INT_cooperative_credit_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_left_opposition
 		icon = GFX_focus_generic_soviet_politics
 		cost = 10
-		x = 28
-		y = 8
+		x = -2
+		y = 1
+		relative_position_id = SO2_INT_lenins_legacy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_lenins_legacy }
-		mutually_exclusive = { focus = SO2_INT_general_secretary focus = SO2_INT_right_opposition }
+		mutually_exclusive = { focus = SO2_INT_general_secretary  }
 		ai_will_do = { factor = 0 }
 		completion_reward = {
 			if = { limit = { endsieg_character_active_so2_lev_trotsky_660a5a92 = yes } endsieg_character_retire_so2_lev_trotsky_660a5a92 = yes }
@@ -3594,15 +3621,16 @@ completion_reward = {
  WW1_support_communism_programme = yes
  }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { NOT = { has_completed_focus = SO2_INT_right_opposition } }
 	}
 
 	focus = {
 		id = SO2_INT_general_secretary
 		icon = GFX_focus_GER_legacy_of_the_spartacus_league
 		cost = 10
-		x = 30
-		y = 8
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_lenins_legacy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_lenins_legacy }
 		mutually_exclusive = { focus = SO2_INT_left_opposition focus = SO2_INT_right_opposition }
@@ -3618,18 +3646,18 @@ completion_reward = {
  WW1_support_communism_programme = yes
  }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_right_opposition
 		icon = GFX_focus_generic_monarchist_sentiment
 		cost = 10
-		x = 32
-		y = 8
+		x = 2
+		y = 1
+		relative_position_id = SO2_INT_lenins_legacy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_lenins_legacy }
-		mutually_exclusive = { focus = SO2_INT_left_opposition focus = SO2_INT_general_secretary }
+		mutually_exclusive = {  focus = SO2_INT_general_secretary }
 		ai_will_do = { factor = 0 }
 		completion_reward = {
 			if = { limit = { endsieg_character_active_sov_nikolai_bukharin_8cf61385 = yes } endsieg_character_retire_sov_nikolai_bukharin_8cf61385 = yes }
@@ -3641,15 +3669,16 @@ completion_reward = {
  WW1_support_communism_programme = yes
  }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
+		available = { NOT = { has_completed_focus = SO2_INT_left_opposition } }
 	}
 
 	focus = {
 		id = SO2_INT_permanent_revolution
 		icon = GFX_goal_support_communism
 		cost = 10
-		x = 28
-		y = 9
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_left_opposition
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_left_opposition }
 		ai_will_do = { factor = 0 }
@@ -3658,15 +3687,15 @@ completion_reward = {
 			add_political_power = 35
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 5 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_socialism_one_country
 		icon = GFX_SOV_socialist_realism_ccp_2d_sov_compatibility
 		cost = 10
-		x = 30
-		y = 9
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_general_secretary
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_general_secretary }
 		ai_will_do = { factor = 18 }
@@ -3677,15 +3706,15 @@ completion_reward = {
 			add_popularity = { ideology = communism popularity = 0.05 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_preserve_nep
 		icon = GFX_focus_generic_concessions
 		cost = 10
-		x = 32
-		y = 9
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_right_opposition
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_right_opposition }
 		ai_will_do = { factor = 0 }
@@ -3694,15 +3723,15 @@ completion_reward = {
 			country_event = { id = INT_sov_rework.4 days = 1 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_party_democracy
 		icon = GFX_focus_generic_support_the_left_right
 		cost = 10
-		x = 28
-		y = 10
+		x = -2
+		y = 1
+		relative_position_id = SO2_INT_permanent_revolution
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_permanent_revolution }
 		ai_will_do = { factor = 0 }
@@ -3710,15 +3739,15 @@ completion_reward = {
 			add_ideas = INT_SOV_party_democracy
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 5 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_grain_procurement
 		icon = GFX_focus_generic_agricultural_subsidies
 		cost = 10
-		x = 30
-		y = 10
+		x = -2
+		y = 1
+		relative_position_id = SO2_INT_socialism_one_country
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_socialism_one_country }
 		available = { date > 1927.1.1 }
@@ -3729,29 +3758,29 @@ completion_reward = {
 			country_event = { id = INT_sov_rework.1 days = 1 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_peasant_incentives
 		icon = GFX_focus_JAP_central_agricultural_association
 		cost = 10
-		x = 32
-		y = 10
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_preserve_nep
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_preserve_nep }
 		ai_will_do = { factor = 0 }
 		completion_reward = { add_tech_bonus = { name = SO2_INT_peasant_incentives_programme_bonus bonus = 0.35 uses = 1 category = industry } }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_international_bureau
 		icon = GFX_focus_CZE_coalition_building
 		cost = 10
-		x = 28
-		y = 11
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_party_democracy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_party_democracy }
 		ai_will_do = { factor = 0 }
@@ -3760,15 +3789,15 @@ completion_reward = {
 			add_mastery_bonus = { name = SO2_INT_left_doctrine_bonus bonus = 0.25 days = 240 track = operations }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 5 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_first_five_year_plan
 		icon = GFX_focus_NORDIC_dem_civilian
 		cost = 10
-		x = 30
-		y = 11
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_grain_procurement
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_grain_procurement }
 		available = { date > 1928.1.1 }
@@ -3788,15 +3817,15 @@ completion_reward = {
 			}
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_gradual_industrialization
 		icon = GFX_focus_generic_expropriate_industrialist
 		cost = 10
-		x = 32
-		y = 11
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_peasant_incentives
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_peasant_incentives }
 		ai_will_do = { factor = 0 }
@@ -3804,15 +3833,15 @@ completion_reward = {
 			add_tech_bonus = { name = SO2_INT_gradual_industry_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_industrial_democracy
 		icon = GFX_focus_NORDIC_dem_institution_1
 		cost = 10
-		x = 26
-		y = 12
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_international_bureau
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_international_bureau }
 		ai_will_do = { factor = 0 }
@@ -3829,15 +3858,15 @@ completion_reward = {
 			country_event = { id = INT_sov_rework.7 days = 1 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_collectivize_agriculture
 		icon = GFX_focus_ITA_peasants_rise
 		cost = 10
-		x = 28
-		y = 12
+		x = -2
+		y = 1
+		relative_position_id = SO2_INT_first_five_year_plan
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_first_five_year_plan }
 		available = { date > 1929.1.1 }
@@ -3849,15 +3878,15 @@ completion_reward = {
 			country_event = { id = INT_sov_rework.2 days = 1 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_build_magnitogorsk
 		icon = GFX_focus_NORDIC_dem_capstone_civilian
 		cost = 10
-		x = 32
-		y = 12
+		x = 2
+		y = 1
+		relative_position_id = SO2_INT_first_five_year_plan
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_first_five_year_plan }
 		available = { date > 1929.1.1 }
@@ -3873,29 +3902,29 @@ completion_reward = {
 			add_tech_bonus = { name = SO2_INT_steel_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_cooperative_farms
 		icon = GFX_focus_FIN_finnish_federation_of_trade_unions
 		cost = 10
-		x = 34
-		y = 12
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_gradual_industrialization
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_gradual_industrialization }
 		ai_will_do = { factor = 0 }
 		completion_reward = { add_tech_bonus = { name = SO2_INT_cooperative_farms_programme_bonus bonus = 0.35 uses = 1 category = industry } }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_left_industrial_plan
 		icon = GFX_focus_generic_industrial_experts
 		cost = 10
-		x = 28
-		y = 13
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_industrial_democracy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_industrial_democracy }
 		ai_will_do = { factor = 0 }
@@ -3904,15 +3933,15 @@ completion_reward = {
 			add_tech_bonus = { name = SO2_INT_left_industry_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 5 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_stabilize_collective_farms
 		icon = GFX_focus_generic_land_redistribution
 		cost = 10
-		x = 30
-		y = 13
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_collectivize_agriculture
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_collectivize_agriculture }
 		available = { date > 1932.1.1 }
@@ -3922,15 +3951,15 @@ completion_reward = {
 			add_ideas = INT_SOV_collective_farms
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_second_five_year_plan
 		icon = GFX_goal_generic_construct_infrastructure
 		cost = 10
-		x = 30
-		y = 14
+		x = -1
+		y = 2
+		relative_position_id = SO2_INT_plan_targets
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_build_magnitogorsk }
 		prerequisite = { focus = SO2_INT_stabilize_collective_farms }
@@ -3944,15 +3973,15 @@ completion_reward = {
 			add_tech_bonus = { name = SO2_INT_second_plan_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_cooperative_industrialization
 		icon = GFX_focus_GER_integrated_economies
 		cost = 10
-		x = 32
-		y = 13
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_cooperative_farms
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_cooperative_farms }
 		ai_will_do = { factor = 0 }
@@ -3969,15 +3998,15 @@ completion_reward = {
 			}
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_workers_republic
 		icon = GFX_SOV_the_workers_dictatorship_ccp_2d_sov_compatibility
 		cost = 10
-		x = 28
-		y = 14
+		x = 1
+		y = 1
+		relative_position_id = SO2_INT_left_industrial_plan
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_left_industrial_plan }
 		available = { date > 1934.1.1 }
@@ -3988,15 +4017,15 @@ completion_reward = {
 			add_popularity = { ideology = communism popularity = 0.05 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_heavy_industry_1935
 		icon = GFX_focus_generic_modernize_industry
 		cost = 10
-		x = 30
-		y = 15
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_second_five_year_plan
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_second_five_year_plan }
 		available = { date > 1935.1.1 }
@@ -4005,68 +4034,68 @@ completion_reward = {
 			add_tech_bonus = { name = SO2_INT_heavy_industry_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_nep_recovery_1935
 		icon = GFX_goal_generic_trade
 		cost = 10
-		x = 32
-		y = 14
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_cooperative_industrialization
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_cooperative_industrialization }
 		available = { date > 1934.12.31 }
 		ai_will_do = { factor = 0 }
 		completion_reward = { add_tech_bonus = { name = SO2_INT_nep_recovery_1935_programme_bonus bonus = 0.35 uses = 1 category = industry } }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_rapallo_diplomacy
 		icon = GFX_focus_generic_conference
 		cost = 10
-		x = 8
-		y = 2
+		x = 5
+		y = 1
+		relative_position_id = SO2_european_diplomacy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_european_diplomacy }
 		available = { date > 1922.4.16 }
 		ai_will_do = { factor = 8 }
 		completion_reward = {
 			custom_effect_tooltip = WW1_historical_focus_tt
-			if = { limit = { country_exists = GER } add_opinion_modifier = { target = GER modifier = INT_GER_rapallo_cooperation } GER = { add_opinion_modifier = { target = SOV modifier = INT_GER_rapallo_cooperation } } }
+			if = { limit = { country_exists = GER } endsieg_fixed_effect_b4845926b4514110 = yes  }
 			add_political_power = 35
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_berlin_treaty
 		icon = GFX_focus_renounce_the_treaty_of_trianon
 		cost = 10
-		x = 10
-		y = 3
+		x = 3
+		y = 2
+		relative_position_id = SO2_INT_rapallo_diplomacy
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_rapallo_diplomacy }
 		available = { date > 1926.4.23 }
 		ai_will_do = { factor = 8 }
 		completion_reward = {
 			custom_effect_tooltip = WW1_historical_focus_tt
-			if = { limit = { country_exists = GER } add_opinion_modifier = { target = GER modifier = INT_GER_berlin_treaty_relations } GER = { add_opinion_modifier = { target = SOV modifier = INT_GER_berlin_treaty_relations } } }
+			if = { limit = { country_exists = GER } endsieg_fixed_effect_05fe3510c26179d1 = yes  }
 			country_event = { id = INT_sov_rework.5 days = 1 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 62 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_comintern_schools
 		icon = GFX_focus_generic_join_comintern
 		cost = 10
-		x = 12
-		y = 2
+		x = 9
+		y = 1
+		relative_position_id = SO2_found_comintern
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_found_comintern }
 		ai_will_do = { factor = 8 }
@@ -4075,48 +4104,48 @@ completion_reward = {
 			add_mastery_bonus = { name = SO2_INT_comintern_doctrine_bonus bonus = 0.25 days = 240 track = operations }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 64 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_pacific_border_commission
 		icon = GFX_focus_generic_commission
 		cost = 10
-		x = 13
-		y = 5
+		x = 0
+		y = 2
+		relative_position_id = SO2_SO2_JAP_convention
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_SO2_JAP_convention }
 		available = { date > 1925.1.1 }
 		ai_will_do = { factor = 8 }
-		completion_reward = { if = { limit = { country_exists = JAP NOT = { has_war_with = JAP } } add_opinion_modifier = { target = JAP modifier = small_increase } JAP = { add_opinion_modifier = { target = ROOT modifier = small_increase } } } }
+		completion_reward = { if = { limit = { country_exists = JAP NOT = { has_war_with = JAP } } endsieg_fixed_effect_5a7d6a8e99d0f3f4 = yes  } }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 70 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_international_recognition
 		icon = GFX_goal_generic_major_alliance
 		cost = 10
-		x = 15
-		y = 4
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_berlin_treaty
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_berlin_treaty }
 		ai_will_do = { factor = 8 }
 		completion_reward = {
 
 
-			every_other_country = { limit = { is_major = yes NOT = { has_war_with = ROOT } } add_opinion_modifier = { target = ROOT modifier = long_term_trade_partner } }
+			every_other_country = { limit = { is_major = yes NOT = { has_war_with = ROOT } } endsieg_fixed_effect_b9f2408fce76c069 = yes }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 59 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_armored_proving_grounds
 		icon = GFX_focus_generic_central_planning
 		cost = 10
-		x = 7
-		y = 25
+		x = -1
+		y = 2
+		relative_position_id = SO2_armored_vehicles_4
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_armored_vehicles_4 }
 		ai_will_do = { factor = 8 }
@@ -4125,15 +4154,15 @@ completion_reward = {
 			army_experience = 10
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_rifle_standardization
 		icon = GFX_focus_generic_manpower
 		cost = 10
-		x = 9
-		y = 25
+		x = -1
+		y = 2
+		relative_position_id = SO2_equipment_effort_4
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_equipment_effort_4 }
 		ai_will_do = { factor = 8 }
@@ -4142,15 +4171,15 @@ completion_reward = {
 			army_experience = 10
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 39 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_artillery_bureaus
 		icon = GFX_focus_generic_coastal_fort
 		cost = 10
-		x = 11
-		y = 25
+		x = 0
+		y = 2
+		relative_position_id = SO2_artillery_effort_4
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_artillery_effort_4 }
 		ai_will_do = { factor = 8 }
@@ -4159,15 +4188,15 @@ completion_reward = {
 			army_experience = 10
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 33 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_red_army_academies
 		icon = GFX_focus_generic_military_academy
 		cost = 10
-		x = 13
-		y = 25
+		x = -1
+		y = 2
+		relative_position_id = SO2_tactics_4
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_tactics_4 }
 		ai_will_do = { factor = 8 }
@@ -4176,15 +4205,15 @@ completion_reward = {
 			army_experience = 15
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 33 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_deep_operations
 		icon = GFX_goal_generic_army_doctrines
 		cost = 10
-		x = 11
-		y = 26
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_red_army_academies
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_red_army_academies }
 		ai_will_do = { factor = 8 }
@@ -4194,15 +4223,15 @@ completion_reward = {
 			country_event = { id = INT_sov_rework.6 days = 1 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 35 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_flight_schools
 		icon = GFX_focus_AFG_education_reform
 		cost = 10
-		x = 48
-		y = 5
+		x = 0
+		y = 2
+		relative_position_id = SO2_pilot_training_2
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_pilot_training_2 }
 		ai_will_do = { factor = 8 }
@@ -4216,15 +4245,15 @@ add_mastery_bonus = {
 			}
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -37 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_air_ground_cooperation
 		icon = GFX_focus_generic_air_partners
 		cost = 10
-		x = 51
-		y = 7
+		x = -2
+		y = 1
+		relative_position_id = SO2_cas_2
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_cas_2 }
 		ai_will_do = { factor = 8 }
@@ -4238,15 +4267,15 @@ add_mastery_bonus = {
 			}
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -37 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_ural_steel
 		icon = GFX_focus_generic_steel_mill
 		cost = 10
-		x = 61
-		y = 7
+		x = 0
+		y = 1
+		relative_position_id = SO2_construction_effort_3
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_construction_effort_3 }
 		ai_will_do = { factor = 8 }
@@ -4263,15 +4292,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_ural_steel_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_machine_tool_plants
 		icon = GFX_focus_NORDIC_dem_selector_civilian
 		cost = 10
-		x = 63
-		y = 7
+		x = 0
+		y = 1
+		relative_position_id = SO2_armament_effort_3
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_armament_effort_3 }
 		ai_will_do = { factor = 8 }
@@ -4288,15 +4317,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_machine_tools_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -40 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_tractor_works
 		icon = GFX_focus_generic_farmland
 		cost = 10
-		x = 62
-		y = 8
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_machine_tool_plants
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_machine_tool_plants }
 		ai_will_do = { factor = 8 }
@@ -4313,15 +4342,15 @@ add_mastery_bonus = {
 			}
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_ural_rail_links
 		icon = GFX_focus_generic_industrialists
 		cost = 10
-		x = 60
-		y = 8
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_ural_steel
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_ural_steel }
 		ai_will_do = { factor = 8 }
@@ -4330,15 +4359,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_ural_rail_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_baltic_fleet_repairs
 		icon = GFX_focus_JAP_expand_navy_technical_department
 		cost = 10
-		x = 73
-		y = 6
+		x = 0
+		y = 1
+		relative_position_id = SO2_destroyer_effort
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_destroyer_effort }
 		ai_will_do = { factor = 8 }
@@ -4347,15 +4376,15 @@ add_mastery_bonus = {
 			add_political_power = 25
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_black_sea_fleet_repairs
 		icon = GFX_goal_generic_build_navy
 		cost = 10
-		x = 75
-		y = 6
+		x = 0
+		y = 1
+		relative_position_id = SO2_battle_cruiser_effort
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_battle_cruiser_effort }
 		ai_will_do = { factor = 8 }
@@ -4364,15 +4393,15 @@ add_mastery_bonus = {
 			add_political_power = 25
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_transport_reconstruction
 		icon = GFX_focus_GER_kriegslokomotive
 		cost = 10
-		x = 32
-		y = 7
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_electrify_villages
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_electrify_villages }
 		ai_will_do = { factor = 8 }
@@ -4381,15 +4410,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_transport_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 6 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_public_health_campaign
 		icon = GFX_focus_generic_field_hostpital
 		cost = 10
-		x = 34
-		y = 6
+		x = 2
+		y = 1
+		relative_position_id = SO2_INT_nep_market_towns
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_nep_market_towns }
 		ai_will_do = { factor = 5 }
@@ -4397,15 +4426,15 @@ add_mastery_bonus = {
 			add_ideas = INT_SOV_public_health
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 8 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_trade_delegations
 		icon = GFX_focus_JAP_anti_militarist_speeches_in_the_diet
 		cost = 10
-		x = 13
-		y = 4
+		x = 2
+		y = 1
+		relative_position_id = SO2_INT_berlin_treaty
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_berlin_treaty }
 		ai_will_do = { factor = 5 }
@@ -4414,15 +4443,15 @@ add_mastery_bonus = {
 			add_political_power = 20
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 59 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_comintern_press
 		icon = GFX_focus_generic_red_flags
 		cost = 10
-		x = 16
-		y = 3
+		x = 0
+		y = 2
+		relative_position_id = SO2_INT_comintern_schools
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_comintern_schools }
 		ai_will_do = { factor = 5 }
@@ -4431,15 +4460,15 @@ add_mastery_bonus = {
 			add_war_support = 0.02
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 62 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_far_eastern_trade
 		icon = GFX_focus_GER_customs_union
 		cost = 10
-		x = 12
-		y = 6
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_pacific_border_commission
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_pacific_border_commission }
 		ai_will_do = { factor = 5 }
@@ -4447,15 +4476,15 @@ add_mastery_bonus = {
 			add_ideas = INT_SOV_far_eastern_trade
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 71 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_armored_corps
 		icon = GFX_focus_generic_worker_administration
 		cost = 10
-		x = 9
-		y = 26
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_armored_proving_grounds
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_armored_proving_grounds }
 		ai_will_do = { factor = 5 }
@@ -4464,15 +4493,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_armored_corps_bonus bonus = 0.5 uses = 1 category = armor }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 33 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_red_army_logistics
 		icon = GFX_focus_generic_supply_line
 		cost = 10
-		x = 10
-		y = 27
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_deep_operations
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_deep_operations }
 		ai_will_do = { factor = 5 }
@@ -4481,15 +4510,15 @@ add_mastery_bonus = {
 			army_experience = 10
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 36 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_aircraft_design_bureaus
 		icon = GFX_focus_generic_aircraft_production
 		cost = 10
-		x = 50
-		y = 6
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_flight_schools
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_flight_schools }
 		ai_will_do = { factor = 5 }
@@ -4498,15 +4527,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_aircraft_bureaus_bonus bonus = 0.5 uses = 1 category = light_air }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -38 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_frontline_air_control
 		icon = GFX_SOV_raskovas_aviation_group_ccp_2d_sov_compatibility
 		cost = 10
-		x = 50
-		y = 8
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_air_ground_cooperation
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_air_ground_cooperation }
 		ai_will_do = { factor = 5 }
@@ -4515,15 +4544,15 @@ add_mastery_bonus = {
 			air_experience = 10
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -36 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_ural_power_grid
 		icon = GFX_focus_generic_energy
 		cost = 10
-		x = 62
-		y = 9
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_ural_rail_links
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_ural_rail_links }
 		ai_will_do = { factor = 5 }
@@ -4532,15 +4561,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_ural_power_bonus bonus = 0.5 uses = 1 category = industry }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -43 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_precision_machine_tools
 		icon = GFX_goal_generic_production
 		cost = 10
-		x = 64
-		y = 8
+		x = 1
+		y = 1
+		relative_position_id = SO2_INT_machine_tool_plants
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_machine_tool_plants }
 		ai_will_do = { factor = 5 }
@@ -4553,15 +4582,15 @@ add_mastery_bonus = {
 
 		search_filters = { FOCUS_FILTER_RESEARCH }
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -41 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_baltic_submarine_school
 		icon = GFX_goal_generic_navy_submarine
 		cost = 10
-		x = 73
-		y = 7
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_baltic_fleet_repairs
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_baltic_fleet_repairs }
 		ai_will_do = { factor = 5 }
@@ -4570,15 +4599,15 @@ add_mastery_bonus = {
 			add_tech_bonus = { name = SO2_INT_baltic_submarine_bonus bonus = 0.5 uses = 1 category = naval_equipment }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_black_sea_naval_staff
 		icon = GFX_goal_generic_navy_doctrines_tactics
 		cost = 10
-		x = 75
-		y = 7
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_black_sea_fleet_repairs
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_black_sea_fleet_repairs }
 		ai_will_do = { factor = 5 }
@@ -4587,15 +4616,15 @@ add_mastery_bonus = {
 			navy_experience = 10
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = -48 y = 7 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_plan_targets
 		icon = GFX_goal_generic_construct_mil_factory
 		cost = 10
-		x = 30
-		y = 12
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_first_five_year_plan
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_first_five_year_plan }
 		ai_will_do = { factor = 8 }
@@ -4603,15 +4632,15 @@ add_mastery_bonus = {
 			country_event = { id = INT_sov_rework.3 days = 1 }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_workers_congress
 		icon = GFX_focus_generic_workers
 		cost = 10
-		x = 28
-		y = 15
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_workers_republic
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_workers_republic }
 		ai_will_do = { factor = 8 }
@@ -4619,15 +4648,15 @@ add_mastery_bonus = {
 			add_ideas = INT_SOV_workers_congress
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_plan_consolidation
 		icon = GFX_goal_generic_construct_military
 		cost = 10
-		x = 30
-		y = 16
+		x = 0
+		y = 1
+		relative_position_id = SO2_INT_heavy_industry_1935
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_heavy_industry_1935 }
 		ai_will_do = { factor = 8 }
@@ -4644,15 +4673,15 @@ add_mastery_bonus = {
 			}
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_cooperative_union
 		icon = GFX_focus_eng_concessions_to_the_trade_unions
 		cost = 10
-		x = 32
-		y = 15
+		x = -1
+		y = 1
+		relative_position_id = SO2_INT_nep_recovery_1935
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_nep_recovery_1935 }
 		ai_will_do = { factor = 8 }
@@ -4660,15 +4689,15 @@ add_mastery_bonus = {
 			add_ideas = INT_SOV_cooperative_union
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 0 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 	focus = {
 		id = SO2_INT_enter_1936
 		icon = GFX_focus_ETH_re-convene_the_parliament
 		cost = 1
-		x = 30
-		y = 17
+		x = 0
+		y = 2
+		relative_position_id = SO2_INT_plan_consolidation
 		available_if_capitulated = yes
 		prerequisite = { focus = SO2_INT_workers_congress focus = SO2_INT_plan_consolidation focus = SO2_INT_cooperative_union }
 		available = { date > 1935.12.31 }
@@ -4678,7 +4707,6 @@ add_mastery_bonus = {
 			load_focus_tree = { tree = soviet_focus keep_completed = yes }
 		}
 	# Scoped WW1 native layout: thematic groups and compact chains.
-	offset = { x = 7 y = 1 trigger = { has_focus_tree = Soviet_Russia } }
 	}
 
 

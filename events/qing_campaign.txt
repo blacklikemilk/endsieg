@@ -7,7 +7,8 @@ add_namespace = qing_campaign
 country_event = {
 	id = qing_campaign.1
 	title = qing_campaign.1.t
-	desc = qing_campaign.1.d
+	desc = { text = qing_campaign.1.d trigger = { date < 1919.1.1 } }
+	desc = { text = qing_campaign.1.late.d trigger = { date > 1918.12.31 } }
 	picture = GFX_report_event_puyi
 
 	is_triggered_only = yes
@@ -600,7 +601,8 @@ country_event = {
 country_event = {
 	id = qing_campaign.35
 	title = qing_campaign.35.t
-	desc = qing_campaign.35.d
+	desc = { text = qing_campaign.35.war.d trigger = { has_war_with = JAP } }
+	desc = { text = qing_campaign.35.d trigger = { NOT = { has_war_with = JAP } } }
 	picture = GFX_report_event_shandong_uprising
 
 	is_triggered_only = yes
@@ -636,6 +638,7 @@ country_event = {
 	picture = GFX_report_event_puyi
 
 	is_triggered_only = yes
+	trigger = { country_exists = JAP country_exists = MAN MAN = { is_subject_of = JAP } }
 
 	option = {
 		name = qing_campaign.36.a
@@ -699,6 +702,7 @@ country_event = {
 	picture = GFX_report_event_wuchang_uprising
 
 	is_triggered_only = yes
+	trigger = { country_exists = JAP NOT = { has_war_with = JAP } NOT = { is_in_faction_with = JAP } NOT = { is_subject_of = JAP } JAP = { NOT = { is_subject_of = ROOT } } }
 
 	option = {
 		name = qing_campaign.41.a
@@ -780,8 +784,8 @@ country_event = {
 	option = {
 		name = qing_campaign.44.a
 		
-		add_opinion_modifier = { target = USA modifier = qing_lend_lease_agreement }
-		add_opinion_modifier = { target = ENG modifier = qing_recognition_of_the_dynasty }
+		if = { limit = { country_exists = USA NOT = { has_war_with = USA } } add_opinion_modifier = { target = USA modifier = qing_lend_lease_agreement } }
+		if = { limit = { country_exists = ENG NOT = { has_war_with = ENG } } add_opinion_modifier = { target = ENG modifier = qing_recognition_of_the_dynasty } }
 		add_political_power = constant:qing_story.political_capital
 		set_country_flag = qing_allied_cooperation
 	}
@@ -846,16 +850,17 @@ country_event = {
 country_event = {
 	id = qing_campaign.50
 	title = qing_campaign.50.t
-	desc = qing_campaign.50.d
+	desc = { text = qing_campaign.50.war.d trigger = { country_exists = GER GER = { OR = { has_war_with = ENG has_war_with = FRA } } } }
+	desc = { text = qing_campaign.50.d trigger = { NOT = { AND = { country_exists = GER GER = { OR = { has_war_with = ENG has_war_with = FRA } } } } } }
 	picture = GFX_report_event_wuchang_uprising
 
 	is_triggered_only = yes
 
 	option = {
 		name = qing_campaign.50.a
-		
-		add_opinion_modifier = { target = ENG modifier = qing_loan_understanding }
-		add_opinion_modifier = { target = FRA modifier = qing_recognition_of_the_dynasty }
+		trigger = { country_exists = ENG country_exists = FRA NOT = { has_war_with = ENG } NOT = { has_war_with = FRA } }
+		endsieg_fixed_effect_92ee65a8538b4ac0 = yes
+		endsieg_fixed_effect_6db34d626decd50f = yes
 		add_war_support = constant:qing_story.war_support_gain
 		set_country_flag = qing_entente_belligerent
 	}
@@ -884,13 +889,14 @@ country_event = {
 	picture = GFX_report_event_shandong_uprising
 
 	is_triggered_only = yes
+	trigger = { country_exists = JAP }
 
 	option = {
 		name = qing_campaign.51.a
 		
 		add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_loss }
 		add_to_variable = { qing_provincial_trust = constant:qing_story.trust_loss }
-		add_opinion_modifier = { target = JAP modifier = qing_commercial_understanding }
+		endsieg_fixed_effect_57214afbc0bd3440 = yes
 		add_stability = constant:qing_story.stability_gain
 		set_country_flag = qing_japan_accommodation
 	}
@@ -922,8 +928,8 @@ country_event = {
 	option = {
 		name = qing_campaign.52.a
 		
-		add_opinion_modifier = { target = ENG modifier = qing_loan_understanding }
-		add_opinion_modifier = { target = FRA modifier = qing_military_mission }
+		if = { limit = { country_exists = ENG NOT = { has_war_with = ENG } } add_opinion_modifier = { target = ENG modifier = qing_loan_understanding } }
+		if = { limit = { country_exists = FRA NOT = { has_war_with = FRA } } add_opinion_modifier = { target = FRA modifier = qing_military_mission } }
 		add_political_power = constant:qing_story.political_capital
 		add_manpower = -8000
 	}
@@ -974,11 +980,12 @@ country_event = {
 	picture = GFX_report_event_shandong_uprising
 
 	is_triggered_only = yes
+	trigger = { country_exists = JAP }
 
 	option = {
 		name = qing_campaign.60.a
-		add_opinion_modifier = { target = USA modifier = qing_appeal_against_japan }
-		add_opinion_modifier = { target = ENG modifier = qing_appeal_against_japan }
+		endsieg_fixed_effect_37593b746041ac23 = yes
+		endsieg_fixed_effect_0ceef659c3d7e893 = yes
 		add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_gain }
 	}
 	option = {
@@ -1078,7 +1085,7 @@ country_event = {
 		name = qing_campaign.63.b
 		add_to_variable = { qing_legitimacy = constant:qing_story.legitimacy_major_gain }
 		add_to_variable = { qing_provincial_trust = constant:qing_story.trust_major_loss }
-		add_opinion_modifier = { target = JAP modifier = qing_rejection_of_the_demands }
+		if = { limit = { country_exists = JAP } add_opinion_modifier = { target = JAP modifier = qing_rejection_of_the_demands } }
 		set_country_flag = qing_restoration_owned
 	}
 	option = {

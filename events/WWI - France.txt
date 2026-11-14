@@ -294,7 +294,7 @@ trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = ROM NOT = { has_war_
 	is_triggered_only = yes
 
 	option = {
-ai_chance = { factor = 60 }
+ai_chance = { factor = 60 modifier = { factor = 100 is_historical_focus_on = yes } }
 
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_france.1101.a
@@ -302,7 +302,7 @@ ai_chance = { factor = 60 }
 		ROM = { country_event = { id = ww1_france.1102 days = 1 } }
 	}
 	option = {
-ai_chance = { factor = 40 }
+ai_chance = { factor = 40 modifier = { factor = 0 is_historical_focus_on = yes } }
 
 		name = ww1_france.1101.b
 		set_global_flag = ROM_decline_deal
@@ -354,10 +354,10 @@ trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = FRA country_exists =
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_france.12.a
-		news_event = { hours = 6 id = endsieg_news.191 }
 		FRA = {
 			if = { limit = { ROM = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ROM }
 		}
+		if = { limit = { ROM = { is_in_faction_with = FRA has_war_with = AUH } NOT = { has_global_flag = WW1_ROM_war_entry_announced } } set_global_flag = WW1_ROM_war_entry_announced news_event = { hours = 6 id = endsieg_news.191 } }
 	}
 }
 
@@ -460,18 +460,13 @@ country_event = {
 	is_triggered_only = yes
 	trigger = {
 		tag = FRA
-		has_global_flag = welcome_event_WW1_active
-		date > 1911.6.30
-		NOT = { date > 1914.7.1 }
-		NOT = { has_global_flag = GE1_agadir_settlement_resolved }
+		WW1_agadir_can_negotiate = yes
 		NOT = { has_global_flag = GE1_agadir_crisis_pending }
-		country_exists = GER
+		country_exists = MOR
 	}
 
 	immediate = {
-set_country_flag = FR3_R_agadir_initiated
-
-		set_global_flag = agadir_crisis
+		set_country_flag = FR3_R_agadir_initiated
 		set_global_flag = GE1_agadir_crisis_pending
 	}
 
@@ -479,7 +474,7 @@ set_country_flag = FR3_R_agadir_initiated
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_france.17.a
 		GER = {
-			country_event = { id = ww1_germany.19 days = 1 }
+			country_event = { id = ww1_germany.19 hours = 1 }
 		}
 	}
 }
@@ -1052,14 +1047,14 @@ country_event = {
 
 # Hundred Days Offensive
 country_event = {
-fire_only_once = yes trigger = { tag = FRA has_start_date < 1918.8.8 date > 1918.8.7 date < 1918.9.1 has_war_with = GER NOT = { has_global_flag = compiegne } NOT = { has_global_flag = central_powers_victory } NOT = { has_global_flag = hundreddays } } mean_time_to_happen = { days = 1 }
+fire_only_once = yes trigger = { tag = FRA has_completed_focus = FR3_R_final_offensives has_war_with = GER NOT = { has_global_flag = compiegne has_global_flag = central_powers_victory has_global_flag = hundreddays } }
 
 	id = ww1_france.50
 	title = ww1_france.50.t
 	desc = ww1_france.50.d
 	picture = GFX_report_event_hundreddays
 
-	is_triggered_only = no
+	is_triggered_only = yes
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
@@ -1225,7 +1220,7 @@ country_event = {
 		tag = FRA
 		date > 1916.8.26
 		country_exists = ROM
-		ROM = { NOT = { has_war_with = AUH } }
+		ROM = { is_ai = yes is_historical_focus_on = yes is_in_faction_with = FRA NOT = { has_war_with = AUH } NOT = { has_country_flag = WW1_ROM_historical_war_entry } }
 	 FR3_R_may_enter_entente = yes is_faction_leader = yes country_exists = AUH has_war_with = AUH ROM = { is_subject = no OR = { is_in_faction = no is_in_faction_with = FRA } NOT = { has_war_with = FRA } NOT = { has_non_aggression_pact_with = AUH } }
  OR = { FRA = { has_completed_focus = FR3_invite_romania } ROM = { has_completed_focus = shared_GEN_join_entente } }
 }
@@ -1236,7 +1231,7 @@ country_event = {
   if = { limit = { FR3_R_may_enter_entente = yes is_faction_leader = yes country_exists = AUH has_war_with = AUH ROM = { is_subject = no OR = { is_in_faction = no is_in_faction_with = FRA } NOT = { has_war_with = FRA } NOT = { has_non_aggression_pact_with = AUH } } }
    if = { limit = { ROM = { NOT = { is_in_faction_with = FRA } WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ROM }
    ROM = { if = { limit = { is_in_faction_with = FRA NOT = { has_war_with = AUH } } declare_war_on = { target = AUH type = annex_everything } } }
-   news_event = { hours = 6 id = endsieg_news.191 }
+   if = { limit = { ROM = { has_war_with = AUH is_in_faction_with = FRA } } ROM = { set_country_flag = WW1_ROM_historical_war_entry } if = { limit = { NOT = { has_global_flag = WW1_ROM_war_entry_announced } } set_global_flag = WW1_ROM_war_entry_announced news_event = { hours = 6 id = endsieg_news.191 } } }
   }
  }
 }
