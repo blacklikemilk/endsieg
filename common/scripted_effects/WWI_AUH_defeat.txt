@@ -1,0 +1,700 @@
+WW1_AUH_queue_historical_armistice = {
+    if = {
+        limit = { NOT = { WW1_AUH_revolution_ready = yes } }
+        clr_country_flag = WW1_AUH_revolution_queued
+        clr_country_flag = WW1_AUH_revolution_presented
+    }
+    if = {
+        limit = { NOT = { WW1_AUH_historical_armistice_ready = yes } }
+        clr_country_flag = WW1_AUH_historical_armistice_queued
+        clr_country_flag = WW1_AUH_armistice_presented
+    }
+    if = {
+        limit = { WW1_AUH_revolution_ready = yes }
+        if = {
+            limit = { NOT = { has_country_flag = WW1_AUH_revolution_queued } NOT = { has_country_flag = WW1_AUH_revolution_presented } }
+            set_country_flag = { flag = WW1_AUH_revolution_queued days = 7 }
+            country_event = { id = ww1_kuk.56 hours = 1 }
+        }
+    }
+    if = {
+        limit = {
+            WW1_AUH_historical_armistice_ready = yes
+            NOT = { WW1_AUH_revolution_ready = yes }
+            NOT = { has_country_flag = WW1_AUH_historical_armistice_queued }
+            NOT = { has_country_flag = WW1_AUH_armistice_presented }
+        }
+        set_country_flag = { flag = WW1_AUH_historical_armistice_queued days = 7 }
+        country_event = { id = ww1_kuk.51 hours = 1 }
+    }
+}
+
+WW1_AUH_begin_aster_revolution = {
+    if = {
+        limit = { WW1_AUH_revolution_ready = yes }
+        set_country_flag = WW1_AUH_revolution_started
+        clr_country_flag = WW1_AUH_revolution_queued
+        clr_country_flag = WW1_AUH_revolution_presented
+        set_global_flag = aster_revolution
+        set_country_flag = { flag = WW1_AUH_secession_in_progress days = 1 }
+        add_stability = -0.05
+        if = {
+            limit = { HUN = { exists = yes is_subject_of = AUH } }
+            set_autonomy = { target = HUN autonomy_state = autonomy_free end_wars = yes end_civil_wars = no }
+            HUN = {
+                if = { limit = { is_in_faction_with = AUH } leave_faction = yes }
+                set_country_flag = WW1_AUH_new_successor
+            }
+        }
+        WW1_AUH_establish_hungary = yes
+        WW1_AUH_stage_transylvania = yes
+
+        WW1_AUH_declare_revolution_wars = yes
+        country_event = { id = ww1_kuk.51 days = 3 }
+        if = {
+            limit = { NOT = { has_global_flag = WW1_AUH_aster_reported } }
+            set_global_flag = WW1_AUH_aster_reported
+            news_event = { id = endsieg_news.171 hours = 6 }
+        }
+    }
+}
+
+WW1_AUH_declare_revolution_wars = {
+    if = {
+        limit = { WW1_AUH_historical_defeat_context = yes has_country_flag = WW1_AUH_revolution_started }
+        # Engine wars represent the break with Vienna while the empire still exists.
+        HUN = {
+            if = {
+                limit = { has_country_flag = WW1_AUH_hungarian_national_council }
+                WW1_AUH_declare_secession_war = yes
+            }
+        }
+        CZE = {
+            if = {
+                limit = { has_country_flag = WW1_AUH_czech_council }
+                WW1_AUH_declare_secession_war = yes
+            }
+        }
+        YUG = {
+            if = {
+                limit = { has_country_flag = WW1_AUH_south_slav_union_pending }
+                WW1_AUH_declare_secession_war = yes
+            }
+        }
+    }
+}
+
+WW1_AUH_declare_secession_war = {
+    if = {
+        limit = {
+            exists = yes
+            is_subject = no
+            is_in_faction = no
+            has_capitulated = no
+            AUH = { exists = yes has_capitulated = no }
+            NOT = { has_country_flag = WW1_AUH_secession_war_started }
+        }
+        if = {
+            limit = { NOT = { has_war_with = AUH } }
+            save_event_target_as = WW1_AUH_seceding_country
+            # Imperial troops already stationed in the new state must withdraw before hostilities.
+            if = {
+                limit = { AUH = { controls_state = 1051 } }
+                every_owned_state = {
+                    limit = { is_fully_controlled_by = PREV }
+                    teleport_armies = { to_state = 1051 limit = { tag = AUH } }
+                }
+            }
+            if = {
+                limit = { has_army_size = { size < 1 } capital_scope = { is_controlled_by = PREV } }
+                division_template = {
+                    name = "National Council Guard"
+                    regiments = {
+                        infantry = { x = 0 y = 0 }
+                        infantry = { x = 0 y = 1 }
+                        infantry = { x = 0 y = 2 }
+                        infantry = { x = 1 y = 0 }
+                    }
+                }
+                capital_scope = {
+                    create_unit = { owner = PREV division = "name = \"1. National Council Guard\" division_template = \"National Council Guard\" start_equipment_factor = 0.75" }
+                    create_unit = { owner = PREV division = "name = \"2. National Council Guard\" division_template = \"National Council Guard\" start_equipment_factor = 0.75" }
+                }
+            }
+            # Join the existing front against Vienna to avoid a separate peace conference.
+            AUH = {
+                random_enemy_country = {
+                    limit = {
+                        OR = { tag = ITA tag = FRA tag = ENG tag = USA }
+                        has_capitulated = no
+                    }
+                    event_target:WW1_AUH_seceding_country = {
+                        add_to_war = {
+                            targeted_alliance = PREV
+                            enemy = AUH
+                            hostility_reason = asked_to_join
+                            single_target_only = yes
+                        }
+                    }
+                }
+            }
+            if = {
+                limit = { NOT = { has_war_with = AUH } }
+                declare_war_on = { target = AUH type = annex_everything }
+            }
+        }
+        if = {
+            limit = { has_war_with = AUH }
+            set_country_flag = WW1_AUH_secession_war_started
+        }
+    }
+}
+
+WW1_AUH_apply_historical_armistice = {
+    if = {
+        limit = {
+            NOT = { has_global_flag = WW1_AUH_historical_dissolution_done }
+            OR = { WW1_AUH_historical_armistice_ready = yes WW1_AUH_legacy_crownland_armistice = yes }
+        }
+        if = {
+            limit = { WW1_AUH_legacy_crownland_armistice = yes }
+            set_global_flag = WW1_AUH_repairing_crownland_armistice
+            # This repairs an already signed armistice without announcing it again.
+            set_global_flag = WW1_AUH_aster_reported
+            AUS = { set_country_flag = WW1_AUH_villa_giusti_reported }
+        }
+        if = {
+            limit = {
+                country_exists = ITA
+                OR = {
+                    has_war_with = ITA
+                    ITA = { has_war_with = GER }
+                    AND = {
+                        OR = { has_global_flag = WW1_AUH_repairing_crownland_armistice has_global_flag = compiegne }
+                        ITA = { OR = { is_in_faction_with = FRA has_country_flag = IT1_ww1_entente_alignment } }
+                    }
+                }
+            }
+            set_global_flag = WW1_AUH_italian_settlement
+        }
+        set_global_flag = WW1_AUH_historical_dissolution_done
+        set_global_flag = armistice_of_villa_giusti
+        log = "WW1: Austria-Hungary signed the Armistice of Villa Giusti."
+        clr_country_flag = WW1_AUH_historical_armistice_queued
+        clr_country_flag = WW1_AUH_armistice_presented
+        clr_country_flag = WW1_AUH_revolution_queued
+        clr_country_flag = WW1_AUH_revolution_presented
+        clr_country_flag = WW1_HAB_peace_protocol_pending
+        clr_country_flag = WW1_HAB_peace_offer_refused
+        AUH_ww1_end_administration = yes
+        if = { limit = { is_in_faction = yes } leave_faction = yes }
+        every_enemy_country = { white_peace = AUH }
+        WW1_AUH_form_successors = yes
+        if = {
+            limit = { date > 1918.11.2 date < 1918.11.4 }
+            HUN = { country_event = { id = INT_hungary.6 days = 137 } }
+        }
+        clr_global_flag = WW1_AUH_repairing_crownland_armistice
+        clr_global_flag = WW1_HAB_vienna_settlement
+        clr_global_flag = GE1_R_AUH_partition_independent
+    }
+}
+
+WW1_AUH_form_successors = {
+    WW1_AUH_establish_czechoslovakia = yes
+    every_state = {
+        limit = {
+            OR = { state = 70 state = 71 state = 72 state = 664 }
+            WW1_AUH_state_in_dissolution = yes
+        }
+        CZE = { if = { limit = { NOT = { exists = yes } } set_country_flag = WW1_AUH_new_successor } }
+        if = { limit = { NOT = { is_owned_by = CZE } } transfer_state_to = CZE }
+        add_core_of = CZE
+        remove_core_of = AUH
+    }
+
+    WW1_AUH_establish_hungary = yes
+    WW1_AUH_establish_south_slav_state = yes
+
+    every_state = {
+        limit = {
+            OR = { state = 80 state = 1018 state = 1025 }
+            WW1_AUH_state_in_dissolution = yes
+        }
+        if = { limit = { NOT = { is_owned_by = ROM } } transfer_state_to = ROM }
+        add_core_of = ROM
+        remove_core_of = AUH
+    }
+    WW1_AUH_stage_transylvania = yes
+
+    # End Habsburg administration on the Serbian side of the prewar border.
+    every_state = {
+        limit = {
+            WW1_SER_prewar_homeland = yes
+            WW1_AUH_state_in_dissolution = yes
+        }
+        WW1_SER_restore_homeland_state = yes
+        remove_core_of = AUH
+    }
+    SER = { WW1_SER_restore_belgrade_capital = yes }
+
+    every_state = {
+        limit = { OR = { state = 44 state = 934 } WW1_AUH_state_in_dissolution = yes }
+        transfer_state_to = ALB
+        add_core_of = ALB
+        remove_core_of = AUH
+    }
+    WW1_AUH_prepare_banat = yes
+
+    every_state = {
+        limit = {
+            OR = { state = 105 state = 1037 }
+            WW1_AUH_state_in_dissolution = yes
+        }
+        transfer_state_to = MNT
+        add_core_of = MNT
+        remove_core_of = AUH
+    }
+
+    every_state = {
+        limit = {
+            state = 88
+            WW1_AUH_state_in_dissolution = yes
+        }
+        if = { limit = { NOT = { is_owned_by = POL } } transfer_state_to = POL }
+        add_core_of = POL
+        remove_core_of = AUH
+    }
+
+    WW1_AUH_establish_west_ukraine = yes
+
+    # Mark the Austrian successor before any districts are transferred to it.
+    AUS = { if = { limit = { NOT = { exists = yes } } set_country_flag = WW1_AUH_new_successor } }
+    if = {
+        limit = { has_global_flag = WW1_AUH_italian_settlement }
+        every_state = {
+            limit = {
+                OR = { state = 39 state = 163 state = 736 state = 850 state = 852 state = 1001 state = 1013 }
+                WW1_AUH_state_in_dissolution = yes
+            }
+            if = { limit = { NOT = { is_owned_by = ITA } } transfer_state_to = ITA }
+            add_core_of = ITA
+            remove_core_of = AUH
+        }
+    }
+    else = {
+        # The South Slav council retains the Adriatic districts without an Italian victory.
+        every_state = {
+            limit = {
+                OR = { state = 163 state = 736 state = 852 state = 1013 }
+                WW1_AUH_state_in_dissolution = yes
+            }
+            YUG = { if = { limit = { NOT = { exists = yes } } set_country_flag = WW1_AUH_new_successor } }
+            if = { limit = { NOT = { is_owned_by = YUG } } transfer_state_to = YUG }
+            add_core_of = YUG
+            remove_core_of = AUH
+        }
+        every_state = {
+            limit = {
+                OR = { state = 39 state = 850 }
+                WW1_AUH_state_in_dissolution = yes
+            }
+            if = { limit = { NOT = { is_owned_by = AUS } } transfer_state_to = AUS }
+            add_core_of = AUS
+            remove_core_of = AUH
+        }
+    }
+
+    every_state = {
+        limit = {
+            OR = { state = 4 state = 152 }
+            WW1_AUH_state_in_dissolution = yes
+        }
+        if = { limit = { NOT = { is_owned_by = AUS } } transfer_state_to = AUS }
+        add_core_of = AUS
+        remove_core_of = AUH
+    }
+    AUS = { if = { limit = { exists = yes is_ai = yes AUH = { is_ai = no } } change_tag_from = AUH } }
+
+    if = {
+        limit = { has_global_flag = WW1_AUH_repairing_crownland_armistice }
+        every_possible_country = {
+            limit = {
+                OR = { tag = CZE tag = HUN tag = GLO tag = CRO }
+                is_subject_of = AUH
+                has_country_flag = WW1_HAB_crown_settlement
+            }
+            if = {
+                limit = { exists = yes }
+                AUH = { set_autonomy = { target = PREV autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+            }
+            drop_cosmetic_tag = yes
+            remove_ideas = WW1_HAB_crownland_charter
+            clr_country_flag = WW1_HAB_crown_settlement
+            set_country_flag = WW1_AUH_new_successor
+        }
+    }
+    every_state = {
+        limit = {
+            OR = { state = 153 state = 848 state = 976 state = 1007 state = 1052 state = 1051 }
+            WW1_AUH_state_in_dissolution = yes
+        }
+        if = { limit = { NOT = { is_owned_by = AUS } } transfer_state_to = AUS }
+        add_core_of = AUS
+        remove_core_of = AUH
+    }
+
+    AUS = {
+        if = {
+            limit = { exists = yes has_country_flag = WW1_AUH_new_successor }
+            clr_country_flag = WW1_AUH_new_successor
+            set_capital = { state = 1051 }
+            set_politics = { ruling_party = democratic elections_allowed = yes }
+            set_popularities = { democratic = 78 neutrality = 15 communism = 7 fascism = 0 }
+            if = {
+                limit = { date > 1918.10.27 date < 1919.10.21 }
+                set_country_flag = WW1_AUH_german_austria_successor
+                set_cosmetic_tag = WW1_AUH_german_austria_provisional
+            }
+            if = {
+                limit = { has_character = AUS_karl_renner }
+                promote_character = { character = AUS_karl_renner ideology = socialism }
+            }
+            else = {
+                create_country_leader = {
+                    name = "Karl Renner"
+                    picture = "gfx/leaders/AUS/portrait_AUS_karl_renner.dds"
+                    ideology = socialism
+                    expire = "1965.1.1"
+                }
+            }
+        }
+    }
+    WW1_AUH_stage_sudetenland = yes
+    CZE = {
+        WW1_AUH_initialize_czechoslovakia = yes
+        WW1_AUH_martin_declaration = yes
+    }
+    HUN = {
+        WW1_AUH_initialize_hungarian_government = yes
+        WW1_AUH_update_hungarian_republic = yes
+        if = {
+            limit = { NOT = { date < 1918.10.31 } NOT = { has_global_flag = WW1_AUH_aster_reported } NOT = { has_global_flag = WW1_AUH_repairing_crownland_armistice } }
+            set_global_flag = aster_revolution
+            set_global_flag = WW1_AUH_aster_reported
+            news_event = { id = endsieg_news.171 days = 4 }
+        }
+    }
+    YUG = {
+        WW1_AUH_initialize_south_slav_state = yes
+        WW1_AUH_south_slav_union = yes
+    }
+    AUS = {
+        if = {
+            limit = { exists = yes NOT = { has_country_flag = WW1_AUH_villa_giusti_reported } }
+            set_country_flag = WW1_AUH_villa_giusti_reported
+            news_event = { id = endsieg_news.166 days = 1 }
+        }
+    }
+}
+
+# Eastern Galicia's council takes power as the Habsburg administration withdraws.
+WW1_AUH_establish_west_ukraine = {
+    every_state = {
+        limit = {
+            OR = { state = 89 state = 91 }
+            WW1_AUH_state_in_dissolution = yes
+            OR = { is_controlled_by = OWNER has_global_flag = WW1_AUH_historical_dissolution_done }
+        }
+        if = {
+            limit = {
+                OR = {
+                    NOT = { country_exists = WUR }
+                    WUR = { OR = { owns_state = 89 owns_state = 91 } }
+                }
+            }
+            WUR = { if = { limit = { NOT = { exists = yes } } set_country_flag = WW1_AUH_new_successor } }
+            if = { limit = { NOT = { is_owned_by = WUR } } transfer_state_to = WUR }
+            add_core_of = WUR
+        }
+        else = {
+            if = { limit = { NOT = { is_owned_by = POL } } transfer_state_to = POL }
+            add_core_of = POL
+        }
+        remove_core_of = AUH
+    }
+
+    WUR = {
+        if = {
+            limit = { exists = yes has_country_flag = WW1_AUH_new_successor }
+            clr_country_flag = WW1_AUH_new_successor
+            if = {
+                limit = { owns_state = 91 }
+                set_capital = { state = 91 }
+                load_oob = "WUR_1918"
+            }
+            else_if = { limit = { owns_state = 89 } set_capital = { state = 89 } }
+            set_politics = { ruling_party = democratic elections_allowed = no }
+            if = { limit = { NOT = { has_country_leader = { name = "Kost Levytsky" ruling_only = yes } } }
+                create_country_leader = {
+                    name = "Kost Levytsky"
+                    picture = "gfx/leaders/WUR/Portrait_West_Ukraine_Kost_Levytsky.dds"
+                    ideology = conservatism
+                    expire = "1965.1.1"
+                }
+            }
+            set_global_flag = west_ukraine_independence
+            news_event = { id = endsieg_news.169 days = 6 }
+        }
+    }
+}
+
+WW1_AUH_south_slav_union = {
+    if = {
+        limit = {
+            has_country_flag = WW1_AUH_south_slav_union_pending
+            NOT = { date < 1918.12.1 }
+            date < 1923.1.1
+            has_global_flag = WW1_AUH_historical_dissolution_done
+            is_subject = no
+            SER = { exists = yes is_subject = no owns_state = 107 }
+            NOT = { has_war_with = SER }
+            OR = { is_in_faction = no SER = { is_in_faction = no } is_in_faction_with = SER }
+        }
+        clr_country_flag = WW1_AUH_south_slav_union_pending
+        if = { limit = { is_ai = yes SER = { is_ai = no } } change_tag_from = SER }
+        if = {
+            limit = { is_in_faction = no SER = { is_in_faction = yes } }
+            SER = { faction_leader = { add_to_faction = YUG } }
+        }
+        SER = {
+            every_enemy_country = {
+                limit = { NOT = { has_war_with = YUG } }
+                YUG = { add_to_war = { targeted_alliance = SER enemy = PREV hostility_reason = asked_to_join } }
+            }
+        }
+        if = {
+            limit = {
+                MNT = {
+                    exists = yes
+                    is_ai = yes
+                    is_subject = no
+                    NOT = { OR = { has_war_with = YUG has_war_with = SER } }
+                    OR = { is_in_faction = no is_in_faction_with = SER is_in_faction_with = YUG }
+                }
+            }
+            MNT = {
+                every_enemy_country = {
+                    limit = { NOT = { has_war_with = YUG } }
+                    YUG = { add_to_war = { targeted_alliance = MNT enemy = PREV hostility_reason = asked_to_join } }
+                }
+            }
+            annex_country = { target = MNT transfer_troops = yes }
+        }
+        annex_country = { target = SER transfer_troops = yes }
+        if = { limit = { owns_state = 107 } set_capital = { state = 107 } }
+        every_owned_state = { limit = { OR = { is_core_of = SER is_core_of = MNT } } add_core_of = YUG }
+        if = { limit = { has_character = YUG_peter_i } promote_character = { character = YUG_peter_i ideology = despotism } }
+        else = {
+            create_country_leader = {
+                name = "Peter I"
+                picture = "gfx/leaders/SER/Portrait_Serbia_Peter_I.dds"
+                ideology = despotism
+                expire = "1921.8.16"
+            }
+        }
+        set_cosmetic_tag = WW1_AUH_south_slav_kingdom
+        WW1_restore_serbian_salonica_territory = yes
+        if = {
+            limit = { date < 1918.12.12 has_global_flag = WW1_AUH_historical_dissolution_done }
+            news_event = { id = endsieg_news.487 hours = 8 }
+        }
+    }
+    # A late restoration of Montenegro must also join an existing kingdom.
+    if = {
+        limit = {
+            has_cosmetic_tag = WW1_AUH_south_slav_kingdom
+            NOT = { date < 1918.12.1 }
+            date < 1923.1.1
+            is_subject = no
+            MNT = {
+                exists = yes
+                is_ai = yes
+                is_subject = no
+                NOT = { has_war_with = YUG }
+                OR = { is_in_faction = no is_in_faction_with = YUG }
+            }
+        }
+        MNT = {
+            every_enemy_country = {
+                limit = { NOT = { has_war_with = YUG } }
+                YUG = { add_to_war = { targeted_alliance = MNT enemy = PREV hostility_reason = asked_to_join } }
+            }
+        }
+        annex_country = { target = MNT transfer_troops = yes }
+        every_owned_state = { limit = { is_core_of = MNT } add_core_of = YUG }
+    }
+}
+
+# Existing saves can have the dissolution receipt while occupied districts
+# still belong to the defunct empire.
+WW1_AUH_restore_occupied_districts = {
+    if = {
+        limit = {
+            has_start_date < 1922.1.1
+            date < 1923.1.1
+            has_global_flag = WW1_AUH_historical_dissolution_done
+            NOT = { has_global_flag = player_wants_custom_peacedeals }
+            NOT = { has_global_flag = central_powers_victory }
+        }
+        every_state = {
+            limit = { WW1_SER_prewar_homeland = yes is_owned_by = AUH }
+            WW1_SER_restore_homeland_state = yes
+            remove_core_of = AUH
+        }
+        SER = { WW1_SER_restore_belgrade_capital = yes }
+        YUG = {
+            if = { limit = { WW1_SER_historical_yugoslav_successor = yes } WW1_SER_restore_belgrade_capital = yes }
+        }
+        every_state = {
+            limit = { OR = { state = 44 state = 934 } is_owned_by = AUH }
+            transfer_state_to = ALB
+            add_core_of = ALB
+            remove_core_of = AUH
+        }
+        1001 = {
+            if = {
+                limit = { is_owned_by = AUH has_global_flag = WW1_AUH_italian_settlement country_exists = ITA }
+                transfer_state_to = ITA
+                add_core_of = ITA
+                remove_core_of = AUH
+            }
+        }
+    }
+}
+
+# Only the named districts still held by the provisional successor are ceded.
+WW1_AUH_postwar_border_treaties = {
+    if = {
+        limit = {
+            NOT = { date < 1920.6.4 }
+            43 = { is_owned_by = HUN }
+            ROM = { exists = yes is_subject = no has_capitulated = no }
+            NOT = {
+                OR = {
+                    has_war_with = ROM
+                    has_war_with = CZE
+                    has_global_flag = WW1_AUH_trianon_borders_set
+                }
+            }
+        }
+        set_global_flag = WW1_AUH_trianon_borders_set
+        every_owned_state = {
+            limit = {
+                OR = { state = 83 state = 1004 }
+                OR = { is_controlled_by = HUN is_controlled_by = ROM }
+            }
+            transfer_state_to = ROM
+            add_core_of = ROM
+        }
+        if = {
+            limit = {
+                has_start_date < 1920.6.4
+                date < 1920.6.19
+                WW1_AUH_postwar_stages_open = yes
+            }
+            news_event = { id = endsieg_news.15 hours = 9 }
+        }
+    }
+}
+
+# The same Hungarian territory list is used by the revolution and final dissolution.
+WW1_AUH_establish_hungary = {
+    every_state = {
+        limit = {
+            OR = { state = 43 state = 83 state = 154 state = 155 state = 1004 state = 1022 state = 1061 }
+            WW1_AUH_state_in_dissolution = yes
+        }
+        HUN = { if = { limit = { NOT = { exists = yes } } set_country_flag = WW1_AUH_new_successor } }
+        if = { limit = { NOT = { is_owned_by = HUN } } transfer_state_to = HUN }
+        add_core_of = HUN
+        remove_core_of = AUH
+    }
+    # Budapest retains Carpathian Ruthenia provisionally.
+    73 = {
+        if = {
+            limit = { WW1_AUH_state_in_dissolution = yes NOT = { is_owned_by = HUN } }
+            transfer_state_to = HUN
+            remove_core_of = AUH
+        }
+    }
+    HUN = {
+        if = {
+            limit = { owns_state = 43 controls_state = 43 NOT = { capital_scope = { state = 43 } } }
+            set_capital = { state = 43 }
+        }
+        WW1_AUH_initialize_hungarian_government = yes
+    }
+}
+
+WW1_AUH_initialize_hungarian_government = {
+    if = {
+        limit = { exists = yes has_country_flag = WW1_AUH_new_successor }
+        clr_country_flag = WW1_AUH_new_successor
+        set_politics = { ruling_party = democratic elections_allowed = no }
+        set_popularities = { democratic = 65 neutrality = 25 communism = 10 fascism = 0 }
+        if = { limit = { has_character = HUN_mihaly_karolyi } promote_character = { character = HUN_mihaly_karolyi ideology = conservatism } }
+        else = {
+            create_country_leader = {
+                name = "Mihály Károlyi"
+                picture = "gfx/leaders/HUN/Portrait_Hungary_Mihaly_Karolyi.dds"
+                ideology = conservatism
+                expire = "1965.1.1"
+            }
+        }
+        if = {
+            limit = { has_country_flag = WW1_AUH_hungarian_republic_proclaimed }
+            set_cosmetic_tag = WW1_AUH_hungarian_republic
+        }
+        else = {
+            set_country_flag = WW1_AUH_hungarian_national_council
+            set_cosmetic_tag = WW1_AUH_hungarian_national_council
+        }
+        WW1_AUH_update_hungarian_republic = yes
+    }
+}
+
+# The National Council's government precedes the republic proclaimed on 16 November.
+WW1_AUH_update_hungarian_republic = {
+    if = {
+        limit = {
+            tag = HUN
+            is_ai = yes
+            is_historical_focus_on = yes
+            has_global_flag = WW1_AUH_historical_dissolution_done
+            has_cosmetic_tag = WW1_AUH_hungarian_republic
+            date < 1918.11.16
+            has_government = democratic
+            is_subject = no
+        }
+        set_country_flag = WW1_AUH_hungarian_national_council
+        clr_country_flag = WW1_AUH_hungarian_republic_proclaimed
+        set_cosmetic_tag = WW1_AUH_hungarian_national_council
+    }
+    if = {
+        limit = {
+            tag = HUN
+            has_country_flag = WW1_AUH_hungarian_national_council
+            NOT = { has_country_flag = WW1_AUH_hungarian_republic_proclaimed }
+            NOT = { date < 1918.11.16 }
+            date < 1923.1.1
+            has_government = democratic
+            is_subject = no
+            NOT = { has_country_flag = WW1_HAB_crown_settlement }
+        }
+        set_country_flag = WW1_AUH_hungarian_republic_proclaimed
+        clr_country_flag = WW1_AUH_hungarian_national_council
+        set_cosmetic_tag = WW1_AUH_hungarian_republic
+        if = { limit = { date < 1918.11.24 } news_event = { id = endsieg_news.485 hours = 8 } }
+    }
+}

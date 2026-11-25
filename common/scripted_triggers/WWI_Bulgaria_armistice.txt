@@ -1,0 +1,39 @@
+# Bulgaria can leave a losing Great War before its allies sign their own armistices.
+WW1_BUL_armistice_context = {
+    tag = BUL
+    has_start_date > 1900.1.1
+    has_start_date < 1921.1.1
+    date > 1900.1.1
+    date < 1922.1.1
+    has_global_flag = welcome_event_WW1_active
+    is_subject = no
+    NOT = { has_global_flag = central_powers_victory }
+    NOT = { has_global_flag = WW1_CP_final_settlement_signed }
+    NOT = { has_global_flag = player_wants_custom_peacedeals }
+    NOT = { has_global_flag = armistice_of_salonica }
+    NOT = { has_country_flag = WW1_BUL_armistice_applied }
+    OR = {
+        has_war_with = ENG
+        has_war_with = FRA
+        has_war_with = GRE
+        has_war_with = SER
+        has_war_with = ITA
+    }
+}
+WW1_BUL_armistice_ready = {
+    WW1_BUL_armistice_context = yes
+    OR = {
+        has_capitulated = yes
+        surrender_progress > 0.20
+        has_global_flag = compiegne
+        AND = {
+            is_ai = yes
+            is_historical_focus_on = yes
+            NOT = { date < 1918.9.29 }
+            any_enemy_country = {
+                OR = { tag = FRA tag = ENG tag = GRE tag = SER tag = ITA }
+                has_capitulated = no
+            }
+        }
+    }
+}

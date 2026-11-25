@@ -64,9 +64,65 @@ news_event = {
     id = ww1_brest.4
     title = ww1_brest.4.t
     desc = ww1_brest.4.d
-    picture = GFX_news_event_february_revolution
+    picture = GFX_news_event_litovsk
     major = yes
     is_triggered_only = yes
     fire_only_once = yes
+    trigger = { has_global_flag = RUS_ww1_brest_neither_war_nor_peace }
     option = { name = ww1_brest.4.a }
+}
+
+# Berlin chooses the terms before the signatory can ratify the treaty.
+country_event = {
+    id = ww1_brest.5
+    title = ww1_brest.5.t
+    desc = ww1_brest.5.d
+    picture = GFX_report_event_treaty_of_brest_litovsk
+    is_triggered_only = yes
+    trigger = { tag = GER event_target:RUS_ww1_brest_signatory = { RUS_ww1_brest_ready = yes } }
+
+    option = {
+        name = ww1_brest.5.a
+        ai_chance = { factor = 100 }
+        custom_effect_tooltip = ww1_brest.full_terms_tt
+        hidden_effect = {
+            event_target:RUS_ww1_brest_signatory = {
+                if = {
+                    limit = { RUS_ww1_brest_ready = yes }
+                    clr_country_flag = RUS_ww1_brest_limited_offer
+                    set_country_flag = RUS_ww1_brest_offer_received
+                    country_event = { id = ww1_russia.43 hours = 1 }
+                }
+            }
+        }
+    }
+    option = {
+        name = ww1_brest.5.b
+        ai_chance = {
+            factor = 20
+            modifier = { factor = 0 is_historical_focus_on = yes }
+        }
+        custom_effect_tooltip = ww1_brest.limited_terms_tt
+        hidden_effect = {
+            event_target:RUS_ww1_brest_signatory = {
+                if = {
+                    limit = { RUS_ww1_brest_ready = yes }
+                    set_country_flag = RUS_ww1_brest_limited_offer
+                    set_country_flag = RUS_ww1_brest_offer_received
+                    country_event = { id = ww1_russia.43 hours = 1 }
+                }
+            }
+        }
+    }
+}
+
+country_event = {
+    id = ww1_brest.6
+    title = ww1_brest.6.t
+    desc = ww1_brest.6.d
+    picture = GFX_report_event_treaty_of_brest_litovsk
+    is_triggered_only = yes
+    trigger = { tag = GER NOT = { has_global_flag = treaty_of_brest_litovsk } }
+
+    option = { name = ww1_brest.6.a }
 }

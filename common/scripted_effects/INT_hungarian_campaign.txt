@@ -1,0 +1,320 @@
+INT_HUN_1919_install_kun = {
+	if = {
+		limit = { INT_HUN_1919_kun_ready = yes }
+		set_country_flag = INT_HUN_1919_kun_installed
+		set_global_flag = HNN_commie_takeover
+		set_politics = { ruling_party = communism elections_allowed = no }
+		set_popularities = { communism = 65 democratic = 30 neutrality = 5 fascism = 0 }
+		set_cosmetic_tag = INT_HUN_1919_soviet_republic
+		if = {
+			limit = { has_character = HUN_bela_kun }
+			promote_character = { character = HUN_bela_kun ideology = leninism }
+		}
+		else = {
+			create_country_leader = {
+				name = "Béla Kun"
+				picture = "gfx/leaders/HUN/Portrait_Hungary_Bela_Kun.dds"
+				ideology = leninism
+				expire = "1943.5.16"
+				traits = { dictator }
+			}
+		}
+		if = { limit = { num_divisions < 8 } load_oob = INT_HUN_1919_red_army }
+		add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 3500 producer = HUN }
+		add_manpower = 12000
+		news_event = { id = INT_hungary_news.1 hours = 6 }
+	}
+}
+
+INT_HUN_1919_open_romanian_front = {
+	if = {
+		limit = { INT_HUN_1919_romania_ready = yes }
+		declare_war_on = { target = ROM type = take_state generator = { 76 84 1053 } }
+		if = {
+			limit = { has_war_with = ROM }
+			set_country_flag = INT_HUN_1919_romanian_front
+			set_global_flag = hungarian_romanian_war
+			news_event = { id = endsieg_news.14 hours = 6 }
+		}
+	}
+}
+
+INT_HUN_1919_open_slovak_front = {
+	if = {
+		limit = { INT_HUN_1919_slovakia_ready = yes }
+		declare_war_on = { target = CZE type = take_state generator = { 70 71 664 } }
+		if = {
+			limit = { has_war_with = CZE }
+			CZE = {
+				if = {
+					limit = { num_divisions < 1 9 = { is_owned_by = CZE is_fully_controlled_by = CZE } }
+					load_oob = INT_CZE_1919_border_army
+				}
+			}
+			set_country_flag = INT_HUN_1919_slovak_front
+			news_event = { id = INT_hungary_news.2 hours = 6 }
+		}
+	}
+}
+
+INT_HUN_1919_withdraw_from_slovakia = {
+	if = {
+		limit = { INT_HUN_1919_withdrawal_ready = yes }
+		white_peace = CZE
+		if = {
+			limit = { NOT = { has_war_with = CZE } }
+			set_country_flag = INT_HUN_1919_slovak_front_closed
+			# Only return control of Czech-owned areas occupied by the Red Army.
+			every_state = {
+				limit = {
+					OR = { state = 70 state = 71 state = 664 }
+					is_owned_by = CZE
+					is_fully_controlled_by = HUN
+				}
+				set_state_controller_to = CZE
+			}
+			news_event = { id = INT_hungary_news.3 hours = 6 }
+		}
+	}
+}
+
+INT_HUN_1919_finish_romanian_campaign = {
+	if = {
+		limit = { INT_HUN_1919_fall_ready = yes }
+		# Preserve the evidence of the battle before the engine returns control.
+		if = {
+			limit = { 43 = { is_fully_controlled_by = ROM } }
+			set_country_flag = INT_HUN_1919_budapest_taken
+		}
+		# Recover the conference borders while the original overlord is still known.
+		if = {
+			limit = { INT_HUN_1919_partition_recovery_ready = yes }
+			if = { limit = { is_subject_of = ROM } set_country_flag = INT_HUN_1919_budapest_taken }
+			INT_HUN_1919_reunify_conference_partition = yes
+		}
+		else_if = {
+			limit = { is_subject_of = ROM }
+			ROM = { set_autonomy = { target = HUN autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+			set_country_flag = INT_HUN_1919_budapest_taken
+		}
+		# Preserve the military victor in peace-related callbacks.
+		if = { limit = { has_war_with = ROM } ROM = { white_peace = { tag = HUN } } }
+		if = { limit = { has_country_flag = INT_HUN_1919_slovak_front has_war_with = CZE } CZE = { white_peace = { tag = HUN } } }
+		if = {
+			limit = { NOT = { has_war_with = ROM } }
+			set_country_flag = INT_HUN_1919_military_armistice_signed
+			clr_country_flag = INT_HUN_1919_capitulation_intercepted
+			# Budapest's occupation is temporary and leaves ownership with Hungary.
+			43 = {
+				if = {
+					limit = {
+						is_owned_by = HUN
+						date < 1919.11.14
+						HUN = { has_country_flag = INT_HUN_1919_budapest_taken }
+						OR = { is_fully_controlled_by = HUN is_fully_controlled_by = ROM }
+					}
+					set_state_controller_to = ROM
+					set_state_flag = INT_HUN_1919_budapest_occupation
+				}
+			}
+			if = {
+				limit = { NOT = { has_country_flag = INT_HUN_1919_armistice_news_sent } }
+				set_country_flag = INT_HUN_1919_armistice_news_sent
+				news_event = { id = INT_hungary_news.6 hours = 6 }
+			}
+			INT_HUN_1919_update_postwar_cabinets = yes
+		}
+	}
+}
+
+INT_HUN_1919_end_budapest_occupation = {
+	if = {
+		limit = {
+			tag = HUN
+			date > 1919.11.13
+			date < 1923.1.1
+			OR = { has_country_flag = INT_HUN_1919_regime_fallen has_country_flag = INT_HUN_1919_military_armistice_signed }
+			NOT = { has_war_with = ROM }
+		}
+		43 = {
+			if = {
+				limit = {
+					has_state_flag = INT_HUN_1919_budapest_occupation
+					is_owned_by = HUN
+					OR = { is_fully_controlled_by = ROM is_fully_controlled_by = HUN }
+				}
+				if = { limit = { is_fully_controlled_by = ROM } set_state_controller_to = HUN }
+				clr_state_flag = INT_HUN_1919_budapest_occupation
+			}
+		}
+	}
+}
+
+INT_HUN_1919_install_regency = {
+	if = {
+		limit = { INT_HUN_1919_horthy_ready = yes }
+		drop_cosmetic_tag = yes
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { democratic = 30 neutrality = 60 communism = 10 fascism = 0 }
+		if = {
+			limit = { has_character = HUN_miklos_horthy }
+			promote_character = { character = HUN_miklos_horthy ideology = oligarchism }
+		}
+		else = {
+			create_country_leader = {
+				name = "Miklós Horthy"
+				picture = "gfx/leaders/HUN/Portrait_Hungary_Miklos_Horthy.dds"
+				ideology = oligarchism
+				expire = "1957.2.9"
+			}
+		}
+	}
+}
+
+INT_HUN_1919_reunify_conference_partition = {
+	if = {
+		limit = { INT_HUN_1919_partition_recovery_ready = yes }
+		if = {
+			limit = { is_subject_of = ROM }
+			ROM = { set_autonomy = { target = HUN autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+		}
+		else_if = {
+			limit = { is_subject_of = CZE }
+			CZE = { set_autonomy = { target = HUN autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+		}
+		every_other_country = {
+			limit = { INT_HUN_1919_conference_fragment = yes }
+			HUN = { annex_country = { target = PREV transfer_troops = yes } }
+		}
+		# Undo only a recorded conference's partition of the remaining home states.
+		every_state = {
+			limit = {
+				OR = { state = 43 state = 154 state = 155 }
+				OR = {
+					AND = { is_owned_by = ROM is_fully_controlled_by = ROM }
+					AND = { is_owned_by = CZE is_fully_controlled_by = CZE }
+				}
+			}
+			transfer_state_to = HUN
+		}
+		set_country_flag = INT_HUN_1919_conference_reunified
+	}
+}
+
+# Military surrender and the August civilian transition are separate stages.
+INT_HUN_1919_install_peidl = {
+	if = {
+		limit = { INT_HUN_1919_peidl_ready = yes }
+		set_country_flag = INT_HUN_1919_regime_fallen
+		set_country_flag = INT_HUN_1919_peidl_installed
+		clr_global_flag = HNN_commie_takeover
+		set_cosmetic_tag = INT_HUN_1919_provisional_government
+		set_politics = { ruling_party = democratic elections_allowed = no }
+		set_popularities = { democratic = 48 neutrality = 37 communism = 15 fascism = 0 }
+		create_country_leader = {
+			name = "Gyula Peidl"
+			picture = "gfx/leaders/HUN/Portrait_Hungary_Gyula_Peidl.dds"
+			ideology = socialism expire = "1943.1.22"
+		}
+		INT_HUN_1919_refresh_peidl_portrait = yes
+		INT_HUN_1919_announce_civilian_transition = yes
+	}
+}
+
+INT_HUN_1919_install_friedrich = {
+	if = {
+		limit = { INT_HUN_1919_friedrich_ready = yes }
+		set_country_flag = INT_HUN_1919_regime_fallen
+		set_country_flag = INT_HUN_1919_friedrich_installed
+		clr_global_flag = HNN_commie_takeover
+		set_cosmetic_tag = INT_HUN_1919_provisional_government
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { democratic = 35 neutrality = 50 communism = 15 fascism = 0 }
+		create_country_leader = {
+			name = "István Friedrich"
+			picture = "gfx/leaders/HUN/Portrait_Hungary_Istvan_Friedrich.dds"
+			ideology = oligarchism expire = "1951.10.25"
+		}
+		INT_HUN_1919_announce_civilian_transition = yes
+	}
+}
+
+INT_HUN_1919_install_huszar = {
+	if = {
+		limit = { INT_HUN_1919_huszar_ready = yes }
+		set_country_flag = INT_HUN_1919_regime_fallen
+		set_country_flag = INT_HUN_1919_huszar_installed
+		clr_global_flag = HNN_commie_takeover
+		set_cosmetic_tag = INT_HUN_1919_provisional_government
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		set_popularities = { democratic = 35 neutrality = 50 communism = 15 fascism = 0 }
+		create_country_leader = {
+			name = "Károly Huszár"
+			picture = "gfx/leaders/HUN/Portrait_Hungary_Karoly_Huszar.dds"
+			ideology = oligarchism expire = "1941.10.29"
+		}
+		INT_HUN_1919_announce_civilian_transition = yes
+	}
+}
+
+INT_HUN_1919_announce_civilian_transition = {
+	if = {
+		limit = { NOT = { has_country_flag = INT_HUN_1919_civilian_news_sent } }
+		set_country_flag = INT_HUN_1919_civilian_news_sent
+		news_event = { id = INT_hungary_news.4 hours = 6 }
+	}
+}
+
+INT_HUN_1919_update_postwar_cabinets = {
+	# Repair only the prematurely installed Peidl from the earlier defeat helper.
+	if = {
+		limit = { INT_HUN_1919_early_peidl_repair_ready = yes }
+		set_country_flag = INT_HUN_1919_early_cabinet_repaired
+		set_country_flag = INT_HUN_1919_military_armistice_signed
+		set_country_flag = INT_HUN_1919_armistice_news_sent
+		set_country_flag = INT_HUN_1919_civilian_news_sent
+		clr_country_flag = INT_HUN_1919_regime_fallen
+		set_global_flag = HNN_commie_takeover
+		set_cosmetic_tag = INT_HUN_1919_soviet_republic
+		set_politics = { ruling_party = communism elections_allowed = no }
+		set_popularities = { communism = 65 democratic = 30 neutrality = 5 fascism = 0 }
+		if = {
+			limit = { has_character = HUN_bela_kun }
+			promote_character = { character = HUN_bela_kun ideology = leninism }
+		}
+		else = {
+			create_country_leader = { name = "Béla Kun" picture = "gfx/leaders/HUN/Portrait_Hungary_Bela_Kun.dds" ideology = leninism expire = "1943.5.16" traits = { dictator } }
+		}
+	}
+	# Apply the current cabinet directly on a late save, without replaying its predecessors.
+	if = {
+		limit = { is_ai = yes is_historical_focus_on = yes }
+		if = { limit = { INT_HUN_1919_huszar_ready = yes } INT_HUN_1919_install_huszar = yes }
+		else_if = { limit = { INT_HUN_1919_friedrich_ready = yes } INT_HUN_1919_install_friedrich = yes }
+		else_if = { limit = { INT_HUN_1919_peidl_ready = yes } INT_HUN_1919_install_peidl = yes }
+	}
+	# A named legacy Peidl receives the authentic photograph once, including on human saves.
+	if = {
+		limit = {
+			tag = HUN has_start_date < 1919.3.21 date < 1936.1.1
+			has_country_flag = INT_HUN_1919_kun_installed
+			has_country_flag = INT_HUN_1919_regime_fallen
+			has_country_leader = { name = "Gyula Peidl" ruling_only = yes }
+			NOT = { has_country_flag = INT_HUN_1919_peidl_portrait_checked }
+		}
+		INT_HUN_1919_refresh_peidl_portrait = yes
+	}
+}
+
+# The legacy leader already exists by name. Update that exact ruling character
+# rather than relying on create_country_leader to overwrite an existing portrait.
+INT_HUN_1919_refresh_peidl_portrait = {
+	if = {
+		limit = { has_country_leader = { name = "Gyula Peidl" ruling_only = yes } }
+		every_character = {
+			limit = { HUN = { has_country_leader = { character = PREV ruling_only = yes } } }
+			set_portraits = { civilian = { large = "gfx/leaders/HUN/Portrait_Hungary_Gyula_Peidl.dds" } }
+			HUN = { set_country_flag = INT_HUN_1919_peidl_portrait_checked }
+		}
+	}
+}

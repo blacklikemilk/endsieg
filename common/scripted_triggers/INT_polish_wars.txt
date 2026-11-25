@@ -1,0 +1,176 @@
+# Soviet country scope. The same declaration guards serve the decision and AI.
+INT_POL_soviet_campaign_available = {
+	tag = SOV
+	INT_eastern_local_wars_context = yes
+	NOT = { date < 1919.2.14 }
+	date < 1921.3.18
+	is_subject = no
+	has_capitulated = no
+	has_government = communism
+	POL = {
+		exists = yes
+		is_subject = no
+		is_in_faction = no
+		has_capitulated = no
+		owns_state = 10
+	}
+	NOT = {
+		OR = {
+			has_war_with = POL
+			is_in_faction_with = POL
+			has_non_aggression_pact_with = POL
+			has_truce_with = POL
+			has_country_flag = INT_historical_pol_war
+			has_global_flag = sov_pol_ceasefire
+		}
+	}
+}
+
+# Polish country scope. A historical settlement is available only to AI signatories.
+INT_POL_riga_signatories_ready = {
+	tag = POL
+	INT_eastern_local_wars_context = yes
+	exists = yes
+	is_ai = yes
+	is_subject = no
+	has_capitulated = no
+	has_war_with = SOV
+	capital_scope = { NOT = { is_controlled_by = SOV } }
+	OR = {
+		is_historical_focus_on = yes
+		has_country_flag = INT_eastern_armed
+		has_country_flag = INT_eastern_independence_reserves_issued
+		SOV = { has_country_flag = INT_historical_pol_war }
+	}
+	SOV = {
+		exists = yes
+		is_ai = yes
+		has_government = communism
+		is_subject = no
+		has_capitulated = no
+		has_war_with_wargoal_against = { target = POL type = annex_everything }
+	}
+}
+
+# A military victory takes precedence over Riga. A later date does not undo it.
+INT_POL_soviet_victory_ready = {
+	tag = SOV
+	INT_eastern_local_wars_context = yes
+	is_ai = yes
+	has_government = communism
+	is_subject = no
+	has_capitulated = no
+	POL = {
+		exists = yes
+		is_ai = yes
+		OR = {
+			AND = {
+				is_subject = no
+				has_capitulated = yes
+				has_war_with = SOV
+				capital_scope = { is_controlled_by = SOV }
+				any_owned_state = { is_controlled_by = SOV }
+				SOV = { has_war_with_wargoal_against = { target = POL type = annex_everything } }
+			}
+			AND = {
+				is_subject_of = SOV
+				SOV = { has_country_flag = INT_historical_pol_war }
+			}
+		}
+	}
+}
+
+
+# These dated border settlements belong to the two independent AI governments.
+INT_POL_lithuanian_historical_context = {
+	tag = POL
+	INT_eastern_local_wars_context = yes
+	exists = yes
+	is_ai = yes
+	is_subject = no
+	is_in_faction = no
+	has_capitulated = no
+	owns_state = 10
+	controls_state = 10
+	LIT = {
+		exists = yes
+		is_ai = yes
+		is_subject = no
+		is_in_faction = no
+		has_capitulated = no
+	}
+	OR = {
+		is_historical_focus_on = yes
+		has_global_flag = failed_lit_coup
+		has_global_flag = polaklit_war
+		has_country_flag = INT_POL_lithuanian_war_started
+	}
+}
+
+INT_POL_lithuanian_coup_ready = {
+	tag = LIT
+	exists = yes
+	has_start_date < 1919.8.7
+	date > 1919.8.5
+	date < 1919.10.1
+	POL = { INT_POL_lithuanian_historical_context = yes }
+	NOT = { has_global_flag = failed_lit_coup }
+}
+
+INT_POL_lithuanian_campaign_ready = {
+	INT_POL_lithuanian_historical_context = yes
+	has_start_date < 1920.8.18
+	date > 1920.8.16
+	date < 1920.10.7
+	OR = {
+		784 = { is_owned_by = LIT }
+		1029 = { is_owned_by = LIT }
+	}
+	NOT = {
+		OR = {
+			has_war_with = LIT
+			AND = { has_truce_with = LIT NOT = { LIT = { has_country_flag = INT_LIT_restored_at_moscow } } }
+			has_non_aggression_pact_with = LIT
+			has_global_flag = polaklit_war
+			has_global_flag = suwalki
+			has_global_flag = zeligowski
+		}
+	}
+}
+
+INT_POL_suwalki_ready = {
+	INT_POL_lithuanian_historical_context = yes
+	has_start_date < 1920.10.8
+	NOT = { date < 1920.10.7 }
+	has_war_with = LIT
+	OR = {
+		has_war_with_wargoal_against = { target = LIT type = take_state }
+		has_war_with_wargoal_against = { target = LIT type = annex_everything }
+	}
+	11 = { is_owned_by = LIT is_fully_controlled_by = LIT }
+	OR = {
+		has_global_flag = polaklit_war
+		has_country_flag = INT_POL_lithuanian_war_started
+	}
+	NOT = { has_global_flag = suwalki }
+	NOT = {
+		AND = {
+			1029 = { is_owned_by = LIT }
+			1029 = { NOT = { OR = { is_fully_controlled_by = LIT is_fully_controlled_by = POL } } }
+		}
+	}
+}
+
+INT_POL_vilnius_handover_ready = {
+	INT_POL_lithuanian_historical_context = yes
+	has_start_date < 1920.10.10
+	NOT = { date < 1920.10.9 }
+	has_global_flag = suwalki
+	NOT = { has_global_flag = zeligowski }
+	NOT = { has_war_with = LIT }
+	11 = { is_owned_by = LIT is_fully_controlled_by = LIT }
+	784 = {
+		is_owned_by = LIT
+		OR = { is_fully_controlled_by = LIT is_fully_controlled_by = POL }
+	}
+}

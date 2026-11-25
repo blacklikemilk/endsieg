@@ -4,134 +4,225 @@
 
 add_namespace = eg_romania
 
-# Treaty of Bucharest
+# The Romanian daily on-action checks dates, war participants and state control.
 country_event = {
-	id = eg_romania.1
-	title = eg_romania.1.t
-	desc = eg_romania.1.d
-	picture = GFX_report_event_treaty_of_bucharest
+    id = eg_romania.1
+    title = eg_romania.1.t
+    desc = eg_romania.1.d
+    picture = GFX_report_event_treaty_of_bucharest
+    is_triggered_only = yes
+    fire_only_once = yes
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		date < 1919.1.1
-		tag = ROM
-		# If Romania has already capitulated, conclude Bucharest as soon as
-		# Brest-Litovsk is signed instead of leaving Bessarabia with SOV.
-		OR = {
-			date > 1918.5.7
-			has_capitulated = yes
-		}
-		country_exists = BUL
-		NOT = { has_global_flag = bucharestreaty }
-		# The Treaty of Bucharest follows the Brest-Litovsk settlement.
-		has_global_flag = treaty_of_brest_litovsk
-		NOT = { has_global_flag = armistice_of_villa_giusti }
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = eg_romania.1.a
-		news_event = { hours = 6 id = endsieg_news.5 }
-		set_global_flag = bucharestreaty
-		ROM = {
-			transfer_state = 81
-			transfer_state = 46
-			transfer_state = 79
-			transfer_state = 1030
-			transfer_state = 766
-			transfer_state = 78
-		}
-		78 = {
-			remove_claim_by = ROM
-			add_core_of = ROM
-		}
-		766 = {
-			remove_claim_by = ROM
-			add_core_of = ROM
-		}
-		BUL = {
-			transfer_state = 77 #Basically Dobrudja
-			transfer_state = 1015 #Constanta
-		}
-		AUH = {
-			transfer_state = 1018 #Carpathian passages
-		}
-		GER = { puppet = ROM }
-	}
+    immediate = {
+        set_global_flag = bucharestreaty
+        clr_country_flag = WW1_ROM_focsani_armistice
+        WW1_ROM_armistice_with_central_powers = yes
+        every_state = {
+            limit = {
+                OR = { is_owned_by = ROM AND = { has_state_flag = WW1_ROM_bucharest_occupation OR = { is_owned_by = GER is_owned_by = AUH is_owned_by = BUL } } }
+                OR = { state = 77 state = 1015 state = 1030 state = 1018 }
+                OR = { is_fully_controlled_by = ROM is_fully_controlled_by = GER is_fully_controlled_by = AUH is_fully_controlled_by = BUL }
+            }
+            clr_state_flag = WW1_ROM_bucharest_occupation
+            set_state_flag = WW1_ROM_bucharest_cession
+            if = { limit = { state = 77 } transfer_state_to = BUL }
+            else_if = { limit = { state = 1018 } transfer_state_to = AUH }
+            # Germany represents the four-power condominium on the map.
+            else = { transfer_state_to = GER }
+        }
+        if = {
+            limit = { owns_state = 79 controls_state = 79 46 = { has_state_flag = WW1_ROM_bucharest_occupation } }
+            set_capital = { state = 79 }
+        }
+        # If Germany administers Muntenia it already receives the state's oil.
+        if = {
+            limit = { NOT = { 46 = { is_owned_by = GER } } }
+            46 = { owner = { give_resource_rights = { receiver = GER state = 46 resources = { oil } } } }
+            set_country_flag = WW1_ROM_bucharest_oil_rights
+        }
+        news_event = { hours = 6 id = endsieg_news.5 }
+    }
+    option = { name = eg_romania.1.a }
 }
 
-# Treaty of Bucharest Reversed
 country_event = {
-	id = eg_romania.2
-	title = eg_romania.2.t
-	desc = eg_romania.2.d
-	picture = GFX_report_event_bucharestreversed
+    id = eg_romania.2
+    title = eg_romania.2.t
+    desc = eg_romania.2.d
+    picture = GFX_report_event_bucharestreversed
+    is_triggered_only = yes
+    fire_only_once = yes
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		NOT = { date > 1932.12.1 }
-		tag = ROM
-		has_global_flag = armistice_of_villa_giusti
-		has_global_flag = bucharestreaty
-		has_global_flag = compiegne
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
-
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = eg_romania.2.a
-		clr_global_flag = bucharestreaty
-		ROM = {
-			set_global_flag = bucharestreatyreversed
-			transfer_state = 77
-			transfer_state = 1015
-			transfer_state = 1030
-		}
-	}
+    immediate = {
+        if = {
+            limit = { has_country_flag = WW1_ROM_bucharest_oil_rights }
+            GER = { remove_resource_rights = 46 }
+            clr_country_flag = WW1_ROM_bucharest_oil_rights
+        }
+        WW1_ROM_end_military_occupation = yes
+        1018 = {
+            if = {
+                limit = {
+                    has_state_flag = WW1_ROM_bucharest_cession
+                    OR = { is_owned_by = AUH is_owned_by = AUS }
+                    OR = { is_fully_controlled_by = AUH is_fully_controlled_by = AUS is_fully_controlled_by = ROM }
+                }
+                transfer_state_to = ROM
+            }
+            clr_state_flag = WW1_ROM_bucharest_cession
+        }
+        clr_global_flag = bucharestreaty
+        set_global_flag = bucharestreatyreversed
+    }
+    option = { name = eg_romania.2.a }
 }
 
-# Union of Romania with Bessarabia
 country_event = {
-	id = eg_romania.3
-	title = eg_romania.3.t
-	desc = eg_romania.3.d
-	picture = GFX_report_event_bessarabia
+    id = eg_romania.3
+    title = eg_romania.3.t
+    desc = eg_romania.3.d
+    picture = GFX_report_event_bessarabia
+    is_triggered_only = yes
+    fire_only_once = yes
 
-	fire_only_once = yes
+    immediate = {
+        set_global_flag = bessarabia
+        every_state = {
+            limit = {
+                OR = { state = 78 state = 766 }
+                is_owned_by = RO2
+                OR = { is_fully_controlled_by = RO2 is_fully_controlled_by = ROM }
+            }
+            add_core_of = ROM
+            remove_claim_by = ROM
+            transfer_state_to = ROM
+        }
+        news_event = { hours = 6 id = endsieg_news.18 }
+    }
+    option = { name = eg_romania.3.a }
+}
 
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1918.4.11
-		date < 1919.1.1
-		tag = ROM
-		date > 1918.4.9
-		NOT = { has_global_flag = bessarabia }
-		RO2 = { is_puppet_of = ROM }
-	}
+# The republic is already independent in the March 1918 bookmark.
+country_event = {
+    id = eg_romania.5
+    hidden = yes
+    is_triggered_only = yes
+    fire_only_once = yes
+    immediate = {
+        every_state = {
+            limit = {
+                OR = { state = 78 state = 766 }
+                OR = { is_owned_by = RIE is_owned_by = SOV }
+                OR = { is_fully_controlled_by = RIE is_fully_controlled_by = SOV is_fully_controlled_by = ROM }
+            }
+            add_core_of = RO2
+            transfer_state_to = RO2
+        }
+        RO2 = {
+            set_cosmetic_tag = ROM_Moldova
+            give_military_access = ROM
+            diplomatic_relation = { country = ROM relation = docking_rights active = yes }
+        }
+    }
+}
 
-	mean_time_to_happen = {
-		days = 1
-	}
+country_event = {
+    id = eg_romania.6
+    title = eg_romania.6.t
+    desc = eg_romania.6.d
+    picture = GFX_report_event_treaty_of_bucharest
+    is_triggered_only = yes
+    fire_only_once = yes
+    immediate = {
+        set_country_flag = WW1_ROM_berlin_protocol
+        GER = {
+            every_owned_state = {
+                limit = { has_state_flag = WW1_ROM_bucharest_cession is_fully_controlled_by = GER OR = { state = 1015 state = 1030 } }
+                transfer_state_to = BUL
+            }
+        }
+    }
+    option = { name = eg_romania.6.a }
+}
 
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = eg_romania.3.a
-		news_event = { hours = 6 id = endsieg_news.18 }
-		ROM = {
-			annex_country = { target = RO2 transfer_troops = yes }
-		}
-	}
+country_event = {
+    id = eg_romania.7
+    title = eg_romania.7.t
+    desc = eg_romania.7.d
+    picture = GFX_report_event_bucharestreversed
+    is_triggered_only = yes
+    immediate = {
+        every_state = {
+            limit = {
+                has_state_flag = WW1_ROM_bucharest_cession
+                OR = { state = 77 state = 1015 state = 1030 }
+                OR = { is_owned_by = BUL is_owned_by = GER }
+                OR = { is_fully_controlled_by = BUL is_fully_controlled_by = GER is_fully_controlled_by = FRA is_fully_controlled_by = ENG is_fully_controlled_by = ROM }
+            }
+            clr_state_flag = WW1_ROM_bucharest_cession
+            if = {
+                limit = { FRA = { exists = yes NOT = { has_war_with = ROM } } }
+                set_state_flag = WW1_ROM_dobruja_allied_administration
+                transfer_state_to = FRA
+            }
+            else = { transfer_state_to = ROM }
+        }
+    }
+    option = { name = eg_romania.7.a }
+}
+
+country_event = {
+    id = eg_romania.8
+    title = eg_romania.8.t
+    desc = eg_romania.8.d
+    picture = GFX_report_event_bucharestreversed
+    is_triggered_only = yes
+    immediate = {
+        every_state = {
+            limit = { has_state_flag = WW1_ROM_dobruja_allied_administration OR = { is_owned_by = FRA is_owned_by = ROM } OR = { is_fully_controlled_by = FRA is_fully_controlled_by = ROM } }
+            clr_state_flag = WW1_ROM_dobruja_allied_administration
+            if = { limit = { is_owned_by = ROM } set_state_controller_to = ROM }
+            else = { transfer_state_to = ROM }
+        }
+    }
+    option = { name = eg_romania.8.a }
+}
+
+country_event = {
+    id = eg_romania.9
+    hidden = yes
+    is_triggered_only = yes
+    fire_only_once = yes
+    immediate = { set_capital = { state = 46 } }
+}
+
+country_event = {
+    id = eg_romania.10
+    title = eg_romania.10.t
+    desc = eg_romania.10.d
+    picture = GFX_report_event_treaty_of_bucharest
+    is_triggered_only = yes
+    fire_only_once = yes
+    immediate = {
+        set_country_flag = WW1_ROM_focsani_armistice
+        WW1_ROM_armistice_with_central_powers = yes
+        set_capital = { state = 79 }
+    }
+    option = { name = eg_romania.10.a }
+}
+
+country_event = {
+    id = eg_romania.11
+    title = eg_romania.11.t
+    desc = eg_romania.11.d
+    picture = GFX_report_event_bucharestreversed
+    is_triggered_only = yes
+    fire_only_once = yes
+    immediate = {
+        set_country_flag = WW1_ROM_remobilized
+        declare_war_on = { target = GER type = annex_everything }
+    }
+    option = { name = eg_romania.11.a }
 }
 
 # New Commie Gov

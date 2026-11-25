@@ -1,0 +1,141 @@
+on_actions = {
+	on_daily_UKR = {
+		effect = {
+			if = {
+				limit = { tag = UKR date > 1918.10.31 date < 1923.1.1 }
+				if = {
+					limit = {
+						INT_eastern_local_wars_context = yes
+						has_start_date < 1918.11.15
+						date > 1918.11.13
+						date < 1918.12.14
+						OR = { has_cosmetic_tag = UKR_HET has_country_flag = skoropadskytakesover }
+						NOT = { has_country_flag = INT_UKR_directory_formed }
+					}
+					set_country_flag = INT_UKR_directory_formed
+					news_event = { id = ww1_ukraine.8 hours = 6 }
+				}
+				if = {
+					limit = {
+						INT_UKR_directory_can_take_power = yes
+						NOT = { has_country_flag = INT_UKR_directory_queued }
+					}
+					set_country_flag = { flag = INT_UKR_directory_queued days = 7 }
+					country_event = { id = ww1_ukraine.3 hours = 4 }
+				}
+				INT_UKR_restore_old_directory = yes
+				INT_UKR_install_petliura = yes
+				if = {
+					limit = {
+						INT_UKR_white_front_ready = yes
+						NOT = { has_country_flag = INT_UKR_white_front_offered }
+					}
+					set_country_flag = { flag = INT_UKR_white_front_offered days = 7 }
+					country_event = { id = ww1_ukraine.17 hours = 4 }
+				}
+				INT_UKR_stage_makhnovists = yes
+			}
+		}
+	}
+	on_daily_POL = {
+		effect = {
+			POL = {
+				if = {
+					limit = { date > 1918.10.31 date < 1923.1.1 }
+					if = {
+						limit = {
+							is_ai = yes is_historical_focus_on = yes INT_eastern_local_wars_context = yes
+							is_subject = no has_capitulated = no owns_state = 10 controls_state = 10
+							OR = { has_country_flag = INT_UKR_galician_war_started has_global_flag = west_ukraine_independence has_war_with = WUR }
+						}
+						every_subject_country = {
+							limit = {
+								is_ai = yes OR = { original_tag = WUR original_tag = UKR }
+								OR = { owns_state = 89 owns_state = 91 }
+								NOT = { any_owned_state = { NOT = { OR = { state = 89 state = 91 } } } }
+							}
+							INT_UKR_settle_galician_client = yes
+						}
+						if = {
+							limit = {
+								NOT = { date < 1919.7.17 }
+								WUR = {
+									exists = yes is_ai = yes is_subject = no
+									OR = { is_in_faction = no is_in_faction_with = POL }
+									has_country_flag = INT_UKR_galician_client_freed
+									NOT = { has_war_with = POL }
+								}
+							}
+							WUR = { INT_UKR_settle_galician_client = yes }
+						}
+						if = {
+							limit = {
+								date > 1918.11.21 date < 1919.7.17
+								NOT = { has_country_flag = INT_UKR_polish_lviv_secured }
+								WUR = {
+									is_ai = yes is_subject = no owns_state = 91 controls_province = 11479
+									OR = { has_war_with = POL has_country_flag = INT_UKR_galician_client_freed }
+								}
+							}
+							set_province_controller = 11479
+							set_country_flag = INT_UKR_polish_lviv_secured
+						}
+					}
+					if = {
+						limit = {
+							INT_UKR_galician_front_ready = yes
+							NOT = { has_country_flag = INT_UKR_galician_front_offered }
+						}
+						set_country_flag = { flag = INT_UKR_galician_front_offered days = 7 }
+						country_event = { id = ww1_ukraine.18 hours = 4 }
+					}
+					if = {
+						limit = {
+							INT_UKR_galician_peace_ready = yes
+							NOT = { has_country_flag = INT_UKR_galician_peace_queued }
+						}
+						set_country_flag = { flag = INT_UKR_galician_peace_queued days = 14 }
+						country_event = { id = INT_eastern.1 hours = 4 }
+					}
+					if = {
+						limit = {
+							INT_UKR_warsaw_pact_available = yes
+							NOT = { has_country_flag = INT_UKR_warsaw_pact_offered }
+						}
+						set_country_flag = { flag = INT_UKR_warsaw_pact_offered days = 7 }
+						country_event = { id = ww1_ukraine.14 hours = 4 }
+					}
+				}
+			}
+		}
+	}
+	on_daily_MKN = {
+		effect = {
+			if = {
+				limit = { date > 1918.10.31 date < 1923.1.1 }
+				INT_UKR_run_makhnovist_campaign = yes
+			}
+		}
+	}
+	on_daily_SOV = {
+		effect = {
+			INT_UKR_settle_soviet_government = yes
+			if = {
+				limit = { date > 1918.10.31 date < 1923.1.1 }
+				INT_UKR_soviet_makhnovist_break = yes
+				INT_UKR_integrate_defeated_makhnovists = yes
+			}
+		}
+	}
+	on_daily_WUR = {
+		effect = {
+			if = {
+				limit = {
+					date > 1918.10.31 date < 1919.8.1 owns_state = 89 controls_state = 89
+					OR = { NOT = { owns_state = 91 } AND = { POL = { controls_province = 11479 } is_historical_focus_on = yes is_ai = yes } }
+				}
+				if = { limit = { NOT = { capital_scope = { state = 89 } } } set_capital = { state = 89 } }
+			}
+		}
+	}
+}

@@ -1,0 +1,98 @@
+# The native mission activation and event notices share these outcome checks.
+WW1_GER_postwar_timers_open = {
+	tag = GER
+	has_global_flag = welcome_event_WW1_active
+	date < 1936.1.1
+	has_global_flag = compiegne
+	NOT = {
+		OR = {
+			has_global_flag = versailles
+			has_global_flag = ww1_compiegne_armistice_failed
+			has_global_flag = central_powers_victory
+		}
+	}
+}
+
+WW1_GER_weimar_settlement_pending = {
+	WW1_GER_postwar_timers_open = yes
+	NOT = { has_country_flag = ww1_weimar_republic_established }
+}
+
+WW1_GER_versailles_settlement_pending = {
+	WW1_GER_postwar_timers_open = yes
+	has_country_flag = ww1_weimar_republic_established
+}
+
+WW1_GER_weimar_timer_can_start = {
+	WW1_GER_weimar_settlement_pending = yes
+	has_country_flag = WW1_GER_weimar_countdown_announced
+	NOT = { has_active_mission = ww1_establish_weimar_republic }
+}
+
+WW1_GER_versailles_timer_can_start = {
+	WW1_GER_versailles_settlement_pending = yes
+	has_country_flag = WW1_GER_versailles_countdown_announced
+	NOT = { has_active_mission = ww1_treaty_of_versailles }
+}
+
+# A mission can already be running when its notice reaches the player.
+WW1_GER_weimar_notice_due = {
+	WW1_GER_weimar_settlement_pending = yes
+	NOT = { has_country_flag = WW1_GER_weimar_countdown_announced }
+}
+
+WW1_GER_versailles_notice_due = {
+	WW1_GER_versailles_settlement_pending = yes
+	NOT = { has_country_flag = WW1_GER_versailles_countdown_announced }
+}
+
+# Legacy signature: standard armistice accepted, but neither preparation stage
+# ever began before the old automatic deadline. Actual refusal routes have no
+# standard-path receipt; completed, alternative and newly confirmed defaults stay.
+WW1_GER_missed_preparation_failure = {
+	tag = GER
+	has_global_flag = welcome_event_WW1_active
+	date < 1921.1.1
+	has_global_flag = compiegne
+	has_global_flag = ww1_compiegne_armistice_failed
+	has_country_flag = GE1_compiegne_resolution_started
+	has_country_flag = GE1_compiegne_standard_path
+	has_government = democratic
+	is_subject = no
+	has_capitulated = no
+	FRA = { exists = yes has_capitulated = no }
+	ENG = { exists = yes has_capitulated = no }
+	NOT = { has_active_mission = ww1_establish_weimar_republic }
+	NOT = { has_active_mission = ww1_treaty_of_versailles }
+	NOT = {
+		OR = {
+			has_global_flag = versailles
+			has_global_flag = central_powers_victory
+			has_global_flag = player_wants_custom_peacedeals
+			has_country_flag = ww1_weimar_republic_established
+			has_country_flag = WW1_GER_weimar_countdown_announced
+			has_country_flag = WW1_GER_versailles_countdown_announced
+			has_country_flag = WW1_GER_postwar_deadline_reconciled_v3
+			has_country_flag = WW1_GER_treaty_default_confirmed_v3
+			has_country_flag = WW1_GER_missed_preparation_recovered_v3
+		}
+	}
+}
+
+# Only Germany's own scripted annexation wars against former Entente countries.
+# Eastern successor, colonial third-party and differently justified wars stay.
+WW1_GER_legacy_deadline_opponent = {
+	has_war_with = GER
+	OR = {
+		tag = FRA tag = ENG tag = BEL tag = ITA tag = USA tag = JAP
+		tag = POR tag = GRE tag = ROM tag = AST tag = CAN tag = SAF
+		tag = NZL tag = RAJ tag = MAL tag = PHI tag = SIA tag = BRA
+		tag = NEP tag = BHU tag = RCH tag = SHX
+	}
+	GER = { has_war_with_wargoal_against = { target = PREV type = annex_everything } }
+}
+
+WW1_GER_treaty_default_ready = {
+	WW1_GER_postwar_timers_open = yes
+	has_country_flag = WW1_GER_treaty_deadline_expired_v3
+}

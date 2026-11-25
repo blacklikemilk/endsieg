@@ -1,0 +1,368 @@
+# Only the government created by the historical Habsburg dissolution.
+INT_HUN_1919_context = {
+	tag = HUN
+	has_start_date < 1919.3.21
+	date < 1921.1.1
+	exists = yes
+	owns_state = 43
+	is_subject = no
+	has_global_flag = armistice_of_villa_giusti
+	has_global_flag = WW1_AUH_historical_dissolution_done
+	has_country_flag = WW1_AUH_hungarian_republic_proclaimed
+	NOT = {
+		OR = {
+			has_global_flag = central_powers_victory
+			has_global_flag = player_wants_custom_peacedeals
+			has_global_flag = GE1_R_AUH_managed_partition_complete
+			has_country_flag = WW1_HAB_crown_settlement
+		}
+	}
+}
+
+INT_HUN_1919_vix_ready = {
+	INT_HUN_1919_context = yes
+	NOT = { date < 1919.3.20 }
+	OR = {
+		date < 1919.4.1
+		AND = { is_ai = yes is_historical_focus_on = yes date < 1919.7.20 }
+	}
+	has_government = democratic
+	has_capitulated = no
+	controls_state = 43
+	NOT = {
+		OR = {
+			has_country_flag = INT_HUN_1919_vix_accepted
+			has_country_flag = INT_HUN_1919_vix_refused
+			has_global_flag = WW1_AUH_trianon_borders_set
+		}
+	}
+	ROM = { exists = yes owns_state = 84 }
+}
+
+INT_HUN_1919_kun_ready = {
+	INT_HUN_1919_context = yes
+	NOT = { date < 1919.3.21 }
+	OR = {
+		date < 1919.4.16
+		AND = { is_ai = yes is_historical_focus_on = yes date < 1919.7.20 }
+	}
+	has_capitulated = no
+	has_government = democratic
+	has_country_flag = INT_HUN_1919_vix_refused
+	controls_state = 43
+	NOT = {
+		OR = {
+			has_country_flag = INT_HUN_1919_kun_installed
+			has_country_flag = INT_HUN_1919_republic_retained
+		}
+	}
+}
+
+# A scripted annexation or call to allies would make a local front into a
+# second Great War. Stop if either participant has chosen such an alignment.
+INT_HUN_1919_local_front = {
+	NOT = { has_country_flag = INT_HUN_1919_military_armistice_signed }
+	INT_HUN_1919_context = yes
+	has_government = communism
+	has_country_flag = INT_HUN_1919_kun_installed
+	NOT = { has_country_flag = INT_HUN_1919_regime_fallen }
+	is_in_faction = no
+	has_capitulated = no
+	43 = { is_fully_controlled_by = HUN }
+}
+
+INT_HUN_1919_romania_ready = {
+	INT_HUN_1919_local_front = yes
+	NOT = { date < 1919.4.16 }
+	date < 1919.7.20
+	NOT = {
+		OR = {
+			has_country_flag = INT_HUN_1919_romanian_front
+			has_country_flag = INT_HUN_1919_romanian_front_declined
+			has_war_with = ROM
+			has_non_aggression_pact_with = ROM
+			has_truce_with = ROM
+		}
+	}
+	ROM = { exists = yes is_subject = no is_in_faction = no has_capitulated = no }
+	76 = { is_owned_by = ROM is_fully_controlled_by = ROM }
+	84 = { is_owned_by = ROM is_fully_controlled_by = ROM }
+	1053 = { is_owned_by = ROM is_fully_controlled_by = ROM }
+	NOT = { any_other_country = { NOT = { tag = ROM } has_guaranteed = ROM } }
+}
+
+INT_HUN_1919_slovakia_ready = {
+	INT_HUN_1919_local_front = yes
+	NOT = { date < 1919.5.29 }
+	date < 1919.6.15
+	NOT = {
+		OR = {
+			has_country_flag = INT_HUN_1919_slovak_front
+			has_country_flag = INT_HUN_1919_slovak_front_declined
+			has_war_with = CZE
+			has_non_aggression_pact_with = CZE
+			has_truce_with = CZE
+		}
+	}
+	CZE = { exists = yes is_subject = no is_in_faction = no has_capitulated = no }
+	70 = { is_owned_by = CZE is_fully_controlled_by = CZE }
+	71 = { is_owned_by = CZE is_fully_controlled_by = CZE }
+	664 = { is_owned_by = CZE is_fully_controlled_by = CZE }
+	NOT = { any_other_country = { NOT = { tag = CZE } has_guaranteed = CZE } }
+}
+
+INT_HUN_1919_withdrawal_ready = {
+	INT_HUN_1919_local_front = yes
+	date > 1919.7.3
+	date < 1919.8.1
+	has_country_flag = INT_HUN_1919_slovak_front
+	has_war_with_wargoal_against = { target = CZE type = take_state }
+	NOT = { OR = { has_country_flag = INT_HUN_1919_slovak_front_closed has_country_flag = INT_HUN_1919_slovak_withdrawal_refused } }
+	CZE = {
+		exists = yes
+		is_ai = yes
+		is_subject = no
+		is_in_faction = no
+		has_capitulated = no
+		9 = { is_owned_by = CZE is_fully_controlled_by = CZE }
+	}
+}
+
+INT_HUN_1919_tisza_ready = {
+	INT_HUN_1919_local_front = yes
+	date > 1919.7.19
+	date < 1919.8.1
+	has_country_flag = INT_HUN_1919_romanian_front
+	has_war_with_wargoal_against = { target = ROM type = take_state }
+	NOT = { has_country_flag = INT_HUN_1919_tisza_resolved }
+}
+
+INT_HUN_1919_fall_ready = {
+	NOT = { has_country_flag = INT_HUN_1919_military_armistice_signed }
+	tag = HUN
+	owns_state = 43
+	has_global_flag = WW1_AUH_historical_dissolution_done
+	NOT = { OR = { has_global_flag = central_powers_victory has_global_flag = player_wants_custom_peacedeals } }
+	has_start_date < 1919.3.21
+	date < 1936.1.1
+	has_country_flag = INT_HUN_1919_kun_installed
+	has_country_flag = INT_HUN_1919_romanian_front
+	NOT = { OR = { has_country_flag = INT_HUN_1919_regime_fallen has_country_flag = INT_HUN_1919_armistice_refused } }
+	ROM = { exists = yes is_ai = yes is_subject = no has_capitulated = no }
+	OR = {
+		INT_HUN_1919_ai_military_defeat_ready = yes
+		INT_HUN_1919_partition_recovery_ready = yes
+		AND = { is_subject_of = ROM is_ai = yes has_cosmetic_tag = INT_HUN_1919_soviet_republic }
+		AND = {
+			date < 1921.1.1 is_subject = no has_government = communism
+			has_war_with_wargoal_against = { target = ROM type = take_state }
+			OR = {
+				43 = { is_controlled_by = ROM }
+				AND = { date > 1919.7.31 154 = { is_controlled_by = ROM } surrender_progress > 0.40 }
+			}
+		}
+	}
+}
+
+INT_HUN_1919_horthy_ready = {
+	tag = HUN has_start_date < 1919.3.21 date < 1936.1.1
+	is_subject = no owns_state = 43
+	has_global_flag = WW1_AUH_historical_dissolution_done
+	NOT = { OR = { has_global_flag = central_powers_victory has_global_flag = player_wants_custom_peacedeals has_global_flag = GE1_R_AUH_managed_partition_complete } }
+	NOT = { date < 1920.3.1 }
+	OR = {
+		AND = {
+			has_country_flag = INT_HUN_1919_regime_fallen
+			has_cosmetic_tag = INT_HUN_1919_provisional_government
+		}
+		# Recover a historical campaign that missed the 1919 transition.
+		AND = {
+			is_ai = yes
+			is_historical_focus_on = yes
+			date < 1921.1.1
+			has_government = democratic
+			has_cosmetic_tag = WW1_AUH_hungarian_republic
+			NOT = {
+				OR = {
+					has_country_flag = INT_HUN_1919_vix_accepted
+					has_country_flag = INT_HUN_1919_vix_refused
+				}
+			}
+			84 = { is_owned_by = ROM is_fully_controlled_by = ROM }
+		}
+	}
+	43 = { is_fully_controlled_by = HUN }
+	NOT = { has_war_with = ROM }
+}
+
+# Historical Moscow can supply Budapest without opening a second war with Romania.
+INT_HUN_1919_block_historical_soviet_entry = {
+	tag = SOV
+	is_ai = yes
+	is_historical_focus_on = yes
+	date < 1920.3.1
+	HUN = { has_country_flag = INT_HUN_1919_romanian_front }
+}
+
+# End only the recorded local campaign, before a generic peace conference can
+# partition Hungary into several puppets. Player-controlled signatories retain
+# the event choices; unrelated wars and alternative alignments are excluded.
+INT_HUN_1919_ai_military_defeat_ready = {
+	NOT = { has_country_flag = INT_HUN_1919_military_armistice_signed }
+	tag = HUN
+	exists = yes is_ai = yes is_subject = no is_in_faction = no
+	has_start_date < 1919.3.21
+	NOT = { date < 1919.4.16 }
+	date < 1921.1.1
+	has_global_flag = WW1_AUH_historical_dissolution_done
+	has_country_flag = INT_HUN_1919_kun_installed
+	has_country_flag = INT_HUN_1919_romanian_front
+	has_government = communism
+	NOT = { OR = {
+		has_country_flag = INT_HUN_1919_regime_fallen
+		has_country_flag = INT_HUN_1919_armistice_refused
+		has_global_flag = central_powers_victory
+		has_global_flag = player_wants_custom_peacedeals
+		has_global_flag = GE1_R_AUH_managed_partition_complete
+		has_country_flag = WW1_HAB_crown_settlement
+	} }
+	has_war_with_wargoal_against = { target = ROM type = take_state }
+	ROM = { exists = yes is_ai = yes is_subject = no is_in_faction = no has_capitulated = no }
+	OR = {
+		NOT = { has_war_with = CZE }
+		AND = {
+			has_country_flag = INT_HUN_1919_slovak_front
+			has_war_with_wargoal_against = { target = CZE type = take_state }
+			CZE = { exists = yes is_ai = yes is_subject = no is_in_faction = no }
+		}
+	}
+	NOT = { any_enemy_country = { NOT = { OR = { tag = ROM tag = CZE } } } }
+	OR = {
+		has_country_flag = INT_HUN_1919_capitulation_intercepted
+		has_capitulated = yes
+		43 = { OR = { is_controlled_by = ROM is_controlled_by = CZE } }
+	}
+}
+
+# Recover the specific engine-created peace-conference partition in old saves.
+# No human country, independent successor, foreign war, or territory outside
+# Hungary's three remaining home states can be absorbed by this repair.
+INT_HUN_1919_partition_recovery_ready = {
+	NOT = { has_country_flag = INT_HUN_1919_military_armistice_signed }
+	tag = HUN
+	exists = yes is_ai = yes is_in_faction = no has_war = no
+	owns_state = 43
+	has_start_date < 1919.3.21
+	NOT = { date < 1919.4.16 }
+	date < 1923.1.1
+	has_global_flag = WW1_AUH_historical_dissolution_done
+	has_country_flag = INT_HUN_1919_kun_installed
+	has_country_flag = INT_HUN_1919_romanian_front
+	NOT = { OR = {
+		has_country_flag = INT_HUN_1919_regime_fallen
+		has_country_flag = INT_HUN_1919_armistice_refused
+		has_country_flag = INT_HUN_1919_conference_reunified
+		has_global_flag = central_powers_victory
+		has_global_flag = player_wants_custom_peacedeals
+		has_global_flag = GE1_R_AUH_managed_partition_complete
+		has_country_flag = WW1_HAB_crown_settlement
+	} }
+	has_cosmetic_tag = INT_HUN_1919_soviet_republic
+	ROM = { exists = yes is_ai = yes is_subject = no is_in_faction = no has_capitulated = no }
+	CZE = { exists = yes is_ai = yes is_subject = no is_in_faction = no has_capitulated = no }
+	OR = { is_subject = no is_subject_of = ROM is_subject_of = CZE }
+	OR = {
+		is_subject_of = ROM
+		is_subject_of = CZE
+		any_other_country = { INT_HUN_1919_conference_fragment = yes }
+	}
+}
+
+# Candidate-country scope, deliberately independent of ROOT/PREV.
+INT_HUN_1919_conference_fragment = {
+	exists = yes is_ai = yes is_dynamic_country = yes original_tag = HUN
+	NOT = { tag = HUN }
+	has_war = no is_in_faction = no
+	OR = { is_subject_of = ROM is_subject_of = CZE }
+	any_owned_state = { OR = { state = 43 state = 154 state = 155 } }
+	NOT = { any_owned_state = { NOT = { OR = { state = 43 state = 154 state = 155 } } } }
+}
+
+INT_HUN_1919_cabinet_context = {
+	tag = HUN exists = yes is_subject = no is_in_faction = no has_war = no
+	has_start_date < 1919.3.21
+	NOT = { date < 1919.8.1 }
+	date < 1920.3.1
+	owns_state = 43
+	has_global_flag = WW1_AUH_historical_dissolution_done
+	has_country_flag = INT_HUN_1919_kun_installed
+	has_country_flag = INT_HUN_1919_romanian_front
+	OR = { has_country_flag = INT_HUN_1919_military_armistice_signed has_country_flag = INT_HUN_1919_regime_fallen }
+	NOT = { OR = {
+		has_country_flag = INT_HUN_1919_alternative_cabinet
+		has_country_flag = INT_HUN_1919_armistice_refused
+		has_global_flag = central_powers_victory
+		has_global_flag = player_wants_custom_peacedeals
+		has_global_flag = GE1_R_AUH_managed_partition_complete
+		has_country_flag = WW1_HAB_crown_settlement
+	} }
+}
+
+INT_HUN_1919_councils_still_in_office = {
+	has_government = communism
+	NOT = { has_country_flag = INT_HUN_1919_regime_fallen }
+	OR = {
+		has_country_leader = { character = HUN_bela_kun ruling_only = yes }
+		has_country_leader = { name = "Béla Kun" ruling_only = yes }
+		has_country_leader = { name = "Bela Kun" ruling_only = yes }
+	}
+}
+
+INT_HUN_1919_peidl_ready = {
+	INT_HUN_1919_cabinet_context = yes
+	date < 1919.8.6
+	INT_HUN_1919_councils_still_in_office = yes
+	NOT = { has_country_flag = INT_HUN_1919_peidl_installed }
+}
+
+INT_HUN_1919_friedrich_ready = {
+	INT_HUN_1919_cabinet_context = yes
+	NOT = { date < 1919.8.6 }
+	date < 1919.11.24
+	NOT = { has_country_flag = INT_HUN_1919_friedrich_installed }
+	OR = {
+		INT_HUN_1919_councils_still_in_office = yes
+		has_country_leader = { name = "Gyula Peidl" ruling_only = yes }
+	}
+}
+
+INT_HUN_1919_huszar_ready = {
+	INT_HUN_1919_cabinet_context = yes
+	NOT = { date < 1919.11.24 }
+	NOT = { has_country_flag = INT_HUN_1919_huszar_installed }
+	OR = {
+		INT_HUN_1919_councils_still_in_office = yes
+		has_country_leader = { name = "Gyula Peidl" ruling_only = yes }
+		has_country_leader = { name = "István Friedrich" ruling_only = yes }
+	}
+}
+
+INT_HUN_1919_early_peidl_repair_ready = {
+	tag = HUN exists = yes is_ai = yes is_subject = no is_in_faction = no has_war = no
+	has_start_date < 1919.3.21
+	date < 1919.8.1
+	owns_state = 43
+	has_global_flag = WW1_AUH_historical_dissolution_done
+	has_country_flag = INT_HUN_1919_kun_installed
+	has_country_flag = INT_HUN_1919_romanian_front
+	has_country_flag = INT_HUN_1919_regime_fallen
+	has_cosmetic_tag = INT_HUN_1919_provisional_government
+	has_country_leader = { name = "Gyula Peidl" ruling_only = yes }
+	NOT = { OR = {
+		has_country_flag = INT_HUN_1919_early_cabinet_repaired
+		has_country_flag = INT_HUN_1919_armistice_refused
+		has_global_flag = central_powers_victory
+		has_global_flag = player_wants_custom_peacedeals
+		has_global_flag = GE1_R_AUH_managed_partition_complete
+	} }
+}

@@ -1,0 +1,187 @@
+on_actions = {
+	# ROOT capitulated. FROM is the country that received its surrender.
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = { INT_BLR_historical_ministry = yes FROM = { tag = POL } }
+				set_global_flag = INT_BLR_displaced_by_poland
+			}
+			if = {
+				limit = {
+					is_ai = yes
+					is_subject = no
+					OR = { tag = EST tag = LAT tag = LIT tag = POL }
+					FROM = {
+						INT_eastern_historical_soviet_campaign = yes
+						has_war_with_wargoal_against = { target = ROOT type = annex_everything }
+					}
+				}
+				save_event_target_as = INT_eastern_defeated_government
+				FROM = { country_event = { id = INT_eastern.5 hours = 1 } }
+			}
+		}
+	}
+
+	on_daily = {
+		effect = {
+			if = {
+				limit = { tag = SOV date < 1923.1.1 }
+				WW1_Caucasus_repair_legacy_diplomacy = yes
+				INT_eastern_keep_soviet_wars_local = yes
+
+				if = {
+					limit = { has_country_flag = INT_ukraine_declaration_pending }
+					INT_eastern_begin_ukrainian_campaign = yes
+				}
+				if = {
+					limit = { INT_eastern_local_wars_context = yes is_ai = yes has_government = communism }
+					if = {
+						limit = {
+							INT_eastern_can_attack_estonia = yes
+							NOT = { has_country_flag = INT_estonia_invasion_reported }
+						}
+						INT_eastern_begin_estonian_campaign = yes
+					}
+					if = {
+						limit = {
+							INT_eastern_can_advance_into_ukraine = yes
+							NOT = {
+								OR = {
+									has_country_flag = INT_ukraine_invasion_reported
+									has_country_flag = INT_ukraine_declaration_pending
+									has_country_flag = INT_eastern_ukraine_offer_queued
+									has_country_flag = INT_eastern_ukraine_advance_declined
+								}
+							}
+						}
+						set_country_flag = { flag = INT_eastern_ukraine_offer_queued days = 14 }
+						country_event = { id = INT_postwar_transitions.4 hours = 4 }
+					}
+				}
+				if = {
+					limit = { INT_eastern_historical_soviet_campaign = yes }
+					if = {
+						limit = {
+							date > 1918.12.1 date < 1921.1.1
+							BLR = { exists = yes is_ai = yes is_subject = no is_in_faction = no has_capitulated = no }
+							NOT = { OR = { has_country_flag = INT_historical_blr_war has_war_with = BLR has_truce_with = BLR has_non_aggression_pact_with = BLR is_in_faction_with = BLR } }
+						}
+						BLR = { INT_eastern_remove_foreign_guarantees = yes }
+						if = {
+							limit = { NOT = { any_other_country = { has_guaranteed = BLR } } }
+							declare_war_on = { target = BLR type = annex_everything }
+							if = { limit = { has_war_with = BLR }
+								set_country_flag = INT_historical_blr_war
+								news_event = { id = endsieg_news.36 hours = 6 }
+							}
+						}
+					}
+					if = {
+						limit = {
+							NOT = { date < 1918.12.5 } date < 1920.8.11
+							LAT = { exists = yes is_ai = yes is_subject = no is_in_faction = no has_capitulated = no }
+							NOT = { OR = { has_country_flag = INT_historical_lat_war has_war_with = LAT has_truce_with = LAT has_non_aggression_pact_with = LAT is_in_faction_with = LAT has_global_flag = riga_treaty } }
+						}
+						LAT = { INT_eastern_remove_foreign_guarantees = yes }
+						if = {
+							limit = { NOT = { any_other_country = { has_guaranteed = LAT } } }
+							declare_war_on = { target = LAT type = annex_everything }
+							if = { limit = { has_war_with = LAT }
+								set_country_flag = INT_historical_lat_war
+								LAT = { INT_eastern_update_independence_defence = yes }
+								news_event = { id = endsieg_news.40 hours = 6 }
+							}
+						}
+					}
+					if = {
+						limit = {
+							NOT = { date < 1919.1.6 } date < 1920.7.12
+							LIT = { exists = yes is_ai = yes is_subject = no is_in_faction = no has_capitulated = no }
+							NOT = { OR = { has_country_flag = INT_historical_lit_war has_war_with = LIT has_truce_with = LIT has_non_aggression_pact_with = LIT is_in_faction_with = LIT has_global_flag = moscow_lit_treaty } }
+						}
+						LIT = { INT_eastern_remove_foreign_guarantees = yes }
+						if = {
+							limit = { NOT = { any_other_country = { has_guaranteed = LIT } } }
+							declare_war_on = { target = LIT type = annex_everything }
+							if = { limit = { has_war_with = LIT }
+								set_country_flag = INT_historical_lit_war
+								LIT = { INT_eastern_update_independence_defence = yes }
+								news_event = { id = endsieg_news.38 hours = 6 }
+							}
+						}
+					}
+					SOV = { INT_POL_begin_soviet_campaign = yes }
+				}
+				if = {
+					limit = { INT_eastern_historical_soviet_campaign = yes }
+					INT_eastern_finish_baltic_polish_victories = yes
+				}
+				if = {
+					limit = {
+						is_ai = yes
+						OR = {
+							INT_eastern_historical_soviet_campaign = yes
+							AND = {
+								INT_eastern_local_wars_context = yes
+								has_country_flag = INT_ukraine_invasion_reported
+							}
+						}
+					}
+					# Finish a victory even if another front keeps the broader war open.
+					if = {
+						limit = {
+							country_exists = UKR
+							has_war_with = UKR
+							has_war_with_wargoal_against = { target = UKR type = annex_everything }
+							UKR = {
+								is_ai = yes
+								is_subject = no
+								NOT = { has_country_flag = INT_ukraine_defeated_by_soviets }
+								any_owned_state = { is_controlled_by = SOV }
+								OR = {
+									AND = {
+										has_capitulated = yes
+										capital_scope = { is_controlled_by = SOV }
+									}
+									AND = {
+										has_capitulated = no
+										INT_eastern_ukraine_defeat_confirmed = yes
+									}
+								}
+							}
+						}
+						UKR = { set_country_flag = { flag = INT_ukraine_defeated_by_soviets days = 3 } }
+						country_event = { id = INT_eastern.4 hours = 1 }
+					}
+				}
+				if = {
+					limit = { INT_eastern_historical_soviet_campaign = yes }
+					if = {
+						limit = {
+							country_exists = BLR
+							has_war_with = BLR
+							has_war_with_wargoal_against = { target = BLR type = annex_everything }
+							BLR = {
+								is_ai = yes
+								is_subject = no
+								any_owned_state = { is_controlled_by = SOV }
+								OR = {
+									AND = {
+										has_capitulated = yes
+										capital_scope = { is_controlled_by = SOV }
+									}
+									AND = {
+										surrender_progress > 0.75
+										206 = { is_controlled_by = SOV }
+										207 = { is_controlled_by = SOV }
+									}
+								}
+							}
+						}
+						annex_country = { target = BLR transfer_troops = no }
+					}
+				}
+			}
+		}
+	}
+}

@@ -1237,6 +1237,11 @@ country_event = {
 	picture = GFX_report_event_regency_kingdom_poland
 
 	is_triggered_only = yes
+	trigger = {
+		tag = GER
+		NOT = { has_global_flag = compiegne }
+		NOT = { has_global_flag = versailles }
+	}
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
@@ -1252,7 +1257,8 @@ country_event = {
 			transfer_state = 1026
 		}
 		GER = {
-			puppet = POL
+			if = { limit = { POL = { is_subject = no NOT = { has_war_with = GER } } } puppet = POL }
+			POL = { give_military_access = GER }
 		}
 		POL = { load_focus_tree = { tree = generic_focus_ww1 keep_completed = yes } }
 	}
@@ -1267,7 +1273,8 @@ country_event = {
 			transfer_state = 87
 		}
 		GER = {
-			puppet = POL
+			if = { limit = { POL = { is_subject = no NOT = { has_war_with = GER } } } puppet = POL }
+			POL = { give_military_access = GER }
 			transfer_state = 1026
 			transfer_state = 1028
 		}
@@ -2494,14 +2501,39 @@ country_event = {
 			limit = { BEL = { has_war_with = GER } }
 			BEL = { transfer_state = 1002 }
 		}
+		UKR = { INT_UKR_end_german_coalition_wars = yes }
+		if = {
+			limit = { UKR = { is_subject_of = GER } }
+			set_autonomy = { target = UKR autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+		}
+		UKR = { if = { limit = { is_in_faction_with = GER } leave_faction = yes } }
+		# An earlier bookmark may still have Russian ownership under German occupation.
+		every_state = {
+			limit = {
+				OR = { state = 10 state = 98 state = 92 state = 90 state = 87 state = 1028 state = 1026 }
+				SOV = { NOT = { has_country_flag = INT_POL_soviet_victory } }
+				OR = {
+					AND = { is_owned_by = GER OR = { is_controlled_by = GER is_controlled_by = POL } }
+					AND = {
+						is_controlled_by = GER
+						OR = { is_owned_by = RIE is_owned_by = SOV is_owned_by = WHR }
+					}
+				}
+			}
+			transfer_state_to = POL
+		}
+		if = {
+			limit = { POL = { is_subject_of = GER } }
+			set_autonomy = { target = POL autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+			POL = { INT_eastern_end_polish_regency = yes }
+		}
+		POL = { if = { limit = { is_in_faction_with = GER } leave_faction = yes } }
 		remove_from_faction = GER
 		every_country = {
 			limit = { has_war_with = GER }
 			white_peace = GER
 		}
-		remove_from_faction = POL
 		remove_from_faction = CRI
-		remove_from_faction = UKR
 		remove_from_faction = BLR
 		remove_from_faction = LIT
 		remove_from_faction = AZR
@@ -2523,55 +2555,34 @@ country_event = {
 			LUX = { transfer_state = 8 }
 		}
 		UBD = { country_event = { id = ww1_baltic.1 days = 1 } }
+		country_event = { id = INT_postwar_transitions.20 days = 2 }
+		UKR = {
+			if = {
+				limit = { date > 1918.12.13 }
+				country_event = { id = ww1_ukraine.3 hours = 12 }
+			}
+			else = { country_event = { id = ww1_ukraine.3 days = 33 } }
+		}
 		LIT = { country_event = { id = ww1_baltic.11 days = 20 } }
 		country_event = { id = INT_eastern.3 days = 2 }
-		POL = {
-			transfer_state = 10
-			transfer_state = 98
-			transfer_state = 92
-			transfer_state = 90
-			transfer_state = 87
-			transfer_state = 1028
-			transfer_state = 1026
-			set_autonomy = { target = POL autonomy_state = autonomy_free }
-			drop_cosmetic_tag = yes
-			create_country_leader = {
-				name = "Jozef Pilsudski"
-				desc = "POLITICS_PILSUDSKI_DESC"
-				picture = "portrait_poland_pilsudski.dds"
-				expire = "1935.5.12"
-				ideology = despotism
-				traits = { }
-			}
-		}
 		ROM = {
 			if = {
-				limit = { is_in_faction = yes }
+				limit = { is_in_faction_with = GER }
 				leave_faction = yes
 			}
 		}
-		UKR = { transfer_state = 196 }
-		if = {
-			limit = { country_exists = SOV }
-			SOV = { transfer_state = 137 }
-		}
-		else_if = {
-			limit = { country_exists = WHR }
-			WHR = { transfer_state = 137 }
-		}
-		UKR = {
-
-			if = { limit = { BLR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = BLR }
-			if = { limit = { LIT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = LIT }
-			if = { limit = { ROM = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = ROM }
-			every_country = {
-				limit = { has_war_with = UKR }
-				white_peace = UKR
+		196 = {
+			if = {
+				limit = { is_owned_by = GER is_controlled_by = GER country_exists = UKR }
+				transfer_state_to = UKR
 			}
-			dismantle_faction = yes
 		}
-		set_autonomy = { target = UKR autonomy_state = autonomy_free }
-		set_autonomy = { target = POL autonomy_state = autonomy_free }
+		137 = {
+			if = {
+				limit = { is_owned_by = GER is_controlled_by = GER country_exists = CRI }
+				transfer_state_to = CRI
+			}
+		}
 		set_autonomy = { target = BLR autonomy_state = autonomy_free }
 		set_autonomy = { target = LIT autonomy_state = autonomy_free }
 		if = {
@@ -2593,6 +2604,7 @@ country_event = {
 			if = { limit = { 1070 = { is_owned_by = GER } } AST = { transfer_state = 1070 } }
 		}
 
+		WW1_GER_reconcile_postwar_countdowns = yes
 	}
 }
 
@@ -2795,7 +2807,7 @@ country_event = {
 			transfer_state = 196
 		}
 		GER = {
-			puppet = CRI
+			CRI = { give_military_access = GER }
 		}
 		TSS = {
 			remove_state_core = 196
@@ -2815,7 +2827,7 @@ country_event = {
 			add_state_core = 196
 		}
 		GER = {
-			puppet = CRI
+			CRI = { give_military_access = GER }
 		}
 		TSS = {
 			remove_state_core = 196
@@ -3191,16 +3203,14 @@ country_event = {
 	is_triggered_only = yes
 	fire_only_once = yes
 
-	trigger = {
-		tag = GER
-		has_global_flag = compiegne
-		NOT = { has_global_flag = versailles }
-		NOT = { has_global_flag = central_powers_victory }
-		NOT = { has_global_flag = ww1_compiegne_armistice_failed }
-	}
+	trigger = { WW1_GER_treaty_default_ready = yes }
 
 	option = {
 		name = ww1_germany.52032.a
+		if = {
+			limit = { WW1_GER_treaty_default_ready = yes }
+			set_country_flag = WW1_GER_treaty_default_confirmed_v3
+
 		set_global_flag = ww1_compiegne_armistice_failed
 
 		# The Entente again treats Germany as the enemy; faction members are
@@ -3225,6 +3235,9 @@ country_event = {
 				NOT = { is_in_faction_with = ENG }
 			}
 			declare_war_on = { target = ENG type = annex_everything }
+		}
+		hidden_effect = { news_event = { id = ww1_postwar_news.3 hours = 6 } }
+
 		}
 	}
 }
@@ -3576,12 +3589,32 @@ country_event = {
 		news_event = { hours = 6 id = ww1_germany.1111 }
 	}
 	option = {
+		name = ww1_germany.109.a
 		ai_chance = { factor = 10 modifier = { factor = 100 is_historical_focus_on = yes } }
- custom_effect_tooltip = WW1_historical_option_tt
- name = ww1_germany.109.a add_political_power = -50 add_war_support = 0.04 }
+		custom_effect_tooltip = WW1_historical_option_tt
+		add_political_power = -50
+		add_war_support = 0.04
+		navy_experience = 20
+		add_tech_bonus = {
+			name = GE1_fleet_law_naval_research
+			bonus = 0.5
+			uses = 1
+			category = naval_equipment
+		}
+	}
 	option = {
+		name = ww1_germany.109.b
 		ai_chance = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes } }
- name = ww1_germany.109.b add_political_power = -25 add_stability = 0.02 }
+		add_political_power = -25
+		add_stability = 0.02
+		army_experience = 20
+		add_tech_bonus = {
+			name = GE1_fleet_law_army_research
+			bonus = 0.5
+			uses = 1
+			category = infantry_weapons
+		}
+	}
 }
 
 country_event = {
@@ -4028,10 +4061,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.212
-	title = ww1_germany.212.t
+	title = { text = ww1_germany.212.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_haldane_accepted } AND = { has_global_flag = GE1_D_haldane_refused } } } } }
 	title = { text = ww1_germany.212.accepted.t trigger = { has_global_flag = GE1_D_haldane_accepted } }
 	title = { text = ww1_germany.212.refused.t trigger = { has_global_flag = GE1_D_haldane_refused } }
-	desc = ww1_germany.212.d
+	desc = { text = ww1_germany.212.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_haldane_accepted } AND = { has_global_flag = GE1_D_haldane_refused } } } } }
 	desc = { text = ww1_germany.212.accepted.d trigger = { has_global_flag = GE1_D_haldane_accepted } }
 	desc = { text = ww1_germany.212.refused.d trigger = { has_global_flag = GE1_D_haldane_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4104,10 +4137,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.215
-	title = ww1_germany.215.t
+	title = { text = ww1_germany.215.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_naval_restraint_accepted } AND = { has_global_flag = GE1_D_naval_restraint_refused } } } } }
 	title = { text = ww1_germany.215.accepted.t trigger = { has_global_flag = GE1_D_naval_restraint_accepted } }
 	title = { text = ww1_germany.215.refused.t trigger = { has_global_flag = GE1_D_naval_restraint_refused } }
-	desc = ww1_germany.215.d
+	desc = { text = ww1_germany.215.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_naval_restraint_accepted } AND = { has_global_flag = GE1_D_naval_restraint_refused } } } } }
 	desc = { text = ww1_germany.215.accepted.d trigger = { has_global_flag = GE1_D_naval_restraint_accepted } }
 	desc = { text = ww1_germany.215.refused.d trigger = { has_global_flag = GE1_D_naval_restraint_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4177,10 +4210,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.218
-	title = ww1_germany.218.t
+	title = { text = ww1_germany.218.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_dutch_trade_accepted } AND = { has_global_flag = GE1_D_dutch_trade_refused } } } } }
 	title = { text = ww1_germany.218.accepted.t trigger = { has_global_flag = GE1_D_dutch_trade_accepted } }
 	title = { text = ww1_germany.218.refused.t trigger = { has_global_flag = GE1_D_dutch_trade_refused } }
-	desc = ww1_germany.218.d
+	desc = { text = ww1_germany.218.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_dutch_trade_accepted } AND = { has_global_flag = GE1_D_dutch_trade_refused } } } } }
 	desc = { text = ww1_germany.218.accepted.d trigger = { has_global_flag = GE1_D_dutch_trade_accepted } }
 	desc = { text = ww1_germany.218.refused.d trigger = { has_global_flag = GE1_D_dutch_trade_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4247,10 +4280,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.221
-	title = ww1_germany.221.t
+	title = { text = ww1_germany.221.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_vienna_accepted } AND = { has_global_flag = GE1_D_vienna_refused } } } } }
 	title = { text = ww1_germany.221.accepted.t trigger = { has_global_flag = GE1_D_vienna_accepted } }
 	title = { text = ww1_germany.221.refused.t trigger = { has_global_flag = GE1_D_vienna_refused } }
-	desc = ww1_germany.221.d
+	desc = { text = ww1_germany.221.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_vienna_accepted } AND = { has_global_flag = GE1_D_vienna_refused } } } } }
 	desc = { text = ww1_germany.221.accepted.d trigger = { has_global_flag = GE1_D_vienna_accepted } }
 	desc = { text = ww1_germany.221.refused.d trigger = { has_global_flag = GE1_D_vienna_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4315,10 +4348,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.224
-	title = ww1_germany.224.t
+	title = { text = ww1_germany.224.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_balkan_accepted } AND = { has_global_flag = GE1_D_balkan_refused } } } } }
 	title = { text = ww1_germany.224.accepted.t trigger = { has_global_flag = GE1_D_balkan_accepted } }
 	title = { text = ww1_germany.224.refused.t trigger = { has_global_flag = GE1_D_balkan_refused } }
-	desc = ww1_germany.224.d
+	desc = { text = ww1_germany.224.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_balkan_accepted } AND = { has_global_flag = GE1_D_balkan_refused } } } } }
 	desc = { text = ww1_germany.224.accepted.d trigger = { has_global_flag = GE1_D_balkan_accepted } }
 	desc = { text = ww1_germany.224.refused.d trigger = { has_global_flag = GE1_D_balkan_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4385,10 +4418,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.227
-	title = ww1_germany.227.t
+	title = { text = ww1_germany.227.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_ottoman_accepted } AND = { has_global_flag = GE1_D_ottoman_refused } } } } }
 	title = { text = ww1_germany.227.accepted.t trigger = { has_global_flag = GE1_D_ottoman_accepted } }
 	title = { text = ww1_germany.227.refused.t trigger = { has_global_flag = GE1_D_ottoman_refused } }
-	desc = ww1_germany.227.d
+	desc = { text = ww1_germany.227.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_ottoman_accepted } AND = { has_global_flag = GE1_D_ottoman_refused } } } } }
 	desc = { text = ww1_germany.227.accepted.d trigger = { has_global_flag = GE1_D_ottoman_accepted } }
 	desc = { text = ww1_germany.227.refused.d trigger = { has_global_flag = GE1_D_ottoman_refused } }
 	picture = GFX_report_event_german_advisors_turkey
@@ -4454,10 +4487,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.230
-	title = ww1_germany.230.t
+	title = { text = ww1_germany.230.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_scandinavian_accepted } AND = { has_global_flag = GE1_D_scandinavian_refused } } } } }
 	title = { text = ww1_germany.230.accepted.t trigger = { has_global_flag = GE1_D_scandinavian_accepted } }
 	title = { text = ww1_germany.230.refused.t trigger = { has_global_flag = GE1_D_scandinavian_refused } }
-	desc = ww1_germany.230.d
+	desc = { text = ww1_germany.230.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_scandinavian_accepted } AND = { has_global_flag = GE1_D_scandinavian_refused } } } } }
 	desc = { text = ww1_germany.230.accepted.d trigger = { has_global_flag = GE1_D_scandinavian_accepted } }
 	desc = { text = ww1_germany.230.refused.d trigger = { has_global_flag = GE1_D_scandinavian_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4523,10 +4556,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.233
-	title = ww1_germany.233.t
+	title = { text = ww1_germany.233.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_italian_accepted } AND = { has_global_flag = GE1_D_italian_refused } } } } }
 	title = { text = ww1_germany.233.accepted.t trigger = { has_global_flag = GE1_D_italian_accepted } }
 	title = { text = ww1_germany.233.refused.t trigger = { has_global_flag = GE1_D_italian_refused } }
-	desc = ww1_germany.233.d
+	desc = { text = ww1_germany.233.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_italian_accepted } AND = { has_global_flag = GE1_D_italian_refused } } } } }
 	desc = { text = ww1_germany.233.accepted.d trigger = { has_global_flag = GE1_D_italian_accepted } }
 	desc = { text = ww1_germany.233.refused.d trigger = { has_global_flag = GE1_D_italian_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4593,10 +4626,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.236
-	title = ww1_germany.236.t
+	title = { text = ww1_germany.236.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_eastern_accepted } AND = { has_global_flag = GE1_D_eastern_refused } } } } }
 	title = { text = ww1_germany.236.accepted.t trigger = { has_global_flag = GE1_D_eastern_accepted } }
 	title = { text = ww1_germany.236.refused.t trigger = { has_global_flag = GE1_D_eastern_refused } }
-	desc = ww1_germany.236.d
+	desc = { text = ww1_germany.236.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_eastern_accepted } AND = { has_global_flag = GE1_D_eastern_refused } } } } }
 	desc = { text = ww1_germany.236.accepted.d trigger = { has_global_flag = GE1_D_eastern_accepted } }
 	desc = { text = ww1_germany.236.refused.d trigger = { has_global_flag = GE1_D_eastern_refused } }
 	picture = GFX_report_event_peace_of_riga
@@ -4676,10 +4709,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.239
-	title = ww1_germany.239.t
+	title = { text = ww1_germany.239.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_american_accepted } AND = { has_global_flag = GE1_D_american_refused } } } } }
 	title = { text = ww1_germany.239.accepted.t trigger = { has_global_flag = GE1_D_american_accepted } }
 	title = { text = ww1_germany.239.refused.t trigger = { has_global_flag = GE1_D_american_refused } }
-	desc = ww1_germany.239.d
+	desc = { text = ww1_germany.239.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_american_accepted } AND = { has_global_flag = GE1_D_american_refused } } } } }
 	desc = { text = ww1_germany.239.accepted.d trigger = { has_global_flag = GE1_D_american_accepted } }
 	desc = { text = ww1_germany.239.refused.d trigger = { has_global_flag = GE1_D_american_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -4816,12 +4849,14 @@ NOT = { has_completed_focus = EN1_stay_neutral } NOT = { has_completed_focus = E
 # Germany resolves the British answer and performs the real faction operation.
 country_event = {
 	id = ww1_germany.242
-	title = ww1_germany.242.t
+	title = { text = ww1_germany.242.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_anglo_german_accepted
+GE1_ww1_may_choose_british_bloc = yes has_war = no ENG = { EN1_R_no_continental_war = yes } } AND = { has_global_flag = GE1_D_anglo_german_refused } } } } }
 	title = { text = ww1_germany.242.accepted.t trigger = { has_global_flag = GE1_D_anglo_german_accepted
 GE1_ww1_may_choose_british_bloc = yes has_war = no ENG = { EN1_R_no_continental_war = yes }
 } }
 	title = { text = ww1_germany.242.refused.t trigger = { has_global_flag = GE1_D_anglo_german_refused } }
-	desc = ww1_germany.242.d
+	desc = { text = ww1_germany.242.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_anglo_german_accepted
+GE1_ww1_may_choose_british_bloc = yes has_war = no ENG = { EN1_R_no_continental_war = yes } } AND = { has_global_flag = GE1_D_anglo_german_refused } } } } }
 	desc = { text = ww1_germany.242.accepted.d trigger = { has_global_flag = GE1_D_anglo_german_accepted
 GE1_ww1_may_choose_british_bloc = yes has_war = no ENG = { EN1_R_no_continental_war = yes }
 } }
@@ -5002,12 +5037,14 @@ FRA = { FR3_R_may_choose_continental_alignment = yes }
 
 country_event = {
 	id = ww1_germany.245
-	title = ww1_germany.245.t
+	title = { text = ww1_germany.245.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused }
+FRA = { FR3_R_may_choose_continental_alignment = yes } RIE = { RUS_ww1_may_be_historical_war_target = yes } } AND = { has_global_flag = GE1_D_franco_russian_refused } } } } }
 	title = { text = ww1_germany.245.accepted.t trigger = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused }
 FRA = { FR3_R_may_choose_continental_alignment = yes } RIE = { RUS_ww1_may_be_historical_war_target = yes }
 } }
 	title = { text = ww1_germany.245.refused.t trigger = { has_global_flag = GE1_D_franco_russian_refused } }
-	desc = ww1_germany.245.d
+	desc = { text = ww1_germany.245.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused }
+FRA = { FR3_R_may_choose_continental_alignment = yes } RIE = { RUS_ww1_may_be_historical_war_target = yes } } AND = { has_global_flag = GE1_D_franco_russian_refused } } } } }
 	desc = { text = ww1_germany.245.accepted.d trigger = { has_global_flag = GE1_D_franco_russian_accepted NOT = { has_global_flag = GE1_D_franco_russian_refused }
 FRA = { FR3_R_may_choose_continental_alignment = yes } RIE = { RUS_ww1_may_be_historical_war_target = yes }
 } }
@@ -5136,10 +5173,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.248
-	title = ww1_germany.248.t
+	title = { text = ww1_germany.248.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_italian_accession_accepted } AND = { has_global_flag = GE1_D_italian_accession_refused } } } } }
 	title = { text = ww1_germany.248.accepted.t trigger = { has_global_flag = GE1_D_italian_accession_accepted } }
 	title = { text = ww1_germany.248.refused.t trigger = { has_global_flag = GE1_D_italian_accession_refused } }
-	desc = ww1_germany.248.d
+	desc = { text = ww1_germany.248.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_italian_accession_accepted } AND = { has_global_flag = GE1_D_italian_accession_refused } } } } }
 	desc = { text = ww1_germany.248.accepted.d trigger = { has_global_flag = GE1_D_italian_accession_accepted } }
 	desc = { text = ww1_germany.248.refused.d trigger = { has_global_flag = GE1_D_italian_accession_refused } }
 	picture = GFX_report_event_swedish_negotiations
@@ -5239,10 +5276,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.251
-	title = ww1_germany.251.t
+	title = { text = ww1_germany.251.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_anglo_german_war_accepted } AND = { has_global_flag = GE1_D_anglo_german_war_refused } } } } }
 	title = { text = ww1_germany.251.accepted.t trigger = { has_global_flag = GE1_D_anglo_german_war_accepted } }
 	title = { text = ww1_germany.251.refused.t trigger = { has_global_flag = GE1_D_anglo_german_war_refused } }
-	desc = ww1_germany.251.d
+	desc = { text = ww1_germany.251.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_anglo_german_war_accepted } AND = { has_global_flag = GE1_D_anglo_german_war_refused } } } } }
 	desc = { text = ww1_germany.251.accepted.d trigger = { has_global_flag = GE1_D_anglo_german_war_accepted } }
 	desc = { text = ww1_germany.251.refused.d trigger = { has_global_flag = GE1_D_anglo_german_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
@@ -5298,10 +5335,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.253
-	title = ww1_germany.253.t
+	title = { text = ww1_germany.253.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_continental_war_accepted } AND = { has_global_flag = GE1_D_continental_war_refused } } } } }
 	title = { text = ww1_germany.253.accepted.t trigger = { has_global_flag = GE1_D_continental_war_accepted } }
 	title = { text = ww1_germany.253.refused.t trigger = { has_global_flag = GE1_D_continental_war_refused } }
-	desc = ww1_germany.253.d
+	desc = { text = ww1_germany.253.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_continental_war_accepted } AND = { has_global_flag = GE1_D_continental_war_refused } } } } }
 	desc = { text = ww1_germany.253.accepted.d trigger = { has_global_flag = GE1_D_continental_war_accepted } }
 	desc = { text = ww1_germany.253.refused.d trigger = { has_global_flag = GE1_D_continental_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
@@ -5394,10 +5431,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.256
-	title = ww1_germany.256.t
+	title = { text = ww1_germany.256.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_italian_war_accepted } AND = { has_global_flag = GE1_D_italian_war_refused } } } } }
 	title = { text = ww1_germany.256.accepted.t trigger = { has_global_flag = GE1_D_italian_war_accepted } }
 	title = { text = ww1_germany.256.refused.t trigger = { has_global_flag = GE1_D_italian_war_refused } }
-	desc = ww1_germany.256.d
+	desc = { text = ww1_germany.256.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_italian_war_accepted } AND = { has_global_flag = GE1_D_italian_war_refused } } } } }
 	desc = { text = ww1_germany.256.accepted.d trigger = { has_global_flag = GE1_D_italian_war_accepted } }
 	desc = { text = ww1_germany.256.refused.d trigger = { has_global_flag = GE1_D_italian_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
@@ -5423,10 +5460,10 @@ country_event = {
 
 country_event = {
 	id = ww1_germany.257
-	title = ww1_germany.257.t
+	title = { text = ww1_germany.257.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_continental_war_accepted } AND = { has_global_flag = GE1_D_continental_war_refused } } } } }
 	title = { text = ww1_germany.257.accepted.t trigger = { has_global_flag = GE1_D_continental_war_accepted } }
 	title = { text = ww1_germany.257.refused.t trigger = { has_global_flag = GE1_D_continental_war_refused } }
-	desc = ww1_germany.257.d
+	desc = { text = ww1_germany.257.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_D_continental_war_accepted } AND = { has_global_flag = GE1_D_continental_war_refused } } } } }
 	desc = { text = ww1_germany.257.accepted.d trigger = { has_global_flag = GE1_D_continental_war_accepted } }
 	desc = { text = ww1_germany.257.refused.d trigger = { has_global_flag = GE1_D_continental_war_refused } }
 	picture = GFX_report_event_kronprinz_plan
@@ -6074,14 +6111,20 @@ GER = { GE1_ww1_may_choose_russian_bloc = yes has_war = no } has_war = no NOT = 
 
 country_event = {
 	id = ww1_germany.278
-	title = ww1_germany.278.t
+	title = { text = ww1_germany.278.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_RP_russian_offer_accepted
+GE1_ww1_may_choose_russian_bloc = yes has_war = no RIE = { has_war = no }
+
+RIE = { NOT = { has_completed_focus = RUS_entente_diplomacy } } } AND = { has_global_flag = GE1_RP_russian_offer_refused } } } } }
 	title = { text = ww1_germany.278.accepted.t trigger = { has_global_flag = GE1_RP_russian_offer_accepted
 GE1_ww1_may_choose_russian_bloc = yes has_war = no RIE = { has_war = no }
 
 RIE = { NOT = { has_completed_focus = RUS_entente_diplomacy } }
 } }
 	title = { text = ww1_germany.278.refused.t trigger = { has_global_flag = GE1_RP_russian_offer_refused } }
-	desc = ww1_germany.278.d
+	desc = { text = ww1_germany.278.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_RP_russian_offer_accepted
+GE1_ww1_may_choose_russian_bloc = yes has_war = no RIE = { has_war = no }
+
+RIE = { NOT = { has_completed_focus = RUS_entente_diplomacy } } } AND = { has_global_flag = GE1_RP_russian_offer_refused } } } } }
 	desc = { text = ww1_germany.278.accepted.d trigger = { has_global_flag = GE1_RP_russian_offer_accepted
 GE1_ww1_may_choose_russian_bloc = yes has_war = no RIE = { has_war = no }
 
@@ -6243,10 +6286,10 @@ is_subject = no is_in_faction = no NOT = { has_war_with = GER } NOT = { has_war_
 
 country_event = {
 	id = ww1_germany.281
-	title = ww1_germany.281.t
+	title = { text = ww1_germany.281.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_RP_bulgaria_invitation_accepted } AND = { has_global_flag = GE1_RP_bulgaria_invitation_refused } } } } }
 	title = { text = ww1_germany.281.accepted.t trigger = { has_global_flag = GE1_RP_bulgaria_invitation_accepted } }
 	title = { text = ww1_germany.281.refused.t trigger = { has_global_flag = GE1_RP_bulgaria_invitation_refused } }
-	desc = ww1_germany.281.d
+	desc = { text = ww1_germany.281.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_RP_bulgaria_invitation_accepted } AND = { has_global_flag = GE1_RP_bulgaria_invitation_refused } } } } }
 	desc = { text = ww1_germany.281.accepted.d trigger = { has_global_flag = GE1_RP_bulgaria_invitation_accepted } }
 	desc = { text = ww1_germany.281.refused.d trigger = { has_global_flag = GE1_RP_bulgaria_invitation_refused } }
 	picture = GFX_report_event_bulgaria_joins_war1
@@ -6639,10 +6682,10 @@ factor = 35 modifier = { factor = 0 is_historical_focus_on = yes }
 
 country_event = {
 	id = ww1_germany.295
-	title = ww1_germany.295.t
+	title = { text = ww1_germany.295.t trigger = { NOT = { OR = { AND = { has_global_flag = GE1_R_AUH_british_truce_accepted } AND = { has_global_flag = GE1_R_AUH_british_truce_refused } } } } }
 	title = { text = ww1_germany.295.accepted.t trigger = { has_global_flag = GE1_R_AUH_british_truce_accepted } }
 	title = { text = ww1_germany.295.refused.t trigger = { has_global_flag = GE1_R_AUH_british_truce_refused } }
-	desc = ww1_germany.295.d
+	desc = { text = ww1_germany.295.d trigger = { NOT = { OR = { AND = { has_global_flag = GE1_R_AUH_british_truce_accepted } AND = { has_global_flag = GE1_R_AUH_british_truce_refused } } } } }
 	desc = { text = ww1_germany.295.accepted.d trigger = { has_global_flag = GE1_R_AUH_british_truce_accepted } }
 	desc = { text = ww1_germany.295.refused.d trigger = { has_global_flag = GE1_R_AUH_british_truce_refused } }
 	picture = GFX_report_event_swedish_negotiations

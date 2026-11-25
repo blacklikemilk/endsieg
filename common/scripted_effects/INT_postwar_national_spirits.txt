@@ -1,0 +1,120 @@
+INT_FRA_fund_public_works = {
+	# A new appropriation renews the project for two years.
+	if = { limit = { has_idea = INT_FRA_public_works } remove_ideas = INT_FRA_public_works }
+	add_timed_idea = { idea = INT_FRA_public_works days = 730 }
+	set_country_flag = INT_FRA_public_works_funded
+}
+
+INT_update_postwar_national_spirits = {
+	if = {
+		limit = { tag = FRA has_idea = INT_FRA_public_works NOT = { has_country_flag = INT_FRA_public_works_funded } }
+		INT_FRA_fund_public_works = yes
+	}
+	if = {
+		limit = { has_war = no NOT = { has_country_flag = INT_ww1_demobilized } }
+		set_country_flag = INT_ww1_demobilized
+		remove_ideas = {
+			WW1_1914_mobilisation_training WW1_1914_russian_mobilisation_training
+			WW1_WF_replacement_drafts_idea WW1_WF_assault_training_idea
+			WW1_WF_siegfried_positions_idea WW1_WF_artillery_preparation_idea
+			WW1_WA_campaign_staff WW1_WA_maritime_operations
+			WW1_WO_war_savings WW1_WO_emergency_contracts WW1_WO_careful_staff
+			WW1_WO_offensive_staff WW1_WO_naval_escorts WW1_WO_naval_pressure
+			WW1_GEN_emergency_procurement WW1_GEN_ammunition_contracts WW1_GEN_barrage_preparation
+			sacred_union lafayette_escadrille home_by_christmas brusilov_offensive orient_army
+			americans_are_here fall_of_russia unrestricted_sub_warfare hundred_days vardar_offensive
+		}
+		if = { limit = { OR = { original_tag = AUH original_tag = TUR } } remove_ideas = desertion }
+		if = { limit = { original_tag = GER } remove_ideas = { blockade grain_ukraine shorter_training_GE1 } }
+		if = { limit = { original_tag = TUR } remove_ideas = { jihad german_advisors_ww1_1 german_advisors_ww1_2 } }
+		if = { limit = { original_tag = ITA } remove_ideas = { patriotic_fervor IT1_ww1_rationing IT1_ww1_industrial_mobilization_spirit } }
+		if = { limit = { original_tag = RIE } remove_ideas = { RUS_ww1_front_coordination RUS_ww1_allied_purchasing } }
+	}
+	if = {
+		limit = {
+			has_country_flag = { flag = INT_ww1_demobilized days > 365 }
+			NOT = { has_country_flag = INT_ww1_programmes_closed }
+			has_war = no
+		}
+		set_country_flag = INT_ww1_programmes_closed
+		# Close the Great War military missions and procurement offices separately from successor governments.
+		remove_ideas = {
+			WW1_GER_naval_arms_race WW1_ENG_naval_arms_race GW_D_joint_war_council
+			GW_D_western_railway_staff GW_D_eastern_railway_staff GW_D_southern_railway_staff
+			AUH_ww1_alpine_front AUH_ww1_otranto_strike_plan AUH_ww1_front_squadrons
+			RUS_ww1_zemgor RUS_ww1_balkan_liaison RUS_ww1_refugee_services
+			IT1_ww1_campaign_staff IT1_ww1_adriatic_patrols IT1_ww1_army_transition
+			JP1_R_wartime_munitions_bureau_spirit JP1_R_war_appropriations_spirit
+			OT1_R_wartime_cabinet_spirit OT1_R_yildirim_command_spirit OT1_R_war_procurement_spirit
+		}
+		remove_ideas = {
+			WW1_WA_reconstruction WW1_WO_civilian_repair WW1_WO_consented_procurement WW1_WO_consented_shipping
+			WW1_GEN_freight_coordination WW1_GEN_airfield_workshops WW1_GEN_shipbuilding_orders
+			WW1_GEN_reserve_training WW1_GEN_positional_training WW1_GEN_manoeuvre_training
+			WW1_GEN_motor_transport WW1_GEN_fighter_training WW1_GEN_flying_school
+			WW1_GEN_squadron_workshops WW1_GEN_maritime_training WW1_GEN_coastal_patrols
+			WW1_GEN_battle_fleet_trials WW1_GEN_merchant_protection WW1_GEN_fleet_exercises
+		}
+		if = { limit = { original_tag = FRA } FR3_R_clear_war_programmes = yes }
+		if = { limit = { original_tag = ENG } EN1_R_clear_war_programmes = yes }
+		if = { limit = { original_tag = USA } US2_R_clear_war_programmes = yes }
+		if = { limit = { tag = JAP NOT = { has_focus_tree = JAP_ww1_focus } } JP1_R_clear_programmes = yes }
+		if = { limit = { tag = TUR has_country_flag = INT_TUR_republic_proclaimed } OT1_R_clear_war_programmes = yes }
+	}
+	if = {
+		limit = {
+			has_country_flag = INT_fought_germany_in_great_war
+			has_global_flag = compiegne
+			NOT = { has_global_flag = central_powers_victory }
+			NOT = { has_country_flag = INT_ww1_victory_spirit_set }
+			NOT = { has_war_with = GER }
+			NOT = { has_global_flag = ww1_compiegne_armistice_failed }
+			has_capitulated = no
+			is_subject = no
+		}
+		if = {
+			limit = { tag = FRA controls_state = 16 has_global_flag = versailles NOT = { has_global_flag = WW1_french_armistice_signed } }
+			add_ideas = FRA_victors_of_wwi
+			set_country_flag = INT_ww1_victory_spirit_set
+		}
+		else_if = {
+			limit = { tag = ENG controls_state = 126 date > 1919.8.14 }
+			add_ideas = ENG_the_war_to_end_all_wars
+			set_country_flag = INT_ww1_victory_spirit_set
+		}
+	}
+	if = {
+		limit = {
+			has_war = no is_subject = no date < 1938.8.1
+			NOT = { has_global_flag = central_powers_victory }
+			NOT = { has_country_flag = INT_ww1_treaty_spirit_set }
+		}
+		if = {
+			limit = { tag = BUL date > 1920.8.8 has_global_flag = WW1_postwar_neuilly_reported }
+			if = { limit = { has_dlc = "Arms Against Tyranny" } add_ideas = BUL_army_restrictions_aat }
+			else = { add_ideas = BUL_army_restrictions }
+			set_country_flag = INT_ww1_treaty_spirit_set
+		}
+		else_if = {
+			limit = { tag = HUN date > 1921.7.25 has_global_flag = WW1_AUH_trianon_borders_set }
+			if = {
+				limit = { has_dlc = "Gotterdammerung" }
+				if = { limit = { has_dlc = "Arms Against Tyranny" } add_ideas = HUN_treaty_of_triannon_aat_wuw }
+				else = { add_ideas = HUN_treaty_of_triannon_wuw }
+			}
+			else_if = { limit = { has_dlc = "Arms Against Tyranny" } add_ideas = HUN_treaty_of_triannon_aat }
+			else = { add_ideas = HUN_treaty_of_triannon }
+			set_country_flag = INT_ww1_treaty_spirit_set
+		}
+	}
+	if = {
+		limit = {
+			date > 1935.12.31 date < 1939.9.1
+			has_civil_war = no has_capitulated = no
+			has_country_flag = INT_ww1_demobilized
+			NOT = { has_country_flag = INT_1936_country_spirits_checked }
+		}
+		endsieg_apply_1936_country_spirits = yes
+		set_country_flag = INT_1936_country_spirits_checked
+	}
+}

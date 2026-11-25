@@ -11,13 +11,32 @@ country_event = {
 	desc = ww1_baltic.1.d
 	picture = GFX_report_event_balticdissolution
 
-	is_triggered_only = yes
+	is_triggered_only = no
+	trigger = {
+		tag = UBD
+		has_global_flag = compiegne
+		date > 1918.11.10
+		date < 1923.1.1
+		any_owned_state = { always = yes }
+		NOT = {
+			OR = {
+				has_global_flag = ubd_dead
+				has_global_flag = central_powers_victory
+				has_global_flag = player_wants_custom_peacedeals
+				has_global_flag = ww1_compiegne_armistice_failed
+			}
+		}
+	}
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.1.a
-		INT_eastern_dissolve_ubd = yes
-		if = { limit = { date < 1919.1.1 } news_event = { hours = 6 id = endsieg_news.64 } }
+		if = {
+			limit = { has_global_flag = compiegne NOT = { OR = { has_global_flag = ubd_dead has_global_flag = ww1_compiegne_armistice_failed has_global_flag = central_powers_victory has_global_flag = player_wants_custom_peacedeals } } }
+			INT_eastern_dissolve_ubd = yes
+			if = { limit = { date < 1919.1.1 } news_event = { hours = 6 id = endsieg_news.64 } }
+		}
 	}
 }
 
@@ -28,37 +47,13 @@ country_event = {
 	desc = ww1_baltic.2.d
 	picture = GFX_report_event_riga_treaty
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		NOT = { date > 1932.12.1 }
-		tag = LAT
-		has_global_flag = compiegne
-		NOT = { has_global_flag = central_powers_victory }
-		date > 1920.8.10
-		date < 1920.9.1
-		country_exists = SOV
-		LAT = { owns_state = 190 }
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
+	is_triggered_only = yes
+	trigger = { INT_eastern_riga_latvia_ready = yes }
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.2.a
-		news_event = { hours = 6 id = endsieg_news.65 }
-		set_global_flag = riga_treaty
-		SOV = { if = { limit = { has_war_with = LAT } white_peace = LAT } }
-		LAT = {
-			transfer_state = 12
-			transfer_state = 190
-			transfer_state = 808
-			transfer_state = 809
-			transfer_state = 810
-		}
+		INT_eastern_apply_riga_latvia = yes
 	}
 }
 
@@ -69,36 +64,13 @@ country_event = {
 	desc = ww1_baltic.3.d
 	picture = GFX_report_event_tartu_treaty
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_global_flag = compiegne
-		NOT = { has_global_flag = central_powers_victory }
-		tag = EST
-		date > 1920.2.1
-		date < 1920.3.1
-		country_exists = SOV
-		owns_state = 13
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
+	is_triggered_only = yes
+	trigger = { INT_eastern_tartu_ready = yes }
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.3.a
-		news_event = { hours = 6 id = endsieg_news.66 }
-		set_global_flag = tartu_treaty
-		SOV = { if = { limit = { has_war_with = EST } white_peace = EST } }
-		EST = {
-			transfer_state = 13
-			transfer_state = 191
-			transfer_state = 811
-			transfer_state = 812
-			transfer_state = 813
-		}
+		INT_eastern_apply_tartu = yes
 	}
 }
 
@@ -110,36 +82,13 @@ country_event = {
 	desc = ww1_baltic.4.d
 	picture = GFX_report_event_moscow_treaty
 
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_global_flag = compiegne
-		NOT = { has_global_flag = central_powers_victory }
-		tag = LIT
-		date > 1920.7.11
-		date < 1920.8.1
-		country_exists = SOV
-		LIT = { owns_state = 189 }
-	}
-
-	mean_time_to_happen = {
-		days = 1
-	}
+	is_triggered_only = yes
+	trigger = { INT_eastern_moscow_ready = yes }
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.4.a
-		news_event = { hours = 6 id = endsieg_news.67 }
-		set_global_flag = moscow_lit_treaty
-		SOV = { if = { limit = { has_war_with = LIT } white_peace = LIT } }
-		LIT = {
-			transfer_state = 11
-			transfer_state = 189
-			transfer_state = 814
-			transfer_state = 815
-			transfer_state = 784
-		}
+		INT_eastern_apply_moscow = yes
 	}
 }
 
@@ -152,17 +101,7 @@ country_event = {
 
 	fire_only_once = yes
 
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1919.8.7
-		NOT = { date > 1932.12.1 }
-		tag = LIT
-		has_global_flag = compiegne
-		NOT = { has_global_flag = central_powers_victory }
-		date > 1919.8.5
-		date < 1919.10.1
-		country_exists = POL
-	}
+	trigger = { INT_POL_lithuanian_coup_ready = yes }
 
 	mean_time_to_happen = {
 		days = 1
@@ -171,7 +110,10 @@ country_event = {
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.5.a
-		set_global_flag = failed_lit_coup
+		if = {
+			limit = { INT_POL_lithuanian_coup_ready = yes }
+			set_global_flag = failed_lit_coup
+		}
 	}
 }
 
@@ -182,29 +124,19 @@ country_event = {
 	desc = ww1_baltic.6.d
 	picture = GFX_report_event_polish_lit_war
 
-	fire_only_once = yes
+	is_triggered_only = yes
 
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1920.8.18
-		NOT = { date > 1932.12.1 }
-		tag = POL
-		date > 1920.8.16
-		date < 1920.10.7
-		country_exists = LIT
-		has_global_flag = failed_lit_coup
-	}
+	trigger = { INT_POL_lithuanian_campaign_ready = yes }
 
-	mean_time_to_happen = { days = 1 }
 
-	immediate = {
-		set_global_flag = polaklit_war
-	}
+
+
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.6.a
-		POL = {
-			declare_war_on = { target = LIT type = annex_everything }
+		if = {
+			limit = { INT_POL_lithuanian_campaign_ready = yes }
+			INT_POL_begin_lithuanian_campaign = yes
 		}
 	}
 }
@@ -216,32 +148,19 @@ country_event = {
 	desc = ww1_baltic.7.d
 	picture = GFX_report_event_suwalki
 
-	fire_only_once = yes
+	is_triggered_only = yes
 
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		NOT = { date > 1932.12.1 }
-		tag = POL
-		date > 1920.10.6
-		date < 1920.11.1
-		has_global_flag = polaklit_war
-		has_war_with = LIT
-		LIT = {
-			controls_state = 11
-		}
-	}
+	trigger = { INT_POL_suwalki_ready = yes }
 
-	mean_time_to_happen = {
-		days = 1
-	}
+
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.7.a
-		set_global_flag = suwalki
-		white_peace = LIT
-		# Suwalki is state 1029 on Endsieg's custom map.
-		if = { limit = { LIT = { owns_state = 1029 } } transfer_state = 1029 }
+		if = {
+			limit = { INT_POL_suwalki_ready = yes }
+			INT_POL_apply_suwalki = yes
+		}
 	}
 }
 
@@ -253,30 +172,19 @@ country_event = {
 	desc = ww1_baltic.8.d
 	picture = GFX_report_event_zeligowski
 
-	fire_only_once = yes
+	is_triggered_only = yes
 
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1920.10.10
-		NOT = { date > 1932.12.1 }
-		tag = POL
-		date > 1920.10.8
-		date < 1920.12.1
-		has_global_flag = suwalki
-		LIT = {
-			owns_state = 784
-		}
-	}
+	trigger = { INT_POL_vilnius_handover_ready = yes }
 
-	mean_time_to_happen = {
-		days = 1
-	}
+
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_baltic.8.a
-		set_global_flag = zeligowski
-		POL = { transfer_state = 784 }
+		if = {
+			limit = { INT_POL_vilnius_handover_ready = yes }
+			INT_POL_apply_vilnius_handover = yes
+		}
 	}
 }
 

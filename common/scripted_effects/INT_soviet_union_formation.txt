@@ -1,0 +1,60 @@
+INT_USSR_prepare_republics = {
+	if = {
+		limit = { date < 1918.1.25 NOT = { has_cosmetic_tag = INT_russian_soviet_republic } }
+		set_cosmetic_tag = INT_russian_soviet_republic
+	}
+	else_if = {
+		limit = { date > 1918.1.24 NOT = { has_cosmetic_tag = INT_russian_sfsr } }
+		set_cosmetic_tag = INT_russian_sfsr
+	}
+	# Restore Soviet Belarus when a peace conference has annexed the former republic.
+	if = {
+		limit = { has_global_flag = sov_pol_ceasefire NOT = { has_global_flag = INT_BLR_riga_settled } }
+		INT_BLR_restore_at_riga = yes
+	}
+	if = {
+		limit = { INT_BLR_minsk_government_can_form = yes }
+		country_event = { id = INT_belarus.1 }
+	}
+	every_subject_country = {
+		limit = { has_government = communism OR = { original_tag = BLR original_tag = GEO original_tag = ARM original_tag = UKR original_tag = AZR } }
+		# Refresh colors cached by saves from before the republics had separate shades.
+		if = {
+			limit = { NOT = { has_country_flag = INT_republic_colors_refreshed } }
+			if = { limit = { has_cosmetic_tag = INT_BLR_workers_government } set_cosmetic_tag = INT_BLR_workers_government }
+			else_if = { limit = { has_cosmetic_tag = INT_BLR_litbel } set_cosmetic_tag = INT_BLR_litbel }
+			else_if = { limit = { has_cosmetic_tag = INT_BLR_soviet_republic } set_cosmetic_tag = INT_BLR_soviet_republic }
+			else_if = {
+				limit = {
+					OR = {
+						has_cosmetic_tag = INT_GEO_soviet_republic has_cosmetic_tag = INT_ARM_soviet_republic
+						has_cosmetic_tag = INT_UKR_red_banner has_cosmetic_tag = INT_UKR_socialist_republic
+						has_cosmetic_tag = AZR_revkom has_cosmetic_tag = AZR_1921_constitution
+					}
+				}
+				drop_cosmetic_tag = yes
+			}
+			set_country_flag = INT_republic_colors_refreshed
+		}
+		if = {
+			limit = { original_tag = BLR }
+			if = { limit = { INT_BLR_historical_ministry = yes } INT_BLR_update_ministry = yes }
+			else_if = {
+				limit = { NOT = { has_cosmetic_tag = INT_BLR_soviet_republic } }
+				set_cosmetic_tag = INT_BLR_soviet_republic
+			}
+		}
+		if = { limit = { original_tag = GEO NOT = { has_cosmetic_tag = INT_GEO_soviet_republic } } set_cosmetic_tag = INT_GEO_soviet_republic }
+		if = { limit = { original_tag = ARM NOT = { has_cosmetic_tag = INT_ARM_soviet_republic } } set_cosmetic_tag = INT_ARM_soviet_republic }
+		if = {
+			limit = { original_tag = UKR date > 1919.1.23 }
+			if = { limit = { date < 1919.3.10 NOT = { has_cosmetic_tag = INT_UKR_red_banner } } set_cosmetic_tag = INT_UKR_red_banner }
+			else_if = { limit = { date > 1919.3.9 NOT = { has_cosmetic_tag = INT_UKR_socialist_republic } } set_cosmetic_tag = INT_UKR_socialist_republic }
+		}
+		if = {
+			limit = { original_tag = AZR date > 1920.4.27 }
+			if = { limit = { date < 1921.5.6 NOT = { has_cosmetic_tag = AZR_revkom } } set_cosmetic_tag = AZR_revkom }
+			else_if = { limit = { date > 1921.5.5 NOT = { has_cosmetic_tag = AZR_1921_constitution } } set_cosmetic_tag = AZR_1921_constitution }
+		}
+	}
+}

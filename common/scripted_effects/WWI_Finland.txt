@@ -3,7 +3,7 @@ RUS_ww1_establish_finland = {
  if = {
   limit = {
    OR = { tag = SOV tag = RIE } has_start_date < 1918.1.1 date < 1936.1.1 has_global_flag = welcome_event_WW1_active
-   NOT = { country_exists = FNN } NOT = { country_exists = FNR }
+   NOT = { country_exists = FIN } NOT = { country_exists = FNN } NOT = { country_exists = FNR }
    OR = { 111 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 145 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 146 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 147 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 148 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 149 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 150 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 926 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 927 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 928 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 929 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 930 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 986 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } 1017 = { is_owned_by = ROOT is_fully_controlled_by = ROOT } }
   }
   FNN = {
@@ -27,7 +27,63 @@ RUS_ww1_establish_finland = {
   if = { limit = { country_exists = FNN }
    RUS_ww1_finnish_cores = yes
    set_country_flag = RUS_ww1_finnish_state_map_v2
+   if = {
+    limit = { RUS_ww1_uses_historical_finnish_timeline = yes }
+    FNN = {
+     set_cosmetic_tag = FNN_1917_republic
+     set_politics = { ruling_party = neutrality elections_allowed = yes }
+     if = {
+      limit = { has_character = FNN_Pehr_Evind_Svinhufvud }
+      add_country_leader_role = {
+       character = FNN_Pehr_Evind_Svinhufvud
+       promote_leader = yes
+       country_leader = { ideology = moderatism expire = "1944.3.1" }
+      }
+     }
+    }
+    set_global_flag = RUS_ww1_finland_declared_independence
+    news_event = { id = ww1_finnish_independence.1 hours = 1 }
+   }
   }
+ }
+}
+
+RUS_ww1_advance_historical_finnish_timeline = {
+ if = {
+  limit = { RUS_ww1_historical_finnish_release_ready = yes }
+  RUS_ww1_establish_finland = yes
+ }
+ else_if = {
+  limit = {
+   RUS_ww1_historical_finnish_context = yes
+   NOT = { date < 1917.12.31 }
+   NOT = { has_global_flag = RUS_ww1_finland_recognition_decree }
+   NOT = { has_global_flag = RUS_ww1_finland_recognized }
+   NOT = { has_global_flag = whiteswinfinland }
+   NOT = { country_exists = FNR }
+   FNN = {
+    exists = yes
+    has_country_flag = RUS_ww1_finland_created_by_revolution
+    NOT = { has_country_flag = RUS_ww1_finnish_civil_war_initialized }
+    NOT = { has_war_with = SOV }
+   }
+  }
+  set_global_flag = RUS_ww1_finland_recognition_decree
+  news_event = { id = ww1_finnish_independence.2 hours = 1 }
+ }
+ else_if = {
+  limit = {
+   RUS_ww1_historical_finnish_context = yes
+   NOT = { date < 1918.1.4 }
+   has_global_flag = RUS_ww1_finland_recognition_decree
+   NOT = { has_global_flag = RUS_ww1_finland_recognized }
+   FNN = { exists = yes NOT = { has_war_with = SOV } }
+  }
+  set_global_flag = RUS_ww1_finland_recognized
+ }
+ else_if = {
+  limit = { RUS_ww1_historical_finnish_civil_war_ready = yes }
+  country_event = { id = ww1_russia.46 }
  }
 }
 
@@ -55,6 +111,8 @@ RUS_ww1_start_finnish_civil_war = {
    OR = { tag = SOV tag = RIE } has_start_date < 1918.1.1 date < 1936.1.1 has_global_flag = welcome_event_WW1_active
    FNN = { exists = yes has_country_flag = RUS_ww1_finland_created_by_revolution }
    NOT = { country_exists = FNR }
+   NOT = { has_global_flag = RUS_ww1_finnish_civil_war_started }
+   NOT = { has_global_flag = whiteswinfinland }
    111 = { OR = { AND = { is_owned_by = ROOT is_fully_controlled_by = ROOT } AND = { is_owned_by = FNN is_fully_controlled_by = FNN } } }
   }
   FNN = {
@@ -109,6 +167,7 @@ RUS_ww1_start_finnish_civil_war = {
    set_country_flag = RUS_ww1_finnish_civil_war_initialized
   }
   FNR = { load_oob = FNR_1918 set_country_flag = RUS_ww1_finnish_civil_war_initialized }
+  set_global_flag = RUS_ww1_finnish_civil_war_started
   set_country_flag = RUS_ww1_finnish_state_map_v2
  }
 }

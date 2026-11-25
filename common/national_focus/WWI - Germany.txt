@@ -4075,6 +4075,7 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			FOCUS_FILTER_POLITICAL
 		}
 		completion_reward = {
+			unlock_decision_category_tooltip = WW1_western_plan_category
 			custom_effect_tooltip = WW1_historical_focus_tt
 			set_country_flag = {
 				flag = WW1_focus_action_ww1_germany_21_queued
@@ -4130,6 +4131,7 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			FOCUS_FILTER_POLITICAL
 		}
 		completion_reward = {
+			unlock_decision_category_tooltip = WW1_western_plan_category
 			country_event = {
 				id = ww1_germany.22
 			}
@@ -4183,6 +4185,7 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			FOCUS_FILTER_POLITICAL
 		}
 		completion_reward = {
+			unlock_decision_category_tooltip = WW1_western_plan_category
 			country_event = {
 				id = ww1_germany.20
 			}
@@ -4233,7 +4236,8 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			FOCUS_FILTER_POLITICAL
 		}
 		completion_reward = {
-			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_prize_rules } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_prize_rules } navy_experience = 8 }
+			set_temp_variable = { WW1_focus_navy_experience = 0 }
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_prize_rules } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_prize_rules } add_to_temp_variable = { WW1_focus_navy_experience = 8 } }
 			set_country_flag = GE1_R_restricted_submarine_policy
 			if = {
 				limit = {
@@ -4245,7 +4249,11 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 					}
 				}
 				set_country_flag = GW_D_rewarded_GE1_D_submarine_warning_policy
-				navy_experience = 15
+				add_to_temp_variable = { WW1_focus_navy_experience = 15 }
+			}
+			if = {
+				limit = { hidden_trigger = { check_variable = { WW1_focus_navy_experience > 0 } } }
+				navy_experience = WW1_focus_navy_experience
 			}
 		}
 		cost = 5
@@ -4458,8 +4466,13 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 		}
 		completion_reward = {
 			custom_effect_tooltip = WW1_historical_focus_tt
-			add_ideas = unrestricted_sub_warfare
 			navy_experience = 10
+			add_tech_bonus = {
+				name = GE1_u_boat_campaign_research
+				bonus = 0.25
+				uses = 1
+				category = ss_tech
+			}
 		}
 		cost = 5
 		prerequisite = { focus = GE1_unrestricted_sub }
@@ -4808,7 +4821,10 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			custom_effect_tooltip = WW1_historical_focus_tt
 			if = {
 				limit = {
-					date < 1918.1.1
+					date < 1925.1.1
+					NOT = { has_global_flag = compiegne }
+					NOT = { has_global_flag = versailles }
+					NOT = { has_global_flag = WW1_CP_final_settlement_signed }
 				}
 				country_event = {
 					days = 1
@@ -5802,8 +5818,14 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 		}
 		completion_reward = {
 			custom_effect_tooltip = WW1_historical_focus_tt
-			army_experience = 10
-			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_timed_eastern_redeployment } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_timed_eastern_redeployment } army_experience = 8 }
+			if = {
+				limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_timed_eastern_redeployment } } }
+				hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_timed_eastern_redeployment }
+				army_experience = 18
+			}
+			else = {
+				army_experience = 10
+			}
 			add_mastery_bonus = {
 				name = GE1_A_eastern_redeployment_bonus
 				bonus = 0.35
@@ -6262,8 +6284,14 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 		completion_reward = {
 			custom_effect_tooltip = WW1_historical_focus_tt
 			set_country_flag = GE1_offensive_planning_ready
-			army_experience = 15
-			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_timed_kaiserschlacht } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_timed_kaiserschlacht } army_experience = 8 }
+			if = {
+				limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_timed_kaiserschlacht } } }
+				hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_timed_kaiserschlacht }
+				army_experience = 23
+			}
+			else = {
+				army_experience = 15
+			}
 			add_mastery_bonus = {
 				name = GE1_A_kaiserschlacht_bonus
 				bonus = 0.35
@@ -6317,12 +6345,23 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			FOCUS_FILTER_INDUSTRY
 		}
 		completion_reward = {
-			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_I_chemical_research } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_I_chemical_research } add_tech_bonus = { name = GE1_I_chemical_cartels bonus = 0.25 uses = 1 category = industry } }
-			add_tech_bonus = {
-				name = GE1_I_haber_bosch_bonus
-				bonus = 0.25
-				uses = 1
-				category = industry
+			if = {
+				limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_I_chemical_research } } }
+				hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_I_chemical_research }
+				add_tech_bonus = {
+					name = GE1_I_haber_bosch_bonus
+					bonus = 0.25
+					uses = 2
+					category = industry
+				}
+			}
+			else = {
+				add_tech_bonus = {
+					name = GE1_I_haber_bosch_bonus
+					bonus = 0.25
+					uses = 1
+					category = industry
+				}
 			}
 		}
 		cost = 5
@@ -6814,6 +6853,12 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 		}
 		completion_reward = {
 			air_experience = 10
+			add_tech_bonus = {
+				name = GE1_fighter_focus_research
+				bonus = 0.5
+				uses = 1
+				category = light_fighter
+			}
 		}
 		cost = 5
 		prerequisite = { focus = GE1_fliegertruppen }
@@ -6838,6 +6883,12 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 		}
 		completion_reward = {
 			air_experience = 10
+			add_tech_bonus = {
+				name = GE1_bomber_focus_research
+				bonus = 0.5
+				uses = 1
+				category = tactical_bomber
+			}
 		}
 		cost = 5
 		prerequisite = { focus = GE1_fliegertruppen }
@@ -6894,13 +6945,13 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			FOCUS_FILTER_AIR_XP
 		}
 		completion_reward = {
-			air_experience = 10
-			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_air_service_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_air_service_spirit } air_experience = 8 }
+			set_temp_variable = { WW1_focus_air_experience = 10 }
+			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_air_service_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_air_service_spirit } add_to_temp_variable = { WW1_focus_air_experience = 8 } }
 			if = {
 				limit = {
 					has_completed_focus = GE1_fighter_focus
 				}
-				air_experience = 10
+				add_to_temp_variable = { WW1_focus_air_experience = 10 }
 			}
 			if = {
 				limit = {
@@ -6914,6 +6965,7 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 				days = 240
 				track = medium_aircraft
 			}
+			air_experience = WW1_focus_air_experience
 		}
 		available = {
 			has_completed_focus = GE1_airfield_construction_1
@@ -6938,8 +6990,16 @@ shortcut = { name = WW1_layout_navy_shortcut target = GE1_N_naval_staff scroll_w
 			FOCUS_FILTER_NAVY_XP
 		}
 		completion_reward = {
-			navy_experience = 10
-			if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_naval_coordination_spirit } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_naval_coordination_spirit } navy_experience = 8 }
+			unlock_decision_tooltip = WW1_race_naval_estimates
+			unlock_decision_tooltip = WW1_race_expand_yards
+			if = {
+				limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_GE1_R_naval_coordination_spirit } } }
+				hidden_effect = { set_country_flag = WW1_focus_reward_once_GE1_R_naval_coordination_spirit }
+				navy_experience = 18
+			}
+			else = {
+				navy_experience = 10
+			}
 		}
 		cost = 5
 		relative_position_id = GE1_I_industrial_foundation

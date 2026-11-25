@@ -1,0 +1,109 @@
+# Use the recognized South Slav kingdom after unification and Serbia before it.
+WW1_SER_restore_homeland_state = {
+    if = {
+        limit = { YUG = { WW1_SER_historical_yugoslav_successor = yes } }
+        if = {
+            limit = { WW1_SER_homeland_control_can_transfer = yes }
+            transfer_state_to = YUG
+        }
+        else = { set_state_owner_to = YUG }
+        add_core_of = YUG
+    }
+    else = {
+        if = {
+            limit = { WW1_SER_homeland_control_can_transfer = yes }
+            transfer_state_to = SER
+        }
+        else = { set_state_owner_to = SER }
+        add_core_of = SER
+    }
+}
+
+WW1_restore_serbian_salonica_territory = {
+    if = {
+        limit = {
+            has_global_flag = armistice_of_salonica
+            date < 1923.1.1
+            NOT = { OR = { has_global_flag = central_powers_victory has_global_flag = player_wants_custom_peacedeals } }
+        }
+        if = {
+            limit = {
+                OR = {
+                    YUG = { WW1_SER_historical_yugoslav_successor = yes }
+                    SER = { exists = yes is_subject = no }
+                }
+            }
+            106 = { if = { limit = { is_owned_by = BUL } WW1_SER_restore_homeland_state = yes remove_core_of = BUL } }
+            1021 = { if = { limit = { is_owned_by = BUL } WW1_SER_restore_homeland_state = yes remove_core_of = BUL } }
+            1038 = { if = { limit = { is_owned_by = BUL } WW1_SER_restore_homeland_state = yes remove_core_of = BUL } }
+            BUL = {
+                every_owned_state = {
+                    limit = { WW1_SER_prewar_homeland = yes }
+                    WW1_SER_restore_homeland_state = yes
+                    remove_core_of = BUL
+                }
+            }
+        }
+    }
+}
+
+WW1_SER_restore_belgrade_capital = {
+    if = {
+        limit = {
+            exists = yes
+            owns_state = 107
+            107 = { is_fully_controlled_by = OWNER }
+            NOT = { capital_scope = { state = 107 } }
+        }
+        set_capital = { state = 107 }
+    }
+}
+
+WW1_SER_advance_salonica_restoration = {
+    if = {
+        limit = {
+            is_subject = no
+            NOT = { has_war_with = BUL }
+        }
+        WW1_restore_serbian_salonica_territory = yes
+        # Some older saves placed Serbian districts under the Zagreb council.
+        if = {
+            limit = {
+                tag = SER
+                YUG = { has_country_flag = WW1_AUH_south_slav_union_pending }
+                NOT = { has_war_with = YUG }
+            }
+            every_state = {
+                limit = { WW1_SER_prewar_homeland = yes is_owned_by = YUG }
+                WW1_SER_restore_homeland_state = yes
+            }
+        }
+        every_state = {
+            limit = {
+                WW1_SER_prewar_homeland = yes
+                OR = { is_owned_by = AUH is_owned_by = GER }
+                OR = {
+                    WW1_SER_homeland_under_allied_control = yes
+                    WW1_SER_occupier_has_signed_armistice = yes
+                    WW1_SER_historical_withdrawal_due = yes
+                }
+            }
+            WW1_SER_restore_homeland_state = yes
+            remove_core_of = AUH
+        }
+        # Recover control separately if the legal border was restored first.
+        every_owned_state = {
+            limit = {
+                WW1_SER_prewar_homeland = yes
+                NOT = { is_fully_controlled_by = OWNER }
+                OR = {
+                    WW1_SER_homeland_under_allied_control = yes
+                    WW1_SER_occupier_has_signed_armistice = yes
+                    WW1_SER_historical_withdrawal_due = yes
+                }
+            }
+            set_state_controller_to = OWNER
+        }
+        WW1_SER_restore_belgrade_capital = yes
+    }
+}

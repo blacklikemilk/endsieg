@@ -1,0 +1,53 @@
+WW1_BUL_queue_armistice = {
+    if = {
+        limit = {
+            WW1_BUL_armistice_ready = yes
+            NOT = { has_country_flag = WW1_BUL_armistice_queued }
+            NOT = { has_country_flag = WW1_BUL_armistice_presented }
+        }
+        set_country_flag = { flag = WW1_BUL_armistice_queued days = 7 }
+        country_event = { id = ww1_bulgaria.3 hours = 1 }
+    }
+}
+WW1_BUL_apply_armistice = {
+    if = {
+        limit = { WW1_BUL_armistice_ready = yes }
+        set_country_flag = WW1_BUL_armistice_applied
+        set_global_flag = armistice_of_salonica
+        clr_country_flag = WW1_BUL_armistice_queued
+        clr_country_flag = WW1_BUL_armistice_presented
+        if = {
+            limit = {
+                country_exists = ROM
+                NOT = { has_global_flag = bucharestreaty }
+                NOT = { has_global_flag = bucharestreatyreversed }
+            }
+            ROM = {
+                if = { limit = { 77 = { is_owned_by = BUL } } transfer_state = 77 }
+                if = { limit = { 1015 = { is_owned_by = BUL } } transfer_state = 1015 }
+                if = { limit = { 1030 = { is_owned_by = BUL } } transfer_state = 1030 }
+            }
+        }
+        if = {
+            limit = { country_exists = GRE }
+            GRE = {
+                if = { limit = { 184 = { is_owned_by = BUL } } transfer_state = 184 }
+            }
+        }
+        if = { limit = { is_in_faction = yes } leave_faction = yes }
+        every_enemy_country = { white_peace = BUL }
+        WW1_restore_serbian_salonica_territory = yes
+        country_event = { id = ww1_bulgaria.45 hours = 1 }
+        if = {
+            limit = { date > 1918.9.28 date < 1918.9.30 }
+            FRA = { country_event = { id = ww1_bulgaria.42 days = 380 } }
+        }
+        SER = { WW1_SER_restore_belgrade_capital = yes }
+        if = { limit = { country_exists = AUH } give_military_access = AUH }
+        if = { limit = { country_exists = GER } give_military_access = GER }
+        if = { limit = { country_exists = TUR } give_military_access = TUR }
+        if = { limit = { country_exists = ENG } give_military_access = ENG }
+        if = { limit = { country_exists = FRA } give_military_access = FRA }
+        if = { limit = { country_exists = GRE } give_military_access = GRE }
+    }
+}

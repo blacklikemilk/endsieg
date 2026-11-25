@@ -840,7 +840,8 @@ country_event = {
 		NOT = { has_global_flag = libya_subdued }
 		NOT = { has_global_flag = compiegne }
 		NOT = { has_global_flag = central_powers_victory }
-		NOT = { country_exists = SES }
+		NOT = { has_war_with = SES }
+		OR = { NOT = { country_exists = SES } SES = { is_ai = yes owns_state = 975 num_of_owned_states = 1 is_subject = no } }
 	}
 	mean_time_to_happen = { days = 1 }
 
@@ -933,16 +934,31 @@ country_event = {
 	picture = GFX_report_event_social_class
 
 	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		IT1_ww1_may_choose_constitutional_reform = yes
+		has_completed_focus = IT1_ww1_constitutional_settlement
+		NOT = { has_country_flag = IT1_ww1_constitutional_settlement_resolved }
+	}
 
 	option = {
 		name = ww1_italy.200.a
 		ai_chance = {
 			factor = 100
 		}
-		add_political_power = -35
-		set_country_flag = IT1_ww1_parliamentary_monarchy
-		add_stability = 0.03
-		news_event = { id = ww1_italy.406 hours = 6 }
+		if = {
+			limit = {
+				IT1_ww1_may_choose_constitutional_reform = yes
+				has_completed_focus = IT1_ww1_constitutional_settlement
+				NOT = { has_country_flag = IT1_ww1_constitutional_settlement_resolved }
+			}
+			set_country_flag = IT1_ww1_constitutional_settlement_resolved
+			add_political_power = -35
+			set_country_flag = IT1_ww1_parliamentary_monarchy
+			clr_country_flag = IT1_ww1_royal_prerogative
+			add_stability = 0.03
+			news_event = { id = ww1_italy.406 hours = 6 }
+		}
 
 	}
 
@@ -952,10 +968,19 @@ country_event = {
 			factor = 20
 			modifier = { factor = 0 is_historical_focus_on = yes }
 		}
-		add_political_power = -25
-		set_country_flag = IT1_ww1_royal_prerogative
-		add_stability = 0.03
-		news_event = { id = ww1_italy.407 hours = 6 }
+		if = {
+			limit = {
+				IT1_ww1_may_choose_constitutional_reform = yes
+				has_completed_focus = IT1_ww1_constitutional_settlement
+				NOT = { has_country_flag = IT1_ww1_constitutional_settlement_resolved }
+			}
+			set_country_flag = IT1_ww1_constitutional_settlement_resolved
+			add_political_power = -25
+			set_country_flag = IT1_ww1_royal_prerogative
+			clr_country_flag = IT1_ww1_parliamentary_monarchy
+			add_stability = 0.03
+			news_event = { id = ww1_italy.407 hours = 6 }
+		}
 
 	}
 }
@@ -2067,6 +2092,7 @@ news_event = {
 	picture = GFX_news_event_ww1_italy_chamber
 	major = yes
 	is_triggered_only = yes
+	trigger = { ITA = { has_country_flag = IT1_ww1_constitutional_settlement_resolved has_country_flag = IT1_ww1_parliamentary_monarchy } }
 	option = { name = ww1_italy.406.a }
 }
 
@@ -2077,6 +2103,7 @@ news_event = {
 	picture = GFX_news_event_ww1_italy_chamber
 	major = yes
 	is_triggered_only = yes
+	trigger = { ITA = { has_country_flag = IT1_ww1_constitutional_settlement_resolved has_country_flag = IT1_ww1_royal_prerogative } }
 	option = { name = ww1_italy.407.a }
 }
 
@@ -2122,10 +2149,10 @@ news_event = {
 
 news_event = {
 	id = ww1_italy.412
-	title = ww1_italy.412.t
+	title = { text = ww1_italy.412.t trigger = { NOT = { OR = { AND = { ITA = { has_country_flag = IT1_ww1_continental_bloc is_faction_leader = yes } } AND = { FRA = { is_faction_leader = yes } ITA = { has_country_flag = IT1_ww1_continental_bloc is_in_faction_with = FRA } } } } } }
 	title = { text = ww1_italy.412.mediterranean.t trigger = { ITA = { has_country_flag = IT1_ww1_continental_bloc is_faction_leader = yes } } }
 	title = { text = ww1_italy.412.continental.t trigger = { FRA = { is_faction_leader = yes } ITA = { has_country_flag = IT1_ww1_continental_bloc is_in_faction_with = FRA } } }
-	desc = ww1_italy.412.d
+	desc = { text = ww1_italy.412.d trigger = { NOT = { OR = { AND = { ITA = { has_country_flag = IT1_ww1_continental_bloc is_faction_leader = yes } } AND = { FRA = { is_faction_leader = yes } ITA = { has_country_flag = IT1_ww1_continental_bloc is_in_faction_with = FRA } } } } } }
 	desc = { text = ww1_italy.412.mediterranean.d trigger = { ITA = { has_country_flag = IT1_ww1_continental_bloc is_faction_leader = yes } } }
 	desc = { text = ww1_italy.412.continental.d trigger = { FRA = { is_faction_leader = yes } ITA = { has_country_flag = IT1_ww1_continental_bloc is_in_faction_with = FRA } } }
 	picture = GFX_news_event_generic_sign_treaty2

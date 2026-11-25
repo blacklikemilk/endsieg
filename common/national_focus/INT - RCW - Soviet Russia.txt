@@ -293,6 +293,7 @@ focus = {
 		relative_position_id = SO2_send_supplies_HNN
 		bypass = { OR = { has_global_flag = welcome_event_INT } }
 			available = {
+					NOT = { INT_HUN_1919_block_historical_soviet_entry = yes }
 					date > 1919.1.1
 					country_exists = HUN
 					HUN = {
@@ -521,7 +522,10 @@ focus = {
 			custom_effect_tooltip = SO2_westward_offensive.tt
 
 			hidden_effect = {
-				add_ideas = INT_SOV_westward_offensive
+				if = {
+					limit = { NOT = { INT_eastern_westward_modifier_finished = yes } }
+					add_ideas = INT_SOV_westward_offensive
+				}
 			}
 		}
 
@@ -748,20 +752,12 @@ focus = {
 		x = 5
 		y = 1
 		relative_position_id = SO2_asian_diplomacy
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
-			available = {
-					date > 1921.1.1
-					has_global_flag = RUS_CW_Over
-				}
-			completion_reward = {
-				custom_effect_tooltip = WW1_historical_focus_tt
-					TAN = {
-							transfer_state = 329
-						}
-					SOV = {
-							puppet = TAN
-						}
-				}
+		bypass = { OR = { has_global_flag = INT_TAN_khural_held has_start_date > 1921.8.14 } }
+		available = { INT_TAN_khural_can_meet = yes }
+		completion_reward = {
+			custom_effect_tooltip = WW1_historical_focus_tt
+			country_event = { id = INT_tuvan_khural.1 }
+		}
 
 	# Scoped WW1 native layout: thematic groups and compact chains.
 	}
@@ -898,14 +894,14 @@ focus = {
 		x = -2
 		y = 2
 		relative_position_id = SO2_new_economic_policy
-		bypass = { OR = { has_global_flag = welcome_event_INT } }
+		bypass = { OR = { has_start_date > 1922.12.29 has_global_flag = INT_USSR_founded } }
 			available = {
-					date > 1922.1.1
-					has_global_flag = RUS_CW_Over
+					INT_USSR_can_form = yes
 				}
 			completion_reward = {
 				custom_effect_tooltip = WW1_historical_focus_tt
-							country_event = interwar_soviet.28
+				set_country_flag = INT_USSR_ratifying_focus
+				country_event = interwar_soviet.28
 				}
 				ai_will_do = {
 					factor = 10
@@ -1885,7 +1881,7 @@ completion_reward = {
 			ai_will_do = {
 					factor = 10
 				}
-			bypass = {
+		bypass = {
 			    OR = {
 			        has_global_flag = welcome_event_INT
 					custom_trigger_tooltip = {

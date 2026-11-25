@@ -157,6 +157,7 @@ country_event = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_serbia.3.a
 		set_global_flag = treaty_of_bucharest_1913
+		news_event = { id = ww1_postwar_news.27 hours = 6 }
 
 		if = {
 			limit = { country_exists = SER owns_state = 1021 }
@@ -197,155 +198,37 @@ country_event = {
 # 1918 DEFINED
 # Armistice of Salonica
 country_event = {
-	id = ww1_bulgaria.3
-	title = ww1_bulgaria.3.t
-	desc = ww1_bulgaria.3.d
-	picture = GFX_report_event_armistice_of_salonica
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		tag = BUL
-		NOT = { date > 1932.12.1 }
-		AND = {
-			OR = {
-				has_global_flag = armistice_of_villa_giusti
-				has_global_flag = armistice_of_mudros
-				has_global_flag = compiegne
-			}
-			GRE = { controls_state = 731 }
-			GRE = { surrender_progress < 0.40 }
-		}
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = ww1_bulgaria.3.a
-		set_global_flag = armistice_of_salonica
-		ROM = {
-			transfer_state = 77
-			transfer_state = 1015
-			transfer_state = 1030
-		}
-		if = {
-			limit = { country_exists = AUH }
-			AUH = {
-				transfer_state = 106
-				transfer_state = 1038
-				transfer_state = 1021
-				transfer_state = 803
-			}
-		}
-		else = {
-			YUG = {
-				transfer_state = 106
-				transfer_state = 1038
-				transfer_state = 1021
-				transfer_state = 803
-			}
-		}
-		GRE = {
-			transfer_state = 184
-			transfer_state = 997
-		}
-
-		every_country = {
-			limit = {
-				has_war_with = BUL
-				OR = {
-					is_major = yes
-					is_in_faction = no
-				}
-			}
-			white_peace = BUL
-		}
-		BUL = {
-			leave_faction = yes
-			give_military_access = AUH
-			give_military_access = GER
-			give_military_access = TUR
-			give_military_access = ENG
-			give_military_access = FRA
-			give_military_access = GRE
-		}
-	}
+    id = ww1_bulgaria.3
+    title = ww1_bulgaria.3.t
+    desc = ww1_bulgaria.3.d
+    picture = GFX_report_event_armistice_of_salonica
+    is_triggered_only = yes
+    trigger = { WW1_BUL_armistice_ready = yes }
+    immediate = {
+        set_country_flag = WW1_BUL_armistice_presented
+        clr_country_flag = WW1_BUL_armistice_queued
+    }
+    option = {
+        custom_effect_tooltip = WW1_historical_option_tt
+        name = ww1_bulgaria.3.a
+        WW1_BUL_apply_armistice = yes
+        clr_country_flag = WW1_BUL_armistice_presented
+        clr_country_flag = WW1_BUL_armistice_queued
+    }
 }
 
 # 191? UNDEFINED
 # Armistice of Salonica
 country_event = {
-	id = ww1_bulgaria.4
-	title = ww1_bulgaria.4.t
-	desc = ww1_bulgaria.4.d
-	picture = GFX_report_event_armistice_of_salonica
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		tag = BUL
-		has_global_flag = welcome_event_1910
-		has_global_flag = welcome_event_1914
-		AND = {
-			OR = {
-				has_global_flag = armistice_of_villa_giusti
-				has_global_flag = armistice_of_mudros
-				has_global_flag = compiegne
-			}
-			GRE = { controls_state = 997 }
-		}
-	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = ww1_bulgaria.4.a
-		set_global_flag = armistice_of_salonica
-		every_country = {
-			limit = { has_war_with = BUL }
-			white_peace = BUL
-		}
-		BUL = {
-			give_military_access = AUH
-			give_military_access = GER
-			give_military_access = TUR
-			give_military_access = ENG
-			give_military_access = FRA
-			give_military_access = GRE
-			country_event = { id = ww1_bulgaria.41 hours = 1 }
-		}
-		ROM = {
-			transfer_state = 77
-			transfer_state = 1015
-			transfer_state = 1030
-		}
-		if = {
-			limit = { country_exists = AUH }
-			AUH = {
-				transfer_state = 106
-				transfer_state = 1038
-				transfer_state = 1021
-				transfer_state = 803
-			}
-		}
-		else = {
-			YUG = {
-				transfer_state = 106
-				transfer_state = 1038
-				transfer_state = 1021
-				transfer_state = 803
-			}
-		}
-
-		GRE = {
-			transfer_state = 184
-			transfer_state = 997
-		}
-	}
+    id = ww1_bulgaria.4
+    title = ww1_bulgaria.4.t
+    desc = ww1_bulgaria.4.d
+    picture = GFX_report_event_armistice_of_salonica
+    is_triggered_only = yes
+    hidden = yes
+    trigger = { tag = BUL }
+    immediate = { WW1_BUL_queue_armistice = yes }
+    option = { name = ww1_bulgaria.4.a }
 }
 
 
@@ -462,4 +345,117 @@ country_event = {
 		add_war_support = -0.10
 		ai_chance = {factor = 0}
 	}
+}
+
+# The French-led Allied administration replaces Bulgaria in Western Thrace.
+country_event = {
+    id = ww1_bulgaria.42
+    hidden = yes
+    is_triggered_only = no
+    trigger = {
+        tag = FRA
+        country_exists = BUL
+        has_start_date < 1920.5.14
+        NOT = { date < 1919.10.14 }
+        date < 1920.5.14
+        has_global_flag = armistice_of_salonica
+        NOT = {
+            OR = {
+                has_war_with = BUL
+                has_war_with = GRE
+                has_global_flag = central_powers_victory
+                has_global_flag = player_wants_custom_peacedeals
+            }
+        }
+        997 = {
+            OR = {
+                is_owned_and_controlled_by = BUL
+                AND = {
+                    is_owned_and_controlled_by = GRE
+                    BUL = { has_country_flag = WW1_BUL_armistice_applied }
+                }
+            }
+        }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = {
+        transfer_state = 997
+        if = {
+            limit = { date < 1919.10.15 }
+            GRE = { country_event = { id = ww1_bulgaria.43 days = 213 } }
+        }
+    }
+}
+
+# Greek troops take over from the Allied administration in May 1920.
+country_event = {
+    id = ww1_bulgaria.43
+    hidden = yes
+    is_triggered_only = no
+    trigger = {
+        tag = GRE
+        country_exists = BUL
+        has_start_date < 1920.5.14
+        NOT = { date < 1920.5.14 }
+        date < 1922.1.1
+        has_global_flag = armistice_of_salonica
+        NOT = {
+            OR = {
+                has_war_with = BUL
+                has_war_with = FRA
+                has_global_flag = central_powers_victory
+                has_global_flag = player_wants_custom_peacedeals
+            }
+        }
+        997 = {
+            OR = { is_owned_and_controlled_by = FRA is_owned_and_controlled_by = BUL }
+        }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = {
+        transfer_state = 997
+        997 = { remove_claim_by = GRE }
+    }
+}
+
+# Repair saves that gave Greece Western Thrace with the armistice.
+country_event = {
+    id = ww1_bulgaria.44
+    hidden = yes
+    is_triggered_only = no
+    trigger = {
+        tag = BUL
+        has_country_flag = WW1_BUL_armistice_applied
+        date < 1919.10.14
+        997 = { is_owned_and_controlled_by = GRE }
+        NOT = {
+            OR = {
+                has_war_with = GRE
+                has_global_flag = central_powers_victory
+                has_global_flag = player_wants_custom_peacedeals
+            }
+        }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = { transfer_state = 997 }
+}
+
+# Apply the outstanding Salonica handover even if the armistice has already fired.
+country_event = {
+    id = ww1_bulgaria.45
+    hidden = yes
+    is_triggered_only = no
+    trigger = {
+        tag = BUL
+        has_global_flag = armistice_of_salonica
+        date < 1923.1.1
+        NOT = { OR = { has_global_flag = central_powers_victory has_global_flag = player_wants_custom_peacedeals } }
+        OR = { owns_state = 106 owns_state = 1021 owns_state = 1038 owns_state = 107 owns_state = 108 owns_state = 802 owns_state = 803 }
+        OR = {
+            YUG = { WW1_SER_historical_yugoslav_successor = yes }
+            SER = { exists = yes is_subject = no }
+        }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = { WW1_restore_serbian_salonica_territory = yes }
 }

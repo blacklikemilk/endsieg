@@ -1,0 +1,838 @@
+add_namespace = ww1_levant
+
+country_event = {
+	id = ww1_levant.1
+	title = ww1_levant.1.t
+	desc = ww1_levant.1.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = ENG
+		WWI_levant_armistice = yes
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		WWI_end_persian_occupation = yes
+		if = {
+			limit = { 856 = { OR = { WWI_levant_handover_allowed = yes is_owned_by = HEJ } } }
+			HEJ = {
+				WWI_hejaz_take_revolt_states = yes
+				if = { limit = { is_subject_of = TUR } TUR = { set_autonomy = { target = HEJ autonomy_state = autonomy_free } } }
+				if = { limit = { is_subject = no owns_state = 856 } WWI_hejaz_establish_hussein = yes }
+			}
+			855 = { if = { limit = { WWI_levant_handover_allowed = yes } add_core_of = HEJ transfer_state_to = HEJ } }
+		}
+		if = {
+			limit = { 293 = { WWI_levant_handover_allowed = yes } }
+			293 = { transfer_state_to = YEM }
+			YEM = {
+				set_politics = { ruling_party = neutrality elections_allowed = no }
+				if = { limit = { NOT = { has_character = YEM_imam_yahya } } recruit_character = YEM_imam_yahya }
+				promote_character = { character = YEM_imam_yahya ideology = despotism }
+			}
+		}
+		if = {
+			limit = { 554 = { WWI_levant_handover_allowed = yes } NOT = { country_exists = SYR } NOT = { has_country_flag = WWI_british_iraqi_mandate } NOT = { IRQ = { has_country_flag = WWI_iraqi_monarchy } } }
+			every_state = {
+				limit = { OR = { state = 554 state = 677 state = 680 state = 1032 } WWI_levant_handover_allowed = yes }
+				transfer_state_to = SYR
+			}
+			SYR = {
+				set_politics = { ruling_party = neutrality elections_allowed = no }
+				create_country_leader = { name = "Faisal bin Hussein" ideology = despotism picture = "gfx/leaders/SYR/Portrait_Faisal_bin_Hussein.dds" expire = "1933.9.8" }
+				set_cosmetic_tag = SYR_wwi_arab_government
+				set_country_flag = WWI_faisal_at_damascus
+			}
+		}
+		set_global_flag = WWI_arab_armistice_admin
+	}
+	option = { name = ww1_levant.1.a }
+}
+
+country_event = {
+	id = ww1_levant.2
+	title = ww1_levant.2.t
+	desc = ww1_levant.2.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = SYR
+		WWI_levant_armistice = yes
+		has_country_flag = WWI_faisal_at_damascus
+		owns_state = 554
+		controls_state = 554
+		is_subject = no
+		date > 1920.3.7
+		date < 1920.7.25
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		set_cosmetic_tag = SYR_wwi_arab_kingdom
+	}
+	option = { name = ww1_levant.2.a }
+}
+
+country_event = {
+	id = ww1_levant.3
+	title = ww1_levant.3.t
+	desc = ww1_levant.3.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = FRA
+		WWI_levant_armistice = yes
+		date > 1920.7.24
+		date < 1936.1.1
+		owns_state = 553
+		controls_state = 553
+		SYR = { is_ai = yes is_subject = no has_country_flag = WWI_faisal_at_damascus owns_state = 554 controls_state = 554 }
+		OR = { is_historical_focus_on = yes has_war_with = SYR }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { has_war_with = SYR } white_peace = SYR }
+		SYR = {
+			clr_country_flag = WWI_faisal_at_damascus
+			every_owned_state = {
+				limit = { OR = { state = 554 state = 677 state = 680 state = 1032 } OR = { is_controlled_by = SYR is_controlled_by = FRA } }
+				transfer_state_to = FRA
+			}
+		}
+	}
+	option = { name = ww1_levant.3.a }
+}
+
+country_event = {
+	id = ww1_levant.4
+	title = ww1_levant.4.t
+	desc = ww1_levant.4.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = ENG
+		WWI_levant_armistice = yes
+		date > 1921.4.10
+		owns_state = 455
+		controls_state = 455
+		NOT = { country_exists = JOR }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		set_country_flag = WWI_british_transjordan_administration
+	}
+	option = { name = ww1_levant.4.a }
+}
+
+country_event = {
+	id = ww1_levant.5
+	title = ww1_levant.5.t
+	desc = ww1_levant.5.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = ENG
+		WWI_levant_armistice = yes
+		date > 1921.8.22
+		date < 1932.10.3
+		owns_state = 291
+		controls_state = 291
+		NOT = { country_exists = IRQ }
+		NOT = { SYR = { exists = yes has_country_flag = WWI_faisal_at_damascus } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		set_country_flag = WWI_british_iraqi_mandate
+	}
+	option = { name = ww1_levant.5.a }
+}
+
+country_event = {
+	id = ww1_levant.6
+	title = ww1_levant.6.t
+	desc = ww1_levant.6.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = HEJ
+		WWI_levant_campaign = yes
+		has_global_flag = WWI_hejaz_revolt
+		has_war_with = TUR
+		date > 1917.7.5
+		855 = { WWI_levant_handover_allowed = yes }
+		owns_state = 856
+		is_historical_focus_on = yes
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		855 = { add_core_of = HEJ transfer_state_to = HEJ }
+		TUR = { set_province_controller = 12758 }
+	}
+	option = { name = ww1_levant.6.a }
+}
+
+country_event = {
+	id = ww1_levant.7
+	title = ww1_levant.7.t
+	desc = ww1_levant.7.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = ENG
+		WWI_levant_campaign = yes
+		date > 1925.12.5
+		ITA = { owns_state = 451 }
+		NOT = { has_war_with = ITA }
+		1059 = { OR = { AND = { is_owned_by = ENG is_controlled_by = ENG } AND = { is_owned_by = EGY is_controlled_by = EGY } } }
+		EGY = { NOT = { has_war_with = ITA } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		1059 = { transfer_state_to = ITA }
+	}
+	option = { name = ww1_levant.7.a }
+}
+
+country_event = {
+	id = ww1_levant.8
+	title = ww1_levant.8.t
+	desc = ww1_levant.8.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = NEJ
+		WWI_levant_armistice = yes
+		is_historical_focus_on = yes
+		date > 1921.11.1
+		date < 1923.1.1
+		is_subject = no
+		owns_state = 292
+		SHA = { exists = yes is_ai = yes is_subject = no owns_state = 1014 }
+		1014 = { OR = { is_controlled_by = SHA is_controlled_by = NEJ } }
+		NOT = { SHA = { any_enemy_country = { NOT = { tag = NEJ } } } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		SHA = {
+			every_owned_state = {
+				limit = { OR = { state = 1014 state = 854 state = 675 state = 857 state = 1060 } OR = { is_controlled_by = SHA is_controlled_by = NEJ } }
+				transfer_state_to = NEJ
+			}
+		}
+		set_country_flag = WWI_rashidi_emirate_fell
+		news_event = { id = ww1_postwar_news.25 hours = 6 }
+	}
+	option = { name = ww1_levant.8.a }
+}
+
+country_event = {
+	id = ww1_levant.9
+	title = ww1_levant.9.t
+	desc = ww1_levant.9.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = NEJ
+		WWI_levant_armistice = yes
+		has_country_flag = WWI_rashidi_emirate_fell
+		date > 1922.12.1
+		owns_state = 675
+		controls_state = 675
+		OR = {
+			AND = { NOT = { country_exists = IRQ } ENG = { owns_state = 291 has_country_flag = WWI_british_iraqi_mandate } }
+			IRQ = { owns_state = 291 is_subject_of = ENG }
+		}
+		NOT = { has_war_with = IRQ }
+		NOT = { has_war_with = ENG }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		675 = {
+			if = { limit = { country_exists = IRQ } transfer_state_to = IRQ }
+			else = { transfer_state_to = ENG }
+		}
+		news_event = { id = ww1_postwar_news.24 hours = 6 }
+	}
+	option = { name = ww1_levant.9.a }
+}
+
+country_event = {
+	id = ww1_levant.10
+	title = ww1_levant.10.t
+	desc = ww1_levant.10.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = ENG
+		WWI_levant_campaign = yes
+		owns_state = 656
+		controls_state = 656
+		NOT = { country_exists = KUW }
+		NOT = { has_country_flag = WWI_british_kuwait_protection }
+		OR = { has_global_flag = armistice_of_mudros NOT = { country_exists = EN3 } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		set_country_flag = WWI_british_kuwait_protection
+		if = { limit = { date < 1921.2.23 } set_country_flag = WWI_kuwait_succession_13 }
+		if = { limit = { date < 1917.2.5 } set_country_flag = WWI_kuwait_succession_12 }
+		if = { limit = { date < 1915.11.28 } set_country_flag = WWI_kuwait_succession_11 }
+	}
+	option = { name = ww1_levant.10.a }
+}
+
+country_event = {
+	id = ww1_levant.11
+	title = ww1_levant.11.t
+	desc = ww1_levant.11.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		WWI_levant_campaign = yes
+		OR = {
+			AND = { tag = KUW has_country_flag = WWI_sabah_sheikhdom has_government = neutrality }
+			AND = { tag = ENG owns_state = 656 controls_state = 656 has_country_flag = WWI_kuwait_succession_11 NOT = { country_exists = KUW } }
+		}
+		date > 1915.11.27
+		date < 1917.2.5
+		NOT = { has_country_leader = { name = "Jaber II Al-Sabah" ruling_only = yes } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { tag = KUW } create_country_leader = { name = "Jaber II Al-Sabah" ideology = despotism expire = "1917.2.5" } }
+		else = { clr_country_flag = WWI_kuwait_succession_11 }
+	}
+	option = { name = ww1_levant.11.a }
+}
+
+country_event = {
+	id = ww1_levant.12
+	title = ww1_levant.12.t
+	desc = ww1_levant.12.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		WWI_levant_campaign = yes
+		OR = {
+			AND = { tag = KUW has_country_flag = WWI_sabah_sheikhdom has_government = neutrality }
+			AND = { tag = ENG owns_state = 656 controls_state = 656 has_country_flag = WWI_kuwait_succession_12 NOT = { country_exists = KUW } }
+		}
+		date > 1917.2.4
+		date < 1921.2.23
+		NOT = { has_country_leader = { name = "Salim Al-Mubarak Al-Sabah" ruling_only = yes } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { tag = KUW } create_country_leader = { name = "Salim Al-Mubarak Al-Sabah" ideology = despotism expire = "1921.2.23" } }
+		else = { clr_country_flag = WWI_kuwait_succession_12 }
+	}
+	option = { name = ww1_levant.12.a }
+}
+
+country_event = {
+	id = ww1_levant.13
+	title = ww1_levant.13.t
+	desc = ww1_levant.13.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		WWI_levant_campaign = yes
+		OR = {
+			AND = { tag = KUW has_country_flag = WWI_sabah_sheikhdom has_government = neutrality }
+			AND = { tag = ENG owns_state = 656 controls_state = 656 has_country_flag = WWI_kuwait_succession_13 NOT = { country_exists = KUW } }
+		}
+		date > 1921.2.22
+		date < 1936.1.1
+		NOT = { has_country_leader = { name = "Ahmad Al-Jaber Al-Sabah" ruling_only = yes } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { tag = KUW } create_country_leader = { name = "Ahmad Al-Jaber Al-Sabah" ideology = despotism expire = "1950.1.29" } }
+		else = { clr_country_flag = WWI_kuwait_succession_13 }
+	}
+	option = { name = ww1_levant.13.a }
+}
+
+country_event = {
+	id = ww1_levant.14
+	title = ww1_levant.14.t
+	desc = ww1_levant.14.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = ENG WWI_levant_campaign = yes date > 1922.2.27
+		has_global_flag = compiegne is_historical_focus_on = yes
+		907 = { is_owned_by = ENG is_controlled_by = ENG }
+		OR = { NOT = { country_exists = EGY } EGY = { is_subject_of = ENG } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		every_owned_state = {
+			limit = { is_core_of = EGY is_controlled_by = ENG }
+			transfer_state_to = EGY
+		}
+		if = { limit = { EGY = { is_subject_of = ENG } } set_autonomy = { target = EGY autonomy_state = autonomy_free end_wars = no } }
+		EGY = {
+			set_politics = { ruling_party = neutrality elections_allowed = yes }
+			create_country_leader = { name = "Fuad I" ideology = despotism expire = "1936.4.28" }
+			give_military_access = ENG
+		}
+	}
+	option = { name = ww1_levant.14.a }
+}
+
+country_event = {
+	id = ww1_levant.15
+	title = ww1_levant.15.t
+	desc = ww1_levant.15.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = HEJ WWI_levant_campaign = yes date > 1919.1.9
+		has_global_flag = armistice_of_mudros owns_state = 855
+		TUR = { controls_province = 12758 } NOT = { has_war_with = TUR }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		set_province_controller = 12758
+	}
+	option = { name = ww1_levant.15.a }
+}
+
+country_event = {
+	id = ww1_levant.16
+	title = ww1_levant.16.t
+	desc = ww1_levant.16.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		WWI_levant_campaign = yes date > 1932.10.2
+		owns_state = 291 controls_state = 291
+		OR = {
+			AND = { tag = ENG has_country_flag = WWI_british_iraqi_mandate NOT = { country_exists = IRQ } }
+			AND = { tag = IRQ has_country_flag = WWI_iraqi_monarchy is_subject_of = ENG }
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = {
+			limit = { tag = ENG }
+			291 = { transfer_state_to = IRQ }
+			every_owned_state = {
+				limit = { OR = { state = 675 state = 676 } is_controlled_by = ENG }
+				transfer_state_to = IRQ
+			}
+			IRQ = {
+				set_politics = { ruling_party = neutrality elections_allowed = no }
+				if = {
+					limit = { date < 1933.9.8 NOT = { has_country_leader = { name = "Faisal I" ruling_only = yes } } }
+					create_country_leader = { name = "Faisal I" ideology = despotism picture = "gfx/leaders/SYR/Portrait_Faisal_bin_Hussein.dds" expire = "1933.9.8" }
+				}
+				if = { limit = { NOT = { date < 1933.9.8 } } set_country_flag = WWI_iraqi_succession_due }
+				set_country_flag = WWI_iraqi_monarchy
+			}
+			clr_country_flag = WWI_british_iraqi_mandate
+		}
+		else = { ENG = { set_autonomy = { target = IRQ autonomy_state = autonomy_free end_wars = no } } }
+	}
+	option = { name = ww1_levant.16.a }
+}
+
+country_event = {
+	id = ww1_levant.17
+	title = ww1_levant.17.t
+	desc = ww1_levant.17.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = IRQ WWI_levant_campaign = yes date > 1933.9.7
+		has_country_flag = WWI_iraqi_monarchy has_government = neutrality
+		OR = { has_country_leader = { name = "Faisal I" ruling_only = yes } has_country_flag = WWI_iraqi_succession_due }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { NOT = { has_character = IRQ_ghazi_i } } recruit_character = IRQ_ghazi_i }
+		clr_country_flag = WWI_iraqi_succession_due
+		promote_character = { character = IRQ_ghazi_i ideology = despotism }
+	}
+	option = { name = ww1_levant.17.a }
+}
+
+country_event = {
+	id = ww1_levant.18
+	title = ww1_levant.18.t
+	desc = ww1_levant.18.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = NEJ WWI_levant_campaign = yes date > 1924.8.31
+		is_historical_focus_on = yes has_country_flag = WWI_rashidi_emirate_fell
+		date < 1925.12.23 is_subject = no owns_state = 292
+		HEJ = { exists = yes is_subject = no owns_state = 856 is_in_faction = no }
+		is_in_faction = no NOT = { has_war_with = HEJ }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		declare_war_on = { target = HEJ type = take_state generator = { 679 855 856 } }
+	}
+	option = { name = ww1_levant.18.a }
+}
+
+country_event = {
+	id = ww1_levant.19
+	title = ww1_levant.19.t
+	desc = ww1_levant.19.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = NEJ WWI_levant_campaign = yes date > 1925.12.22
+		is_historical_focus_on = yes has_country_flag = WWI_rashidi_emirate_fell
+		date < 1927.1.1 is_subject = no owns_state = 292
+		HEJ = { exists = yes is_ai = yes is_subject = no has_war_with = NEJ }
+		OR = { controls_province = 5037 controls_province = 12883 HEJ = { has_capitulated = yes } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		every_state = {
+			limit = { OR = { state = 679 state = 855 state = 856 } is_owned_by = HEJ OR = { is_controlled_by = HEJ is_controlled_by = NEJ } }
+			transfer_state_to = NEJ
+		}
+		if = { limit = { has_war_with = HEJ } white_peace = HEJ }
+	}
+	option = { name = ww1_levant.19.a }
+}
+
+country_event = {
+	id = ww1_levant.20
+	title = ww1_levant.20.t
+	desc = ww1_levant.20.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = NEJ WWI_levant_campaign = yes date > 1932.9.22
+		is_subject = no has_government = neutrality NOT = { country_exists = SAU }
+		owns_state = 292 owns_state = 856 controls_state = 856 owns_state = 1014
+		NOT = { has_war_with = HEJ }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		SAU = { change_tag_from = NEJ }
+		SAU = { if = { limit = { NOT = { has_country_leader = { character = NEJ_abdulaziz_saud ruling_only = yes } } } create_country_leader = { name = "Abdulaziz ibn Saud" ideology = despotism expire = "1953.11.9" } } }
+	}
+	option = { name = ww1_levant.20.a }
+}
+
+country_event = {
+	id = ww1_levant.21
+	title = ww1_levant.21.t
+	desc = ww1_levant.21.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = ITA WWI_levant_campaign = yes date > 1931.1.18
+		is_historical_focus_on = yes owns_state = 663 controls_state = 663
+		975 = { OR = { is_owned_by = SES is_owned_by = ENG } OR = { is_controlled_by = SES is_controlled_by = ITA is_controlled_by = ENG } }
+		NOT = { has_war_with = ENG }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		975 = { transfer_state_to = ITA }
+	}
+	option = { name = ww1_levant.21.a }
+}
+
+country_event = {
+	id = ww1_levant.22
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = NEJ
+		WWI_levant_armistice = yes
+		is_historical_focus_on = yes
+		NOT = { date < 1925.11.2 }
+		is_subject = no
+		owns_state = 292
+		OR = {
+			AND = { NOT = { country_exists = JOR } ENG = { owns_state = 455 has_country_flag = WWI_british_transjordan_administration } }
+			JOR = { is_subject_of = ENG owns_state = 455 }
+		}
+		NOT = { has_war_with = JOR }
+		NOT = { has_war_with = ENG }
+		1060 = { OR = { is_owned_and_controlled_by = ENG is_owned_and_controlled_by = JOR AND = { is_owned_by = NEJ is_fully_controlled_by = NEJ } } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		1060 = {
+			if = {
+				limit = { is_owned_by = NEJ }
+				if = { limit = { country_exists = JOR } transfer_state_to = JOR }
+				else = { transfer_state_to = ENG }
+			}
+		}
+		news_event = { id = ww1_postwar_news.31 hours = 6 }
+	}
+}
+
+country_event = {
+	id = ww1_levant.23
+	title = ww1_levant.23.t
+	desc = ww1_levant.23.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = TUR
+		WWI_levant_armistice = yes
+		NOT = { date < 1918.11.3 }
+		date < 1921.8.23
+		has_country_flag = WWI_mudros_british_participant
+		ENG = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+		676 = { WWI_mesopotamian_handover_allowed = yes }
+		NOT = { country_exists = IRQ }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		676 = { WWI_place_under_british_administration = yes }
+		291 = { if = { limit = { WWI_mesopotamian_handover_allowed = yes } WWI_place_under_british_administration = yes } }
+	}
+	option = { name = ww1_levant.23.a }
+}
+
+country_event = {
+	id = ww1_levant.24
+	title = ww1_levant.24.t
+	desc = ww1_levant.24.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = TUR
+		WWI_levant_armistice = yes
+		NOT = { date < 1918.11.9 }
+		date < 1919.1.1
+		has_country_flag = WWI_mudros_british_participant
+		ENG = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+		owns_state = 799 controls_province = 12029
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		ENG = { set_province_controller = 12029 }
+	}
+	option = { name = ww1_levant.24.a }
+}
+
+country_event = {
+	id = ww1_levant.25
+	title = ww1_levant.25.t
+	desc = ww1_levant.25.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = TUR
+		WWI_levant_armistice = yes
+		NOT = { date < 1918.11.27 }
+		date < 1920.7.25
+		has_country_flag = WWI_mudros_french_participant
+		FRA = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } NOT = { has_war_with = ENG } }
+		owns_state = 799
+		# Alexandretta can have the British landing party and Ottoman hinterland simultaneously.
+		OR = { controls_province = 12029 ENG = { controls_province = 12029 } }
+		799 = { OR = { is_controlled_by = TUR is_controlled_by = ENG } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		799 = { transfer_state_to = FRA }
+	}
+	option = { name = ww1_levant.25.a }
+}
+
+country_event = {
+	id = ww1_levant.26
+	title = ww1_levant.26.t
+	desc = ww1_levant.26.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = TUR
+		WWI_levant_armistice = yes
+		NOT = { date < 1918.12.17 }
+		date < 1921.10.20
+		has_country_flag = WWI_mudros_french_participant
+		NOT = { has_country_flag = INT_TUR_ankara_accord_signed }
+		FRA = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+		OR = {
+			AND = { owns_state = 345 OR = { controls_province = 10056 controls_province = 11810 } }
+			AND = { owns_state = 344 controls_province = 11746 }
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { owns_state = 345 controls_province = 10056 } FRA = { set_province_controller = 10056 } } # Mersin
+		if = { limit = { owns_state = 345 controls_province = 11810 } FRA = { set_province_controller = 11810 } } # Tarsus
+		if = { limit = { owns_state = 344 controls_province = 11746 } FRA = { set_province_controller = 11746 } } # Adana
+		set_country_flag = WWI_cilician_garrisons
+		WWI_update_anatolian_occupation = yes
+	}
+	option = { name = ww1_levant.26.a }
+}
+
+country_event = {
+	id = ww1_levant.27
+	title = ww1_levant.27.t
+	desc = ww1_levant.27.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = TUR
+		WWI_levant_armistice = yes
+		NOT = { date < 1919.3.28 }
+		date < 1921.7.5
+		has_country_flag = WWI_mudros_italian_participant
+		ITA = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+		owns_state = 342 controls_province = 1005
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		ITA = { set_province_controller = 1005 }
+		set_country_flag = WWI_italian_antalya_landing
+		WWI_update_anatolian_occupation = yes
+	}
+	option = { name = ww1_levant.27.a }
+}
+
+country_event = {
+	id = ww1_levant.28
+	title = ww1_levant.28.t
+	desc = ww1_levant.28.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = TUR
+		WWI_levant_armistice = yes
+		NOT = { date < 1921.7.5 }
+		date < 1923.7.25
+		has_country_flag = WWI_italian_antalya_landing
+		OR = { owns_state = 342 342 = { has_state_flag = WWI_anatolian_occupation_district is_owned_by = ITA } }
+		ITA = { controls_province = 1005 NOT = { has_war_with = TUR } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		342 = { WWI_return_occupation_district = { ally = ITA } }
+		if = { limit = { owns_state = 342 } set_province_controller = 1005 }
+	}
+	option = { name = ww1_levant.28.a }
+}
+
+# Britain represents the joint Allied administration of Constantinople and the Straits.
+country_event = {
+	id = ww1_levant.29
+	title = ww1_levant.29.t
+	desc = ww1_levant.29.d
+	picture = GFX_report_event_mudros
+	fire_only_once = yes
+	trigger = {
+		tag = TUR WWI_levant_armistice = yes
+		date > 1918.11.12 date < 1923.10.2
+		has_country_flag = WWI_mudros_british_participant
+		owns_state = 797 controls_province = 9833
+		ENG = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		ENG = { set_province_controller = 9833 }
+		set_country_flag = WWI_constantinople_allied_garrison
+		WWI_update_anatolian_occupation = yes
+	}
+	option = { name = ww1_levant.29.a }
+}
+
+country_event = {
+	id = ww1_levant.30
+	title = ww1_levant.30.t
+	desc = ww1_levant.30.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = TUR WWI_levant_armistice = yes date > 1923.10.1
+		has_country_flag = WWI_constantinople_allied_garrison
+		ENG = { exists = yes NOT = { has_war_with = TUR } }
+		797 = { OR = { is_owned_by = TUR AND = { is_owned_by = ENG is_fully_controlled_by = ENG } } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		797 = { WWI_return_occupation_district = { ally = ENG } }
+		if = { limit = { owns_state = 797 ENG = { controls_province = 9833 } } set_province_controller = 9833 }
+		if = { limit = { owns_state = 341 ENG = { controls_province = 849 } } set_province_controller = 849 }
+		if = { limit = { owns_state = 340 ENG = { controls_province = 6864 } } set_province_controller = 6864 }
+		clr_country_flag = WWI_constantinople_allied_garrison
+	}
+	option = { name = ww1_levant.30.a }
+}
+
+# Reconcile an incomplete handover even when the Mosul event already ran.
+country_event = {
+	id = ww1_levant.31
+	hidden = yes
+	trigger = {
+		tag = TUR WWI_levant_armistice = yes
+		date > 1918.11.3 date < 1932.10.3
+		has_country_flag = WWI_mudros_british_participant
+		ENG = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+		OR = {
+			NOT = { country_exists = IRQ }
+			IRQ = { is_subject_of = ENG NOT = { has_war_with = TUR } }
+		}
+		OR = {
+			291 = { is_owned_by = TUR WWI_mesopotamian_handover_allowed = yes }
+			676 = { is_owned_by = TUR WWI_mesopotamian_handover_allowed = yes }
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		every_owned_state = {
+			limit = { OR = { state = 291 state = 676 } WWI_mesopotamian_handover_allowed = yes }
+			if = { limit = { country_exists = IRQ } transfer_state_to = IRQ }
+			else = { transfer_state_to = ENG }
+		}
+	}
+}
+
+# Older campaigns may already have the AI subjects created by the three settlement events.
+country_event = {
+	id = ww1_levant.32
+	hidden = yes
+	trigger = {
+		OR = { tag = IRQ tag = JOR tag = KUW }
+		WWI_levant_campaign = yes
+		is_ai = yes
+		is_subject_of = ENG
+		has_war = no
+		NOT = { any_owned_state = { NOT = { is_fully_controlled_by = ROOT } } }
+		OR = {
+			AND = {
+				tag = IRQ has_country_flag = WWI_iraqi_monarchy date < 1932.10.3 owns_state = 291
+				NOT = { any_owned_state = { NOT = { OR = { state = 291 state = 675 state = 676 } } } }
+			}
+			AND = {
+				tag = JOR has_cosmetic_tag = JOR_wwi_emirate owns_state = 455
+				NOT = { any_owned_state = { NOT = { OR = { state = 455 state = 1060 } } } }
+			}
+			AND = {
+				tag = KUW has_country_flag = WWI_sabah_sheikhdom owns_state = 656
+				NOT = { any_owned_state = { NOT = { state = 656 } } }
+			}
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { tag = IRQ } ENG = { set_country_flag = WWI_british_iraqi_mandate } }
+		if = { limit = { tag = JOR } ENG = { set_country_flag = WWI_british_transjordan_administration } }
+		if = {
+			limit = { tag = KUW }
+			ENG = {
+				set_country_flag = WWI_british_kuwait_protection
+				if = { limit = { date < 1915.11.28 } set_country_flag = WWI_kuwait_succession_11 }
+				if = { limit = { date < 1917.2.5 } set_country_flag = WWI_kuwait_succession_12 }
+				if = { limit = { date < 1921.2.23 } set_country_flag = WWI_kuwait_succession_13 }
+			}
+		}
+		ENG = { annex_country = { target = ROOT transfer_troops = no } }
+	}
+}

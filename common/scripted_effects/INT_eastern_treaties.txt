@@ -1,0 +1,320 @@
+# Saved occupations can outlive the bilateral peace. Clear only the original
+# signatory's control of these two disputed districts after their agreements.
+INT_eastern_restore_lithuanian_frontier_control = {
+	if = {
+		limit = {
+			INT_eastern_treaties_context = yes
+			tag = LIT
+			is_ai = yes
+			is_subject = no
+			has_country_flag = INT_eastern_armed
+		}
+		95 = {
+			if = {
+				limit = {
+					has_global_flag = moscow_lit_treaty
+					is_owned_by = SOV
+					is_fully_controlled_by = LIT
+					SOV = { exists = yes is_ai = yes NOT = { has_war_with = LIT } }
+				}
+				set_state_controller_to = SOV
+			}
+		}
+		784 = {
+			if = {
+				limit = {
+					has_global_flag = suwalki
+					has_global_flag = zeligowski
+					is_owned_by = POL
+					is_fully_controlled_by = LIT
+					POL = { exists = yes is_ai = yes is_subject = no NOT = { has_war_with = LIT } }
+				}
+				set_state_controller_to = POL
+			}
+		}
+	}
+}
+
+# Fulfil the Riga frontier where unresolved occupations delayed delivery.
+INT_eastern_finish_deferred_riga_frontier = {
+	if = {
+		limit = {
+			INT_eastern_treaties_context = yes
+			tag = POL
+			exists = yes
+			is_ai = yes
+			is_subject = no
+			has_capitulated = no
+			has_global_flag = sov_pol_ceasefire
+			SOV = {
+				exists = yes
+				is_ai = yes
+				is_subject = no
+				NOT = { has_war_with = POL }
+			}
+		}
+		SOV = {
+			every_owned_state = {
+				limit = {
+					OR = { state = 93 state = 94 state = 95 state = 96 }
+					has_state_flag = INT_eastern_riga_frontier_pending
+					OR = { is_fully_controlled_by = SOV is_fully_controlled_by = POL }
+				}
+				clr_state_flag = INT_eastern_riga_frontier_pending
+				transfer_state_to = POL
+			}
+		}
+		95 = { if = { limit = { is_owned_by = POL } add_core_of = POL } }
+	}
+}
+
+INT_eastern_apply_tartu = {
+	if = {
+		limit = { INT_eastern_tartu_ready = yes }
+		white_peace = { tag = SOV }
+		if = {
+			limit = { NOT = { has_war_with = SOV } }
+			set_global_flag = tartu_treaty
+			SOV = {
+				every_owned_state = {
+					limit = {
+						OR = { state = 13 state = 191 state = 811 state = 812 state = 813 }
+					}
+					set_state_flag = INT_eastern_baltic_frontier_pending
+				}
+			}
+			INT_eastern_finish_baltic_frontier = yes
+			INT_baltic_reconcile_signed_peace = yes
+			news_event = { id = endsieg_news.66 hours = 6 }
+		}
+	}
+}
+
+INT_eastern_apply_moscow = {
+	if = {
+		limit = { INT_eastern_moscow_ready = yes }
+		white_peace = { tag = SOV }
+		if = {
+			limit = { NOT = { has_war_with = SOV } }
+			INT_eastern_settle_moscow_frontier = yes
+			INT_baltic_reconcile_signed_peace = yes
+			news_event = { id = endsieg_news.67 hours = 6 }
+		}
+	}
+}
+
+INT_eastern_settle_moscow_frontier = {
+	set_global_flag = moscow_lit_treaty
+	SOV = {
+		every_owned_state = {
+			limit = {
+				OR = { state = 11 state = 189 state = 814 state = 815 state = 784 }
+			}
+			set_state_flag = INT_eastern_baltic_frontier_pending
+		}
+	}
+	INT_eastern_restore_lithuanian_frontier_control = yes
+	INT_eastern_finish_baltic_frontier = yes
+}
+
+INT_eastern_apply_riga_latvia = {
+	if = {
+		limit = { INT_eastern_riga_latvia_ready = yes }
+		white_peace = { tag = SOV }
+		if = {
+			limit = { NOT = { has_war_with = SOV } }
+			set_global_flag = riga_treaty
+			SOV = {
+				every_owned_state = {
+					limit = {
+						OR = { state = 12 state = 190 state = 808 state = 809 state = 810 }
+					}
+					set_state_flag = INT_eastern_baltic_frontier_pending
+				}
+			}
+			INT_eastern_finish_baltic_frontier = yes
+			INT_baltic_reconcile_signed_peace = yes
+			news_event = { id = endsieg_news.65 hours = 6 }
+		}
+	}
+}
+
+INT_eastern_apply_riga_poland = {
+	if = {
+		limit = { INT_eastern_riga_poland_ready = yes }
+		white_peace = { tag = SOV }
+		if = {
+			limit = { NOT = { has_war_with = SOV } }
+			set_global_flag = sov_pol_ceasefire
+			SOV = { INT_BLR_restore_at_riga = yes }
+			SOV = {
+				every_owned_state = {
+					limit = { OR = { state = 93 state = 94 state = 95 state = 96 } }
+					if = {
+						limit = { OR = { is_fully_controlled_by = SOV is_fully_controlled_by = POL } }
+						clr_state_flag = INT_eastern_riga_frontier_pending
+						transfer_state_to = POL
+					}
+					else = {
+						set_state_flag = INT_eastern_riga_frontier_pending
+					}
+				}
+			}
+			95 = { if = { limit = { is_owned_by = POL } add_core_of = POL } }
+			news_event = { id = INT_eastern.12 hours = 6 }
+		}
+	}
+}
+
+INT_eastern_schedule_treaty = {
+	if = {
+		limit = { NOT = { has_country_flag = INT_eastern_treaty_queued } }
+		if = {
+			limit = { INT_eastern_tartu_ready = yes }
+			set_country_flag = { flag = INT_eastern_treaty_queued days = 7 }
+			country_event = { id = ww1_baltic.3 hours = 1 }
+		}
+		else_if = {
+			limit = { INT_eastern_moscow_ready = yes }
+			set_country_flag = { flag = INT_eastern_treaty_queued days = 7 }
+			country_event = { id = ww1_baltic.4 hours = 1 }
+		}
+		else_if = {
+			limit = { INT_eastern_riga_latvia_ready = yes }
+			set_country_flag = { flag = INT_eastern_treaty_queued days = 7 }
+			country_event = { id = ww1_baltic.2 hours = 1 }
+		}
+		else_if = {
+			limit = { INT_eastern_riga_poland_ready = yes }
+			set_country_flag = { flag = INT_eastern_treaty_queued days = 7 }
+			country_event = { id = INT_eastern.2 hours = 1 }
+		}
+	}
+}
+
+# Deliver only states recorded by a completed treaty. Foreign occupation can
+# postpone delivery, and the state must still belong to the original signatory.
+INT_eastern_finish_baltic_frontier = {
+	if = {
+		limit = {
+			INT_eastern_treaties_context = yes
+			OR = {
+				AND = { tag = EST has_global_flag = tartu_treaty }
+				AND = { tag = LAT has_global_flag = riga_treaty }
+				AND = { tag = LIT has_global_flag = moscow_lit_treaty }
+			}
+			is_subject = no
+			has_capitulated = no
+			NOT = { has_war_with = SOV }
+		}
+		save_event_target_as = INT_baltic_frontier_recipient
+		SOV = {
+			every_owned_state = {
+				limit = {
+					has_state_flag = INT_eastern_baltic_frontier_pending
+					OR = {
+						AND = {
+							event_target:INT_baltic_frontier_recipient = { tag = EST }
+							OR = { state = 13 state = 191 state = 811 state = 812 state = 813 }
+						}
+						AND = {
+							event_target:INT_baltic_frontier_recipient = { tag = LAT }
+							OR = { state = 12 state = 190 state = 808 state = 809 state = 810 }
+						}
+						AND = {
+							event_target:INT_baltic_frontier_recipient = { tag = LIT }
+							OR = { state = 11 state = 189 state = 814 state = 815 state = 784 }
+						}
+					}
+					OR = {
+						is_fully_controlled_by = SOV
+						is_fully_controlled_by = event_target:INT_baltic_frontier_recipient
+					}
+				}
+				clr_state_flag = INT_eastern_baltic_frontier_pending
+				transfer_state_to = event_target:INT_baltic_frontier_recipient
+			}
+		}
+	}
+}
+
+# Finland's Tartu treaty is separate from Estonia's. Article 4 took effect
+# when Finland and Soviet Russia exchanged ratifications on 31 December 1920.
+INT_FIN_apply_petsamo_handover = {
+	if = {
+		limit = {
+			tag = FIN
+			NOT = { date < 1920.12.31 }
+			date < 1923.1.1
+			NOT = { has_global_flag = player_wants_custom_peacedeals }
+			has_start_date < 1921.1.1
+			is_historical_focus_on = yes
+			is_subject = no
+			has_capitulated = no
+			NOT = { has_war_with = SOV }
+			SOV = { exists = yes is_subject = no has_government = communism has_capitulated = no }
+			722 = {
+				OR = {
+					is_owned_by = SOV
+					AND = { is_owned_by = WHR WHR = { has_capitulated = yes } }
+				}
+				is_fully_controlled_by = SOV
+			}
+		}
+		722 = {
+			transfer_state_to = FIN
+			add_core_of = FIN
+			remove_core_of = RIE
+			remove_core_of = FNN
+		}
+		if = { limit = { owns_state = 722 } news_event = { id = ww1_postwar_news.19 hours = 6 } }
+	}
+}
+
+# No new treaty, reward or headline: retain the already signed bilateral peace.
+INT_baltic_reconcile_signed_peace = {
+	if = {
+		limit = {
+			INT_baltic_signed_peace_in_force = yes
+			has_capitulated = no
+			capital_scope = { is_owned_by = PREV is_fully_controlled_by = PREV }
+		}
+		save_event_target_as = INT_baltic_peace_signatory
+		# Subjects may have been called after the original Soviet white peace.
+		# A direct war objective on either side is a separate conflict.
+		if = {
+			limit = { OR = { NOT = { has_war_with = SOV } INT_baltic_repeated_annex_war_ready = yes } }
+			every_enemy_country = {
+				limit = {
+					is_ai = yes is_subject_of = SOV
+					NOT = { OR = {
+						has_wargoal_against = event_target:INT_baltic_peace_signatory
+						has_war_with_wargoal_against = { target = event_target:INT_baltic_peace_signatory }
+					} }
+					event_target:INT_baltic_peace_signatory = {
+						NOT = { OR = { has_wargoal_against = PREV has_war_with_wargoal_against = { target = PREV } } }
+					}
+				}
+				event_target:INT_baltic_peace_signatory = { white_peace = { tag = PREV } }
+			}
+		}
+		if = {
+			limit = { INT_baltic_repeated_annex_war_ready = yes }
+			white_peace = { tag = SOV }
+		}
+		if = {
+			limit = { NOT = { has_war_with = SOV } }
+			SOV = {
+				if = {
+					limit = { has_wargoal_against = { target = PREV type = annex_everything } }
+					remove_wargoal = { type = annex_everything target = PREV }
+				}
+			}
+			if = {
+				limit = { NOT = { has_non_aggression_pact_with = SOV } }
+				diplomatic_relation = { country = SOV relation = non_aggression_pact active = yes }
+			}
+			if = { limit = { NOT = { has_country_flag = INT_baltic_signed_peace_secured } } set_country_flag = INT_baltic_signed_peace_secured }
+		}
+	}
+}

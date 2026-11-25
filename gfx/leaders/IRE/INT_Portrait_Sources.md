@@ -5,3 +5,5 @@
 - `INT_WT_Cosgrave.dds`: [WT Cosgrave, circa 1922 (headshot)](https://commons.wikimedia.org/wiki/File:WT_Cosgrave,_circa_1922_(headshot).jpg), Wikimedia Commons. Public-domain photograph from the National Library of Ireland catalogue; A. H. Poole Studio.
 
 The JPEG sources were cropped to the 156x210 leader-portrait ratio and converted to uncompressed RGBA DDS using the repository's existing Pillow-based asset workflow.
+
+Cathal Brugha is from the [Military Archives memorial volume](https://www.militaryarchives.ie/uploads/documents/Cathal-Brugha-Remembered.pdf), printed page 70, collection reference KMGLM.20PC-1A45-09.

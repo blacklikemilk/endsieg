@@ -6,6 +6,7 @@ WW1_ROM_historical_entry = {
    tag = ROM is_ai = yes is_historical_focus_on = yes
    has_focus_tree = generic_focus_ww1 has_start_date < 1919.1.1
    NOT = { date < 1916.8.27 } date < 1919.1.1
+   NOT = { WW1_ROM_observing_armistice = yes }
    has_global_flag = WW1_starts
    NOT = { has_global_flag = compiegne }
    NOT = { has_global_flag = versailles }
@@ -46,4 +47,240 @@ WW1_ROM_historical_entry = {
    if = { limit = { NOT = { has_global_flag = WW1_ROM_war_entry_announced } } set_global_flag = WW1_ROM_war_entry_announced news_event = { id = endsieg_news.191 hours = 6 } }
   }
  }
+}
+
+# Peacetime controllers revert to the owner. Track military administration
+# separately from treaty cessions and keep the original Romanian cores.
+WW1_ROM_start_bookmark_occupation = {
+    if = {
+        limit = {
+            has_start_date > 1918.3.20 has_start_date < 1918.3.22
+            date < 1918.11.11
+            NOT = { has_country_flag = WW1_ROM_bookmark_occupation_set }
+            OR = { has_country_flag = WW1_ROM_focsani_armistice has_global_flag = bucharestreaty }
+            NOT = { has_global_flag = compiegne }
+            NOT = { has_global_flag = central_powers_victory }
+            NOT = { has_global_flag = bucharestreatyreversed }
+            owns_state = 79 controls_state = 79
+            NOT = { has_war_with = GER }
+            NOT = { has_war_with = AUH }
+            NOT = { has_war_with = BUL }
+        }
+        set_country_flag = WW1_ROM_bookmark_occupation_set
+        set_country_flag = WW1_ROM_military_occupation_pending
+        46 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
+        81 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
+        if = {
+            limit = { has_country_flag = WW1_ROM_focsani_armistice NOT = { has_global_flag = armistice_of_salonica } NOT = { has_global_flag = armistice_of_villa_giusti } }
+            77 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = BUL } }
+            1015 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
+            1030 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
+            1018 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = AUH } }
+        }
+    }
+}
+WW1_ROM_assign_bookmark_occupier = {
+    if = {
+        limit = {
+            is_owned_by = ROM
+            OR = { is_fully_controlled_by = ROM is_fully_controlled_by = $OCCUPIER$ }
+            $OCCUPIER$ = { exists = yes has_capitulated = no }
+        }
+        set_state_flag = WW1_ROM_bucharest_occupation
+        transfer_state_to = $OCCUPIER$
+    }
+}
+WW1_ROM_end_military_occupation = {
+    every_state = {
+        limit = {
+            has_state_flag = WW1_ROM_bucharest_occupation
+            OR = { is_owned_by = GER is_owned_by = AUH is_owned_by = AUS is_owned_by = BUL is_owned_by = ROM }
+            OR = { is_fully_controlled_by = GER is_fully_controlled_by = AUH is_fully_controlled_by = AUS is_fully_controlled_by = BUL is_fully_controlled_by = ROM }
+        }
+        clr_state_flag = WW1_ROM_bucharest_occupation
+        if = { limit = { is_owned_by = ROM } set_state_controller_to = ROM }
+        else = { transfer_state_to = ROM }
+    }
+    if = {
+        limit = { NOT = { any_state = { has_state_flag = WW1_ROM_bucharest_occupation } } }
+        clr_country_flag = WW1_ROM_military_occupation_pending
+    }
+}
+
+# The dates are earliest dates. The outcome still requires the relevant war or occupation.
+WW1_ROM_check_bucharest_settlement = {
+    if = {
+        limit = { has_country_flag = WW1_ROM_focsani_armistice has_global_flag = compiegne }
+        clr_country_flag = WW1_ROM_focsani_armistice
+        WW1_ROM_end_military_occupation = yes
+        if = { limit = { owns_state = 46 controls_state = 46 } set_capital = { state = 46 } }
+    }
+    if = {
+        limit = {
+            date < 1918.5.7
+            has_global_flag = october_revolution
+            is_subject = no
+            NOT = { has_country_flag = WW1_ROM_focsani_armistice }
+            NOT = { has_global_flag = compiegne }
+            owns_state = 46
+            owns_state = 79 controls_state = 79
+            46 = { OR = { is_fully_controlled_by = GER is_fully_controlled_by = AUH is_fully_controlled_by = BUL } }
+            OR = { has_war_with = GER has_war_with = AUH has_war_with = BUL }
+        }
+        country_event = eg_romania.10
+    }
+    if = {
+        limit = {
+            NOT = { date < 1918.2.6 }
+            date < 1919.1.1
+            NOT = { has_global_flag = bessarabia }
+            NOT = { country_exists = RO2 }
+            OR = { has_global_flag = october_revolution has_global_flag = treaty_of_brest_litovsk }
+            78 = {
+                OR = { is_owned_by = RIE is_owned_by = SOV }
+                OR = { is_fully_controlled_by = RIE is_fully_controlled_by = SOV is_fully_controlled_by = ROM }
+            }
+        }
+        country_event = eg_romania.5
+    }
+    if = {
+        limit = {
+            NOT = { date < 1918.4.9 }
+            date < 1919.1.1
+            NOT = { has_global_flag = bessarabia }
+            RO2 = { exists = yes owns_state = 78 OR = { is_subject = no is_subject_of = ROM } NOT = { has_war_with = ROM } }
+            78 = { OR = { is_fully_controlled_by = RO2 is_fully_controlled_by = ROM } }
+        }
+        country_event = eg_romania.3
+    }
+    if = {
+        limit = {
+            NOT = { date < 1918.5.7 }
+            date < 1919.1.1
+            has_global_flag = treaty_of_brest_litovsk
+            NOT = { has_global_flag = bucharestreaty }
+            NOT = { has_global_flag = bucharestreatyreversed }
+            NOT = { has_global_flag = armistice_of_salonica }
+            NOT = { has_global_flag = armistice_of_villa_giusti }
+            NOT = { has_global_flag = compiegne }
+            NOT = { has_global_flag = central_powers_victory }
+            is_subject = no
+            NOT = { is_in_faction_with = GER }
+            GER = { exists = yes has_capitulated = no }
+            AUH = { exists = yes has_capitulated = no }
+            BUL = { exists = yes has_capitulated = no }
+            OR = {
+                owns_state = 46
+                46 = {
+                    has_state_flag = WW1_ROM_bucharest_occupation
+                    OR = { is_owned_by = GER is_owned_by = AUH is_owned_by = BUL }
+                    OR = { is_fully_controlled_by = GER is_fully_controlled_by = AUH is_fully_controlled_by = BUL }
+                }
+            }
+            OR = {
+                has_country_flag = WW1_ROM_focsani_armistice
+                AND = {
+                    OR = { has_war_with = GER has_war_with = AUH has_war_with = BUL }
+                    46 = { OR = { is_fully_controlled_by = GER is_fully_controlled_by = AUH is_fully_controlled_by = BUL } }
+                }
+            }
+        }
+        country_event = eg_romania.1
+    }
+    if = {
+        limit = {
+            has_global_flag = bucharestreaty
+            NOT = { date < 1918.9.25 }
+            NOT = { has_global_flag = armistice_of_salonica }
+            NOT = { has_global_flag = compiegne }
+            NOT = { has_country_flag = WW1_ROM_berlin_protocol }
+            BUL = { exists = yes has_capitulated = no NOT = { has_war_with = GER } }
+            any_state = { has_state_flag = WW1_ROM_bucharest_cession is_owned_by = GER is_fully_controlled_by = GER }
+        }
+        country_event = eg_romania.6
+    }
+    if = {
+        limit = {
+            has_global_flag = bucharestreaty
+            NOT = { date < 1918.11.10 }
+            date < 1919.1.1
+            has_global_flag = armistice_of_villa_giusti
+            NOT = { has_global_flag = compiegne }
+            NOT = { has_global_flag = central_powers_victory }
+            NOT = { has_country_flag = WW1_ROM_remobilized }
+            is_subject = no
+            NOT = { is_in_faction_with = GER }
+            NOT = { has_war_with = GER }
+            GER = { has_war_with = FRA has_capitulated = no }
+        }
+        country_event = eg_romania.11
+    }
+    if = {
+        limit = {
+            has_global_flag = bucharestreaty
+            has_global_flag = compiegne
+            NOT = { has_global_flag = central_powers_victory }
+        }
+        country_event = eg_romania.2
+    }
+    if = {
+        limit = {
+            has_global_flag = bucharestreatyreversed
+            NOT = { date < 1918.11.19 }
+            NOT = { has_war_with = BUL }
+            NOT = { has_war_with = GER }
+            any_state = {
+                has_state_flag = WW1_ROM_bucharest_cession
+                OR = { state = 77 state = 1015 state = 1030 }
+                OR = { is_owned_by = BUL is_owned_by = GER }
+                OR = { is_fully_controlled_by = BUL is_fully_controlled_by = GER is_fully_controlled_by = FRA is_fully_controlled_by = ENG is_fully_controlled_by = ROM }
+            }
+        }
+        country_event = eg_romania.7
+    }
+    if = {
+        limit = {
+            has_global_flag = bucharestreatyreversed
+            NOT = { date < 1918.12.1 }
+            owns_state = 46 controls_state = 46
+            79 = { is_capital = yes }
+        }
+        country_event = eg_romania.9
+    }
+    if = {
+        limit = {
+            has_global_flag = bucharestreatyreversed
+            NOT = { date < 1918.12.24 }
+            NOT = { has_war_with = FRA }
+            any_state = { has_state_flag = WW1_ROM_dobruja_allied_administration OR = { is_owned_by = FRA is_owned_by = ROM } OR = { is_fully_controlled_by = FRA is_fully_controlled_by = ROM } }
+        }
+        country_event = eg_romania.8
+    }
+}
+
+# Focsani suspends fighting on the Romanian front. Preserve the occupation across white peace.
+WW1_ROM_armistice_with_central_powers = {
+    set_country_flag = WW1_ROM_military_occupation_pending
+    every_owned_state = {
+        limit = {
+            OR = { state = 46 state = 81 state = 77 state = 1015 state = 1030 state = 1018 }
+            OR = { is_fully_controlled_by = GER is_fully_controlled_by = AUH is_fully_controlled_by = BUL }
+        }
+        set_state_flag = WW1_ROM_bucharest_occupation
+        set_state_flag = WW1_ROM_preserve_controller
+        if = { limit = { is_fully_controlled_by = AUH } set_state_flag = WW1_ROM_occupied_by_AUH }
+        else_if = { limit = { is_fully_controlled_by = BUL } set_state_flag = WW1_ROM_occupied_by_BUL }
+    }
+    if = { limit = { has_faction_template = faction_template_ww1_entente } leave_faction = yes }
+    every_enemy_country = {
+        limit = { OR = { tag = GER tag = AUH tag = BUL tag = TUR is_in_faction_with = GER } }
+        white_peace = ROM
+    }
+    every_owned_state = {
+        limit = { has_state_flag = WW1_ROM_preserve_controller }
+        clr_state_flag = WW1_ROM_preserve_controller
+        if = { limit = { has_state_flag = WW1_ROM_occupied_by_AUH } transfer_state_to = AUH clr_state_flag = WW1_ROM_occupied_by_AUH }
+        else_if = { limit = { has_state_flag = WW1_ROM_occupied_by_BUL } transfer_state_to = BUL clr_state_flag = WW1_ROM_occupied_by_BUL }
+        else = { transfer_state_to = GER }
+    }
 }

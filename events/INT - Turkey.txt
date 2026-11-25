@@ -103,10 +103,10 @@ country_event = {
 		tag = TUR
 		has_start_date < 1923.1.1
 		date > 1922.10.31
-		date < 1923.1.1
-		has_global_flag = armistice_of_mudros
+		date < 1924.1.1
+		INT_TUR_independence_context = yes
+		has_country_flag = INT_TUR_ankara_assembly
 		NOT = { has_global_flag = central_powers_victory }
-		has_focus_tree = INT_turkey
 		owns_state = 49
 		NOT = { has_country_flag = INT_TUR_sultanate_abolished }
 	 NOT = { has_completed_focus = INT_TUR_ottoman_victory } }
@@ -114,13 +114,15 @@ country_event = {
 	option = {
 		name = INT_turkey.8.a
 		if = {
-			limit = { NOT = { has_completed_focus = INT_TUR_grand_national_assembly } }
-			complete_national_focus = INT_TUR_grand_national_assembly
-		}
-		INT_TUR_end_sultanate = yes
-		if = {
-			limit = { NOT = { has_completed_focus = INT_TUR_abolish_sultanate } }
-			complete_national_focus = INT_TUR_abolish_sultanate
+			limit = {
+				INT_TUR_independence_context = yes
+				has_country_flag = INT_TUR_ankara_assembly
+			}
+			INT_TUR_end_sultanate = yes
+			if = {
+				limit = { NOT = { has_completed_focus = INT_TUR_abolish_sultanate } }
+				unlock_national_focus = INT_TUR_abolish_sultanate
+			}
 		}
 	}
 }
@@ -135,21 +137,21 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		has_start_date < 1923.7.25
-		tag = TUR
-		has_start_date < 1924.1.1
-		date > 1923.7.23
-		date < 1923.9.1
-		has_global_flag = armistice_of_mudros
-		NOT = { has_global_flag = central_powers_victory }
-		has_focus_tree = INT_turkey
-		has_country_flag = INT_TUR_sultanate_abolished
-		NOT = { has_completed_focus = INT_TUR_lausanne }
-		NOT = { has_country_flag = INT_TUR_lausanne_signed }
-	 NOT = { has_completed_focus = INT_TUR_ottoman_victory } }
+		date < 1936.1.1
+		INT_TUR_can_sign_lausanne = yes
+	}
 	mean_time_to_happen = { days = 1 }
 	option = {
 		name = INT_turkey.9.a
-		complete_national_focus = INT_TUR_lausanne
+		INT_TUR_apply_lausanne_settlement = yes
+		if = {
+			limit = {
+				has_focus_tree = INT_turkey
+				has_country_flag = INT_TUR_lausanne_signed
+				NOT = { has_completed_focus = INT_TUR_lausanne }
+			}
+			unlock_national_focus = INT_TUR_lausanne
+		}
 	}
 }
 
@@ -164,10 +166,9 @@ country_event = {
 		tag = TUR
 		has_start_date < 1924.1.1
 		date > 1923.10.28
-		date < 1924.1.1
+		date < 1936.1.1
 		has_global_flag = armistice_of_mudros
 		NOT = { has_global_flag = central_powers_victory }
-		has_focus_tree = INT_turkey
 		has_country_flag = INT_TUR_lausanne_signed
 		NOT = { has_completed_focus = INT_TUR_republic }
 		NOT = { has_country_flag = INT_TUR_republic_proclaimed }
@@ -175,6 +176,23 @@ country_event = {
 	mean_time_to_happen = { days = 1 }
 	option = {
 		name = INT_turkey.10.a
-		complete_national_focus = INT_TUR_republic
+		if = { limit = { has_focus_tree = INT_turkey } complete_national_focus = INT_TUR_republic }
+		else = { INT_TUR_proclaim_republic = yes }
 	}
+}
+
+# Older games may already have opened the assembly and moved the capital.
+country_event = {
+	id = INT_turkey.11
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		INT_TUR_independence_context = yes
+		date > 1920.4.22
+		has_country_flag = INT_TUR_ankara_assembly
+		NOT = { has_country_flag = INT_TUR_ankara_government_installed }
+		NOT = { has_country_flag = INT_TUR_republic_proclaimed }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { INT_TUR_install_ankara_government = yes }
 }

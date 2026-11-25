@@ -1,0 +1,77 @@
+# Serbian territory before the 1915 occupation. Northern Belgrade (1008) and
+# the Danube districts were on the Habsburg side of the prewar border.
+WW1_SER_prewar_homeland = {
+    OR = { state = 106 state = 107 state = 108 state = 802 state = 803 state = 1021 state = 1038 }
+}
+
+WW1_SER_historical_yugoslav_successor = {
+    tag = YUG
+    exists = yes
+    has_cosmetic_tag = WW1_AUH_south_slav_kingdom
+    is_subject = no
+}
+
+WW1_SER_salonica_restoration_open = {
+    has_start_date > 1900.1.1
+    has_start_date < 1921.1.1
+    date < 1923.1.1
+    has_global_flag = armistice_of_salonica
+    NOT = {
+        OR = {
+            has_global_flag = central_powers_victory
+            has_global_flag = player_wants_custom_peacedeals
+        }
+    }
+}
+
+WW1_SER_homeland_under_allied_control = {
+    is_fully_controlled_by = CONTROLLER
+    controller = {
+        OR = {
+            tag = SER
+            WW1_SER_historical_yugoslav_successor = yes
+            AND = {
+                OR = { tag = FRA tag = ENG tag = GRE tag = ITA }
+                NOT = { OR = { has_war_with = SER has_war_with = YUG } }
+            }
+        }
+    }
+}
+
+WW1_SER_occupier_has_signed_armistice = {
+    OR = {
+        AND = { is_fully_controlled_by = BUL has_global_flag = armistice_of_salonica }
+        AND = { is_fully_controlled_by = AUH has_global_flag = armistice_of_villa_giusti }
+        AND = { is_fully_controlled_by = GER has_global_flag = compiegne }
+    }
+}
+
+# Use historical milestones when the AI has not advanced the front by itself.
+WW1_SER_historical_withdrawal_due = {
+    106 = { WW1_SER_homeland_under_allied_control = yes }
+    is_fully_controlled_by = CONTROLLER
+    controller = {
+        is_ai = yes
+        is_historical_focus_on = yes
+        OR = { tag = AUH tag = GER }
+        WW1_AUH_entente_opponent = yes
+    }
+    OR = {
+        AND = {
+            OR = { state = 106 state = 108 state = 803 state = 1021 state = 1038 }
+            NOT = { date < 1918.10.12 }
+        }
+        AND = { state = 802 NOT = { date < 1918.10.17 } }
+        AND = { state = 107 NOT = { date < 1918.11.1 } }
+    }
+}
+
+# A third party's occupation is preserved when only legal ownership is restored.
+WW1_SER_homeland_control_can_transfer = {
+    OR = {
+        is_fully_controlled_by = OWNER
+        WW1_SER_homeland_under_allied_control = yes
+        WW1_SER_occupier_has_signed_armistice = yes
+        WW1_SER_historical_withdrawal_due = yes
+    }
+}

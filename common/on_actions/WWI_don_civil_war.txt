@@ -1,0 +1,94 @@
+on_actions = {
+	on_daily_SOV = {
+		effect = {
+			if = {
+				limit = {
+					date > 1918.3.22 date < 1918.5.8
+					NOT = { has_global_flag = INT_DON_rostov_soviet_established }
+				}
+				country_event = { id = INT_don_settlement.2 }
+			}
+			# The Don Republic is KUB in the Russian Civil War scenario.
+			KUB = {
+				if = {
+					limit = {
+						exists = yes
+						is_ai = yes
+						has_start_date < 1921.1.1
+						date > 1917.12.31
+						date < 1922.1.1
+						has_global_flag = welcome_event_WW1_active
+						NOT = { has_global_flag = RUS_CW_Over }
+						OR = {
+							has_global_flag = russian_civil_war
+							AND = {
+								NOT = { has_start_date < 1918.1.1 }
+								has_start_date < 1919.1.1
+							}
+						}
+						is_subject_of = WHR
+						has_capitulated = no
+						OR = { owns_state = 218 owns_state = 245 }
+						NOT = { has_war_with = SOV }
+						WHR = { exists = yes has_war_with = SOV }
+					}
+					add_to_war = {
+						targeted_alliance = WHR
+						enemy = SOV
+						hostility_reason = asked_to_join
+						single_target_only = yes
+					}
+				}
+			}
+		}
+	}
+	on_daily_KUB = {
+		effect = {
+			if = {
+				limit = {
+					is_ai = yes INT_DON_historical_campaign = yes date > 1917.11.6 date < 1921.1.1
+					has_capitulated = no NOT = { is_subject_of = SOV }
+					OR = { is_subject_of = WHR AND = { is_subject = no NOT = { has_government = communism } } }
+				}
+				if = {
+					limit = { date < 1918.10.1 DON = { exists = yes has_country_flag = INT_DON_1918_rostov_government } }
+					country_event = { id = INT_don_settlement.3 }
+				}
+				if = {
+					limit = { owns_state = 218 controls_state = 218 NOT = { capital_scope = { state = 218 } } }
+					set_capital = { state = 218 }
+				}
+				if = {
+					limit = { date < 1918.2.11 NOT = { has_country_flag = INT_DON_kaledin_ataman } }
+					set_politics = { ruling_party = neutrality elections_allowed = no }
+					create_country_leader = { name = "Alexei Kaledin" ideology = despotism expire = "1918.2.11" }
+					set_country_flag = INT_DON_kaledin_ataman
+				}
+				else_if = {
+					limit = { date > 1918.2.10 date < 1918.2.25 NOT = { has_country_flag = INT_DON_nazarov_ataman } }
+					set_politics = { ruling_party = neutrality elections_allowed = no }
+					create_country_leader = { name = "Anatoly Nazarov" ideology = despotism expire = "1918.2.25" }
+					set_country_flag = INT_DON_nazarov_ataman
+				}
+				else_if = {
+					limit = { date > 1918.2.24 date < 1918.5.16 NOT = { has_country_flag = INT_DON_popov_field_ataman } }
+					set_politics = { ruling_party = neutrality elections_allowed = no }
+					create_country_leader = { name = "Pyotr Popov" ideology = despotism expire = "1960.10.6" }
+					set_country_flag = INT_DON_popov_field_ataman
+				}
+				else_if = {
+					limit = { date > 1918.5.15 date < 1919.2.19 NOT = { has_country_flag = INT_DON_krasnov_ataman } }
+					set_politics = { ruling_party = neutrality elections_allowed = no }
+					create_country_leader = { name = "Pyotr Krasnov" picture = "gfx/leaders/KUB/Portrait_Kuban_Pyotr_Krasnov.dds" ideology = despotism expire = "1947.1.16" }
+					set_country_flag = INT_DON_krasnov_ataman
+				}
+				else_if = {
+					limit = { date > 1919.2.18 NOT = { has_country_flag = INT_DON_bogaevsky_ataman } }
+					set_politics = { ruling_party = neutrality elections_allowed = no }
+					create_country_leader = { name = "Afrikan Bogaevsky" ideology = despotism expire = "1934.10.21" }
+					set_country_flag = INT_DON_bogaevsky_ataman
+				}
+			}
+		}
+	}
+}

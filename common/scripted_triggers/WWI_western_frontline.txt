@@ -1,0 +1,73 @@
+# Later bookmarks and existing saves may have no opening-timetable flags.
+# The historical opening ends at Christmas, while an earlier failed plan can
+# already have handed operations over to the standing front.
+WW1_western_frontline_available = {
+	WW1_western_plan_can_continue = yes
+	FRA = { has_capitulated = no }
+	NOT = { has_country_flag = WW1_western_plan_paris_secured }
+	OR = {
+		date > 1914.12.24
+		has_country_flag = WW1_western_frontline_active
+		has_country_flag = WW1_western_plan_missed_deadline
+	}
+}
+
+WW1_western_frontline_can_issue_orders = {
+	WW1_western_frontline_available = yes
+	NOT = { check_variable = { WW1_western_frontline_days > 0 } }
+	has_equipment = { infantry_equipment > 499 support_equipment > 24 }
+}
+
+WW1_western_frontline_flanders_state = {
+	OR = { state = 6 state = 29 state = 34 }
+}
+
+WW1_western_frontline_somme_state = {
+	OR = { state = 18 state = 27 state = 785 }
+}
+
+WW1_western_frontline_lorraine_state = {
+	OR = { state = 17 state = 28 state = 1019 }
+}
+
+WW1_western_frontline_can_supply_flanders = {
+	WW1_western_frontline_can_issue_orders = yes
+	any_controlled_state = { WW1_western_frontline_flanders_state = yes }
+}
+
+WW1_western_frontline_can_supply_somme = {
+	WW1_western_frontline_can_issue_orders = yes
+	any_controlled_state = { WW1_western_frontline_somme_state = yes }
+}
+
+WW1_western_frontline_can_supply_lorraine = {
+	WW1_western_frontline_can_issue_orders = yes
+	any_controlled_state = { WW1_western_frontline_lorraine_state = yes }
+}
+
+# Keep the assigned objective for the duration of an order; otherwise preview the next one.
+WW1_WF_flanders_secondary = {
+	if = {
+		limit = { check_variable = { WW1_western_frontline_days > 0 } check_variable = { WW1_western_frontline_sector = 1 } }
+		has_country_flag = WW1_WF_secondary_objective
+	}
+	else = { WW1_western_plan_controls_lille = yes }
+}
+
+# Keep the assigned objective for the duration of an order; otherwise preview the next one.
+WW1_WF_somme_secondary = {
+	if = {
+		limit = { check_variable = { WW1_western_frontline_days > 0 } check_variable = { WW1_western_frontline_sector = 2 } }
+		has_country_flag = WW1_WF_secondary_objective
+	}
+	else = { WW1_western_plan_controls_amiens = yes }
+}
+
+# Keep the assigned objective for the duration of an order; otherwise preview the next one.
+WW1_WF_lorraine_secondary = {
+	if = {
+		limit = { check_variable = { WW1_western_frontline_days > 0 } check_variable = { WW1_western_frontline_sector = 3 } }
+		has_country_flag = WW1_WF_secondary_objective
+	}
+	else = { WW1_western_plan_controls_verdun = yes }
+}

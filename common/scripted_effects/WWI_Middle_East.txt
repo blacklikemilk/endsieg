@@ -1,0 +1,186 @@
+WWI_hejaz_take_revolt_states = {
+	856 = { if = { limit = { WWI_levant_handover_allowed = yes } add_core_of = HEJ transfer_state_to = HEJ } }
+	679 = { if = { limit = { WWI_levant_handover_allowed = yes } add_core_of = HEJ transfer_state_to = HEJ } }
+}
+
+WWI_hejaz_establish_hussein = {
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	promote_character = { character = HEJ_sharif_ali ideology = despotism }
+	set_capital = { state = 856 }
+}
+
+# The campaign command's wartime presence accrued no title to Persian territory.
+WWI_end_persian_occupation = {
+	if = {
+		limit = { country_exists = PER NOT = { PER = { has_war_with = ENG } } }
+		every_state = {
+			limit = {
+				OR = { state = 410 state = 412 state = 413 state = 1058 }
+				OR = { is_owned_by = ENG is_owned_by = EN3 }
+				OR = { is_controlled_by = ENG is_controlled_by = EN3 is_controlled_by = PER }
+			}
+			remove_core_of = EN3
+			transfer_state_to = PER
+		}
+	}
+}
+
+WWI_mudros_arab_provinces = {
+	WWI_end_persian_occupation = yes
+	if = {
+		limit = { country_exists = ENG }
+		every_state = {
+			limit = {
+				OR = { state = 446 state = 453 state = 454 state = 987 state = 988 state = 455 state = 765 state = 656 state = 675 }
+				is_owned_by = TUR
+				WWI_levant_handover_allowed = yes
+			}
+			transfer_state_to = ENG
+		}
+	}
+	553 = {
+		if = { limit = { is_owned_by = TUR WWI_levant_handover_allowed = yes FRA = { exists = yes } } transfer_state_to = FRA }
+	}
+	# Baghdad and Basra fall within the British occupation. Mosul follows in November.
+	if = {
+		limit = { has_country_flag = WWI_mudros_british_participant }
+		291 = { if = { limit = { WWI_mesopotamian_handover_allowed = yes } WWI_place_under_british_administration = yes } }
+	}
+	# Former Ottoman allies can still control individual provinces after a separate peace.
+	if = {
+		limit = { has_country_flag = WWI_mudros_austrian_ally has_country_flag = WWI_mudros_british_participant }
+		291 = {
+			if = {
+				limit = { is_owned_by = ENG NOT = { is_fully_controlled_by = ENG } }
+				owner = {
+					if = { limit = { AUH = { controls_province = 78 } } set_province_controller = 78 }
+					if = { limit = { AUH = { controls_province = 2004 } } set_province_controller = 2004 }
+					if = { limit = { AUH = { controls_province = 2089 } } set_province_controller = 2089 }
+					if = { limit = { AUH = { controls_province = 2097 } } set_province_controller = 2097 }
+					if = { limit = { AUH = { controls_province = 3795 } } set_province_controller = 3795 }
+					if = { limit = { AUH = { controls_province = 7977 } } set_province_controller = 7977 }
+					if = { limit = { AUH = { controls_province = 7994 } } set_province_controller = 7994 }
+					if = { limit = { AUH = { controls_province = 8001 } } set_province_controller = 8001 }
+					if = { limit = { AUH = { controls_province = 10876 } } set_province_controller = 10876 }
+					if = { limit = { AUH = { controls_province = 12046 } } set_province_controller = 12046 }
+					if = { limit = { AUH = { controls_province = 12413 } } set_province_controller = 12413 }
+					if = { limit = { AUH = { controls_province = 12726 } } set_province_controller = 12726 }
+					if = { limit = { AUH = { controls_province = 12839 } } set_province_controller = 12839 }
+					if = { limit = { AUH = { controls_province = 12855 } } set_province_controller = 12855 }
+				}
+			}
+		}
+		676 = {
+			if = {
+				limit = { is_owned_by = TUR NOT = { is_fully_controlled_by = TUR } }
+				owner = {
+					if = { limit = { AUH = { controls_province = 1600 } } set_province_controller = 1600 }
+					if = { limit = { AUH = { controls_province = 1938 } } set_province_controller = 1938 }
+					if = { limit = { AUH = { controls_province = 3916 } } set_province_controller = 3916 }
+					if = { limit = { AUH = { controls_province = 5014 } } set_province_controller = 5014 }
+					if = { limit = { AUH = { controls_province = 6826 } } set_province_controller = 6826 }
+					if = { limit = { AUH = { controls_province = 8123 } } set_province_controller = 8123 }
+					if = { limit = { AUH = { controls_province = 10106 } } set_province_controller = 10106 }
+					if = { limit = { AUH = { controls_province = 10793 } } set_province_controller = 10793 }
+					if = { limit = { AUH = { controls_province = 10804 } } set_province_controller = 10804 }
+					if = { limit = { AUH = { controls_province = 10811 } } set_province_controller = 10811 }
+					if = { limit = { AUH = { controls_province = 12372 } } set_province_controller = 12372 }
+				}
+			}
+		}
+	}
+	# Damascus, Sana'a and Mecca receive their own governments through the armistice event.
+	if = { limit = { country_exists = ENG } ENG = { country_event = { id = ww1_levant.1 } } }
+}
+
+WWI_place_under_british_administration = {
+	if = { limit = { is_owned_by = TUR } transfer_state_to = ENG }
+	else_if = { limit = { is_fully_controlled_by = AUH } set_state_controller_to = ENG }
+}
+
+WWI_evacuate_cilician_garrisons = {
+	if = { limit = { owns_state = 345 FRA = { controls_province = 10056 } } set_province_controller = 10056 }
+	if = { limit = { owns_state = 345 FRA = { controls_province = 11810 } } set_province_controller = 11810 }
+	if = { limit = { owns_state = 344 FRA = { controls_province = 11746 } } set_province_controller = 11746 }
+	clr_country_flag = WWI_cilician_garrisons
+}
+
+# State scope. Mark each temporary military administration so evacuation never
+# changes an unrelated conquest. Keep Turkish cores throughout.
+WWI_open_occupation_district = {
+	if = {
+		limit = {
+			is_owned_by = TUR
+			WWI_occupation_district_available = { ally = $ally$ }
+		}
+		set_state_flag = WWI_anatolian_occupation_district
+		transfer_state_to = $ally$
+	}
+}
+
+WWI_return_occupation_district = {
+	if = {
+		limit = { has_state_flag = WWI_anatolian_occupation_district is_owned_by = $ally$ WWI_occupation_district_available = { ally = $ally$ } }
+		transfer_state_to = TUR
+		clr_state_flag = WWI_anatolian_occupation_district
+	}
+}
+
+# Reconcile earlier saves whose initial events recorded just the port garrisons.
+WWI_update_anatolian_occupation = {
+	if = {
+		limit = {
+			has_country_flag = WWI_constantinople_allied_garrison
+			ENG = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+		}
+		if = {
+			limit = { date < 1923.10.2 }
+			797 = { WWI_open_occupation_district = { ally = ENG } }
+			# Both shores are the map's Dardanelles strait provinces.
+			if = { limit = { owns_state = 341 controls_province = 849 } ENG = { set_province_controller = 849 } }
+			if = { limit = { owns_state = 340 controls_province = 6864 } ENG = { set_province_controller = 6864 } }
+		}
+	}
+	if = {
+		limit = {
+			has_country_flag = WWI_italian_antalya_landing date < 1921.7.5
+			ITA = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+		}
+		342 = { WWI_open_occupation_district = { ally = ITA } }
+	}
+	if = {
+		limit = {
+			FRA = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } }
+			OR = { has_country_flag = WWI_cilician_garrisons has_country_flag = INT_TUR_ankara_accord_signed }
+		}
+		if = {
+			limit = { date < 1922.1.5 has_country_flag = WWI_mudros_french_participant }
+			344 = { WWI_open_occupation_district = { ally = FRA } }
+			345 = { WWI_open_occupation_district = { ally = FRA } }
+			if = {
+				limit = { 344 = { is_owned_by = FRA has_state_flag = WWI_anatolian_occupation_district } }
+				# Malatya remained outside the occupation. Maraş expelled its garrison in February 1920.
+				if = { limit = { FRA = { controls_province = 7620 } } set_province_controller = 7620 }
+				if = { limit = { OR = { date < 1919.2.22 date > 1920.2.11 } FRA = { controls_province = 6813 } } set_province_controller = 6813 }
+				if = { limit = { date > 1921.12.24 FRA = { controls_province = 9893 } } set_province_controller = 9893 }
+				if = {
+					limit = { has_country_flag = WWI_mudros_british_participant ENG = { exists = yes has_capitulated = no NOT = { has_war_with = TUR } NOT = { has_war_with = FRA } } }
+					if = {
+						limit = { date < 1919.10.29 }
+						if = { limit = { date > 1918.12.16 FRA = { controls_province = 9893 } } ENG = { set_province_controller = 9893 } }
+						if = { limit = { date > 1919.2.21 OR = { controls_province = 6813 FRA = { controls_province = 6813 } } } ENG = { set_province_controller = 6813 } }
+					}
+					else = {
+						if = { limit = { ENG = { controls_province = 9893 } } FRA = { set_province_controller = 9893 } }
+						if = { limit = { ENG = { controls_province = 6813 } } FRA = { set_province_controller = 6813 } }
+					}
+				}
+			}
+		}
+		else = {
+			344 = { WWI_return_occupation_district = { ally = FRA } }
+			345 = { WWI_return_occupation_district = { ally = FRA } }
+			if = { limit = { has_country_flag = WWI_cilician_garrisons } WWI_evacuate_cilician_garrisons = yes }
+		}
+	}
+}

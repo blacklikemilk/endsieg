@@ -59,18 +59,15 @@ GER_INT_retire_imperial_advisors = {
 # because the interwar cabinet can promote him to Reich President, but he is
 # no longer an active unit leader.
 GER_INT_replace_imperial_command = {
-	if = { limit = { endsieg_character_active_ger_paul_von_hindenburg_9c638af8 = yes } GER_paul_von_hindenburg = { remove_unit_leader_role = yes } }
 	if = { limit = { has_character = GER_helmuth_von_moltke } retire_character = GER_helmuth_von_moltke }
 	if = { limit = { has_character = GER_hermann_von_eichorn } retire_character = GER_hermann_von_eichorn }
 	if = { limit = { has_character = GER_erich_ludendorff } retire_character = GER_erich_ludendorff }
-	if = { limit = { has_character = GER_erich_von_falkenhayn } retire_character = GER_erich_von_falkenhayn }
 	if = { limit = { has_character = GER_alexander_von_kluck } retire_character = GER_alexander_von_kluck }
 	if = { limit = { has_character = GER_friedrich_sixt_von_armin } retire_character = GER_friedrich_sixt_von_armin }
 	if = { limit = { has_character = GER_felix_von_bothmer } retire_character = GER_felix_von_bothmer }
 	if = { limit = { has_character = GER_ferdinand_von_quast } retire_character = GER_ferdinand_von_quast }
 	if = { limit = { has_character = GER_fritz_von_below } retire_character = GER_fritz_von_below }
 	if = { limit = { has_character = GER_hermann_von_francois } retire_character = GER_hermann_von_francois }
-	if = { limit = { has_character = GER_paul_von_lettowvorbeck } retire_character = GER_paul_von_lettowvorbeck }
 	if = { limit = { has_character = GER_karl_von_einem } retire_character = GER_karl_von_einem }
 	if = { limit = { has_character = GER_prince_leopold_of_bavaria } retire_character = GER_prince_leopold_of_bavaria }
 	if = { limit = { has_character = GER_prince_rupprecht_of_bavaria } retire_character = GER_prince_rupprecht_of_bavaria }
@@ -84,6 +81,9 @@ GER_INT_replace_imperial_command = {
 	if = { limit = { has_character = GER_alfred_von_tirpitz } retire_character = GER_alfred_von_tirpitz }
 	if = { limit = { has_character = GER_franz_von_hipper } retire_character = GER_franz_von_hipper }
 
+	# Retain officers who continued serving during the transition.
+	GER_INT_finish_imperial_retirements = yes
+
 	# Reichswehr and Reichsmarine officers with existing current-vanilla
 	# character definitions and portraits.
 	if = { limit = { NOT = { endsieg_character_active_ger_gerd_von_rundstedt_7c843109 = yes } } endsieg_character_activate_ger_gerd_von_rundstedt_7c843109 = yes }
@@ -95,6 +95,52 @@ GER_INT_replace_imperial_command = {
 	if = { limit = { NOT = { endsieg_character_active_ger_georg_von_kuchler_b51f6a1e = yes } } endsieg_character_activate_ger_georg_von_kuchler_b51f6a1e = yes }
 	if = { limit = { NOT = { endsieg_character_active_ger_walter_kruger_3f13df44 = yes } } endsieg_character_activate_ger_walter_kruger_3f13df44 = yes }
 	if = { limit = { NOT = { endsieg_character_active_ger_erich_raeder_f782b279 = yes } } endsieg_character_activate_ger_erich_raeder_f782b279 = yes }
+}
+
+GER_INT_finish_imperial_retirements = {
+	if = {
+		limit = {
+			NOT = { date < 1919.7.3 }
+			has_character = GER_paul_von_hindenburg
+			GER_paul_von_hindenburg = { is_unit_leader = yes }
+		}
+		GER_paul_von_hindenburg = { remove_unit_leader_role = yes }
+	}
+	if = {
+		limit = { NOT = { date < 1919.6.5 } has_character = GER_erich_von_falkenhayn }
+		retire_character = GER_erich_von_falkenhayn
+	}
+	if = {
+		limit = { NOT = { date < 1920.8.1 } has_character = GER_paul_von_lettowvorbeck }
+		retire_character = GER_paul_von_lettowvorbeck
+	}
+}
+
+# Older Weimar saves kept Hindenburg's political role but stripped his army role.
+GER_INT_reconcile_weimar_command = {
+	if = {
+		limit = { NOT = { has_country_flag = GER_INT_historical_command_reconciled } }
+		set_country_flag = GER_INT_historical_command_reconciled
+		if = {
+			limit = {
+				date < 1919.7.3
+				endsieg_character_active_ger_paul_von_hindenburg_9c638af8 = yes
+				GER_paul_von_hindenburg = { is_unit_leader = no }
+			}
+			add_field_marshal_role = {
+				character = GER_paul_von_hindenburg
+				traits = { offensive_doctrine defensive_doctrine }
+				skill = 5
+				attack_skill = 4
+				defense_skill = 5
+				planning_skill = 5
+				logistics_skill = 4
+				legacy_id = 1001
+			}
+		}
+		GER_INT_replace_imperial_command = yes
+	}
+	GER_INT_finish_imperial_retirements = yes
 }
 
 # Dated national turning points. Each flag is set before the event is queued;

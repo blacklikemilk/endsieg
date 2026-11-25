@@ -1,0 +1,71 @@
+# The First Dáil forms while the island is still under British administration.
+INT_IRE_independence_can_stage = {
+	tag = ENG
+	has_start_date < 1922.1.16
+	date > 1919.1.20
+	date < 1922.1.16
+	is_subject = no
+	has_capitulated = no
+	113 = { is_owned_by = ENG is_fully_controlled_by = ENG }
+	134 = { is_owned_by = ENG is_fully_controlled_by = ENG }
+	135 = { is_owned_by = ENG is_fully_controlled_by = ENG }
+	NOT = {
+		OR = {
+			country_exists = IRE
+			has_country_flag = EN1_R_irish_settled
+			has_global_flag = INT_IRE_independence_staged
+			has_global_flag = INT_IRE_truce
+			has_global_flag = INT_IRE_truce_rejected
+			has_global_flag = INT_IRE_treaty_signed
+			has_global_flag = INT_IRE_treaty_rejected
+			has_global_flag = INT_IRE_provisional_government
+		}
+	}
+}
+
+# The older guerrilla pressure stage remains eligible for an already pending truce.
+INT_IRE_independence_hostilities = {
+	tag = ENG
+	has_global_flag = INT_IRE_war_of_independence
+	NOT = { OR = { has_global_flag = INT_IRE_truce has_global_flag = INT_IRE_treaty_signed has_country_flag = EN1_R_irish_settled } }
+	OR = {
+		AND = {
+			has_global_flag = INT_IRE_independence_war_started
+			IRE = { exists = yes is_subject = no owns_state = 113 has_country_flag = INT_IRE_dublin_ministry }
+		}
+		has_war_with = IRE
+		AND = {
+			NOT = { has_global_flag = INT_IRE_independence_staged }
+			has_idea = INT_ENG_irish_guerrilla_war
+			owns_state = 113
+			NOT = { has_country_flag = EN1_R_irish_settled }
+		}
+	}
+}
+
+# The treaty can be signed only while the July ceasefire still holds.
+INT_IRE_treaty_available = {
+	tag = ENG
+	has_start_date < 1921.12.7
+	date > 1921.12.5
+	date < 1922.1.7
+	has_global_flag = INT_IRE_truce
+	NOT = { OR = { has_war_with = IRE has_global_flag = INT_IRE_treaty_signed has_global_flag = INT_IRE_treaty_rejected } }
+	OR = { owns_state = 113 owns_state = 134 owns_state = 135 }
+}
+
+INT_IRE_provisional_can_transfer = {
+	tag = ENG
+	has_global_flag = INT_IRE_treaty_ratified
+	NOT = { OR = { has_war_with = IRE has_country_flag = EN1_R_irish_settled } }
+	OR = { 113 = { is_owned_by = ENG is_fully_controlled_by = ENG } IRE = { owns_state = 113 } }
+	NOT = { has_global_flag = INT_IRE_provisional_government }
+}
+
+INT_IRE_britain_fighting_only_volunteers = {
+	tag = ENG
+	has_global_flag = INT_IRE_independence_staged
+	date < 1923.1.1
+	has_war_with = IRE
+	NOT = { any_enemy_country = { NOT = { tag = IRE } } }
+}

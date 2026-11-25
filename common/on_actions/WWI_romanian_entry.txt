@@ -1,3 +1,47 @@
 on_actions = {
- on_daily_ROM = { effect = { WW1_ROM_historical_entry = yes } }
+    on_startup = {
+        effect = { ROM = { WW1_ROM_start_bookmark_occupation = yes } }
+    }
+    on_daily_ROM = {
+        effect = {
+            # Also repairs ongoing March starts on their first daily update.
+            WW1_ROM_start_bookmark_occupation = yes
+            WW1_ROM_historical_entry = yes
+            if = {
+                limit = {
+                    has_start_date < 1918.5.7
+                    has_global_flag = welcome_event_WW1_active
+                    NOT = { date < 1917.12.9 }
+                    date < 1923.1.1
+                    NOT = { has_global_flag = player_wants_custom_peacedeals }
+                }
+                WW1_ROM_check_bucharest_settlement = yes
+            }
+            # Custom peace bypasses the treaty events. End temporary administration
+            # when the European war closes, including a Central Powers victory.
+            if = {
+                limit = {
+                    has_country_flag = WW1_ROM_military_occupation_pending
+                    OR = {
+                        has_global_flag = compiegne
+                        has_global_flag = central_powers_victory
+                        AND = {
+                            has_global_flag = player_wants_custom_peacedeals
+                            GER = { NOT = { has_war_with = FRA } NOT = { has_war_with = ENG } }
+                        }
+                    }
+                }
+                WW1_ROM_end_military_occupation = yes
+                if = {
+                    limit = {
+                        has_global_flag = central_powers_victory has_global_flag = bucharestreaty
+                        owns_state = 46 country_exists = GER
+                        NOT = { has_country_flag = WW1_ROM_bucharest_oil_rights }
+                    }
+                    give_resource_rights = { receiver = GER state = 46 resources = { oil } }
+                    set_country_flag = WW1_ROM_bucharest_oil_rights
+                }
+            }
+        }
+    }
 }

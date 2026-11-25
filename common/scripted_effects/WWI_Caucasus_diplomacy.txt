@@ -1,0 +1,56 @@
+# Repair German subordination created by the old Treaty of Poti.
+WW1_Caucasus_repair_legacy_diplomacy = {
+	if = {
+		limit = {
+			has_start_date < 1919.1.1
+			date > 1918.5.25
+			date < 1921.3.18
+			NOT = { has_global_flag = central_powers_victory }
+		}
+		if = {
+			limit = {
+				GEO = {
+					is_subject_of = GER
+					has_country_flag = transcauc_georgia_separated
+					owns_state = 231
+				}
+			}
+			GER = {
+				if = {
+					limit = {
+						INT_eastern_local_wars_context = yes
+						INT_eastern_no_direct_soviet_war = yes
+						GEO = { has_war_with = SOV }
+					}
+					white_peace = SOV
+				}
+				set_autonomy = { target = GEO autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+				diplomatic_relation = { country = GEO relation = guarantee active = no }
+			}
+			GEO = {
+				if = { limit = { is_in_faction_with = GER } leave_faction = yes }
+				diplomatic_relation = { country = GER relation = guarantee active = no }
+				set_country_flag = WW1_Caucasus_poti_agreement
+				set_politics = { ruling_party = democratic elections_allowed = yes }
+				clr_country_flag = WW1_Caucasus_republican_leader_installed
+				WW1_Caucasus_initialize_georgia = yes
+			}
+		}
+	}
+}
+
+WW1_AZR_end_inherited_wars = {
+	every_enemy_country = {
+		limit = {
+			is_ai = yes OR = { tag = POL tag = LIT tag = LAT tag = EST tag = UKR tag = WHR tag = DON tag = KUB }
+			has_war_with = SOV
+			NOT = { has_wargoal_against = AZR }
+			NOT = { has_war_with_wargoal_against = AZR }
+			AZR = {
+				NOT = { has_wargoal_against = PREV }
+				NOT = { has_war_with_wargoal_against = PREV }
+			}
+		}
+		white_peace = AZR
+	}
+}

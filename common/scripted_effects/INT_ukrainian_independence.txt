@@ -1,0 +1,519 @@
+# Use the same Directory settlement for the event and the dated bookmark.
+INT_UKR_install_directory = {
+	INT_UKR_end_german_coalition_wars = yes
+	if = {
+		limit = { is_subject_of = GER }
+		GER = { set_autonomy = { target = UKR autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+	}
+	if = {
+		limit = {
+			is_in_faction = yes
+			OR = { is_in_faction_with = GER has_country_flag = skoropadskytakesover }
+		}
+		leave_faction = yes
+	}
+	clr_country_flag = skoropadskytakesover
+	set_cosmetic_tag = INT_UKR_people_republic
+	set_politics = { ruling_party = democratic elections_allowed = no }
+	set_popularities = { democratic = 60 neutrality = 25 communism = 15 fascism = 0 }
+	set_party_name = { ideology = democratic name = INT_UKR_directory_party long_name = INT_UKR_directory_party_long }
+	if = {
+		limit = { NOT = { has_country_leader = { name = "Volodymyr Vynnychenko" ruling_only = yes } } }
+		create_country_leader = {
+			name = "Volodymyr Vynnychenko"
+			picture = "gfx/leaders/UKR/Portrait_UKR_Volodymyr_Vynnychenko.dds"
+			ideology = socialism
+			expire = "1953.3.1"
+		}
+	}
+	set_country_flag = INT_UKR_directory_installed
+	set_global_flag = hetmanate_falls
+}
+
+INT_UKR_establish_directory = {
+	if = {
+		limit = { INT_UKR_directory_can_take_power = yes }
+		INT_UKR_install_directory = yes
+		if = {
+			limit = { NOT = { has_country_flag = INT_UKR_national_army_initialized } }
+			load_oob = "UKR_1918"
+			set_country_flag = INT_UKR_national_army_initialized
+		}
+		if = { limit = { date < 1919.1.15 } news_event = { id = endsieg_news.34 hours = 6 } }
+	}
+}
+
+INT_UKR_promote_petliura = {
+	create_country_leader = {
+		name = "Symon Petliura"
+		picture = "gfx/leaders/UKR/Portrait_UKR_Symon_Petliura.dds"
+		ideology = conservatism
+		expire = "1926.5.25"
+	}
+	set_country_flag = INT_UKR_petliura_installed
+}
+
+INT_UKR_install_petliura = {
+	if = {
+		limit = {
+			INT_UKR_directory_active = yes
+			date > 1919.2.10
+			NOT = { has_country_flag = INT_UKR_petliura_installed }
+		}
+		INT_UKR_promote_petliura = yes
+		if = {
+			limit = { date < 1919.2.25 has_start_date < 1919.2.11 }
+			news_event = { id = ww1_ukraine.9 hours = 8 }
+		}
+	}
+}
+
+INT_UKR_restore_old_directory = {
+	if = {
+		limit = { has_cosmetic_tag = INT_UKR_people_republic NOT = { has_country_flag = INT_UKR_directory_color_refreshed } }
+		set_cosmetic_tag = INT_UKR_people_republic
+		set_country_flag = INT_UKR_directory_color_refreshed
+	}
+	if = {
+		limit = {
+			INT_eastern_local_wars_context = yes
+			has_global_flag = hetmanate_falls
+			NOT = { has_country_flag = INT_UKR_directory_installed }
+			NOT = { has_cosmetic_tag = UKR_HET }
+			OR = { is_subject = no is_subject_of = GER }
+			has_country_leader = { name = "Volodymyr Vynnychenko" ruling_only = yes }
+		}
+		INT_UKR_install_directory = yes
+	}
+}
+
+INT_UKR_start_galician_front = {
+	if = {
+		limit = { INT_UKR_galician_front_ready = yes }
+		WUR = { INT_eastern_remove_foreign_guarantees = yes }
+		if = {
+			limit = {
+				NOT = { any_other_country = { has_guaranteed = WUR } }
+			}
+			declare_war_on = { target = WUR type = annex_everything }
+			if = {
+				limit = { has_war_with = WUR }
+				set_country_flag = INT_UKR_galician_war_started
+				news_event = { id = ww1_ukraine.10 hours = 9 }
+			}
+		}
+	}
+}
+
+# Called only for a historical Polish client or the West Ukrainian government
+# freed by this settlement. Never give Polish-owned land back to a client.
+INT_UKR_settle_galician_client = {
+	if = {
+		limit = { date < 1919.7.17 }
+		if = {
+			limit = { tag = WUR is_subject_of = POL }
+			POL = { set_autonomy = { target = PREV autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+			set_country_flag = INT_UKR_galician_client_freed
+		}
+		else_if = {
+			limit = {
+				NOT = { tag = WUR }
+				OR = { NOT = { country_exists = WUR } WUR = { is_ai = yes is_subject = no is_in_faction = no } }
+			}
+			every_owned_state = {
+				limit = { OR = { state = 89 state = 91 } OR = { is_fully_controlled_by = PREV is_fully_controlled_by = POL } }
+				add_core_of = WUR
+				transfer_state_to = WUR
+				WUR = { set_country_flag = INT_UKR_galician_client_freed }
+			}
+		}
+	}
+	else = {
+		every_owned_state = {
+			limit = {
+				OR = { state = 89 state = 91 }
+				OR = { is_fully_controlled_by = PREV is_fully_controlled_by = POL }
+			}
+			add_core_of = POL
+			transfer_state_to = POL
+		}
+	}
+}
+
+INT_UKR_finish_galician_front = {
+	if = {
+		limit = { INT_UKR_galician_peace_ready = yes }
+		white_peace = { tag = WUR }
+		if = {
+			limit = { NOT = { has_war_with = WUR } }
+			set_global_flag = INT_UKR_galicia_settled
+			WUR = {
+				every_owned_state = {
+					limit = {
+						OR = { state = 89 state = 91 }
+						INT_UKR_galician_front_is_local = yes
+					}
+					add_core_of = POL
+					transfer_state_to = POL
+				}
+			}
+			news_event = { id = INT_eastern.11 hours = 6 }
+		}
+	}
+}
+
+INT_UKR_start_white_front = {
+	if = {
+		limit = { INT_UKR_white_front_ready = yes }
+		WHR = { INT_eastern_remove_foreign_guarantees = yes }
+		if = {
+			limit = { NOT = { any_other_country = { has_guaranteed = WHR } } }
+			declare_war_on = { target = WHR type = annex_everything }
+			if = {
+				limit = { has_war_with = WHR }
+				set_country_flag = INT_UKR_denikin_war_started
+				WHR = { endsieg_character_activate_whr_anton_denekin_def44601 = yes }
+				news_event = { id = ww1_ukraine.11 hours = 9 }
+			}
+		}
+	}
+}
+
+INT_UKR_stage_makhnovists = {
+	if = {
+		limit = { INT_UKR_makhno_can_emerge = yes }
+		200 = {
+			transfer_state_to = MKN
+			add_core_of = MKN
+		}
+		set_global_flag = INT_UKR_makhno_emerged
+	}
+}
+
+INT_UKR_run_makhnovist_campaign = {
+	if = {
+		limit = {
+			INT_eastern_local_wars_context = yes
+			has_global_flag = INT_UKR_makhno_emerged
+			is_subject = no
+			has_capitulated = no
+			is_in_faction = no
+			owns_state = 200
+		}
+		if = {
+			limit = { NOT = { has_country_flag = INT_UKR_insurgent_army_raised } 200 = { is_fully_controlled_by = MKN } }
+			load_oob = "MKN_1919"
+			set_country_flag = INT_UKR_insurgent_army_raised
+			if = { limit = { date < 1919.12.1 } news_event = { id = ww1_ukraine.12 hours = 9 } }
+		}
+		if = {
+			limit = {
+				is_ai = yes
+				date < 1920.4.4
+				WHR = { INT_UKR_whites_active_in_south = yes }
+				NOT = {
+					OR = {
+						has_war_with = WHR
+						has_truce_with = WHR
+						has_non_aggression_pact_with = WHR
+						any_other_country = { has_guaranteed = WHR }
+					}
+				}
+				NOT = { has_country_flag = INT_UKR_insurgents_fought_whites }
+			}
+			declare_war_on = { target = WHR type = annex_everything }
+			if = { limit = { has_war_with = WHR } set_country_flag = INT_UKR_insurgents_fought_whites }
+		}
+	}
+}
+
+# The renewed break with Moscow is a separate regional war.
+INT_UKR_soviet_makhnovist_break = {
+	if = {
+		limit = {
+			INT_eastern_local_wars_context = yes
+			is_ai = yes
+			has_government = communism
+			is_subject = no
+			has_capitulated = no
+			date > 1920.1.8
+			date < 1921.9.1
+			MKN = { exists = yes owns_state = 200 is_subject = no is_in_faction = no has_capitulated = no }
+			NOT = {
+				OR = {
+					has_war_with = MKN
+					has_truce_with = MKN
+					has_non_aggression_pact_with = MKN
+					has_country_flag = INT_UKR_soviets_fought_insurgents
+				}
+			}
+			OR = { controls_state = 196 controls_state = 226 controls_state = 227 }
+		}
+		MKN = { INT_eastern_remove_foreign_guarantees = yes }
+		if = {
+			limit = { NOT = { any_other_country = { has_guaranteed = MKN } } }
+			declare_war_on = { target = MKN type = annex_everything }
+			if = { limit = { has_war_with = MKN } set_country_flag = INT_UKR_soviets_fought_insurgents }
+		}
+	}
+}
+
+# A defeated insurgent army can surrender while the separate White war continues.
+INT_UKR_integrate_defeated_makhnovists = {
+	if = {
+		limit = {
+			INT_eastern_local_wars_context = yes
+			has_country_flag = INT_UKR_soviets_fought_insurgents
+			has_war_with = MKN
+			MKN = { exists = yes is_ai = yes has_capitulated = yes is_subject = no owns_state = 200 }
+			200 = { is_fully_controlled_by = SOV }
+		}
+		annex_country = { target = MKN transfer_troops = no }
+	}
+}
+
+# Ask each signatory. The military convention supplies the UPR without
+# combining the Polish and Ukrainian wars, so Riga can end Poland's war only.
+INT_UKR_ratify_warsaw_pact = {
+	if = {
+		limit = { INT_UKR_warsaw_pact_available = yes }
+		set_global_flag = INT_UKR_warsaw_pact
+		if = {
+			limit = { UKR = { INT_UKR_warsaw_directory_signatory = yes } }
+			give_military_access = UKR
+			diplomatic_relation = { country = UKR relation = non_aggression_pact active = yes }
+			93 = {
+				if = {
+					limit = {
+						is_owned_by = UKR
+						OR = { is_fully_controlled_by = UKR is_fully_controlled_by = POL }
+					}
+					transfer_state_to = POL
+					add_core_of = POL
+				}
+			}
+			UKR = {
+				give_military_access = POL
+				add_equipment_to_stockpile = { type = infantry_equipment_0 amount = 1500 producer = POL }
+				add_manpower = 4000
+				add_war_support = 0.04
+			}
+		}
+		else = {
+			# Represent the exiled UPR army as a Polish-controlled contingent.
+			load_oob = INT_POL_petliura_contingent
+			if = {
+				limit = { controls_province = 3392 }
+				94 = {
+					create_unit = {
+						owner = POL
+						division = "name = \"6th Sich Rifle Division\" division_template = \"Ukrainian Rifle Brigade\" start_experience_factor = 0.25 start_equipment_factor = 0.7"
+						prioritize_location = 3392
+						allow_spawning_on_enemy_provs = no
+					}
+				}
+			}
+			else = {
+				10 = {
+					create_unit = {
+						owner = POL
+						division = "name = \"6th Sich Rifle Division\" division_template = \"Ukrainian Rifle Brigade\" start_experience_factor = 0.25 start_equipment_factor = 0.7"
+						prioritize_location = 3544
+						allow_spawning_on_enemy_provs = no
+					}
+				}
+			}
+		}
+		news_event = { id = ww1_ukraine.13 hours = 10 }
+	}
+}
+
+# Run inside the new Ukrainian country, including when recovering a failed installation.
+INT_UKR_institute_kharkiv_government = {
+	set_politics = { ruling_party = communism elections_allowed = no }
+	if = { limit = { is_subject = no } SOV = { puppet = PREV } }
+	if = {
+		limit = { is_subject_of = SOV owns_state = 221 }
+		clr_country_flag = INT_UKR_kharkiv_cabinet_pending
+		set_global_flag = INT_UKR_kharkiv_government_established
+		add_state_core = 221
+		set_capital = { state = 221 remember_old_capital = no }
+		INT_UKR_administer_soviet_republic = yes
+		if = {
+			limit = { SOV = { has_war_with = UKR } NOT = { has_war_with = UKR } }
+			add_to_war = { targeted_alliance = SOV enemy = UKR hostility_reason = asked_to_join single_target_only = yes }
+		}
+	}
+}
+
+# An occupied Kharkiv can host the rival Soviet government while the Directory still fights.
+INT_UKR_settle_soviet_government = {
+	if = {
+		limit = { INT_UKR_soviet_settlement_context = yes }
+		# Older saves can contain a Ukrainian copy holding Kharkiv with the
+		# Directory's party and no ministry. Identify it by territory, never D01.
+		if = {
+			limit = {
+				NOT = { has_global_flag = INT_USSR_founded }
+				221 = { owner = {
+					original_tag = UKR NOT = { tag = UKR } is_ai = yes
+					OR = {
+						has_country_flag = INT_UKR_kharkiv_cabinet_pending
+						AND = {
+							has_global_flag = INT_UKR_kharkiv_government_established
+							NOT = { has_country_flag = INT_UKR_rakovsky_ministry }
+							date < 1923.7.15
+						}
+					}
+					OR = { is_subject_of = SOV AND = { is_subject = no is_in_faction = no NOT = { has_war_with = SOV } } }
+				} }
+			}
+			221 = { owner = { INT_UKR_institute_kharkiv_government = yes } }
+		}
+		if = {
+			limit = { INT_UKR_kharkiv_government_ready = yes }
+			country_event = { id = ww1_ukraine.19 }
+		}
+		if = {
+			limit = {
+				NOT = { has_global_flag = INT_USSR_founded } NOT = { country_exists = UKR }
+				has_country_flag = INT_ukraine_integrated
+				NOT = { any_subject_country = { original_tag = UKR } }
+				221 = { is_owned_and_controlled_by = SOV }
+			}
+			221 = { transfer_state_to = UKR }
+			UKR = { set_politics = { ruling_party = communism elections_allowed = no } }
+			puppet = UKR
+		}
+		# A conference can puppet the former Directory after Kharkiv already exists.
+		# Keep one Soviet Ukrainian administration and preserve its acquired states.
+		if = {
+			limit = {
+				UKR = { INT_UKR_soviet_subject = yes }
+				any_subject_country = { INT_UKR_soviet_subject = yes NOT = { tag = UKR } owns_state = 221 }
+			}
+			random_subject_country = {
+				limit = { INT_UKR_soviet_subject = yes NOT = { tag = UKR } owns_state = 221 }
+				annex_country = { target = UKR transfer_troops = yes }
+			}
+			set_country_flag = INT_ukraine_integrated
+		}
+		every_subject_country = {
+			limit = { INT_UKR_soviet_subject = yes }
+			if = {
+				limit = {
+					has_global_flag = INT_USSR_founded
+					has_capitulated = no
+					OR = { owns_state = 221 owns_state = 202 }
+				}
+				SOV = {
+					annex_country = { target = PREV transfer_troops = yes }
+					set_country_flag = INT_UKR_union_accession
+				}
+			}
+			else_if = {
+				limit = { NOT = { has_global_flag = INT_USSR_founded } }
+				INT_UKR_administer_soviet_republic = yes
+			}
+		}
+	}
+}
+
+INT_UKR_administer_soviet_republic = {
+	if = {
+		limit = {
+			date < 1923.7.15
+			NOT = { has_country_leader = { character = UKR_khristian_rakovsky ruling_only = yes } }
+		}
+		set_country_flag = INT_UKR_rakovsky_ministry
+		set_party_name = { ideology = communism name = INT_UKR_bolshevik_party long_name = INT_UKR_bolshevik_party_long }
+		set_politics = { ruling_party = communism elections_allowed = no }
+		if = { limit = { NOT = { has_character = UKR_khristian_rakovsky } } recruit_character = UKR_khristian_rakovsky }
+		promote_character = { character = UKR_khristian_rakovsky ideology = marxism }
+	}
+	if = { limit = { date < 1919.3.10 NOT = { has_cosmetic_tag = INT_UKR_red_banner } } set_cosmetic_tag = INT_UKR_red_banner }
+	else_if = { limit = { date > 1919.3.9 NOT = { has_cosmetic_tag = INT_UKR_socialist_republic } } set_cosmetic_tag = INT_UKR_socialist_republic }
+
+	save_event_target_as = INT_UKR_soviet_ministry
+	SOV = {
+		every_owned_state = {
+			limit = {
+				is_core_of = UKR is_fully_controlled_by = SOV
+				OR = {
+					state = 192 state = 193 state = 196 state = 197 state = 198 state = 199
+					state = 201 state = 202 state = 203 state = 221 state = 225 state = 226
+					state = 200 state = 227 state = 228 state = 259 state = 834 state = 989
+				}
+			}
+			transfer_state_to = event_target:INT_UKR_soviet_ministry
+		}
+	}
+	if = {
+		limit = { owns_state = 221 controls_province = 418 NOT = { capital_scope = { state = 221 } } }
+		set_capital = { state = 221 remember_old_capital = no }
+	}
+	if = {
+		limit = { INT_UKR_regional_war_policy = yes }
+		# Settle each inherited opponent once. Keep the recipient country itself
+		# so a conference-created Ukrainian tag has its own settlement history.
+		every_enemy_country = {
+			limit = {
+				is_ai = yes OR = { tag = EST tag = LAT tag = LIT tag = BLR }
+				NOT = {
+					OR = {
+						has_wargoal_against = event_target:INT_UKR_soviet_ministry
+						has_war_with_wargoal_against = { target = event_target:INT_UKR_soviet_ministry }
+					}
+				}
+				event_target:INT_UKR_soviet_ministry = {
+					NOT = {
+						OR = {
+							is_in_array = { array = INT_UKR_settled_fronts value = PREV }
+							has_wargoal_against = PREV
+							has_war_with_wargoal_against = { target = PREV }
+						}
+					}
+				}
+			}
+			event_target:INT_UKR_soviet_ministry = {
+				white_peace = { tag = PREV }
+				if = {
+					limit = { NOT = { has_war_with = PREV } }
+					add_to_array = { INT_UKR_settled_fronts = PREV }
+				}
+			}
+		}
+
+		# Normal calls group Soviet wars together. Join only the local enemy
+		# when those calls are blocked by a simultaneous Baltic campaign.
+		if = {
+			limit = { SOV = { INT_UKR_ally_has_remote_front = yes } }
+			SOV = {
+				every_enemy_country = {
+					limit = {
+						OR = {
+							tag = WHR
+							AND = { tag = UKR INT_UKR_directory_active = yes }
+							AND = { tag = POL NOT = { has_global_flag = sov_pol_ceasefire } }
+						}
+						NOT = {
+							OR = {
+								has_war_with = event_target:INT_UKR_soviet_ministry
+								has_truce_with = event_target:INT_UKR_soviet_ministry
+								has_non_aggression_pact_with = event_target:INT_UKR_soviet_ministry
+							}
+						}
+					}
+					event_target:INT_UKR_soviet_ministry = {
+						add_to_war = { targeted_alliance = SOV enemy = PREV hostility_reason = asked_to_join single_target_only = yes }
+					}
+				}
+			}
+		}
+	}
+	if = {
+		limit = { has_global_flag = sov_pol_ceasefire POL = { is_ai = yes NOT = { has_war_with = SOV } } }
+		if = { limit = { has_war_with = POL } white_peace = POL }
+		93 = { if = { limit = { is_owned_by = event_target:INT_UKR_soviet_ministry OR = { is_fully_controlled_by = event_target:INT_UKR_soviet_ministry is_fully_controlled_by = POL } } transfer_state_to = POL } }
+	}
+}

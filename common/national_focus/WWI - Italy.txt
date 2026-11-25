@@ -1192,6 +1192,7 @@ shortcut = { name = WW1_layout_air_force_shortcut target = IT1_form_airforce scr
 		cost = 5
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available = { date < 1936.1.1
+			IT1_ww1_may_choose_constitutional_reform = yes
 			has_completed_focus = IT1_ww1_catholic_understanding
 		}
 		ai_will_do = { factor = 5
@@ -1231,6 +1232,7 @@ shortcut = { name = WW1_layout_air_force_shortcut target = IT1_form_airforce scr
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available = {
 			date < 1936.1.1
+			IT1_ww1_may_choose_constitutional_reform = yes
 			NOT = { has_completed_focus = IT1_ww1_republican_convention }
 			NOT = { has_completed_focus = IT1_ww1_socialist_congress }
 		}
@@ -2323,6 +2325,7 @@ shortcut = { name = WW1_layout_air_force_shortcut target = IT1_form_airforce scr
 		}
 		ai_will_do = { factor = 4 }
 		completion_reward = {
+			set_temp_variable = { WW1_focus_navy_experience = 0 }
 			if = {
 				limit = {
 					has_dlc = "Man the Guns"
@@ -2336,25 +2339,29 @@ shortcut = { name = WW1_layout_air_force_shortcut target = IT1_form_airforce scr
 				}
 			}
 			else = {
-				navy_experience = 5
+				add_to_temp_variable = { WW1_focus_navy_experience = 5 }
 			}
 			if = {
 				limit = {
 					OR = { has_completed_focus = IT1_ww1_mas_flotillas has_completed_focus = IT1_destroyer_effort }
 				}
-				navy_experience = 10
+				add_to_temp_variable = { WW1_focus_navy_experience = 10 }
 			}
 			if = {
 				limit = {
 					has_completed_focus = IT1_ww1_port_approaches
 				}
-				navy_experience = 10
+				add_to_temp_variable = { WW1_focus_navy_experience = 10 }
 			}
 			add_mastery_bonus = {
 				name = IT1_ww1_arsenal_repair_network_screens_programme
 				bonus = 0.15
 				days = 180
 				track = screens
+			}
+			if = {
+				limit = { hidden_trigger = { check_variable = { WW1_focus_navy_experience > 0 } } }
+				navy_experience = WW1_focus_navy_experience
 			}
 		}
 		relative_position_id = IT1_dockyard_1
@@ -3412,19 +3419,19 @@ shortcut = { name = WW1_layout_air_force_shortcut target = IT1_form_airforce scr
 		}
 		ai_will_do = { factor = 4 }
 		completion_reward = {
-			air_experience = 10
+			set_temp_variable = { WW1_focus_air_experience = 10 }
 			add_command_power = 5
 			if = {
 				limit = {
 					OR = { has_completed_focus = IT1_strategic_bomber_research_1 has_completed_focus = IT1_tactical_bomber_2 }
 				}
-				if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_caproni_contracts } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_caproni_contracts } air_experience = 8 }
+				if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_caproni_contracts } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_caproni_contracts } add_to_temp_variable = { WW1_focus_air_experience = 8 } }
 			}
 			if = {
 				limit = {
 					OR = { has_completed_focus = IT1_cas_2 has_completed_focus = IT1_ww1_photographic_reconnaissance }
 				}
-				if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_aviation_service } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_aviation_service } air_experience = 8 }
+				if = { limit = { hidden_trigger = { NOT = { has_country_flag = WW1_focus_reward_once_IT1_ww1_aviation_service } } } hidden_effect = { set_country_flag = WW1_focus_reward_once_IT1_ww1_aviation_service } add_to_temp_variable = { WW1_focus_air_experience = 8 } }
 			}
 			add_mastery_bonus = {
 				name = IT1_ww1_air_campaign_plan_medium_aircraft_programme
@@ -3432,6 +3439,7 @@ shortcut = { name = WW1_layout_air_force_shortcut target = IT1_form_airforce scr
 				days = 180
 				track = medium_aircraft
 			}
+			air_experience = WW1_focus_air_experience
 		}
 		relative_position_id = IT1_national_opening
 		x = -44

@@ -16,14 +16,7 @@
 # Adding a warlord means adding one wrapper of the same shape and one guarded line in the owner's
 # on_action. The body is not edited.
 #
-# Effects, in order, and only when every guard passes:
-#   - the owning country gains its permanent release flag, which is the caller's own re-entry guard;
-#   - the released tag gains china_warlord_released, used by its own campaign tick;
-#   - the state is transferred to the released tag as owner and controller, and cored;
-#   - Yan Xishan is already registered by early-start country history; no runtime recruitment occurs.
-# A second call does nothing: the caller's flag is already set, the tag already owns the state, and
-# country history registers the identity once, so a reload, a duplicate on_action line or a re-run after
-# a save cannot produce a second province or a second leader.
+# Each wrapper sets up its own government after the shared state transfer.
 china_release_warlord_receive = {
 	if = {
 		limit = { NOT = { has_country_flag = china_warlord_released } }
@@ -48,8 +41,130 @@ china_release_warlord_shx = {
 			set_variable = { china_release_seat = 615 }
 			china_release_warlord_receive = yes
 			# add_state_core takes a database token rather than a variable, so
-			# the core stays beside its seat literal. The character is registered in SHX history.
+			# the core stays beside its seat literal.
 			add_state_core = 615
+			china_initialize_shanxi_government = yes
+		}
+	}
+}
+
+# Recruitment alone does not install Yan's non-aligned leader role on release.
+china_initialize_shanxi_government = {
+	if = {
+		limit = {
+			has_start_date < 1936.1.1
+			date < 1936.1.1
+			has_country_flag = china_warlord_released
+			NOT = { has_country_flag = china_shanxi_government_initialized }
+			owns_state = 615
+		}
+		set_popularities = { neutrality = 75 democratic = 20 communism = 5 fascism = 0 }
+		china_install_shanxi_government = yes
+		set_country_flag = china_shanxi_government_initialized
+	}
+}
+
+china_install_shanxi_government = {
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	set_party_name = {
+		ideology = neutrality
+		name = SHX_ww1_clique_party
+		long_name = SHX_ww1_clique_party
+	}
+	if = {
+		limit = { NOT = { has_country_leader = { name = SHX_yan_xishan ruling_only = yes } } }
+		if = {
+			limit = { has_character = SHX_yan_xishan }
+			promote_character = { character = SHX_yan_xishan ideology = despotism }
+		}
+		else = {
+			create_country_leader = {
+				name = SHX_yan_xishan
+				picture = "gfx/leaders/SHX/portrait_shx_yan_xishan.dds"
+				ideology = despotism
+				expire = "1965.1.1"
+			}
+		}
+	}
+}
+
+# Subject creation can copy Beijing's ruling ideology. Restore Yan while the
+# historical provincial agreement is in force, including in existing saves.
+china_restore_shanxi_provincial_government = {
+	if = {
+		limit = {
+			is_ai = yes
+			is_historical_focus_on = yes
+			has_start_date < 1920.7.14
+			date < 1920.7.14
+			615 = { is_owned_and_controlled_by = SHX }
+			has_country_flag = china_shanxi_provincial_affiliation
+			is_subject_of = RCH
+			has_autonomy_state = autonomy_ww1_shanxi_province
+			has_government = democratic
+		}
+		china_install_shanxi_government = yes
+	}
+}
+
+# The Beijing government recognized Yan's provincial administration. He could
+# still withhold troops. The release receipts also identify already-running saves.
+# Scope: RCH.
+china_attach_shanxi_province = {
+	if = {
+		limit = {
+			date > 1916.6.5
+			date < 1920.7.14
+			is_ai = yes
+			is_historical_focus_on = yes
+			is_subject = no
+			has_government = democratic
+			has_country_flag = china_released_shx
+			608 = { is_owned_and_controlled_by = RCH }
+			SHX = {
+				exists = yes
+				is_ai = yes
+				is_subject = no
+				is_in_faction = no
+				has_war = no
+				has_country_flag = china_warlord_released
+				NOT = { has_country_flag = china_shanxi_provincial_affiliation }
+				615 = { is_owned_and_controlled_by = SHX }
+			}
+		}
+		set_autonomy = {
+			target = SHX
+			autonomy_state = autonomy_ww1_shanxi_province
+			end_wars = no
+			end_civil_wars = no
+		}
+		SHX = {
+			if = {
+				limit = { is_subject_of = RCH }
+				set_country_flag = china_shanxi_provincial_affiliation
+				china_restore_shanxi_provincial_government = yes
+			}
+		}
+	}
+}
+
+# Restore independent diplomacy before the existing clique-war tree opens.
+# Scope: SHX.
+china_end_shanxi_provincial_affiliation = {
+	if = {
+		limit = {
+			NOT = { date < 1920.7.14 }
+			has_country_flag = china_shanxi_provincial_affiliation
+			is_subject_of = RCH
+			has_autonomy_state = autonomy_ww1_shanxi_province
+		}
+		RCH = {
+			set_autonomy = {
+				target = SHX
+				autonomy_state = autonomy_free
+				end_wars = no
+				end_civil_wars = no
+			}
 		}
 	}
 }

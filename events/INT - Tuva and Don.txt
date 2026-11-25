@@ -1,0 +1,120 @@
+add_namespace = INT_tuvan_khural
+add_namespace = INT_don_settlement
+
+country_event = {
+	id = INT_tuvan_khural.1
+	title = INT_tuvan_khural.1.t
+	desc = INT_tuvan_khural.1.d
+	picture = GFX_report_event_tuva
+	is_triggered_only = yes
+	trigger = { INT_TAN_khural_can_meet = yes }
+	immediate = {
+		set_global_flag = INT_TAN_khural_held
+		329 = {
+			add_core_of = TAN
+			if = { limit = { is_owned_by = SOV } transfer_state_to = TAN }
+		}
+		if = { limit = { TAN = { is_subject_of = SOV } } set_autonomy = { target = TAN autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+		if = { limit = { NOT = { has_guaranteed = TAN } } give_guarantee = TAN }
+		TAN = {
+			set_capital = { state = 329 }
+			set_politics = { ruling_party = communism elections_allowed = no }
+			set_party_name = { ideology = communism name = INT_TAN_khural long_name = INT_TAN_khural }
+			set_country_flag = INT_TAN_historical_government
+			INT_TAN_update_government = yes
+		}
+	}
+	option = { name = INT_tuvan_khural.1.a }
+}
+
+# Soviet victory can leave either a puppet or a small communist ally at Rostov.
+country_event = {
+	id = INT_don_settlement.1
+	title = INT_don_settlement.1.t
+	desc = INT_don_settlement.1.d
+	picture = GFX_report_event_generic_parliament
+	is_triggered_only = yes
+	trigger = {
+		tag = SOV INT_DON_historical_soviet_settlement = yes
+		any_other_country = { INT_DON_red_remnant = yes }
+	}
+	immediate = {
+		every_other_country = {
+			limit = { INT_DON_red_remnant = yes }
+			SOV = { annex_country = { target = PREV transfer_troops = no } }
+		}
+	}
+	option = { name = INT_don_settlement.1.a }
+}
+
+# In spring 1918 the Bolshevik administration held Rostov while Cossacks
+# regrouped on the Don. It was displaced by the Cossack uprising and German advance.
+country_event = {
+	id = INT_don_settlement.2
+	title = INT_don_settlement.2.t
+	desc = INT_don_settlement.2.d
+	picture = GFX_report_event_generic_parliament
+	is_triggered_only = yes
+	trigger = {
+		tag = SOV is_ai = yes has_government = communism INT_DON_historical_campaign = yes
+		date > 1918.3.22 date < 1918.5.8
+		NOT = { country_exists = DON } NOT = { has_global_flag = INT_DON_rostov_soviet_established }
+		KUB = { exists = yes is_ai = yes owns_state = 245 NOT = { has_government = communism } }
+		218 = {
+			OR = { is_owned_by = SOV is_owned_by = KUB }
+			OR = { is_fully_controlled_by = SOV is_fully_controlled_by = KUB }
+		}
+	}
+	immediate = {
+		set_global_flag = INT_DON_rostov_soviet_established
+		218 = { transfer_state_to = DON }
+		DON = {
+			set_politics = { ruling_party = communism elections_allowed = no }
+			set_cosmetic_tag = INT_DON_rostov_soviet
+			create_country_leader = { name = "Fyodor Podtyolkov" ideology = marxism expire = "1918.5.11" }
+			set_country_flag = INT_DON_1918_rostov_government
+			set_capital = { state = 218 }
+		}
+	}
+	option = { name = INT_don_settlement.2.a }
+}
+
+country_event = {
+	id = INT_don_settlement.3
+	title = INT_don_settlement.3.t
+	desc = INT_don_settlement.3.d
+	picture = GFX_report_event_generic_parliament
+	is_triggered_only = yes
+	trigger = {
+		tag = KUB is_ai = yes INT_DON_historical_campaign = yes
+		date > 1918.5.7 date < 1918.10.1
+		owns_state = 245 controls_state = 245 NOT = { has_government = communism }
+		DON = {
+			exists = yes is_ai = yes has_country_flag = INT_DON_1918_rostov_government
+			owns_state = 218 check_variable = { num_owned_states = 1 }
+		}
+		218 = { OR = { is_fully_controlled_by = DON is_fully_controlled_by = KUB is_fully_controlled_by = GER } }
+	}
+	immediate = { annex_country = { target = DON transfer_troops = no } set_capital = { state = 218 } }
+	option = { name = INT_don_settlement.3.a }
+}
+
+country_event = {
+	id = INT_don_settlement.4
+	title = INT_don_settlement.1.t
+	desc = INT_don_settlement.1.d
+	picture = GFX_report_event_generic_parliament
+	is_triggered_only = yes
+	trigger = {
+		tag = SOV INT_DON_historical_soviet_settlement = yes
+		DON = {
+			exists = yes is_ai = yes has_country_flag = INT_DON_1918_rostov_government
+			has_government = communism owns_state = 218 check_variable = { num_owned_states = 1 }
+			OR = { is_subject = no is_subject_of = SOV }
+			OR = { is_in_faction = no is_in_faction_with = SOV }
+		}
+		218 = { OR = { is_fully_controlled_by = DON is_fully_controlled_by = SOV } }
+	}
+	immediate = { annex_country = { target = DON transfer_troops = no } }
+	option = { name = INT_don_settlement.1.a }
+}

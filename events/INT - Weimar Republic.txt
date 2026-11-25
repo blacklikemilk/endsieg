@@ -575,3 +575,59 @@ country_event = {
 		add_stability = -0.02
 	}
 }
+
+country_event = {
+	id = INT_weimar.34
+	title = INT_weimar.34.t
+	desc = INT_weimar.34.d
+	picture = GFX_INT_photo_INT_weimar_8
+	trigger = { OR = { WW1_GER_weimar_notice_due = yes WW1_GER_missed_preparation_failure = yes } }
+	is_triggered_only = yes
+	immediate = {
+		WW1_GER_recover_missing_preparation = yes
+		set_country_flag = WW1_GER_weimar_countdown_announced
+		log = "WW1: Weimar preparation notice delivered."
+		clr_country_flag = WW1_GER_weimar_notice_queued
+		WW1_GER_reconcile_postwar_countdowns = yes
+	}
+	option = {
+		name = INT_weimar.34.a
+		hidden_effect = {
+			# An already-open notice in an older save can still resume its stage.
+			if = {
+				limit = { OR = { WW1_GER_weimar_settlement_pending = yes WW1_GER_missed_preparation_failure = yes } }
+				WW1_GER_recover_missing_preparation = yes
+				set_country_flag = WW1_GER_weimar_countdown_announced
+				clr_country_flag = WW1_GER_weimar_notice_queued
+				WW1_GER_reconcile_postwar_countdowns = yes
+			}
+		}
+	}
+}
+
+country_event = {
+	id = INT_weimar.35
+	title = INT_weimar.35.t
+	desc = INT_weimar.35.d
+	picture = GFX_report_event_generic_sign_treaty2
+	trigger = { WW1_GER_versailles_notice_due = yes }
+	is_triggered_only = yes
+	immediate = {
+		set_country_flag = WW1_GER_versailles_countdown_announced
+		log = "WW1: Versailles preparation notice delivered."
+		clr_country_flag = WW1_GER_versailles_notice_queued
+		WW1_GER_reconcile_postwar_countdowns = yes
+	}
+	option = {
+		name = INT_weimar.35.a
+		hidden_effect = {
+			# An already-open notice in an older save can still resume its stage.
+			if = {
+				limit = { WW1_GER_versailles_settlement_pending = yes }
+				set_country_flag = WW1_GER_versailles_countdown_announced
+				clr_country_flag = WW1_GER_versailles_notice_queued
+				WW1_GER_reconcile_postwar_countdowns = yes
+			}
+		}
+	}
+}

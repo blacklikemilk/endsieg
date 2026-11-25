@@ -1,0 +1,292 @@
+# An Entente defeat is distinct from Germany's political or military partition.
+WW1_AUH_entente_opponent = {
+    OR = {
+        has_war_with = FRA
+        has_war_with = ENG
+        has_war_with = ITA
+        has_war_with = USA
+        has_war_with = SER
+    }
+}
+WW1_AUH_historical_defeat_context = {
+    tag = AUH
+    has_start_date < 1921.1.1
+    has_global_flag = welcome_event_WW1_active
+    date < 1921.1.1
+    is_subject = no
+    owns_state = 1051
+    NOT = { has_global_flag = armistice_of_villa_giusti }
+    NOT = { has_global_flag = WW1_AUH_historical_dissolution_done }
+    NOT = { has_global_flag = player_wants_custom_peacedeals }
+    NOT = { has_global_flag = central_powers_victory }
+    NOT = { has_global_flag = WW1_CP_final_settlement_signed }
+    NOT = { has_global_flag = GE1_R_AUH_managed_partition_active }
+    NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
+    NOT = { has_global_flag = WW1_HAB_protocol_pending }
+    NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
+    NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
+    NOT = { has_country_flag = AUH_ww1_orderly_partition }
+}
+
+# Historical governments break away after the Balkan front has collapsed.
+WW1_AUH_historical_collapse_due = {
+    is_ai = yes
+    is_historical_focus_on = yes
+    NOT = { date < 1918.10.28 }
+    OR = {
+        has_global_flag = armistice_of_salonica
+        has_global_flag = armistice_of_mudros
+        has_global_flag = compiegne
+    }
+    OR = { WW1_AUH_entente_opponent = yes has_country_flag = WW1_AUH_fought_entente }
+    NOT = {
+        OR = {
+            has_country_flag = AUH_ww1_trialism_ratified
+            has_country_flag = AUH_ww1_federation_ratified
+            has_country_flag = AUH_ww1_danubian_republic
+        }
+    }
+}
+
+# Domestic collapse can precede military surrender despite high war support.
+WW1_AUH_revolution_ready = {
+    WW1_AUH_historical_defeat_context = yes
+    OR = { WW1_AUH_entente_opponent = yes WW1_AUH_historical_collapse_due = yes }
+    NOT = { date < 1918.10.31 }
+    NOT = { has_country_flag = WW1_AUH_revolution_started }
+    NOT = { has_global_flag = aster_revolution }
+    OR = {
+        WW1_AUH_breakup_pressure = yes
+        WW1_AUH_historical_collapse_due = yes
+        has_country_flag = WW1_AUH_national_councils_active
+    }
+}
+
+WW1_AUH_breakup_pressure = {
+    OR = {
+        NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
+        surrender_progress > 0.30
+        AND = { has_stability < 0.25 check_variable = { var = AUH_stab_average value = 80 compare = greater_than } }
+    }
+    OR = {
+        AND = { has_stability < 0.40 check_variable = { var = AUH_stab_average value = 60 compare = greater_than } }
+        AND = {
+            country_has_war_exhaustion = yes
+            check_variable = { war_exhaustion_variable > 1500 }
+            OR = {
+                has_stability < 0.45
+                has_global_flag = armistice_of_salonica
+                has_global_flag = armistice_of_mudros
+                has_global_flag = compiegne
+            }
+        }
+    }
+}
+
+# The actual armistice and dissolution receipts attest the campaign. Leave a
+# catch-up window for provisional districts retained by older saves.
+WW1_AUH_postwar_stages_open = {
+    date < 1923.1.1
+    WW1_AUH_historical_postwar_settlement = yes
+}
+
+WW1_AUH_historical_postwar_settlement = {
+    has_global_flag = WW1_AUH_historical_dissolution_done
+    has_global_flag = armistice_of_villa_giusti
+    NOT = { has_global_flag = player_wants_custom_peacedeals }
+    NOT = { has_global_flag = central_powers_victory }
+    NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
+}
+
+# Carpathian Ruthenia stays provisional until the Rusyn council vote.
+WW1_AUH_carpathian_ruthenia_handover_ready = {
+    tag = HUN
+    NOT = { date < 1919.5.8 }
+    WW1_AUH_postwar_stages_open = yes
+    owns_state = 73
+    CZE = { exists = yes is_subject = no has_capitulated = no }
+    73 = {
+        OR = {
+            is_fully_controlled_by = CZE
+            AND = {
+                is_fully_controlled_by = HUN
+                HUN = { NOT = { has_war_with = CZE } }
+            }
+        }
+    }
+}
+
+# Only the restored Serbian government or its December successor administers Banat.
+WW1_AUH_banat_administrator = {
+    is_subject = no
+    has_capitulated = no
+    OR = {
+        AND = { tag = SER owns_state = 107 controls_state = 107 }
+        AND = { tag = YUG has_cosmetic_tag = WW1_AUH_south_slav_kingdom owns_state = 107 controls_state = 107 }
+    }
+}
+
+WW1_AUH_banat_occupation_state = {
+    OR = { state = 82 state = 764 }
+    has_state_flag = WW1_AUH_banat_transition
+    OR = { is_owned_by = BNT is_owned_by = HUN }
+    OR = { is_controlled_by = OWNER is_controlled_by = ROOT }
+}
+
+WW1_AUH_banat_occupation_due = {
+    OR = { tag = SER tag = YUG }
+    NOT = { date < 1918.11.15 }
+    WW1_AUH_postwar_stages_open = yes
+    WW1_AUH_banat_administrator = yes
+    NOT = { has_war_with = BNT }
+    NOT = { has_war_with = HUN }
+    any_state = { WW1_AUH_banat_occupation_state = yes }
+}
+
+WW1_AUH_banat_romanian_handover_due = {
+    OR = { tag = SER tag = YUG }
+    NOT = { date < 1919.8.3 }
+    WW1_AUH_postwar_stages_open = yes
+    WW1_AUH_banat_administrator = yes
+    ROM = { exists = yes is_subject = no has_capitulated = no }
+    NOT = { has_war_with = ROM }
+    NOT = { has_war_with = BNT }
+    NOT = { has_war_with = HUN }
+    82 = {
+        has_state_flag = WW1_AUH_banat_transition
+        is_owned_by = ROOT
+        OR = { is_controlled_by = ROOT is_controlled_by = ROM }
+    }
+}
+
+WW1_AUH_sudetenland_transition_state = {
+    OR = {
+        AND = { state = 69 NOT = { date < 1918.12.14 } }
+        AND = { state = 74 NOT = { date < 1918.12.18 } }
+    }
+    has_state_flag = WW1_AUH_sudeten_provisional
+    is_owned_by = AUS
+    OR = { is_controlled_by = AUS is_controlled_by = CZE }
+}
+
+WW1_AUH_sudetenland_transition_due = {
+    tag = CZE
+    WW1_AUH_postwar_stages_open = yes
+    has_global_flag = czech_independence
+    AUS = { has_country_flag = WW1_AUH_german_austria_successor }
+    is_subject = no
+    has_capitulated = no
+    NOT = { has_war_with = AUS }
+    OR = {
+        any_state = { WW1_AUH_sudetenland_transition_state = yes }
+        AND = {
+            NOT = { date < 1919.9.10 }
+            any_owned_state = { OR = { state = 69 state = 74 } has_state_flag = WW1_AUH_sudeten_claim_pending }
+        }
+    }
+}
+
+WW1_AUH_transylvanian_transition_state = {
+    OR = { state = 76 state = 84 state = 1053 }
+    has_state_flag = WW1_AUH_transylvanian_transition
+    is_owned_by = HUN
+    OR = { is_controlled_by = HUN is_controlled_by = ROM }
+}
+
+WW1_AUH_transylvania_stage_open = {
+    tag = ROM
+    NOT = { date < 1918.12.1 }
+    WW1_AUH_postwar_stages_open = yes
+    is_subject = no
+    has_capitulated = no
+    NOT = { has_war_with = HUN }
+    any_state = { WW1_AUH_transylvanian_transition_state = yes }
+}
+
+WW1_AUH_banat_can_proclaim_here = {
+    OR = {
+        is_owned_by = AUH
+        AND = { is_owned_by = HUN has_state_flag = WW1_AUH_banat_transition }
+    }
+    is_fully_controlled_by = OWNER
+}
+
+WW1_AUH_historical_armistice_ready = {
+    WW1_AUH_historical_defeat_context = yes
+    OR = {
+        AND = {
+            # Once Aster has begun, November 3 is the signing date.
+            NOT = { date < 1918.11.3 }
+            has_country_flag = WW1_AUH_revolution_started
+        }
+        AND = {
+            NOT = { has_country_flag = WW1_AUH_secession_in_progress }
+            NOT = { AND = { WW1_AUH_historical_collapse_due = yes date < 1918.11.3 has_capitulated = no } }
+            OR = {
+                AND = {
+                    WW1_AUH_entente_opponent = yes
+                    OR = {
+                        has_capitulated = yes
+                        surrender_progress > 0.30
+                        AND = {
+                            NOT = { date < 1918.11.3 }
+                            OR = {
+                                surrender_progress > 0.12
+                                AND = {
+                                    has_war_support < 0.30
+                                    country_has_war_exhaustion = yes
+                                    check_variable = { war_exhaustion_variable > 1554 }
+                                }
+                            }
+                        }
+                    }
+                }
+                AND = {
+                    has_country_flag = WW1_AUH_fought_entente
+                    has_global_flag = compiegne
+                    NOT = { date < 1918.11.3 }
+                }
+            }
+        }
+    }
+}
+
+# The old generic surrender path set both Vienna's flag and Villa Giusti.
+WW1_AUH_legacy_crownland_armistice = {
+    tag = AUH
+    date < 1922.1.1
+    owns_state = 1051
+    has_global_flag = armistice_of_villa_giusti
+    has_global_flag = WW1_HAB_vienna_settlement
+    has_country_flag = WW1_HAB_crown_settlement
+    has_country_flag = AUH_ww1_austrian_remnant
+    NOT = { has_global_flag = player_wants_custom_peacedeals }
+    NOT = { has_global_flag = central_powers_victory }
+    NOT = { has_global_flag = WW1_CP_final_settlement_signed }
+    NOT = {
+        OR = {
+            has_completed_focus = AUH_ww1_negotiated_separation_ratification
+            has_global_flag = WW1_HAB_german_guarantee
+            has_global_flag = WW1_HAB_union_ratified
+            has_global_flag = WW1_HAB_berlin_settlement
+            has_global_flag = GE1_R_AUH_settlement_accepted
+            has_global_flag = GE1_R_AUH_wargoal_created
+        }
+    }
+}
+
+# State scope. A saved crown settlement can only return territories held by
+# its original subjects. A conqueror or independent successor keeps its land.
+WW1_AUH_state_in_dissolution = {
+    OR = {
+        is_owned_by = AUH
+        AND = {
+            has_global_flag = WW1_AUH_repairing_crownland_armistice
+            owner = {
+                OR = { tag = CZE tag = HUN tag = CRO tag = GLO }
+                is_subject_of = AUH
+                has_country_flag = WW1_HAB_crown_settlement
+            }
+        }
+    }
+}

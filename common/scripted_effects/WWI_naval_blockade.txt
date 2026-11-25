@@ -1,28 +1,81 @@
-# Runs in GER scope, weekly and when the policy is announced.
+# Called in Germany's scope by the existing weekly, policy and review hooks.
+WW1_migrate_monthly_naval_review = {
+ if = {
+  limit = { WW1_naval_war_open = yes NOT = { has_country_flag = WW1_naval_review_monthly_migrated } }
+  clr_country_flag = WW1_naval_war_review_cooldown
+  if = {
+   limit = { tag = GER has_active_mission = WW1_german_north_sea_campaign check_variable = { var = days_mission_timeout@WW1_german_north_sea_campaign value = 30 compare = greater_than } }
+   remove_mission = WW1_german_north_sea_campaign
+   activate_mission = WW1_german_north_sea_campaign
+  }
+  if = {
+   limit = { tag = ENG has_active_mission = WW1_british_north_sea_campaign check_variable = { var = days_mission_timeout@WW1_british_north_sea_campaign value = 30 compare = greater_than } }
+   remove_mission = WW1_british_north_sea_campaign
+   activate_mission = WW1_british_north_sea_campaign
+  }
+  set_country_flag = WW1_naval_review_monthly_migrated
+ }
+}
+WW1_record_first_blockade_breakthrough = {
+ if = {
+  limit = { tag = GER WW1_naval_war_german_control = yes }
+  if = {
+   limit = { NOT = { has_country_flag = WW1_blockade_breakthrough_recorded } }
+   set_country_flag = WW1_blockade_breakthrough_recorded
+   navy_experience = 5
+   add_political_power = 15
+  }
+  if = {
+   limit = { NOT = { has_country_flag = WW1_blockade_breakthrough_announced } NOT = { has_country_flag = WW1_blockade_breakthrough_pending } }
+   set_country_flag = { flag = WW1_blockade_breakthrough_pending days = 7 }
+   country_event = { id = ww1_naval_race.2 hours = 1 }
+  }
+ }
+}
 WW1_update_north_sea_blockade = {
  if = {
   limit = { tag = GER has_start_date < 1919.1.1 date < 1936.1.1 }
-  # Once-only migration for older saves and the existing 1918 bookmark.
+  WW1_migrate_monthly_naval_review = yes
+  if = { limit = { country_exists = ENG } ENG = { WW1_migrate_monthly_naval_review = yes } }
+  # Existing saves and later bookmarks retain their historical blockade order.
   if = {
    limit = { NOT = { has_country_flag = WW1_blockade_migration_done } }
    set_country_flag = WW1_blockade_migration_done
    if = { limit = { country_exists = ENG has_war_with = ENG OR = { has_global_flag = north_sea_blockade has_idea = blockade ENG = { has_completed_focus = EN1_north_sea_blockade } has_start_date > 1914.8.3 } } set_global_flag = WW1_blockade_authorized }
   }
+  # An existing penalty is evidence of enforcement; authorization alone is not.
+  if = {
+   limit = { has_idea = blockade has_global_flag = WW1_blockade_authorized country_exists = ENG has_war_with = ENG NOT = { is_in_faction_with = ENG } }
+   set_country_flag = WW1_blockade_enforcement_observed
+  }
   if = {
    limit = { has_global_flag = WW1_blockade_authorized country_exists = ENG has_war_with = ENG NOT = { is_in_faction_with = ENG } ENG = { OR = { has_naval_control = 16 has_naval_control = 173 } } }
    set_global_flag = north_sea_blockade
    if = { limit = { NOT = { has_idea = blockade } } add_ideas = blockade }
+   set_country_flag = WW1_blockade_enforcement_observed
   }
   else = {
    if = { limit = { has_global_flag = north_sea_blockade } clr_global_flag = north_sea_blockade }
    if = { limit = { has_idea = blockade } remove_ideas = blockade }
+   if = {
+    limit = { has_country_flag = WW1_blockade_enforcement_observed has_global_flag = WW1_blockade_authorized country_exists = ENG has_war_with = ENG NOT = { is_in_faction_with = ENG } }
+    set_country_flag = WW1_blockade_enforcement_lapsed
+   }
    if = { limit = { OR = { NOT = { country_exists = ENG } NOT = { has_war_with = ENG } is_in_faction_with = ENG } } clr_global_flag = WW1_blockade_authorized }
   }
+  if = {
+   limit = { NOT = { has_global_flag = WW1_blockade_authorized } }
+   clr_country_flag = WW1_blockade_enforcement_observed
+   clr_country_flag = WW1_blockade_enforcement_lapsed
+  }
+  WW1_record_first_blockade_breakthrough = yes
  } else = {
   if = {
    limit = { tag = GER }
    clr_global_flag = WW1_blockade_authorized
    clr_global_flag = north_sea_blockade
+   clr_country_flag = WW1_blockade_enforcement_observed
+   clr_country_flag = WW1_blockade_enforcement_lapsed
    if = { limit = { has_idea = blockade } remove_ideas = blockade }
   }
  }

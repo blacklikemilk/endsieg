@@ -21,7 +21,7 @@ Historical timeline checked against [Documents on Irish Foreign Policy, volume 1
 | 9 March 1932 | De Valera's government | `INT_ireland.17` |
 | 3 May 1933 | Abolition of the oath | `INT_ireland.18` |
 
-The guerrilla war applies a British political-pressure spirit. The provisional government receives only British-owned states 113, 134 and 135. State 119 remains British; state 932 is excluded. Commonwealth dominion status is represented by a constitutional spirit, allowing Ireland to manage its own affairs and its internal war.
+The First Dáil is seated in Dublin. State 113 represents the seat of the rival ministry at the map's state scale. Britain retains Munster and Connaught until the handover. Republican and British actions are represented by events and national spirits. Neither the opening declaration nor a refusal of the treaty creates an international war. Northern Ireland (119) and the Isle of Man (932) fall outside the handover.
 
 The civil war uses the existing IRE and IRA tags. IRA receives cores and states before its deferred setup; four weaker republican formations oppose four National Army formations. Legacy IRA templates loaded by its country history are removed only for this chain. Technology history is retained. Both victory callbacks defer full annexation by one hour and also finish cleanup if a peace conference already annexed the defeated tag. Victory events `.19` and `.20` run only once.
 

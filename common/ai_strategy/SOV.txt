@@ -1912,13 +1912,14 @@ SOV_boost_div_upgrades = { #lets make sure sov upgrades divs when at war
 	}
 }
 
-SOV_defend_blitzkrieg  = {#Only perform careful attacks, we want to defend while germany has buffs.
+SOV_defend_blitzkrieg  = {
 	allowed = {
 		original_tag = SOV
 	}
 
 	enable = {
-		date < 1943.1.1 #To space!
+		has_start_date > 1935.12.31
+		date < 1943.1.1
 		has_war_with = GER
 		GER = { has_idea = GER_barbarossa }
 	}
@@ -1930,13 +1931,39 @@ SOV_defend_blitzkrieg  = {#Only perform careful attacks, we want to defend while
 
 		tag = GER
 
-		ratio = 0.4
+		ratio = 0.2
 
 		priority = 100
 		ordertype = front
 		execution_type = careful
 		execute_order = no
 	}
+
+	ai_strategy = {
+		type = front_control
+
+		tag = ROM
+
+		ratio = 0.2
+
+		priority = 100
+		ordertype = front
+		execution_type = careful
+		execute_order = no
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = GER
+		value = 20
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = ROM
+		value = 10
+	}
+
 
 }
 
@@ -1946,6 +1973,7 @@ SOV_defend_blitzkrieg_2  = {#Only perform careful attacks, we want to defend for
 	}
 
 	enable = {
+		has_start_date > 1935.12.31
 		date < 1943.1.1 #To space!
 		has_war_with = GER
 		NOT = { GER = { has_idea = GER_barbarossa } }
@@ -1959,12 +1987,37 @@ SOV_defend_blitzkrieg_2  = {#Only perform careful attacks, we want to defend for
 
 		tag = GER
 
-		ratio = 0.4
+		ratio = 0.45
 
 		priority = 100
 		ordertype = front
 		execution_type = careful
 	}
+
+	ai_strategy = {
+		type = front_control
+
+		tag = ROM
+
+		ratio = 0.2
+
+		priority = 100
+		ordertype = front
+		execution_type = careful
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = GER
+		value = 40
+	}
+
+	ai_strategy = {
+		type = front_unit_request
+		tag = ROM
+		value = 20
+	}
+
 
 }
 
@@ -2116,9 +2169,10 @@ SOV_defense_in_depth = {
 		original_tag = SOV
 	}
 	enable = {
+		has_start_date > 1935.12.31
 		is_historical_focus_on = yes
-		date > 1940.1.1 
-		date < 1943.1.1 #Maybe this isn't such a good idea now?
+		date > 1940.1.1
+		date < 1942.4.1 #Maybe this isn't such a good idea now?
 		OR = {
 			has_war = no
 			GER = { has_idea = GER_barbarossa }
@@ -2131,7 +2185,7 @@ SOV_defense_in_depth = {
 		type = put_unit_buffers
 
 		# ratio of total armeis in country to be buffered
-		ratio = 0.15
+		ratio = 0.12
 
 		# you can specify an order id. ratio of same orders ids will be share same ratio
 		order_id = 5
@@ -2143,6 +2197,9 @@ SOV_defense_in_depth = {
 			253 #Ivanovo
 			248 #Yaroslavl
 			223 #Tula
+			242 #Smolensk
+			246 #Rzhev
+			247 #Kalinin
 		}
 
 		area = defend_moscow_zone #Hold in reserve until the line encroaches
@@ -2422,5 +2479,38 @@ SOV_convoys_are_needed_for_lendlease = {
 		type = equipment_production_min_factories
 		id = convoy
 		value = 4
+	}
+}
+
+SOV_prepare_for_war = {
+	allowed = { original_tag = SOV }
+	enable = {
+		has_start_date > 1935.12.31
+		date > 1939.9.1
+		threat > 0.5
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = ai_wanted_divisions_factor
+		value = 0.10
+	}
+}
+
+SOV_wants_only_mils_in_great_patriotic_war = {
+	allowed = {
+		original_tag = SOV
+	}
+	enable = {
+		has_start_date > 1935.12.31
+		is_historical_focus_on = yes
+		date > 1939.6.1
+		date < 1943.6.1
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = building_target
+		id = arms_factory
+		value = 220
 	}
 }

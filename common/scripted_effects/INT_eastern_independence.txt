@@ -1,0 +1,108 @@
+INT_eastern_update_independence_defence = {
+	# Mobilize when independent, so the AI can man the front before the invasion.
+	if = {
+		limit = {
+			NOT = { has_country_flag = INT_eastern_independence_brigades_raised }
+			OR = { tag = EST tag = LAT tag = LIT tag = POL }
+			INT_eastern_local_wars_context = yes
+			is_subject = no
+			has_capitulated = no
+			NOT = { has_government = communism }
+			SOV = { exists = yes has_government = communism }
+			OR = { date < 1920.1.1 has_war_with = SOV }
+			NOT = { is_in_faction_with = SOV }
+			any_owned_state = { is_core_of = PREV is_controlled_by = PREV }
+		}
+		INT_eastern_prepare_brigade_template = yes
+		random_owned_controlled_state = {
+			limit = { is_core_of = PREV }
+			if = {
+				limit = { PREV = { tag = POL } }
+				create_unit = {
+					division = "division_template = \"Postwar Volunteer Brigade\" start_experience_factor = 0.2 start_equipment_factor = 1.0"
+					owner = PREV
+					count = 14
+					allow_spawning_on_enemy_provs = no
+				}
+			}
+			else_if = {
+				limit = { PREV = { tag = LAT } }
+				create_unit = {
+					division = "division_template = \"Postwar Volunteer Brigade\" start_experience_factor = 0.2 start_equipment_factor = 1.0"
+					owner = PREV
+					count = 9
+					allow_spawning_on_enemy_provs = no
+				}
+			}
+			else = {
+				create_unit = {
+					division = "division_template = \"Postwar Volunteer Brigade\" start_experience_factor = 0.2 start_equipment_factor = 1.0"
+					owner = PREV
+					count = 7
+					allow_spawning_on_enemy_provs = no
+				}
+			}
+			PREV = { set_country_flag = INT_eastern_independence_brigades_raised }
+		}
+	}
+	if = {
+		limit = { INT_eastern_defending_independence = yes }
+		if = {
+			limit = { has_idea = INT_baltic_independence_defence }
+			remove_ideas = INT_baltic_independence_defence
+		}
+		if = {
+			limit = { NOT = { has_idea = INT_eastern_independence_defence } }
+			add_ideas = INT_eastern_independence_defence
+		}
+		if = {
+			limit = {
+				tag = POL
+				NOT = { surrender_progress < 0.30 }
+				NOT = { has_country_flag = INT_polish_emergency_mobilization_used }
+			}
+			set_country_flag = INT_polish_emergency_mobilization_used
+			add_timed_idea = { idea = INT_polish_emergency_mobilization days = 90 }
+			add_manpower = 20000
+			add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 4000 }
+		}
+		if = {
+			limit = { tag = LAT NOT = { has_country_flag = INT_latvian_independence_extra_reserves } }
+			add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 3500 }
+			add_equipment_to_stockpile = { type = support_equipment_1 amount = 200 }
+			add_equipment_to_stockpile = { type = ww1_artillery_2 amount = 48 }
+			add_equipment_to_stockpile = { type = rations_1 amount = 50000 }
+			add_manpower = 18000
+			set_country_flag = INT_latvian_independence_extra_reserves
+		}
+		if = {
+			limit = { NOT = { has_country_flag = INT_eastern_independence_reserves_issued } }
+			if = {
+				limit = { tag = POL }
+				add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 8000 }
+				add_equipment_to_stockpile = { type = support_equipment_1 amount = 400 }
+				add_equipment_to_stockpile = { type = ww1_artillery_2 amount = 96 }
+				add_equipment_to_stockpile = { type = rations_1 amount = 100000 }
+				add_manpower = 40000
+			}
+			else = {
+				add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 2500 }
+				add_equipment_to_stockpile = { type = support_equipment_1 amount = 150 }
+				add_equipment_to_stockpile = { type = ww1_artillery_2 amount = 36 }
+				add_equipment_to_stockpile = { type = rations_1 amount = 35000 }
+				add_manpower = 10000
+			}
+			set_country_flag = INT_eastern_independence_reserves_issued
+		}
+	}
+	else_if = {
+		limit = {
+			OR = {
+				has_idea = INT_eastern_independence_defence
+				has_idea = INT_baltic_independence_defence
+				has_idea = INT_polish_emergency_mobilization
+			}
+		}
+		remove_ideas = { INT_eastern_independence_defence INT_baltic_independence_defence INT_polish_emergency_mobilization }
+	}
+}

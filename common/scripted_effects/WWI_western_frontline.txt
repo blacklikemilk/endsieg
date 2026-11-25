@@ -1,0 +1,144 @@
+WW1_western_frontline_check_transition = {
+	if = {
+		limit = {
+			WW1_western_frontline_available = yes
+			NOT = { has_country_flag = WW1_western_frontline_active }
+		}
+		set_country_flag = WW1_western_frontline_active
+		clr_country_flag = WW1_western_plan_in_progress
+		WW1_western_frontline_clear_timetable = yes
+	}
+}
+
+WW1_western_frontline_clear_timetable = {
+	if = {
+		limit = { has_active_mission = WW1_western_plan_schlieffen_meuse }
+		remove_mission = WW1_western_plan_schlieffen_meuse
+		WW1_western_plan_clear_schlieffen_meuse = yes
+	}
+	if = {
+		limit = { has_active_mission = WW1_western_plan_schlieffen_somme }
+		remove_mission = WW1_western_plan_schlieffen_somme
+		WW1_western_plan_clear_schlieffen_somme = yes
+	}
+	if = {
+		limit = { has_active_mission = WW1_western_plan_rupprecht_switzerland }
+		remove_mission = WW1_western_plan_rupprecht_switzerland
+		WW1_western_plan_clear_rupprecht_switzerland = yes
+	}
+	if = {
+		limit = { has_active_mission = WW1_western_plan_rupprecht_jura }
+		remove_mission = WW1_western_plan_rupprecht_jura
+		WW1_western_plan_clear_rupprecht_jura = yes
+	}
+	if = {
+		limit = { has_active_mission = WW1_western_plan_kronprinz_warsaw }
+		remove_mission = WW1_western_plan_kronprinz_warsaw
+		WW1_western_plan_clear_kronprinz_warsaw = yes
+	}
+	if = {
+		limit = { has_active_mission = WW1_western_plan_kronprinz_lorraine }
+		remove_mission = WW1_western_plan_kronprinz_lorraine
+		WW1_western_plan_clear_kronprinz_lorraine = yes
+	}
+	if = {
+		limit = { has_active_mission = WW1_western_plan_kronprinz_champagne }
+		remove_mission = WW1_western_plan_kronprinz_champagne
+		WW1_western_plan_clear_kronprinz_champagne = yes
+	}
+	if = {
+		limit = { has_active_mission = WW1_western_plan_paris }
+		remove_mission = WW1_western_plan_paris
+		WW1_western_plan_clear_paris = yes
+	}
+}
+
+WW1_western_frontline_start_review = {
+	add_equipment_to_stockpile = { type = infantry_equipment amount = -500 }
+	add_equipment_to_stockpile = { type = support_equipment amount = -25 }
+	set_variable = { WW1_western_frontline_days = 28 }
+	clr_country_flag = WW1_WF_secondary_objective
+	clr_country_flag = WW1_western_frontline_review_done
+	clr_country_flag = WW1_western_frontline_objective_held
+}
+
+WW1_western_frontline_supply_flanders = {
+	if = {
+		limit = { WW1_western_frontline_can_supply_flanders = yes }
+		WW1_western_frontline_start_review = yes
+		set_variable = { WW1_western_frontline_sector = 1 }
+		if = { limit = { WW1_western_plan_controls_lille = yes } set_country_flag = WW1_WF_secondary_objective }
+		every_controlled_state = {
+			limit = { WW1_western_frontline_flanders_state = yes }
+			add_dynamic_modifier = { modifier = WW1_western_frontline_supply scope = GER days = 28 }
+		}
+	}
+}
+
+WW1_western_frontline_supply_somme = {
+	if = {
+		limit = { WW1_western_frontline_can_supply_somme = yes }
+		WW1_western_frontline_start_review = yes
+		set_variable = { WW1_western_frontline_sector = 2 }
+		if = { limit = { WW1_western_plan_controls_amiens = yes } set_country_flag = WW1_WF_secondary_objective }
+		every_controlled_state = {
+			limit = { WW1_western_frontline_somme_state = yes }
+			add_dynamic_modifier = { modifier = WW1_western_frontline_supply scope = GER days = 28 }
+		}
+	}
+}
+
+WW1_western_frontline_supply_lorraine = {
+	if = {
+		limit = { WW1_western_frontline_can_supply_lorraine = yes }
+		WW1_western_frontline_start_review = yes
+		set_variable = { WW1_western_frontline_sector = 3 }
+		if = { limit = { WW1_western_plan_controls_verdun = yes } set_country_flag = WW1_WF_secondary_objective }
+		every_controlled_state = {
+			limit = { WW1_western_frontline_lorraine_state = yes }
+			add_dynamic_modifier = { modifier = WW1_western_frontline_supply scope = GER days = 28 }
+		}
+	}
+}
+
+WW1_western_frontline_tick = {
+	if = {
+		limit = { check_variable = { WW1_western_frontline_days > 0 } }
+		if = {
+			limit = { WW1_western_frontline_available = yes }
+			subtract_from_variable = { WW1_western_frontline_days = 1 }
+			if = {
+				limit = { check_variable = { WW1_western_frontline_days = 0 } }
+				WW1_western_frontline_review_sector = yes
+			}
+		}
+		else = { set_variable = { WW1_western_frontline_days = 0 } }
+	}
+}
+
+WW1_western_frontline_review_sector = {
+	set_country_flag = WW1_western_frontline_review_done
+	if = {
+		limit = {
+			OR = {
+				AND = {
+					check_variable = { WW1_western_frontline_sector = 1 }
+					if = { limit = { has_country_flag = WW1_WF_secondary_objective } WW1_western_plan_controls_brussels = yes }
+					else = { WW1_western_plan_controls_lille = yes }
+				}
+				AND = {
+					check_variable = { WW1_western_frontline_sector = 2 }
+					if = { limit = { has_country_flag = WW1_WF_secondary_objective } WW1_western_plan_controls_reims = yes }
+					else = { WW1_western_plan_controls_amiens = yes }
+				}
+				AND = {
+					check_variable = { WW1_western_frontline_sector = 3 }
+					if = { limit = { has_country_flag = WW1_WF_secondary_objective } WW1_western_plan_controls_nancy = yes }
+					else = { WW1_western_plan_controls_verdun = yes }
+				}
+			}
+		}
+		set_country_flag = WW1_western_frontline_objective_held
+		army_experience = 5
+	}
+}

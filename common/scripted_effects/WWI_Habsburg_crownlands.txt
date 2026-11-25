@@ -534,7 +534,7 @@ WW1_HAB_collect_participating_states = yes
 }
 
 WW1_HAB_apply_vienna = {
-if = { limit = { tag = AUH date < 1936.1.1 NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete } WW1_HAB_successors_available = yes }
+if = { limit = { tag = AUH date < 1936.1.1 WW1_HAB_settlement_open = yes WW1_HAB_successors_available = yes }
         if = { limit = { is_subject_of = GER } GER = { set_autonomy = { target = AUH autonomy_state = autonomy_free } } }
         WW1_HAB_prepare_crowns = yes
         if = { limit = { country_exists = CZE CZE = { has_country_flag = WW1_HAB_crown_settlement } }
@@ -570,7 +570,7 @@ if = { limit = { tag = AUH date < 1936.1.1 NOT = { has_global_flag = GE1_R_AUH_m
 }
 
 WW1_HAB_apply_berlin = {
-if = { limit = { tag = GER date < 1936.1.1 country_exists = AUH NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete } WW1_HAB_successors_available = yes
+if = { limit = { tag = GER date < 1936.1.1 country_exists = AUH WW1_HAB_settlement_open = yes WW1_HAB_successors_available = yes
             OR = { has_global_flag = WW1_HAB_union_ratified WW1_HAB_military_settlement = yes } }
         AUH = { WW1_HAB_prepare_crowns = yes }
         if = { limit = { country_exists = CZE CZE = { has_country_flag = WW1_HAB_crown_settlement } }
@@ -638,7 +638,7 @@ if = { limit = { AUH = { NOT = { any_owned_state = { NOT = { has_state_flag = WW
 }
 
 WW1_HAB_request_union = {
-if = { limit = { tag = GER date < 1936.1.1 NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete } WW1_HAB_successors_available = yes OR = { has_global_flag = GE1_R_AUH_settlement_accepted WW1_HAB_military_settlement = yes } }
+if = { limit = { tag = GER date < 1936.1.1 WW1_HAB_settlement_open = yes WW1_HAB_successors_available = yes OR = { has_global_flag = GE1_R_AUH_settlement_accepted WW1_HAB_military_settlement = yes } }
         GE1_R_AUH_restore_german_victory = yes
         set_global_flag = WW1_HAB_integration_requested
         if = { limit = { WW1_HAB_military_settlement = yes } WW1_HAB_apply_berlin = yes }
@@ -650,6 +650,7 @@ if = { limit = { tag = GER date < 1936.1.1 NOT = { has_global_flag = GE1_R_AUH_m
 }
 
 WW1_HAB_refuse_union = {
+if = { limit = { WW1_HAB_settlement_open = yes }
 clr_global_flag = WW1_HAB_protocol_pending
         clr_global_flag = GE1_R_AUH_settlement_accepted
         clr_global_flag = GE1_R_AUH_settlement_ready
@@ -660,10 +661,11 @@ clr_global_flag = WW1_HAB_protocol_pending
             country_event = { id = ww1_germany.292 days = 1 }
         }
 }
+}
 
 WW1_HAB_check_peace = {
 if = { limit = { tag = GER has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = GE1_R_AUH_settlement_refused has_global_flag = GE1_R_AUH_wargoal_created
-            NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
+            WW1_HAB_settlement_open = yes
             OR = { AUH = { is_subject_of = GER } 1051 = { is_owned_by = GER is_core_of = AUH } }
             NOT = { has_war_with = AUH }
         }

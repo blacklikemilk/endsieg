@@ -1,0 +1,94 @@
+# Each preparation notice opens its mission. Recover missing notices or timers
+# through the same guarded path after loading a campaign.
+WW1_GER_reconcile_postwar_countdowns = {
+	WW1_GER_recover_missing_preparation = yes
+	if = {
+		limit = { WW1_GER_postwar_timers_open = yes }
+		# A lost preparation mission must not exhaust the old armistice deadline
+		# before the recovered 30/180-day chain can run. Add only its shortfall,
+		# once, while preserving every active mission's remaining days.
+		if = {
+			limit = {
+				has_active_mission = ww1_peace_treaty_due
+				NOT = { has_country_flag = WW1_GER_postwar_deadline_reconciled_v3 }
+			}
+			if = {
+				limit = { NOT = { has_country_flag = ww1_weimar_republic_established } }
+				set_temp_variable = { WW1_GER_preparation_days = 180 }
+				if = {
+					limit = { has_active_mission = ww1_establish_weimar_republic }
+					add_to_temp_variable = { WW1_GER_preparation_days = days_mission_timeout@ww1_establish_weimar_republic }
+				}
+				else = { add_to_temp_variable = { WW1_GER_preparation_days = 30 } }
+			}
+			else = {
+				set_temp_variable = { WW1_GER_preparation_days = 180 }
+				if = {
+					limit = { has_active_mission = ww1_treaty_of_versailles }
+					set_temp_variable = { WW1_GER_preparation_days = days_mission_timeout@ww1_treaty_of_versailles }
+				}
+			}
+			# Leave three days for the next stage and the treaty notice to arrive.
+			add_to_temp_variable = { WW1_GER_preparation_days = 3 }
+			subtract_from_temp_variable = { WW1_GER_preparation_days = days_mission_timeout@ww1_peace_treaty_due }
+			if = {
+				limit = { check_variable = { WW1_GER_preparation_days > 0 } }
+				add_days_mission_timeout = {
+					mission = ww1_peace_treaty_due
+					days = var:WW1_GER_preparation_days
+				}
+			}
+			set_country_flag = WW1_GER_postwar_deadline_reconciled_v3
+		}
+		if = {
+			limit = { WW1_GER_weimar_timer_can_start = yes }
+			activate_mission = ww1_establish_weimar_republic
+			log = "WW1: Started 30-day Weimar preparation."
+		}
+		else_if = {
+			limit = { WW1_GER_versailles_timer_can_start = yes }
+			activate_mission = ww1_treaty_of_versailles
+			log = "WW1: Started 180-day Versailles preparation."
+		}
+		if = {
+			limit = {
+				WW1_GER_weimar_notice_due = yes
+				NOT = { has_country_flag = WW1_GER_weimar_notice_queued }
+			}
+			set_country_flag = { flag = WW1_GER_weimar_notice_queued days = 3 }
+			country_event = { id = INT_weimar.34 hours = 1 }
+		}
+		else_if = {
+			limit = {
+				WW1_GER_versailles_notice_due = yes
+				NOT = { has_country_flag = WW1_GER_versailles_notice_queued }
+			}
+			set_country_flag = { flag = WW1_GER_versailles_notice_queued days = 3 }
+			country_event = { id = INT_weimar.35 hours = 1 }
+		}
+	}
+}
+
+# Restore the already-signed armistice without replaying its territorial effects.
+WW1_GER_recover_missing_preparation = {
+	if = {
+		limit = { WW1_GER_missed_preparation_failure = yes }
+		set_country_flag = WW1_GER_missed_preparation_recovered_v3
+		every_other_country = {
+			limit = { WW1_GER_legacy_deadline_opponent = yes }
+			white_peace = { tag = GER }
+		}
+		clr_global_flag = ww1_compiegne_armistice_failed
+		clr_country_flag = WW1_GER_treaty_deadline_expired_v3
+		if = { limit = { has_active_mission = ww1_peace_treaty_due } remove_mission = ww1_peace_treaty_due }
+		# Native MEFO uses explicit activation to restart a fire-only-once mission.
+		activate_mission = ww1_peace_treaty_due
+		set_temp_variable = { WW1_GER_recovered_deadline_adjustment = 213 }
+		subtract_from_temp_variable = { WW1_GER_recovered_deadline_adjustment = days_mission_timeout@ww1_peace_treaty_due }
+		add_days_mission_timeout = {
+			mission = ww1_peace_treaty_due
+			days = var:WW1_GER_recovered_deadline_adjustment
+		}
+		set_country_flag = WW1_GER_postwar_deadline_reconciled_v3
+	}
+}

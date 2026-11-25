@@ -1,0 +1,23 @@
+WW1_TUR_queue_armistice = {
+    if = {
+        limit = { NOT = { WW1_TUR_armistice_ready = yes } }
+        clr_country_flag = OT1_R_armistice_pending
+        clr_country_flag = WW1_TUR_armistice_presented
+    }
+    else = {
+        # Recover a dispatch lost by an older save without duplicating an open offer.
+        if = {
+            limit = { has_country_flag = { flag = OT1_R_armistice_pending days > 14 } NOT = { has_country_flag = WW1_TUR_armistice_presented } }
+            clr_country_flag = OT1_R_armistice_pending
+        }
+        if = {
+            limit = {
+                NOT = { has_country_flag = OT1_R_armistice_pending }
+                NOT = { has_country_flag = WW1_TUR_armistice_presented }
+                NOT = { has_country_flag = OT1_R_armistice_refused_recently }
+            }
+            set_country_flag = { flag = OT1_R_armistice_pending days = 7 }
+            country_event = { id = ww1_turkey.58 hours = 1 }
+        }
+    }
+}

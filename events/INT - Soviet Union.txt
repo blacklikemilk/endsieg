@@ -51,24 +51,31 @@ country_event = {
 
 	is_triggered_only = yes
 
-	mean_time_to_happen = { days = 1 }
+	trigger = {
+		tag = SOV
+		has_completed_focus = SO2_intervene_in_hungary
+		NOT = { INT_HUN_1919_block_historical_soviet_entry = yes }
+		HUN = { has_war_with = ROM }
+	}
 
 	option = {
 		name = interwar_soviet.4.a
 		if = {
-			limit = { country_exists = ROM NOT = { has_war_with = ROM } }
-			declare_war_on = { target = ROM type = annex_everything }
-			news_event = { id = INT_russian_news.2 days = 1 }
+			limit = {
+				NOT = { INT_HUN_1919_block_historical_soviet_entry = yes }
+				HUN = { has_war_with = ROM }
+			}
+			if = {
+				limit = { country_exists = ROM NOT = { has_war_with = ROM } }
+				declare_war_on = { target = ROM type = annex_everything }
+				if = { limit = { has_war_with = ROM } news_event = { id = INT_russian_news.2 days = 1 } }
+			}
+			if = {
+				limit = { country_exists = HUN is_in_faction = yes }
+				add_to_faction = HUN
+			}
 		}
-		if = {
-			limit = { country_exists = HUN is_in_faction = yes }
-			add_to_faction = HUN
-		}
-
- trigger = { if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 } SOV = { has_completed_focus = SO2_intervene_in_hungary } } }
-}
-
- trigger = { if = { limit = { has_start_date < 1936.1.1 date < 1936.1.1 } SOV = { has_completed_focus = SO2_intervene_in_hungary } } }
+	}
 }
 
 country_event = {
@@ -115,6 +122,7 @@ country_event = {
 		if = {
 			limit = { country_exists = TUR }
 			TUR = { transfer_state = 1033 }
+			if = { limit = { TUR = { owns_state = 1033 } } news_event = { id = ww1_postwar_news.22 hours = 6 } }
 		}
 	}
 }
@@ -441,11 +449,34 @@ country_event = {
 
 	is_triggered_only = yes
 
-	mean_time_to_happen = { days = 1 }
+	trigger = { INT_USSR_can_form = yes }
+	immediate = {
+		set_global_flag = INT_USSR_founded
+		drop_cosmetic_tag = yes
+		every_subject_country = {
+			limit = {
+				is_ai = yes has_government = communism has_capitulated = no
+				OR = {
+					AND = { original_tag = BLR owns_state = 206 }
+					AND = { original_tag = UKR owns_state = 221 }
+					AND = { original_tag = AZR owns_state = 1016 }
+					AND = { original_tag = ARM owns_state = 230 }
+					AND = { original_tag = GEO owns_state = 231 }
+				}
+			}
+			if = { limit = { original_tag = UKR } SOV = { set_country_flag = INT_UKR_union_accession } }
+			SOV = { annex_country = { target = PREV transfer_troops = yes } }
+		}
+	}
 
 	option = {
 		name = interwar_soviet.28.a
-		add_political_power = 100
+		# Older saves already received the focus reward before the treaty changed the country.
+		if = {
+			limit = { OR = { has_country_flag = INT_USSR_ratifying_focus NOT = { has_completed_focus = SO2_treaty_of_creation_ussr } } }
+			add_political_power = 100
+		}
+		clr_country_flag = INT_USSR_ratifying_focus
 	}
 }
 

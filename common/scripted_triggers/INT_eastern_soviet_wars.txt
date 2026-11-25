@@ -1,0 +1,100 @@
+INT_eastern_can_advance_into_ukraine = {
+	tag = SOV
+	INT_eastern_local_wars_context = yes
+	date > 1918.12.1
+	date < 1922.1.1
+	is_subject = no
+	has_capitulated = no
+	country_exists = UKR
+	has_government = communism
+	NOT = { has_war_with = GER }
+	UKR = {
+		is_in_faction = no
+		OR = {
+			INT_UKR_directory_active = yes
+			# An earlier campaign may preserve the original People's Republic.
+			AND = {
+				exists = yes
+				is_subject = no
+				has_capitulated = no
+				owns_state = 202
+				has_government = democratic
+				has_country_leader = { name = "Mykhailo Hrushevsky" ruling_only = yes }
+				NOT = { date < 1918.12.14 }
+			}
+		}
+	}
+	NOT = { any_other_country = { is_ai = no has_guaranteed = UKR } }
+	NOT = {
+		OR = {
+			has_country_flag = INT_ukraine_integrated
+			has_war_with = UKR
+			is_in_faction_with = UKR
+			has_non_aggression_pact_with = UKR
+			has_truce_with = UKR
+		}
+	}
+}
+
+# In Ukrainian scope; the regular capitulation path is shared with the
+# fallback for an AI surrender while the wider war stays open.
+INT_eastern_ukraine_defeat_confirmed = {
+	OR = {
+		has_capitulated = yes
+		AND = {
+			has_war_with = SOV
+			surrender_progress > 0.75
+			OR = {
+				202 = { is_fully_controlled_by = SOV }
+				SOV = { any_subject_country = { INT_UKR_soviet_subject = yes 202 = { is_fully_controlled_by = PREV } } }
+			}
+			OR = {
+				221 = { is_fully_controlled_by = SOV }
+				SOV = { any_subject_country = { INT_UKR_soviet_subject = yes 221 = { is_fully_controlled_by = PREV } } }
+			}
+		}
+	}
+}
+
+INT_eastern_can_attack_estonia = {
+	tag = SOV
+	INT_eastern_german_withdrawal_confirmed = yes
+	NOT = { date < 1918.11.28 }
+	date < 1920.2.2
+	is_subject = no
+	has_capitulated = no
+	country_exists = EST
+	EST = { is_subject = no is_in_faction = no has_capitulated = no }
+	NOT = { any_other_country = { is_ai = no has_guaranteed = EST } }
+	NOT = {
+		OR = {
+			has_global_flag = central_powers_victory
+			has_global_flag = tartu_treaty
+			has_war_with = EST
+			is_in_faction_with = EST
+			has_truce_with = EST
+			has_non_aggression_pact_with = EST
+		}
+	}
+}
+
+# In Soviet scope. Leave human signatories and custom settlements to diplomacy.
+INT_eastern_historical_soviet_campaign = {
+	tag = SOV
+	exists = yes
+	is_ai = yes
+	is_historical_focus_on = yes
+	has_government = communism
+	is_subject = no
+	has_capitulated = no
+	has_start_date < 1923.1.1
+	date > 1918.11.10
+	date < 1923.1.1
+	INT_eastern_german_withdrawal_confirmed = yes
+	NOT = {
+		OR = {
+			has_global_flag = central_powers_victory
+			has_global_flag = player_wants_custom_peacedeals
+		}
+	}
+}

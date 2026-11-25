@@ -118,7 +118,7 @@ RUS_ww1_initialize_october_government = {
         }
         set_country_flag = RUS_ww1_october_initialized
         if = {
-            limit = { NOT = { country_exists = FNN } NOT = { has_country_flag = RUS_ww1_finland_queued } }
+            limit = { RUS_ww1_uses_historical_finnish_timeline = no NOT = { country_exists = FNN } NOT = { has_country_flag = RUS_ww1_finland_queued } }
             set_country_flag = RUS_ww1_finland_queued
             country_event = { id = ww1_russia.45 days = 25 }
         }
@@ -239,7 +239,76 @@ RUS_ww1_enforce_brest_peace = {
     if = { limit = { country_exists = GER has_war_with = GER } white_peace = GER }
 }
 
-# The negotiations leave the existing war and province controllers in place.
+# Keep the war and the current province controllers in place until ratification.
+RUS_ww1_queue_brest_offer = {
+    if = {
+        limit = {
+            RUS_ww1_brest_ready = yes
+            OR = {
+                NOT = { has_country_flag = RUS_ww1_brest_queued }
+                has_country_flag = { flag = RUS_ww1_brest_queued days > 30 }
+            }
+        }
+        clr_country_flag = RUS_ww1_brest_queued
+        set_country_flag = RUS_ww1_brest_queued
+        clr_country_flag = RUS_ww1_brest_offer_received
+        clr_country_flag = RUS_ww1_brest_limited_offer
+        save_event_target_as = RUS_ww1_brest_signatory
+        GER = { country_event = { id = ww1_brest.5 hours = 1 } }
+    }
+    else_if = {
+        limit = { NOT = { RUS_ww1_brest_ready = yes } }
+        clr_country_flag = RUS_ww1_brest_queued
+        clr_country_flag = RUS_ww1_brest_offer_received
+        clr_country_flag = RUS_ww1_brest_limited_offer
+    }
+}
+
+RUS_ww1_establish_transcaucasian_protectorate = {
+    if = {
+        limit = {
+            tag = TRC
+            has_start_date < 1918.1.1
+            date < 1936.1.1
+            has_global_flag = treaty_of_brest_litovsk
+            NOT = { has_country_flag = RUS_ww1_transcaucasian_protectorate_set }
+            owns_state = 231
+            has_capitulated = no
+            GER = { exists = yes has_capitulated = no }
+            NOT = { has_war_with = GER }
+            OR = { is_subject = no is_subject_of = GER }
+            OR = { is_in_faction = no is_in_faction_with = GER }
+        }
+        if = {
+            limit = { NOT = { is_subject_of = GER } }
+            GER = { puppet = TRC }
+        }
+        set_politics = { ruling_party = democratic elections_allowed = no }
+        set_party_name = {
+            ideology = democratic
+            long_name = TRC_ww1_seim
+            name = TRC_ww1_seim_short
+        }
+        if = {
+            limit = { has_character = TRC_nikolay_chkheidze }
+            promote_character = { character = TRC_nikolay_chkheidze ideology = conservatism }
+        }
+        else = {
+            # Saves made before the character was registered at earlier starts.
+            create_country_leader = {
+                name = "Nikolay Chkheidze"
+                picture = "gfx/leaders/TRA/Portrait_Transcaucasia_Nikolay_Chkheidze.dds"
+                ideology = conservatism
+                expire = "1965.1.1"
+            }
+        }
+        if = {
+            limit = { is_subject_of = GER }
+            set_country_flag = RUS_ww1_transcaucasian_protectorate_set
+        }
+    }
+}
+
 RUS_ww1_advance_brest_talks = {
     if = {
         limit = { RUS_ww1_brest_historical_talks = yes has_capitulated = no }
@@ -341,19 +410,7 @@ RUS_ww1_repair_revolution_chain = {
             }
             if = { limit = { NOT = { RUS_ww1_october_ready = yes } } clr_country_flag = RUS_ww1_october_queued }
             # Preserve the existing capitulated-imperial-Russia treaty route.
-            if = {
-                limit = {
-                    RUS_ww1_brest_ready = yes
-                    OR = {
-                        NOT = { has_country_flag = RUS_ww1_brest_queued }
-                        has_country_flag = { flag = RUS_ww1_brest_queued days > 30 }
-                    }
-                }
-                clr_country_flag = RUS_ww1_brest_queued
-                set_country_flag = RUS_ww1_brest_queued
-                country_event = { id = ww1_russia.43 hours = 1 }
-            }
-            if = { limit = { NOT = { RUS_ww1_brest_ready = yes } } clr_country_flag = RUS_ww1_brest_queued }
+            RUS_ww1_queue_brest_offer = yes
         }
     }
     else_if = {
@@ -383,6 +440,7 @@ RUS_ww1_repair_revolution_chain = {
             set_country_flag = RUS_ww1_october_leader_selected
         }
         RUS_ww1_finish_october_takeover = yes
+        RUS_ww1_advance_historical_finnish_timeline = yes
         # Reconcile only once after an actually signed treaty, including saves
         # where the predecessor remained at war because the handoff failed.
         if = {
@@ -439,19 +497,7 @@ RUS_ww1_repair_revolution_chain = {
             RUS_ww1_select_october_leader = yes
         }
         RUS_ww1_advance_brest_talks = yes
-        if = {
-            limit = {
-                RUS_ww1_brest_ready = yes
-                OR = {
-                    NOT = { has_country_flag = RUS_ww1_brest_queued }
-                    has_country_flag = { flag = RUS_ww1_brest_queued days > 30 }
-                }
-            }
-            clr_country_flag = RUS_ww1_brest_queued
-            set_country_flag = RUS_ww1_brest_queued
-            country_event = { id = ww1_russia.43 hours = 1 }
-        }
-        if = { limit = { NOT = { RUS_ww1_brest_ready = yes } } clr_country_flag = RUS_ww1_brest_queued }
+        RUS_ww1_queue_brest_offer = yes
         if = {
             limit = { RUS_ww1_civil_war_ready = yes NOT = { has_country_flag = RUS_ww1_civil_war_queued } }
             set_country_flag = RUS_ww1_civil_war_queued

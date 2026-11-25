@@ -1,0 +1,108 @@
+INT_eastern_finish_westward_advance = {
+	if = {
+		limit = {
+			tag = SOV
+			OR = { has_idea = INT_SOV_westward_offensive has_completed_focus = SO2_westward_offensive }
+			INT_eastern_westward_modifier_finished = yes
+		}
+		remove_ideas = INT_SOV_westward_offensive
+		set_country_flag = INT_eastern_westward_advance_closed
+	}
+}
+
+INT_eastern_finish_defeated_don = {
+	if = {
+		limit = {
+			tag = SOV
+			has_start_date < 1921.1.1
+			date > 1917.12.31
+			date < 1923.1.1
+			has_government = communism
+			has_capitulated = no
+			is_subject = no
+			KUB = { INT_eastern_don_defeat_confirmed = yes }
+		}
+		annex_country = { target = KUB transfer_troops = no }
+	}
+}
+
+# Former German clients can retain Entente hostilities after Compiègne.
+# A separate war goal takes precedence over the armistice cleanup.
+INT_eastern_end_inherited_entente_wars = {
+    if = {
+        limit = {
+            has_global_flag = compiegne
+            has_global_flag = welcome_event_WW1_active
+            date < 1923.1.1
+            exists = yes
+            NOT = {
+                OR = {
+                    has_global_flag = central_powers_victory
+                    has_global_flag = player_wants_custom_peacedeals
+                    has_global_flag = ww1_compiegne_armistice_failed
+                }
+            }
+        }
+        every_enemy_country = {
+            limit = {
+                OR = {
+                    has_faction_template = faction_template_ww1_entente
+                    tag = ENG tag = FRA tag = USA tag = BEL tag = ITA tag = GRE tag = POR tag = JAP
+                    tag = ROM tag = BRA tag = BHU tag = NEP tag = PHI tag = RCH tag = SHX tag = SIA tag = EN3
+                    is_in_faction_with = ENG
+                    is_in_faction_with = FRA
+                    is_in_faction_with = USA
+                    is_subject_of = ENG
+                    is_subject_of = FRA
+                    is_subject_of = USA
+                }
+                NOT = {
+                    OR = {
+                        tag = SOV tag = WHR tag = POL tag = WUR tag = MKN
+                        has_wargoal_against = PREV
+                        has_war_with_wargoal_against = { target = PREV }
+                    }
+                }
+                PREV = {
+                    NOT = {
+                        OR = {
+                            has_wargoal_against = PREV
+                            has_war_with_wargoal_against = { target = PREV }
+                        }
+                    }
+                }
+            }
+            PREV = { white_peace = PREV }
+        }
+    }
+}
+
+INT_UKR_end_german_coalition_wars = {
+    if = {
+        limit = {
+            tag = UKR
+            OR = {
+                is_subject_of = GER
+                is_in_faction_with = GER
+                has_country_flag = skoropadskytakesover
+                has_cosmetic_tag = UKR_HET
+            }
+        }
+        INT_eastern_end_inherited_entente_wars = yes
+    }
+}
+
+# Poland can already be independent when the German armistice arrives.
+INT_eastern_end_polish_regency = {
+	drop_cosmetic_tag = yes
+	if = {
+		limit = { has_government = neutrality NOT = { has_country_leader = { name = "Jozef Pilsudski" ruling_only = yes } } }
+		create_country_leader = {
+			name = "Jozef Pilsudski"
+			desc = "POLITICS_PILSUDSKI_DESC"
+			picture = "gfx/leaders/POL/portrait_poland_pilsudski.dds"
+			expire = "1935.5.12"
+			ideology = despotism
+		}
+	}
+}

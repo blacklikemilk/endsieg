@@ -1,0 +1,238 @@
+add_namespace = INT_postwar_transitions
+
+country_event = {
+    id = INT_postwar_transitions.1
+    title = INT_postwar_transitions.1.t
+    desc = INT_postwar_transitions.1.d
+    picture = GFX_report_event_generic_sign_treaty2
+    trigger = {
+        WW1_AUH_banat_romanian_handover_due = yes
+        NOT = { has_country_flag = INT_postwar_banat_approved }
+        NOT = { has_country_flag = INT_postwar_banat_declined }
+    }
+    mean_time_to_happen = { days = 1 }
+    fire_only_once = yes
+    option = {
+        name = INT_postwar_transitions.1.a
+        ai_chance = { factor = 100 }
+        set_country_flag = INT_postwar_banat_approved
+        WW1_AUH_update_banat = yes
+    }
+    option = {
+        name = INT_postwar_transitions.1.b
+        ai_chance = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes } }
+        set_country_flag = INT_postwar_banat_declined
+    }
+}
+
+country_event = {
+    id = INT_postwar_transitions.2
+    title = INT_postwar_transitions.2.t
+    desc = INT_postwar_transitions.2.d
+    picture = GFX_report_event_generic_sign_treaty2
+    trigger = {
+        WW1_AUH_transylvania_stage_open = yes
+        NOT = { date < 1918.12.24 }
+        NOT = { has_country_flag = INT_postwar_transylvania_approved }
+        NOT = { has_country_flag = INT_postwar_transylvania_declined }
+    }
+    mean_time_to_happen = { days = 1 }
+    fire_only_once = yes
+    option = {
+        name = INT_postwar_transitions.2.a
+        ai_chance = { factor = 100 }
+        set_country_flag = INT_postwar_transylvania_approved
+        WW1_AUH_update_transylvania = yes
+    }
+    option = {
+        name = INT_postwar_transitions.2.b
+        ai_chance = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes } }
+        set_country_flag = INT_postwar_transylvania_declined
+    }
+}
+
+# Czech occupation of the disputed districts and expiration of Austrian claims.
+country_event = {
+    id = INT_postwar_transitions.5
+    hidden = yes
+    trigger = { WW1_AUH_sudetenland_transition_due = yes }
+    mean_time_to_happen = { days = 1 }
+    immediate = { WW1_AUH_update_sudetenland = yes }
+}
+
+# The Alba Iulia assembly precedes the handover.
+country_event = {
+    id = INT_postwar_transitions.6
+    hidden = yes
+    trigger = {
+        WW1_AUH_transylvania_stage_open = yes
+        date < 1918.12.12
+        NOT = { has_country_flag = WW1_AUH_alba_iulia_reported }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = { WW1_AUH_update_transylvania = yes }
+}
+
+country_event = {
+    id = INT_postwar_transitions.3
+    title = INT_postwar_transitions.3.t
+    desc = INT_postwar_transitions.3.d
+    picture = GFX_report_event_generic_sign_treaty2
+    is_triggered_only = yes
+    option = {
+        name = INT_postwar_transitions.3.a
+        ai_chance = { factor = 100 }
+        set_country_flag = INT_postwar_burgenland_approved
+        WW1_AUH_update_burgenland = yes
+    }
+    option = {
+        name = INT_postwar_transitions.3.b
+        ai_chance = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes } }
+        set_country_flag = INT_postwar_burgenland_declined
+    }
+}
+
+
+country_event = {
+    id = INT_postwar_transitions.4
+    title = INT_postwar_transitions.4.t
+    desc = INT_postwar_transitions.4.d
+    picture = GFX_report_event_ukrop_soviet_war
+    is_triggered_only = no
+    trigger = {
+        INT_eastern_can_advance_into_ukraine = yes
+        NOT = {
+            OR = {
+                has_country_flag = INT_eastern_ukraine_advance_declined
+                has_country_flag = INT_ukraine_invasion_reported
+                has_country_flag = INT_ukraine_declaration_pending
+            }
+        }
+    }
+    mean_time_to_happen = { days = 1 }
+    option = {
+        name = INT_postwar_transitions.4.a
+        ai_chance = { factor = 100 }
+        INT_eastern_begin_ukrainian_campaign = yes
+    }
+    option = {
+        name = INT_postwar_transitions.4.b
+        ai_chance = { factor = 10 modifier = { factor = 0 is_historical_focus_on = yes } }
+        set_country_flag = INT_eastern_ukraine_advance_declined
+    }
+}
+
+# Compiègne ends German clients' inherited coalition wars and the wartime Entente.
+country_event = {
+    id = INT_postwar_transitions.20
+    hidden = yes
+    is_triggered_only = no
+    trigger = {
+        tag = GER
+        has_global_flag = compiegne
+        has_global_flag = welcome_event_WW1_active
+        date < 1923.1.1
+        NOT = {
+            OR = {
+                has_global_flag = central_powers_victory
+                has_global_flag = player_wants_custom_peacedeals
+                has_global_flag = ww1_compiegne_armistice_failed
+                has_global_flag = WW1_entente_postwar_dissolved
+                has_war_with = ENG
+                has_war_with = FRA
+            }
+        }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = {
+        POL = {
+            INT_eastern_end_inherited_entente_wars = yes
+            if = {
+                limit = { is_subject = no has_cosmetic_tag = POL_RKP owns_state = 10 }
+                INT_eastern_end_polish_regency = yes
+            }
+        }
+        UKR = { INT_eastern_end_inherited_entente_wars = yes }
+        CRI = { INT_eastern_end_inherited_entente_wars = yes }
+        BLR = { INT_eastern_end_inherited_entente_wars = yes }
+        LIT = { INT_eastern_end_inherited_entente_wars = yes }
+        UBD = { INT_eastern_end_inherited_entente_wars = yes }
+        DER = {
+            if = {
+                limit = {
+                    has_war_with = ROM
+                    NOT = { OR = { has_wargoal_against = ROM has_war_with_wargoal_against = { target = ROM } } }
+                    ROM = { NOT = { OR = { has_wargoal_against = DER has_war_with_wargoal_against = { target = DER } } } }
+                }
+                white_peace = ROM
+            }
+        }
+        # End the Entente only once its core members are out of the Great War.
+        if = {
+            limit = {
+                NOT = {
+                    any_country = {
+                        has_faction_template = faction_template_ww1_entente
+                        OR = {
+                            has_war_with = GER
+                            AND = { has_war_with = AUH NOT = { has_global_flag = armistice_of_villa_giusti } }
+                            AND = { has_war_with = BUL NOT = { has_global_flag = armistice_of_salonica } }
+                            AND = { has_war_with = TUR NOT = { has_global_flag = armistice_of_mudros } }
+                        }
+                    }
+                }
+            }
+            every_country = {
+                limit = { is_faction_leader = yes has_faction_template = faction_template_ww1_entente }
+                dismantle_faction = yes
+            }
+            if = {
+                limit = {
+                    NOT = { any_country = { has_faction_template = faction_template_ww1_entente } }
+                }
+                set_global_flag = WW1_entente_postwar_dissolved
+                log = "WW1: Entente postwar settlement processed."
+            }
+        }
+    }
+}
+
+# The Conference of Ambassadors confirms Albania's southern frontier.
+country_event = {
+    id = INT_postwar_transitions.7
+    title = INT_postwar_transitions.7.t
+    desc = INT_postwar_transitions.7.d
+    picture = GFX_report_event_generic_sign_treaty2
+    fire_only_once = yes
+    trigger = {
+        tag = ALB
+        has_start_date < 1919.1.1
+        NOT = { date < 1921.11.9 }
+        date < 1936.1.1
+        has_global_flag = compiegne
+        NOT = {
+            OR = {
+                has_global_flag = central_powers_victory
+                has_global_flag = player_wants_custom_peacedeals
+                has_global_flag = ww1_compiegne_armistice_failed
+                has_war_with = GRE
+            }
+        }
+        805 = {
+            OR = { is_owned_by = GRE is_owned_by = ALB }
+            NOT = { AND = { is_owned_by = ALB is_fully_controlled_by = ALB } }
+        }
+        # A split Greek-Albanian garrison can withdraw without displacing a third army.
+        OR = { controls_province = 914 GRE = { controls_province = 914 } }
+        OR = { controls_province = 3448 GRE = { controls_province = 3448 } }
+        OR = { controls_province = 6900 GRE = { controls_province = 6900 } }
+        OR = { controls_province = 13234 GRE = { controls_province = 13234 } }
+        OR = { controls_province = 13235 GRE = { controls_province = 13235 } }
+    }
+    mean_time_to_happen = { days = 1 }
+    immediate = {
+        if = { limit = { 805 = { is_owned_by = GRE } } transfer_state = 805 }
+        set_state_controller = 805
+    }
+    option = { name = INT_postwar_transitions.7.a }
+}

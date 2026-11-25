@@ -26,8 +26,9 @@ country_event = {
 			AND = {
 				country_exists = UKR
 				UKR = {
+					NOT = { is_subject_of = SOV }
 					has_country_flag = INT_ukraine_defeated_by_soviets
-					has_capitulated = yes
+					INT_eastern_ukraine_defeat_confirmed = yes
 				}
 			}
 			AND = {
@@ -40,11 +41,18 @@ country_event = {
 		if = {
 			limit = {
 				country_exists = UKR
-				UKR = { has_country_flag = INT_ukraine_defeated_by_soviets }
+				UKR = {
+					NOT = { is_subject_of = SOV }
+					has_country_flag = INT_ukraine_defeated_by_soviets
+					INT_eastern_ukraine_defeat_confirmed = yes
+				}
 			}
 			UKR = { clr_country_flag = INT_ukraine_defeated_by_soviets }
-			set_country_flag = INT_ukraine_integrated
 			annex_country = { target = UKR transfer_troops = no }
+			if = {
+				limit = { NOT = { country_exists = UKR } }
+				set_country_flag = INT_ukraine_integrated
+			}
 		}
 		INT_eastern_absorb_moldavian_subjects = yes
 	}
@@ -56,24 +64,11 @@ country_event = {
 	title = INT_eastern.1.t
 	desc = INT_eastern.1.d
 	picture = GFX_report_event_ukrop_polishwar
-	fire_only_once = yes
-	trigger = {
-		tag = POL
-		has_global_flag = compiegne
-		NOT = { has_global_flag = central_powers_victory }
-		date > 1919.7.15
-		date < 1919.8.15
-		country_exists = WUR
-		owns_state = 10
-		WUR = { OR = { owns_state = 89 owns_state = 91 } }
-	}
-	mean_time_to_happen = { days = 1 }
+	is_triggered_only = yes
+	trigger = { INT_UKR_galician_peace_ready = yes }
 	option = {
 		name = INT_eastern.1.a
-		if = { limit = { has_war_with = WUR } white_peace = WUR }
-		89 = { if = { limit = { is_owned_by = WUR } transfer_state_to = POL } }
-		91 = { if = { limit = { is_owned_by = WUR } transfer_state_to = POL } }
-		news_event = { id = INT_eastern.11 days = 0 }
+		INT_UKR_finish_galician_front = yes
 	}
 }
 
@@ -84,29 +79,37 @@ country_event = {
 	title = INT_eastern.2.t
 	desc = INT_eastern.2.d
 	picture = GFX_report_event_riga_treaty
-	fire_only_once = yes
-	trigger = {
-		tag = POL
-		has_global_flag = compiegne
-		NOT = { has_global_flag = central_powers_victory }
-		date > 1921.3.17
-		date < 1921.6.1
-		country_exists = SOV
-		owns_state = 10
-	}
-	mean_time_to_happen = { days = 1 }
+
+	is_triggered_only = yes
+	trigger = { INT_eastern_riga_poland_ready = yes }
+
 	option = {
 		name = INT_eastern.2.a
-		set_global_flag = sov_pol_ceasefire
-		if = { limit = { has_war_with = SOV } white_peace = SOV }
-		if = { limit = { country_exists = UKR has_war_with = UKR } white_peace = UKR }
-		if = { limit = { country_exists = BLR has_war_with = BLR } white_peace = BLR }
-		transfer_state = 93
-		transfer_state = 94
-		transfer_state = 95
-		95 = { add_core_of = POL }
-		transfer_state = 96
-		news_event = { id = INT_eastern.12 days = 0 }
+		INT_eastern_apply_riga_poland = yes
+	}
+}
+
+# The capitulation callback records which government surrendered to the Red Army.
+country_event = {
+	id = INT_eastern.5
+	hidden = yes
+	is_triggered_only = yes
+	immediate = {
+		if = {
+			limit = {
+				INT_eastern_historical_soviet_campaign = yes
+				event_target:INT_eastern_defeated_government = {
+					exists = yes
+					is_ai = yes
+					OR = { tag = EST tag = LAT tag = LIT tag = POL }
+					OR = {
+						AND = { has_capitulated = yes has_war_with = SOV is_subject = no }
+						is_subject_of = SOV
+					}
+				}
+			}
+			annex_country = { target = event_target:INT_eastern_defeated_government transfer_troops = no }
+		}
 	}
 }
 
@@ -128,4 +131,151 @@ news_event = {
 	major = yes
 	is_triggered_only = yes
 	option = { name = INT_eastern.12.a }
+}
+
+# If a generic peace conference eliminated historical Lithuania, Kaunas can
+# still sign the Moscow settlement. Only territory held by the signatories moves.
+country_event = {
+	id = INT_eastern.13
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = SOV INT_eastern_historical_soviet_campaign = yes
+		has_country_flag = INT_historical_lit_war
+		date > 1920.7.11 date < 1920.10.7
+		NOT = { has_global_flag = moscow_lit_treaty }
+		OR = { NOT = { country_exists = LIT } LIT = { is_ai = yes is_subject_of = SOV } }
+		11 = { OR = { is_owned_by = SOV is_owned_by = LIT } OR = { is_fully_controlled_by = SOV is_fully_controlled_by = LIT } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { LIT = { is_subject_of = SOV } }
+			set_autonomy = { target = LIT autonomy_state = autonomy_free end_wars = no end_civil_wars = no }
+		}
+		11 = { if = { limit = { is_owned_by = SOV } transfer_state_to = LIT } }
+		LIT = {
+			if = { limit = { is_in_faction_with = SOV } leave_faction = yes }
+			if = { limit = { has_war_with = POL } white_peace = POL }
+			set_country_flag = INT_LIT_restored_at_moscow
+			drop_cosmetic_tag = yes
+			set_politics = { ruling_party = democratic elections_allowed = yes }
+			create_country_leader = { name = "Aleksandras Stulginskis" ideology = conservatism expire = "1940.6.15" }
+			set_capital = { state = 11 }
+			INT_eastern_settle_moscow_frontier = yes
+			news_event = { id = endsieg_news.67 hours = 6 }
+		}
+	}
+}
+
+# The second regional government survived the German withdrawal in Crimea.
+# Establish it before a Soviet-Ukrainian peace conference can release Crimea.
+country_event = {
+	id = INT_eastern.14
+	title = INT_eastern.14.t
+	desc = INT_eastern.14.d
+	picture = GFX_report_event_regional
+	fire_only_once = yes
+	trigger = {
+		tag = SOV is_ai = yes is_historical_focus_on = yes
+		INT_eastern_local_wars_context = yes
+		date > 1918.11.14 date < 1919.4.29
+		137 = {
+			owner = { is_ai = yes }
+			OR = {
+				AND = { is_owned_by = UKR is_fully_controlled_by = UKR UKR = { is_subject = no } }
+				AND = { is_owned_by = CRI is_fully_controlled_by = CRI CRI = { OR = { is_subject = no is_subject_of = SOV } } }
+			}
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { CRI = { is_subject_of = SOV } }
+			set_autonomy = { target = CRI autonomy_state = autonomy_free end_wars = yes end_civil_wars = no }
+		}
+		137 = { if = { limit = { is_owned_by = UKR } transfer_state_to = CRI } }
+		CRI = {
+			if = { limit = { is_in_faction_with = SOV } leave_faction = yes }
+			set_politics = { ruling_party = neutrality elections_allowed = no }
+			set_cosmetic_tag = INT_CRI_regional
+			create_country_leader = { name = "Solomon Krym" ideology = despotism picture = "gfx/leaders/TSS/Portrait_Solomon_Krym.dds" expire = "1936.9.9" }
+		}
+	}
+	option = { name = INT_eastern.14.a }
+}
+
+country_event = {
+	id = INT_eastern.15
+	title = INT_eastern.15.t
+	desc = INT_eastern.15.d
+	picture = GFX_report_event_regional
+	fire_only_once = yes
+	trigger = {
+		tag = CRI is_ai = yes is_historical_focus_on = yes
+		INT_eastern_local_wars_context = yes
+		date > 1919.5.5 date < 1919.6.26
+		OR = { has_cosmetic_tag = INT_CRI_regional is_subject_of = SOV }
+		OR = { is_subject = no is_subject_of = SOV }
+		OR = { is_in_faction = no is_in_faction_with = SOV }
+		137 = { is_owned_by = CRI is_fully_controlled_by = CRI }
+		SOV = { is_ai = yes has_government = communism }
+		OR = { is_subject_of = SOV 137 = { any_neighbor_state = { is_controlled_by = SOV } } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		set_politics = { ruling_party = communism elections_allowed = no }
+		set_cosmetic_tag = INT_CRI_1919_soviet
+		create_country_leader = { name = "Dmitry Ulyanov" picture = "gfx/leaders/CRI/Portrait_Dmitry_Ulyanov.dds" ideology = leninism expire = "1943.7.16" }
+		set_country_flag = INT_CRI_ulyanov_portrait_applied
+	}
+	option = { name = INT_eastern.15.a }
+}
+
+country_event = {
+	id = INT_eastern.16
+	title = INT_eastern.16.t
+	desc = INT_eastern.16.d
+	picture = GFX_report_event_crimeaoffensive1918
+	fire_only_once = yes
+	trigger = {
+		tag = WHR is_ai = yes is_historical_focus_on = yes
+		INT_eastern_local_wars_context = yes INT_CRI_white_approach = yes
+		is_subject = no
+		date > 1919.6.25 date < 1920.11.16
+		CRI = {
+			is_ai = yes OR = { has_cosmetic_tag = INT_CRI_1919_soviet has_cosmetic_tag = INT_CRI_regional }
+			OR = { is_subject = no is_subject_of = SOV }
+			OR = { is_in_faction = no is_in_faction_with = SOV }
+		}
+		SOV = { is_ai = yes }
+		137 = { is_owned_by = CRI OR = { is_fully_controlled_by = CRI is_fully_controlled_by = WHR } }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { 137 = { transfer_state_to = WHR } }
+	option = { name = INT_eastern.16.a }
+}
+
+# If the Reds have secured both mainland approaches and the Whites have no
+# southern front, the isolated provisional Soviet government can wind down.
+country_event = {
+	id = INT_eastern.17
+	title = INT_eastern.17.t
+	desc = INT_eastern.17.d
+	picture = GFX_report_event_regional
+	fire_only_once = yes
+	trigger = {
+		tag = SOV is_ai = yes has_government = communism is_subject = no
+		is_historical_focus_on = yes INT_eastern_local_wars_context = yes
+		date > 1919.6.25
+		controls_state = 196 controls_state = 234
+		INT_CRI_white_approach = no
+		CRI = {
+			is_ai = yes has_cosmetic_tag = INT_CRI_1919_soviet has_government = communism
+			has_war = no OR = { is_subject = no is_subject_of = SOV }
+			OR = { is_in_faction = no is_in_faction_with = SOV }
+		}
+		137 = { is_owned_by = CRI is_fully_controlled_by = CRI }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { 137 = { transfer_state_to = SOV } }
+	option = { name = INT_eastern.17.a }
 }

@@ -1,0 +1,49 @@
+# Evaluated in Soviet scope. At Khural time, a Soviet-controlled region or a
+# local Soviet-backed administration may proclaim the new republic.
+INT_TAN_khural_can_meet = {
+	tag = SOV
+	has_government = communism is_subject = no has_capitulated = no
+	has_start_date < 1921.8.15 date > 1921.8.13 date < 1923.1.1
+	NOT = { has_global_flag = INT_TAN_khural_held }
+	NOT = { has_global_flag = player_wants_custom_peacedeals }
+	OR = {
+		AND = { NOT = { country_exists = TAN } 329 = { is_owned_by = SOV is_fully_controlled_by = SOV } }
+		TAN = {
+			exists = yes is_ai = yes has_government = communism has_capitulated = no
+			owns_state = 329 controls_state = 329 check_variable = { num_owned_states = 1 }
+			OR = { is_subject_of = SOV AND = { is_subject = no is_in_faction = no } }
+			is_neighbor_of = SOV NOT = { has_war_with = SOV }
+		}
+	}
+}
+
+# A defeated Cossack government must not reappear as a Soviet client.
+# KUB is the WWI Don tag; vanilla DON is a separate country.
+INT_DON_historical_soviet_settlement = {
+	has_start_date < 1921.1.1 date > 1918.9.30 date < 1923.1.1
+	INT_DON_historical_campaign = yes
+	NOT = { has_global_flag = player_wants_custom_peacedeals }
+	NOT = { has_global_flag = central_powers_victory }
+	SOV = { exists = yes is_ai = yes has_government = communism is_subject = no has_capitulated = no }
+}
+
+INT_DON_historical_campaign = {
+	has_start_date < 1921.1.1 is_historical_focus_on = yes
+	NOT = { has_global_flag = player_wants_custom_peacedeals }
+	NOT = { has_global_flag = central_powers_victory }
+	OR = { has_global_flag = welcome_event_WW1_active has_global_flag = russian_civil_war }
+}
+
+# A post-conference communist ally can inherit Soviet wars without becoming a puppet.
+INT_DON_red_remnant = {
+	original_tag = KUB is_ai = yes has_government = communism
+	OR = {
+		is_subject_of = SOV
+		AND = {
+			is_subject = no is_in_faction_with = SOV is_faction_leader = no
+			OR = { owns_state = 218 owns_state = 245 }
+			NOT = { any_owned_state = { NOT = { OR = { state = 218 state = 245 } } } }
+		}
+	}
+	NOT = { has_war_with = SOV }
+}

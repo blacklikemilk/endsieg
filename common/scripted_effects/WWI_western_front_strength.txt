@@ -1,0 +1,96 @@
+# Germany polls the standing front only while the human player's map is active.
+WW1_western_front_update_strength = {
+	if = {
+		limit = {
+			is_ai = no
+			NOT = { has_country_flag = WW1_WF_strength_recent }
+			WW1_western_frontline_available = yes
+		}
+		set_country_flag = { flag = WW1_WF_strength_recent days = 3 }
+		set_variable = { WW1_WF_flanders_friendly_k = 0 }
+		set_variable = { WW1_WF_somme_friendly_k = 0 }
+		set_variable = { WW1_WF_lorraine_friendly_k = 0 }
+		set_variable = { WW1_WF_flanders_hostile_k = 0 }
+		set_variable = { WW1_WF_somme_hostile_k = 0 }
+		set_variable = { WW1_WF_lorraine_hostile_k = 0 }
+
+		WW1_western_front_count_sectors = yes
+		every_allied_country = {
+			limit = { is_in_faction_with = GER has_war_together_with = GER num_divisions > 0 }
+			WW1_western_front_count_sectors = yes
+		}
+		every_enemy_country = {
+			limit = { num_divisions > 0 }
+			WW1_western_front_count_sectors = yes
+		}
+	}
+}
+
+# These are the same state groups as the three sector supply orders.
+WW1_western_front_count_sectors = {
+	set_temp_variable = { WW1_WF_sector_k = 0 }
+	set_temp_variable = { WW1_WF_state = 6 }
+	WW1_western_front_count_state = yes
+	set_temp_variable = { WW1_WF_state = 29 }
+	WW1_western_front_count_state = yes
+	set_temp_variable = { WW1_WF_state = 34 }
+	WW1_western_front_count_state = yes
+	if = {
+		limit = { has_war_with = GER }
+		add_to_variable = { GER.WW1_WF_flanders_hostile_k = WW1_WF_sector_k }
+	}
+	else = {
+		add_to_variable = { GER.WW1_WF_flanders_friendly_k = WW1_WF_sector_k }
+	}
+	set_temp_variable = { WW1_WF_sector_k = 0 }
+	set_temp_variable = { WW1_WF_state = 18 }
+	WW1_western_front_count_state = yes
+	set_temp_variable = { WW1_WF_state = 27 }
+	WW1_western_front_count_state = yes
+	set_temp_variable = { WW1_WF_state = 785 }
+	WW1_western_front_count_state = yes
+	if = {
+		limit = { has_war_with = GER }
+		add_to_variable = { GER.WW1_WF_somme_hostile_k = WW1_WF_sector_k }
+	}
+	else = {
+		add_to_variable = { GER.WW1_WF_somme_friendly_k = WW1_WF_sector_k }
+	}
+	set_temp_variable = { WW1_WF_sector_k = 0 }
+	set_temp_variable = { WW1_WF_state = 17 }
+	WW1_western_front_count_state = yes
+	set_temp_variable = { WW1_WF_state = 28 }
+	WW1_western_front_count_state = yes
+	set_temp_variable = { WW1_WF_state = 1019 }
+	WW1_western_front_count_state = yes
+	if = {
+		limit = { has_war_with = GER }
+		add_to_variable = { GER.WW1_WF_lorraine_hostile_k = WW1_WF_sector_k }
+	}
+	else = {
+		add_to_variable = { GER.WW1_WF_lorraine_friendly_k = WW1_WF_sector_k }
+	}
+}
+
+# The native state manpower trigger returns a comparison, not a variable. Read
+# its lower bound in steps of 125 men. All thresholds fit HOI4's fixed point
+# range, and totals are stored in thousands to avoid overflowing at front scale.
+WW1_western_front_count_state = {
+	if = {
+		limit = { NOT = { army_manpower_in_state = { state = WW1_WF_state amount < 125 } } }
+		set_temp_variable = { WW1_WF_counted = 0 }
+		set_temp_variable = { WW1_WF_step = 1024000 }
+		while_loop_effect = {
+			limit = { check_variable = { WW1_WF_step > 124 } }
+			set_temp_variable = { WW1_WF_probe = WW1_WF_counted }
+			add_to_temp_variable = { WW1_WF_probe = WW1_WF_step }
+			if = {
+				limit = { NOT = { army_manpower_in_state = { state = WW1_WF_state amount < WW1_WF_probe } } }
+				set_temp_variable = { WW1_WF_counted = WW1_WF_probe }
+			}
+			divide_temp_variable = { WW1_WF_step = 2 }
+		}
+		divide_temp_variable = { WW1_WF_counted = 1000 }
+		add_to_temp_variable = { WW1_WF_sector_k = WW1_WF_counted }
+	}
+}

@@ -1,0 +1,103 @@
+# A dated treaty requires consenting AI signatories and an actual eastern war.
+INT_eastern_treaties_context = {
+	date < 1923.1.1
+	INT_eastern_german_withdrawal_confirmed = yes
+	NOT = {
+		OR = {
+			has_global_flag = central_powers_victory
+			has_global_flag = player_wants_custom_peacedeals
+		}
+	}
+}
+
+# Independent, organized defenders survive their historical wars unless the
+# Soviets have already captured their capital or forced a capitulation.
+INT_eastern_historical_treaty_available = {
+	INT_eastern_treaties_context = yes
+	exists = yes
+	is_ai = yes
+	is_subject = no
+	has_capitulated = no
+	has_war_with = SOV
+	capital_scope = { NOT = { is_controlled_by = SOV } }
+	OR = { is_historical_focus_on = yes has_country_flag = INT_eastern_armed }
+	SOV = {
+		exists = yes
+		is_ai = yes
+		has_government = communism
+		is_subject = no
+		has_capitulated = no
+		has_war_with = PREV
+	}
+}
+
+INT_eastern_tartu_ready = {
+	tag = EST
+	INT_eastern_historical_treaty_available = yes
+	NOT = { date < 1920.2.2 }
+	NOT = { has_global_flag = tartu_treaty }
+	SOV = {
+		has_war_with_wargoal_against = { target = EST type = annex_everything }
+	}
+}
+
+INT_eastern_moscow_ready = {
+	tag = LIT
+	INT_eastern_historical_treaty_available = yes
+	NOT = { date < 1920.7.12 }
+	NOT = { has_global_flag = moscow_lit_treaty }
+	SOV = {
+		has_war_with_wargoal_against = { target = LIT type = annex_everything }
+	}
+}
+
+INT_eastern_riga_latvia_ready = {
+	tag = LAT
+	INT_eastern_historical_treaty_available = yes
+	NOT = { date < 1920.8.11 }
+	NOT = { has_global_flag = riga_treaty }
+	SOV = {
+		has_war_with_wargoal_against = { target = LAT type = annex_everything }
+	}
+}
+
+INT_eastern_riga_poland_ready = {
+	INT_POL_riga_signatories_ready = yes
+	NOT = { date < 1921.3.18 }
+	NOT = { has_global_flag = sov_pol_ceasefire }
+}
+
+# A signed 1920 Baltic peace binds the two AI governments through the interwar
+# period. Humans, custom settlements, noncommunist Russia and Soviet subjects
+# remain free to pursue their own outcomes. Country scope: Baltic signatory.
+INT_baltic_signed_peace_in_force = {
+	exists = yes is_ai = yes is_subject = no
+	has_start_date < 1923.1.1
+	date < 1936.1.1
+	INT_eastern_german_withdrawal_confirmed = yes
+	SOV = { exists = yes is_ai = yes is_subject = no has_government = communism }
+	OR = {
+		AND = { tag = EST NOT = { date < 1920.2.2 } has_global_flag = tartu_treaty }
+		AND = { tag = LAT NOT = { date < 1920.8.11 } has_global_flag = riga_treaty }
+		AND = { tag = LIT NOT = { date < 1920.7.12 } has_global_flag = moscow_lit_treaty }
+	}
+}
+
+# Native diplomatic action context: ROOT initiates, FROM is the recipient.
+INT_baltic_treaty_blocks_declaration = {
+	OR = {
+		AND = { tag = SOV FROM = { INT_baltic_signed_peace_in_force = yes } }
+		AND = { INT_baltic_signed_peace_in_force = yes FROM = { tag = SOV } }
+	}
+}
+
+# Repair the observed generic annex war after a treaty, without overturning
+# an actual Soviet conquest or a Baltic government's distinct offensive war.
+INT_baltic_repeated_annex_war_ready = {
+	INT_baltic_signed_peace_in_force = yes
+	has_capitulated = no
+	has_war_with = SOV
+	capital_scope = { is_owned_by = PREV is_fully_controlled_by = PREV }
+	NOT = { OR = { has_wargoal_against = SOV has_war_with_wargoal_against = { target = SOV } } }
+	SOV = { has_capitulated = no has_war_with_wargoal_against = { target = PREV type = annex_everything } }
+}

@@ -19120,6 +19120,10 @@ OT1_R_update_tree = {
   if = {
    limit = { has_focus_tree = turkish_focus_ww1 NOT = { has_country_flag = OT1_R_bookmark_initialized } }
    if = { limit = { has_completed_focus = TUR_pro_young_turk } OT1_R_choose_unionists = yes }
+   if = {
+    limit = { OT1_P_ittihadist = yes has_completed_focus = OT1_P_national_credit_focus }
+    add_ideas = OT1_P_national_credit
+   }
    if = { limit = { has_completed_focus = TUR_befriend_germany } set_country_flag = OT1_R_german_liaison }
    if = { limit = { has_start_date > 1914.10.28 is_in_faction_with = GER } set_country_flag = OT1_R_german_agreement set_global_flag = TUR_joins_CP }
    if = { limit = { has_start_date > 1913.1.22 } set_country_flag = OT1_R_coup_resolved }
@@ -19149,18 +19153,33 @@ OT1_R_update_tree = {
 
 OT1_R_apply_mudros = {
  if = {
-  limit = { tag = TUR NOT = { has_country_flag = OT1_R_mudros_resolved } OR = { has_war_with = ENG has_war_with = FRA } }
+  limit = { WW1_TUR_armistice_ready = yes NOT = { has_country_flag = OT1_R_armistice_refused_recently } }
+  # Record the belligerents before the armistice ends their wars.
+  if = { limit = { has_war_with = ENG } set_country_flag = WWI_mudros_british_participant }
+  if = { limit = { has_war_with = FRA } set_country_flag = WWI_mudros_french_participant }
+  if = { limit = { has_war_with = ITA } set_country_flag = WWI_mudros_italian_participant }
+  if = { limit = { is_in_faction_with = AUH } set_country_flag = WWI_mudros_austrian_ally }
   set_country_flag = OT1_R_mudros_resolved clr_country_flag = OT1_R_armistice_pending
+  clr_country_flag = WW1_TUR_armistice_presented
   set_global_flag = armistice_of_mudros set_cosmetic_tag = TUR_ottoman_empire
   news_event = { id = endsieg_news.2 hours = 6 }
   if = { limit = { is_faction_leader = yes } random_other_country = { limit = { is_in_faction_with = TUR NOT = { tag = TUR } is_subject = no } set_faction_leader = yes } }
   if = { limit = { is_faction_leader = yes } dismantle_faction = yes }
   else_if = { limit = { is_in_faction = yes } leave_faction = yes }
-  every_other_country = { limit = { has_war_with = TUR } white_peace = TUR }
+  every_enemy_country = {
+   limit = {
+    OR = {
+     tag = ENG tag = FRA
+     is_in_faction_with = ENG is_in_faction_with = FRA
+     is_subject_of = ENG is_subject_of = FRA
+     has_country_flag = WW1_CP_was_entente_member
+     AND = { tag = HEJ has_global_flag = WWI_hejaz_revolt }
+    }
+   }
+   white_peace = TUR
+  }
   if = { limit = { country_exists = EN3 EN3 = { is_subject_of = ENG } } ENG = { annex_country = { target = EN3 transfer_troops = no } } }
-  if = { limit = { country_exists = ENG } ENG = { if = { limit = { 446 = { is_owned_by = TUR } } transfer_state = 446 } if = { limit = { 453 = { is_owned_by = TUR } } transfer_state = 453 } if = { limit = { 454 = { is_owned_by = TUR } } transfer_state = 454 } if = { limit = { 987 = { is_owned_by = TUR } } transfer_state = 987 } if = { limit = { 988 = { is_owned_by = TUR } } transfer_state = 988 } if = { limit = { 675 = { is_owned_by = TUR } } transfer_state = 675 } if = { limit = { 455 = { is_owned_by = TUR } } transfer_state = 455 } if = { limit = { 291 = { is_owned_by = TUR } } transfer_state = 291 } if = { limit = { 676 = { is_owned_by = TUR } } transfer_state = 676 } if = { limit = { 656 = { is_owned_by = TUR } } transfer_state = 656 } if = { limit = { 293 = { is_owned_by = TUR } } transfer_state = 293 } if = { limit = { 679 = { is_owned_by = TUR } } transfer_state = 679 } if = { limit = { 765 = { is_owned_by = TUR } } transfer_state = 765 } if = { limit = { 855 = { is_owned_by = TUR } } transfer_state = 855 } if = { limit = { 856 = { is_owned_by = TUR } } transfer_state = 856 } } }
-if = { limit = { country_exists = FRA } FRA = { if = { limit = { 680 = { is_owned_by = TUR } } transfer_state = 680 } if = { limit = { 677 = { is_owned_by = TUR } } transfer_state = 677 } if = { limit = { 553 = { is_owned_by = TUR } } transfer_state = 553 } if = { limit = { 554 = { is_owned_by = TUR } } transfer_state = 554 } if = { limit = { 799 = { is_owned_by = TUR } } transfer_state = 799 } if = { limit = { 1032 = { is_owned_by = TUR } } transfer_state = 1032 } if = { limit = { 345 = { is_owned_by = TUR } } transfer_state = 345 } if = { limit = { 344 = { is_owned_by = TUR } } transfer_state = 344 } if = { limit = { 350 = { is_owned_by = TUR } } transfer_state = 350 } } }
-if = { limit = { country_exists = ITA } ITA = { if = { limit = { 342 = { is_owned_by = TUR } } transfer_state = 342 } } }
+  WWI_mudros_arab_provinces = yes
   if = { limit = { country_exists = SHA } SHA = { country_event = { id = shammar.2 days = 1 } } }
   if = { limit = { owns_state = 1033 controls_state = 1033 NOT = { has_capitulated = yes } } if = { limit = { country_exists = ARM } ARM = { transfer_state = 1033 } } else_if = { limit = { country_exists = GEO } GEO = { transfer_state = 1033 } } else = { TRC = { add_state_core = 1033 transfer_state = 1033 } } }
   if = { limit = { 797 = { is_owned_by = TUR } } 797 = { set_demilitarized_zone = yes } }
@@ -19594,7 +19613,7 @@ JP1_R_invite_siam = {
 JP1_R_enter_german_war = {
  if = { limit = { JP1_R_may_follow_historical_alignment = yes has_country_flag = JP1_R_german_war_approved NOT = { has_country_flag = JP1_R_german_war_entered } NOT = { has_global_flag = compiegne } NOT = { has_global_flag = versailles } NOT = { date < 1914.8.23 } country_exists = GER NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER } }
   JP1_R_join_entente = yes
-  if = { limit = { NOT = { has_war_with = GER } } declare_war_on = { target = GER type = annex_everything } }
+  if = { limit = { NOT = { has_war_with = GER } } declare_war_on = { target = GER type = ww1_great_war } }
   if = { limit = { has_war_with = GER } set_country_flag = JP1_R_german_war_entered clr_country_flag = JP1_R_german_war_approved }
  }
 }
@@ -19637,10 +19656,55 @@ JP1_R_create_far_eastern_buffer = {
  }
 }
 
+JP1_R_prepare_historical_ultimatum = {
+ if = {
+  limit = {
+   is_ai = yes
+   is_historical_focus_on = yes
+   is_subject = no
+   has_start_date < 1914.8.23
+   date > 1914.8.14
+   date < 1918.11.11
+   JP1_R_may_follow_historical_alignment = yes
+   country_exists = ENG
+   country_exists = GER
+   ENG = { has_war_with = GER }
+   GER = { has_capitulated = no }
+   NOT = { has_war_with = ENG }
+   NOT = { has_war_with = GER }
+   NOT = { is_in_faction_with = GER }
+   NOT = { has_non_aggression_pact_with = GER }
+   NOT = { has_completed_focus = JP1_R_commit_neutrality }
+   NOT = { has_completed_focus = JP1_R_commit_asian_faction }
+   NOT = { has_completed_focus = JP1_R_commit_german_alignment }
+   NOT = { has_country_flag = JP1_R_ultimatum_sent }
+   NOT = { has_global_flag = compiegne }
+   NOT = { has_global_flag = versailles }
+   NOT = { has_global_flag = WW1_CP_final_settlement_signed }
+  }
+  # Historical British AI honours the existing Anglo-Japanese alliance.
+  if = {
+   limit = { ENG = { is_ai = yes } NOT = { has_country_flag = JP1_R_british_offer_cooldown } }
+   set_country_flag = JP1_R_british_agreement
+  }
+  if = {
+   limit = { OR = { has_country_flag = JP1_R_british_agreement has_country_flag = JP1_R_entente_alignment } }
+   if = { limit = { NOT = { has_completed_focus = JP1_R_entente_channel } } complete_national_focus = JP1_R_entente_channel }
+   if = { limit = { NOT = { has_completed_focus = JP1_R_request_british_alignment_negotiation } } complete_national_focus = JP1_R_request_british_alignment_negotiation }
+   if = { limit = { NOT = { has_completed_focus = JP1_R_commit_british_alignment } } complete_national_focus = JP1_R_commit_british_alignment }
+   set_country_flag = JP1_R_entente_alignment
+   if = { limit = { NOT = { has_completed_focus = JP1_R_entente_convoy_escort } } complete_national_focus = JP1_R_entente_convoy_escort }
+   if = { limit = { NOT = { has_completed_focus = JP1_R_issue_german_ultimatum_decision } } complete_national_focus = JP1_R_issue_german_ultimatum_decision }
+   JP1_R_issue_german_ultimatum = yes
+  }
+  else = { JP1_R_request_british_alignment = yes }
+ }
+}
+
 JP1_R_update_tree = {
  if = { limit = { tag = JAP has_start_date < 1936.1.1 }
   if = { limit = { date < 1936.1.1 has_focus_tree = JAP_ww1_focus NOT = { has_country_flag = JP1_R_bookmark_initialized } }
-   if = { limit = { has_start_date > 1914.8.22 } set_country_flag = JP1_R_entente_alignment set_country_flag = JP1_R_ultimatum_sent set_country_flag = JP1_R_german_war_approved JP1_R_join_entente = yes JP1_R_enter_german_war = yes }
+   if = { limit = { has_start_date > 1914.8.22 has_start_date < 1918.11.11 ENG = { has_war_with = GER } } set_country_flag = JP1_R_entente_alignment set_country_flag = JP1_R_ultimatum_sent set_country_flag = JP1_R_german_war_approved JP1_R_join_entente = yes JP1_R_enter_german_war = yes }
    if = { limit = { has_start_date > 1912.7.29 } set_global_flag = meiji_dead }
    if = { limit = { has_start_date < 1912.7.30 has_character = JAP_emperor_meiji } promote_character = JAP_emperor_meiji }
    if = { limit = { has_start_date > 1912.9.12 has_character = JAP_nogi_maresuke } retire_character = JAP_nogi_maresuke }
@@ -19648,24 +19712,21 @@ JP1_R_update_tree = {
    set_country_flag = JP1_R_bookmark_initialized
   }
   if = { limit = { has_focus_tree = JAP_ww1_focus date < 1936.1.1 }
-   if = { limit = { is_historical_focus_on = yes has_start_date < 1914.8.15 NOT = { date < 1914.8.15 } date < 1918.1.1 JP1_R_may_follow_historical_alignment = yes country_exists = ENG ENG = { has_war_with = GER } NOT = { has_country_flag = JP1_R_entente_alignment } } JP1_R_request_british_alignment = yes }
-   if = { limit = { is_ai = yes is_historical_focus_on = yes has_start_date < 1914.8.15 NOT = { date < 1914.8.15 } date < 1914.8.29 JP1_R_may_negotiate = yes has_country_flag = JP1_R_british_agreement } set_country_flag = JP1_R_entente_alignment }
-   if = { limit = { is_historical_focus_on = yes has_start_date < 1914.8.15 NOT = { date < 1914.8.15 } date < 1914.8.29 } JP1_R_issue_german_ultimatum = yes }
-   # Historical AI catches up the diplomatic route only after Britain accepts and is fighting Germany.
+   JP1_R_prepare_historical_ultimatum = yes
    if = {
-    limit = { is_ai = yes is_historical_focus_on = yes has_start_date < 1914.8.15 NOT = { date < 1914.8.15 } date < 1918.1.1 JP1_R_may_follow_historical_alignment = yes has_country_flag = JP1_R_british_agreement country_exists = ENG country_exists = GER ENG = { has_war_with = GER } NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER } NOT = { has_completed_focus = JP1_R_commit_neutrality } NOT = { has_completed_focus = JP1_R_commit_asian_faction } NOT = { has_completed_focus = JP1_R_commit_german_alignment } }
-    if = { limit = { NOT = { has_completed_focus = JP1_R_entente_channel } } complete_national_focus = JP1_R_entente_channel }
-    if = { limit = { NOT = { has_completed_focus = JP1_R_request_british_alignment_negotiation } } complete_national_focus = JP1_R_request_british_alignment_negotiation }
-    if = { limit = { NOT = { has_completed_focus = JP1_R_commit_british_alignment } } complete_national_focus = JP1_R_commit_british_alignment }
-    if = { limit = { NOT = { has_country_flag = JP1_R_entente_alignment } } set_country_flag = JP1_R_entente_alignment }
-    if = { limit = { NOT = { has_completed_focus = JP1_R_entente_convoy_escort } } complete_national_focus = JP1_R_entente_convoy_escort }
-    if = { limit = { NOT = { has_completed_focus = JP1_R_issue_german_ultimatum_decision } } complete_national_focus = JP1_R_issue_german_ultimatum_decision }
+    limit = { is_ai = no is_historical_focus_on = yes date > 1914.8.14 date < 1918.11.11 ENG = { has_war_with = GER } JP1_R_may_follow_historical_alignment = yes }
+    if = {
+     limit = { NOT = { has_country_flag = JP1_R_entente_alignment } }
+     JP1_R_request_british_alignment = yes
+    }
     JP1_R_issue_german_ultimatum = yes
    }
    # Repair the old historical AI dispatch that consumed Japan's event without recording its choice.
    if = {
-    limit = { is_ai = yes is_historical_focus_on = yes NOT = { date < 1914.8.15 } date < 1918.1.1 JP1_R_may_follow_historical_alignment = yes has_country_flag = JP1_R_entente_alignment has_country_flag = WW1_focus_action_ww1_japan_1_seen NOT = { has_country_flag = JP1_R_ultimatum_sent } NOT = { has_country_flag = JP1_R_german_concessions } NOT = { has_country_flag = JP1_R_ultimatum_abandoned } country_exists = GER GER = { is_ai = yes } country_exists = ENG ENG = { has_war_with = GER } NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER } }
+    limit = { is_ai = yes is_historical_focus_on = yes NOT = { date < 1914.8.15 } date < 1918.11.11 JP1_R_may_follow_historical_alignment = yes has_country_flag = JP1_R_entente_alignment has_country_flag = WW1_focus_action_ww1_japan_1_seen NOT = { has_country_flag = JP1_R_ultimatum_sent } NOT = { has_country_flag = JP1_R_german_concessions } NOT = { has_country_flag = JP1_R_ultimatum_abandoned } country_exists = GER country_exists = ENG ENG = { has_war_with = GER } NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } NOT = { has_non_aggression_pact_with = GER } }
     set_country_flag = JP1_R_ultimatum_sent
+    set_global_flag = japan_sends_ultimatum_germany
+    news_event = { id = endsieg_news.197 hours = 6 }
     GER = { country_event = { id = ww1_japan.101 hours = 1 } }
    }
    JP1_R_enter_german_war = yes

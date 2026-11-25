@@ -402,6 +402,47 @@ rch_campaign_tick = {
 # ---------------------------------------------------------------------------
 # Route settlements.
 # ---------------------------------------------------------------------------
+rch_repair_beiyang_government = {
+	if = {
+		limit = {
+			date > 1918.12.31
+			date < 1928.1.1
+			is_ai = yes
+			is_historical_focus_on = yes
+			is_subject = no
+			has_government = neutrality
+			has_completed_focus = RC2_beiyang_settlement
+			has_country_flag = rch_route_beiyang
+			608 = { is_owned_and_controlled_by = RCH }
+			NOR = {
+				has_country_flag = revival_of_chinese_monarchy
+				has_country_flag = rch_beiyang_government_repaired
+			}
+		}
+		set_country_flag = rch_beiyang_government_repaired
+		set_politics = { ruling_party = democratic elections_allowed = yes }
+	}
+}
+
+# The Hongxian title follows the proclamation and ends when the republic returns.
+rch_sync_hongxian_title = {
+	if = {
+		limit = {
+			has_government = neutrality
+			has_country_flag = revival_of_chinese_monarchy
+			NOR = { has_global_flag = yuan_abdicates has_global_flag = yuan_dead }
+		}
+		if = {
+			limit = { NOT = { has_cosmetic_tag = RCH_Hongxian } }
+			set_cosmetic_tag = RCH_Hongxian
+		}
+	}
+	else_if = {
+		limit = { has_cosmetic_tag = RCH_Hongxian }
+		drop_cosmetic_tag = yes
+	}
+}
+
 rch_settle_parliamentary = {
 	clr_country_flag = rch_route_parliamentary
 	clr_country_flag = rch_route_beiyang
@@ -877,4 +918,50 @@ rch_press_money_military = {
 	clr_country_flag = rch_press_lock_money
 	set_country_flag = rch_press_lock_money
 	rch_refresh_mechanics = yes
+}
+
+# In affected games the AI liberated the 1936 CHI tag from the defeated NPA.
+# Repair only that peace outcome, identified by the rebellion's original territories.
+rch_repair_npa_peace_settlement = {
+	if = {
+		limit = {
+			has_start_date < 1916.6.11
+			date < 1919.1.1
+			is_ai = yes
+			has_global_flag = npa_rebellion
+			has_global_flag = yuan_dead
+			owns_state = 608
+			NOT = { country_exists = NPA }
+			country_exists = CHI
+			CHI = {
+				is_ai = yes
+				is_subject = no
+				is_in_faction = no
+				has_war = no
+				owns_state = 325
+				owns_state = 605
+				NOT = {
+					any_owned_state = {
+						NOT = {
+							OR = {
+								state = 325
+								state = 591
+								state = 592
+								state = 593
+								state = 594
+								state = 599
+								state = 601
+								state = 602
+								state = 603
+								state = 605
+								state = 748
+								state = 750
+							}
+						}
+					}
+				}
+			}
+		}
+		annex_country = { target = CHI transfer_troops = yes }
+	}
 }

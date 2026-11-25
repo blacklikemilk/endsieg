@@ -1,0 +1,136 @@
+# Turkish scope. Keep this route separate from an Ottoman victory or a custom peace.
+INT_TUR_independence_context = {
+	tag = TUR
+	has_start_date < 1936.1.1
+	date < 1936.1.1
+	has_global_flag = armistice_of_mudros
+	is_subject = no
+	has_capitulated = no
+	49 = { is_owned_by = TUR is_controlled_by = TUR }
+	NOT = {
+		OR = {
+			has_global_flag = central_powers_victory
+			has_global_flag = player_wants_custom_peacedeals
+			has_completed_focus = INT_TUR_ottoman_victory
+		}
+	}
+}
+
+# AI Turkey follows the dated route after choosing the Mudros branch.
+INT_TUR_ai_national_movement_route = {
+    tag = TUR
+    is_ai = yes
+    OR = {
+        is_historical_focus_on = yes
+        has_completed_focus = INT_TUR_aftermath_of_mudros
+    }
+}
+
+INT_TUR_can_stage_smyrna = {
+	INT_TUR_independence_context = yes
+	NOT = { date < 1919.5.15 }
+	date < 1922.9.9
+	NOT = { has_country_flag = INT_TUR_smyrna_occupied }
+	GRE = { exists = yes is_subject = no has_capitulated = no }
+	339 = {
+		OR = {
+			AND = { is_owned_by = TUR is_fully_controlled_by = TUR }
+			AND = { is_owned_by = GRE is_fully_controlled_by = GRE }
+		}
+	}
+}
+
+INT_TUR_can_rally_at_samsun = {
+    INT_TUR_independence_context = yes
+    NOT = { date < 1919.5.19 }
+    date < 1922.10.11
+    355 = { is_controlled_by = TUR }
+    NOT = {
+        OR = {
+            has_country_flag = INT_TUR_samsun_organized
+            has_country_flag = INT_TUR_mudanya_signed
+            has_country_flag = INT_TUR_lausanne_signed
+        }
+    }
+}
+
+INT_TUR_can_open_western_front = {
+	INT_TUR_independence_context = yes
+	NOT = { date < 1920.6.22 }
+	date < 1922.9.9
+	has_country_flag = INT_TUR_ankara_assembly
+	has_country_flag = INT_TUR_smyrna_occupied
+	NOT = {
+		OR = {
+			has_country_flag = INT_TUR_western_front_confirmed
+			has_country_flag = INT_TUR_mudanya_signed
+			has_country_flag = INT_TUR_lausanne_signed
+		}
+	}
+	GRE = { exists = yes is_subject = no has_capitulated = no }
+	OR = {
+		has_war_with = GRE
+		AND = {
+			is_in_faction = no
+			owns_state = 340
+			339 = { is_owned_by = GRE is_fully_controlled_by = GRE }
+			GRE = {
+				OR = {
+					is_in_faction = no
+					AND = {
+                        is_ai = yes
+                        OR = {
+                            is_historical_focus_on = yes
+                            TUR = { INT_TUR_ai_national_movement_route = yes }
+                        }
+                        is_faction_leader = no
+						has_war = no
+						OR = { is_in_faction_with = ENG is_in_faction_with = FRA }
+					}
+				}
+				NOT = { OR = { has_truce_with = TUR has_non_aggression_pact_with = TUR } }
+			}
+			NOT = { any_other_country = { has_guaranteed = TUR } }
+		}
+	}
+}
+
+INT_TUR_can_stage_sevres = {
+	INT_TUR_independence_context = yes
+	NOT = { date < 1920.8.10 }
+	date < 1922.10.11
+	has_country_flag = INT_TUR_ankara_assembly
+	NOT = {
+		OR = {
+			has_country_flag = INT_TUR_sevres_imposed
+			has_country_flag = INT_TUR_mudanya_signed
+			has_country_flag = INT_TUR_lausanne_signed
+		}
+	}
+}
+
+INT_TUR_can_sign_mudanya = {
+	INT_TUR_independence_context = yes
+	NOT = { date < 1922.10.11 }
+	has_country_flag = INT_TUR_ankara_assembly
+	OR = { has_country_flag = INT_TUR_war_of_independence has_country_flag = INT_TUR_smyrna_occupied }
+	NOT = { has_country_flag = INT_TUR_mudanya_signed }
+	NOT = { has_country_flag = INT_TUR_lausanne_signed }
+	controls_province = 4112
+	339 = { OR = { is_owned_by = GRE is_owned_by = TUR } }
+	OR = {
+		NOT = { has_war_with = GRE }
+		has_war_with_wargoal_against = { target = GRE type = annex_everything }
+		GRE = { has_war_with_wargoal_against = { target = TUR type = take_state } }
+	}
+}
+
+INT_TUR_can_sign_lausanne = {
+	INT_TUR_independence_context = yes
+	NOT = { date < 1923.7.24 }
+	has_country_flag = INT_TUR_mudanya_signed
+	has_country_flag = INT_TUR_sultanate_abolished
+	NOT = { has_country_flag = INT_TUR_lausanne_signed }
+	NOT = { has_war_with = GRE }
+	controls_province = 4112
+}

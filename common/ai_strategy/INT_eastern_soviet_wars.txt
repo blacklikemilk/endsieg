@@ -1,0 +1,44 @@
+# Weight the Ukrainian and Belarusian fronts without overriding combat execution.
+INT_eastern_soviet_ukrainian_front = {
+	allowed = { original_tag = SOV }
+	enable = {
+		INT_eastern_historical_soviet_campaign = yes
+		has_war_with = UKR
+		UKR = { is_ai = yes is_subject = no has_capitulated = no }
+		has_war_with_wargoal_against = { target = UKR type = annex_everything }
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = { type = front_unit_request tag = UKR value = 30 }
+}
+
+INT_eastern_soviet_belarusian_front = {
+	allowed = { original_tag = SOV }
+	enable = {
+		INT_eastern_historical_soviet_campaign = yes
+		has_war_with = BLR
+		BLR = { is_ai = yes is_subject = no has_capitulated = no }
+		has_war_with_wargoal_against = { target = BLR type = annex_everything }
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = { type = front_unit_request tag = BLR value = 25 }
+}
+
+# The native puppet AI can solicit calls independently of its scripted decisions.
+INT_UKR_stay_out_of_baltic_wars = {
+	allowed = { original_tag = UKR }
+	enable = { INT_UKR_regional_war_policy = yes SOV = { INT_UKR_ally_has_remote_front = yes } }
+	abort_when_not_enabled = yes
+	ai_strategy = { type = dont_join_wars_with id = SOV target_country = EST value = 99999 }
+	ai_strategy = { type = dont_join_wars_with id = SOV target_country = LAT value = 99999 }
+	ai_strategy = { type = dont_join_wars_with id = SOV target_country = LIT value = 99999 }
+	ai_strategy = { type = dont_join_wars_with id = SOV target_country = BLR value = 99999 }
+}
+
+# reversed applies the call preference to Moscow even when Kharkiv uses a dynamic tag.
+INT_SOV_no_general_call_to_ukraine = {
+	allowed = { original_tag = UKR }
+	enable = { INT_UKR_regional_war_policy = yes SOV = { INT_UKR_ally_has_remote_front = yes } }
+	abort_when_not_enabled = yes
+	reversed = yes
+	ai_strategy = { type = diplo_action_desire id = SOV target = call_allies value = -1000 }
+}

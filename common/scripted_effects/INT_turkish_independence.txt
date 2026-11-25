@@ -1,0 +1,170 @@
+INT_TUR_stage_smyrna = {
+	if = {
+		limit = { INT_TUR_can_stage_smyrna = yes }
+		339 = {
+			if = { limit = { is_owned_by = TUR } transfer_state_to = GRE }
+		}
+		set_country_flag = INT_TUR_smyrna_occupied
+		add_war_support = 0.03
+		if = { limit = { date < 1920.1.1 } news_event = { id = INT_turkey_news.10 days = 1 } }
+	}
+}
+
+INT_TUR_rally_at_samsun = {
+	if = {
+		limit = { INT_TUR_can_rally_at_samsun = yes }
+		set_country_flag = INT_TUR_samsun_organized
+		if = {
+			limit = { NOT = { endsieg_character_active_tur_mustafa_kemal_88d99cbe = yes } }
+			endsieg_character_activate_tur_mustafa_kemal_88d99cbe = yes
+		}
+		add_ideas = INT_TUR_national_resistance
+		if = { limit = { date < 1920.1.1 } news_event = { id = INT_turkey_news.11 days = 1 } }
+	}
+}
+
+# The same WWI character commands the movement and chairs the assembly.
+INT_TUR_install_ankara_government = {
+	if = { limit = { NOT = { endsieg_character_active_tur_mustafa_kemal_88d99cbe = yes } } endsieg_character_activate_tur_mustafa_kemal_88d99cbe = yes }
+	set_politics = { ruling_party = neutrality elections_allowed = no }
+	if = {
+		limit = { TUR_mustafa_kemal = { has_ideology = despotism } }
+		promote_character = { character = TUR_mustafa_kemal ideology = despotism }
+	}
+	else = {
+		add_country_leader_role = {
+			character = TUR_mustafa_kemal
+			country_leader = { ideology = despotism expire = "1938.11.10" }
+			promote_leader = yes
+		}
+	}
+	set_cosmetic_tag = INT_TUR_ankara_assembly_government
+	set_party_name = { ideology = neutrality name = INT_TUR_assembly_short long_name = INT_TUR_assembly_long }
+	set_country_flag = INT_TUR_ankara_government_installed
+}
+
+INT_TUR_open_ankara_assembly = {
+	if = {
+		limit = {
+			INT_TUR_independence_context = yes
+			NOT = { date < 1920.4.23 }
+			NOT = { has_country_flag = INT_TUR_ankara_assembly }
+		}
+		set_country_flag = INT_TUR_ankara_assembly
+		INT_TUR_install_ankara_government = yes
+		set_capital = { state = 49 }
+		add_political_power = 75
+		if = { limit = { date < 1921.1.1 } news_event = { id = INT_turkey_news.12 days = 1 } }
+	}
+}
+
+INT_TUR_open_western_front = {
+	if = {
+		limit = { INT_TUR_can_open_western_front = yes }
+		if = {
+			limit = { NOT = { has_war_with = GRE } }
+			GRE = {
+				if = { limit = { is_in_faction = yes } leave_faction = yes }
+				if = {
+					limit = { is_in_faction = no }
+					declare_war_on = { target = TUR type = take_state generator = { 340 } }
+				}
+			}
+		}
+		if = {
+			limit = { has_war_with = GRE }
+			set_country_flag = INT_TUR_war_of_independence
+			set_country_flag = INT_TUR_western_front_confirmed
+			add_war_support = 0.05
+			GRE = {
+				add_ideas = INT_GRE_anatolian_overstretch
+				if = {
+					limit = { 339 = { is_owned_by = GRE is_fully_controlled_by = GRE } }
+					load_oob = INT_GRE_smyrna
+				}
+			}
+		}
+	}
+}
+
+INT_TUR_stage_sevres = {
+	if = {
+		limit = { INT_TUR_can_stage_sevres = yes }
+		set_country_flag = INT_TUR_sevres_imposed
+		add_ideas = INT_TUR_sevres_pressure
+		1036 = {
+			if = {
+				limit = { country_exists = GRE is_owned_by = TUR is_fully_controlled_by = TUR }
+				transfer_state_to = GRE
+			}
+		}
+		if = { limit = { date < 1921.1.1 } news_event = { id = ww1_postwar_news.7 hours = 6 } }
+	}
+}
+
+INT_TUR_apply_mudanya = {
+	if = {
+		limit = { INT_TUR_can_sign_mudanya = yes }
+		if = { limit = { has_war_with = GRE } white_peace = GRE }
+		if = {
+			limit = { NOT = { has_war_with = GRE } }
+			GRE = {
+				every_owned_state = {
+					limit = {
+						OR = { state = 339 state = 340 state = 1036 }
+						OR = { is_fully_controlled_by = GRE is_fully_controlled_by = TUR }
+					}
+					transfer_state_to = TUR
+				}
+			}
+			set_country_flag = INT_TUR_mudanya_signed
+			news_event = { id = ww1_postwar_news.20 hours = 6 }
+			GRE = { remove_ideas = INT_GRE_anatolian_overstretch }
+		}
+	}
+}
+
+INT_TUR_queue_western_front = {
+	if = {
+		limit = {
+			INT_TUR_can_open_western_front = yes
+			NOT = { has_country_flag = INT_TUR_western_front_queued }
+		}
+		set_country_flag = { flag = INT_TUR_western_front_queued days = 7 }
+		country_event = { id = ww1_turkey.62 hours = 4 }
+	}
+}
+
+INT_TUR_update_independence_war = {
+	if = {
+		limit = {
+			INT_TUR_independence_context = yes
+			INT_TUR_ai_national_movement_route = yes
+			date < 1924.1.1
+		}
+		INT_TUR_rally_at_samsun = yes
+		if = {
+			limit = {
+				has_country_flag = INT_TUR_samsun_organized
+				NOT = { has_country_flag = INT_TUR_mudanya_signed }
+			}
+			INT_TUR_open_ankara_assembly = yes
+		}
+		INT_TUR_stage_sevres = yes
+		INT_TUR_apply_mudanya = yes
+		# A human Greece retains control of whether it opens a new war.
+		if = {
+			limit = { OR = { GRE = { is_ai = yes } has_war_with = GRE } }
+			INT_TUR_queue_western_front = yes
+		}
+	}
+}
+
+INT_TUR_proclaim_republic = {
+	drop_cosmetic_tag = yes
+	set_party_name = { ideology = neutrality name = INT_TUR_peoples_party long_name = INT_TUR_peoples_party }
+	set_politics = { ruling_party = neutrality elections_allowed = yes }
+	set_country_flag = INT_TUR_republic_proclaimed
+	add_ideas = INT_TUR_republican_institutions
+	if = { limit = { date < 1924.10.30 has_start_date < 1924.10.30 } news_event = { id = INT_turkey_news.2 days = 1 } }
+}

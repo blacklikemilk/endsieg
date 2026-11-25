@@ -15,8 +15,9 @@ country_event = {
 
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1914.10.12
-		date > 1914.10.10
+		has_start_date < 1914.10.10
+		date > 1914.10.9
+		has_country_leader = { character = ROM_Carol_I ruling_only = yes }
 		date < 1915.1.1
 		tag = ROM
 	}
@@ -27,16 +28,52 @@ country_event = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_romania.1.a
 		news_event = { hours = 6 id = endsieg_news.246 }
-		kill_country_leader = yes
-		create_country_leader = {
-			name = "Ferdinand I"
-			desc = "POLITICS_FERDINAND_I_DESC"
-			picture = "Portrait_Romania_Ferdinand_I.dds"
-			expire = "1943.5.16"
-			ideology = despotism
-			traits = {
-				#
-			}
-		}
+		retire_character = ROM_Carol_I
+		if = { limit = { NOT = { has_character = ROM_Ferdinand_I } } recruit_character = ROM_Ferdinand_I }
+		promote_character = ROM_Ferdinand_I
 	}
+}
+
+# Parliamentary alternation under Ferdinand's constitutional monarchy.
+country_event = {
+	id = ww1_romania.1922
+	title = ww1_romania.1922.t
+	desc = ww1_romania.1922.d
+	picture = GFX_report_event_constituent_assembly
+	fire_only_once = yes
+	trigger = {
+		tag = ROM is_historical_focus_on = yes is_ai = yes
+		has_start_date < 1919.1.1 date > 1922.1.18 date < 1926.3.27
+		has_global_flag = compiegne is_subject = no has_civil_war = no
+		NOT = { has_global_flag = central_powers_victory }
+		NOT = { has_global_flag = player_wants_custom_peacedeals }
+		has_country_leader = { character = ROM_Ferdinand_I ruling_only = yes }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { NOT = { has_character = ROM_Ion_I_C_Bratianu } } recruit_character = ROM_Ion_I_C_Bratianu }
+		add_country_leader_role = {
+			character = ROM_Ion_I_C_Bratianu
+			country_leader = { ideology = liberalism expire = "1927.11.24" }
+			promote_leader = yes
+		}
+		set_politics = { ruling_party = democratic elections_allowed = yes election_frequency = 48 last_election = "1920.5.25" }
+		set_country_flag = WWI_ROM_bratianu_cabinet
+	}
+	option = { name = ww1_romania.1922.a }
+}
+
+# The cabinet took office in January. Polling for the lower chamber began on 5 March.
+country_event = {
+	id = ww1_romania.1923
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = ROM
+		has_country_flag = WWI_ROM_bratianu_cabinet
+		date > 1922.3.4 date < 1926.3.27
+		has_country_leader = { character = ROM_Ion_I_C_Bratianu ruling_only = yes }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { set_politics = { last_election = "1922.3.5" } }
 }

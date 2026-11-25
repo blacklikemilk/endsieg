@@ -60,12 +60,37 @@ on_actions = {
 				WW1_RCH_sync_revolution_leadership = yes
 			}
 			WW1_RCH_sync_revolution_capitals = yes
+			rch_repair_beiyang_government = yes
+			rch_sync_hongxian_title = yes
 			# Historical AI succession; a human or an alternative government keeps its chosen leader.
 			if = {
 				limit = { is_ai = yes is_historical_focus_on = yes date > 1917.8.5 date < 1918.10.10 has_government = democratic has_character = RCH_feng_guozhang has_country_leader = { name = "Li Yuanhong" ruling_only = yes } NOT = { country_exists = QIN } NOT = { has_country_flag = WW1_RCH_feng_succession_done } }
 				promote_character = { character = RCH_feng_guozhang ideology = conservatism }
 				set_country_flag = WW1_RCH_feng_succession_done
 			}
+			# Existing saves serialize Feng's old portrait with his character.
+			if = {
+				limit = {
+					date < 1936.1.1
+					NOT = { has_country_flag = WW1_RCH_feng_portrait_installed }
+					has_character = RCH_feng_guozhang
+				}
+				set_portraits = {
+					character = RCH_feng_guozhang
+					civilian = { large = "gfx/leaders/RCH/Portrait_China_Feng_Guozhang.dds" }
+				}
+				set_country_flag = WW1_RCH_feng_portrait_installed
+			}
+			if = {
+				limit = {
+					date < 1936.1.1
+					NOT = { has_country_flag = rch_ww1_party_names_set }
+				}
+				set_party_name = { ideology = democratic name = RCH_ww1_republican_party long_name = RCH_ww1_republican_party }
+				set_party_name = { ideology = neutrality name = RCH_ww1_beiyang_party long_name = RCH_ww1_beiyang_party }
+				set_country_flag = rch_ww1_party_names_set
+			}
+			rch_repair_npa_peace_settlement = yes
 			rch_campaign_tick = yes
 			# Reunification is tested from the Republic's own clock, which already exists and
 			# is bound to RCH. The test is guarded by the model's own presence, walks a
@@ -86,6 +111,7 @@ on_actions = {
 					SHX = { country_event = { id = shx_campaign.1 days = 1 } }
 				}
 			}
+			china_attach_shanxi_province = yes
 		}
 	}
 }

@@ -18,6 +18,7 @@ country_event = {
 		has_start_date < 1918.5.27
 		NOT = { date > 1932.12.1 }
 		tag = TRC
+		NOT = { is_subject_of = GER }
 		date > 1918.5.25
 		owns_state = 231
 		controls_state = 231
@@ -34,6 +35,7 @@ country_event = {
 		GEO = {
 			transfer_state = 231
 			set_country_flag = transcauc_georgia_separated
+			WW1_Caucasus_initialize_georgia = yes
 		}
 	}
 	option = {
@@ -42,6 +44,8 @@ country_event = {
 		ai_chance = { factor = 0}
 		GEO = {
 			transfer_state = 231 #Georgia
+			set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+			WW1_Caucasus_initialize_georgia = yes
 		}
 		TRC = { declare_war_on = { target = GEO type = annex_everything } }
 	}
@@ -49,7 +53,12 @@ country_event = {
 		name = transcauc.1.c
 		trigger = { NOT = { country_exists = GEO } }
 		ai_chance = { factor = 0}
-		GEO = { transfer_state = 231 change_tag_from = TRC set_country_flag = transcauc_georgia_separated }
+		GEO = {
+			transfer_state = 231
+			change_tag_from = TRC
+			set_country_flag = transcauc_georgia_separated
+			WW1_Caucasus_initialize_georgia = yes
+		}
 	}
 }
 
@@ -67,6 +76,7 @@ country_event = {
 		has_start_date < 1918.5.29
 		NOT = { date > 1932.12.1 }
 		tag = TRC
+		NOT = { is_subject_of = GER }
 		date > 1918.5.27
 		is_ai = no
 		OR = { AND = { NOT = { country_exists = ARM } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } } AND = { NOT = { country_exists = AZR } NOT = { country_exists = ARM } 229 = { is_owned_by = TRC is_controlled_by = TRC } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } } }
@@ -81,10 +91,19 @@ country_event = {
 		name = transcauc.2.a # For Armenia!
 		trigger = { NOT = { country_exists = ARM } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } }
 		ai_chance = {factor = 50}
-		GEO = { if = { limit = { 231 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 231 } }
+		GEO = {
+			if = {
+				limit = { 231 = { is_owned_by = TRC is_controlled_by = TRC } }
+				transfer_state = 231
+				set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+				WW1_Caucasus_initialize_georgia = yes
+			}
+		}
 		AZR = {
 			if = { limit = { 229 = { is_owned_by = TRC is_controlled_by = TRC } NOT = { country_exists = AZR } } transfer_state = 229 load_oob = AZR_1918_independence }
 			else_if = { limit = { 229 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 229 }
+			set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+			WW1_Caucasus_initialize_azerbaijan = yes
 		}
 		ARM = {
 			# Continue as Armenia instead of annexing the Transcaucasian
@@ -93,6 +112,8 @@ country_event = {
 			if = { limit = { 230 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 230 }
 			if = { limit = { 990 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 990 }
 			if = { limit = { 230 = { is_owned_by = ARM is_controlled_by = ARM } } load_oob = "ARM_1918" }
+			set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+			WW1_Caucasus_initialize_armenia = yes
 			if = {
 				limit = {
 					country_exists = BAK
@@ -127,19 +148,32 @@ country_event = {
 		ai_chance = { factor = 50 }
 		name = transcauc.2.b # For Azerbaijan!
 		trigger = { NOT = { country_exists = AZR } NOT = { country_exists = ARM } 229 = { is_owned_by = TRC is_controlled_by = TRC } OR = { 230 = { is_owned_by = TRC is_controlled_by = TRC } 990 = { is_owned_by = TRC is_controlled_by = TRC } } }
-		GEO = { if = { limit = { 231 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 231 } }
+		GEO = {
+			if = {
+				limit = { 231 = { is_owned_by = TRC is_controlled_by = TRC } }
+				transfer_state = 231
+				set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+				WW1_Caucasus_initialize_georgia = yes
+			}
+		}
 		ARM = {
 			if = { limit = { 230 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 230 }
 			if = { limit = { 990 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 990 }
 			if = { limit = { 230 = { is_owned_by = ARM is_controlled_by = ARM } } load_oob = "ARM_1918" }
+			set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+			WW1_Caucasus_initialize_armenia = yes
 		}
 		AZR = {
+			transfer_state = 229
+			load_oob = AZR_1918_independence
 			if = {
 				limit = {
 					ROOT = {is_ai = no}
 				}
 				change_tag_from = TRC
 			}
+			set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+			WW1_Caucasus_initialize_azerbaijan = yes
 		}
 		if = { limit = { country_exists = AZR country_exists = ARM AZR = { NOT = { has_war_with = ARM } } }
 		AZR = {
@@ -194,9 +228,9 @@ country_event = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = transcauc.3.a
 		ai_chance = { factor = 100 }
-		GER = {
-			puppet = GEO
-		}
+		set_country_flag = WW1_Caucasus_poti_agreement
+		news_event = { id = ww1_postwar_news.23 hours = 6 }
+		diplomatic_relation = { country = GER relation = military_access active = yes }
 	}
 	option = {
 		name = transcauc.3.b
@@ -215,10 +249,10 @@ country_event = {
 
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1918.4.15
+		has_start_date < 1918.4.26
 		NOT = { date > 1932.12.1 }
 		tag = TRC
-		date > 1918.4.13
+		date > 1918.4.24
 		NOT = { country_exists = BAK }
 		owns_state = 1016
 		controls_state = 1016
@@ -234,7 +268,7 @@ country_event = {
 		BAK = {
 			transfer_state = 1016
 			load_oob = BAK_1918
-
+			WW1_Caucasus_initialize_baku_commune = yes
 		}
 	}
 	option = {
@@ -243,6 +277,8 @@ country_event = {
 		BAK = {
 			transfer_state = 1016
 			load_oob = BAK_1918
+			set_country_flag = WW1_BAK_challenged_transcaucasia
+			WW1_Caucasus_initialize_baku_commune = yes
 			declare_war_on = {
 				target = TRC
 				type = take_state
@@ -267,7 +303,8 @@ country_event = {
 		has_start_date < 1918.7.28
 		NOT = { date > 1932.12.1 }
 		tag = BAK
-		date > 1918.7.26
+		date > 1918.7.31
+		has_government = communism
 		owns_state = 1016
 		controls_state = 1016
 		NOT = { has_capitulated = yes }
@@ -280,26 +317,16 @@ country_event = {
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = transcauc.5.a
-		set_politics = {
-			ruling_party = neutrality
-			elections_allowed = no    }
-
-        set_popularities = {
-            fascism = 0
-            neutrality = 40
-            democratic = 45
-            communism = 15
-        }
-		retire_country_leader = yes
-		create_country_leader = {
-			name = "No De Facto Leader"
-			desc = "POLITICS_NOLEADER_DESC"
-			picture = "gfx/leaders/leader_unknown.dds"
-			expire = "1965.1.1"
-			ideology = despotism
-			traits = {
-				dictator
+		if = {
+			limit = {
+				has_government = communism
+				has_capitulated = no
+				1016 = { is_owned_by = BAK is_fully_controlled_by = BAK }
 			}
+			set_politics = { ruling_party = neutrality elections_allowed = no }
+			set_popularities = { fascism = 0 neutrality = 40 democratic = 45 communism = 15 }
+			set_country_flag = WW1_BAK_directorate_installed
+			WW1_Caucasus_update_baku_government = yes
 		}
 	}
 }
@@ -344,7 +371,8 @@ country_event = {
 
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
-		NOT = { date > 1932.12.1 }
+		has_start_date < 1920.2.10
+		date < 1920.3.11
 		date > 1920.2.9
 		tag = NOR
 		is_subject = no
@@ -356,6 +384,7 @@ country_event = {
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = transcauc.7.a
+		news_event = { id = ww1_postwar_news.30 hours = 6 }
 	}
 }
 
@@ -373,7 +402,8 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		NOT = { has_global_flag = kaiserschlachtvictory }
 		NOT = { has_global_flag = central_powers_victory }
-		NOT = { date > 1932.12.1 }
+		has_start_date < 1921.5.24
+		date < 1921.6.23
 		date > 1921.5.23
 		tag = GER
 		has_global_flag = compiegne
@@ -404,7 +434,8 @@ country_event = {
 		has_global_flag = welcome_event_WW1_active
 		NOT = { has_global_flag = kaiserschlachtvictory }
 		NOT = { has_global_flag = central_powers_victory }
-		NOT = { date > 1932.12.1 }
+		has_start_date < 1920.1.24
+		date < 1920.2.23
 		date > 1920.1.23
 		tag = HOL
 		has_global_flag = compiegne
@@ -435,6 +466,7 @@ country_event = {
 		has_start_date < 1918.5.30
 		NOT = { date > 1932.12.1 }
 		tag = TRC
+		NOT = { is_subject_of = GER }
 		date > 1918.5.28
 		is_ai = yes
 		NOT = { owns_state = 231 }
@@ -455,9 +487,76 @@ country_event = {
 			if = { limit = { 230 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 230 }
 			if = { limit = { 990 = { is_owned_by = TRC is_controlled_by = TRC } } transfer_state = 990 }
 		} }
+		AZR = {
+			set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+			WW1_Caucasus_initialize_azerbaijan = yes
+		}
+		ARM = {
+			set_country_flag = WW1_Caucasus_republic_from_transcaucasia
+			WW1_Caucasus_initialize_armenia = yes
+		}
 		every_state = {
 			limit = { is_core_of = TRC }
 			remove_core_of = TRC
 		}
 	}
+}
+
+# A Soviet conference can leave the Azerbaijani SSR with Baku alone.
+country_event = {
+	id = transcauc.11
+	title = transcauc.11.t
+	desc = transcauc.11.d
+	picture = GFX_report_event_generic_parliament
+	is_triggered_only = yes
+	fire_only_once = yes
+	immediate = {
+		set_country_flag = WW1_AZR_revolutionary_committee
+		if = { limit = { NOT = { has_country_leader = { name = "Nariman Narimanov" ruling_only = yes } } }
+			create_country_leader = { name = "Nariman Narimanov" picture = "gfx/leaders/AZR/Portrait_Nariman_Narimanov.dds" ideology = marxism expire = "1925.3.19" }
+			set_country_flag = WW1_AZR_narimanov_portrait_installed
+		}
+		229 = { if = { limit = { is_owned_by = SOV is_fully_controlled_by = SOV } transfer_state_to = AZR } }
+		WW1_AZR_end_inherited_wars = yes
+		if = { limit = { controls_state = 1016 } set_capital = { state = 1016 remember_old_capital = no } }
+	}
+	option = { name = transcauc.11.a }
+}
+
+# The March union left republican administrations in place until accession to the USSR.
+country_event = {
+	id = transcauc.12
+	title = transcauc.12.t
+	desc = transcauc.12.d
+	picture = GFX_report_event_generic_parliament
+	fire_only_once = yes
+	trigger = { WW1_Caucasus_federation_ready = yes }
+	mean_time_to_happen = { days = 1 }
+	immediate = { set_country_flag = WW1_Caucasus_federal_union }
+	option = { name = transcauc.12.a }
+}
+
+country_event = {
+	id = transcauc.13
+	title = transcauc.13.t
+	desc = transcauc.13.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		WW1_Caucasus_federation_ready = yes
+		has_country_flag = WW1_Caucasus_federal_union
+		has_global_flag = INT_USSR_founded
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		every_subject_country = {
+			limit = { OR = { tag = AZR tag = GEO tag = ARM } WW1_Caucasus_soviet_member = yes }
+			SOV = { annex_country = { target = PREV transfer_troops = yes } }
+		}
+		every_owned_state = {
+			limit = { OR = { state = 229 state = 230 state = 231 state = 826 state = 990 state = 1016 } }
+			add_core_of = SOV
+		}
+	}
+	option = { name = transcauc.13.a }
 }

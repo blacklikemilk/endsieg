@@ -365,7 +365,13 @@ on_actions = {
                     }
                     else_if = {
                         limit = { tag = ROM }
-                        load_focus_tree = { tree = romanian_focus keep_completed = yes }
+                        if = {
+                            limit = { has_dlc = "To The Bitter End" }
+                            load_focus_tree = { tree = ba_romanian_focus keep_completed = yes }
+                        }
+                        else = {
+                            load_focus_tree = { tree = romanian_focus keep_completed = yes }
+                        }
                     }
                     else_if = {
                         limit = { tag = FIN }
@@ -1046,6 +1052,31 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 			}
 			if = {
 				limit = { tag = USA has_focus_tree = INT_united_states date > 1935.12.31 }
+				# Carry the effects of the actual depression and relief programme into the 1936 tree.
+				if = {
+					limit = {
+						has_idea = INT_USA_great_depression
+						NOT = { OR = { has_idea = great_depression has_idea = great_depression_2 has_idea = great_depression_3 } }
+					}
+					if = { limit = { has_idea = INT_USA_new_deal_recovery_spirit } add_ideas = great_depression_3 }
+					else_if = { limit = { has_idea = INT_USA_banking_reform_spirit } add_ideas = great_depression_2 }
+					else = { add_ideas = great_depression }
+				}
+				if = {
+					limit = {
+						has_government = democratic
+						has_war = no
+						is_in_faction = no
+						has_idea = INT_USA_neutrality_policy_spirit
+						OR = { has_idea = civilian_economy has_idea = isolation }
+					}
+					add_ideas = undisturbed_isolation
+				}
+				if = {
+					limit = { has_war = no has_idea = volunteer_only has_completed_focus = INT_USA_army_demobilization }
+					add_ideas = disarmed_nation
+				}
+				if = { limit = { has_government = democratic NOT = { has_idea = home_of_the_free } } add_ideas = home_of_the_free }
 				remove_ideas = {
 					INT_USA_postwar_readjustment_spirit INT_USA_isolationist_congress_spirit INT_USA_red_scare_spirit
 					INT_USA_normalcy_spirit INT_USA_immigration_restrictions_spirit INT_USA_postwar_recession_spirit
@@ -1064,11 +1095,6 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					INT_USA_pan_american_spirit INT_USA_progressive_reform_spirit INT_USA_public_power_spirit
 					INT_USA_great_depression INT_depression_aftershock
 				}
-				if = { limit = { NOT = { has_idea = undisturbed_isolation } } add_ideas = undisturbed_isolation }
-				if = { limit = { NOT = { has_idea = great_depression } } add_ideas = great_depression }
-				if = { limit = { NOT = { has_idea = disarmed_nation } } add_ideas = disarmed_nation }
-				if = { limit = { NOT = { has_idea = free_trade } } add_ideas = free_trade }
-				if = { limit = { NOT = { has_idea = home_of_the_free } } add_ideas = home_of_the_free }
 				if = { limit = { NOT = { endsieg_character_active_usa_franklin_delano_roosevelt_5abd0de6 = yes } } endsieg_character_activate_usa_franklin_delano_roosevelt_5abd0de6 = yes }
 				if = {
 					limit = { has_government = democratic NOT = { has_country_leader = { ruling_only = yes character = USA_franklin_delano_roosevelt } } }
@@ -1120,6 +1146,32 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 			}
 			if = {
 				limit = { tag = JAP has_focus_tree = INT_japan date > 1935.12.31 }
+				if = {
+					limit = {
+						has_idea = INT_JAP_zaibatsu_growth
+						NOT = { has_government = communism }
+						NOT = { OR = { has_idea = JAP_zaibatsus has_idea = JAP_guide_the_zaibatsus has_idea = JAP_nationalize_the_zaibatsus has_idea = JAP_zaibatsus_empowered has_idea = JAP_zaibatsus_challenged } }
+					}
+					add_ideas = JAP_zaibatsus
+				}
+				if = {
+					limit = {
+						OR = { has_government = neutrality has_government = fascism }
+						OR = { has_idea = INT_JAP_military_pressure has_country_flag = JP1_R_military_cabinet }
+						NOT = { has_idea = INT_JAP_civilian_control_spirit }
+						NOT = { has_idea = JAP_militarism }
+					}
+					add_ideas = JAP_militarism
+				}
+				if = {
+					limit = {
+						has_dlc = "Man the Guns"
+						date < 1937.1.1
+						has_idea = INT_JAP_naval_limitations
+						NOT = { OR = { has_idea = MTG_naval_treaty_adherent has_country_flag = MTG_refused_naval_treaty has_country_flag = MTG_naval_treaty_abandoned } }
+					}
+					add_ideas = MTG_naval_treaty_adherent
+				}
 				remove_ideas = {
 					INT_JAP_imperial_commitments INT_JAP_export_boom INT_JAP_postwar_slump
 					INT_JAP_zaibatsu_growth INT_JAP_kanto_damage INT_JAP_kanto_reconstruction
@@ -1131,11 +1183,23 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					INT_JAP_civilian_control_spirit INT_JAP_rural_relief_spirit
 					INT_JAP_great_depression INT_depression_aftershock
 				}
-				if = { limit = { NOT = { has_idea = JAP_zaibatsus } } add_ideas = JAP_zaibatsus }
-				if = { limit = { NOT = { has_idea = JAP_militarism }  JP1_R_may_follow_interwar_cabinets = yes } add_ideas = JAP_militarism }
-				if = { limit = { NOT = { has_idea = state_shintoism } } add_ideas = state_shintoism }
-				if = { limit = { has_dlc = "Waking the Tiger" NOT = { has_idea = JAP_interservice_rivalry_balanced } } add_ideas = JAP_interservice_rivalry_balanced }
-				if = { limit = { has_dlc = "Man the Guns" NOT = { has_idea = MTG_naval_treaty_adherent } } add_ideas = MTG_naval_treaty_adherent }
+				if = { limit = { OR = { has_government = neutrality has_government = fascism } NOT = { has_idea = state_shintoism } } add_ideas = state_shintoism }
+				if = {
+					limit = {
+						has_dlc = "Waking the Tiger"
+						OR = { has_government = neutrality has_government = fascism }
+						NOT = {
+							OR = {
+								has_idea = JAP_interservice_rivalry_army_dominant
+								has_idea = JAP_interservice_rivalry_army_strengthened
+								has_idea = JAP_interservice_rivalry_balanced
+								has_idea = JAP_interservice_rivalry_navy_strengthened
+								has_idea = JAP_interservice_rivalry_navy_dominant
+							}
+						}
+					}
+					add_ideas = JAP_interservice_rivalry_balanced
+				}
 				if = { limit = { JP1_R_may_follow_interwar_cabinets = yes } INT_JAP_1936_character_handoff = yes }
 				if = {
 					limit = { has_government = neutrality  JP1_R_may_follow_interwar_cabinets = yes }
@@ -1188,9 +1252,8 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					INT_ENG_ten_year_rule_spirit INT_ENG_defence_review_spirit INT_ENG_raf_expansion_spirit
 					INT_ENG_naval_rearmament_spirit INT_ENG_great_depression INT_depression_aftershock
 				}
-				if = { limit = { NOT = { has_idea = stiff_upper_lip } } add_ideas = stiff_upper_lip }
-				if = { limit = { NOT = { has_idea = ENG_the_war_to_end_all_wars } } add_ideas = ENG_the_war_to_end_all_wars }
-				if = { limit = { NOT = { has_idea = george_v } } add_ideas = george_v }
+				if = { limit = { is_subject = no has_government = democratic NOT = { has_idea = stiff_upper_lip } } add_ideas = stiff_upper_lip }
+				if = { limit = { date < 1936.1.20 has_government = democratic has_character = ENG_ww1_george_v NOT = { has_idea = george_v } } add_ideas = george_v }
 				if = {
 					limit = { NOT = { has_country_leader = { ruling_only = yes character = ENG_stanley_baldwin } } }
 					if = { limit = { NOT = { endsieg_character_active_eng_stanley_baldwin_ac96798f = yes } } endsieg_character_activate_eng_stanley_baldwin_ac96798f = yes }
@@ -1252,12 +1315,47 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					has_focus_tree = INT_france
 					date > 1935.12.31
 				}
+				if = {
+					limit = { has_government = democratic FR3_R_may_follow_interwar_cabinets = yes }
+					if = {
+						limit = {
+							OR = { has_country_flag = INT_FRA_event_13_fired has_completed_focus = INT_FRA_february_sixth }
+							has_stability < 0.7
+						}
+						add_ideas = FRA_political_violence
+						if = {
+							limit = { NOT = { has_idea = INT_FRA_cabinet_stability_spirit } }
+							add_ideas = FRA_disjointed_government
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_war = no
+						has_manpower < 100000
+						has_completed_focus = INT_FRA_protect_employment
+						NOT = { has_idea = INT_FRA_colonial_recruitment_spirit }
+						NOT = { has_idea = FRA_worker_shortage }
+					}
+					add_ideas = FRA_full_employment
+				}
+				if = {
+					limit = { has_idea = INT_FRA_depression_pressure NOT = { has_idea = INT_FRA_modern_industry } }
+					add_ideas = FRA_inefficient_economy_2
+				}
+				if = {
+					limit = {
+						has_full_control_of_state = 28 # Alsace-Lorraine
+						OR = { has_completed_focus = INT_FRA_maginot_program has_country_flag = INT_FRA_event_16_fired }
+					}
+					add_ideas = FRA_protected_by_the_maginot_line
+				}
 				remove_ideas = {
 					INT_FRA_war_damage INT_FRA_veterans_support
 					INT_FRA_reconstruction INT_FRA_heavy_industry
 					INT_FRA_agricultural_recovery_spirit INT_FRA_industrial_credit_spirit
 					INT_FRA_fiscal_pressure INT_FRA_stable_franc
-					INT_FRA_public_works INT_FRA_depression_pressure
+					INT_FRA_depression_pressure
 					INT_FRA_budget_restraint INT_FRA_modern_industry
 					INT_FRA_parliamentary_majority INT_FRA_cartel_government
 					INT_FRA_national_union INT_FRA_cabinet_stability_spirit
@@ -1275,23 +1373,6 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					INT_FRA_rural_modernization_spirit INT_FRA_state_reconstruction_spirit
 					INT_FRA_great_depression INT_depression_aftershock
 				}
-				if = {
-					limit = { has_global_flag = versailles }
-					add_ideas = {
-						FRA_victors_of_wwi FRA_disjointed_government
-						FRA_full_employment FRA_political_violence
-						FRA_inefficient_economy_2
-					}
-					if = {
-						limit = {
-							OR = {
-								has_completed_focus = INT_FRA_maginot_program
-								has_country_flag = INT_FRA_event_16_fired
-							}
-						}
-						add_ideas = FRA_protected_by_the_maginot_line
-					}
-				}
 				load_focus_tree = { tree = french_focus keep_completed = yes }
 			}
 			# Italy moves from its WWI settlement through the interwar tree
@@ -1306,7 +1387,7 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 				INT_ITA_schedule_interwar_events = yes
 			}
 			if = {
-				limit = { IT1_ww1_has_alternative_settlement = no  tag = ITA has_focus_tree = INT_italy date > 1918.12.30 NOT = { has_country_flag = INT_ITA_interwar_initialized } }
+				limit = { IT1_ww1_has_alternative_settlement = no  tag = ITA has_focus_tree = INT_italy date > 1918.12.30 has_war = no NOT = { has_country_flag = INT_ITA_interwar_initialized } }
 				remove_ideas = { americans_are_here war_economy service_by_requirement }
 				add_ideas = { civilian_economy limited_conscription }
 				set_country_flag = INT_ITA_interwar_initialized
@@ -1348,9 +1429,10 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					INT_ITA_social_insurance INT_ITA_steel_consortium
 					INT_ITA_great_depression INT_depression_aftershock
 				}
-				remove_ideas = ITA_Vittorio_Emanuele_III
 				if = {
 					limit = {
+						OR = { has_idea = ITA_Vittorio_Emanuele_III has_character = ITA_WWI_vittorio_emanuele_iii has_character = ITA_vittorio_emanuele_iii }
+						NOT = { has_government = communism }
 						NOT = {
 							OR = {
 								has_idea = vittorio_emanuele
@@ -1362,9 +1444,13 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					}
 					add_ideas = vittorio_emanuele
 				}
+				remove_ideas = ITA_Vittorio_Emanuele_III
 				if = {
 					limit = {
 						NOT = { has_global_flag = central_powers_victory }
+						has_global_flag = armistice_of_villa_giusti
+						OR = { has_government = neutrality has_government = fascism }
+						NOT = { owns_state = 163 } # Dalmatia
 						NOT = { has_idea = vittoria_mutilata }
 					}
 					add_ideas = vittoria_mutilata
@@ -1558,41 +1644,13 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 					WWI_general_staff_upgraded
 				}
 			}
-			# The same transition also repairs old Weimar saves that still have
-			# imperial field, corps, or naval leaders recruited.
 			if = {
 				limit = {
 					tag = GER
 					has_country_flag = ww1_weimar_republic_established
-					date < 1936.1.1
-					OR = {
-						GER_paul_von_hindenburg = { is_unit_leader = yes }
-						has_character = GER_helmuth_von_moltke
-						has_character = GER_hermann_von_eichorn
-						has_character = GER_erich_ludendorff
-						has_character = GER_erich_von_falkenhayn
-						has_character = GER_alexander_von_kluck
-						has_character = GER_friedrich_sixt_von_armin
-						has_character = GER_felix_von_bothmer
-						has_character = GER_ferdinand_von_quast
-						has_character = GER_fritz_von_below
-						has_character = GER_hermann_von_francois
-						has_character = GER_paul_von_lettowvorbeck
-						has_character = GER_karl_von_einem
-						has_character = GER_prince_leopold_of_bavaria
-						has_character = GER_prince_rupprecht_of_bavaria
-						has_character = GER_crown_prince_wilhelm
-						has_character = GER_karl_von_bulow
-						has_character = GER_hugo_von_pohl
-						has_character = GER_wilhelm_souchon
-						has_character = GER_maximilian_von_spee
-						has_character = GER_adolf_von_trotha
-						has_character = GER_ludwig_von_reuter
-						has_character = GER_alfred_von_tirpitz
-						has_character = GER_franz_von_hipper
-					}
+					date < 1921.1.1
 				}
-				GER_INT_replace_imperial_command = yes
+				GER_INT_reconcile_weimar_command = yes
 			}
 			if = {
 				limit = {
@@ -1805,8 +1863,8 @@ if = {
                 limit = {
                     date > 1917.12.31
                     date < 1936.1.1
-                    ROOT = { tag = UKR }
-                    FROM = { tag = SOV }
+                    ROOT = { tag = UKR NOT = { has_government = communism } }
+                    FROM = { OR = { tag = SOV INT_UKR_soviet_subject = yes } }
                     country_exists = UKR
                 }
                 ROOT = { set_country_flag = INT_ukraine_defeated_by_soviets }
@@ -1856,10 +1914,10 @@ if = {
                 limit = {
                     date > 1917.12.31
                     date < 1936.1.1
-                    ROOT = { tag = SOV }
-                    FROM = { original_tag = UKR }
+                    ROOT = { OR = { tag = SOV INT_UKR_soviet_subject = yes } }
+                    FROM = { tag = UKR NOT = { has_government = communism } }
                 }
-                ROOT = {
+                SOV = {
                     set_country_flag = INT_ukraine_integrated
                     country_event = { id = INT_eastern.4 hours = 1 }
                 }
@@ -1921,6 +1979,7 @@ if = {
                     ROOT = { tag = SOV }
                     FROM = { tag = BLR }
                     country_exists = BLR
+                    NOT = { BLR = { is_subject_of = SOV has_government = communism } }
                 }
                 SOV = { annex_country = { target = BLR transfer_troops = no } }
             }
@@ -1928,6 +1987,7 @@ if = {
                 limit = {
                     ROOT = { TAG = SOV }
                     FROM = { TAG = UKR }
+                    NOT = { UKR = { INT_UKR_soviet_subject = yes } }
                     country_exists = UKR
                     OR = {
                         SOV = { is_ai = yes }

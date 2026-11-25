@@ -1,0 +1,76 @@
+# Run in the invaded country's scope. Record affected wars before the guarantee
+# is removed so that an unrelated direct war is left to its own signatories.
+INT_eastern_remove_foreign_guarantees = {
+	if = {
+		limit = { INT_eastern_local_wars_context = yes }
+		save_event_target_as = INT_eastern_guaranteed_defender
+		every_other_country = {
+			limit = {
+				INT_eastern_external_ai_power = yes
+				has_guaranteed = event_target:INT_eastern_guaranteed_defender
+			}
+			if = {
+				limit = {
+					INT_eastern_no_direct_soviet_war = yes
+					SOV = {
+						has_war_with_wargoal_against = {
+							target = event_target:INT_eastern_guaranteed_defender
+							type = annex_everything
+						}
+					}
+				}
+				set_country_flag = INT_eastern_joined_by_guarantee
+			}
+			diplomatic_relation = { country = event_target:INT_eastern_guaranteed_defender relation = guarantee active = no }
+		}
+	}
+}
+
+# First record the guarantees behind existing wars, then remove them.
+INT_eastern_keep_soviet_wars_local = {
+	if = {
+		limit = { INT_eastern_local_wars_context = yes }
+		every_country = {
+			limit = {
+				OR = { tag = EST tag = LAT tag = LIT tag = POL tag = UKR tag = BLR tag = GEO tag = ARM tag = AZR tag = BAK }
+			}
+			INT_eastern_remove_foreign_guarantees = yes
+		}
+		# The United States can enter through France's guarantee chain.
+		USA = {
+			if = {
+				limit = {
+					is_ai = yes
+					INT_eastern_no_direct_soviet_war = yes
+					FRA = { has_country_flag = INT_eastern_joined_by_guarantee }
+					has_guaranteed = FRA
+				}
+				set_country_flag = INT_eastern_joined_by_guarantee
+			}
+		}
+		# Withdraw subjects before their overlords so their saved relationship is intact.
+		every_country = {
+			limit = {
+				is_ai = yes
+				INT_eastern_no_direct_soviet_war = yes
+				is_subject = yes
+				overlord = { has_country_flag = INT_eastern_joined_by_guarantee }
+			}
+			white_peace = { tag = SOV }
+		}
+		every_country = {
+			limit = {
+				INT_eastern_external_ai_power = yes
+				has_country_flag = INT_eastern_joined_by_guarantee
+			}
+			if = {
+				limit = { INT_eastern_no_direct_soviet_war = yes }
+				white_peace = { tag = SOV }
+			}
+			if = {
+				limit = { NOT = { has_war_with = SOV } }
+				clr_country_flag = INT_eastern_joined_by_guarantee
+			}
+		}
+	}
+}

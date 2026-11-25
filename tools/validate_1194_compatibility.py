@@ -13,7 +13,7 @@ import re
 import sys
 
 TOKEN = re.compile(r'"(?:\\.|[^"\\])*"|\#[^\r\n]*|\?=|!=|<=|>=|[{}=<>]|[^\s{}=<>#!]+')
-SUPPORTED_VERSION = '1.19.5'
+SUPPORTED_VERSION = '1.20'
 OPS = {'=', '?=', '!=', '<', '>', '<=', '>='}
 DYNAMIC_ALLOWED = {'has_start_date', 'has_focus_tree', 'date'}
 RUNTIME_ADVISOR_FIELDS = {'allowed', 'visible', 'available', 'on_add', 'on_remove', 'on_fire'}
@@ -85,11 +85,21 @@ def scalar(value):
 def inspect(nodes, rel):
     problems = []
     for n, ancestors in walk(nodes):
+        if n.key == 'NOR':
+            # NOR scopes to Norway. These mutually exclusive settlement outcomes
+            # cannot all be prerequisites in that scope.
+            outcomes = {'central_powers_victory', 'versailles', 'ww1_compiegne_armistice_failed'}
+            flags = {c.value for c in n.children if c.key == 'has_global_flag' and isinstance(c.value, str)}
+            if len(flags & outcomes) > 1:
+                problems.append((n, 'NOR is Norway. Use NOT with OR to exclude alternative WWI settlements.'))
         if n.key in DYNAMIC_ALLOWED and any(a.key == 'allowed' for a in ancestors):
             if rel.startswith(('common/decisions/', 'common/ai_strategy_plans/')):
                 problems.append((n, 'Dynamic trigger in persistent allowed block'))
         if n.key == 'political_power' and n.op in {'<', '>', '<=', '>='}:
             problems.append((n, 'Use has_political_power for a country PP comparison'))
+        if n.key == 'ai_will_do' and rel.startswith('common/decisions/'):
+            if any(a.key == 'timeout_effect' for a in ancestors):
+                problems.append((n, 'Decision AI weights belong outside timeout effects'))
         if n.key == 'recruit_character' and rel.startswith('common/scripted_effects/'):
             problems.append((n, 'Register characters in country history, not a runtime helper'))
         if n.key in RUNTIME_ADVISOR_FIELDS and any(a.key == 'add_advisor_role' for a in ancestors):
@@ -102,7 +112,10 @@ def inspect(nodes, rel):
         if n.key in {'factor', 'base', 'add'} and str(scalar(n.value)).startswith('constant:'):
             if any(a.key in {'ai_chance', 'ai_will_do'} for a in ancestors):
                 problems.append((n, 'AI score fields require literal numbers, not script constants'))
-        if ancestors and n.key in {'china_record_reunifier', 'china_set_seat_holder', 'spain_appoint_government', 'endsieg_show_super_event'}:
+        if ancestors and n.key in {
+            'china_record_reunifier', 'china_set_seat_holder', 'spain_appoint_government',
+            'endsieg_show_super_event', 'WW1_AUH_declare_secession_war',
+        }:
             if isinstance(n.value, list):
                 problems.append((n, 'Scripted effect arguments must be passed through native scopes or variables'))
     if rel.startswith('history/countries/'):
@@ -145,7 +158,8 @@ def main():
         text = path.read_text(encoding='utf-8-sig')
         for n, message in inspect(parse(text), rel):
             errors.append({'file': rel, 'line': text[:n.start].count('\n') + 1, 'message': message})
-    for rel in ('common/national_focus/shx_nanjing.txt', 'events/shx_campaign.txt', 'events/rch_campaign.txt'):
+    for rel in ('common/national_focus/shx_nanjing.txt', 'events/shx_campaign.txt', 'events/rch_campaign.txt',
+                'common/national_focus/romania_ttbe.txt', 'common/characters/ROM.txt', 'events/TTBE_Romania.txt'):
         text = (repo / rel).read_text(encoding='utf-8-sig')
         nodes = parse(text)
         parsed += 1
@@ -156,13 +170,13 @@ def main():
         errors.append({'file': 'history/countries/MEX - Mexico.txt', 'message': 'Missing identity registration: ' + ', '.join(missing)})
     descriptor = (repo / 'descriptor.mod').read_text(encoding='utf-8-sig')
     supported_pattern = re.escape(SUPPORTED_VERSION)
-    if not re.search(rf'(?m)^supported_version\s*=\s*"{supported_pattern}"\s*$', descriptor):
-        errors.append({'file': 'descriptor.mod', 'message': f'Expected supported_version="{SUPPORTED_VERSION}"'})
+    if not re.search(rf'(?m)^supported_version\s*=\s*"{supported_pattern}\.\*"\s*$', descriptor):
+        errors.append({'file': 'descriptor.mod', 'message': f'Expected supported_version="{SUPPORTED_VERSION}.*"'})
     native = None
     if args.game:
         native = json.loads((args.game / 'launcher-settings.json').read_text(encoding='utf-8-sig'))
         raw_version = native.get('rawVersion', '')
-        if not re.fullmatch(rf'{supported_pattern}(?:\.\d+)?', raw_version):
+        if not re.fullmatch(rf'{supported_pattern}(?:\.\d+){{1,2}}', raw_version):
             errors.append({'file': 'launcher-settings.json', 'message': f'Expected an installed {SUPPORTED_VERSION} build, found {raw_version or "no version"}'})
     result = {'result': 'FAIL' if errors else 'PASS', 'parsed_script_files': parsed,
               'registered_mexican_identities': len(MEX_CHARACTERS - set(missing)),

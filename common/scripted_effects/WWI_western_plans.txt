@@ -1,3 +1,63 @@
+# Read reserves once when each new set of orders is issued.
+WW1_western_plan_prepare_phase = {
+	set_variable = { WW1_western_plan_phase_days = WW1_western_plan_phase_base_days }
+
+	set_variable = { WW1_western_plan_rifle_coverage = 1 }
+	if = {
+		limit = { check_variable = { num_target_equipment_in_armies@infantry_equipment > 0 } }
+		set_variable = { WW1_western_plan_rifle_coverage = num_equipment@infantry_equipment }
+		clamp_variable = { var = WW1_western_plan_rifle_coverage min = 0 }
+		set_temp_variable = { WW1_western_plan_rifle_need = num_target_equipment_in_armies@infantry_equipment }
+		multiply_temp_variable = { WW1_western_plan_rifle_need = 0.1 }
+		clamp_temp_variable = { var = WW1_western_plan_rifle_need min = 1 }
+		divide_variable = { WW1_western_plan_rifle_coverage = WW1_western_plan_rifle_need }
+		clamp_variable = { var = WW1_western_plan_rifle_coverage min = 0 max = 1 }
+	}
+
+	set_variable = { WW1_western_plan_artillery_coverage = 1 }
+	if = {
+		limit = { check_variable = { num_target_equipment_in_armies@artillery_equipment > 0 } }
+		set_variable = { WW1_western_plan_artillery_coverage = num_equipment@artillery_equipment }
+		clamp_variable = { var = WW1_western_plan_artillery_coverage min = 0 }
+		set_temp_variable = { WW1_western_plan_artillery_need = num_target_equipment_in_armies@artillery_equipment }
+		multiply_temp_variable = { WW1_western_plan_artillery_need = 0.1 }
+		clamp_temp_variable = { var = WW1_western_plan_artillery_need min = 1 }
+		divide_variable = { WW1_western_plan_artillery_coverage = WW1_western_plan_artillery_need }
+		clamp_variable = { var = WW1_western_plan_artillery_coverage min = 0 max = 1 }
+	}
+
+	set_variable = { WW1_western_plan_ration_coverage = 1 }
+	if = {
+		limit = { NOT = { has_country_flag = endsieg_rations_disabled } }
+		endsieg_rations_measure_demand = yes
+		if = {
+			limit = { check_variable = { endsieg_ration_daily_use > 0 } }
+			set_variable = { WW1_western_plan_ration_coverage = num_equipment@rations_1 }
+			clamp_variable = { var = WW1_western_plan_ration_coverage min = 0 }
+			set_temp_variable = { WW1_western_plan_ration_need = endsieg_ration_daily_use }
+			multiply_temp_variable = { WW1_western_plan_ration_need = WW1_western_plan_phase_base_days }
+			divide_variable = { WW1_western_plan_ration_coverage = WW1_western_plan_ration_need }
+			clamp_variable = { var = WW1_western_plan_ration_coverage min = 0 max = 1 }
+		}
+	}
+
+	set_variable = { WW1_western_plan_reserve_coverage = WW1_western_plan_rifle_coverage }
+	if = {
+		limit = { check_variable = { WW1_western_plan_artillery_coverage < WW1_western_plan_reserve_coverage } }
+		set_variable = { WW1_western_plan_reserve_coverage = WW1_western_plan_artillery_coverage }
+	}
+	if = {
+		limit = { check_variable = { WW1_western_plan_ration_coverage < WW1_western_plan_reserve_coverage } }
+		set_variable = { WW1_western_plan_reserve_coverage = WW1_western_plan_ration_coverage }
+	}
+	set_variable = { WW1_western_plan_timetable_factor = WW1_western_plan_reserve_coverage }
+	multiply_variable = { WW1_western_plan_timetable_factor = 0.5 }
+	add_to_variable = { WW1_western_plan_timetable_factor = 0.75 }
+	multiply_variable = { WW1_western_plan_phase_days = WW1_western_plan_timetable_factor }
+	round_variable = WW1_western_plan_phase_days
+	clamp_variable = { var = WW1_western_plan_phase_days min = 1 }
+}
+
 WW1_western_plan_initialize_christmas_deadline = {
 	if = {
 		limit = { NOT = { has_variable = WW1_western_plan_bonus_deadline_year } }
@@ -11,10 +71,12 @@ WW1_western_plan_initialize_christmas_deadline = {
 }
 
 WW1_western_plan_begin = {
+	WW1_western_frontline_check_transition = yes
 	if = {
 		limit = {
 			WW1_western_plan_can_continue = yes
 			NOT = { has_country_flag = WW1_western_plan_started }
+			NOT = { has_country_flag = WW1_western_frontline_active }
 			NOT = { WW1_western_plan_controls_paris = yes }
 		}
 		WW1_western_plan_open_selected_offensive = yes
@@ -53,7 +115,7 @@ WW1_western_plan_open_selected_offensive = {
 		set_country_flag = WW1_western_plan_started
 		set_country_flag = WW1_western_plan_in_progress
 		if = {
-			limit = { OR = { NOR = { has_war_with = RIE has_war_with = SOV } WW1_western_plan_controls_warsaw = yes WW1_western_plan_controls_lodz = yes } }
+			limit = { OR = { NOT = { OR = { has_war_with = RIE has_war_with = SOV } } WW1_western_plan_controls_warsaw = yes WW1_western_plan_controls_lodz = yes } }
 			WW1_western_plan_start_kronprinz_lorraine = yes
 		}
 		else = { WW1_western_plan_start_kronprinz_warsaw = yes }
@@ -72,16 +134,22 @@ WW1_western_plan_paris_secured = {
 WW1_western_plan_missed_deadline = {
 	clr_country_flag = WW1_western_plan_in_progress
 	set_country_flag = WW1_western_plan_missed_deadline
+	if = {
+		limit = { WW1_western_plan_can_continue = yes }
+		set_country_flag = WW1_western_frontline_active
+	}
 	country_event = { id = ww1_western_plans.5 }
 }
 
 WW1_western_plan_start_schlieffen_meuse = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 35 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		8 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 35 } }
-		34 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 35 } }
-		6 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 35 } }
+		8 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
+		34 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
+		6 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_schlieffen_meuse
 }
@@ -94,10 +162,12 @@ WW1_western_plan_clear_schlieffen_meuse = {
 
 WW1_western_plan_start_schlieffen_somme = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 45 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		29 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 45 } }
-		785 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 45 } }
+		29 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = GER.WW1_western_plan_phase_days } }
+		785 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_schlieffen_somme
 }
@@ -109,11 +179,13 @@ WW1_western_plan_clear_schlieffen_somme = {
 
 WW1_western_plan_start_rupprecht_switzerland = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 60 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		3 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 60 } }
-		151 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 60 } }
-		847 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 60 } }
+		3 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
+		151 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
+		847 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_rupprecht_switzerland
 }
@@ -126,10 +198,12 @@ WW1_western_plan_clear_rupprecht_switzerland = {
 
 WW1_western_plan_start_rupprecht_jura = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 50 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		17 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 50 } }
-		27 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 50 } }
+		17 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = GER.WW1_western_plan_phase_days } }
+		27 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_rupprecht_jura
 }
@@ -141,10 +215,12 @@ WW1_western_plan_clear_rupprecht_jura = {
 
 WW1_western_plan_start_kronprinz_warsaw = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 135 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		87 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 135 } }
-		10 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 135 } }
+		87 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
+		10 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_kronprinz_warsaw
 }
@@ -156,10 +232,12 @@ WW1_western_plan_clear_kronprinz_warsaw = {
 
 WW1_western_plan_start_kronprinz_lorraine = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 55 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		1010 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 55 } }
-		1011 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = 55 } }
+		1010 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
+		1011 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_opening scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_kronprinz_lorraine
 }
@@ -171,9 +249,11 @@ WW1_western_plan_clear_kronprinz_lorraine = {
 
 WW1_western_plan_start_kronprinz_champagne = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 40 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		18 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = 40 } }
+		18 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_advance scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_kronprinz_champagne
 }
@@ -184,9 +264,11 @@ WW1_western_plan_clear_kronprinz_champagne = {
 
 WW1_western_plan_start_paris = {
 	WW1_western_plan_initialize_christmas_deadline = yes
+	set_variable = { WW1_western_plan_phase_base_days = 45 }
+	WW1_western_plan_prepare_phase = yes
 	if = {
 		limit = { WW1_western_plan_attack_window_open = yes }
-		16 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_final scope = GER days = 45 } }
+		16 = { add_dynamic_modifier = { modifier = WW1_western_plan_attack_final scope = GER days = GER.WW1_western_plan_phase_days } }
 	}
 	activate_mission = WW1_western_plan_paris
 }

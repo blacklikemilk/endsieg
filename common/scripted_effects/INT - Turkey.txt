@@ -3,39 +3,30 @@ INT_TUR_end_sultanate = {
 	if = {
 		limit = { NOT = { has_country_flag = INT_TUR_sultanate_abolished } }
 		set_country_flag = INT_TUR_sultanate_abolished
-		set_cosmetic_tag = TUR_kemalist
-		retire_country_leader = yes
 		if = { limit = { has_character = TUR_mehmed_v } retire_character = TUR_mehmed_v }
 		if = { limit = { endsieg_character_active_tur_mehmed_vi_0177e887 = yes } endsieg_character_retire_tur_mehmed_vi_0177e887 = yes }
-		if = { limit = { NOT = { endsieg_character_active_tur_mustafa_kemal_88d99cbe = yes } } endsieg_character_activate_tur_mustafa_kemal_88d99cbe = yes }
-		add_country_leader_role = {
-			character = TUR_mustafa_kemal
-			country_leader = { ideology = despotism expire = "1965.1.1" }
-			promote_leader = yes
-		}
+		INT_TUR_install_ankara_government = yes
 		add_stability = -0.03
 		if = { limit = { date < 1923.7.24 has_start_date < 1923.7.24 } news_event = { id = INT_turkey_news.16 days = 1 } }
 	}
 }
 
-# Shared settlement effects, also used for silent late-bookmark initialization.
+# Mudanya has already ended the Greek war. Lausanne records the final peace.
 INT_TUR_apply_lausanne_settlement = {
-	set_country_flag = INT_TUR_lausanne_signed
-	if = { limit = { date < 1924.7.24 has_start_date < 1923.7.25 } news_event = { id = INT_turkey_news.1 days = 1 } }
-	if = { limit = { has_war_with = GRE } white_peace = GRE }
-	if = { limit = { country_exists = GRE GRE = { has_idea = INT_GRE_anatolian_overstretch } } GRE = { remove_ideas = INT_GRE_anatolian_overstretch } }
-	if = { limit = { 339 = { is_owned_by = GRE } } transfer_state = 339 }
-	if = { limit = { 340 = { is_owned_by = GRE } } transfer_state = 340 }
-	if = { limit = { 1036 = { is_owned_by = GRE } } transfer_state = 1036 }
 	if = {
-		limit = { 1036 = { is_owned_by = TUR } country_exists = GRE }
-		if = { limit = { GRE = { controls_province = 922 } } set_province_controller = 922 }
-		if = { limit = { GRE = { controls_province = 3893 } } set_province_controller = 3893 }
-		if = { limit = { GRE = { controls_province = 11842 } } set_province_controller = 11842 }
-		if = { limit = { GRE = { controls_province = 13411 } } set_province_controller = 13411 }
+		limit = { INT_TUR_can_sign_lausanne = yes }
+		set_country_flag = INT_TUR_lausanne_signed
+		every_owned_state = {
+			limit = {
+				OR = { state = 341 state = 797 }
+				is_fully_controlled_by = TUR
+			}
+			set_demilitarized_zone = no
+		}
+		remove_ideas = { INT_TUR_occupation INT_TUR_national_resistance INT_TUR_sevres_pressure }
+		add_stability = 0.08
+		if = { limit = { has_start_date < 1923.7.25 } news_event = { id = INT_turkey_news.1 days = 1 } }
 	}
-	remove_ideas = { INT_TUR_occupation INT_TUR_national_resistance INT_TUR_sevres_pressure }
-	add_stability = 0.08
 }
 
 # Seed past constitutional transitions without replaying their announcements.
@@ -84,10 +75,17 @@ INT_TUR_initialize_historical_bookmark = {
 				NOT = { has_country_flag = INT_TUR_lausanne_signed }
 			}
 			if = {
-				limit = { NOT = { has_completed_focus = INT_TUR_lausanne } }
-				complete_national_focus = INT_TUR_lausanne
+				limit = { controls_province = 4112 NOT = { has_war_with = GRE } }
+				set_country_flag = INT_TUR_mudanya_signed
+				INT_TUR_apply_lausanne_settlement = yes
+				if = {
+					limit = {
+						has_country_flag = INT_TUR_lausanne_signed
+						NOT = { has_completed_focus = INT_TUR_lausanne }
+					}
+					unlock_national_focus = INT_TUR_lausanne
+				}
 			}
-			else = { INT_TUR_apply_lausanne_settlement = yes }
 		}
 		if = {
 			limit = {

@@ -1,0 +1,79 @@
+on_actions = {
+	on_daily_GEO = {
+		effect = {
+			WW1_Caucasus_initialize_georgia = yes
+			WW1_Caucasus_update_georgian_cabinet = yes
+		}
+	}
+	on_daily_ARM = {
+		effect = {
+			WW1_Caucasus_initialize_armenia = yes
+			WW1_Caucasus_update_armenian_cabinet = yes
+		}
+	}
+	on_daily_AZR = {
+		effect = {
+			if = {
+				limit = {
+					date > 1920.4.27 date < 1922.3.12
+					is_ai = yes is_subject_of = SOV has_government = communism
+					SOV = { is_ai = yes }
+					owns_state = 1016
+					NOT = { has_country_flag = WW1_AZR_revolutionary_committee }
+					NOT = { has_global_flag = player_wants_custom_peacedeals }
+				}
+				country_event = { id = transcauc.11 }
+			}
+			if = {
+				limit = {
+					has_war = yes has_country_flag = WW1_AZR_revolutionary_committee
+					WW1_AZR_soviet_war_calls_restricted = yes
+				}
+				WW1_AZR_end_inherited_wars = yes
+			}
+			if = {
+				limit = { WW1_AZR_soviet_war_calls_restricted = yes is_in_faction_with = SOV is_faction_leader = no }
+				leave_faction = yes
+			}
+			# State flags from Presidential Library, State Symbols and Attributes, p. 22.
+			if = {
+				limit = {
+					has_government = communism is_subject_of = SOV
+					date > 1920.4.27 NOT = { has_global_flag = INT_USSR_founded }
+				}
+				if = {
+					limit = { date < 1921.5.6 NOT = { has_cosmetic_tag = AZR_revkom } }
+					set_cosmetic_tag = AZR_revkom
+				}
+				else_if = {
+					limit = { date > 1921.5.5 NOT = { has_cosmetic_tag = AZR_1921_constitution } }
+					set_cosmetic_tag = AZR_1921_constitution
+				}
+			}
+			else_if = {
+				limit = { OR = { has_cosmetic_tag = AZR_revkom has_cosmetic_tag = AZR_1921_constitution } }
+				drop_cosmetic_tag = yes
+			}
+			# Refresh the already-installed leader once in campaigns from older releases.
+			if = {
+				limit = {
+					has_country_flag = WW1_AZR_revolutionary_committee
+					NOT = { has_country_flag = WW1_AZR_narimanov_portrait_installed }
+					has_country_leader = { name = "Nariman Narimanov" ruling_only = yes }
+				}
+				set_country_leader_portrait = { portrait = GFX_portrait_AZR_nariman_narimanov }
+				set_country_flag = WW1_AZR_narimanov_portrait_installed
+			}
+			WW1_Caucasus_initialize_azerbaijan = yes
+			WW1_Caucasus_update_azerbaijani_cabinet = yes
+		}
+	}
+	on_daily_BAK = {
+		effect = {
+			BAK = {
+				WW1_Caucasus_finish_baku_transition = yes
+				WW1_Caucasus_update_baku_government = yes
+			}
+		}
+	}
+}

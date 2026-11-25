@@ -1,0 +1,58 @@
+INT_eastern_begin_ukrainian_campaign = {
+	if = {
+		limit = { INT_eastern_can_advance_into_ukraine = yes }
+		if = {
+			limit = { NOT = { has_wargoal_against = { target = UKR type = annex_everything } } }
+			create_wargoal = { type = annex_everything target = UKR }
+		}
+		UKR = { INT_eastern_remove_foreign_guarantees = yes }
+		if = {
+			limit = { NOT = { any_other_country = { has_guaranteed = UKR } } }
+			declare_war_on = { target = UKR type = annex_everything }
+		}
+		if = {
+			limit = { has_war_with = UKR }
+			clr_country_flag = INT_ukraine_declaration_pending
+			if = {
+				limit = { NOT = { has_country_flag = INT_ukraine_invasion_reported } }
+				set_country_flag = INT_ukraine_invasion_reported
+				news_event = { id = endsieg_news.35 hours = 6 }
+			}
+		}
+		else = { set_country_flag = INT_ukraine_declaration_pending }
+	}
+	else_if = {
+		limit = {
+			has_country_flag = INT_ukraine_declaration_pending
+			OR = {
+				NOT = { date < 1922.1.1 }
+				NOT = { country_exists = UKR }
+				has_war_with = UKR
+				has_country_flag = INT_ukraine_integrated
+				has_global_flag = central_powers_victory
+			}
+		}
+		clr_country_flag = INT_ukraine_declaration_pending
+	}
+}
+
+INT_eastern_begin_estonian_campaign = {
+	if = {
+		limit = { INT_eastern_can_attack_estonia = yes }
+		if = {
+			limit = { NOT = { has_wargoal_against = { target = EST type = annex_everything } } }
+			create_wargoal = { target = EST type = annex_everything }
+		}
+		EST = { INT_eastern_remove_foreign_guarantees = yes }
+		if = {
+			limit = { NOT = { any_other_country = { has_guaranteed = EST } } }
+			declare_war_on = { target = EST type = annex_everything }
+		}
+		if = {
+			limit = { has_war_with = EST NOT = { has_country_flag = INT_estonia_invasion_reported } }
+			set_country_flag = INT_estonia_invasion_reported
+			EST = { INT_eastern_update_independence_defence = yes }
+			news_event = { id = endsieg_news.39 hours = 6 }
+		}
+	}
+}

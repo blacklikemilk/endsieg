@@ -1,0 +1,120 @@
+on_actions = {
+    on_daily_AUH = {
+        effect = {
+            if = {
+                limit = { has_start_date < 1921.1.1 date < 1923.1.1 }
+                if = {
+                    limit = {
+                        has_global_flag = welcome_event_WW1_active
+                        NOT = { has_country_flag = WW1_AUH_fought_entente }
+                        WW1_AUH_entente_opponent = yes
+                    }
+                    set_country_flag = WW1_AUH_fought_entente
+                }
+                WW1_AUH_advance_national_councils = yes
+                WW1_AUH_declare_revolution_wars = yes
+                if = {
+                    limit = {
+                        WW1_AUH_legacy_crownland_armistice = yes
+                        NOT = { has_global_flag = WW1_AUH_historical_dissolution_done }
+                    }
+                    WW1_AUH_apply_historical_armistice = yes
+                }
+                WW1_AUH_queue_historical_armistice = yes
+            }
+        }
+    }
+    on_daily_CZE = {
+        effect = {
+            if = {
+                limit = { WW1_AUH_sudetenland_transition_due = yes }
+                country_event = { id = INT_postwar_transitions.5 hours = 1 }
+            }
+        }
+    }
+    on_daily_ROM = {
+        effect = {
+            if = {
+                limit = {
+                    WW1_AUH_transylvania_stage_open = yes
+                    date < 1918.12.12
+                    NOT = { has_country_flag = WW1_AUH_alba_iulia_reported }
+                }
+                country_event = { id = INT_postwar_transitions.6 hours = 1 }
+            }
+            if = {
+                limit = {
+                    WW1_AUH_transylvania_stage_open = yes
+                    NOT = { date < 1918.12.24 }
+                    has_country_flag = INT_postwar_transylvania_approved
+                }
+                WW1_AUH_update_transylvania = yes
+            }
+        }
+    }
+    on_daily_HUN = {
+        effect = {
+            if = {
+                limit = { has_start_date < 1921.1.1 date < 1923.1.1 }
+                if = {
+                    limit = { has_global_flag = aster_revolution has_country_flag = WW1_AUH_hungarian_national_council }
+                    WW1_AUH_proclaim_banat = yes
+                }
+                WW1_AUH_eckartsau_declaration = yes
+                WW1_AUH_update_hungarian_republic = yes
+                if = {
+                    limit = { WW1_AUH_postwar_stages_open = yes }
+                    if = {
+                        limit = { WW1_AUH_carpathian_ruthenia_handover_ready = yes }
+                        country_event = { id = INT_hungary.4 hours = 1 }
+                    }
+                    WW1_AUH_postwar_border_treaties = yes
+                }
+            }
+            if = {
+                limit = {
+                    has_start_date < 1921.1.1
+                    date > 1919.9.9 date < 1936.1.1
+                    WW1_AUH_historical_postwar_settlement = yes
+                    OR = { date < 1922.1.1 NOT = { has_global_flag = WW1_AUH_burgenland_delivered } }
+                }
+                WW1_AUH_update_burgenland = yes
+            }
+        }
+    }
+    on_daily = {
+        effect = {
+            if = {
+                limit = { has_start_date < 1921.1.1 date < 1923.1.1 }
+                if = {
+                    limit = { OR = { tag = SER tag = YUG } }
+                    if = {
+                        limit = {
+                            OR = { tag = SER WW1_SER_historical_yugoslav_successor = yes }
+                            WW1_SER_salonica_restoration_open = yes
+                        }
+                        WW1_SER_advance_salonica_restoration = yes
+                    }
+                    if = {
+                        limit = { tag = YUG }
+                        WW1_AUH_south_slav_union = yes
+                    }
+                    if = {
+                        limit = { OR = { tag = SER WW1_SER_historical_yugoslav_successor = yes } }
+                        WW1_AUH_restore_occupied_districts = yes
+                    }
+                    if = {
+                        limit = { WW1_AUH_banat_occupation_due = yes }
+                        country_event = { id = ww1_kuk.57 hours = 1 }
+                    }
+                }
+                else_if = { limit = { tag = AUS } WW1_AUH_update_austrian_republic = yes }
+            }
+        }
+    }
+    on_capitulation = {
+        effect = {
+            if = { limit = { is_ai = no WW1_AUH_historical_armistice_ready = yes } WW1_AUH_queue_historical_armistice = yes }
+        }
+    }
+}

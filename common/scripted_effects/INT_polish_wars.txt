@@ -1,0 +1,143 @@
+# A direct local war; no faction invitation accompanies this declaration.
+INT_POL_begin_soviet_campaign = {
+	if = {
+		limit = { INT_POL_soviet_campaign_available = yes }
+		POL = { INT_eastern_remove_foreign_guarantees = yes }
+		if = {
+			limit = { NOT = { any_other_country = { has_guaranteed = POL } } }
+			declare_war_on = { target = POL type = annex_everything }
+			if = {
+				limit = { has_war_with = POL }
+				set_country_flag = INT_historical_pol_war
+				POL = { INT_eastern_update_independence_defence = yes }
+				news_event = { id = endsieg_news.37 hours = 6 }
+			}
+		}
+	}
+}
+
+INT_POL_complete_soviet_victory = {
+	if = {
+		limit = { INT_POL_soviet_victory_ready = yes }
+		annex_country = { target = POL transfer_troops = no }
+		if = {
+			limit = { NOT = { country_exists = POL } }
+			set_country_flag = INT_POL_soviet_victory
+		}
+	}
+}
+
+
+INT_POL_begin_lithuanian_campaign = {
+	if = {
+		limit = { INT_POL_lithuanian_campaign_ready = yes }
+		LIT = { INT_eastern_remove_foreign_guarantees = yes }
+		if = {
+			limit = { NOT = { any_other_country = { has_guaranteed = LIT } } }
+			declare_war_on = { target = LIT type = take_state generator = { 784 1029 } }
+			if = {
+				limit = { has_war_with = LIT }
+				set_global_flag = polaklit_war
+				set_country_flag = INT_POL_lithuanian_war_started
+				clr_country_flag = INT_POL_lithuanian_event_queued
+			}
+		}
+	}
+}
+
+INT_POL_apply_suwalki = {
+	if = {
+		limit = { INT_POL_suwalki_ready = yes }
+		white_peace = { tag = LIT }
+		if = {
+			limit = { NOT = { has_war_with = LIT } }
+			1029 = {
+				if = {
+					limit = {
+						is_owned_by = LIT
+						OR = { is_fully_controlled_by = LIT is_fully_controlled_by = POL }
+					}
+					transfer_state_to = POL
+				}
+			}
+			set_global_flag = suwalki
+			news_event = { id = ww1_postwar_news.18 hours = 6 }
+			clr_country_flag = INT_POL_lithuanian_event_queued
+		}
+	}
+}
+
+INT_POL_apply_vilnius_handover = {
+	if = {
+		limit = { INT_POL_vilnius_handover_ready = yes }
+		784 = { transfer_state_to = POL }
+		if = {
+			limit = { 784 = { is_owned_by = POL } }
+			set_global_flag = zeligowski
+			clr_country_flag = INT_POL_lithuanian_event_queued
+		}
+	}
+}
+
+# Retry only the existing country events. Their option effects recheck the same guards.
+INT_POL_update_lithuanian_timetable = {
+	if = {
+		limit = {
+			INT_POL_lithuanian_historical_context = yes
+			NOT = { has_country_flag = INT_POL_lithuanian_event_queued }
+		}
+		if = {
+			limit = { INT_POL_lithuanian_campaign_ready = yes }
+			set_country_flag = { flag = INT_POL_lithuanian_event_queued days = 7 }
+			country_event = { id = ww1_baltic.6 hours = 1 }
+		}
+		else_if = {
+			limit = { INT_POL_suwalki_ready = yes }
+			set_country_flag = { flag = INT_POL_lithuanian_event_queued days = 7 }
+			country_event = { id = ww1_baltic.7 hours = 1 }
+		}
+		else_if = {
+			limit = { INT_POL_vilnius_handover_ready = yes }
+			set_country_flag = { flag = INT_POL_lithuanian_event_queued days = 7 }
+			country_event = { id = ww1_baltic.8 hours = 1 }
+		}
+	}
+}
+
+# The 1918 order of battle supplies three small brigades. Form the field army
+# once the new republic has a front, including a campaign already in progress.
+INT_POL_mobilize_field_army = {
+	if = {
+		limit = {
+			tag = POL
+			date > 1918.10.31 date < 1921.3.18
+			OR = { has_war_with = WUR INT_eastern_defending_independence = yes }
+			is_subject = no has_capitulated = no
+			10 = { is_owned_by = POL is_controlled_by = POL }
+			NOT = { has_country_flag = INT_POL_field_army_mobilized }
+		}
+		set_country_flag = INT_POL_field_army_mobilized
+		if = {
+			limit = { num_divisions < 12 }
+			if = {
+				limit = { NOT = { has_template = "Dywizja Piechoty" } }
+				division_template = {
+					name = "Dywizja Piechoty"
+					regiments = {
+						infantry = { x = 0 y = 0 } infantry = { x = 0 y = 1 } infantry = { x = 0 y = 2 }
+						infantry = { x = 1 y = 0 } infantry = { x = 1 y = 1 } infantry = { x = 1 y = 2 }
+					}
+				}
+			}
+			10 = {
+				create_unit = {
+					division = "division_template = \"Dywizja Piechoty\" start_experience_factor = 0.25 start_equipment_factor = 0.85"
+					owner = POL count = 7 allow_spawning_on_enemy_provs = no
+				}
+			}
+			add_equipment_to_stockpile = { type = early_infantry_equipment_2 amount = 4500 producer = POL }
+			add_equipment_to_stockpile = { type = rations_1 amount = 60000 producer = POL }
+			add_manpower = 15000
+		}
+	}
+}

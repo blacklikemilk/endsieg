@@ -234,7 +234,7 @@ FIN_motti_tactics_category = {
 				is_controlled_by = ROOT
 			}
 		}
-		
+
 		cancel_if_not_visible = yes
 
 		custom_cost_trigger = {
@@ -264,7 +264,7 @@ FIN_motti_tactics_category = {
 			hidden_effect = {
 				divide_variable = { FIN_motti_decision_cost = FIN_motti_decision_cost_increase }
 				set_variable = { FIN_motti_decision_cost_for_trigger = FIN_motti_decision_cost } #For trigger purposes
-				subtract_from_variable = { FIN_motti_decision_cost_for_trigger = 1 } 
+				subtract_from_variable = { FIN_motti_decision_cost_for_trigger = 1 }
 			}
 		}
 
@@ -275,17 +275,17 @@ FIN_motti_tactics_category = {
 				multiply_temp_variable = { FIN_remove_mana_cost = -1 }
 				add_command_power = FIN_remove_mana_cost
 				add_political_power = FIN_remove_mana_cost
-				
+
 				multiply_variable = { FIN_motti_decision_cost = FIN_motti_decision_cost_increase }
 				set_variable = { FIN_motti_decision_cost_for_trigger = FIN_motti_decision_cost } #For trigger purposes
-				subtract_from_variable = { FIN_motti_decision_cost_for_trigger = 1 } 
+				subtract_from_variable = { FIN_motti_decision_cost_for_trigger = 1 }
 			}
 
 			custom_effect_tooltip = FIN_motti_tactics_cost_increase_tt
 		}
 
 		remove_effect = {
-			FROM = {	
+			FROM = {
 				add_dynamic_modifier = { modifier = FIN_motti_tactics_modifier }
 			}
 
@@ -300,6 +300,17 @@ FIN_motti_tactics_category = {
 
 		ai_will_do = {
 			base = 0.1
+			modifier = {
+				factor = 0
+				FROM = {
+					is_fully_controlled_by = ROOT
+					all_neighbor_state = {
+						controller = {
+							NOT = { has_war_with = ROOT }
+						}
+					}
+				}
+			}
 			modifier = {
 				factor = 10
 				FROM = {
@@ -335,6 +346,17 @@ FIN_motti_tactics_category = {
 				}
 				NOT = { has_country_flag = banned_communism_flag }
 				NOT = { has_completed_focus = FIN_the_lone_wolf }
+			}
+			modifier = { # Save PP for FIN_request_an_armistice_with_moscow, which gets +200 weight here
+				factor = 0
+				surrender_progress > 0.4
+				has_war_with = SOV
+				GER = { has_war_with = SOV }
+				has_completed_focus = FIN_cooperation_with_germany
+				is_in_faction = no
+				has_civil_war = no
+				NOT = { has_country_flag = FIN_already_attempted_an_armistice }
+				NOT = { has_country_flag = FIN_negotiating_switching_sides_flag }
 			}
 		}
 	}
@@ -2377,7 +2399,7 @@ FIN_foreign_politics_decision_category = {
 			base = 0.2
 			modifier = {
 				add = ROOT.surrender_progress
-				always = yes 
+				always = yes
 			}
 
 			modifier = { # Try to do it by historical time if possible
@@ -2420,17 +2442,17 @@ FIN_foreign_politics_decision_category = {
 				factor = 1.5
 				SOV = { has_country_flag = SOV_order_227_flag }
 			}
-			modifier = { # Don't Do it if you, Germany or any of their Allies hold Leningrad or Moscow and you are not very close to collapsing 
+			modifier = { # Don't Do it if you, Germany or any of their Allies hold Leningrad or Moscow and you are not very close to collapsing
 				factor = 0
-				surrender_progress < 0.75
+				surrender_progress < 0.4
 				OR = {
 					195 = { # Leningrad
-						OR = { 
-							
+						OR = {
+
 							is_controlled_by = ROOT
 
 							is_controlled_by = GER
-							
+
 							any_country = {
 								OR = {
 									is_in_faction_with = GER
@@ -2441,12 +2463,12 @@ FIN_foreign_politics_decision_category = {
 						}
 					}
 					219 = { # Mocow
-						OR = { 
-							
+						OR = {
+
 							is_controlled_by = ROOT
-							
+
 							is_controlled_by = GER
-							
+
 							any_country = {
 								OR = {
 									is_in_faction_with = GER
@@ -2460,14 +2482,14 @@ FIN_foreign_politics_decision_category = {
 			}
 			modifier = { # Stalingrad feels a little less safe than the others
 				factor = 0.5
-				surrender_progress < 0.75
+				surrender_progress < 0.4
 				217 = { # Stalingrad
-					OR = { 
-						
+					OR = {
+
 						is_controlled_by = ROOT
-						
+
 						is_controlled_by = GER
-						
+
 						any_country = {
 							OR = {
 								is_in_faction_with = GER
@@ -2489,7 +2511,7 @@ FIN_foreign_politics_decision_category = {
 			}
 			modifier = { # Panic mode
 				add = 200
-				check_variable = { ROOT.surrender_progress > 0.75 } 
+				check_variable = { ROOT.surrender_progress > 0.4 }
 			}
 		}
 
@@ -2523,7 +2545,7 @@ FIN_foreign_politics_decision_category = {
 				}
 				SOV = {
 					has_idea = SOV_the_rush_for_berlin
-				} 
+				}
 				SOV = {
 					has_active_mission = SOV_operation_iskra_ongoing
 				}
@@ -2565,9 +2587,9 @@ FIN_foreign_politics_decision_category = {
 			}
 
 			SOV = {
-				country_event = { 
-					id = AAT_finland_continuation_war.08 
-					days = 1 
+				country_event = {
+					id = AAT_finland_continuation_war.08
+					days = 1
 					random_days = 3
 				}
 			}
@@ -2581,7 +2603,7 @@ FIN_foreign_politics_decision_category = {
 					### TRANSFER STATES ###
 					#KARJALA
 					IF = {
-						limit = {	
+						limit = {
 							146 = {
 								is_owned_by = FIN
 							}
@@ -2606,7 +2628,7 @@ FIN_foreign_politics_decision_category = {
 					#PETSAMO
 					IF = {
 						limit = {
-							722 = {	
+							722 = {
 								is_owned_by = FIN
 							}
 						}
@@ -2621,7 +2643,7 @@ FIN_foreign_politics_decision_category = {
 						equipment = infantry_equipment
 						amount = 2500
 						target = SOV
-					}	
+					}
 					send_equipment = {
 						equipment = support_equipment
 						amount = 500

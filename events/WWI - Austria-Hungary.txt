@@ -1432,51 +1432,23 @@ country_event = {
 	desc = ww1_kuk.51.d
 	picture = GFX_report_event_armistice_of_villa_giusti
 
-	hidden = yes
-
 	trigger = {
-		NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-		NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-		NOT = { has_country_flag = WW1_HAB_crown_settlement }
-		has_global_flag = welcome_event_WW1_active
 		tag = AUH
-		# The German-managed route owns this settlement window; prevent the
-		# historical Villa Giusti resolver from racing its staged partition.
-		NOT = { has_global_flag = GE1_R_AUH_managed_partition_active }
-		has_global_flag = banat_declaration
-		has_global_flag = aster_revolution
-		# Hungary and Czechoslovakia normally leave peacefully during the Aster
-		# Revolution, so their wars cannot be prerequisites for the armistice.
-		has_war_with = ITA
-		has_war_with = GRE
-		NOT = { has_global_flag = player_wants_custom_peacedeals }
-		NOT = { date > 1932.12.1 }
-
-		NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
-		NOT = { has_country_flag = AUH_ww1_austrian_remnant }
-
-        date < 1936.1.1
-
-        NOT = { has_global_flag = WW1_HAB_protocol_pending }
-
-    }
-
+		WW1_AUH_historical_armistice_ready = yes
+		NOT = { WW1_AUH_revolution_ready = yes }
+		NOT = { has_country_flag = WW1_AUH_armistice_presented }
+	}
 	mean_time_to_happen = { days = 1 }
-
 	immediate = {
-		if = {
-			limit = {
-				tag = AUH
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-			}
-			set_country_flag = WW1_HAB_peace_protocol_pending
-			country_event = { id = ww1_crownlands.20 hours = 1 }
-		}
+		set_country_flag = WW1_AUH_armistice_presented
+		log = "WW1: Austria-Hungary received the Villa Giusti terms."
 	}
 
-
+	option = {
+		name = ww1_kuk.51.a
+		custom_effect_tooltip = WW1_historical_option_tt
+		WW1_AUH_apply_historical_armistice = yes
+	}
 }
 
 # Armistice of Villa Giusti ###UNDEFINED#####
@@ -1486,48 +1458,11 @@ country_event = {
 	desc = ww1_kuk.59.d
 	picture = GFX_report_event_armistice_of_villa_giusti
 
+	is_triggered_only = yes
 	hidden = yes
+	trigger = { WW1_AUH_historical_armistice_ready = yes }
 
-	trigger = {
-		NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-		NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-		NOT = { has_country_flag = WW1_HAB_crown_settlement }
-		has_global_flag = welcome_event_WW1_active
-		tag = AUH
-		NOT = { has_global_flag = GE1_R_AUH_managed_partition_active }
-		surrender_progress > 0.30
-		NOT = { has_global_flag = welcome_event_1918 }
-		# Let the Aster Revolution use its dedicated Villa Giusti settlement.
-		NOT = { has_global_flag = aster_revolution }
-		NOT = { has_global_flag = banat_declaration }
-		NOT = { has_global_flag = player_wants_custom_peacedeals }
-		NOT = { date > 1932.12.1 }
-
-		NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
-		NOT = { has_country_flag = AUH_ww1_austrian_remnant }
-
-        date < 1936.1.1
-
-        NOT = { has_global_flag = WW1_HAB_protocol_pending }
-
-    }
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		if = {
-			limit = {
-				tag = AUH
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-			}
-			set_country_flag = WW1_HAB_peace_protocol_pending
-			country_event = { id = ww1_crownlands.20 hours = 1 }
-		}
-	}
-
-
+	immediate = { WW1_AUH_queue_historical_armistice = yes }
 }
 
 # Banat Republic Declares Independence
@@ -1537,48 +1472,11 @@ country_event = {
 	desc = ww1_kuk.52.d
 	picture = GFX_report_event_banat
 
+	is_triggered_only = yes
 	hidden = yes
+	trigger = { WW1_AUH_historical_armistice_ready = yes }
 
-	trigger = {
-		NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-		NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-		NOT = { has_country_flag = WW1_HAB_crown_settlement }
-		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
-		NOT = { has_country_flag = AUH_ww1_orderly_partition }
-		# Ratified reform can hold the monarchy together until civic order or the army collapses.
-		OR = {
-			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
-			has_stability < 0.40
-			surrender_progress > 0.30
-			has_capitulated = yes
-			AND = { country_has_war_exhaustion = yes check_variable = { war_exhaustion_variable > 1700 } }
-		}
-		has_global_flag = welcome_event_WW1_active
-		tag = AUH
-		AND = { country_has_war_exhaustion = yes check_variable = { war_exhaustion_variable > 1556 } }
-		NOT = { country_exists = BAN }
-
-        date < 1936.1.1
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_active }
-        NOT = { has_global_flag = WW1_HAB_protocol_pending }
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
-    }
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		if = {
-			limit = {
-				tag = AUH
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-			}
-			set_country_flag = WW1_HAB_peace_protocol_pending
-			country_event = { id = ww1_crownlands.20 hours = 1 }
-		}
-	}
-
+	immediate = { WW1_AUH_queue_historical_armistice = yes }
 }
 
 # Czechoslovakia Declares Independence
@@ -1588,48 +1486,11 @@ country_event = {
 	desc = ww1_kuk.53.d
 	picture = GFX_report_event_czech_independence
 
+	is_triggered_only = yes
 	hidden = yes
+	trigger = { WW1_AUH_historical_armistice_ready = yes }
 
-	trigger = {
-		NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-		NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-		NOT = { has_country_flag = WW1_HAB_crown_settlement }
-		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
-		NOT = { has_country_flag = AUH_ww1_orderly_partition }
-		# Ratified reform can hold the monarchy together until civic order or the army collapses.
-		OR = {
-			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
-			has_stability < 0.40
-			surrender_progress > 0.30
-			has_capitulated = yes
-			AND = { country_has_war_exhaustion = yes check_variable = { war_exhaustion_variable > 1700 } }
-		}
-		has_global_flag = welcome_event_WW1_active
-		tag = AUH
-		AND = { country_has_war_exhaustion = yes check_variable = { war_exhaustion_variable > 1554 } }
-		NOT = { country_exists = CZE }
-
-        date < 1936.1.1
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_active }
-        NOT = { has_global_flag = WW1_HAB_protocol_pending }
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
-    }
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		if = {
-			limit = {
-				tag = AUH
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-			}
-			set_country_flag = WW1_HAB_peace_protocol_pending
-			country_event = { id = ww1_crownlands.20 hours = 1 }
-		}
-	}
-
+	immediate = { WW1_AUH_queue_historical_armistice = yes }
 }
 
 # West Ukraine Declares Independence
@@ -1641,85 +1502,21 @@ country_event = {
 
 	is_triggered_only = yes
 	hidden = yes
-	trigger = {
-		NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-		NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-		NOT = { has_country_flag = WW1_HAB_crown_settlement }
-		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
-		NOT = { has_country_flag = AUH_ww1_orderly_partition }
+	trigger = { WW1_AUH_historical_armistice_ready = yes }
 
-        date < 1936.1.1
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_active }
-        NOT = { has_global_flag = WW1_HAB_protocol_pending }
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
-    }
-
-	immediate = {
-		if = {
-			limit = {
-				tag = AUH
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-			}
-			set_country_flag = WW1_HAB_peace_protocol_pending
-			country_event = { id = ww1_crownlands.20 hours = 1 }
-		}
-	}
-
+	immediate = { WW1_AUH_queue_historical_armistice = yes }
 }
 
 # Martin Declaration
 country_event = {
-	id = ww1_kuk.55
-	title = ww1_kuk.55.t
-	desc = ww1_kuk.55.d
-	picture = GFX_report_event_martin_declaration
-
-	is_triggered_only = yes
-
-	trigger = {
-		NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-		NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-		NOT = { AUH = { has_country_flag = WW1_HAB_crown_settlement } }
-		NOT = { AUH = { has_country_flag = WW1_HAB_peace_protocol_pending } }
-		NOT = { AUH = { has_country_flag = WW1_HAB_peace_offer_refused } }
-		NOT = { HUN = { has_country_flag = WW1_HAB_crown_settlement } }
-		NOT = { has_country_flag = WW1_HAB_crown_settlement }
-		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
-		NOT = { has_country_flag = AUH_ww1_orderly_partition }
-		# Ratified reform can hold the monarchy together until civic order or the army collapses.
-		OR = {
-			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
-			has_stability < 0.40
-			surrender_progress > 0.30
-			has_capitulated = yes
-			AND = { country_has_war_exhaustion = yes check_variable = { war_exhaustion_variable > 1700 } }
-		}
-		has_global_flag = welcome_event_WW1_active country_exists = CZE }
-
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = ww1_kuk.55.a
-		if = {
-			limit = {
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-				NOT = { AUH = { has_country_flag = WW1_HAB_crown_settlement } }
-				NOT = { AUH = { has_country_flag = WW1_HAB_peace_protocol_pending } }
-				NOT = { AUH = { has_country_flag = WW1_HAB_peace_offer_refused } }
-				NOT = { HUN = { has_country_flag = WW1_HAB_crown_settlement } }
-			}
-			set_global_flag = martin_declaration
-			news_event = { hours = 6 id = endsieg_news.170 }
-			CZE = {
-				transfer_state = 70
-				transfer_state = 71
-				transfer_state = 664
-			}
-		}
-	}
+ id = ww1_kuk.55
+ title = ww1_kuk.55.t
+ desc = ww1_kuk.55.d
+ picture = GFX_report_event_martin_declaration
+ is_triggered_only = yes
+ hidden = yes
+ trigger = { tag = AUH }
+ immediate = { WW1_AUH_queue_historical_armistice = yes }
 }
 
 # Aster Revolution
@@ -1729,151 +1526,34 @@ country_event = {
 	desc = ww1_kuk.56.d
 	picture = GFX_report_event_aster_revolution
 
-	hidden = yes
-
-	trigger = {
-		NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-		NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-		NOT = { has_country_flag = WW1_HAB_crown_settlement }
-		NOT = { has_country_flag = AUH_ww1_confederation_ratified }
-		NOT = { has_country_flag = AUH_ww1_orderly_partition }
-		# Ratified reform can hold the monarchy together until civic order or the army collapses.
-		OR = {
-			NOT = { OR = { has_country_flag = AUH_ww1_trialism_ratified has_country_flag = AUH_ww1_federation_ratified has_country_flag = AUH_ww1_danubian_republic } }
-			has_stability < 0.40
-			surrender_progress > 0.30
-			has_capitulated = yes
-			AND = { country_has_war_exhaustion = yes check_variable = { war_exhaustion_variable > 1700 } }
-		}
-		has_global_flag = welcome_event_WW1_active
-		tag = AUH
-		AND = { country_has_war_exhaustion = yes check_variable = { war_exhaustion_variable > 1554 } }
-
-        date < 1936.1.1
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_active }
-        NOT = { has_global_flag = WW1_HAB_protocol_pending }
-        NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete }
-    }
-
-	mean_time_to_happen = { days = 1 }
-
-	immediate = {
-		if = {
-			limit = {
-				tag = AUH
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-			}
-			set_country_flag = WW1_HAB_peace_protocol_pending
-			set_global_flag = aster_revolution
-			country_event = { id = ww1_crownlands.20 hours = 1 }
-		}
+	is_triggered_only = yes
+	trigger = { WW1_AUH_revolution_ready = yes }
+	immediate = { set_country_flag = WW1_AUH_revolution_presented }
+	option = {
+		name = ww1_kuk.56.a
+		custom_effect_tooltip = WW1_historical_option_tt
+		WW1_AUH_begin_aster_revolution = yes
 	}
-
 }
 
-# Yugoslav Invasion of Banat
+# Serbian occupation of the Banat.
 country_event = {
 	id = ww1_kuk.57
-	title = ww1_kuk.57.t
-	desc = ww1_kuk.57.d
-	picture = GFX_report_event_banat
-
-	fire_only_once = yes
-
-	trigger = {
-		NOT = { AUH = { has_country_flag = WW1_HAB_peace_protocol_pending } }
-		NOT = { AUH = { has_country_flag = WW1_HAB_peace_offer_refused } }
-		NOT = { AUH = { has_country_flag = WW1_HAB_crown_settlement } }
-		NOT = { HUN = { has_country_flag = WW1_HAB_crown_settlement } }
-		has_global_flag = welcome_event_WW1_active
-		tag = YUG
-		has_global_flag = armistice_of_villa_giusti
-		country_exists = BAN
-	}
-
+	hidden = yes
+	trigger = { WW1_AUH_banat_occupation_due = yes }
 	mean_time_to_happen = { days = 1 }
-
-	option = {
-		name = ww1_kuk.57.a
-		ai_chance = { factor = 100 }
-		if = {
-			limit = {
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-				NOT = { AUH = { has_country_flag = WW1_HAB_crown_settlement } }
-				NOT = { AUH = { has_country_flag = WW1_HAB_peace_protocol_pending } }
-				NOT = { AUH = { has_country_flag = WW1_HAB_peace_offer_refused } }
-				NOT = { HUN = { has_country_flag = WW1_HAB_crown_settlement } }
-			}
-			news_event = { hours = 6 id = endsieg_news.172 }
-			BAN = {
-				leave_faction = yes
-				add_timed_idea = { idea = no_faction_joining days = 100 }
-			}
-			YUG = {
-				declare_war_on = { target = BAN type = annex_everything }
-			}
-			set_global_flag = YUG_invading_BAN
-		}
-	}
-	option = {
-		name = ww1_kuk.57.b
-		ai_chance = { factor = 0 }
-		# Spare them
-	}
+	immediate = { WW1_AUH_update_banat = yes }
 }
 
-# Division of Banat
+# Pending callbacks from older saves use the same occupation handler.
 country_event = {
 	id = ww1_kuk.58
-	title = ww1_kuk.58.t
-	desc = ww1_kuk.58.d
-	picture = GFX_report_event_banat
-
-	fire_only_once = yes
-
+	is_triggered_only = yes
+	hidden = yes
 	trigger = {
-		NOT = { AUH = { has_country_flag = WW1_HAB_peace_protocol_pending } }
-		NOT = { AUH = { has_country_flag = WW1_HAB_peace_offer_refused } }
-		NOT = { AUH = { has_country_flag = WW1_HAB_crown_settlement } }
-		NOT = { HUN = { has_country_flag = WW1_HAB_crown_settlement } }
-		has_global_flag = welcome_event_WW1_active
-		tag = YUG
-		OR = {
-			BAN = { is_puppet_of = YUG }
-			NOT = { country_exists = BAN }
-			BAN = { has_capitulated = yes }
-		}
-		has_global_flag = YUG_invading_BAN
+		OR = { WW1_AUH_banat_occupation_due = yes WW1_AUH_banat_romanian_handover_due = yes }
 	}
-
-	mean_time_to_happen = { days = 1 }
-
-	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
-		name = ww1_kuk.58.a
-		if = {
-			limit = {
-				NOT = { has_country_flag = WW1_HAB_crown_settlement }
-				NOT = { has_country_flag = WW1_HAB_peace_protocol_pending }
-				NOT = { has_country_flag = WW1_HAB_peace_offer_refused }
-				NOT = { AUH = { has_country_flag = WW1_HAB_crown_settlement } }
-				NOT = { AUH = { has_country_flag = WW1_HAB_peace_protocol_pending } }
-				NOT = { AUH = { has_country_flag = WW1_HAB_peace_offer_refused } }
-				NOT = { HUN = { has_country_flag = WW1_HAB_crown_settlement } }
-			}
-			news_event = { hours = 6 id = endsieg_news.41 }
-			YUG = {
-				transfer_state = 764
-			}
-			ROM = {
-				transfer_state = 82
-			}
-		}
-	}
+	immediate = { WW1_AUH_update_banat = yes }
 }
 
 # Welcome

@@ -1,0 +1,40 @@
+on_actions = {
+	on_monthly = {
+		effect = {
+			if = {
+				limit = { has_start_date < 1919.1.1 }
+				if = {
+					limit = {
+						OR = { tag = FRA tag = ENG }
+						has_war_with = GER
+						NOT = { has_global_flag = compiegne }
+						NOT = { has_global_flag = central_powers_victory }
+						NOT = { has_country_flag = INT_fought_germany_in_great_war }
+					}
+					set_country_flag = INT_fought_germany_in_great_war
+				}
+				if = {
+					limit = {
+						OR = {
+							has_global_flag = compiegne
+							has_global_flag = versailles
+							# A negotiated or averted war may never set a scripted victory flag.
+							AND = {
+								date > 1935.12.31
+								has_war = no
+								NOT = { GER = { OR = { has_war_with = FRA has_war_with = ENG has_war_with = RIE } } }
+								NOT = { AUH = { OR = { has_war_with = FRA has_war_with = ITA has_war_with = RIE has_war_with = SER } } }
+								NOT = { TUR = { OR = { has_war_with = ENG has_war_with = RIE } } }
+							}
+							has_global_flag = central_powers_victory
+							AND = { tag = BUL has_global_flag = armistice_of_salonica }
+							AND = { tag = TUR has_global_flag = armistice_of_mudros }
+							AND = { original_tag = AUH has_global_flag = armistice_of_villa_giusti }
+						}
+					}
+					INT_update_postwar_national_spirits = yes
+				}
+			}
+		}
+	}
+}

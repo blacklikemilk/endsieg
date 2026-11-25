@@ -1209,25 +1209,33 @@ country_event = {
 	title = ww1_russia.43.t
 	desc = {
 		text = ww1_russia.43.d
-		trigger = { tag = SOV }
+		trigger = { tag = SOV NOT = { has_country_flag = RUS_ww1_brest_limited_offer } }
 	}
 	desc = {
 		text = ww1_russia.43.imperial.d
-		trigger = { tag = RIE }
+		trigger = { tag = RIE NOT = { has_country_flag = RUS_ww1_brest_limited_offer } }
+	}
+	desc = {
+		text = ww1_brest.limited_russian_terms
+		trigger = { has_country_flag = RUS_ww1_brest_limited_offer }
 	}
 	picture = GFX_report_event_treaty_of_brest_litovsk
 
 	# Completion flags make replays safe while allowing a cancelled pending event to retry.
 
-	trigger = { RUS_ww1_brest_ready = yes }
+	trigger = { RUS_ww1_brest_ready = yes has_country_flag = RUS_ww1_brest_offer_received }
 
 	is_triggered_only = yes
 
 	option = {
-		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_russia.43.a
+		ai_chance = { factor = 100 }
 		if = {
-			limit = { RUS_ww1_brest_ready = yes }
+			limit = { NOT = { has_country_flag = RUS_ww1_brest_limited_offer } }
+			custom_effect_tooltip = WW1_historical_option_tt
+		}
+		if = {
+			limit = { RUS_ww1_brest_ready = yes has_country_flag = RUS_ww1_brest_offer_received }
 
             # Record the pre-treaty status: do not impose new governments on
             # countries that were already independent of this signatory.
@@ -1238,6 +1246,7 @@ country_event = {
             if = { limit = { OR = { NOT = { country_exists = POL } POL = { is_subject_of = ROOT } } } set_country_flag = RUS_ww1_brest_manage_POL }
             if = {
                 limit = {
+                    RUS_ww1_uses_historical_finnish_timeline = no
                     NOT = { country_exists = FNN }
                     NOT = { country_exists = FNR }
                     OR = { 111 = { is_owned_and_controlled_by = ROOT } 145 = { is_owned_and_controlled_by = ROOT } 146 = { is_owned_and_controlled_by = ROOT } 147 = { is_owned_and_controlled_by = ROOT } 148 = { is_owned_and_controlled_by = ROOT } 149 = { is_owned_and_controlled_by = ROOT } 150 = { is_owned_and_controlled_by = ROOT } 926 = { is_owned_and_controlled_by = ROOT } 927 = { is_owned_and_controlled_by = ROOT } 928 = { is_owned_and_controlled_by = ROOT } 929 = { is_owned_and_controlled_by = ROOT } 930 = { is_owned_and_controlled_by = ROOT } 986 = { is_owned_and_controlled_by = ROOT } 1017 = { is_owned_and_controlled_by = ROOT } }
@@ -1248,13 +1257,16 @@ country_event = {
         # Withdraw only the Russian signatory from its former alliance and war.
         set_global_flag = treaty_of_brest_litovsk
         if = {
+            limit = { has_country_flag = RUS_ww1_brest_limited_offer }
+            set_global_flag = RUS_ww1_brest_limited_treaty
+        }
+        if = {
             limit = { has_idea = RUS_ww1_brest_demobilising_army }
             remove_ideas = RUS_ww1_brest_demobilising_army
         }
         if = { limit = { is_in_faction = yes } leave_faction = yes }
         RUS_ww1_enforce_brest_peace = yes
 
-		news_event = { hours = 6 id = endsieg_news.225 }
 		hidden_effect = {
 			UBD = {
 			#Estonia
@@ -1335,7 +1347,7 @@ country_event = {
 			if = { limit = { 227 = { is_owned_by = ROOT } } transfer_state = 227 }
 			if = { limit = { 221 = { is_owned_by = ROOT } } transfer_state = 221 }
 			if = { limit = { 228 = { is_owned_by = ROOT } } transfer_state = 228 }
-			if = { limit = { 218 = { is_owned_by = ROOT } } transfer_state = 218 }
+			if = { limit = { is_historical_focus_on = no 218 = { is_owned_by = ROOT } } transfer_state = 218 }
 			93 = { add_core_of = UKR }
 			199 = { add_core_of = UKR }
 			201 = { add_core_of = UKR }
@@ -1355,11 +1367,11 @@ country_event = {
 			227 = { add_core_of = UKR }
 			221 = { add_core_of = UKR }
 			228 = { add_core_of = UKR }
-			218 = { add_core_of = UKR }
+			if = { limit = { is_historical_focus_on = no } 218 = { add_core_of = UKR } }
 			}
 
 			if = {
-				limit = { has_country_flag = RUS_ww1_brest_create_finnish_pair }
+				limit = { has_country_flag = RUS_ww1_brest_create_finnish_pair RUS_ww1_uses_historical_finnish_timeline = no }
 				RUS_ww1_establish_finland = yes
 				RUS_ww1_start_finnish_civil_war = yes
 			}
@@ -1379,7 +1391,11 @@ country_event = {
 			}
 			SOV = { if = { limit = { 999 = { is_owned_by = ROOT } } transfer_state = 999 } }
 
-			GER = { if = { limit = { 137 = { is_owned_by = ROOT } } transfer_state = 137 } } #Crimea
+			if = {
+				limit = { NOT = { has_country_flag = RUS_ww1_brest_limited_offer } }
+				GER = { if = { limit = { 137 = { is_owned_by = ROOT } } transfer_state = 137 } }
+			}
+			TRC = { RUS_ww1_establish_transcaucasian_protectorate = yes }
 			if = {
 				limit = {
 					NOT = {
@@ -1413,12 +1429,39 @@ country_event = {
 			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UBD } country_exists = UBD } puppet = UBD }
 			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_LIT } country_exists = LIT } puppet = LIT }
 			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_BLR } country_exists = BLR } puppet = BLR }
-			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UKR } country_exists = UKR } puppet = UKR }
-			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_POL } POL = { exists = yes is_puppet = no } } puppet = POL }
+			if = {
+				limit = {
+					ROOT = { NOT = { has_country_flag = RUS_ww1_brest_limited_offer } }
+					UKR = {
+						exists = yes
+						NOT = { has_war_with = GER }
+						OR = { is_subject_of = ROOT AND = { is_subject = no OR = { is_in_faction = no is_in_faction_with = GER } } }
+					}
+				}
+				puppet = UKR
+			}
+			else_if = {
+				limit = { ROOT = { has_country_flag = RUS_ww1_brest_limited_offer } UKR = { exists = yes is_subject_of = ROOT } }
+				ROOT = { set_autonomy = { target = UKR autonomy_state = autonomy_free end_wars = no end_civil_wars = no } }
+			}
+			if = {
+				limit = {
+					OR = {
+						ROOT = { has_country_flag = RUS_ww1_brest_manage_POL }
+						ROOT = { NOT = { has_country_flag = RUS_ww1_brest_limited_offer } }
+					}
+					POL = {
+						exists = yes
+						NOT = { has_war_with = GER }
+						OR = { is_subject_of = ROOT AND = { is_subject = no OR = { is_in_faction = no is_in_faction_with = GER } } }
+					}
+				}
+				puppet = POL
+			}
 			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UBD } UBD = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = UBD }
 			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_LIT } LIT = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = LIT }
 			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_BLR } BLR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = BLR }
-			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UKR } UKR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = UKR }
+			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UKR NOT = { has_country_flag = RUS_ww1_brest_limited_offer } } UKR = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = UKR }
 			if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_POL } POL = { WW1_focus_authorizes_faction_entry_from_previous = yes } } add_to_faction = POL }
 		}
 		if = {
@@ -1467,7 +1510,26 @@ country_event = {
 			}
 			UKR = {
                 if = { limit = { ROOT = { has_country_flag = RUS_ww1_brest_manage_UKR } }
+				if = {
+					limit = { date < 1918.4.29 }
+					drop_cosmetic_tag = yes
+					set_politics = { ruling_party = democratic last_election = "1917.1.12" election_frequency = 60 elections_allowed = yes }
+					set_popularities = { fascism = 0 neutrality = 25 democratic = 60 communism = 15 }
+					if = {
+						limit = { NOT = { has_country_leader = { name = "Mykhailo Hrushevsky" ruling_only = yes } } }
+						retire_country_leader = yes
+						create_country_leader = {
+							name = "Mykhailo Hrushevsky"
+							picture = "gfx/leaders/UKR/Portrait_Ukraine_Mykhailo_Hrushevsky.dds"
+							ideology = conservatism
+							expire = "1953.3.1"
+						}
+					}
+				}
+				else = {
 				set_cosmetic_tag = UKR_HET
+				set_country_flag = skoropadskytakesover
+				set_global_flag = hetmanate
 				set_politics = {
 					ruling_party = neutrality
 					last_election = "1907.1.12"
@@ -1483,6 +1545,7 @@ country_event = {
 				retire_country_leader = yes
 				endsieg_character_activate_ukr_pavlo_skoropadsky_3aea4adf = yes
 				UKR_pavlo_skoropadsky = { promote_character = yes }
+				}
 
                 }
 			}
@@ -1500,7 +1563,28 @@ country_event = {
 		clr_country_flag = RUS_ww1_brest_manage_POL
 		clr_country_flag = RUS_ww1_brest_create_finnish_pair
 		clr_country_flag = RUS_ww1_brest_queued
+		clr_country_flag = RUS_ww1_brest_offer_received
+		clr_country_flag = RUS_ww1_brest_limited_offer
+		news_event = { hours = 6 id = endsieg_news.225 }
 
+		}
+	}
+	option = {
+		name = ww1_brest.refuse_terms
+		trigger = { has_capitulated = no }
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 0
+				OR = { is_historical_focus_on = yes has_country_flag = RUS_ww1_brest_limited_offer }
+			}
+		}
+		hidden_effect = {
+			clr_country_flag = RUS_ww1_brest_offer_received
+			clr_country_flag = RUS_ww1_brest_limited_offer
+			clr_country_flag = RUS_ww1_brest_queued
+			set_country_flag = RUS_ww1_brest_queued
+			GER = { country_event = { id = ww1_brest.6 hours = 1 } }
 		}
 	}
 }
@@ -1539,14 +1623,22 @@ country_event = {
  desc = ww1_russia.45.d
  picture = GFX_report_event_finland_declaration
  is_triggered_only = yes
- trigger = { NOT = { country_exists = FNN } NOT = { country_exists = FNR } }
+ trigger = {
+  NOT = { country_exists = FIN }
+  NOT = { country_exists = FNN }
+  NOT = { country_exists = FNR }
+  RUS_ww1_uses_historical_finnish_timeline = no
+ }
  option = {
   custom_effect_tooltip = WW1_historical_option_tt
   name = ww1_russia.45.a
-  RUS_ww1_establish_finland = yes
   if = {
-   limit = { FNN = { exists = yes has_country_flag = RUS_ww1_finland_created_by_revolution } }
-   country_event = { id = ww1_russia.46 days = 26 }
+   limit = { RUS_ww1_uses_historical_finnish_timeline = no }
+   RUS_ww1_establish_finland = yes
+   if = {
+    limit = { FNN = { exists = yes has_country_flag = RUS_ww1_finland_created_by_revolution } }
+    country_event = { id = ww1_russia.46 days = 26 }
+   }
   }
  }
 }
@@ -1559,17 +1651,41 @@ country_event = {
  picture = GFX_report_event_fcw
  is_triggered_only = yes
  trigger = {
+  NOT = { has_global_flag = RUS_ww1_finnish_civil_war_started }
+  NOT = { has_global_flag = whiteswinfinland }
+  OR = {
+   RUS_ww1_uses_historical_finnish_timeline = no
+   RUS_ww1_historical_finnish_civil_war_ready = yes
+  }
   FNN = { exists = yes has_country_flag = RUS_ww1_finland_created_by_revolution }
   NOT = { country_exists = FNR }
   111 = { OR = { AND = { is_owned_by = ROOT is_fully_controlled_by = ROOT } AND = { is_owned_by = FNN is_fully_controlled_by = FNN } } }
  }
+ immediate = {
+  if = {
+   limit = { RUS_ww1_historical_finnish_civil_war_ready = yes }
+   RUS_ww1_start_finnish_civil_war = yes
+  }
+ }
+ option = {
+  name = ww1_russia.46.c
+  trigger = { RUS_ww1_uses_historical_finnish_timeline = yes }
+ }
  option = {
   name = ww1_russia.46.a
-  RUS_ww1_start_finnish_civil_war = yes
+  trigger = { RUS_ww1_uses_historical_finnish_timeline = no }
+  if = {
+   limit = { RUS_ww1_uses_historical_finnish_timeline = no }
+   RUS_ww1_start_finnish_civil_war = yes
+  }
  }
  option = {
   name = ww1_russia.46.b
-  RUS_ww1_start_finnish_civil_war = yes
+  trigger = { RUS_ww1_uses_historical_finnish_timeline = no }
+  if = {
+   limit = { RUS_ww1_uses_historical_finnish_timeline = no }
+   RUS_ww1_start_finnish_civil_war = yes
+  }
  }
 }
 

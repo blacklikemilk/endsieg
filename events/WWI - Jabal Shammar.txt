@@ -15,10 +15,11 @@ country_event = {
 
 	trigger = {
 		has_global_flag = welcome_event_WW1_active
-		has_start_date < 1920.9.8
-		NOT = { date > 1932.12.1 }
+		has_start_date < 1920.3.30
+		date < 1921.4.1
+		has_country_leader = { character = SHA_saud_abdulaziz ruling_only = yes }
 		tag = SHA
-		date > 1920.9.6
+		date > 1920.3.28
 	}
 
 	mean_time_to_happen = {
@@ -28,15 +29,10 @@ country_event = {
 	option = {
 		name = shammar.1.a
 		add_stability = -0.05
-		kill_country_leader = yes
-		create_country_leader = {
-			name = "Abdullah bin Mutʿib"
-			desc = "POLITICS_ABDULLAH_DESC"
-			picture = "gfx/leaders/leader_unknown.dds"
-			expire = "1943.1.1"
-			ideology = despotism
-			traits = { }
-		}
+		retire_character = SHA_saud_abdulaziz
+		if = { limit = { NOT = { has_character = SHA_abdullah_bin_mutaib } } recruit_character = SHA_abdullah_bin_mutaib }
+		promote_character = { character = SHA_abdullah_bin_mutaib ideology = despotism }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
 	}
 }
 
@@ -51,5 +47,92 @@ country_event = {
 
 	option = {
 		name = shammar.2.a
+		if = {
+			limit = { has_global_flag = armistice_of_mudros NOT = { has_global_flag = central_powers_victory } }
+			every_other_country = {
+				limit = { has_war_with = SHA OR = { tag = ENG tag = FRA tag = HEJ tag = EN3 is_in_faction_with = ENG is_subject_of = ENG } NOT = { tag = NEJ } }
+				white_peace = SHA
+			}
+			if = { limit = { is_in_faction_with = GER is_faction_leader = no } leave_faction = yes }
+		}
 	}
+}
+
+# Use the spring campaign to date Muhammad's contested accession. Abdullah was reported in Riyadh by August.
+country_event = {
+	id = shammar.3
+	title = shammar.3.t
+	desc = shammar.3.d
+	picture = GFX_report_event_shammar_war
+	fire_only_once = yes
+	trigger = {
+		tag = SHA owns_state = 1014 has_government = neutrality
+		has_start_date < 1921.4.1 date > 1921.3.31 date < 1922.1.1
+		OR = {
+			has_country_leader = { character = SHA_abdullah_bin_mutaib ruling_only = yes }
+			has_country_leader = { name = "Abdullah bin Mutʿib" ruling_only = yes }
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { NOT = { has_character = SHA_muhammad_bin_talal } } recruit_character = SHA_muhammad_bin_talal }
+		promote_character = { character = SHA_muhammad_bin_talal ideology = despotism }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+	}
+	option = { name = shammar.3.a }
+}
+
+# Replace the anonymous leader created by earlier versions, without replaying the assassination.
+country_event = {
+	id = shammar.4
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = SHA has_government = neutrality owns_state = 1014
+		has_start_date < 1920.9.8 date > 1920.3.28 date < 1921.4.1
+		has_country_leader = { name = "Abdullah bin Mutʿib" ruling_only = yes }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		if = { limit = { NOT = { has_character = SHA_abdullah_bin_mutaib } } recruit_character = SHA_abdullah_bin_mutaib }
+		promote_character = { character = SHA_abdullah_bin_mutaib ideology = despotism }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+	}
+}
+
+country_event = {
+	id = shammar.5
+	title = shammar.5.t
+	desc = shammar.5.d
+	picture = GFX_report_event_generic_sign_treaty2
+	fire_only_once = yes
+	trigger = {
+		tag = NEJ is_subject = no is_historical_focus_on = yes
+		has_start_date < 1913.5.9 date > 1913.5.8 date < 1914.1.1
+		owns_state = 292 has_capitulated = no
+		TUR = { is_ai = yes NOT = { has_war_with = NEJ } }
+		859 = { is_owned_by = TUR is_fully_controlled_by = TUR }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { transfer_state = 859 }
+	option = { name = shammar.5.a }
+}
+
+# The blockade was a local campaign. Keep outside powers out of the Ha'il handover.
+country_event = {
+	id = shammar.6
+	title = shammar.6.t
+	desc = shammar.6.d
+	picture = GFX_report_event_shammar_war
+	fire_only_once = yes
+	trigger = {
+		tag = SHA WWI_levant_armistice = yes is_historical_focus_on = yes
+		date > 1921.3.31 date < 1921.11.2
+		is_subject = no owns_state = 1014 controls_province = 4968
+		NOT = { any_enemy_country = { NOT = { tag = NEJ } } }
+		NEJ = { exists = yes is_ai = yes is_subject = no owns_state = 292 has_capitulated = no }
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = { add_ideas = SHA_siege_of_hail }
+	option = { name = shammar.6.a }
 }

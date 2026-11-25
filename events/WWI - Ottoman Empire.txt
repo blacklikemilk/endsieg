@@ -1113,7 +1113,7 @@ country_event = {
 
 	is_triggered_only = no
 
-	option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_turkey.50.a add_to_variable = { OT1_R_cabinet_authority = 2 } add_to_variable = { OT1_R_provincial_confidence = 5 } add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes add_political_power = 10 }
+	option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_turkey.50.a news_event = { id = ww1_postwar_news.29 hours = 6 } add_to_variable = { OT1_R_cabinet_authority = 2 } add_to_variable = { OT1_R_provincial_confidence = 5 } add_to_variable = { OT1_R_officer_loyalty = -2 } OT1_R_refresh_administration = yes add_political_power = 10 }
 
 trigger = { tag = TUR has_start_date < 1936.1.1 date < 1936.1.1 has_start_date < 1911.10.9 NOT = { date < 1911.10.9 } date < 1911.10.16 }
 
@@ -1327,88 +1327,48 @@ mean_time_to_happen = { days = 1 }
 
 # 1918 DEFINED
 # Armistice of Mudros
+# Independent Ottoman defeat and late-war exhaustion can open Mudros.
 country_event = {
-	id = ww1_turkey.58
-	title = ww1_turkey.58.t
-	desc = ww1_turkey.58.d
-	picture = GFX_report_event_armistice_of_mudros
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		tag = TUR
-		NOT = { has_global_flag = player_wants_custom_peacedeals }
-		NOT = { date > 1932.12.1 }
-		date > 1918.3.29 #10.29
-		NOT = { has_global_flag = armistice_of_mudros }
-		# The collapse of Germany at Compiègne ends the Ottoman war directly.
-		# Otherwise retain the existing battlefield and Allied-armistice path.
-		OR = {
-			has_global_flag = compiegne
-			AND = {
-				NOT = {
-					TUR = {
-						controls_state = 454
-						controls_state = 455
-					}
-				}
-				FRA = {
-					surrender_progress < 0.40
-				}
-				OR = {
-					has_global_flag = armistice_of_salonica
-					has_global_flag = armistice_of_villa_giusti
-				}
-			}
-		}
-	 has_start_date < 1936.1.1 date < 1936.1.1 OR = { has_war_with = ENG has_war_with = FRA } NOT = { has_country_flag = OT1_R_mudros_resolved } NOT = { has_country_flag = OT1_R_armistice_pending } NOT = { has_country_flag = OT1_R_armistice_refused_recently } }
-
-	mean_time_to_happen = { days = 1 }
-
-	option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_turkey.58.a ai_chance = { factor = 100 } OT1_R_apply_mudros = yes } option = { name = ww1_turkey.58.b ai_chance = { factor = 0 } clr_country_flag = OT1_R_armistice_pending set_country_flag = { flag = OT1_R_armistice_refused_recently days = 90 } add_political_power = -100 add_war_support = -0.05 }
-
-immediate = { set_country_flag = OT1_R_armistice_pending }
+ id = ww1_turkey.58
+ title = ww1_turkey.58.t
+ desc = ww1_turkey.58.d
+ picture = GFX_report_event_armistice_of_mudros
+ is_triggered_only = yes
+ trigger = { WW1_TUR_armistice_ready = yes NOT = { has_country_flag = OT1_R_armistice_refused_recently } }
+ immediate = { set_country_flag = WW1_TUR_armistice_presented }
+ option = {
+  custom_effect_tooltip = WW1_historical_option_tt
+  name = ww1_turkey.58.a
+  ai_chance = { factor = 100 }
+  OT1_R_apply_mudros = yes
+ }
+ option = {
+  name = ww1_turkey.58.b
+  ai_chance = { factor = 0 }
+  if = {
+   limit = { WW1_TUR_armistice_ready = yes NOT = { has_country_flag = OT1_R_armistice_refused_recently } }
+   clr_country_flag = OT1_R_armistice_pending
+   clr_country_flag = WW1_TUR_armistice_presented
+   set_country_flag = { flag = OT1_R_armistice_refused_recently days = 90 }
+   add_political_power = -100
+   add_war_support = -0.05
+  }
+ }
 }
 
 
 # 1918 UNDEFINED
 # Armistice of Mudros
+# Retain the old callback as a forwarder to the shared armistice offer.
 country_event = {
-	id = ww1_turkey.59
-	title = ww1_turkey.59.t
-	desc = ww1_turkey.59.d
-	picture = GFX_report_event_armistice_of_mudros
-
-	fire_only_once = yes
-
-	trigger = {
-		has_global_flag = welcome_event_WW1_active
-		tag = TUR
-		TUR = { has_war_with = ENG }
-		NOT = { date > 1932.12.1 }
-		NOT = { has_global_flag = player_wants_custom_peacedeals }
-		NOT = { has_global_flag = armistice_of_mudros }
-		OR = {
-			has_global_flag = welcome_event_1910
-			has_global_flag = welcome_event_1914
-		}
-		NOT = {
-			TUR = {
-				controls_state = 454
-				controls_state = 455
-			}
-		}
-		surrender_progress > 0.20
-		has_war_with = ENG
-		has_war_with = FRA
-	 has_start_date < 1936.1.1 date < 1936.1.1 OR = { has_war_with = ENG has_war_with = FRA } NOT = { has_country_flag = OT1_R_mudros_resolved } NOT = { has_country_flag = OT1_R_armistice_pending } NOT = { has_country_flag = OT1_R_armistice_refused_recently } }
-
-	mean_time_to_happen = { days = 1 }
-
-	option = { custom_effect_tooltip = WW1_historical_option_tt name = ww1_turkey.59.a ai_chance = { factor = 100 } OT1_R_apply_mudros = yes } option = { name = ww1_turkey.58.b ai_chance = { factor = 0 } clr_country_flag = OT1_R_armistice_pending set_country_flag = { flag = OT1_R_armistice_refused_recently days = 90 } add_political_power = -100 add_war_support = -0.05 }
-
-immediate = { set_country_flag = OT1_R_armistice_pending }
+ id = ww1_turkey.59
+ title = ww1_turkey.59.t
+ desc = ww1_turkey.59.d
+ picture = GFX_report_event_armistice_of_mudros
+ is_triggered_only = yes
+ hidden = yes
+ trigger = { WW1_TUR_armistice_ready = yes }
+ immediate = { WW1_TUR_queue_armistice = yes }
 }
 
 
@@ -1446,18 +1406,12 @@ country_event = {
 
 	is_triggered_only = yes
 
+	trigger = { INT_TUR_can_stage_sevres = yes }
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_turkey.61.a
-		set_country_flag = INT_TUR_sevres_imposed
-		add_ideas = INT_TUR_sevres_pressure
-		if = {
-			limit = { country_exists = GRE 1036 = { is_owned_by = TUR } }
-			GRE = { transfer_state = 1036 }
-		}
+		INT_TUR_stage_sevres = yes
 	}
-
-trigger = {  has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_global_flag = armistice_of_mudros NOT = { has_global_flag = central_powers_victory } }
 }
 
 # Turkish War of Independence
@@ -1469,23 +1423,12 @@ country_event = {
 
 	is_triggered_only = yes
 
+	trigger = { INT_TUR_can_open_western_front = yes }
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_turkey.62.a
-		set_country_flag = INT_TUR_war_of_independence
-		if = {
-			limit = { country_exists = GRE NOT = { has_war_with = GRE } }
-			GRE = { leave_faction = yes }
-			declare_war_on = { target = GRE type = annex_everything }
-		}
-		if = {
-			limit = { country_exists = GRE GRE = { has_war_with = TUR NOT = { has_idea = INT_GRE_anatolian_overstretch } } }
-			GRE = { add_ideas = INT_GRE_anatolian_overstretch }
-		}
-		add_war_support = 0.05
+		INT_TUR_open_western_front = yes
 	}
-
-trigger = {  has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_global_flag = armistice_of_mudros NOT = { has_global_flag = central_powers_victory } }
 }
 
 # Treaty of Moscow 1921
@@ -1501,6 +1444,7 @@ country_event = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_turkey.63.a
 		set_country_flag = INT_TUR_moscow_treaty_signed
+		if = { limit = { SOV = { exists = yes has_government = communism NOT = { has_war_with = TUR } } } news_event = { id = ww1_postwar_news.21 hours = 6 } }
 		add_political_power = 35
 	}
 
@@ -1514,20 +1458,23 @@ country_event = {
 	desc = ww1_turkey.64.d
 	picture = GFX_report_event_smyrna
 
-	is_triggered_only = yes
+	trigger = {
+		INT_TUR_can_stage_smyrna = yes
+		OR = {
+			has_completed_focus = INT_TUR_occupation_of_izmir
+			AND = {
+				INT_TUR_ai_national_movement_route = yes
+				GRE = { is_ai = yes }
+			}
+		}
+	}
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_turkey.64.a
-		set_country_flag = INT_TUR_smyrna_occupied
-		if = {
-			limit = { country_exists = GRE 339 = { is_owned_by = TUR } }
-			GRE = { transfer_state = 339 }
-		}
-		add_war_support = 0.03
+		INT_TUR_stage_smyrna = yes
 	}
-
-trigger = {  has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_global_flag = armistice_of_mudros NOT = { has_global_flag = central_powers_victory } }
 }
 
 # Treaty of Batum
@@ -1537,21 +1484,35 @@ country_event = {
 	desc = ww1_turkey.65.d
 	picture = GFX_report_event_batum
 
-	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = {
+		tag = TUR
+		has_global_flag = welcome_event_WW1_active
+		is_historical_focus_on = yes
+		has_start_date < 1918.6.4
+		NOT = { date < 1918.6.4 }
+		date < 1918.10.31
+		NOT = { has_global_flag = armistice_of_mudros }
+		NOT = { has_global_flag = player_wants_custom_peacedeals }
+		ARM = { exists = yes is_subject = no owns_state = 230 NOT = { has_war_with = TUR } }
+		GEO = { exists = yes is_subject = no owns_state = 231 NOT = { has_war_with = TUR } }
+		AZR = { exists = yes is_subject = no owns_state = 229 NOT = { has_war_with = TUR } }
+	}
+	mean_time_to_happen = { days = 1 }
 
 	option = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_turkey.65.a
 		add_political_power = 20
+		news_event = { id = ww1_postwar_news.32 hours = 6 }
 	}
 
-trigger = {  has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_global_flag = armistice_of_mudros NOT = { has_global_flag = central_powers_victory } }
 }
 
 # Treaty of Lausanne
 country_event = {
-		id = ww1_turkey.66
-	trigger = {  has_start_date < 1923.7.25  has_start_date < 1936.1.1 date < 1936.1.1 has_global_flag = armistice_of_mudros NOT = { has_global_flag = central_powers_victory } }
+	id = ww1_turkey.66
+	trigger = { INT_TUR_can_sign_lausanne = yes }
 	title = ww1_turkey.66.t
 	desc = ww1_turkey.66.d
 	picture = GFX_report_event_turkindependence
@@ -1635,9 +1596,8 @@ country_event = {
 		custom_effect_tooltip = WW1_historical_option_tt
 		name = ww1_turkey.70.a
 		set_country_flag = INT_TUR_ankara_accord_signed
-		if = { limit = { 344 = { is_owned_by = FRA } } transfer_state = 344 }
-		if = { limit = { 345 = { is_owned_by = FRA } } transfer_state = 345 }
-		if = { limit = { 350 = { is_owned_by = FRA } } transfer_state = 350 }
+		WWI_update_anatolian_occupation = yes
+		if = { limit = { 350 = { is_owned_by = FRA is_fully_controlled_by = FRA } NOT = { has_war_with = FRA } } transfer_state = 350 }
 		add_to_variable = { OT1_R_provincial_confidence = 3 } OT1_R_refresh_administration = yes
 	}
 
@@ -1720,18 +1680,18 @@ country_event = { id = ww1_turkey.310 title = ww1_turkey.310.t desc = ww1_turkey
 }
 option = { name = ww1_turkey.310.b ai_chance = { factor = 10 }  TUR = { set_country_flag = OT1_R_german_offer_refused country_event = { id = ww1_turkey.311 days = 1 } } } }
 
-country_event = { id = ww1_turkey.311 title = ww1_turkey.311.t
+country_event = { id = ww1_turkey.311 title = { text = ww1_turkey.311.t trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_german_offer_accepted } AND = { NOT = { has_country_flag = OT1_R_german_offer_accepted } } } } } }
 	title = { text = ww1_turkey.311.accepted.t trigger = { has_country_flag = OT1_R_german_offer_accepted } }
-	title = { text = ww1_turkey.311.refused.t trigger = { NOT = { has_country_flag = OT1_R_german_offer_accepted } } } desc = ww1_turkey.311.d
+	title = { text = ww1_turkey.311.refused.t trigger = { NOT = { has_country_flag = OT1_R_german_offer_accepted } } } desc = { text = ww1_turkey.311.d trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_german_offer_accepted } AND = { NOT = { has_country_flag = OT1_R_german_offer_accepted } } } } } }
 	desc = { text = ww1_turkey.311.accepted.d trigger = { has_country_flag = OT1_R_german_offer_accepted } }
 	desc = { text = ww1_turkey.311.refused.d trigger = { NOT = { has_country_flag = OT1_R_german_offer_accepted } } } picture = GFX_report_event_turk_german_freyand is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_country_flag = OT1_R_german_offer_pending } option = { name = ww1_turkey.311.a ai_chance = { factor = 100 }  clr_country_flag = OT1_R_german_offer_pending set_country_flag = { flag = OT1_R_german_offer_cooldown days = 180 } if = { limit = { has_country_flag = OT1_R_german_offer_accepted NOT = { has_country_flag = OT1_R_entente_agreement }  OT1_R_may_negotiate_alignment = yes NOT = { has_completed_focus = OT1_R_neutral_alignment } NOT = { has_completed_focus = OT1_R_regional_alignment }  NOT = { has_completed_focus = OT1_R_entente_alignment } GER = { GE1_ww1_may_choose_central_bloc = yes } } set_country_flag = OT1_R_german_agreement }  clr_country_flag = OT1_R_german_offer_accepted } }
 
 country_event = { id = ww1_turkey.312 title = ww1_turkey.312.t desc = ww1_turkey.312.d picture = GFX_report_event_british_mission is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = FRA country_exists = TUR   TUR = { has_country_flag = OT1_R_entente_offer_pending has_country_flag = OT1_R_strait_guarantees_accepted } } option = { name = ww1_turkey.312.a trigger = { FR3_R_may_enter_entente = yes NOT = { is_in_faction_with = GER } } ai_chance = { factor = 100 }  TUR = { set_country_flag = OT1_R_entente_offer_accepted country_event = { id = ww1_turkey.313 days = 1 } } }
 option = { name = ww1_turkey.312.b ai_chance = { factor = 10 }  TUR = { set_country_flag = OT1_R_entente_offer_refused country_event = { id = ww1_turkey.313 days = 1 } } } }
 
-country_event = { id = ww1_turkey.313 title = ww1_turkey.313.t
+country_event = { id = ww1_turkey.313 title = { text = ww1_turkey.313.t trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_entente_offer_accepted } AND = { NOT = { has_country_flag = OT1_R_entente_offer_accepted } } } } } }
 	title = { text = ww1_turkey.313.accepted.t trigger = { has_country_flag = OT1_R_entente_offer_accepted } }
-	title = { text = ww1_turkey.313.refused.t trigger = { NOT = { has_country_flag = OT1_R_entente_offer_accepted } } } desc = ww1_turkey.313.d
+	title = { text = ww1_turkey.313.refused.t trigger = { NOT = { has_country_flag = OT1_R_entente_offer_accepted } } } desc = { text = ww1_turkey.313.d trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_entente_offer_accepted } AND = { NOT = { has_country_flag = OT1_R_entente_offer_accepted } } } } } }
 	desc = { text = ww1_turkey.313.accepted.d trigger = { has_country_flag = OT1_R_entente_offer_accepted } }
 	desc = { text = ww1_turkey.313.refused.d trigger = { NOT = { has_country_flag = OT1_R_entente_offer_accepted } } } picture = GFX_report_event_british_mission is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_country_flag = OT1_R_entente_offer_pending } option = { name = ww1_turkey.313.a ai_chance = { factor = 100 }  clr_country_flag = OT1_R_entente_offer_pending set_country_flag = { flag = OT1_R_entente_offer_cooldown days = 180 } if = { limit = { has_country_flag = OT1_R_entente_offer_accepted NOT = { has_country_flag = OT1_R_german_agreement }  OT1_R_may_negotiate_alignment = yes NOT = { has_completed_focus = OT1_R_neutral_alignment } NOT = { has_completed_focus = OT1_R_regional_alignment }  NOT = { has_completed_focus = OT1_R_german_alignment } country_exists = FRA FRA = { FR3_R_may_enter_entente = yes } } set_country_flag = OT1_R_entente_agreement set_country_flag = OT1_R_british_agreement set_country_flag = OT1_R_french_agreement }  clr_country_flag = OT1_R_entente_offer_accepted } }
 
@@ -1744,18 +1704,18 @@ option = { name = ww1_turkey.316.b ai_chance = { factor = 10 }  TUR = { set_coun
 country_event = { id = ww1_turkey.317 title = ww1_turkey.317.t desc = ww1_turkey.317.d picture = GFX_report_event_british_mission is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = FRA country_exists = TUR TUR = { has_country_flag = OT1_R_straits_offer_pending has_country_flag = OT1_R_russian_straits_consent } } option = { name = ww1_turkey.317.a ai_chance = { factor = 100 } trigger = { FR3_R_may_enter_entente = yes NOT = { is_in_faction_with = GER } } TUR = { set_country_flag = OT1_R_french_straits_consent country_event = { id = ww1_turkey.318 days = 1 } } }
 option = { name = ww1_turkey.317.b ai_chance = { factor = 10 }  TUR = { set_country_flag = OT1_R_straits_refused country_event = { id = ww1_turkey.318 days = 1 } } } }
 
-country_event = { id = ww1_turkey.318 title = ww1_turkey.318.t
+country_event = { id = ww1_turkey.318 title = { text = ww1_turkey.318.t trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } AND = { NOT = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } } } } } }
 	title = { text = ww1_turkey.318.accepted.t trigger = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } }
-	title = { text = ww1_turkey.318.refused.t trigger = { NOT = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } } } desc = ww1_turkey.318.d
+	title = { text = ww1_turkey.318.refused.t trigger = { NOT = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } } } desc = { text = ww1_turkey.318.d trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } AND = { NOT = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } } } } } }
 	desc = { text = ww1_turkey.318.accepted.d trigger = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } }
 	desc = { text = ww1_turkey.318.refused.d trigger = { NOT = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused } } } } picture = GFX_report_event_british_mission is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_country_flag = OT1_R_straits_offer_pending } option = { name = ww1_turkey.318.a ai_chance = { factor = 100 }  clr_country_flag = OT1_R_straits_offer_pending set_country_flag = { flag = OT1_R_straits_offer_cooldown days = 180 } if = { limit = { has_country_flag = OT1_R_british_straits_consent has_country_flag = OT1_R_russian_straits_consent has_country_flag = OT1_R_french_straits_consent NOT = { has_country_flag = OT1_R_straits_refused }  OT1_R_may_negotiate_alignment = yes NOT = { has_completed_focus = OT1_R_german_alignment } NOT = { has_completed_focus = OT1_R_neutral_alignment } NOT = { has_completed_focus = OT1_R_regional_alignment } } set_country_flag = OT1_R_strait_guarantees_accepted } } }
 
 country_event = { id = ww1_turkey.319 title = ww1_turkey.319.t desc = ww1_turkey.319.d picture = GFX_report_event_weapons_cache is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = ITA country_exists = TUR TUR = { has_country_flag = OT1_R_italian_offer_pending NOT = { has_war_with = ITA } } } option = { name = ww1_turkey.319.a ai_chance = { factor = 100 }  set_country_flag = IT1_ww1_ottoman_accommodation TUR = { set_country_flag = OT1_R_italian_offer_accepted country_event = { id = ww1_turkey.320 days = 1 } } }
 option = { name = ww1_turkey.319.b ai_chance = { factor = 10 }  TUR = { set_country_flag = OT1_R_italian_offer_refused country_event = { id = ww1_turkey.320 days = 1 } } } }
 
-country_event = { id = ww1_turkey.320 title = ww1_turkey.320.t
+country_event = { id = ww1_turkey.320 title = { text = ww1_turkey.320.t trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_italian_offer_accepted } AND = { NOT = { has_country_flag = OT1_R_italian_offer_accepted } } } } } }
 	title = { text = ww1_turkey.320.accepted.t trigger = { has_country_flag = OT1_R_italian_offer_accepted } }
-	title = { text = ww1_turkey.320.refused.t trigger = { NOT = { has_country_flag = OT1_R_italian_offer_accepted } } } desc = ww1_turkey.320.d
+	title = { text = ww1_turkey.320.refused.t trigger = { NOT = { has_country_flag = OT1_R_italian_offer_accepted } } } desc = { text = ww1_turkey.320.d trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_italian_offer_accepted } AND = { NOT = { has_country_flag = OT1_R_italian_offer_accepted } } } } } }
 	desc = { text = ww1_turkey.320.accepted.d trigger = { has_country_flag = OT1_R_italian_offer_accepted } }
 	desc = { text = ww1_turkey.320.refused.d trigger = { NOT = { has_country_flag = OT1_R_italian_offer_accepted } } } picture = GFX_report_event_weapons_cache is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_country_flag = OT1_R_italian_offer_pending } option = { name = ww1_turkey.320.a ai_chance = { factor = 100 }  clr_country_flag = OT1_R_italian_offer_pending set_country_flag = { flag = OT1_R_italian_offer_cooldown days = 180 } if = { limit = { has_country_flag = OT1_R_italian_offer_accepted } set_country_flag = OT1_R_italian_accommodation } } }
 
@@ -1768,9 +1728,9 @@ option = { name = ww1_turkey.322.b ai_chance = { factor = 10 }  TUR = { set_coun
 country_event = { id = ww1_turkey.323 title = ww1_turkey.323.t desc = ww1_turkey.323.d picture = GFX_report_event_balkan_territory is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = GRE country_exists = TUR TUR = { has_country_flag = OT1_R_balkan_offer_pending NOT = { has_war_with = GRE } } } option = { name = ww1_turkey.323.a ai_chance = { factor = 100 }  TUR = { set_country_flag = OT1_R_balkan_GRE_accept } TUR = { country_event = { id = ww1_turkey.324 days = 1 } } }
 option = { name = ww1_turkey.323.b ai_chance = { factor = 10 }  TUR = { set_country_flag = OT1_R_balkan_refused country_event = { id = ww1_turkey.324 days = 1 } } } }
 
-country_event = { id = ww1_turkey.324 title = ww1_turkey.324.t
+country_event = { id = ww1_turkey.324 title = { text = ww1_turkey.324.t trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } AND = { NOT = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } } } } } }
 	title = { text = ww1_turkey.324.accepted.t trigger = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } }
-	title = { text = ww1_turkey.324.refused.t trigger = { NOT = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } } } desc = ww1_turkey.324.d
+	title = { text = ww1_turkey.324.refused.t trigger = { NOT = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } } } desc = { text = ww1_turkey.324.d trigger = { NOT = { OR = { AND = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } AND = { NOT = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } } } } } }
 	desc = { text = ww1_turkey.324.accepted.d trigger = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } }
 	desc = { text = ww1_turkey.324.refused.d trigger = { NOT = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } } } picture = GFX_report_event_balkan_territory is_triggered_only = yes trigger = { has_start_date < 1936.1.1 date < 1936.1.1 tag = TUR has_country_flag = OT1_R_balkan_offer_pending } option = { name = ww1_turkey.324.a ai_chance = { factor = 100 }  clr_country_flag = OT1_R_balkan_offer_pending set_country_flag = { flag = OT1_R_balkan_offer_cooldown days = 180 } if = { limit = { has_country_flag = OT1_R_balkan_BUL_accept has_country_flag = OT1_R_balkan_SER_accept has_country_flag = OT1_R_balkan_GRE_accept NOT = { has_country_flag = OT1_R_balkan_refused } } set_country_flag = OT1_R_balkan_all_accept OT1_R_apply_balkan_settlement = yes } } }
 

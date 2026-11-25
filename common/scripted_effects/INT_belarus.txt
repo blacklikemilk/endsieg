@@ -1,0 +1,234 @@
+# Riga keeps western Belarus in Poland and returns the Minsk republic to the map.
+# Run in Soviet scope after Poland has signed, including when resuming an old save.
+INT_BLR_restore_at_riga = {
+	if = {
+		limit = {
+			INT_eastern_historical_soviet_campaign = yes
+			has_global_flag = sov_pol_ceasefire
+			NOT = { has_global_flag = INT_USSR_founded }
+			NOT = { has_global_flag = INT_BLR_riga_settled }
+			POL = { exists = yes is_ai = yes is_subject = no NOT = { has_war_with = SOV } }
+			OR = {
+				has_global_flag = INT_BLR_displaced_by_poland
+				has_global_flag = INT_BLR_first_republic_established
+				has_global_flag = INT_BLR_second_republic_established
+				any_subject_country = { INT_BLR_historical_ministry = yes }
+			}
+		}
+		if = {
+			limit = { any_subject_country = { INT_BLR_historical_ministry = yes } }
+			random_subject_country = {
+				limit = { INT_BLR_historical_ministry = yes }
+				INT_BLR_resume_minsk_settlement = yes
+			}
+		}
+		else_if = {
+			limit = {
+				206 = {
+					OR = { is_owned_by = POL is_owned_by = SOV owner = { original_tag = BLR is_ai = yes is_subject_of = POL } }
+					OR = {
+						is_fully_controlled_by = POL is_fully_controlled_by = SOV
+						AND = { owner = { original_tag = BLR is_subject_of = POL } is_fully_controlled_by = OWNER }
+					}
+				}
+			}
+			if = {
+				limit = { any_country = { original_tag = BLR is_ai = yes is_subject_of = POL } }
+				random_country = {
+					limit = { original_tag = BLR is_ai = yes is_subject_of = POL }
+					POL = { set_autonomy = { target = PREV autonomy_state = autonomy_free } }
+					set_politics = { ruling_party = communism elections_allowed = no }
+					SOV = { puppet = PREV }
+					INT_BLR_resume_minsk_settlement = yes
+				}
+			}
+			else_if = {
+				limit = { NOT = { country_exists = BLR } NOT = { any_country = { original_tag = BLR } } }
+				206 = { transfer_state_to = BLR }
+				BLR = { set_politics = { ruling_party = communism elections_allowed = no } }
+				puppet = BLR
+				BLR = { INT_BLR_resume_minsk_settlement = yes }
+			}
+		}
+	}
+}
+
+INT_BLR_resume_minsk_settlement = {
+	if = { limit = { has_war_with = POL } white_peace = { tag = POL } }
+	if = {
+		limit = { is_subject_of = SOV NOT = { has_war_with = POL } }
+		save_event_target_as = INT_BLR_minsk_recipient
+		194 = { INT_BLR_return_riga_district = yes }
+		204 = { INT_BLR_return_riga_district = yes }
+		206 = { INT_BLR_return_riga_district = yes }
+		if = {
+			limit = { owns_state = 206 controls_state = 206 }
+			INT_BLR_update_ministry = yes
+			if = {
+				limit = { owns_state = 194 owns_state = 204 controls_state = 194 controls_state = 204 }
+				set_global_flag = INT_BLR_riga_settled
+			}
+		}
+	}
+}
+
+INT_BLR_return_riga_district = {
+	if = {
+		limit = {
+			OR = { is_owned_by = POL is_owned_by = SOV is_owned_by = event_target:INT_BLR_minsk_recipient }
+			OR = { is_fully_controlled_by = POL is_fully_controlled_by = SOV is_fully_controlled_by = event_target:INT_BLR_minsk_recipient }
+		}
+		if = {
+			limit = { NOT = { is_owned_by = event_target:INT_BLR_minsk_recipient } }
+			transfer_state_to = event_target:INT_BLR_minsk_recipient
+		}
+		if = {
+			limit = { NOT = { is_fully_controlled_by = event_target:INT_BLR_minsk_recipient } }
+			set_state_controller_to = event_target:INT_BLR_minsk_recipient
+		}
+	}
+}
+
+# Called in the Soviet Belarusian government's scope from the Soviet republics pulse.
+INT_BLR_update_ministry = {
+	save_event_target_as = INT_BLR_ministry
+	if = {
+		limit = { date < 1919.2.3 NOT = { has_country_flag = INT_BLR_provisional_government } }
+		set_country_flag = INT_BLR_provisional_government
+		set_global_flag = INT_BLR_first_republic_established
+		set_cosmetic_tag = INT_BLR_workers_government
+		set_party_name = { ideology = communism name = INT_BLR_bolshevik_party_short long_name = INT_BLR_bolshevik_party }
+		create_country_leader = { name = "Zmitser Zhylunovich" picture = "gfx/leaders/BLR/Portrait_Zmitser_Zhylunovich.dds" ideology = marxism expire = "1937.4.11" }
+	}
+	else_if = {
+		limit = {
+			date > 1920.7.30 NOT = { has_country_flag = INT_BLR_revolutionary_committee }
+			owns_state = 206 controls_state = 206
+		}
+		set_country_flag = INT_BLR_revolutionary_committee
+		set_global_flag = INT_BLR_second_republic_established
+		clr_country_flag = INT_BLR_litbel_government
+		set_cosmetic_tag = INT_BLR_soviet_republic
+		set_party_name = { ideology = communism name = INT_BLR_bolshevik_party_short long_name = INT_BLR_bolshevik_party }
+		create_country_leader = { name = "Alexander Chervyakov" picture = "gfx/leaders/BLR/Portrait_Alexander_Chervyakov.dds" ideology = marxism expire = "1937.6.16" }
+	}
+	else_if = {
+		limit = {
+			date > 1919.2.2 date < 1920.7.31
+			NOT = { has_country_flag = INT_BLR_central_executive_committee }
+			NOT = { has_country_flag = INT_BLR_litbel_government }
+		}
+		set_country_flag = INT_BLR_central_executive_committee
+		set_global_flag = INT_BLR_first_republic_established
+		set_cosmetic_tag = INT_BLR_soviet_republic
+		set_party_name = { ideology = communism name = INT_BLR_bolshevik_party_short long_name = INT_BLR_bolshevik_party }
+		create_country_leader = {
+			name = "Alexander Myasnikyan" picture = "gfx/leaders/BLR/Portrait_Alexander_Myasnikyan.dds"
+			ideology = marxism expire = "1925.3.22"
+		}
+	}
+	if = {
+		limit = { date > 1919.2.26 date < 1919.8.9 NOT = { has_country_flag = INT_BLR_litbel_government } INT_BLR_vilnius_in_soviet_hands = yes }
+		country_event = { id = INT_belarus.2 }
+	}
+	# Mozyr and Bobruisk belong to the Minsk governorate. Moscow retained the
+	# Vitebsk, Mogilev and Smolensk governorates under the January 1919 division.
+	194 = { INT_BLR_handover_soviet_district = yes }
+	204 = { INT_BLR_handover_soviet_district = yes }
+	206 = { INT_BLR_handover_soviet_district = yes }
+	if = {
+		limit = { has_country_flag = INT_BLR_litbel_government }
+		if = {
+			limit = { NOT = { has_global_flag = sov_pol_ceasefire } }
+			95 = { INT_BLR_handover_soviet_district = yes }
+			96 = { INT_BLR_handover_soviet_district = yes }
+		}
+		if = {
+			limit = { NOT = { has_global_flag = moscow_lit_treaty } }
+			784 = { INT_BLR_handover_soviet_district = yes }
+		}
+	}
+	if = {
+		limit = {
+			has_country_flag = INT_BLR_litbel_government owns_state = 784 controls_state = 784
+			NOT = { capital_scope = { state = 784 } }
+		}
+		set_capital = { state = 784 remember_old_capital = no }
+	}
+	else_if = {
+		limit = {
+			owns_state = 206 controls_state = 206 NOT = { capital_scope = { state = 206 } }
+			NOT = { AND = { has_country_flag = INT_BLR_litbel_government owns_state = 784 controls_state = 784 } }
+		}
+		set_capital = { state = 206 remember_old_capital = no }
+	}
+	INT_BLR_regional_fronts = yes
+}
+
+INT_BLR_handover_soviet_district = {
+	if = {
+		limit = { is_owned_by = SOV is_fully_controlled_by = SOV }
+		transfer_state_to = event_target:INT_BLR_ministry
+	}
+}
+
+INT_BLR_regional_fronts = {
+	every_enemy_country = {
+		limit = {
+			is_ai = yes
+			OR = {
+				tag = EST tag = LAT tag = UKR tag = WHR tag = DON tag = KUB
+				AND = {
+					tag = LIT
+					OR = { NOT = { event_target:INT_BLR_ministry = { has_country_flag = INT_BLR_litbel_government } } has_global_flag = moscow_lit_treaty }
+				}
+				AND = { tag = POL has_global_flag = sov_pol_ceasefire }
+			}
+			NOT = { has_wargoal_against = event_target:INT_BLR_ministry }
+			NOT = { has_war_with_wargoal_against = { target = event_target:INT_BLR_ministry } }
+			event_target:INT_BLR_ministry = {
+				NOT = { has_wargoal_against = PREV }
+				NOT = { has_war_with_wargoal_against = { target = PREV } }
+			}
+		}
+		white_peace = event_target:INT_BLR_ministry
+	}
+	if = {
+		limit = {
+			POL = { exists = yes is_ai = yes has_war_with = SOV }
+			date > 1919.2.13 NOT = { has_global_flag = sov_pol_ceasefire }
+			NOT = { OR = { has_war_with = POL has_truce_with = POL has_non_aggression_pact_with = POL is_in_faction_with = POL } }
+		}
+		add_to_war = { targeted_alliance = SOV enemy = POL hostility_reason = asked_to_join single_target_only = yes }
+	}
+	if = {
+		limit = {
+			has_country_flag = INT_BLR_litbel_government
+			LIT = { exists = yes is_ai = yes has_war_with = SOV }
+			NOT = { has_global_flag = moscow_lit_treaty }
+			NOT = { OR = { has_war_with = LIT has_truce_with = LIT has_non_aggression_pact_with = LIT is_in_faction_with = LIT } }
+		}
+		add_to_war = { targeted_alliance = SOV enemy = LIT hostility_reason = asked_to_join single_target_only = yes }
+	}
+	# Honour both treaties even if Litbel owned a district when Moscow signed.
+	if = {
+		limit = { has_global_flag = sov_pol_ceasefire POL = { exists = yes is_ai = yes NOT = { has_war_with = SOV } } NOT = { has_war_with = POL } }
+		every_owned_state = {
+			limit = {
+				OR = { state = 95 state = 96 }
+				OR = { is_fully_controlled_by = event_target:INT_BLR_ministry is_fully_controlled_by = POL }
+			}
+			transfer_state_to = POL
+		}
+	}
+	if = {
+		limit = {
+			has_global_flag = moscow_lit_treaty NOT = { has_global_flag = zeligowski }
+			LIT = { exists = yes is_ai = yes is_subject = no NOT = { has_war_with = SOV } }
+			NOT = { has_war_with = LIT }
+			owns_state = 784
+			784 = { OR = { is_fully_controlled_by = event_target:INT_BLR_ministry is_fully_controlled_by = LIT } }
+		}
+		784 = { transfer_state_to = LIT }
+	}
+}

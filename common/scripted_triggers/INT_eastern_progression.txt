@@ -1,0 +1,71 @@
+# The regional wars follow the end of German protection, not the date of a
+# delayed western notification. A continued German victory remains a different outcome.
+INT_eastern_german_withdrawal_confirmed = {
+	NOT = {
+		OR = {
+			has_global_flag = central_powers_victory
+			has_global_flag = player_wants_custom_peacedeals
+			has_global_flag = ww1_compiegne_armistice_failed
+		}
+	}
+	OR = {
+		has_global_flag = compiegne
+		has_global_flag = versailles
+		GER = { exists = yes has_capitulated = yes }
+		GER = {
+			exists = yes
+			has_country_flag = ww1_weimar_republic_established
+			NOT = { OR = { has_war_with = FRA has_war_with = ENG has_war_with = RIE } }
+		}
+	}
+}
+
+# The original offensive modifier belongs to these western campaigns only.
+# The White and Don fronts can continue after their conclusion.
+INT_eastern_westward_fronts_settled = {
+	NOT = {
+		OR = {
+			has_war_with = EST
+			has_war_with = LAT
+			has_war_with = LIT
+			has_war_with = POL
+			has_war_with = UKR
+			has_war_with = BLR
+		}
+	}
+	OR = {
+		NOT = { date < 1921.3.18 }
+		AND = {
+			OR = { has_global_flag = tartu_treaty NOT = { country_exists = EST } EST = { is_subject_of = SOV } }
+			OR = { has_global_flag = riga_treaty NOT = { country_exists = LAT } LAT = { is_subject_of = SOV } }
+			OR = { has_global_flag = moscow_lit_treaty NOT = { country_exists = LIT } LIT = { is_subject_of = SOV } }
+			OR = { has_global_flag = sov_pol_ceasefire NOT = { country_exists = POL } POL = { is_subject_of = SOV } }
+			OR = { has_country_flag = INT_ukraine_integrated NOT = { country_exists = UKR } UKR = { is_subject_of = SOV } }
+			OR = { NOT = { country_exists = BLR } BLR = { is_subject_of = SOV } }
+		}
+	}
+}
+
+INT_eastern_westward_modifier_finished = {
+	OR = {
+		has_country_flag = INT_eastern_westward_advance_closed
+		NOT = { date < 1923.1.1 }
+		AND = {
+			INT_eastern_german_withdrawal_confirmed = yes
+			INT_eastern_westward_fronts_settled = yes
+		}
+	}
+}
+
+# An AI Don government must actually have lost the war before it is absorbed.
+INT_eastern_don_defeat_confirmed = {
+	tag = KUB
+	exists = yes
+	is_ai = yes
+	has_capitulated = yes
+	OR = { is_subject = no is_subject_of = WHR is_subject_of = SOV }
+	OR = { has_war_with = SOV is_subject_of = SOV }
+	any_owned_state = { is_core_of = KUB is_controlled_by = SOV }
+	capital_scope = { is_controlled_by = SOV }
+	SOV = { exists = yes has_government = communism has_capitulated = no is_subject = no }
+}

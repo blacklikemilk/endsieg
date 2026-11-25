@@ -6,19 +6,25 @@ is_triggered_only = yes
 title = ww1_crownlands.1.t
         desc = ww1_crownlands.1.d
         picture = GFX_report_event_generic_sign_treaty1
-        trigger = { tag = AUH date < 1936.1.1 has_global_flag = WW1_HAB_protocol_pending NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete } }
+        trigger = { tag = AUH date < 1936.1.1 has_global_flag = WW1_HAB_protocol_pending WW1_HAB_settlement_open = yes }
         option = { name = ww1_crownlands.1.a trigger = { WW1_HAB_successors_available = yes OR = { is_ai = yes GER = { is_ai = yes } } } ai_chance = { factor = 25 }
             custom_effect_tooltip = WW1_HAB_union_tt
+            if = { limit = { WW1_HAB_settlement_open = yes }
             if = { limit = { is_ai = no } custom_effect_tooltip = WW1_HAB_player_union_tt }
             set_global_flag = WW1_HAB_union_ratified
             GER = { WW1_HAB_apply_berlin = yes }
         }
+        }
         option = { name = ww1_crownlands.1.b trigger = { WW1_HAB_successors_available = yes } ai_chance = { factor = 70 }
             custom_effect_tooltip = WW1_HAB_vienna_tt
+            if = { limit = { WW1_HAB_settlement_open = yes }
             GER = { country_event = { id = ww1_crownlands.2 days = 2 } }
         }
+        }
         option = { name = ww1_crownlands.1.c ai_chance = { factor = 5 }
+            if = { limit = { WW1_HAB_settlement_open = yes }
             GER = { country_event = { id = ww1_crownlands.6 days = 2 } }
+        }
         }
 }
 
@@ -28,13 +34,17 @@ is_triggered_only = yes
 title = ww1_crownlands.2.t
         desc = ww1_crownlands.2.d
         picture = GFX_report_event_generic_sign_treaty2
-        trigger = { tag = GER country_exists = AUH has_global_flag = WW1_HAB_protocol_pending NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete } }
+        trigger = { tag = GER country_exists = AUH has_global_flag = WW1_HAB_protocol_pending WW1_HAB_settlement_open = yes }
         option = { name = ww1_crownlands.2.a trigger = { WW1_HAB_successors_available = yes } ai_chance = { factor = 70 }
             custom_effect_tooltip = WW1_HAB_vienna_tt
+            if = { limit = { WW1_HAB_settlement_open = yes }
             AUH = { WW1_HAB_apply_vienna = yes }
         }
+        }
         option = { name = ww1_crownlands.2.b ai_chance = { factor = 30 }
+            if = { limit = { WW1_HAB_settlement_open = yes }
             WW1_HAB_refuse_union = yes
+        }
         }
 }
 
@@ -64,12 +74,17 @@ is_triggered_only = yes
 title = ww1_crownlands.6.t
         desc = ww1_crownlands.6.d
         picture = GFX_report_event_generic_sign_treaty1
-        trigger = { tag = GER country_exists = AUH has_global_flag = WW1_HAB_protocol_pending NOT = { has_global_flag = GE1_R_AUH_managed_partition_complete } }
+        trigger = { tag = GER country_exists = AUH has_global_flag = WW1_HAB_protocol_pending WW1_HAB_settlement_open = yes }
         option = { name = ww1_crownlands.6.a trigger = { WW1_HAB_successors_available = yes } ai_chance = { factor = 70 }
             custom_effect_tooltip = WW1_HAB_vienna_tt
+            if = { limit = { WW1_HAB_settlement_open = yes }
             AUH = { WW1_HAB_apply_vienna = yes }
         }
-        option = { name = ww1_crownlands.6.b ai_chance = { factor = 30 } WW1_HAB_refuse_union = yes }
+        }
+        option = { name = ww1_crownlands.6.b ai_chance = { factor = 30 } if = { limit = { WW1_HAB_settlement_open = yes }
+            WW1_HAB_refuse_union = yes
+        }
+        }
 }
 
 country_event = {
@@ -121,27 +136,13 @@ title = ww1_crownlands.13.t
 }
 
 country_event = {
-id = ww1_crownlands.20
-is_triggered_only = yes
-title = ww1_crownlands.20.t
-        desc = ww1_crownlands.20.d
-        picture = GFX_report_event_saint_germain
-        trigger = { tag = AUH date < 1936.1.1 has_country_flag = WW1_HAB_peace_protocol_pending NOT = { has_country_flag = WW1_HAB_crown_settlement } }
-        option = { name = ww1_crownlands.20.a ai_chance = { factor = 90 }
-            trigger = { WW1_HAB_successors_available = yes }
-            custom_effect_tooltip = WW1_HAB_vienna_tt
-            hidden_effect = {
-            every_country = { limit = { is_subject_of = AUH is_in_faction = yes } leave_faction = yes }
-            if = { limit = { is_in_faction = yes } leave_faction = yes }
-            every_enemy_country = { white_peace = AUH }
-        }
-            clr_country_flag = WW1_HAB_peace_protocol_pending
-            WW1_HAB_apply_vienna = yes
-            if = { limit = { has_country_flag = WW1_HAB_crown_settlement } set_global_flag = armistice_of_villa_giusti }
-        }
-        option = { name = ww1_crownlands.20.b ai_chance = { factor = 10 }
-            clr_country_flag = WW1_HAB_peace_protocol_pending
-            set_country_flag = { flag = WW1_HAB_peace_offer_refused days = 365 }
-            add_war_support = 0.05
-        }
+    id = ww1_crownlands.20
+    is_triggered_only = yes
+    hidden = yes
+    trigger = { tag = AUH has_country_flag = WW1_HAB_peace_protocol_pending }
+
+    immediate = {
+        clr_country_flag = WW1_HAB_peace_protocol_pending
+        WW1_AUH_queue_historical_armistice = yes
+    }
 }
