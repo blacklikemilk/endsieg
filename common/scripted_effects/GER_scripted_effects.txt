@@ -3108,3 +3108,36 @@ GER_set_up_colonial_resistance_states = {
 		}
 	}
 }
+
+# The capital establishes the subject before it joins Germany's faction and wars.
+endsieg_install_reichskommissariat = {
+	$CAPITAL$ = { add_core_of = $SUBJECT$ transfer_state_to = $SUBJECT$ }
+	$SUBJECT$ = { set_politics = { ruling_party = fascism elections_allowed = no } }
+	set_autonomy = { target = $SUBJECT$ autonomy_state = autonomy_integrated_puppet }
+	if = { limit = { is_in_faction = yes NOT = { is_in_faction_with = $SUBJECT$ } } add_to_faction = $SUBJECT$ }
+	every_enemy_country = {
+		limit = { NOT = { has_war_with = $SUBJECT$ } }
+		$SUBJECT$ = { add_to_war = { targeted_alliance = GER enemy = PREV hostility_reason = asked_to_join } }
+	}
+}
+
+# State scope. Preserve foreign legal ownership during German military occupation.
+endsieg_assign_reichskommissariat_state = {
+	if = {
+		limit = { OR = { is_owned_by = GER owner = { is_subject_of = GER } } }
+		transfer_state_to = $SUBJECT$
+	}
+	else = {
+		add_contested_owner = $SUBJECT$
+		set_state_controller_to = $SUBJECT$
+		add_claim_by = $SUBJECT$
+	}
+}
+
+endsieg_form_rkb = {
+	endsieg_install_reichskommissariat = { CAPITAL = 6 SUBJECT = RKB }
+	29 = { transfer_state_to = RKB }
+	34 = { transfer_state_to = RKB }
+	1009 = { if = { limit = { is_fully_controlled_by = GER } transfer_state_to = RKB } }
+	set_country_flag = endsieg_RKB_formed
+}

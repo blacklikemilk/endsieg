@@ -1,0 +1,96 @@
+# The index measures pressure on the currency, on a scale of 0 to 100.
+INT_GER_update_mark_pressure = {
+	clamp_variable = { var = INT_GER_mark_pressure min = 0 max = 100 }
+	if = {
+		limit = { check_variable = { INT_GER_mark_pressure > 69 } }
+		remove_ideas = INT_GER_depreciating_mark
+		if = { limit = { NOT = { has_idea = INT_GER_hyperinflation } } add_ideas = INT_GER_hyperinflation }
+	}
+	else_if = {
+		limit = { check_variable = { INT_GER_mark_pressure > 34 } }
+		remove_ideas = INT_GER_hyperinflation
+		if = { limit = { NOT = { has_idea = INT_GER_depreciating_mark } } add_ideas = INT_GER_depreciating_mark }
+	}
+	else = { remove_ideas = { INT_GER_depreciating_mark INT_GER_hyperinflation } }
+}
+
+INT_GER_open_mark_ledger = {
+	set_country_flag = INT_GER_mark_crisis_active
+	# Opening balances for a campaign loaded partway through the crisis.
+	# Previous months remain blank in the ledger.
+	if = {
+		limit = { has_idea = INT_GER_hyperinflation }
+		set_variable = { INT_GER_mark_pressure = 82 }
+	}
+	else_if = {
+		limit = { date > 1923.7.31 }
+		set_variable = { INT_GER_mark_pressure = 74 }
+	}
+	else_if = {
+		limit = { date > 1923.1.10 }
+		set_variable = { INT_GER_mark_pressure = 48 }
+	}
+	else = { set_variable = { INT_GER_mark_pressure = 20 } }
+	INT_GER_update_mark_pressure = yes
+	INT_GER_record_mark_sample = yes
+	if = {
+		limit = { date < 1922.8.2 }
+		country_event = INT_ger_milestone.20
+	}
+}
+
+INT_GER_monthly_mark_accounts = {
+	add_to_variable = { INT_GER_mark_pressure = 3 }
+	if = { limit = { has_idea = INT_GER_ruhr_resistance } add_to_variable = { INT_GER_mark_pressure = 4 } }
+	if = { limit = { has_country_flag = INT_GER_mark_tax_drive } subtract_from_variable = { INT_GER_mark_pressure = 4 } }
+	if = { limit = { has_country_flag = INT_GER_mark_discounting } add_to_variable = { INT_GER_mark_pressure = 5 } }
+	if = { limit = { has_country_flag = INT_GER_rentenbank_prepared } subtract_from_variable = { INT_GER_mark_pressure = 4 } }
+	INT_GER_update_mark_pressure = yes
+	INT_GER_record_mark_sample = yes
+}
+
+INT_GER_end_mark_resistance = {
+	if = {
+		limit = { has_idea = INT_GER_ruhr_resistance has_idea = GER_INT_gustav_stresemann }
+		remove_ideas = INT_GER_ruhr_resistance
+		if = {
+			limit = { has_country_flag = INT_GER_mark_crisis_active }
+			subtract_from_variable = { INT_GER_mark_pressure = 8 }
+			INT_GER_update_mark_pressure = yes
+		}
+		if = {
+			limit = { has_global_flag = versailles date > 1923.9.25 date < 1924.7.1 }
+			news_event = { id = INT_ger_news.4 days = 1 }
+		}
+	}
+}
+
+INT_GER_close_mark_ledger = {
+	remove_ideas = { INT_GER_depreciating_mark INT_GER_hyperinflation }
+	clr_country_flag = INT_GER_mark_crisis_active
+	clr_country_flag = INT_GER_mark_tax_drive
+	clr_country_flag = INT_GER_mark_discounting
+	clr_country_flag = INT_GER_rentenbank_prepared
+	set_country_flag = INT_GER_mark_crisis_closed
+}
+
+INT_GER_finish_mark_crisis = {
+	if = {
+		limit = { has_country_flag = INT_GER_mark_crisis_active }
+		if = {
+			limit = { check_variable = { INT_GER_mark_pressure > 69 } }
+			add_stability = -0.02
+		}
+		else_if = {
+			limit = { check_variable = { INT_GER_mark_pressure < 35 } }
+			add_political_power = 25
+		}
+		INT_GER_close_mark_ledger = yes
+		remove_ideas = INT_GER_ruhr_resistance
+		add_ideas = INT_GER_currency_stabilized
+		if = {
+			limit = { date < 1924.8.30 }
+			news_event = { id = INT_ger_news.5 days = 1 }
+		}
+	}
+}

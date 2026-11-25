@@ -1,4 +1,4 @@
-version="3.0.2"
+version="4.1"
 replace_path="common/ideas"
 replace_path="common/national_focus"
 replace_path="common/countries"
@@ -27,7 +27,6 @@ tags={
 	"Graphics"
 	"National Focuses"
 }
-name="Endsieg: Ultimate Victory"
+name="Endsieg - GitHub Development"
 picture="thumbnail.png"
 supported_version="1.20.*"
-remote_file_id="1532883122"

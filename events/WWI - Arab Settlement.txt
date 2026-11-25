@@ -361,22 +361,10 @@ country_event = {
 	trigger = {
 		tag = ENG WWI_levant_campaign = yes date > 1922.2.27
 		has_global_flag = compiegne is_historical_focus_on = yes
-		907 = { is_owned_by = ENG is_controlled_by = ENG }
+		907 = { is_owned_and_controlled_by = ENG }
 		OR = { NOT = { country_exists = EGY } EGY = { is_subject_of = ENG } }
 	}
 	mean_time_to_happen = { days = 1 }
-	immediate = {
-		every_owned_state = {
-			limit = { is_core_of = EGY is_controlled_by = ENG }
-			transfer_state_to = EGY
-		}
-		if = { limit = { EGY = { is_subject_of = ENG } } set_autonomy = { target = EGY autonomy_state = autonomy_free end_wars = no } }
-		EGY = {
-			set_politics = { ruling_party = neutrality elections_allowed = yes }
-			create_country_leader = { name = "Fuad I" ideology = despotism expire = "1936.4.28" }
-			give_military_access = ENG
-		}
-	}
 	option = { name = ww1_levant.14.a }
 }
 
@@ -834,5 +822,47 @@ country_event = {
 			}
 		}
 		ENG = { annex_country = { target = ROOT transfer_troops = no } }
+	}
+}
+
+# The former .14 created this named leader when it released Egypt. Handle both
+# sides if the release immediately started an Egyptian civil war.
+country_event = {
+	id = ww1_levant.33
+	hidden = yes
+	fire_only_once = yes
+	trigger = {
+		tag = ENG WWI_levant_campaign = yes date > 1922.2.27
+		has_global_flag = compiegne is_historical_focus_on = yes
+		907 = { owner = { original_tag = EGY } }
+		any_other_country = {
+			original_tag = EGY
+			has_country_leader = { name = "Fuad I" ruling_only = no }
+		}
+		NOT = {
+			any_other_country = {
+				original_tag = EGY
+				OR = {
+					is_ai = no
+					is_in_faction = yes
+					AND = { is_subject = yes NOT = { is_subject_of = ENG } }
+					any_enemy_country = { NOT = { original_tag = EGY } }
+					any_owned_state = {
+						OR = {
+							NOT = { is_core_of = EGY }
+							controller = { NOT = { original_tag = EGY } }
+						}
+					}
+				}
+			}
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	immediate = {
+		every_other_country = {
+			limit = { original_tag = EGY NOT = { tag = EGY } any_owned_state = { is_core_of = EGY } }
+			ENG = { annex_country = { target = PREV transfer_troops = no } }
+		}
+		if = { limit = { country_exists = EGY } annex_country = { target = EGY transfer_troops = no } }
 	}
 }

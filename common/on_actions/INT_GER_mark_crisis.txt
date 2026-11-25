@@ -1,0 +1,69 @@
+on_actions = {
+	on_daily_GER = {
+		effect = {
+			if = {
+				limit = { has_country_flag = INT_GER_mark_crisis_active }
+				# Rebuild the chart once for saves created before the line geometry.
+				if = {
+					limit = {
+						OR = {
+							NOT = { has_variable = INT_GER_mark_ledger_revision }
+							check_variable = { INT_GER_mark_ledger_revision < 2 }
+						}
+					}
+					if = {
+						limit = {
+							has_variable = INT_GER_mark_frame_1
+							check_variable = { INT_GER_mark_frame_1 > 1 }
+						}
+						INT_GER_rebuild_mark_chart = yes
+					}
+					else = { INT_GER_record_mark_sample = yes }
+				}
+				if = {
+					limit = { NOT = { INT_GER_mark_campaign = yes } }
+					INT_GER_close_mark_ledger = yes
+				}
+				else_if = {
+					limit = { date > 1924.8.29 }
+					INT_GER_finish_mark_crisis = yes
+					add_political_power = -50
+					country_event = INT_ger_milestone.22
+				}
+				else_if = {
+					limit = { date > 1923.9.25 date < 1923.9.27 has_idea = INT_GER_ruhr_resistance }
+					country_event = INT_ger_milestone.21
+				}
+				else_if = {
+					limit = { date > 1923.11.14 date < 1923.11.16 }
+					country_event = INT_ger_milestone.23
+				}
+			}
+			else_if = {
+				limit = {
+					date > 1922.7.31
+					OR = {
+						date < 1923.11.16
+						AND = { date < 1924.8.30 has_idea = INT_GER_hyperinflation }
+					}
+					INT_GER_mark_campaign = yes
+					NOT = { has_country_flag = INT_GER_mark_crisis_closed }
+					NOT = { has_completed_focus = INT_GER_stabilize_currency }
+					NOT = { has_idea = INT_GER_currency_stabilized }
+				}
+				INT_GER_open_mark_ledger = yes
+			}
+		}
+	}
+	on_monthly_GER = {
+		effect = {
+			if = {
+				limit = {
+					has_country_flag = { flag = INT_GER_mark_crisis_active days > 0 }
+					INT_GER_mark_campaign = yes
+				}
+				INT_GER_monthly_mark_accounts = yes
+			}
+		}
+	}
+}

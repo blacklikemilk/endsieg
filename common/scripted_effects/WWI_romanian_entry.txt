@@ -56,7 +56,7 @@ WW1_ROM_start_bookmark_occupation = {
         limit = {
             has_start_date > 1918.3.20 has_start_date < 1918.3.22
             date < 1918.11.11
-            NOT = { has_country_flag = WW1_ROM_bookmark_occupation_set }
+            NOT = { has_country_flag = WW1_ROM_bookmark_occupation_registered }
             OR = { has_country_flag = WW1_ROM_focsani_armistice has_global_flag = bucharestreaty }
             NOT = { has_global_flag = compiegne }
             NOT = { has_global_flag = central_powers_victory }
@@ -66,28 +66,88 @@ WW1_ROM_start_bookmark_occupation = {
             NOT = { has_war_with = AUH }
             NOT = { has_war_with = BUL }
         }
-        set_country_flag = WW1_ROM_bookmark_occupation_set
-        set_country_flag = WW1_ROM_military_occupation_pending
-        46 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
-        81 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
+        # The bookmark already gives the occupier ownership so peace cannot reset
+        # its control. Older saves can still have Romania as the owner.
         if = {
-            limit = { has_country_flag = WW1_ROM_focsani_armistice NOT = { has_global_flag = armistice_of_salonica } NOT = { has_global_flag = armistice_of_villa_giusti } }
-            77 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = BUL } }
-            1015 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
-            1030 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = GER } }
-            1018 = { WW1_ROM_assign_bookmark_occupier = { OCCUPIER = AUH } }
+            limit = { GER = { exists = yes has_capitulated = no } }
+            every_state = {
+                limit = {
+                    OR = {
+                        state = 46 state = 81
+                        AND = {
+                            OR = { state = 1015 state = 1030 }
+                            ROM = { has_country_flag = WW1_ROM_focsani_armistice }
+                            NOT = { has_global_flag = bucharestreaty }
+                            NOT = { has_global_flag = armistice_of_salonica }
+                            NOT = { has_global_flag = armistice_of_villa_giusti }
+                        }
+                    }
+                    OR = { is_owned_by = ROM is_owned_by = GER }
+                    NOT = { has_state_flag = WW1_ROM_bucharest_occupation }
+                    OR = { is_fully_controlled_by = ROM is_fully_controlled_by = GER }
+                }
+                set_state_flag = WW1_ROM_bucharest_occupation
+                if = { limit = { is_owned_by = ROM } transfer_state_to = GER }
+                else_if = { limit = { is_fully_controlled_by = ROM } set_state_controller_to = GER }
+            }
         }
-    }
-}
-WW1_ROM_assign_bookmark_occupier = {
-    if = {
-        limit = {
-            is_owned_by = ROM
-            OR = { is_fully_controlled_by = ROM is_fully_controlled_by = $OCCUPIER$ }
-            $OCCUPIER$ = { exists = yes has_capitulated = no }
+        if = {
+            limit = {
+                has_country_flag = WW1_ROM_focsani_armistice
+                NOT = { has_global_flag = bucharestreaty }
+                NOT = { has_global_flag = armistice_of_salonica }
+                NOT = { has_global_flag = armistice_of_villa_giusti }
+            }
+            77 = {
+                if = {
+                    limit = {
+                        BUL = { exists = yes has_capitulated = no }
+                        OR = { is_owned_by = ROM is_owned_by = BUL }
+                        NOT = { has_state_flag = WW1_ROM_bucharest_occupation }
+                        OR = { is_fully_controlled_by = ROM is_fully_controlled_by = BUL }
+                    }
+                    set_state_flag = WW1_ROM_bucharest_occupation
+                    if = { limit = { is_owned_by = ROM } transfer_state_to = BUL }
+                    else_if = { limit = { is_fully_controlled_by = ROM } set_state_controller_to = BUL }
+                }
+            }
+            1018 = {
+                if = {
+                    limit = {
+                        AUH = { exists = yes has_capitulated = no }
+                        OR = { is_owned_by = ROM is_owned_by = AUH }
+                        NOT = { has_state_flag = WW1_ROM_bucharest_occupation }
+                        OR = { is_fully_controlled_by = ROM is_fully_controlled_by = AUH }
+                    }
+                    set_state_flag = WW1_ROM_bucharest_occupation
+                    if = { limit = { is_owned_by = ROM } transfer_state_to = AUH }
+                    else_if = { limit = { is_fully_controlled_by = ROM } set_state_controller_to = AUH }
+                }
+            }
         }
-        set_state_flag = WW1_ROM_bucharest_occupation
-        transfer_state_to = $OCCUPIER$
+        if = {
+            limit = { any_state = { has_state_flag = WW1_ROM_bucharest_occupation } }
+            set_country_flag = WW1_ROM_military_occupation_pending
+            if = { limit = { 46 = { has_state_flag = WW1_ROM_bucharest_occupation } NOT = { 79 = { is_capital = yes } } } set_capital = { state = 79 } }
+        }
+        if = {
+            limit = {
+                46 = { has_state_flag = WW1_ROM_bucharest_occupation }
+                81 = { has_state_flag = WW1_ROM_bucharest_occupation }
+                OR = {
+                    has_global_flag = bucharestreaty
+                    has_global_flag = armistice_of_salonica
+                    has_global_flag = armistice_of_villa_giusti
+                    AND = {
+                        77 = { has_state_flag = WW1_ROM_bucharest_occupation }
+                        1015 = { has_state_flag = WW1_ROM_bucharest_occupation }
+                        1030 = { has_state_flag = WW1_ROM_bucharest_occupation }
+                        1018 = { has_state_flag = WW1_ROM_bucharest_occupation }
+                    }
+                }
+            }
+            set_country_flag = WW1_ROM_bookmark_occupation_registered
+        }
     }
 }
 WW1_ROM_end_military_occupation = {

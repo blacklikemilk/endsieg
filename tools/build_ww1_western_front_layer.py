@@ -1,165 +1,209 @@
-"""Build the German General Staff panel's live province and front-line overlays.
-
-Run from any directory with Python 3 and Pillow. Coordinates are top-down in
-Endsieg's provinces.bmp. Province IDs and state ownership come from the mod.
-Only the marked sections of the two hand-maintained UI files are regenerated.
-"""
+"""Build the operations map from Endsieg's province bitmap and country colours (Pillow 12 or newer)."""
+import colorsys
 import csv
 import re
 from collections import defaultdict
 from pathlib import Path
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, __version__ as pillow_version
 
 ROOT = Path(__file__).resolve().parents[1]
-CROP = (2770, 482, 2986, 606)
-SIZE = (466, 268)
-TEXTURES = ROOT / "gfx/interface/endsieg_ww1_western_plans/live"
-BEGIN = "# BEGIN generated western province layer"
-END = "# END generated western province layer"
+ART = Path("gfx/interface/endsieg_ww1_western_plans/live")
+GFX = ROOT / "interface/endsieg_ww1_frontline_atlas.gfx"
+GUI = ROOT / "interface/endsieg_ww1_western_plans.gui"
+SCRIPT = ROOT / "common/scripted_guis/endsieg_ww1_western_plans.txt"
+LOC = ROOT / "localisation/english/endsieg_ww1_western_plans_ui_l_english.yml"
+TEXT = ROOT / "common/scripted_localisation/WWI_western_plans_ui.txt"
+# Top-down bitmap crops, panel dimensions and origins in the decision window.
+MAPS = {
+    "west": ((2770, 482, 2986, 606), (466, 268), (17, 61)),
+    "east": ((3085, 467, 3160, 515), (122, 80), (25, 232)),
+}
+# Keep the principal armies and neighbours distinct, including the two Russias.
+INK_TAGS = "GER FRA BEL ENG HOL SWI LUX RIE POL AUH SOV USA ITA BUL ROM TUR JAP DEN SWE POR SPR WHR".split()
 
 
-def province_grid():
-    lookup = {}
-    with (ROOT / "map/definition.csv").open(encoding="utf-8-sig") as f:
-        for row in csv.reader(f, delimiter=";"):
-            lookup[tuple(map(int, row[1:4]))] = int(row[0]) if row[4] == "land" else 0
-    with Image.open(ROOT / "map/provinces.bmp") as original:
-        cropped = original.crop(CROP).convert("RGB").resize(SIZE, Image.Resampling.NEAREST)
-    return [lookup[pixel] for pixel in cropped.getdata()]
+def replace_section(path, name, lines, before=None, indentation=""):
+    original = path.read_bytes()
+    text = original.decode("utf-8").replace("\r\n", "\n")
+    begin = f"{indentation}# BEGIN generated map {name}\n"
+    end = f"{indentation}# END generated map {name}\n"
+    block = begin + "\n".join(lines) + "\n" + end
+    if begin in text:
+        left, rest = text.split(begin, 1)
+        _, right = rest.split(end, 1)
+        text = left + block + right
+    elif before:
+        assert text.count(before) == 1, before
+        text = text.replace(before, block + before)
+    else:
+        text = text.rstrip("\n") + "\n" + block
+    if b"\r\n" in original:
+        text = text.replace("\n", "\r\n")
+    path.write_bytes(text.encode())
 
 
-def province_states():
-    states = {}
-    for f in sorted((ROOT / "history/states").glob("*.txt")):
-        text = re.sub(r"#.*", "", f.read_text(encoding="utf-8-sig", errors="replace"))
-        state = re.search(r"\bid\s*=\s*(\d+)", text)
-        ids = re.search(r"\bprovinces\s*=\s*\{([^}]+)\}", text)
-        if state and ids:
-            for number in map(int, re.findall(r"\b\d+\b", ids[1])):
-                states[number] = int(state[1])
-    return states
+def palette():
+    countries = {}
+    for f in (ROOT / "common/country_tags").glob("*.txt"):
+        tags = re.sub(r"#.*", "", f.read_text(encoding="utf-8-sig")).split("dynamic_tags")[0]
+        countries.update(re.findall(r'(?m)^\s*(\w{3})\s*=\s*"([^"]+)"', tags))
+    pattern = r'\bcolor\s*=\s*(rgb|hsv)?\s*\{\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\}'
+    def rgb(match):
+        mode, *values = match
+        values = [float(v) for v in values]
+        if mode.lower() == "hsv":
+            values = [255 * c for c in colorsys.hsv_to_rgb(*values)]
+        return tuple(min(255, round(v)) for v in values)
+    colors = {}
+    for tag, filename in countries.items():
+        path = ROOT / "common" / filename
+        if path.exists():
+            matches = re.findall(pattern, path.read_text(encoding="utf-8-sig", errors="replace"), re.I)
+            if matches:
+                colors[tag] = rgb(matches[0])
+    overrides = re.sub(r"#.*", "", (ROOT / "common/countries/colors.txt").read_text(encoding="utf-8-sig"))
+    for tag, *value in re.findall(r'(\w{3})\s*=\s*\{\s*' + pattern, overrides, re.I):
+        if tag in countries:
+            colors[tag] = rgb(value)
+    inks = {tag: colors[tag] for tag in INK_TAGS}
+    groups = defaultdict(list)
+    for tag, color in sorted(colors.items()):
+        if tag not in inks:
+            closest = min(inks, key=lambda ink: sum((a-b)**2 for a,b in zip(color, inks[ink])))
+            groups[closest].append(tag)
+    inks["other"] = (137, 135, 125)
+    return inks, groups
 
 
-def geometry(grid):
-    w, h = SIZE
-    provinces, borders = defaultdict(list), defaultdict(list)
-    for y in range(h):
-        for x in range(w):
-            i = y * w + x
+def tiles(grid, width, height, inset):
+    provinces, edges = defaultdict(list), defaultdict(list)
+    for y in range(height):
+        for x in range(width):
+            if inset and (x in (0, width-1) or y in (0, height-1)):
+                continue
+            i = y*width+x
             pid = grid[i]
             if not pid:
                 continue
-            provinces[pid].append((x, y))
-            for neighbour in (grid[i + 1] if x < w - 1 else 0,
-                              grid[i + w] if y < h - 1 else 0):
-                if neighbour and pid != neighbour:
-                    borders[tuple(sorted((pid, neighbour)))].append((x, y))
-    return provinces, borders
+            right = grid[i+1] if x+1 < width else pid
+            down = grid[i+width] if y+1 < height else pid
+            provinces[pid].append((x,y, 195 if pid != right or pid != down else 255))
+            for neighbor in (right, down):
+                if neighbor and neighbor != pid:
+                    edges[tuple(sorted((pid,neighbor)))].append((x,y,255))
+    for kind, collection in (("land", provinces), ("line", edges)):
+        for key, points in sorted(collection.items()):
+            xs, ys, _ = zip(*points)
+            padding = int(kind == "line")
+            x, y = max(0,min(xs)-padding), max(0,min(ys)-padding)
+            w = min(width, max(xs)+padding+1)-x
+            h = min(height, max(ys)+padding+1)-y
+            mask = Image.new("L",(w,h))
+            for px, py, value in points:
+                mask.putpixel((px-x,py-y),value)
+            yield kind, key, x, y, mask
 
 
-def tiles(points, border):
-    """Crop every shape tightly. Adjacent provinces use the same hatch origin."""
-    xs, ys = zip(*points)
-    pad = int(border)
-    x0, y0 = max(0, min(xs) - pad), max(0, min(ys) - pad)
-    width = min(SIZE[0] - 1, max(xs) + pad) - x0 + 1
-    height = min(SIZE[1] - 1, max(ys) + pad) - y0 + 1
-    images = []
-    if border:
-        core = Image.new("L", (width, height))
-        for x, y in points:
-            core.putpixel((x - x0, y - y0), 255)
-        image = Image.new("RGBA", (width, height), (151, 42, 34, 0))
-        image.putalpha(core.filter(ImageFilter.MaxFilter(3)).point(lambda p: p * 0.88))
-        image.paste((255, 231, 184, 255), (0, 0, width, height), core)
-        images.append(image)
-    else:
-        for fill, stripe in [((128, 80, 16, 106), (250, 193, 82, 192)),
-                             ((25, 75, 111, 130), (125, 201, 239, 200))]:
-            image = Image.new("RGBA", (width, height))
-            for x, y in points:
-                image.putpixel((x - x0, y - y0), stripe if (x + y) % 6 == 0 else fill)
-            images.append(image)
-    return (x0, y0), images
-
-
-def pack_atlases(shapes):
-    # HOI4 sprites have uniformly sized horizontal frames. Bucket similar
-    # tiles together and cap atlas width to avoid GPU-size assumptions.
-    buckets = defaultdict(list)
-    for name, pos, image, test in shapes:
-        dims = tuple((n + 7) // 8 * 8 for n in image.size)
-        buckets[dims].append((name, pos, image, test))
-    gfx, icons, checks = [], [], []
-    TEXTURES.mkdir(parents=True, exist_ok=True)
-    for (width, height), group in sorted(buckets.items()):
-        count = min(2048 // width, 64)
-        for start in range(0, len(group), count):
-            items = group[start:start + count]
-            name = f"wf_{width}x{height}_{start // count}"
-            sprite = "GFX_" + name
-            atlas = Image.new("RGBA", (width * len(items), height))
-            for index, (key, (x, y), image, test) in enumerate(items):
-                atlas.paste(image, (index * width, 0))
-                icons.append(f'\t\t\ticonType = {{ name = "{key}" position = {{ x = {x} y = {y} }} spriteType = "{sprite}" frame = {index+1} alwaystransparent = yes }}')
-                checks.append(f"\t\t\t{key}_visible = {{ {test} }}")
-            atlas.save(TEXTURES / (name + ".dds"))
-            gfx.append(f'\tspriteType = {{ name = "{sprite}" texturefile = "gfx/interface/endsieg_ww1_western_plans/live/{name}.dds" noOfFrames = {len(items)} }}')
-    # Atlas order is independent of draw order. All border icons follow fills.
-    icons.sort(key=lambda line: ('name = "wf_line_' in line, line))
-    (ROOT / "interface/endsieg_ww1_frontline_atlas.gfx").write_text(
-        "spriteTypes = {\n" + "\n".join(gfx) + "\n}\n", encoding="utf-8")
-    return icons, checks
-
-
-def put_block(path, anchor, body, indent):
-    # Preserve the rest of the file, including its original BOM and newlines.
-    old = path.read_bytes()
-    crlf = b"\r\n" in old
-    text = old.decode("utf-8").replace("\r\n", "\n")
-    begin, end = indent + BEGIN + "\n", indent + END + "\n"
-    block = begin + "\n".join(body) + "\n" + end
-    if begin in text:
-        left, right = text.split(begin, 1)
-        _, right = right.split(end, 1)
-        text = left + block + right
-    else:
-        assert text.count(anchor) == 1, f"Expected exactly one insertion point: {path}"
-        text = text.replace(anchor, block + anchor)
-    path.write_bytes((text.replace("\n", "\r\n") if crlf else text).encode("utf-8"))
+def save_sheet(name, image, frames, gfx, hit_test=False):
+    rel = ART / (name + ".dds")
+    image.save(ROOT / rel, pixel_format="DXT5")
+    hit = " transparencecheck = yes" if hit_test else ""
+    gfx.append(f'\tspriteType = {{ name = "GFX_{name}" texturefile = "{rel.as_posix()}" noOfFrames = {frames}{hit} }}')
 
 
 def main():
-    provinces, borders = geometry(province_grid())
-    states = province_states()
-    shapes = []
-    for pid, points in sorted(provinces.items()):
-        pos, (ours, theirs) = tiles(points, False)
-        for side, image, relation in [
-            ("ours", ours, "OR = { tag = GER is_in_faction_with = GER has_war_together_with = GER }"),
-            ("enemy", theirs, "has_war_with = GER"),
-        ]:
-            test = f"var:global.province_controllers^{pid} = {{ NOT = {{ owns_state = {states[pid]} }} {relation} }}"
-            shapes.append((f"wf_{side}_{pid}", pos, image, test))
-    for (a, b), points in sorted(borders.items()):
-        pos, (line,) = tiles(points, True)
-        # Evaluate from the actual controller scopes; neutral/friendly borders
-        # and coastlines are never drawn as fronts.
-        test = (f"var:global.province_controllers^{a} = {{ "
-                f"var:global.province_controllers^{b} = {{ has_war_with = PREV }} }}")
-        shapes.append((f"wf_line_{a}_{b}", pos, line, test))
-    icons, checks = pack_atlases(shapes)
-    panel = ['\t\tcontainerWindowType = {', '\t\t\tname = "wf_control_layer"',
-             '\t\t\tposition = { x = 17 y = 61 }',
-             f'\t\t\tsize = {{ width = {SIZE[0]} height = {SIZE[1]} }}',
-             *icons, '\t\t}']
-    put_block(ROOT / "interface/endsieg_ww1_western_plans.gui",
-              '\t\ticonType = {\n\t\t\tname = "western_frontline_flanders_supply"', panel, "\t\t")
-    checks.insert(0, "\t\t\twf_control_layer_visible = { WW1_western_frontline_available = yes }")
-    put_block(ROOT / "common/scripted_guis/endsieg_ww1_western_plans.txt",
-              "\t\t\twestern_plan_title_visible = ", checks, "\t\t\t")
-    print(f"Built {len(provinces)} province masks and {len(borders)} shared land borders.")
+    # Older Pillow silently writes an uncompressed DDS when pixel_format is set.
+    if int(pillow_version.split(".")[0]) < 12:
+        raise RuntimeError("Building the DXT5 controller atlas requires Pillow 12 or later.")
+    (ROOT / ART).mkdir(parents=True, exist_ok=True)
+    inks, groups = palette()
+    lookup = {}
+    with (ROOT / "map/definition.csv").open(encoding="utf-8-sig") as f:
+        for row in csv.reader(f, delimiter=";"):
+            lookup[tuple(map(int,row[1:4]))] = int(row[0]) if row[4] == "land" else 0
+    banks = defaultdict(list)
+    with Image.open(ROOT / "map/provinces.bmp") as original:
+        for view,(crop,size,_) in MAPS.items():
+            pixels = original.crop(crop).convert("RGB").resize(size, Image.Resampling.NEAREST)
+            pixels_rgb = pixels.get_flattened_data() if hasattr(pixels, "get_flattened_data") else pixels.getdata()
+            grid = [lookup[pixel] for pixel in pixels_rgb]
+            for kind, key, x, y, mask in tiles(grid, *size, view == "east"):
+                step = 32 if kind=="land" else 16
+                w,h = ((n+step-1)//step*step for n in mask.size)
+                banks[kind,w,h].append((view,key,x,y,mask))
+
+    old_assets = set(re.findall(r'texturefile = "([^"]+)"', GFX.read_text()))
+    gfx, properties, checks, texts = [], [], [], []
+    tooltips = {}
+    layers = defaultdict(list)
+    for (kind,w,h), items in sorted(banks.items()):
+        capacity = min(64,2048//w)
+        for start in range(0,len(items),capacity):
+            batch = items[start:start+capacity]
+            bank = f"wf_{kind}_{w}x{h}_{start//capacity}"
+            alpha = Image.new("L",(w*len(batch),h))
+            for index,(view,key,x,y,mask) in enumerate(batch):
+                alpha.paste(mask,(index*w,0))
+                frame = index+1
+                if kind=="land":
+                    scope = f"?global.province_controllers^{key}"
+                    name = f"wf_{view}_p{key}"
+                    tooltip = f"WW1_WP_controller_{key}"
+                    tooltips[key] = f' {tooltip}:0 "Province {key}  |  Controller  \u00a7Y[{scope}.GetNameWithFlag]\u00a7!"'
+                    properties.append(f'\t\t\t{name} = {{ image = "[{scope}.Get_{bank}]" frame = {frame} }}')
+                    sprite = bank+"_other"
+                    extra = f"pdx_tooltip = {tooltip}"
+                else:
+                    a,b = key
+                    name = f"wf_{view}_line_{a}_{b}"
+                    sprite = bank
+                    extra = "alwaystransparent = yes"
+                    checks.append(f"\t\t\t{name}_visible = {{ var:global.province_controllers^{a} = {{ var:global.province_controllers^{b} = {{ has_war_with = PREV }} }} }}")
+                layers[view,kind].append(f'\t\t\ticonType = {{ name = "{name}" position = {{ x = {x} y = {y} }} spriteType = "GFX_{sprite}" frame = {frame} {extra} }}')
+            if kind=="line":
+                # Pad each shape independently so the halo cannot bleed across frames.
+                image = Image.new("RGBA",alpha.size)
+                for i,(_,_,_,_,mask) in enumerate(batch):
+                    tile = Image.new("RGBA",mask.size,(151,42,34,0))
+                    tile.putalpha(mask.filter(ImageFilter.MaxFilter(3)).point(lambda v:round(v*.88)))
+                    tile.paste((255,231,184,255),(0,0,*mask.size),mask)
+                    image.paste(tile,(i*w,0))
+                save_sheet(bank,image,len(batch),gfx)
+                continue
+            text = [f"defined_text = {{\n\tname = Get_{bank}"]
+            for ink,color in inks.items():
+                # Darken province edges; alpha is binary so transparent pixels never take hover.
+                image = Image.merge("RGBA", tuple(alpha.point(lambda v,c=c:round(v*c/255)) for c in color)
+                                    +(alpha.point(lambda v:255 if v else 0),))
+                save_sheet(bank+"_"+ink,image,len(batch),gfx,True)
+                if ink!="other":
+                    text.append(f'\ttext = {{ trigger = {{ tag = {ink} }} localization_key = "GFX_{bank}_{ink}" }}')
+            for ink,tags in groups.items():
+                choices = " ".join(f"original_tag = {tag}" for tag in [ink,*tags])
+                text.append(f'\ttext = {{ trigger = {{ OR = {{ {choices} }} }} localization_key = "GFX_{bank}_{ink}" }}')
+            text.extend([f'\ttext = {{ localization_key = "GFX_{bank}_other" }}',"}"])
+            texts.extend(text)
+    checks.append("\t\t\twf_east_control_visible = { WW1_western_frontline_available = no WW1_western_plan_ui_kronprinz = yes }")
+    for view,(_,size,origin) in MAPS.items():
+        x,y=origin;w,h=size
+        panel=['\t\tcontainerWindowType = {',f'\t\t\tname = "wf_{view}_control"',
+               f"\t\t\tposition = {{ x = {x} y = {y} }}",f"\t\t\tsize = {{ width = {w} height = {h} }}",
+               *layers[view,"land"],*layers[view,"line"],"\t\t}"]
+        next_icon = "western_plan_eastern_inset" if view=="west" else "western_plan_area_liege_active"
+        replace_section(GUI,view,panel,f'\t\ticonType = {{\n\t\t\tname = "{next_icon}"',"\t\t")
+    replace_section(SCRIPT,"controllers",["\t\tproperties = {",*properties,"\t\t}"],"\t\ttriggers = {","\t\t")
+    replace_section(SCRIPT,"fronts",checks,"\t\t\twestern_plan_title_visible = ","\t\t\t")
+    replace_section(LOC,"tooltips",[tooltips[i] for i in sorted(tooltips)])
+    replace_section(TEXT,"inks",texts)
+    index = "spriteTypes = {\n"+"\n".join(gfx)+"\n}\n"
+    GFX.write_text(index,encoding="utf-8")
+    new_assets = set(re.findall(r'texturefile = "([^"]+)"',index))
+    for path in sorted(old_assets-new_assets):
+        p = ROOT / path
+        assert p.resolve().parent == (ROOT/ART).resolve() and re.fullmatch(r"wf_\w+\.(dds|tga)",p.name)
+        p.unlink(missing_ok=True)
+    print(f"{len(tooltips)} provinces, {len(properties)} controller bindings, {len(gfx)} atlas sheets")
 
 
 if __name__ == "__main__":

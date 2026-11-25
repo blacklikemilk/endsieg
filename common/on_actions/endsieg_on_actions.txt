@@ -1766,43 +1766,38 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
             if = {
                 limit = {
                     tag = GER
+                    has_government = fascism
+                    NOT = { country_exists = RKB }
                     date > 1944.7.12
                     date < 1944.12.15
                     NOT = { has_country_flag = endsieg_RKB_formed }
-                    6 = { is_owned_by = GER is_controlled_by = GER }
-                    29 = { is_owned_by = GER is_controlled_by = GER }
-                    34 = { is_owned_by = GER is_controlled_by = GER }
+                    has_full_control_of_state = 6
+                    has_full_control_of_state = 29
+                    has_full_control_of_state = 34
                 }
-                6 = { transfer_state_to = RKB }
-                29 = { transfer_state_to = RKB }
-                34 = { transfer_state_to = RKB }
-                set_autonomy = { target = RKB autonomy_state = autonomy_integrated_puppet }
-                add_to_faction = RKB
-                set_country_flag = endsieg_RKB_formed
+                endsieg_form_rkb = yes
             }
 
-            # On 15 December 1944 the Reichskommissariat was replaced by the
-            # Reichsgaue. Restore liberated Belgian and French territory and
-            # remove the temporary subject.
+            # Restore each part of the administration once Allied troops have liberated it.
             if = {
-                limit = {
-                    tag = GER
-                    date > 1944.12.14
-                    NOT = { has_country_flag = endsieg_RKB_dissolved }
-                }
-                if = {
-                    limit = {
-                        RKB = {
-                            exists = yes
-                            is_subject_of = GER
+                limit = { tag = GER date > 1944.12.14 has_subject = RKB }
+                RKB = {
+                    every_owned_state = {
+                        limit = {
+                            OR = { state = 6 state = 29 state = 34 state = 1009 }
+                            controller = {
+                                has_full_control_of_state = PREV
+                                NOT = { tag = GER }
+                                NOT = { is_subject_of = GER }
+                                NOT = { is_in_faction_with = GER }
+                                OR = { tag = BEL tag = FRA tag = ENG is_in_faction_with = ENG }
+                            }
                         }
+                        if = { limit = { state = 6 } remove_core_of = RKB }
+                        if = { limit = { state = 29 } transfer_state_to = FRA }
+                        else = { transfer_state_to = BEL }
                     }
-                    6 = { transfer_state_to = BEL }
-                    34 = { transfer_state_to = BEL }
-                    29 = { transfer_state_to = FRA }
-                    annex_country = { target = RKB transfer_troops = yes }
                 }
-                set_country_flag = endsieg_RKB_dissolved
             }
 
             if = {
