@@ -1,4 +1,20 @@
 on_actions = {
+    on_puppet = {
+        effect = {
+            if = {
+                limit = { FROM = { tag = JAP has_government = fascism } date < 1945.9.3 }
+                if = {
+                    limit = { tag = BRM date > 1943.7.31 }
+                    endsieg_install_state_of_burma_government = yes
+                }
+                else_if = {
+                    limit = { tag = PHI date > 1943.10.13 }
+                    endsieg_install_second_republic_president = yes
+                }
+            }
+        }
+    }
+
     on_startup = {
         effect = {
  every_country = { WW1_initialize_bookmark_event_history = yes }
@@ -10,6 +26,10 @@ FRA = { FR3_R_update_tree = yes }
 
 ENG = { EN1_R_update_tree = yes }
 
+
+            # Endsieg uses a different province map from vanilla.
+            set_province_name = { id = 3326 name = endsieg_city_3326 }
+            set_province_name = { id = 13406 name = endsieg_city_13406 }
 
             # Use the historical names in the pre-Soviet and WWI starts.
             if = {
@@ -565,22 +585,29 @@ ENG = { EN1_R_update_tree = yes }
                 	set_global_flag = welcome_event_1944
                 }
 
+                # State history and the European war must be ready before the landing force deploys.
                 if = {
                     limit = {
-                        date > 1944.1.1
-                        date < 1944.7.1
-                        has_dlc = "No Step Back"
+                        date > 1944.6.20
+                        date < 1944.6.22
+                        has_start_date > 1944.6.20
+                        has_start_date < 1944.6.22
+                        NOT = { has_global_flag = endsieg_normandy_landing_deployed }
                     }
-                    FRA = {load_oob = "FRF_1944_nsb"}
-                }
-
-                if = {
-                    limit = {
-                        date > 1944.1.1
-                        date < 1944.7.1
-                        NOT = { has_dlc = "No Step Back" }
+                    FRA = {
+                        set_province_controller = 539
+                        set_province_controller = 3579
+                        set_province_controller = 6599
+                        set_province_controller = 9550
+                        set_province_controller = 11521
+                        set_province_controller = 11535
+                        if = {
+                            limit = { has_dlc = "No Step Back" }
+                            load_oob = "FRF_1944_nsb"
+                        }
+                        else = { load_oob = "FRF_1944" }
                     }
-                    FRA = {load_oob = "FRF_1944"}
+                    set_global_flag = endsieg_normandy_landing_deployed
                 }
 
                 #1944 d events
@@ -630,45 +657,83 @@ ENG = { EN1_R_update_tree = yes }
                     CHI = { declare_war_on = { target = PRC type = annex_everything } }
                 }
 
-                #WW2 German add to war countries
+                # Set up each European front after country history has loaded. A general call also joins unrelated wars.
                 if = {
                     limit = {
                         date > 1940.12.1
                         date < 1946.1.1
                     }
 
-                	every_country = {
-                		limit = { is_in_faction_with = ENG }
-                		add_to_war = {
-                			targeted_alliance = ENG
-                			enemy = GER
-                		}
-                	}
+                    every_country = {
+                        limit = {
+                            is_in_faction_with = ENG
+                            ENG = { has_war_with = GER }
+                            NOT = { tag = ENG }
+                            NOT = { has_war_with = GER }
+                            NOT = { tag = IRE }
+                            NOT = { tag = YEM }
+                            NOT = { tag = BHU }
+                        }
+                        add_to_war = {
+                            targeted_alliance = ENG
+                            enemy = GER
+                            single_target_only = yes
+                        }
+                    }
 
-                	every_country = {
-                		limit = { is_in_faction_with = SOV }
-                		add_to_war = {
-                			targeted_alliance = SOV
-                			enemy = GER
-                		}
-                	}
+                    every_country = {
+                        limit = {
+                            is_in_faction_with = SOV
+                            SOV = { has_war_with = GER }
+                            NOT = { tag = SOV }
+                            NOT = { has_war_with = GER }
+                        }
+                        add_to_war = {
+                            targeted_alliance = SOV
+                            enemy = GER
+                            single_target_only = yes
+                        }
+                    }
 
-                	every_country = {
-                		limit = { is_in_faction_with = GER }
-                		add_to_war = {
-                			targeted_alliance = GER
-                			enemy = ENG
-                		}
-                	}
+                    every_country = {
+                        limit = {
+                            is_in_faction_with = GER
+                            GER = { has_war_with = ENG }
+                            NOT = { tag = GER }
+                            NOT = { has_war_with = ENG }
+                        }
+                        add_to_war = {
+                            targeted_alliance = GER
+                            enemy = ENG
+                            single_target_only = yes
+                        }
+                    }
 
-                	every_country = {
-                		limit = { is_in_faction_with = GER }
-                		add_to_war = {
-                			targeted_alliance = GER
-                			enemy = SOV
-                		}
-                	}
+                    every_country = {
+                        limit = {
+                            is_in_faction_with = GER
+                            GER = { has_war_with = SOV }
+                            NOT = { tag = GER }
+                            NOT = { has_war_with = SOV }
+                            NOT = { tag = BUL }
+                        }
+                        add_to_war = {
+                            targeted_alliance = GER
+                            enemy = SOV
+                            single_target_only = yes
+                        }
+                    }
+                }
 
+                if = {
+                    limit = {
+                        date > 1941.12.8
+                        date < 1946.1.1
+                        country_exists = CHI
+                        ENG = { has_war_with = GER }
+                        CHI = { NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } }
+                    }
+                    CHI = { add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes } }
                 }
 
                 # The 1942 and July 1943 starts require Italy in Germany's war against the USA.
@@ -747,6 +812,31 @@ ENG = { EN1_R_update_tree = yes }
                 if = {
                     limit = { date < 1936.1.1 country_exists = ITA }
                     ITA = { IT1_ww1_initialize_administration = yes }
+                }
+
+                # Seed the active services of belligerents after their OOBs and wars exist.
+                if = {
+                    limit = {
+                        has_start_date > 1941.7.1
+                        has_start_date < 1945.3.21
+                        NOT = { has_global_flag = endsieg_ww2_bookmark_doctrines_initialized }
+                    }
+                    every_country = {
+                        limit = { has_war = yes }
+                        if = {
+                            limit = { num_divisions > 0 }
+                            endsieg_initialize_land_bookmark_doctrine = yes
+                        }
+                        if = {
+                            limit = { has_navy_size = { size > 0 } }
+                            endsieg_initialize_naval_bookmark_doctrine = yes
+                        }
+                        if = {
+                            limit = { has_deployed_air_force_size = { size > 0 } }
+                            endsieg_initialize_air_bookmark_doctrine = yes
+                        }
+                    }
+                    set_global_flag = endsieg_ww2_bookmark_doctrines_initialized
                 }
 
                 # Run after all scenario-specific wars and factions have been established.

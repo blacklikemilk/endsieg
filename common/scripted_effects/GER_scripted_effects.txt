@@ -6,7 +6,7 @@ GER_mefo_bills_level_up = {
 		swap_ideas = {
 			remove_idea = GER_mefo_bills_17
 			add_idea = GER_mefo_bills_18
-		}
+	}
 	}
 	else_if = {
 		limit = { has_idea = GER_mefo_bills_16 }
@@ -3109,33 +3109,34 @@ GER_set_up_colonial_resistance_states = {
 	}
 }
 
-# The capital establishes the subject before it joins Germany's faction and wars.
+# Use a saved event target for the subject so all five administrations share
+# the same faction and wartime setup without passing custom arguments.
 endsieg_install_reichskommissariat = {
-	$CAPITAL$ = { add_core_of = $SUBJECT$ transfer_state_to = $SUBJECT$ }
-	$SUBJECT$ = { set_politics = { ruling_party = fascism elections_allowed = no } }
-	set_autonomy = { target = $SUBJECT$ autonomy_state = autonomy_integrated_puppet }
-	if = { limit = { is_in_faction = yes NOT = { is_in_faction_with = $SUBJECT$ } } add_to_faction = $SUBJECT$ }
+	event_target:endsieg_rk_subject = { set_politics = { ruling_party = fascism elections_allowed = no } }
+	set_autonomy = { target = event_target:endsieg_rk_subject autonomy_state = autonomy_integrated_puppet }
+	if = { limit = { is_in_faction = yes NOT = { is_in_faction_with = event_target:endsieg_rk_subject } } add_to_faction = event_target:endsieg_rk_subject }
 	every_enemy_country = {
-		limit = { NOT = { has_war_with = $SUBJECT$ } }
-		$SUBJECT$ = { add_to_war = { targeted_alliance = GER enemy = PREV hostility_reason = asked_to_join } }
+		limit = { NOT = { has_war_with = event_target:endsieg_rk_subject } }
+		event_target:endsieg_rk_subject = { add_to_war = { targeted_alliance = GER enemy = PREV single_target_only = yes hostility_reason = asked_to_join } }
 	}
 }
 
-# State scope. Preserve foreign legal ownership during German military occupation.
 endsieg_assign_reichskommissariat_state = {
 	if = {
 		limit = { OR = { is_owned_by = GER owner = { is_subject_of = GER } } }
-		transfer_state_to = $SUBJECT$
+		transfer_state_to = event_target:endsieg_rk_subject
 	}
 	else = {
-		add_contested_owner = $SUBJECT$
-		set_state_controller_to = $SUBJECT$
-		add_claim_by = $SUBJECT$
+		add_contested_owner = event_target:endsieg_rk_subject
+		set_state_controller_to = event_target:endsieg_rk_subject
+		add_claim_by = event_target:endsieg_rk_subject
 	}
 }
 
 endsieg_form_rkb = {
-	endsieg_install_reichskommissariat = { CAPITAL = 6 SUBJECT = RKB }
+	6 = { add_core_of = RKB transfer_state_to = RKB }
+	RKB = { save_event_target_as = endsieg_rk_subject }
+	endsieg_install_reichskommissariat = yes
 	29 = { transfer_state_to = RKB }
 	34 = { transfer_state_to = RKB }
 	1009 = { if = { limit = { is_fully_controlled_by = GER } transfer_state_to = RKB } }

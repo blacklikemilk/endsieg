@@ -2289,7 +2289,27 @@ if = {
 			obsolete = yes
 		}
 			
-		### Heavy Cruiser Variants			
+		### Heavy Cruiser Variants
+		create_equipment_variant = {
+			name = "Takao Class"
+			type = ship_hull_cruiser_2
+			name_group = JAP_CA_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_medium_battery_2
+				fixed_ship_anti_air_slot = empty
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_0
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = cruiser_ship_engine_2
+				fixed_ship_armor_slot = ship_armor_cruiser_2
+				fixed_ship_secondaries_slot = ship_secondaries_1
+				front_1_custom_slot = ship_medium_battery_2
+				mid_1_custom_slot = ship_torpedo_1
+				mid_2_custom_slot = ship_torpedo_1
+				rear_1_custom_slot = ship_airplane_launcher_1
+			}
+			obsolete = yes
+		}
 		create_equipment_variant = {
 			name = "Myoko Class"
 			type = ship_hull_cruiser_2
@@ -3205,8 +3225,8 @@ if = {
 		closed_economy
 	}
 
-	puppet = MEN
-	puppet = MAN
+	if = { limit = { MEN = { is_subject = no } } puppet = MEN }
+	if = { limit = { MAN = { is_subject = no } } puppet = MAN }
 	puppet = INU
 
 	create_faction = daitoa_kyoeiken
@@ -3218,10 +3238,12 @@ if = {
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = CHI
+			single_target_only = yes
 		}
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = PRC
+			single_target_only = yes
 		}
 	}
 
@@ -3229,10 +3251,12 @@ if = {
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = CHI
+			single_target_only = yes
 		}
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = PRC
+			single_target_only = yes
 		}
 	}
 
@@ -3667,11 +3691,8 @@ if = {
 	}
 }
 
-	diplomatic_relation = { country = SOV relation = non_aggression_pact }
-	diplomatic_relation = { country = GER relation = non_aggression_pact }
-
 	complete_national_focus = JAP_full_sovereignty_for_the_philippines
-	complete_national_focus = JAP_sea_exploit_southern_resource_area
+	set_country_flag = endsieg_defer_JAP_sea_exploit_southern_resource_area
 
 	#adding ministers
 	add_ideas = {
@@ -3682,10 +3703,10 @@ if = {
 		closed_economy
 	}
 
-	puppet = INU
+	if = { limit = { INU = { is_subject = no } } puppet = INU }
+	if = { limit = { MEN = { is_subject = no } } puppet = MEN }
+	if = { limit = { MAN = { is_subject = no } } puppet = MAN }
 	puppet = VIN
-	puppet = MEN
-	puppet = MAN
 	puppet = SIA
 
 	add_to_faction = JAP
@@ -3746,9 +3767,9 @@ if = {
 		target = HOL
 		type = annex_everything
 	}
-	declare_war_on = {
-		target = INS
-		type = annex_everything
+	if = {
+		limit = { country_exists = INS NOT = { has_war_with = INS } NOT = { is_in_faction_with = INS } }
+		declare_war_on = { target = INS type = annex_everything }
 	}
 	declare_war_on = {
 		target = USA
@@ -3758,6 +3779,7 @@ if = {
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = CHI
+			single_target_only = yes
 		}
 	}
 
@@ -3765,12 +3787,14 @@ if = {
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = CHI
+			single_target_only = yes
 		}
 	}
 	MAN = {
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = PRC
+			single_target_only = yes
 		}
 	}
 
@@ -3778,15 +3802,15 @@ if = {
 		add_to_war = {
 			targeted_alliance = JAP
 			enemy = PRC
+			single_target_only = yes
 		}
 	}
 
-	# The southern campaign focus can leave its original targets as outstanding
-	# goals when the 1942 bookmark applies historical wars directly. Clear those
-	# stale goals; Japan remains at war with the Dutch East Indies (INS).
-	remove_wargoal = { target = SOV type = all }
-	remove_wargoal = { target = PHI type = all }
-	remove_wargoal = { target = MAL type = all }
+	# Clear only stale focus wargoals when a 1942 bookmark actually carries them.
+	if = { limit = { has_wargoal_against = SOV } remove_wargoal = { target = SOV type = all } }
+	if = { limit = { has_wargoal_against = PHI } remove_wargoal = { target = PHI type = all } }
+	if = { limit = { has_wargoal_against = MAL } remove_wargoal = { target = MAL type = all } }
+
 }
 
 ######################## 1943
@@ -4035,11 +4059,8 @@ if = {
 	}
 }
 
-	diplomatic_relation = { country = SOV relation = non_aggression_pact }
-	diplomatic_relation = { country = GER relation = non_aggression_pact }
-
 	complete_national_focus = JAP_full_sovereignty_for_the_philippines
-	complete_national_focus = JAP_sea_exploit_southern_resource_area
+	set_country_flag = endsieg_defer_JAP_sea_exploit_southern_resource_area
 
 	#adding ministers
 	add_ideas = {

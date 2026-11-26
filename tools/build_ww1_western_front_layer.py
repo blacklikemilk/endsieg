@@ -1,6 +1,7 @@
 """Build the operations map from Endsieg's province bitmap and country colours (Pillow 12 or newer)."""
 import colorsys
 import csv
+from io import BytesIO
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -107,7 +108,28 @@ def tiles(grid, width, height, inset):
 
 def save_sheet(name, image, frames, gfx, hit_test=False):
     rel = ART / (name + ".dds")
-    image.save(ROOT / rel, pixel_format="DXT5")
+    path = ROOT / rel
+    encoded = BytesIO()
+    image.save(encoded, format="DDS", pixel_format="DXT3" if hit_test else "DXT5")
+    data = encoded.getvalue()
+    if hit_test:
+        # HOI4 reads BC2 alpha for province hit testing. Pillow can turn
+        # partially transparent 4x4 blocks opaque, so pack the source mask.
+        data = bytearray(data)
+        assert data[84:88] == b"DXT3" and image.width % 4 == image.height % 4 == 0
+        alpha = image.getchannel("A").tobytes()
+        offset = 128
+        for y in range(0, image.height, 4):
+            for x in range(0, image.width, 4):
+                for row in range(4):
+                    start = (y + row) * image.width + x
+                    a, b, c, d = alpha[start:start + 4]
+                    data[offset + 2 * row] = (a >> 4) | (b & 0xf0)
+                    data[offset + 2 * row + 1] = (c >> 4) | (d & 0xf0)
+                offset += 16
+        assert offset == len(data)
+    if not path.exists() or path.read_bytes() != data:
+        path.write_bytes(data)
     hit = " transparencecheck = yes" if hit_test else ""
     gfx.append(f'\tspriteType = {{ name = "GFX_{name}" texturefile = "{rel.as_posix()}" noOfFrames = {frames}{hit} }}')
 
@@ -115,7 +137,7 @@ def save_sheet(name, image, frames, gfx, hit_test=False):
 def main():
     # Older Pillow silently writes an uncompressed DDS when pixel_format is set.
     if int(pillow_version.split(".")[0]) < 12:
-        raise RuntimeError("Building the DXT5 controller atlas requires Pillow 12 or later.")
+        raise RuntimeError("Building the DXT3 controller atlas requires Pillow 12 or later.")
     (ROOT / ART).mkdir(parents=True, exist_ok=True)
     inks, groups = palette()
     lookup = {}
@@ -137,6 +159,7 @@ def main():
     gfx, properties, checks, texts = [], [], [], []
     tooltips = {}
     layers = defaultdict(list)
+    east_visible = "WW1_western_frontline_available = no WW1_western_plan_ui_kronprinz = yes"
     for (kind,w,h), items in sorted(banks.items()):
         capacity = min(64,2048//w)
         for start in range(0,len(items),capacity):
@@ -154,12 +177,15 @@ def main():
                     properties.append(f'\t\t\t{name} = {{ image = "[{scope}.Get_{bank}]" frame = {frame} }}')
                     sprite = bank+"_other"
                     extra = f"pdx_tooltip = {tooltip}"
+                    if view == "east":
+                        checks.append(f"\t\t\t{name}_visible = {{ {east_visible} }}")
                 else:
                     a,b = key
                     name = f"wf_{view}_line_{a}_{b}"
                     sprite = bank
                     extra = "alwaystransparent = yes"
-                    checks.append(f"\t\t\t{name}_visible = {{ var:global.province_controllers^{a} = {{ var:global.province_controllers^{b} = {{ has_war_with = PREV }} }} }}")
+                    gate = east_visible + " " if view == "east" else ""
+                    checks.append(f"\t\t\t{name}_visible = {{ {gate}var:global.province_controllers^{a} = {{ var:global.province_controllers^{b} = {{ has_war_with = PREV }} }} }}")
                 layers[view,kind].append(f'\t\t\ticonType = {{ name = "{name}" position = {{ x = {x} y = {y} }} spriteType = "GFX_{sprite}" frame = {frame} {extra} }}')
             if kind=="line":
                 # Pad each shape independently so the halo cannot bleed across frames.
@@ -184,7 +210,7 @@ def main():
                 text.append(f'\ttext = {{ trigger = {{ OR = {{ {choices} }} }} localization_key = "GFX_{bank}_{ink}" }}')
             text.extend([f'\ttext = {{ localization_key = "GFX_{bank}_other" }}',"}"])
             texts.extend(text)
-    checks.append("\t\t\twf_east_control_visible = { WW1_western_frontline_available = no WW1_western_plan_ui_kronprinz = yes }")
+    checks.append(f"\t\t\twf_east_control_visible = {{ {east_visible} }}")
     for view,(_,size,origin) in MAPS.items():
         x,y=origin;w,h=size
         panel=['\t\tcontainerWindowType = {',f'\t\t\tname = "wf_{view}_control"',

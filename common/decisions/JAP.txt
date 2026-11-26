@@ -6813,7 +6813,7 @@ JAP_establish_the_state_of_burma_decision = {
 				}
 				set_autonomy = {
 					target = BRM
-					autonomous_state = autonomy_wtt_imperial_protectorate
+					autonomy_state = autonomy_wtt_imperial_protectorate
 					end_wars = no
 					end_civil_wars = no
 				}
@@ -7032,6 +7032,7 @@ JAP_establish_the_second_philippine_republic_decision = {
 
 			IF = {
 				limit = {
+					has_start_date < 1941.12.7
 					PHI = {
 						exists = no
 					}
@@ -7046,7 +7047,7 @@ JAP_establish_the_second_philippine_republic_decision = {
 				}
 				set_autonomy = {
 					target = PHI
-					autonomous_state = autonomy_wtt_imperial_protectorate
+					autonomy_state = autonomy_wtt_imperial_protectorate
 					end_wars = no
 					end_civil_wars = no
 				}
@@ -7058,13 +7059,25 @@ JAP_establish_the_second_philippine_republic_decision = {
 				}
 			}
 			ELSE = {
-				random_state = {
-					limit = {
-						is_core_of = PHI
-						is_controlled_by = ROOT
+				# Occupied Pacific bookmarks can have a landless Commonwealth with existing Allied wars.
+				# Use the dedicated Japanese administration and give it the Japanese-held territory.
+				if = {
+					limit = { NOT = { country_exists = PHI } }
+					every_owned_state = {
+						limit = { is_core_of = PHI is_controlled_by = ROOT }
+						add_core_of = PSR
+						transfer_state_to = PSR
 					}
-					transfer_state_to = PSR
-					add_core_of = PSR
+				}
+				else = {
+					random_state = {
+						limit = {
+							is_core_of = PHI
+							is_controlled_by = ROOT
+						}
+						transfer_state_to = PSR
+						add_core_of = PSR
+					}
 				}
 				PHI = {
 					every_core_state = {
@@ -7083,7 +7096,7 @@ JAP_establish_the_second_philippine_republic_decision = {
 
 				set_autonomy = {
 					target = PSR
-					autonomous_state = autonomy_wtt_imperial_protectorate
+					autonomy_state = autonomy_wtt_imperial_protectorate
 					end_wars = no
 					end_civil_wars = no
 				}
@@ -7091,6 +7104,7 @@ JAP_establish_the_second_philippine_republic_decision = {
 				IF = {
 					limit = {
 						PHI = {
+							has_character = PHI_jose_laurel
 							NOT = {
 								has_country_leader = {
 									ruling_only = yes
@@ -7106,7 +7120,8 @@ JAP_establish_the_second_philippine_republic_decision = {
 			            }
 		        	}
 				}
-				ELSE = {
+				else_if = {
+					limit = { PHI = { has_character = PHI_artemio_ricarte } }
 				    PHI = {  
 			            PHI_artemio_ricarte = {
 			                set_nationality = PSR
