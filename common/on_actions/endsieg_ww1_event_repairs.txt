@@ -59,6 +59,14 @@ on_actions = {
 
  on_startup = {
   effect = {
+   if = {
+    limit = { country_exists = SES SES = { has_country_flag = SES_bookmark_war_pending } }
+    SES = { clr_country_flag = SES_bookmark_war_pending }
+    if = {
+     limit = { country_exists = ITA ITA = { NOT = { has_war_with = SES } } }
+     ITA = { declare_war_on = { target = SES type = civil_war } }
+    }
+   }
    every_country = { WW1_initialize_bookmark_event_history = yes }
    every_country = { limit = { OR = { tag = RIE tag = SOV } } RUS_ww1_repair_revolution_chain = yes }
 
@@ -87,35 +95,6 @@ on_actions = {
 		}
 	}
 	on_daily_MOR = {
-		effect = {
-			if = {
-				limit = { has_government = neutrality has_start_date < 1936.1.1 date < 1936.1.1 }
-				if = {
-					limit = {
-						date < 1912.8.13
-						has_country_leader = { name = "Mohammed V" ruling_only = yes }
-					}
-					MOR_install_sultan = { sultan = MOR_abd_al_hafid }
-				}
-				else_if = {
-					limit = {
-						NOT = { date < 1912.8.13 }
-						date < 1927.11.18
-						OR = {
-							has_country_leader = { name = "Abd al Hafid" ruling_only = yes }
-							has_country_leader = { name = "Mohammed V" ruling_only = yes }
-						}
-					}
-					MOR_install_sultan = { sultan = MOR_moulay_youssef }
-				}
-				else_if = {
-					limit = {
-						NOT = { date < 1927.11.18 }
-						has_country_leader = { name = "Moulay Youssef" ruling_only = yes }
-					}
-					MOR_install_sultan = { sultan = MOR_mohammed_v }
-				}
-			}
-		}
+		effect = { MOR_update_succession = yes }
 	}
 }

@@ -29,4 +29,4 @@ tags={
 }
 name="Endsieg - GitHub Development"
 picture="thumbnail.png"
-supported_version="1.20.*"
+supported_version="1.20.1"

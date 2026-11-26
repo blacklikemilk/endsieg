@@ -13,7 +13,7 @@ import re
 import sys
 
 TOKEN = re.compile(r'"(?:\\.|[^"\\])*"|\#[^\r\n]*|\?=|!=|<=|>=|[{}=<>]|[^\s{}=<>#!]+')
-SUPPORTED_VERSION = '1.20'
+SUPPORTED_VERSION = '1.20.1'
 OPS = {'=', '?=', '!=', '<', '>', '<=', '>='}
 DYNAMIC_ALLOWED = {'has_start_date', 'has_focus_tree', 'date'}
 RUNTIME_ADVISOR_FIELDS = {'allowed', 'visible', 'available', 'on_add', 'on_remove', 'on_fire'}
@@ -170,13 +170,13 @@ def main():
         errors.append({'file': 'history/countries/MEX - Mexico.txt', 'message': 'Missing identity registration: ' + ', '.join(missing)})
     descriptor = (repo / 'descriptor.mod').read_text(encoding='utf-8-sig')
     supported_pattern = re.escape(SUPPORTED_VERSION)
-    if not re.search(rf'(?m)^supported_version\s*=\s*"{supported_pattern}\.\*"\s*$', descriptor):
-        errors.append({'file': 'descriptor.mod', 'message': f'Expected supported_version="{SUPPORTED_VERSION}.*"'})
+    if not re.search(rf'(?m)^supported_version\s*=\s*"{supported_pattern}"\s*$', descriptor):
+        errors.append({'file': 'descriptor.mod', 'message': f'Expected supported_version="{SUPPORTED_VERSION}"'})
     native = None
     if args.game:
         native = json.loads((args.game / 'launcher-settings.json').read_text(encoding='utf-8-sig'))
         raw_version = native.get('rawVersion', '')
-        if not re.fullmatch(rf'{supported_pattern}(?:\.\d+){{1,2}}', raw_version):
+        if not re.fullmatch(rf'{supported_pattern}(?:\.\d+)?', raw_version):
             errors.append({'file': 'launcher-settings.json', 'message': f'Expected an installed {SUPPORTED_VERSION} build, found {raw_version or "no version"}'})
     result = {'result': 'FAIL' if errors else 'PASS', 'parsed_script_files': parsed,
               'registered_mexican_identities': len(MEX_CHARACTERS - set(missing)),
