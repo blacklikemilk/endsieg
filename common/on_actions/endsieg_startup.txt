@@ -163,7 +163,7 @@ ENG = { EN1_R_update_tree = yes }
                         country_event = { id = welcome.16 }
                     }
                     JAP = {
-                        white_peace = GER
+                        if = { limit = { has_war_with = GER } white_peace = GER }
                     }
 
                     every_country = {
@@ -487,18 +487,6 @@ ENG = { EN1_R_update_tree = yes }
 				1046 = {set_demilitarized_zone = no}
                 }
 
-                #1941-1945 events
-                if = {
-                    limit = {
-                        date > 1941.1.1
-                        date < 1945.12.30
-                    }
-                    "GER" = {
-                    if = { limit = { NOT = { is_in_faction_with = ENG } NOT = { has_global_flag = GE1_anglo_german_alliance } } declare_war_on = { target = ENG type = annex_everything } }
-                    declare_war_on = { target = FRA type = annex_everything }
-                    }
-                }
-
                 #1941 events
                 if = {
                     limit = {
@@ -509,7 +497,6 @@ ENG = { EN1_R_update_tree = yes }
                         country_event = { id = welcome.41 }
                         country_event = { id = welcome.20 }
                     }
-                    GER = { add_to_faction = ITA }
 
                     if = {
                         limit = {
@@ -530,14 +517,10 @@ ENG = { EN1_R_update_tree = yes }
                         date > 1942.1.1
                         date < 1943.1.1
                     }
-                    "GER" = {
-                    declare_war_on = { target = USA type = annex_everything }
-                    }
                     GER = {
                         country_event = { id = welcome.42 }
                         country_event = { id = welcome.33 }
                     }
-                    GER = { add_to_faction = ITA }
 
                     if = {
                         limit = {
@@ -558,16 +541,8 @@ ENG = { EN1_R_update_tree = yes }
                         date < 1943.12.30
                     }
                     GER = {
-                        if = {
-                            limit = {
-                                country_exists = USA
-                                NOT = { has_war_with = USA }
-                            }
-                            declare_war_on = { target = USA type = annex_everything }
-                        }
                         country_event = { id = welcome.4 }
                     }
-                    GER = { add_to_faction = ITA }
                     FRA = {
                         every_owned_state = {
                             limit = {
@@ -591,7 +566,6 @@ ENG = { EN1_R_update_tree = yes }
                         date > 1944.1.1
                         date < 1944.7.1
                     }
-                    GER = { add_to_faction = ITA }
                     GER = {
                         country_event = { id = welcome.5 }
                         country_event = { id = welcome.22 }
@@ -634,21 +608,8 @@ ENG = { EN1_R_update_tree = yes }
                         country_event = { id = welcome.6 }
                         country_event = { id = welcome.23 }
                     }
-                    GER = { add_to_faction = ITA }
                 	set_global_flag = welcome_event_1944_D
-                    "CMN" = {
-                        declare_war_on = { target = GER type = annex_everything }
-                    	declare_war_on = { target = HUN type = annex_everything }
-                    	declare_war_on = { target = SLO type = annex_everything }
-                    	declare_war_on = { target = CRO type = annex_everything }
-                    }
                     FRA = { country_event = { id = welcome.30 } }
-                    FIN = {
-                        if = {
-                            limit = { NOT = { has_war_with = GER } }
-                            declare_war_on = { target = GER type = annex_everything }
-                        }
-                    }
                 }
 
                 #1945 events
@@ -661,7 +622,6 @@ ENG = { EN1_R_update_tree = yes }
                         country_event = { id = welcome.7 }
                         country_event = { id = welcome.24 }
                     }
-                    GER = { add_to_faction = ITA }
                     FRA = { country_event = { id = welcome.30 } }
   #                  FIN = { declare_war_on = { target = GER type = annex_everything } }
                 	set_global_flag = welcome_event_1945
@@ -676,142 +636,24 @@ ENG = { EN1_R_update_tree = yes }
                     CHI = { declare_war_on = { target = PRC type = annex_everything } }
                 }
 
-                # Set up each European front after country history has loaded. A general call also joins unrelated wars.
+                # Deploy the isolated French coastal garrisons once the war and province controllers exist.
                 if = {
                     limit = {
-                        date > 1940.12.1
-                        date < 1946.1.1
+                        OR = {
+                            AND = { has_start_date > 1944.12.15 has_start_date < 1944.12.17 date > 1944.12.15 date < 1944.12.17 }
+                            AND = { has_start_date > 1945.3.19 has_start_date < 1945.3.21 date > 1945.3.19 date < 1945.3.21 }
+                        }
+                        has_war_with = FRA
+                        NOT = { has_global_flag = endsieg_atlantic_garrisons_deployed }
                     }
-
-                    every_country = {
-                        limit = {
-                            is_in_faction_with = ENG
-                            ENG = { has_war_with = GER }
-                            NOT = { tag = ENG }
-                            NOT = { has_war_with = GER }
-                            NOT = { tag = IRE }
-                            NOT = { tag = YEM }
-                            NOT = { tag = BHU }
-                        }
-                        add_to_war = {
-                            targeted_alliance = ENG
-                            enemy = GER
-                            single_target_only = yes
-                        }
-                    }
-
-                    every_country = {
-                        limit = {
-                            is_in_faction_with = SOV
-                            SOV = { has_war_with = GER }
-                            NOT = { tag = SOV }
-                            NOT = { has_war_with = GER }
-                        }
-                        add_to_war = {
-                            targeted_alliance = SOV
-                            enemy = GER
-                            single_target_only = yes
-                        }
-                    }
-
-                    every_country = {
-                        limit = {
-                            is_in_faction_with = GER
-                            GER = { has_war_with = ENG }
-                            NOT = { tag = GER }
-                            NOT = { has_war_with = ENG }
-                        }
-                        add_to_war = {
-                            targeted_alliance = GER
-                            enemy = ENG
-                            single_target_only = yes
-                        }
-                    }
-
-                    every_country = {
-                        limit = {
-                            is_in_faction_with = GER
-                            GER = { has_war_with = SOV }
-                            NOT = { tag = GER }
-                            NOT = { has_war_with = SOV }
-                            NOT = { tag = BUL }
-                        }
-                        add_to_war = {
-                            targeted_alliance = GER
-                            enemy = SOV
-                            single_target_only = yes
-                        }
-                    }
-                }
-
-                if = {
-                    limit = {
-                        date > 1941.12.8
-                        date < 1946.1.1
-                        country_exists = CHI
-                        ENG = { has_war_with = GER }
-                        CHI = { NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } }
-                    }
-                    CHI = { add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes } }
-                }
-
-                # The 1942 and July 1943 starts require Italy in Germany's war against the USA.
-                if = {
-                    limit = {
-                        date > 1941.12.10
-                        date < 1943.9.8
-                        country_exists = GER
-                        country_exists = USA
-                        country_exists = ITA
-                        GER = { has_war_with = USA }
-                        ITA = {
-                            is_in_faction_with = GER
-                            NOT = { has_war_with = USA }
-                        }
-                    }
-                    ITA = {
-                        add_to_war = {
-                            targeted_alliance = GER
-                            enemy = USA
-                            single_target_only = yes
-                        }
-                    }
-                }
-
-                # Clear inherited Finnish wars after the scenario war setup.
-                if = {
-                    limit = {
-                        NOT = { date < 1944.9.19 }
-                        date < 1946.1.1
-                        country_exists = FIN
-                    }
-                    FIN = {
-                        if = {
-                            limit = { is_in_faction_with = GER }
-                            leave_faction = yes
-                        }
-                        every_country = {
-                            limit = {
-                                has_war_with = FIN
-                                NOT = { tag = GER }
-                                OR = {
-                                    tag = ENG
-                                    tag = SOV
-                                    is_in_faction_with = ENG
-                                    is_in_faction_with = SOV
-                                }
-                            }
-                            white_peace = FIN
-                        }
-                        if = {
-                            limit = {
-                                country_exists = GER
-                                GER = { has_capitulated = no }
-                                NOT = { has_war_with = GER }
-                            }
-                            declare_war_on = { target = GER type = annex_everything }
-                        }
-                    }
+                    set_province_controller = 575    # Dunkirk
+                    set_province_controller = 6536   # Lorient
+                    set_province_controller = 11465  # Saint-Nazaire pocket
+                    set_province_controller = 6657   # La Rochelle
+                    set_province_controller = 9597   # Oléron
+                    set_province_controller = 6621   # Royan
+                    load_oob = "GER_atlantic_pockets"
+                    set_global_flag = endsieg_atlantic_garrisons_deployed
                 }
 
                 WW1_initialize_starting_balance = yes

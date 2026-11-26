@@ -636,180 +636,13 @@ on_actions = {
                     }
                 }
 
-                # A reversed historical invitation can put Britain in the Comintern.
                 if = {
-                    limit = {
-                        NOT = { date < 1945.1.1 }
-                        date < 1946.1.1
-                        ENG = { is_in_faction_with = SOV is_faction_leader = no }
-                    }
-                    ENG = { leave_faction = yes }
+                    limit = { country_exists = GER has_global_flag = endsieg_ww2_bookmark_wars_pending }
+                    GER = { endsieg_setup_ww2_bookmark_wars = yes }
                 }
-
-                # Ensure the WW2 Allies faction exists even when a scenario skips
-                # the country-history faction initialization step.
-                if = {
-                    limit = { ENG = { is_in_faction = no } }
-                    ENG = {
-                        create_faction_from_template = faction_template_allies
-                        add_to_faction = FRA
-                        add_to_faction = CAN
-                        add_to_faction = AST
-                        add_to_faction = NZL
-                        add_to_faction = SAF
-                        add_to_faction = RAJ
-                        add_to_faction = MAL
-                    }
-                }
-
-                # Later scenario histories normally add these members in the
-                # country history blocks.  Keep the roster intact when a
-                # scenario starts after those blocks or skips their ordering.
-                if = {
-                    limit = {
-                        date > 1941.1.1
-                        ENG = { is_in_faction = yes }
-                    }
-                    ENG = {
-                        # The USA joins the Allies in the 1942 history block;
-                        # keeping it out during 1941 prevents startup war
-                        # propagation from putting it at war with Germany.
-                        if = {
-                            limit = {
-                                date > 1942.1.1
-                                country_exists = USA
-                                USA = { is_in_faction = no }
-                            }
-                            add_to_faction = USA
-                        }
-                        if = { limit = { country_exists = FRA FRA = { is_in_faction = no } } add_to_faction = FRA }
-                        if = { limit = { country_exists = CAN CAN = { is_in_faction = no } } add_to_faction = CAN }
-                        if = { limit = { country_exists = AST AST = { is_in_faction = no } } add_to_faction = AST }
-                        if = { limit = { country_exists = NZL NZL = { is_in_faction = no } } add_to_faction = NZL }
-                        if = { limit = { country_exists = RAJ RAJ = { is_in_faction = no } } add_to_faction = RAJ }
-                        if = { limit = { country_exists = MAL MAL = { is_in_faction = no } } add_to_faction = MAL }
-                        if = { limit = { country_exists = ANA ANA = { is_in_faction = no } } add_to_faction = ANA }
-                        if = { limit = { country_exists = SAF SAF = { is_in_faction = no } } add_to_faction = SAF }
-                        if = { limit = { country_exists = PER PER = { is_in_faction = no } } add_to_faction = PER }
-                        if = { limit = { country_exists = BRA BRA = { is_in_faction = no } } add_to_faction = BRA }
-                        if = { limit = { country_exists = IRQ IRQ = { is_in_faction = no } } add_to_faction = IRQ }
-                        if = { limit = { country_exists = OMA OMA = { is_in_faction = no } } add_to_faction = OMA }
-                        if = { limit = { country_exists = BEL BEL = { is_in_faction = no } } add_to_faction = BEL }
-                        if = { limit = { country_exists = HOL HOL = { is_in_faction = no } } add_to_faction = HOL }
-                        if = { limit = { country_exists = INS INS = { is_in_faction = no } } add_to_faction = INS }
-                        if = { limit = { country_exists = ETH ETH = { is_in_faction = no } } add_to_faction = ETH }
-                        # These countries declared war on Germany in December 1941.
-                        # Add them only in the 1942-and-later scenario recovery,
-                        # leaving the 1941 start neutral until its dated history block.
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = CUB CUB = { is_in_faction = no } }
-                            add_to_faction = CUB
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = GUA GUA = { is_in_faction = no } }
-                            add_to_faction = GUA
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = ELS ELS = { is_in_faction = no } }
-                            add_to_faction = ELS
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = HON HON = { is_in_faction = no } }
-                            add_to_faction = HON
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = NIC NIC = { is_in_faction = no } }
-                            add_to_faction = NIC
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = COS COS = { is_in_faction = no } }
-                            add_to_faction = COS
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = PAN PAN = { is_in_faction = no } }
-                            add_to_faction = PAN
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = HAI HAI = { is_in_faction = no } }
-                            add_to_faction = HAI
-                        }
-                        if = {
-                            limit = { date > 1941.12.10 country_exists = DOM DOM = { is_in_faction = no } }
-                            add_to_faction = DOM
-                        }
-                        if = { limit = { country_exists = NEP NEP = { is_in_faction = no } } add_to_faction = NEP }
-                    }
-                }
-
-                if = {
-                    limit = { country_exists = TUR }
-                    TUR = { endsieg_TUR_historical_alignment = yes }
-                }
-
-                # Argentina is neutral at the 20 March bookmark; its war entry is 27 March.
-                if = {
-                    limit = {
-                        NOT = { date < 1945.1.1 }
-                        date < 1945.3.27
-                        country_exists = ARG
-                        ARG = { is_in_faction_with = SOV is_subject = no }
-                    }
-                    ARG = { leave_faction = yes }
-                    if = {
-                        limit = { ARG = { has_war_with = GER } }
-                        GER = { white_peace = ARG }
-                    }
-                }
-
-                # Historical 1945 co-belligerents must not remain in another faction.
-                if = {
-                    limit = {
-                        NOT = { date < 1945.1.1 }
-                        date < 1946.1.1
-                        ENG = { is_in_faction = yes NOT = { is_in_faction_with = SOV } }
-                    }
-                    every_country = {
-                        limit = {
-                            is_subject = no
-                            OR = {
-                                tag = USA
-                                tag = CAN
-                                tag = BRA
-                                tag = MEX
-                                tag = COL
-                                tag = CUB
-                                tag = GUA
-                                tag = ELS
-                                tag = HON
-                                tag = NIC
-                                tag = COS
-                                tag = PAN
-                                tag = HAI
-                                tag = DOM
-                                AND = { tag = ECU NOT = { date < 1945.2.2 } }
-                                AND = { tag = PAR NOT = { date < 1945.2.7 } }
-                                AND = { tag = PRU NOT = { date < 1945.2.12 } }
-                                AND = { tag = URG NOT = { date < 1945.2.15 } }
-                                AND = { tag = VEN NOT = { date < 1945.2.15 } }
-                                AND = { tag = TUR NOT = { date < 1945.2.23 } }
-                                AND = { tag = SAU NOT = { date < 1945.3.1 } }
-                                AND = { tag = ARG NOT = { date < 1945.3.27 } }
-                            }
-                        }
-                        endsieg_join_historical_allies = yes
-                    }
-                }
-
-                # The 1944/45 Italian successor is an Allied member in the
-                # corresponding Endsieg scenarios.
-                if = {
-                    limit = {
-                        date > 1943.1.1
-                        ENG = { is_in_faction = yes }
-                        country_exists = KIT
-                        KIT = { is_in_faction = no }
-                    }
-                    ENG = { add_to_faction = KIT }
+                else_if = {
+                    limit = { country_exists = ENG NOT = { has_global_flag = endsieg_ww2_bookmark_diplomacy_set } }
+                    ENG = { endsieg_setup_bookmark_allies = yes }
                 }
             }
 
@@ -823,6 +656,24 @@ on_actions = {
                     limit = { has_country_flag = endsieg_defer_HOL_expand_curacao_oil_refineries }
                     complete_national_focus = HOL_expand_curacao_oil_refineries
                     clr_country_flag = endsieg_defer_HOL_expand_curacao_oil_refineries
+                }
+            }
+            # Baltic trade rewards need the supplier's equipment and diplomacy to be initialized.
+            every_country = {
+                limit = { has_country_flag = endsieg_defer_BALTIC_renew_allied_trade }
+                complete_national_focus = BALTIC_renew_allied_trade
+                clr_country_flag = endsieg_defer_BALTIC_renew_allied_trade
+            }
+            LAT = {
+                if = {
+                    limit = { has_country_flag = endsieg_defer_BALTIC_british_aircraft }
+                    complete_national_focus = BALTIC_british_aircraft
+                    clr_country_flag = endsieg_defer_BALTIC_british_aircraft
+                }
+                if = {
+                    limit = { has_country_flag = endsieg_defer_BALTIC_allied_shipments }
+                    complete_national_focus = BALTIC_allied_shipments
+                    clr_country_flag = endsieg_defer_BALTIC_allied_shipments
                 }
             }
             EST = {
@@ -1905,7 +1756,11 @@ if = {
                 endsieg_join_historical_allies = yes
                 if = {
                     limit = { NOT = { has_war_with = GER } }
-                    declare_war_on = { target = GER type = annex_everything }
+                    if = {
+                        limit = { ENG = { has_war_with = GER } }
+                        add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes }
+                    }
+                    else = { declare_war_on = { target = GER type = annex_everything } }
                 }
                 set_country_flag = endsieg_ARG_declared_war_on_GER
             }

@@ -40,7 +40,7 @@ def parse(text):
     tokens = [(m[0], m.start()) for m in TOKEN.finditer(text) if not m[0].startswith('#')]
     index = 0
 
-    def block(nested=False):
+    def block(nested=False, parent_key=None):
         nonlocal index
         nodes = []
         while index < len(tokens):
@@ -51,7 +51,10 @@ def parse(text):
                     raise ValueError('Unexpected closing brace')
                 return nodes
             if key == '{':
-                raise ValueError('Unexpected anonymous block')
+                if parent_key != 'optional_assets':
+                    raise ValueError('Unexpected anonymous block')
+                nodes.append(Node('', '', block(True), start))
+                continue
             op, value = '', None
             if index < len(tokens) and tokens[index][0] in OPS:
                 op = tokens[index][0]
@@ -61,7 +64,7 @@ def parse(text):
                 value = tokens[index][0]
                 index += 1
                 if value == '{':
-                    value = block(True)
+                    value = block(True, key)
                 elif value == '}':
                     raise ValueError('Missing assignment value before closing brace')
             nodes.append(Node(key, op, value, start))

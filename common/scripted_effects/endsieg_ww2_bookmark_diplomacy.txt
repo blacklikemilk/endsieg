@@ -1,0 +1,502 @@
+# Called from the late WWII bookmarks after their dated histories have been applied.
+endsieg_setup_bookmark_allies = {
+    # A reversed historical invitation can put Britain in the Comintern.
+    if = {
+        limit = {
+            NOT = { date < 1945.1.1 }
+            date < 1946.1.1
+            ENG = { is_in_faction_with = SOV is_faction_leader = no }
+        }
+        ENG = { leave_faction = yes }
+    }
+
+    # Ensure the WW2 Allies faction exists even when a scenario skips
+    # the country-history faction initialization step.
+    if = {
+        limit = { ENG = { is_in_faction = no } }
+        ENG = {
+            create_faction_from_template = faction_template_allies
+            add_to_faction = FRA
+            add_to_faction = CAN
+            add_to_faction = AST
+            add_to_faction = NZL
+            add_to_faction = SAF
+            add_to_faction = RAJ
+            add_to_faction = MAL
+        }
+    }
+
+    # Later scenario histories normally add these members in the
+    # country history blocks.  Keep the roster intact when a
+    # scenario starts after those blocks or skips their ordering.
+    if = {
+        limit = {
+            date > 1941.1.1
+            ENG = { is_in_faction = yes }
+        }
+        ENG = {
+            # The USA joins the Allies in the 1942 history block;
+            # keeping it out during 1941 prevents startup war
+            # propagation from putting it at war with Germany.
+            if = {
+                limit = {
+                    date > 1942.1.1
+                    country_exists = USA
+                    USA = { is_in_faction = no }
+                }
+                add_to_faction = USA
+            }
+            if = { limit = { country_exists = FRA FRA = { is_in_faction = no } } add_to_faction = FRA }
+            if = { limit = { country_exists = CAN CAN = { is_in_faction = no } } add_to_faction = CAN }
+            if = { limit = { country_exists = AST AST = { is_in_faction = no } } add_to_faction = AST }
+            if = { limit = { country_exists = NZL NZL = { is_in_faction = no } } add_to_faction = NZL }
+            if = { limit = { country_exists = RAJ RAJ = { is_in_faction = no } } add_to_faction = RAJ }
+            if = { limit = { country_exists = MAL MAL = { is_in_faction = no } } add_to_faction = MAL }
+            if = { limit = { country_exists = ANA ANA = { is_in_faction = no } } add_to_faction = ANA }
+            if = { limit = { country_exists = SAF SAF = { is_in_faction = no } } add_to_faction = SAF }
+            if = { limit = { country_exists = PER PER = { is_in_faction = no } } add_to_faction = PER }
+            if = { limit = { country_exists = BRA BRA = { is_in_faction = no } } add_to_faction = BRA }
+            if = { limit = { country_exists = IRQ IRQ = { is_in_faction = no } } add_to_faction = IRQ }
+            if = { limit = { country_exists = OMA OMA = { is_in_faction = no } } add_to_faction = OMA }
+            if = { limit = { country_exists = BEL BEL = { is_in_faction = no } } add_to_faction = BEL }
+            if = { limit = { date < 1946.1.1 country_exists = NOR NOR = { is_in_faction = no } } add_to_faction = NOR }
+            if = { limit = { country_exists = HOL HOL = { is_in_faction = no } } add_to_faction = HOL }
+            if = { limit = { country_exists = INS INS = { is_in_faction = no } } add_to_faction = INS }
+            if = { limit = { country_exists = ETH ETH = { is_in_faction = no } } add_to_faction = ETH }
+            # These countries declared war on Germany in December 1941.
+            # Add them only in the 1942-and-later scenario recovery,
+            # leaving the 1941 start neutral until its dated history block.
+            if = {
+                limit = { date > 1941.12.10 country_exists = CUB CUB = { is_in_faction = no } }
+                add_to_faction = CUB
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = GUA GUA = { is_in_faction = no } }
+                add_to_faction = GUA
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = ELS ELS = { is_in_faction = no } }
+                add_to_faction = ELS
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = HON HON = { is_in_faction = no } }
+                add_to_faction = HON
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = NIC NIC = { is_in_faction = no } }
+                add_to_faction = NIC
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = COS COS = { is_in_faction = no } }
+                add_to_faction = COS
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = PAN PAN = { is_in_faction = no } }
+                add_to_faction = PAN
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = HAI HAI = { is_in_faction = no } }
+                add_to_faction = HAI
+            }
+            if = {
+                limit = { date > 1941.12.10 country_exists = DOM DOM = { is_in_faction = no } }
+                add_to_faction = DOM
+            }
+            if = { limit = { country_exists = NEP NEP = { is_in_faction = no } } add_to_faction = NEP }
+        }
+    }
+
+    if = {
+        limit = { country_exists = TUR date < 1945.2.23 }
+        TUR = { endsieg_TUR_historical_alignment = yes }
+    }
+
+    # Argentina is neutral at the 20 March bookmark; its war entry is 27 March.
+    if = {
+        limit = {
+            NOT = { date < 1945.1.1 }
+            date < 1945.3.27
+            country_exists = ARG
+            ARG = { is_in_faction_with = SOV is_subject = no }
+        }
+        ARG = { leave_faction = yes }
+        if = {
+            limit = { ARG = { has_war_with = GER } }
+            GER = { white_peace = ARG }
+        }
+    }
+
+    # Historical 1945 co-belligerents must not remain in another faction.
+    if = {
+        limit = {
+            NOT = { date < 1945.1.1 }
+            date < 1946.1.1
+            ENG = { is_in_faction = yes NOT = { is_in_faction_with = SOV } }
+        }
+        every_country = {
+            limit = {
+                is_subject = no
+                OR = {
+                    tag = USA
+                    tag = CAN
+                    tag = BRA
+                    tag = MEX
+                    tag = COL
+                    tag = CUB
+                    tag = GUA
+                    tag = ELS
+                    tag = HON
+                    tag = NIC
+                    tag = COS
+                    tag = PAN
+                    tag = HAI
+                    tag = DOM
+                    AND = { tag = ECU NOT = { date < 1945.2.2 } }
+                    AND = { tag = PAR NOT = { date < 1945.2.7 } }
+                    AND = { tag = PRU NOT = { date < 1945.2.12 } }
+                    AND = { tag = URG NOT = { date < 1945.2.15 } }
+                    AND = { tag = VEN NOT = { date < 1945.2.15 } }
+                    AND = { tag = TUR NOT = { date < 1945.2.23 } }
+                    AND = { tag = SAU NOT = { date < 1945.3.1 } }
+                    AND = { tag = ARG NOT = { date < 1945.3.27 } }
+                }
+            }
+            endsieg_join_historical_allies = yes
+        }
+    }
+
+    # The 1944/45 Italian successor is an Allied member in the
+    # corresponding Endsieg scenarios.
+    if = {
+        limit = {
+            date > 1943.1.1
+            ENG = { is_in_faction = yes }
+            country_exists = KIT
+            KIT = { is_in_faction = no }
+        }
+        ENG = { add_to_faction = KIT }
+    }
+}
+
+endsieg_setup_ww2_bookmark_wars = {
+    endsieg_setup_bookmark_allies = yes
+    GER = { add_to_faction = ITA }
+
+    GER = {
+        if = {
+            limit = {
+                NOT = { has_war_with = ENG }
+                NOT = { is_in_faction_with = ENG }
+                NOT = { has_global_flag = GE1_anglo_german_alliance }
+            }
+            declare_war_on = { target = ENG type = endsieg_world_war_2 }
+        }
+        if = {
+            limit = { NOT = { has_war_with = FRA } }
+            FRA = { add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes } }
+        }
+    }
+    if = {
+        limit = { ENG = { has_war_with = GER } SOV = { NOT = { has_war_with = GER } } }
+        SOV = { add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes } }
+    }
+    if = {
+        limit = { date > 1941.12.10 date < 1943.12.30 }
+        GER = {
+            if = {
+                limit = { country_exists = USA NOT = { has_war_with = USA } }
+                USA = { add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes } }
+            }
+        }
+    }
+    if = {
+        limit = { date > 1944.12.15 date < 1945.1.1 }
+        CMN = {
+            if = {
+                limit = { NOT = { has_war_with = GER } }
+                add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes }
+            }
+            if = {
+                limit = { NOT = { has_war_with = HUN } }
+                HUN = { add_to_war = { targeted_alliance = GER enemy = CMN single_target_only = yes } }
+            }
+            if = {
+                limit = { NOT = { has_war_with = SLO } }
+                SLO = { add_to_war = { targeted_alliance = GER enemy = CMN single_target_only = yes } }
+            }
+            if = {
+                limit = { NOT = { has_war_with = CRO } }
+                CRO = { add_to_war = { targeted_alliance = GER enemy = CMN single_target_only = yes } }
+            }
+        }
+    }
+
+    # Dated country histories select co-belligerents. Join them after the main war exists.
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_fights_germany }
+        clr_country_flag = endsieg_bookmark_fights_germany
+        if = {
+            limit = { ENG = { has_war_with = GER } NOT = { has_war_with = GER } }
+            add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_fights_britain }
+        clr_country_flag = endsieg_bookmark_fights_britain
+        if = {
+            limit = { GER = { has_war_with = ENG } NOT = { has_war_with = ENG } }
+            add_to_war = { targeted_alliance = GER enemy = ENG single_target_only = yes }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_fights_soviets }
+        clr_country_flag = endsieg_bookmark_fights_soviets
+        if = {
+            limit = { GER = { has_war_with = SOV } NOT = { has_war_with = SOV } }
+            add_to_war = { targeted_alliance = GER enemy = SOV single_target_only = yes }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_fights_italy }
+        clr_country_flag = endsieg_bookmark_fights_italy
+        if = {
+            limit = { ENG = { has_war_with = ITA } NOT = { has_war_with = ITA } }
+            add_to_war = { targeted_alliance = ENG enemy = ITA single_target_only = yes }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_fights_yugoslavia }
+        clr_country_flag = endsieg_bookmark_fights_yugoslavia
+        if = {
+            limit = { ITA = { has_war_with = YUG } NOT = { has_war_with = YUG } }
+            add_to_war = { targeted_alliance = ITA enemy = YUG single_target_only = yes }
+        }
+    }
+
+    # Set up each European front after country history has loaded. A general call also joins unrelated wars.
+    if = {
+        limit = {
+            date > 1940.12.1
+            date < 1946.1.1
+        }
+
+        every_country = {
+            limit = {
+                is_in_faction_with = ENG
+                ENG = { has_war_with = GER }
+                NOT = { tag = ENG }
+                NOT = { has_war_with = GER }
+                NOT = { tag = IRE }
+                NOT = { tag = YEM }
+                NOT = { tag = BHU }
+            }
+            add_to_war = {
+                targeted_alliance = ENG
+                enemy = GER
+                single_target_only = yes
+            }
+        }
+
+        every_country = {
+            limit = {
+                is_in_faction_with = SOV
+                SOV = { has_war_with = GER }
+                NOT = { tag = SOV }
+                NOT = { has_war_with = GER }
+            }
+            add_to_war = {
+                targeted_alliance = SOV
+                enemy = GER
+                single_target_only = yes
+            }
+        }
+
+        every_country = {
+            limit = {
+                is_in_faction_with = GER
+                GER = { has_war_with = ENG }
+                NOT = { tag = GER }
+                NOT = { has_war_with = ENG }
+            }
+            add_to_war = {
+                targeted_alliance = GER
+                enemy = ENG
+                single_target_only = yes
+            }
+        }
+
+        every_country = {
+            limit = {
+                is_in_faction_with = GER
+                GER = { has_war_with = SOV }
+                NOT = { tag = GER }
+                NOT = { has_war_with = SOV }
+                NOT = { tag = BUL }
+            }
+            add_to_war = {
+                targeted_alliance = GER
+                enemy = SOV
+                single_target_only = yes
+            }
+        }
+    }
+
+    if = {
+        limit = {
+            date > 1941.12.8
+            date < 1946.1.1
+            country_exists = CHI
+            ENG = { has_war_with = GER }
+            CHI = { NOT = { has_war_with = GER } NOT = { is_in_faction_with = GER } }
+        }
+        CHI = { add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes } }
+    }
+
+    # France already fights Germany and is one of Japan's dated opponents.
+    # Use that link to add Japan without bringing the Soviet Union into the Pacific war.
+    if = {
+        limit = { date > 1941.12.7 FRA = { has_war_with = GER has_country_flag = endsieg_bookmark_fights_japan } }
+        if = {
+            limit = { JAP = { NOT = { has_war_with = FRA } } }
+            JAP = { add_to_war = { targeted_alliance = GER enemy = FRA single_target_only = yes } }
+        }
+        CHI = { set_country_flag = endsieg_bookmark_fights_japan }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_fights_japan }
+        clr_country_flag = endsieg_bookmark_fights_japan
+        if = {
+            limit = { FRA = { has_war_with = JAP } NOT = { has_war_with = JAP } }
+            add_to_war = { targeted_alliance = FRA enemy = JAP single_target_only = yes }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_china_against_japan }
+        clr_country_flag = endsieg_bookmark_china_against_japan
+        if = {
+            limit = { CHI = { has_war_with = JAP } NOT = { has_war_with = JAP } }
+            add_to_war = { targeted_alliance = CHI enemy = JAP single_target_only = yes hostility_reason = asked_to_join }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_japan_against_china_as_subject }
+        clr_country_flag = endsieg_bookmark_japan_against_china_as_subject
+        if = {
+            limit = { JAP = { has_war_with = CHI } NOT = { has_war_with = CHI } }
+            add_to_war = { targeted_alliance = JAP enemy = CHI single_target_only = yes hostility_reason = puppet }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_japan_against_china }
+        clr_country_flag = endsieg_bookmark_japan_against_china
+        if = {
+            limit = { JAP = { has_war_with = CHI } NOT = { has_war_with = CHI } }
+            add_to_war = { targeted_alliance = JAP enemy = CHI single_target_only = yes }
+        }
+    }
+    every_country = {
+        limit = { has_country_flag = endsieg_bookmark_japan_against_prc }
+        clr_country_flag = endsieg_bookmark_japan_against_prc
+        if = {
+            limit = { JAP = { has_war_with = PRC } NOT = { has_war_with = PRC } }
+            add_to_war = { targeted_alliance = JAP enemy = PRC single_target_only = yes }
+        }
+    }
+
+    # The 1942 and July 1943 starts require Italy in Germany's war against the USA.
+    if = {
+        limit = {
+            date > 1941.12.10
+            date < 1943.9.8
+            country_exists = GER
+            country_exists = USA
+            country_exists = ITA
+            GER = { has_war_with = USA }
+            ITA = {
+                is_in_faction_with = GER
+                NOT = { has_war_with = USA }
+            }
+        }
+        ITA = {
+            add_to_war = {
+                targeted_alliance = GER
+                enemy = USA
+                single_target_only = yes
+            }
+        }
+    }
+
+    # Clear inherited Finnish wars after the scenario war setup.
+    if = {
+        limit = {
+            NOT = { date < 1944.9.19 }
+            date < 1946.1.1
+            country_exists = FIN
+        }
+        FIN = {
+            if = {
+                limit = { is_in_faction_with = GER }
+                leave_faction = yes
+            }
+            every_country = {
+                limit = {
+                    has_war_with = FIN
+                    NOT = { tag = GER }
+                    OR = {
+                        tag = ENG
+                        tag = SOV
+                        is_in_faction_with = ENG
+                        is_in_faction_with = SOV
+                    }
+                }
+                white_peace = FIN
+            }
+            if = {
+                limit = {
+                    country_exists = GER
+                    GER = { has_capitulated = no }
+                    NOT = { has_war_with = GER }
+                }
+                add_to_war = { targeted_alliance = ENG enemy = GER single_target_only = yes }
+            }
+        }
+    }
+    if = {
+        limit = { country_exists = TUR NOT = { date < 1945.2.23 } }
+        TUR = { endsieg_TUR_historical_alignment = yes }
+    }
+    clr_global_flag = endsieg_ww2_bookmark_wars_pending
+    set_global_flag = endsieg_ww2_bookmark_diplomacy_set
+}
+
+endsieg_bookmark_join_chinese_front = {
+    if = {
+        limit = { has_start_date < 1941.12.8 }
+        add_to_war = { targeted_alliance = CHI enemy = JAP single_target_only = yes hostility_reason = asked_to_join }
+    }
+    else = { set_country_flag = endsieg_bookmark_china_against_japan }
+}
+
+endsieg_bookmark_join_japanese_front_as_subject = {
+    if = {
+        limit = { has_start_date < 1941.12.8 }
+        add_to_war = { targeted_alliance = JAP enemy = CHI single_target_only = yes hostility_reason = puppet }
+    }
+    else = { set_country_flag = endsieg_bookmark_japan_against_china_as_subject }
+}
+
+endsieg_bookmark_join_japanese_front = {
+    if = {
+        limit = { has_start_date < 1941.12.8 }
+        add_to_war = { targeted_alliance = JAP enemy = CHI single_target_only = yes }
+    }
+    else = { set_country_flag = endsieg_bookmark_japan_against_china }
+}
+
+endsieg_bookmark_join_japan_against_prc = {
+    if = {
+        limit = { has_start_date < 1941.12.8 }
+        add_to_war = { targeted_alliance = JAP enemy = PRC single_target_only = yes }
+    }
+    else = { set_country_flag = endsieg_bookmark_japan_against_prc }
+}
