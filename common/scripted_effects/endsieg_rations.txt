@@ -12,10 +12,17 @@ endsieg_rations_measure_demand = {
 	clamp_variable = { var = endsieg_ration_target min = 100 }
 }
 
-endsieg_rations_refresh_display = {
+endsieg_rations_read_stockpile = {
 	set_variable = { endsieg_ration_stockpile = num_equipment@rations_1 }
 	clamp_variable = { var = endsieg_ration_stockpile min = 0 }
+}
 
+endsieg_rations_refresh_display = {
+	endsieg_rations_read_stockpile = yes
+	endsieg_rations_update_gauge = yes
+}
+
+endsieg_rations_update_gauge = {
 	set_variable = { endsieg_ration_days = 0 }
 	set_variable = { endsieg_ration_ratio = 1 }
 	if = {
@@ -111,8 +118,8 @@ endsieg_rations_daily_tick = {
 	endsieg_rations_initialize = yes
 	endsieg_rations_measure_demand = yes
 
-	set_variable = { endsieg_ration_before_meals = num_equipment@rations_1 }
-	clamp_variable = { var = endsieg_ration_before_meals min = 0 }
+	endsieg_rations_read_stockpile = yes
+	set_variable = { endsieg_ration_before_meals = endsieg_ration_stockpile }
 
 	set_variable = { endsieg_ration_daily_burn = endsieg_ration_daily_use }
 	clamp_variable = { var = endsieg_ration_daily_burn min = 0 max = endsieg_ration_before_meals }
@@ -123,9 +130,10 @@ endsieg_rations_daily_tick = {
 			type = rations_1
 			amount = var:endsieg_ration_daily_burn
 		}
+		endsieg_rations_read_stockpile = yes
 	}
 
-	endsieg_rations_refresh_display = yes
+	endsieg_rations_update_gauge = yes
 	endsieg_rations_update_ai_production = yes
 
 	if = {
