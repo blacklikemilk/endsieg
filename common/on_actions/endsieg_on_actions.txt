@@ -984,25 +984,54 @@ on_actions = {
         }
     }
 
-    # If Germany declares the French war during a 1945 start, create the
-    # Dunkerque garrison immediately after that declaration.  The startup
-    # branch above covers scenarios that already begin with this war active.
-    # Argentina declared war on Germany on 27 March 1945, after the 20 March bookmark.
-    # Keep it date-gated so it is not already at war on the bookmark itself.
-		on_daily = {
+    # After 1935 only the countries with individual campaign updates need this daily check.
+    on_daily = {
         effect = {
- if = { limit = { tag = RIE } RUS_ww1_finish_neutral_withdrawal = yes }
-
- if = { limit = { tag = JAP } JP1_R_update_tree = yes }
-
-if = { limit = { tag = TUR } OT1_R_update_tree = yes }
-
-if = { limit = { tag = USA } US2_R_update_tree = yes }
-
-if = { limit = { tag = FRA } FR3_R_update_tree = yes }
-
-if = { limit = { tag = ENG } EN1_R_update_tree = yes }
-
+			# Keep neighbour-dependent PRC checks out of history loading. This
+			# runs after country and state graphs have been initialized.
+			if = {
+				limit = { tag = PRC }
+				if = {
+					limit = {
+						OR = {
+							any_neighbor_country = {
+								OR = {
+									original_tag = SOV
+									is_in_faction_with = SOV
+									AND = {
+										is_in_faction_with = PRC
+										any_neighbor_country = {
+											OR = {
+												original_tag = SOV
+												is_in_faction_with = SOV
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					set_country_flag = endsieg_prc_neighboring_sov
+				}
+				else = { clr_country_flag = endsieg_prc_neighboring_sov }
+			}
+            if = {
+                limit = {
+                    OR = {
+                        date < 1936.1.1
+                        tag = GER tag = ENG tag = USA tag = JAP tag = FRA tag = ITA
+                        tag = TUR tag = SOV tag = GRE tag = LAT tag = BLR tag = UKR tag = RIE
+                    }
+                }
+                if = {
+                    limit = { has_start_date < 1936.1.1 }
+                    if = { limit = { tag = RIE } RUS_ww1_finish_neutral_withdrawal = yes }
+                    else_if = { limit = { tag = JAP } JP1_R_update_tree = yes }
+                    else_if = { limit = { tag = TUR } OT1_R_update_tree = yes }
+                    else_if = { limit = { tag = USA } US2_R_update_tree = yes }
+                    else_if = { limit = { tag = FRA } FR3_R_update_tree = yes }
+                    else_if = { limit = { tag = ENG } EN1_R_update_tree = yes }
+                }
 
             # Surviving Russian WW1 alternatives hand over without changing their leader or borders.
             if = {
@@ -1015,7 +1044,6 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 			if = { limit = { tag = GER } GE1_v2_migrate_ww1_rework = yes GE1_R_initialize_tree = yes }
 			if = { limit = { tag = GER } GE1_cleanup_ww1_rework = yes }
 
-            endsieg_ww1_crypto_effects = yes
 			if = {
 				limit = { tag = TUR }
 				INT_TUR_initialize_historical_bookmark = yes
@@ -1795,64 +1823,9 @@ if = { limit = { tag = ENG } EN1_R_update_tree = yes }
 				}
 			}
 			else_if = {
-				limit = { tag = ITA }
+				limit = { tag = ITA has_country_flag = endsieg_benghazi_siege_started }
 				clr_country_flag = endsieg_benghazi_siege_started
 			}
-
-            # The civil Reichskommissariat replaced the military administration
-            # of Belgium and Northern France on 13 July 1944. Do not create it
-            # for bookmarks after its December 1944 replacement.
-            if = {
-                limit = {
-                    tag = GER
-                    has_government = fascism
-                    NOT = { country_exists = RKB }
-                    date > 1944.7.12
-                    date < 1944.12.15
-                    NOT = { has_country_flag = endsieg_RKB_formed }
-                    has_full_control_of_state = 6
-                    has_full_control_of_state = 29
-                    has_full_control_of_state = 34
-                }
-                endsieg_form_rkb = yes
-            }
-
-            # Restore each part of the administration once Allied troops have liberated it.
-            if = {
-                limit = { tag = GER date > 1944.12.14 has_subject = RKB }
-                RKB = {
-                    every_owned_state = {
-                        limit = {
-                            OR = { state = 6 state = 29 state = 34 state = 1009 }
-                            controller = {
-                                has_full_control_of_state = PREV
-                                NOT = { tag = GER }
-                                NOT = { is_subject_of = GER }
-                                NOT = { is_in_faction_with = GER }
-                                OR = { tag = BEL tag = FRA tag = ENG is_in_faction_with = ENG }
-                            }
-                        }
-                        if = { limit = { state = 6 } remove_core_of = RKB }
-                        if = { limit = { state = 29 } transfer_state_to = FRA }
-                        else = { transfer_state_to = BEL }
-                    }
-                }
-            }
-
-            if = {
-                limit = {
-                    tag = ARG
-                    date > 1945.3.26
-                    country_exists = GER
-                    NOT = { has_country_flag = endsieg_ARG_declared_war_on_GER }
-                }
-                endsieg_join_historical_allies = yes
-                if = {
-                    limit = { NOT = { has_war_with = GER } }
-                    declare_war_on = { target = GER type = annex_everything }
-                }
-                set_country_flag = endsieg_ARG_declared_war_on_GER
-            }
 
             # Continuous alternative campaigns enter vanilla1936 without a regime reset.
             if = {
@@ -1873,7 +1846,70 @@ if = {
  if = { limit = { has_dlc = "Battle for the Bosporus" } load_focus_tree = { tree = turkish_focus keep_completed = yes } }
  else = { load_focus_tree = { tree = generic_focus keep_completed = yes } }
 }
-}
+            }
+        }
+    }
+
+    on_daily_GER = {
+        effect = {
+            # The civil Reichskommissariat replaced the military administration
+            # of Belgium and Northern France on 13 July 1944. Do not create it
+            # for bookmarks after its December 1944 replacement.
+            if = {
+                limit = {
+                    has_government = fascism
+                    NOT = { country_exists = RKB }
+                    date > 1944.7.12
+                    date < 1944.12.15
+                    NOT = { has_country_flag = endsieg_RKB_formed }
+                    has_full_control_of_state = 6
+                    has_full_control_of_state = 29
+                    has_full_control_of_state = 34
+                }
+                endsieg_form_rkb = yes
+            }
+
+            # Restore each part of the administration once Allied troops have liberated it.
+            if = {
+                limit = { date > 1944.12.14 has_subject = RKB }
+                RKB = {
+                    every_owned_state = {
+                        limit = {
+                            OR = { state = 6 state = 29 state = 34 state = 1009 }
+                            controller = {
+                                has_full_control_of_state = PREV
+                                NOT = { tag = GER }
+                                NOT = { is_subject_of = GER }
+                                NOT = { is_in_faction_with = GER }
+                                OR = { tag = BEL tag = FRA tag = ENG is_in_faction_with = ENG }
+                            }
+                        }
+                        if = { limit = { state = 6 } remove_core_of = RKB }
+                        if = { limit = { state = 29 } transfer_state_to = FRA }
+                        else = { transfer_state_to = BEL }
+                    }
+                }
+            }
+        }
+    }
+
+    # Argentina declared war on Germany on 27 March 1945.
+    on_daily_ARG = {
+        effect = {
+            if = {
+                limit = {
+                    date > 1945.3.26
+                    country_exists = GER
+                    NOT = { has_country_flag = endsieg_ARG_declared_war_on_GER }
+                }
+                endsieg_join_historical_allies = yes
+                if = {
+                    limit = { NOT = { has_war_with = GER } }
+                    declare_war_on = { target = GER type = annex_everything }
+                }
+                set_country_flag = endsieg_ARG_declared_war_on_GER
+            }
+        }
     }
 
     # ROOT is the capitulated country; FROM is the winner. Defer annexation
@@ -2134,7 +2170,11 @@ if = {
     }
     # Temporary WWI munitions plants close when their owner returns to peace.
     on_weekly = {
-        effect = { endsieg_ww1_update_war_industry = yes }
+        effect = {
+            endsieg_ww1_update_war_industry = yes
+            # Research callbacks handle normal unlocks. Reconcile scripted grants and older saves.
+            endsieg_ww1_crypto_effects = yes
+        }
     }
 
     # Country-scoped monthly administration; also expires remaining imperial penalties in1936.

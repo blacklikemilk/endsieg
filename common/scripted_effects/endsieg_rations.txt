@@ -41,15 +41,24 @@ endsieg_rations_update_ai_production = {
 			check_variable = { endsieg_ration_daily_use > 0 }
 		}
 		if = {
-			limit = { check_variable = { endsieg_ration_days < 90 } }
+			limit = {
+				check_variable = { endsieg_ration_days < 90 }
+				NOT = { has_country_flag = endsieg_rations_ai_produce }
+			}
 			set_country_flag = endsieg_rations_ai_produce
 		}
 		else_if = {
-			limit = { check_variable = { endsieg_ration_days > 180 } }
+			limit = {
+				check_variable = { endsieg_ration_days > 180 }
+				has_country_flag = endsieg_rations_ai_produce
+			}
 			clr_country_flag = endsieg_rations_ai_produce
 		}
 	}
-	else = { clr_country_flag = endsieg_rations_ai_produce }
+	else_if = {
+		limit = { has_country_flag = endsieg_rations_ai_produce }
+		clr_country_flag = endsieg_rations_ai_produce
+	}
 }
 
 endsieg_rations_initialize = {
@@ -102,11 +111,11 @@ endsieg_rations_daily_tick = {
 	endsieg_rations_initialize = yes
 	endsieg_rations_measure_demand = yes
 
-	endsieg_rations_refresh_display = yes
-	set_variable = { endsieg_ration_before_meals = endsieg_ration_stockpile }
+	set_variable = { endsieg_ration_before_meals = num_equipment@rations_1 }
+	clamp_variable = { var = endsieg_ration_before_meals min = 0 }
 
 	set_variable = { endsieg_ration_daily_burn = endsieg_ration_daily_use }
-	clamp_variable = { var = endsieg_ration_daily_burn min = 0 max = endsieg_ration_stockpile }
+	clamp_variable = { var = endsieg_ration_daily_burn min = 0 max = endsieg_ration_before_meals }
 	multiply_variable = { endsieg_ration_daily_burn = -1 }
 	if = {
 		limit = { check_variable = { endsieg_ration_daily_burn < 0 } }

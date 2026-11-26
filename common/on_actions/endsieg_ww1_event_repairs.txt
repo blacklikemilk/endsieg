@@ -6,40 +6,41 @@ on_actions = {
  }
  on_daily = {
   effect = {
-   WW1_initialize_bookmark_event_history = yes
    if = {
-    limit = { tag = ENG has_focus_tree = british_focus_ww1 has_start_date < 1936.1.1 date < 1936.1.1 }
-    WW1_british_prepare_war_entry = yes
-    WW1_british_queue_war_entry = yes
+    limit = { has_start_date < 1936.1.1 date < 1936.1.1 }
+    WW1_initialize_bookmark_event_history = yes
+    if = {
+     limit = { tag = ENG has_focus_tree = british_focus_ww1 }
+     WW1_british_prepare_war_entry = yes
+     WW1_british_queue_war_entry = yes
+    }
+    if = {
+     limit = { tag = GER }
+     WW1_reconcile_alternative_ai_routes = yes
+     WW1_1914_outbreak_tick = yes
+     GE1_baghdad_railway_tick = yes
+    }
+    if = {
+     limit = { OR = { has_country_flag = WW1_focus_faction_central_pending has_country_flag = WW1_focus_faction_entente_pending } }
+     WW1_complete_focus_faction_entry = yes
+    }
+    WW1_reconcile_crisis_focus_completion = yes
+    WW1_finish_completed_focus_actions = yes
    }
-
-   if = {
-    limit = { tag = GER }
-    WW1_reconcile_alternative_ai_routes = yes
-    WW1_1914_outbreak_tick = yes
-    GE1_baghdad_railway_tick = yes
-		if = {
-			limit = {
-				NOT = { has_country_flag = WW1_western_plan_closed }
-				OR = {
-					has_global_flag = versailles
-					has_global_flag = WW1_CP_final_settlement_signed
-				}
-			}
-			WW1_western_plan_close_after_peace = yes
-		}
-   }
-
- if = { limit = { OR = { has_country_flag = WW1_focus_faction_central_pending has_country_flag = WW1_focus_faction_entente_pending } } WW1_complete_focus_faction_entry = yes }
-
- WW1_reconcile_crisis_focus_completion = yes
- WW1_finish_completed_focus_actions = yes
-}
+  }
  }
 
  on_daily_GER = {
   effect = {
-   GER = {
+   if = {
+    limit = { has_start_date < 1936.1.1 }
+    if = {
+     limit = {
+      NOT = { has_country_flag = WW1_western_plan_closed }
+      OR = { has_global_flag = versailles has_global_flag = WW1_CP_final_settlement_signed }
+     }
+     WW1_western_plan_close_after_peace = yes
+    }
     WW1_western_plan_begin = yes
     WW1_western_frontline_tick = yes
     WW1_western_front_update_strength = yes
