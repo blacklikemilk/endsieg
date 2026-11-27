@@ -57,7 +57,8 @@ WW1_ROM_start_bookmark_occupation = {
             has_start_date > 1918.3.20 has_start_date < 1918.3.22
             date < 1918.11.11
             NOT = { has_country_flag = WW1_ROM_bookmark_occupation_registered }
-            OR = { has_country_flag = WW1_ROM_focsani_armistice has_global_flag = bucharestreaty }
+            has_country_flag = WW1_ROM_focsani_armistice
+            NOT = { has_global_flag = bucharestreaty }
             NOT = { has_global_flag = compiegne }
             NOT = { has_global_flag = central_powers_victory }
             NOT = { has_global_flag = bucharestreatyreversed }
@@ -135,7 +136,6 @@ WW1_ROM_start_bookmark_occupation = {
                 46 = { has_state_flag = WW1_ROM_bucharest_occupation }
                 81 = { has_state_flag = WW1_ROM_bucharest_occupation }
                 OR = {
-                    has_global_flag = bucharestreaty
                     has_global_flag = armistice_of_salonica
                     has_global_flag = armistice_of_villa_giusti
                     AND = {
@@ -150,6 +150,59 @@ WW1_ROM_start_bookmark_occupation = {
         }
     }
 }
+# Recipient scope. Old saves can contain more than one entry for this oilfield.
+WW1_ROM_clear_muntenia_rights = {
+    for_loop_effect = {
+        end = 128
+        break = WW1_ROM_rights_cleared
+        if = {
+            limit = { has_resources_rights = { state = 46 } }
+            remove_resource_rights = 46
+        }
+        else = { set_temp_variable = { WW1_ROM_rights_cleared = 1 } }
+    }
+}
+
+# Romania retains sovereignty over Wallachia. The occupation flag keeps the
+# government in Iasi until withdrawal; only the oil concession goes to Germany.
+WW1_ROM_apply_bucharest_oil_concession = {
+    if = {
+        limit = {
+            has_global_flag = bucharestreaty
+            NOT = { has_global_flag = compiegne }
+            NOT = { has_global_flag = bucharestreatyreversed }
+            country_exists = GER
+            NOT = { has_war_with = GER }
+        }
+        if = {
+            limit = { NOT = { has_country_flag = WW1_ROM_wallachia_restored } }
+            every_state = {
+                limit = {
+                    OR = { state = 46 state = 81 }
+                    has_state_flag = WW1_ROM_bucharest_occupation
+                    OR = { is_owned_by = GER is_owned_by = AUH is_owned_by = BUL }
+                    OR = { is_fully_controlled_by = GER is_fully_controlled_by = AUH is_fully_controlled_by = BUL is_fully_controlled_by = ROM }
+                }
+                transfer_state_to = ROM
+            }
+            set_country_flag = WW1_ROM_wallachia_restored
+        }
+        if = {
+            limit = {
+                owns_state = 46
+                NOT = { has_country_flag = WW1_ROM_bucharest_oil_rights_normalized }
+            }
+            GER = { WW1_ROM_clear_muntenia_rights = yes }
+            if = {
+                limit = { GER = { NOT = { has_resources_rights = { state = 46 } } } }
+                give_resource_rights = { receiver = GER state = 46 resources = { oil } }
+                set_country_flag = WW1_ROM_bucharest_oil_rights
+                set_country_flag = WW1_ROM_bucharest_oil_rights_normalized
+            }
+        }
+    }
+}
+
 WW1_ROM_end_military_occupation = {
     every_state = {
         limit = {
@@ -339,7 +392,11 @@ WW1_ROM_armistice_with_central_powers = {
     every_owned_state = {
         limit = { has_state_flag = WW1_ROM_preserve_controller }
         clr_state_flag = WW1_ROM_preserve_controller
-        if = { limit = { has_state_flag = WW1_ROM_occupied_by_AUH } transfer_state_to = AUH clr_state_flag = WW1_ROM_occupied_by_AUH }
+        if = { limit = { has_global_flag = bucharestreaty OR = { state = 46 state = 81 } }
+            clr_state_flag = WW1_ROM_occupied_by_AUH
+            clr_state_flag = WW1_ROM_occupied_by_BUL
+        }
+        else_if = { limit = { has_state_flag = WW1_ROM_occupied_by_AUH } transfer_state_to = AUH clr_state_flag = WW1_ROM_occupied_by_AUH }
         else_if = { limit = { has_state_flag = WW1_ROM_occupied_by_BUL } transfer_state_to = BUL clr_state_flag = WW1_ROM_occupied_by_BUL }
         else = { transfer_state_to = GER }
     }

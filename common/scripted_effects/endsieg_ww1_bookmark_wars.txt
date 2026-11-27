@@ -1,0 +1,120 @@
+# Scope is the enemy. PREV is the country joining on the French side.
+endsieg_join_ww1_against_this_country = {
+    if = {
+        limit = {
+            exists = yes
+            has_war_with = FRA
+            PREV = {
+                exists = yes
+                NOT = { has_war_with = PREV }
+                NOT = { is_in_faction_with = PREV }
+            }
+        }
+        PREV = { add_to_war = { targeted_alliance = FRA enemy = PREV single_target_only = yes } }
+    }
+}
+
+# Establish the European fronts during history loading, before occupation is resolved.
+# Rechecking the same pairs after all country histories load is harmless.
+endsieg_seed_ww1_bookmark_war = {
+    if = {
+        limit = { country_exists = FRA NOT = { has_war_with = FRA } NOT = { is_in_faction_with = FRA } }
+        declare_war_on = { target = FRA type = ww1_great_war }
+    }
+    every_country = {
+        limit = { OR = { tag = AUH tag = BUL tag = TUR } }
+        if = {
+            limit = { GER = { has_war_with = FRA } NOT = { has_war_with = FRA } NOT = { is_in_faction_with = FRA } }
+            add_to_war = { targeted_alliance = GER enemy = FRA single_target_only = yes }
+        }
+    }
+    every_country = {
+        limit = {
+            OR = {
+                tag = ENG tag = SER tag = MNT
+                AND = { tag = RIE has_start_date < 1918.3.3 }
+                AND = { tag = GRE has_start_date > 1917.6.26 }
+            }
+        }
+        GER = { endsieg_join_ww1_against_this_country = yes }
+        AUH = { endsieg_join_ww1_against_this_country = yes }
+        BUL = { endsieg_join_ww1_against_this_country = yes }
+        TUR = { endsieg_join_ww1_against_this_country = yes }
+    }
+    ITA = {
+        AUH = { endsieg_join_ww1_against_this_country = yes }
+        BUL = { endsieg_join_ww1_against_this_country = yes }
+        TUR = { endsieg_join_ww1_against_this_country = yes }
+        if = {
+            limit = { NOT = { has_start_date < 1916.8.28 } }
+            GER = { endsieg_join_ww1_against_this_country = yes }
+        }
+    }
+    BEL = {
+        GER = { endsieg_join_ww1_against_this_country = yes }
+        AUH = { endsieg_join_ww1_against_this_country = yes }
+    }
+    every_country = {
+        limit = { OR = { tag = EGY tag = EN3 } }
+        TUR = { endsieg_join_ww1_against_this_country = yes }
+    }
+}
+
+# GER scope. Called from the two wartime bookmarks, with a startup fallback.
+endsieg_setup_ww1_bookmark_wars = {
+    if = {
+        limit = {
+            NOT = { has_start_date < 1916.1.1 }
+            has_start_date < 1918.11.11
+            NOT = { has_global_flag = compiegne }
+        }
+        endsieg_seed_ww1_bookmark_war = yes
+        if = {
+            limit = {
+                has_start_date > 1917.4.5 country_exists = USA
+                USA = { is_in_faction = no }
+                FRA = { is_faction_leader = yes has_war_with = GER }
+            }
+            FRA = { add_to_faction = USA }
+        }
+        every_country = {
+            limit = {
+                OR = { tag = CAN tag = AST tag = NZL tag = SAF tag = RAJ tag = MAL tag = EGY tag = EN3 }
+                OR = { is_subject_of = ENG is_in_faction_with = ENG }
+            }
+            GER = { endsieg_join_ww1_against_this_country = yes }
+            AUH = { endsieg_join_ww1_against_this_country = yes }
+            BUL = { endsieg_join_ww1_against_this_country = yes }
+            TUR = { endsieg_join_ww1_against_this_country = yes }
+        }
+        every_country = {
+            limit = {
+                OR = {
+                    tag = JAP
+                    AND = { tag = POR has_start_date > 1916.3.15 }
+                    AND = { tag = USA has_start_date > 1917.12.6 }
+                    AND = { tag = CUB has_start_date > 1917.12.16 }
+                    AND = { tag = PAN has_start_date > 1917.12.9 }
+                    AND = { tag = SIA has_start_date > 1917.7.21 }
+                    AND = { tag = RCH has_start_date > 1917.8.13 }
+                }
+            }
+            GER = { endsieg_join_ww1_against_this_country = yes }
+            AUH = { endsieg_join_ww1_against_this_country = yes }
+        }
+        every_country = {
+            limit = {
+                OR = {
+                    AND = { tag = LIB has_start_date > 1917.8.3 }
+                    AND = { tag = BRA has_start_date > 1917.10.25 }
+                }
+            }
+            GER = { endsieg_join_ww1_against_this_country = yes }
+        }
+        if = {
+            limit = { country_exists = JAP JAP = { has_war_with = GER } }
+            JAP = { set_country_flag = JP1_R_german_war_entered clr_country_flag = JP1_R_german_war_approved }
+        }
+        clr_global_flag = endsieg_ww1_bookmark_wars_pending
+    }
+}

@@ -13,6 +13,7 @@ WW1_BUL_armistice_context = {
     NOT = { has_global_flag = armistice_of_salonica }
     NOT = { has_country_flag = WW1_BUL_armistice_applied }
     OR = {
+        has_country_flag = WW1_BUL_in_compiegne_settlement
         has_war_with = ENG
         has_war_with = FRA
         has_war_with = GRE
@@ -25,15 +26,9 @@ WW1_BUL_armistice_ready = {
     OR = {
         has_capitulated = yes
         surrender_progress > 0.20
-        has_global_flag = compiegne
         AND = {
-            is_ai = yes
-            is_historical_focus_on = yes
-            NOT = { date < 1918.9.29 }
-            any_enemy_country = {
-                OR = { tag = FRA tag = ENG tag = GRE tag = SER tag = ITA }
-                has_capitulated = no
-            }
+            has_global_flag = compiegne
+            OR = { has_country_flag = WW1_BUL_in_compiegne_settlement is_in_faction_with = GER has_global_flag = WW1_bulgarian_war_entry }
         }
     }
 }
@@ -108,4 +103,18 @@ WW1_BUL_serbian_handover_due = {
 	    YUG = { WW1_SER_historical_yugoslav_successor = yes }
 	    SER = { exists = yes is_subject = no }
 	}
+}
+
+# A land offensive from Salonika needs a Greek or allied foothold and a common enemy.
+WW1_entente_salonika_front_open = {
+    has_global_flag = welcome_event_WW1_active
+    has_war_with = BUL
+    has_capitulated = no
+    BUL = { exists = yes has_capitulated = no }
+    GRE = { exists = yes has_capitulated = no has_war_with = BUL }
+    OR = { tag = GRE is_in_faction_with = GRE }
+    731 = { controller = { OR = { tag = GRE is_in_faction_with = GRE } } }
+    NOT = { has_global_flag = armistice_of_salonica }
+    NOT = { has_global_flag = compiegne }
+    NOT = { has_global_flag = central_powers_victory }
 }
