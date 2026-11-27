@@ -1,0 +1,62 @@
+# Called once on the opening day, after the bookmark establishes its wars.
+endsieg_initialize_ww1_bookmark_doctrine = {
+	set_grand_doctrine = endsieg_great_war_land
+	if = {
+		limit = { has_tech = leading_by_task }
+		set_sub_doctrine = endsieg_ww1_mission_orders
+	}
+	else_if = {
+		limit = { has_tech = leading_by_order }
+		set_sub_doctrine = endsieg_ww1_detailed_orders
+	}
+	else_if = {
+		limit = { OR = { tag = GER tag = TUR } }
+		set_sub_doctrine = endsieg_ww1_mission_orders
+	}
+	else = { set_sub_doctrine = endsieg_ww1_detailed_orders }
+
+	# Prewar and neutral armies can choose their own infantry and artillery paths.
+	if = {
+		limit = { endsieg_ww1_bookmark_service_veteran = yes }
+		if = {
+			limit = { has_tech = schwerepunkt }
+			set_sub_doctrine = endsieg_ww1_assault
+		}
+		else_if = {
+			limit = { has_tech = defense_in_depth }
+			set_sub_doctrine = endsieg_ww1_strongpoints
+		}
+		else_if = {
+			limit = { tag = ITA }
+			set_sub_doctrine = endsieg_ww1_assault
+		}
+		else = { set_sub_doctrine = endsieg_ww1_strongpoints }
+
+		if = {
+			limit = { has_tech = forward_control }
+			set_sub_doctrine = endsieg_ww1_forward_control
+		}
+		else_if = {
+			limit = { has_tech = central_control }
+			set_sub_doctrine = endsieg_ww1_central_control
+		}
+		else_if = {
+			limit = { OR = { tag = GER tag = ENG } }
+			set_sub_doctrine = endsieg_ww1_forward_control
+		}
+		else = { set_sub_doctrine = endsieg_ww1_central_control }
+
+		# A reward takes 100 mastery. Leave room to earn the last rewards in combat.
+		if = {
+			limit = { endsieg_ww1_bookmark_long_service = yes }
+			add_mastery = { amount = 300 track = endsieg_ww1_command }
+			add_mastery = { amount = 275 track = endsieg_ww1_infantry }
+			add_mastery = { amount = 225 track = endsieg_ww1_coordination }
+		}
+		else = {
+			add_mastery = { amount = 150 track = endsieg_ww1_command }
+			add_mastery = { amount = 125 track = endsieg_ww1_infantry }
+			add_mastery = { amount = 100 track = endsieg_ww1_coordination }
+		}
+	}
+}
